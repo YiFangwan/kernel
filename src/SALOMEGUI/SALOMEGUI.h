@@ -61,6 +61,7 @@ public:
   virtual bool OnMousePress      (QMouseEvent* pe, QAD_Desktop* parent, QAD_StudyFrame* studyFrame);
   virtual bool OnMouseMove       (QMouseEvent* pe, QAD_Desktop* parent, QAD_StudyFrame* studyFrame);
   virtual bool SetSettings       ( QAD_Desktop* parent );
+  virtual bool SetSettings       ( QAD_Desktop* parent, char* compName );
   virtual bool CustomPopup       ( QAD_Desktop* parent, QPopupMenu* popup, const QString & theContext,
                                    const QString & theParent, const QString & theObject );
   virtual void DefinePopup       ( QString & theContext, QString & theParent, QString & theObject );

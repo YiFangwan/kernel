@@ -63,6 +63,7 @@
 #include <OSD_SharedLibrary.hxx>
 
 class QAD_XmlHandler;
+class SALOMEGUI;
 
 class QAD_EXPORT QAD_Desktop : public QMainWindow
 {
@@ -163,8 +164,9 @@ public:
 
     QAD_Menus*		  getActiveMenus()      {return myActiveMenus;}
     QAD_OperatorMenus*	  getOperatorMenus()    {return myOperatorMenus;}
-    const OSD_SharedLibrary&  getHandle() const {return mySharedLibrary;}// never return sych objects "by value"
     const QString&	  getActiveComponent() const;
+    SALOMEGUI*            getActiveGUI();
+    SALOMEGUI*            getComponentGUI( const QString& );  // accepts component`s user name
     SALOME_NamingService* getNameService()      {return myNameService;}
 
     Engines::Component_var getEngine(const char *containerName,
@@ -318,11 +320,13 @@ protected:
     QMap<QString,QString> mapComponentName;
 
 private:
+    typedef QMap<QString, SALOMEGUI*> ComponentMap;
+
+private:
     static QAD_ResourceMgr*		    resourceMgr;
     static QPalette*			    palette;
     void				    createActions();
     void				    updateActions();
-    OSD_SharedLibrary			    mySharedLibrary;
     QAD_XmlHandler*			    myXmlHandler;
     QString				    myActiveComp;
     SALOME_NamingService*		    myNameService;
@@ -331,6 +335,8 @@ private:
     QComboBox *				    myCombo;
     bool                                    myQueryClose;
     bool                                    _islibso;
+
+    ComponentMap                            myComponents;
 };
 
 /********************************************************************

@@ -55,6 +55,7 @@
 //NRI #include "QAD_HelpWindow.h"
 #include "QAD_DirListDlg.h"
 #include "QAD_WaitCursor.h"
+#include "SALOMEGUI.h"
 #include "SALOMEGUI_OpenWith.h"
 #include "SALOMEGUI_StudyPropertiesDlg.h"
 #include "SALOMEGUI_TrihedronSizeDlg.h"
@@ -2533,28 +2534,20 @@ void QAD_Desktop::onOpenWith()
   QApplication::restoreOverrideCursor();
 }
 
-typedef bool OneDim1(QAD_Desktop*);
-typedef bool OneDim2(QAD_Desktop*, char*);
 
 /*!
   Called to define settings of component.
 */
 void QAD_Desktop::setSettings()
 {
-  if (!myActiveComp.isEmpty())	{
-    OSD_Function osdF = mySharedLibrary.DlSymb("SetSettings");
-    if ( osdF != NULL )
-      if (_islibso)
-	{
-	  OneDim1 (*f1) = (bool (*) (QAD_Desktop*)) osdF;
-	  (*f1)(this);
-	}
-      else
-	{
-	  QString Component =mapComponentName[myActiveComp];
-	  OneDim2 (*f1) = (bool (*) (QAD_Desktop*, char*)) osdF;
-	  (*f1)(this, (char*)Component.latin1());
-	}
+  SALOMEGUI* anActiveGUI = getActiveGUI();
+  if ( anActiveGUI ) {
+    if (_islibso)
+      anActiveGUI->SetSettings( this );
+    else {
+      QString Component = mapComponentName[myActiveComp];
+      anActiveGUI->SetSettings( this, (char*)Component.latin1() );
+    }
   }
 }
 
@@ -2634,95 +2627,19 @@ bool QAD_Desktop::loadComponent(QString Component)
   int nbToolbars = 0;
   if (myActiveMenus)
     nbToolbars = myActiveMenus->getToolBarList().count();
-  /* Open Shared Library */
-  mySharedLibrary = OSD_SharedLibrary();
-  _islibso = false;
 
-  QString ComponentLib;
-  QCString libs;
-  QFileInfo fileInfo ;
-  QString fileString ;
-  QString dir;
-
-  if ( libs = getenv("LD_LIBRARY_PATH")) {
-    //    MESSAGE ( " LD_LIBRARY_PATH : " << libs );
-    QStringList dirList = QStringList::split( SEPARATOR, libs, false ); // skip empty entries
-    for ( int i = dirList.count()-1; i >= 0; i-- ) {
-      dir = dirList[ i ];
-#ifdef WNT
-      fileString = QAD_Tools::addSlash( dir ) + "lib" + Component + "GUI.dll" ;
-#else
-      fileString = QAD_Tools::addSlash( dir ) + "lib" + Component + "GUI.so" ;
-#endif
-    
-      fileInfo.setFile(fileString) ;
-      if (fileInfo.exists()) {
-	//	MESSAGE ( " GUI library = " << fileString );
-	ComponentLib = fileInfo.fileName() ;
-	_islibso = true;
-	break;
-      }
-    }
-  }
-
-  if (!_islibso) // component GUI could be in PyQt, use generic library
-    {
-      MESSAGE("GUI library not found, trying generic library for PyQt GUI");
-      bool found = false;
-      if (dir = getenv("KERNEL_ROOT_DIR"))
-	{
-	  dir = QAD_Tools::addSlash(dir) ;
-	  dir = dir + "lib" ;
-	  dir = QAD_Tools::addSlash(dir) ;
-	  dir = dir + "salome" ;
-	  dir = QAD_Tools::addSlash(dir) ;
-#ifdef WNT
-	  dir = dir + "libSalomePyQtcmodule.dll" ;
-#else
-	  dir = dir + "libSalomePyQtcmodule.so" ;
-#endif
-	  MESSAGE ( " GUI library = " << dir );
-	  fileInfo.setFile(dir) ;
-	  if (fileInfo.exists())
-	    {
-	      ComponentLib = fileInfo.fileName() ;
-	      found = true;
-	    }
-	}
-      if ( !found )
-	{
-	  QMessageBox::critical( this,
-				 tr("ERR_ERROR"),
-				 tr("ERR_LIBGUI" ).arg(Component) );
-	  return false;
-	}
-    }
-
-  mySharedLibrary.SetName(TCollection_AsciiString((char*)ComponentLib.latin1()).ToCString());
-  ok = mySharedLibrary.DlOpen(OSD_RTLD_LAZY);
-  if (!ok) {
-    wc.stop();
-    QMessageBox::critical( this,
-			   tr("ERR_ERROR"),
-			   tr( mySharedLibrary.DlError() ) );
+  // san - avoid loading component GUI library multiple times
+  QString aUserName( getComponentUserName( Component ) );
+  
+  SALOMEGUI* anActiveGUI = getComponentGUI(aUserName);
+  if ( !anActiveGUI )
     return false;
-  }
 
   /* SETTINGS */
-  OSD_Function osdF = mySharedLibrary.DlSymb("SetSettings");
-  if ( osdF != NULL )
-    if (_islibso)
-      {
-	OneDim1 (*f1) = (bool (*) (QAD_Desktop*)) osdF;
-	(*f1)(this);
-      }
-    else
-      {
-	OneDim2 (*f1) = (bool (*) (QAD_Desktop*, char*)) osdF;
-	(*f1)(this, (char*)Component.latin1());
-      }
-
-  
+  if (_islibso)
+    anActiveGUI->SetSettings( this );
+  else
+    anActiveGUI->SetSettings( this, (char*)Component.latin1() );
 
   /* COMPONENT INTERFACE */
   SALOME_ModuleCatalog::Acomponent_ptr aComponent =
@@ -3000,14 +2917,9 @@ void QAD_Desktop::onDispatchTools(int id)
  */
 void QAD_Desktop::onDispatch(int id)
 {
-  if (!myActiveComp.isEmpty())	{
-    OSD_Function osdF = mySharedLibrary.DlSymb("OnGUIEvent");
-    OneDim (*f1) = NULL;
-    if ( osdF != NULL ) {
-      f1 = (bool (*) (int, QAD_Desktop*)) osdF;
-      (*f1)(id,this);
-    }
-  }
+  SALOMEGUI* anActiveGUI = getActiveGUI();
+  if ( anActiveGUI ) 
+    anActiveGUI->OnGUIEvent(id,this);
 }
 
 /*!
@@ -3190,13 +3102,9 @@ typedef bool TwoDim1(QKeyEvent* pe, QAD_Desktop*, QAD_StudyFrame*);
 void QAD_Desktop::onKeyPress( QKeyEvent* pe )
 {
   //  MESSAGE ( "QAD_Desktop::onKeyPress" )
-  if (!myActiveComp.isEmpty())	{
-    OSD_Function osdF = mySharedLibrary.DlSymb("OnKeyPress");
-    if ( osdF != NULL ) {
-      TwoDim1 (*f1) = (bool (*) (QKeyEvent*, QAD_Desktop*, QAD_StudyFrame*)) osdF;
-      (*f1)(pe,this,myActiveStudy->getActiveStudyFrame());
-    }
-  }
+  SALOMEGUI* anActiveGUI = getActiveGUI();
+  if ( anActiveGUI ) 
+    anActiveGUI->OnKeyPress(pe,this,myActiveStudy->getActiveStudyFrame());
 }
 
 typedef bool TwoDim(QMouseEvent* pe, QAD_Desktop*, QAD_StudyFrame*);
@@ -3206,13 +3114,9 @@ typedef bool TwoDim(QMouseEvent* pe, QAD_Desktop*, QAD_StudyFrame*);
 bool QAD_Desktop::onMousePress( QMouseEvent* pe )
 {
   //  MESSAGE ( "QAD_Desktop::onMousePress" )
-  if (!myActiveComp.isEmpty())	{
-    OSD_Function osdF = mySharedLibrary.DlSymb("OnMousePress");
-    if ( osdF != NULL ) {
-      TwoDim (*f1) = (bool (*) (QMouseEvent*, QAD_Desktop*, QAD_StudyFrame*)) osdF;
-      return (*f1)(pe,this,myActiveStudy->getActiveStudyFrame());
-    }
-  }
+  SALOMEGUI* anActiveGUI = getActiveGUI();
+  if ( anActiveGUI ) 
+    return anActiveGUI->OnMousePress(pe,this,myActiveStudy->getActiveStudyFrame());
   return false;
 }
 
@@ -3221,13 +3125,9 @@ bool QAD_Desktop::onMousePress( QMouseEvent* pe )
  */
 void QAD_Desktop::onMouseMove( QMouseEvent* pe )
 {
-  if (!myActiveComp.isEmpty())	{
-    OSD_Function osdF = mySharedLibrary.DlSymb("OnMouseMove");
-    if ( osdF != NULL ) {
-      TwoDim (*f1) = (bool (*) (QMouseEvent*, QAD_Desktop*, QAD_StudyFrame*)) osdF;
-      (*f1)(pe,this,myActiveStudy->getActiveStudyFrame());
-    }
-  }
+  SALOMEGUI* anActiveGUI = getActiveGUI();
+  if ( anActiveGUI ) 
+    anActiveGUI->OnMouseMove(pe,this,myActiveStudy->getActiveStudyFrame());
 }
 
 /*!
@@ -3238,20 +3138,129 @@ const QString& QAD_Desktop::getActiveComponent() const
   return myActiveComp;
 }
 
+SALOMEGUI* QAD_Desktop::getActiveGUI()
+{
+  SALOMEGUI* anActiveGUI = 0;
+  if ( myComponents.find( myActiveComp ) != myComponents.end() )
+    anActiveGUI = myComponents[myActiveComp];
+  return anActiveGUI;
+}
 
-typedef bool defineP( QString & theContext, QString & theParent, QString & theObject);
+typedef SALOMEGUI* (*ComponentGUI)();
+
+SALOMEGUI* QAD_Desktop::getComponentGUI( const QString& component )
+{
+  SALOMEGUI* aCompGUI = 0;
+  
+  // Load component GUI if requested for the first time
+  if ( myComponents.find( component ) == myComponents.end() ) {
+    OSD_SharedLibrary aSharedLibrary;
+    QString ComponentLib;
+    QCString libs;
+    QFileInfo fileInfo ;
+    QString fileString ;
+    QString dir;
+
+    QAD_WaitCursor wc;
+    
+    if ( libs = getenv("LD_LIBRARY_PATH")) {
+      //    MESSAGE ( " LD_LIBRARY_PATH : " << libs );
+      QStringList dirList = QStringList::split( SEPARATOR, libs, false ); // skip empty entries
+      for ( int i = dirList.count()-1; i >= 0; i-- ) {
+	dir = dirList[ i ];
+#ifdef WNT
+	fileString = QAD_Tools::addSlash( dir ) + "lib" + getComponentName( component ) + "GUI.dll" ;
+#else
+	fileString = QAD_Tools::addSlash( dir ) + "lib" + getComponentName( component ) + "GUI.so" ;
+#endif
+    
+	fileInfo.setFile(fileString) ;
+	if (fileInfo.exists()) {
+	  //	MESSAGE ( " GUI library = " << fileString );
+	  ComponentLib = fileInfo.fileName() ;
+	  _islibso = true;
+	  break;
+	}
+      }
+    }
+
+    if (!_islibso) // component GUI could be in PyQt, use generic library
+    {
+      MESSAGE("GUI library not found, trying generic library for PyQt GUI");
+      bool found = false;
+      if (dir = getenv("KERNEL_ROOT_DIR"))
+      {
+	dir = QAD_Tools::addSlash(dir) ;
+	dir = dir + "lib" ;
+	dir = QAD_Tools::addSlash(dir) ;
+	dir = dir + "salome" ;
+	dir = QAD_Tools::addSlash(dir) ;
+#ifdef WNT
+	dir = dir + "libSalomePyQtcmodule.dll" ;
+#else
+	dir = dir + "libSalomePyQtcmodule.so" ;
+#endif
+	MESSAGE ( " GUI library = " << dir );
+	fileInfo.setFile(dir) ;
+	if (fileInfo.exists())
+	{
+	  ComponentLib = fileInfo.fileName() ;
+	  found = true;
+	}
+      }
+      if ( !found )
+      {
+	QMessageBox::critical( this,
+			      tr("ERR_ERROR"),
+			      tr("ERR_LIBGUI" ).arg(component) );
+	return aCompGUI;
+      }
+    }
+
+    aSharedLibrary.SetName(TCollection_AsciiString((char*)ComponentLib.latin1()).ToCString());
+    bool ok = aSharedLibrary.DlOpen(OSD_RTLD_LAZY);
+    if (!ok) {
+      wc.stop();
+      QMessageBox::critical( this,
+			    tr("ERR_ERROR"),
+			    tr( aSharedLibrary.DlError() ) );
+      return aCompGUI;
+    }
+
+    OSD_Function osdF = aSharedLibrary.DlSymb("GetComponentGUI");
+    if ( osdF != NULL ) {
+      ComponentGUI f1 = (SALOMEGUI* (*) ()) osdF;
+      SALOMEGUI* aCompGUI = (*f1)();
+      if ( aCompGUI )
+	myComponents.insert( component, aCompGUI );
+      else {
+	wc.stop();
+	QMessageBox::critical( this,
+			      tr("ERR_ERROR"),
+			      tr("ERR_LIBGUI" ).arg(component) );
+	return aCompGUI;
+      }
+    }
+    else {
+      wc.stop();
+      QMessageBox::critical( this,
+			    tr("ERR_ERROR"),
+			    tr("ERR_LIBGUI" ).arg(component) );
+      return aCompGUI;
+    }
+  }
+  aCompGUI = myComponents[component];
+  return aCompGUI;
+}
+
 
 void QAD_Desktop::definePopup(QString & theContext,
 			      QString & theParent, 
 			      QString & theObject ) 
 {
-  if (!myActiveComp.isEmpty())	{
-    OSD_Function osdF = mySharedLibrary.DlSymb("definePopup");
-    if ( osdF != NULL ) {
-      defineP (*f1) = (bool (*) (QString &, QString &, QString &)) osdF;
-      (*f1)(theContext, theParent, theObject);
-    }
-  }
+  SALOMEGUI* anActiveGUI = getActiveGUI();
+  if ( anActiveGUI ) 
+    anActiveGUI->DefinePopup(theContext, theParent, theObject);
 }
 
 /*!
@@ -3345,35 +3354,22 @@ void QAD_Desktop::createPopup(QPopupMenu* popup, const QString & theContext,
  
 }
 
-typedef bool activeStudyChanged(QAD_Desktop*);
-
 void QAD_Desktop::onActiveStudyChanged()
 {
-  if (!myActiveComp.isEmpty())	{
-    OSD_Function osdF = mySharedLibrary.DlSymb("activeStudyChanged");
-    if ( osdF != NULL ) {
-      activeStudyChanged (*f1) = (bool (*) (QAD_Desktop*)) osdF;
-      (*f1)(this);
-    }  
-  }
+  SALOMEGUI* anActiveGUI = getActiveGUI();
+  if ( anActiveGUI ) 
+    anActiveGUI->ActiveStudyChanged(this);
 }
 
-typedef bool customP(QAD_Desktop*, QPopupMenu*, const QString & theContext,
-		     const QString & theParent, const QString & theObject);
 /*!
   Custom popup ( GUI Library )
 */
 void QAD_Desktop::customPopup(QPopupMenu* popup, const QString & theContext,
 			      const QString & theParent, const QString & theObject)
 {
-  if (!myActiveComp.isEmpty())	{
-    OSD_Function osdF = mySharedLibrary.DlSymb("customPopup");
-    if ( osdF != NULL ) {
-      customP (*f1) = (bool (*) (QAD_Desktop*, QPopupMenu*, const QString &,
-				 const QString &, const QString &)) osdF;
-      (*f1)(this, popup, theContext, theParent, theObject);
-    }
-  }
+  SALOMEGUI* anActiveGUI = getActiveGUI();
+  if ( anActiveGUI ) 
+    anActiveGUI->CustomPopup(this, popup, theContext, theParent, theObject);
 }
 
 void QAD_Desktop::onObjectBrowser()

@@ -123,6 +123,16 @@ bool SALOMEGUI::SetSettings( QAD_Desktop* parent )
  *
  */
 //=============================================================================
+bool SALOMEGUI::SetSettings( QAD_Desktop* parent, char* compName )
+{
+  return true;
+}
+
+//=============================================================================
+/*!
+ *
+ */
+//=============================================================================
 bool SALOMEGUI::CustomPopup( QAD_Desktop* parent, QPopupMenu* popup, const QString & theContext,
                                    const QString & theParent, const QString & theObject )
 {
