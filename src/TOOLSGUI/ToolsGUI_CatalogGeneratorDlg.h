@@ -46,6 +46,7 @@ public:
     ToolsGUI_CatalogGeneratorDlg( QWidget* parent = 0, const char* name = 0 );
     ~ToolsGUI_CatalogGeneratorDlg();
 
+    QString getIdlPath();
     QString getIdlFile();
     QString getXmlFile();
     QString getPngFile();

@@ -34,6 +34,7 @@ using namespace std;
 #include "QAD_Desktop.h"
 #include "QAD_FileDlg.h"
 #include "QAD_MessageBox.h"
+#include "QAD_Tools.h"
 #include <stdlib.h>
 #include <qlabel.h>
 #include <qlineedit.h>
@@ -287,6 +288,36 @@ QString ToolsGUI_CatalogGeneratorDlg::getCompType()
 }
 
 //=================================================================================
+// function : getIdlPath()
+// purpose  : gets IDL path of modules
+//=================================================================================
+QString ToolsGUI_CatalogGeneratorDlg::getIdlPath()
+{
+  SALOME_ModuleCatalog::ModuleCatalog_var aCatalog = 
+    SALOME_ModuleCatalog::ModuleCatalog::_narrow( QAD_Application::getDesktop()->getCatalogue());
+
+  SALOME_ModuleCatalog::ListOfIAPP_Affich_var list_composants =
+    aCatalog->GetComponentIconeList();
+
+  QString IDLpath = "";
+
+  for (unsigned int ind = 0; ind < list_composants->length();ind++) {
+    QString modulename = strdup(list_composants[ind].modulename) ;
+    
+    QCString dir;
+    if (dir = getenv( modulename + "_ROOT_DIR")) {
+      IDLpath = IDLpath + "-I" + QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + 
+						      QAD_Tools::addSlash("idl") + 
+						      QAD_Tools::addSlash("salome")) + " ";
+    }
+  }
+
+  //  MESSAGE ( " IDLpath = " << IDLpath);
+
+  return IDLpath;
+}
+
+//=================================================================================
 // function : onBrowseBtnClicked()
 // purpose  : <...> (Browse) buttons slot
 //=================================================================================
@@ -344,6 +375,7 @@ void ToolsGUI_CatalogGeneratorDlg::updateButtonState()
 //=================================================================================
 void ToolsGUI_CatalogGeneratorDlg::onApply()
 {
+  QString IDLpath = getIdlPath();
   QString XmlFile = getXmlFile();
   QString IdlFile = getIdlFile();
   QString Author  = getAuthor();
@@ -364,13 +396,14 @@ void ToolsGUI_CatalogGeneratorDlg::onApply()
     else {
       QString command = "";
       if ( getenv("KERNEL_ROOT_DIR")  )
-	command = QString( getenv( "KERNEL_ROOT_DIR" ) ) + "/bin/salome/runIDLparser -Wbcatalog=" + XmlFile;
+	command = QString( getenv( "KERNEL_ROOT_DIR" ) ) + "/bin/salome/runIDLparser " + IDLpath + " -Wbcatalog=" + XmlFile;
       else {
 	QAD_MessageBox::error1( this, 
 				tr("TOOLS_ERR_ERROR"), 
 				tr("KERNEL_ROOT_DIR variable is not defined"), 
 				tr("TOOLS_BUT_OK") );
       }
+
       if (!Author.isEmpty()) command += ",author=" + Author; 
       if (!Version.isEmpty()) command += ",version=" + Version;
       if (!PngFile.isEmpty()) {
