@@ -32,6 +32,7 @@ using namespace std;
 #include "OpUtil.hxx"
 #include <stdio.h>
 #include <dlfcn.h>
+#include <cstdlib>
 #include "utilities.h"
 
 extern bool _Sleeping ;
@@ -180,6 +181,22 @@ void Engines_Component_i::beginService(const char *serviceName)
 //  MESSAGE(pthread_self() << " Return from BeginService for " << serviceName
 //          << " ThreadId " << _ThreadId << " StartUsed " << _StartUsed
 //          << " _graphName " << _graphName << " _nodeName " << _nodeName );
+
+  // --- for supervisor : all strings given with setProperties
+  //     are set in environment
+  bool overwrite = true;
+  map<std::string,CORBA::Any>::iterator it;
+  for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
+    {
+      std::string cle((*it).first);
+      if ((*it).second.type()->kind() == CORBA::tk_string)
+	{
+	  const char* value;
+	  (*it).second >>= value;
+	  int ret = setenv(cle.c_str(), value, overwrite);
+	  MESSAGE("--- setenv: "<<cle<<" = "<< value);
+	}
+    }
 }
 
 void Engines_Component_i::endService(const char *serviceName)
