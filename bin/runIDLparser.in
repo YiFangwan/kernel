@@ -41,5 +41,5 @@ PYTHONPATH=${PYTHONPATH}:${SALOME_HOME_DIR}/bin
 #============================================================
 
 # omiidl ====================================================
-omniidl -bIDLparser -I ${SALOME_SRC_DIR}/idl $@
+omniidl -k -bIDLparser -I ${SALOME_SRC_DIR}/idl $@
 #============================================================
