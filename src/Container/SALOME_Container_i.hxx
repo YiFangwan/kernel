@@ -56,10 +56,8 @@ public:
 		      bool activ = true);
   virtual ~Engines_Container_i();
 
-  void destroy() ;
-
   // Launch a new container from the current container
-  Engines::Container_ptr start_impl( const char* ContainerName , const Engines::ContainerType );
+  Engines::Container_ptr start_impl( const char* ContainerName );
 
   // Load component in current container
   Engines::Component_ptr load_impl( const char* nameToRegister ,
@@ -72,7 +70,6 @@ public:
   char* name();
   char* machineName();
   void ping();
-  Engines::ContainerType type();
 
   // Kill current container
   bool Kill_impl() ;
@@ -99,8 +96,6 @@ protected:
   long _pid;
 
 };
-
-std::ostream & operator<< (std::ostream &,const Engines::ContainerType &);
 
 #endif
 

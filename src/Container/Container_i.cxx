@@ -140,16 +140,6 @@ Engines_Container_i::~Engines_Container_i()
   MESSAGE("Container_i::~Container_i()");
 }
 
-void Engines_Container_i::destroy() {
-  MESSAGE( "Container_i::destroy : " << _containerName.c_str() ) ;
-  _NS->Destroy_Name( _containerName.c_str() ) ;
-  _poa->deactivate_object( *_id ) ;
-  CORBA::release( _poa ) ;
-  delete( _id ) ;
-  this->_remove_ref();
-  MESSAGE( "Container_i::destroyed" ) ;
-}
-
 char* Engines_Container_i::name()
 {
    return CORBA::string_dup(_containerName.c_str()) ;
@@ -167,12 +157,6 @@ void Engines_Container_i::ping()
   MESSAGE("Engines_Container_i::ping() pid "<< getpid());
 }
 
-Engines::ContainerType Engines_Container_i::type()
-{
-  MESSAGE( "Engines_Container_i::type() "<< Engines::CppContainer );
-  return Engines::CppContainer ;
-}
-
   // Kill current container
 bool Engines_Container_i::Kill_impl() {
   MESSAGE("Engines_Container_i::Kill() pid "<< getpid() << " containerName "
@@ -183,8 +167,7 @@ bool Engines_Container_i::Kill_impl() {
 }
 
 // Launch a new container from the current container
-Engines::Container_ptr Engines_Container_i::start_impl( const char* ContainerName ,
-                                                        const Engines::ContainerType aContainerType ) {
+Engines::Container_ptr Engines_Container_i::start_impl( const char* ContainerName ) {
   MESSAGE("start_impl argc " << _argc << " ContainerName " << ContainerName
           << hex << this << dec) ;
   _numInstanceMutex.lock() ; // lock on the instance number
