@@ -306,7 +306,26 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
 	  }
 	  outputCD->CopyData(cd,cellId,newCellId);
           break;
-
+	  
+	case VTK_CONVEX_POINT_SET:{
+	  vtkCell* aCell = input->GetCell(cellId);
+	  int aNbFaces = aCell->GetNumberOfFaces();
+	  for (faceId=0; faceId < aNbFaces; faceId++){
+	    vtkCell *aFace = aCell->GetFace(faceId);
+	    numFacePts = aFace->GetNumberOfPoints();
+	    aCellType = aFace->GetCellType();
+	    for ( i=0; i < numFacePts; i++)
+	      {
+		aNewPts[i] = aFace->GetPointId(i);
+	      }
+	    newCellId = output->InsertNextCell(aCellType,numFacePts,aNewPts);
+	    if(myStoreMapping){
+	      myVTK2ObjIds.push_back(cellId);
+	    }
+	    outputCD->CopyData(cd,cellId,newCellId);
+	  }
+	  break;
+	}
         case VTK_TETRA: {
           for (faceId = 0; faceId < 4; faceId++)
             {
