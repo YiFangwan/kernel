@@ -1,28 +1,5 @@
-#  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
-#
-#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-# 
-#  This library is free software; you can redistribute it and/or 
-#  modify it under the terms of the GNU Lesser General Public 
-#  License as published by the Free Software Foundation; either 
-#  version 2.1 of the License. 
-# 
-#  This library is distributed in the hope that it will be useful, 
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-#  Lesser General Public License for more details. 
-# 
-#  You should have received a copy of the GNU Lesser General Public 
-#  License along with this library; if not, write to the Free Software 
-#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-# 
-#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
-#
-#
-#
 #  File   : Makefile.in
-#  Author : Marc Tajchman
+#  Author : Sergey RUIN
 #  Module : SALOME
 
 top_srcdir=@top_srcdir@
@@ -31,13 +8,46 @@ srcdir=@srcdir@
 VPATH=.:@srcdir@:@top_srcdir@/idl:$(top_srcdir)/idl
 
 
-@COMMENCE@
+@COMMENCE@ 
 
-EXPORT_HEADERS= SALOMEDSClient_SObject.hxx \
-		SALOMEDSClient_SComponent.hxx \
-		SALOMEDSClient_GenericAttribute.hxx
-
+EXPORT_HEADERS= SALOMEDSClient_AttributeComment.hxx \
+	        SALOMEDSClient_AttributeDrawable.hxx \
+                SALOMEDSClient_AttributeExpandable.hxx \
+                SALOMEDSClient_AttributeExternalFileDef.hxx \
+                SALOMEDSClient_AttributeFileType.hxx \
+                SALOMEDSClient_AttributeFlags.hxx \
+                SALOMEDSClient_AttributeGraphic.hxx \
+                SALOMEDSClient_AttributeIOR.hxx \
+                SALOMEDSClient_AttributeInteger.hxx \
+                SALOMEDSClient_AttributeLocalID.hxx \
+                SALOMEDSClient_AttributeName.hxx \
+                SALOMEDSClient_AttributeOpened.hxx \
+                SALOMEDSClient_AttributePersistentRef.hxx \
+                SALOMEDSClient_AttributePixMap.hxx \
+                SALOMEDSClient_AttributePythonObject.hxx \
+                SALOMEDSClient_AttributeReal.hxx \
+                SALOMEDSClient_AttributeSelectable.hxx \
+                SALOMEDSClient_AttributeSequenceOfInteger.hxx \
+                SALOMEDSClient_AttributeSequenceOfReal.hxx \
+                SALOMEDSClient_AttributeStudyProperties.hxx \
+                SALOMEDSClient_AttributeTableOfInteger.hxx \
+                SALOMEDSClient_AttributeTableOfReal.hxx \
+                SALOMEDSClient_AttributeTableOfString.hxx \
+                SALOMEDSClient_AttributeTarget.hxx \
+                SALOMEDSClient_AttributeTextColor.hxx \
+                SALOMEDSClient_AttributeTextHighlightColor.hxx \
+                SALOMEDSClient_AttributeTreeNode.hxx \
+                SALOMEDSClient_AttributeUserID.hxx \
+                SALOMEDSClient_ChildIterator.hxx \
+                SALOMEDSClient_GenericAttribute.hxx \
+                SALOMEDSClient_SComponent.hxx \
+                SALOMEDSClient_SComponentIterator.hxx \
+                SALOMEDSClient_SObject.hxx \
+                SALOMEDSClient_Study.hxx \
+                SALOMEDSClient_StudyBuilder.hxx \
+                SALOMEDSClient_StudyManager.hxx \
+                SALOMEDSClient_UseCaseBuilder.hxx \
+                SALOMEDSClient_UseCaseIterator.hxx
 
 @CONCLUDE@
-
 
