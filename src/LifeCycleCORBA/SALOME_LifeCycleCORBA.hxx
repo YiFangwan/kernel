@@ -36,8 +36,6 @@
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 
-#include CORBA_CLIENT_HEADER( ContainersManager )
-
 class SALOME_NamingService;
 
 class SALOME_LifeCycleCORBA
@@ -47,39 +45,24 @@ public:
   SALOME_LifeCycleCORBA(SALOME_NamingService *ns);
   virtual ~SALOME_LifeCycleCORBA();
 
-  Containers::MachineParameters_var Parameters() ;
-
-  Engines::Container_var FindContainer( const char *containerName ) ;
-  Engines::Container_var FindContainer( Containers::MachineParameters & MyParams ) ;
-  Engines::ListOfContainers_var FindContainers( Containers::MachineParameters & MyParams ) ;
-  Engines::Component_var FindComponent( Containers::MachineParameters & MyParams ,
-                                        const char * ComponentName ) ;
-  Engines::ListOfComponents_var FindComponents( Containers::MachineParameters & MyParams ,
-                                                const char * ComponentName ) ;
-  Engines::Component_var FindOrLoad_Component( const char *containerName ,
-					       const char *componentName ,
-					       const char *implementationPath ) ;
-  Engines::Component_var FindOrLoad_Component( Containers::MachineParameters & MyParams ,
-					       const char *componentName ,
-					       const char *implementationPath ) ;
-  Engines::Component_var FindOrLoad_Component( const char *containerName ,
-					       const char *componentName ) ;
-  Engines::Component_var FindOrLoad_Component( Containers::MachineParameters & MyParams ,
-					       const char *componentName ) ;
+  Engines::Container_var FindContainer(const char *containerName);
+  Engines::Component_var FindOrLoad_Component(const char *containerName,
+					      const char *componentName,
+					      const char *implementationPath);
+  Engines::Component_var FindOrLoad_Component(const char *containerName,
+					      const char *componentName);
 protected:
-  Containers::Manager_var _MyContainersMgr ;
-  SALOME_NamingService  * _NamingService ;
+  SALOME_NamingService *_NS;
   Engines::Container_var _FactoryServer ;
-//  std::string ComputerPath( const char * theComputer ) ;
+  std::string ComputerPath( const char * theComputer ) ;
+  std::string ContainerName( const char * aComputerContainer ,
+                        std::string * theComputer ,
+                        std::string * theContainer ) ;
 
 private:
-  std::string ContainerName( const char * aComputerContainer ,
-                             std::string * theComputer ,
-                             std::string * theContainer ) ;
-
-//  Engines::Container_var FindOrStartContainer(const std::string aComputerContainer ,
-//                                              const std::string theComputer ,
-//                                              const std::string theContainer ) ;
+  Engines::Container_var FindOrStartContainer(const std::string aComputerContainer ,
+                                              const std::string theComputer ,
+                                              const std::string theContainer ) ;
 
 } ;
 

@@ -34,7 +34,6 @@ import string
 from omniORB import CORBA
 import CosNaming
 import Engines
-import Containers
 
 
 #initialise the ORB
@@ -48,78 +47,28 @@ if rootContext is None:
     print "Name Service Reference is invalid"
     sys.exit(1)
 
-name = [CosNaming.NameComponent("Kernel","dir"),
-        CosNaming.NameComponent("ContainersManager","object")]
+#resolve the name /Containers.dir/FactoryServerPy.object
+myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
+machineName= myMachine[0]
+containerName = "FactoryServerPy"
+name = [CosNaming.NameComponent("Containers","dir"),
+        CosNaming.NameComponent(machineName,"dir"),
+        CosNaming.NameComponent(containerName,"object")]
 
 try:
-    obj = rootContext.resolve( name )
+    obj = rootContext.resolve(name)
 except CosNaming.NamingContext.NotFound, ex:
-    print "/Kernel/ContainersManager not found in Naming Service"
+    print  containerName , " not found in Naming Service"
     sys.exit(1)
 
-MyContainersMgr = obj._narrow(Containers.Manager)
-
-MyContainersMgr.ping()
-
-Params = MyContainersMgr.Parameters()
-
-Params.ContainerName = 'TestContainerPy'
-Params.ContainerType = Engines.PythonContainer
-
-#resolve the name /Containers.dir/FactoryServerPy.object
-#myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
-#machineName= myMachine[0]
-#containerName = "FactoryServerPy"
-#name = [CosNaming.NameComponent("Containers","dir"),
-        #CosNaming.NameComponent(machineName,"dir"),
-        #CosNaming.NameComponent(containerName,"object")]
-comp = MyContainersMgr.FindOrLoad_Component( Params , "SALOME_TestComponentPy" )
+container = obj._narrow(Engines.Container)
+print container._get_machineName()
+comp = container.load_impl("SALOME_TestComponentPy","SALOME_TestComponentPy")
+print comp._get_instanceName()
 comp.ping()
-
 comptest = comp._narrow(Engines.TestComponent)
 if comptest is None:
-    print "probleme narrow(Engines.TestComponent)"
-    sys.exit(1)
-
-print "comptest",comptest.Coucou(1)
-
-container = comptest.GetContainerRef()
-container.ping()
-print "container._get_name()",container._get_name()
-print "container._get_machineName()",container._get_machineName()
-
-comptest.destroy()
-print "Component SALOME_TestComponentPy destroyed"
-
-try :
-    container.destroy()
-except :
-    print ""
-
-print "Container TestContainerPy destroyed"
-
-
-from LifeCycleCORBA import *
-lcc = LifeCycleCORBA( orb )
-
-lcccomptest  = lcc.FindOrLoadComponent( 'TestContainerPy' , 'SALOME_TestComponentPy' )
-
-print "lcccomptest",lcccomptest.Coucou(1)
-
-lcccontainer = lcccomptest.GetContainerRef()
-lcccontainer.ping()
-print "lcccontainer._get_name()",lcccontainer._get_name()
-print "lcccontainer._get_machineName()",lcccontainer._get_machineName()
-
-lcccomptest.destroy()
-print "Component SALOME_TestComponentPy destroyed"
-
-try :
-    lcccontainer.destroy()
-except :
-    print ""
-
-print "Container TestContainerPy destroyed"
-
+    print "probleme cast"
+print comptest.Coucou(1)
 
 

@@ -39,13 +39,13 @@ EXPORT_PYSCRIPTS = SALOME_TestComponentPy.py TestComponentPy.py
 
 LIB = libSalomeTestComponentEngine.la 
 LIB_SRC = SALOME_TestComponent_i.cxx
-LIB_CLIENT_IDL = ContainersManager.idl SALOME_Component.idl SALOME_TestComponent.idl
+LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl
 
 # Executables targets
 BIN = TestContainer TestLogger
 BIN_SRC = 
 
-LDFLAGS+= -lSalomeNotification -lSalomeNS -lSalomeContainer -lRegistry -lOpUtil -lSALOMELocalTrace
+LDFLAGS+= -lSalomeNotification -lSalomeNS -lSalomeContainer -lRegistry -lOpUtil -lSalomeLoggerServer
 
 
 @CONCLUDE@

@@ -26,21 +26,16 @@
 //  Module : SALOME
 //  $Header$
 
+using namespace std;
 #include "utilities.h"
 #include <iostream>
 #include <unistd.h>
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
-#include CORBA_CLIENT_HEADER(ContainersManager)
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
 
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
-#include "Utils_SALOME_Exception.hxx"
-#include "Utils_CommException.hxx"
-using namespace std;
 
 int main (int argc, char * argv[])
 {
@@ -56,131 +51,25 @@ int main (int argc, char * argv[])
       //Engines::Container_var iGenFact = Engines::Container::_narrow(obj);
 
       // Obtain a reference to the root POA
-      //
-      long TIMESleep = 250000000;
-      int NumberOfTries = 40;
-      int a;
-      timespec ts_req;
-      ts_req.tv_nsec=TIMESleep;
-      ts_req.tv_sec=0;
-      timespec ts_rem;
-      ts_rem.tv_nsec=0;
-      ts_rem.tv_sec=0;
-      CosNaming::NamingContext_var inc;
-      PortableServer::POA_var poa;
-      CORBA::Object_var theObj;
-      CORBA::Object_var obj;
-      CORBA::Object_var object;
-      SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
-      int TEST_CONTAINER=0;
-      const char * Env = getenv("USE_LOGGER"); 
-      int EnvL =0;
-      if ((Env!=NULL) && (strlen(Env)))
-	EnvL=1;
-      CosNaming::Name name;
-      name.length(1);
-      name[0].id=CORBA::string_dup("Logger");    
-      PortableServer::POAManager_var manager; 
-      for (int i = 1; i<=NumberOfTries; i++)
-	{
-	  if (i!=1) 
-	    a=nanosleep(&ts_req,&ts_rem);
-	  try
-	    { 
-	      obj = orb->resolve_initial_references("RootPOA");
-	      if(!CORBA::is_nil(obj))
-		poa = PortableServer::POA::_narrow(obj);
-	      if(!CORBA::is_nil(poa))
-		manager = poa->the_POAManager();
-	      if(!CORBA::is_nil(orb)) 
-		theObj = orb->resolve_initial_references("NameService");
-	      if (!CORBA::is_nil(theObj))
-		inc = CosNaming::NamingContext::_narrow(theObj);
-	    }
-	  catch( CORBA::COMM_FAILURE& )
-	    {
-	      MESSAGE( "Test Container: CORBA::COMM_FAILURE: Unable to contact the Naming Service" )
-		}
-	  if(!CORBA::is_nil(inc))
-	    {
-	      MESSAGE( "Test Container: Naming Service was found" )
-		if(EnvL==1)
-		  {
-		    for(int j=1; j<=NumberOfTries; j++)
-		      {
-			if (j!=1) 
-			  a=nanosleep(&ts_req, &ts_rem);
-			try
-			  {
-			    object = inc->resolve(name);
-			  }
-			catch(CosNaming::NamingContext::NotFound)
-			  {
-			    MESSAGE( "Test Container: Logger Server wasn't found" );
-			  }
-			catch(...)
-			  {
-			    MESSAGE( "Test Container: Unknown exception" );
-			  }
-			if (!CORBA::is_nil(object))
-			  {
-			    MESSAGE( "Test Container: Loger Server was found" );
-			    TEST_CONTAINER=1;
-			    break;
-			  }
-		      }
-		  }
-	    }
-	  if ((TEST_CONTAINER==1)||((EnvL==0)&&(!CORBA::is_nil(inc))))
-            break;
-	}
-
+      CORBA::Object_var obj = orb->resolve_initial_references("RootPOA") ;
+      PortableServer::POA_var poa = PortableServer::POA::_narrow(obj) ;
+    
       // Use Name Service to find container
       SALOME_NamingService _NS(orb) ;
       string containerName = "/Containers/" ;
       string hostName = GetHostname();
-      containerName += hostName + "/TestContainerCpp";
+      containerName += hostName + "/FactoryServer";
 
-      Engines::Container_var iGenFact = Engines::Container::_nil() ;
-      MESSAGE( "TestContainer : " << containerName.c_str() ) ;
       obj = _NS.Resolve(containerName.c_str()) ;
-      if ( !CORBA::is_nil( obj ) ) {
-        try {
-          iGenFact = Engines::Container::_narrow( obj ) ;
-          iGenFact->ping() ;
-	}
-	catch ( ... ) {
-          INFOS("TestContainerCpp unreachable") ;
-	}
-      }
-      if ( CORBA::is_nil( iGenFact ) ) {
-        obj = _NS.Resolve( "/Kernel/ContainersManager" ) ;
-        if ( !CORBA::is_nil( obj ) ) {
-          try {
-            Containers::Manager_var MyContainersMgr = Containers::Manager::_narrow( obj ) ;
-            MyContainersMgr->ping() ;
-            Containers::MachineParameters * Params = MyContainersMgr->Parameters() ;
-            Params->ContainerName = "TestContainerCpp" ;
-            iGenFact = MyContainersMgr->FindOrStartContainer( *Params ) ;
-	  }
-	  catch ( ... ) {
-            INFOS("ContainersManager unreachable") ;
-	  }
-	}
-      }
-
-//      obj = _NS.Resolve(containerName.c_str()) ;
-//      Engines::Container_var iGenFact = Engines::Container::_narrow(obj);
+      Engines::Container_var iGenFact = Engines::Container::_narrow(obj);
 
       Engines::TestComponent_var m1;
     
       for (int iter = 0; iter < 3 ; iter++)
 	{
 	  INFOS("----------------------------------------------------" << iter);   
-//          string dirn = getenv("KERNEL_ROOT_DIR");
-//          dirn += "/lib/salome/libSalomeTestComponentEngine.so";
-          iGenFact->ping() ;
-          string dirn = "libSalomeTestComponentEngine.so";
+          string dirn = getenv("SALOME_ROOT_DIR");
+          dirn += "/lib/salome/libSalomeTestComponentEngine.so";
           obj = iGenFact->load_impl("SalomeTestComponent",dirn.c_str());
 	  m1 = Engines::TestComponent::_narrow(obj);
 	  INFOS("recup m1");
@@ -192,11 +81,7 @@ int main (int argc, char * argv[])
 	}    
       // Clean-up.
       iGenFact->finalize_removal() ;
-      INFOS("finalize_removal done" );
-      iGenFact->destroy() ;
-      INFOS("Container destroyed" );
       orb->destroy();
-      INFOS("orb destroyed" );
     }
   catch(CORBA::COMM_FAILURE& ex) {
     INFOS("Caught system exception COMM_FAILURE -- unable to contact the object.")

@@ -40,10 +40,8 @@ using namespace std;
 int main (int argc, char * argv[])
 {
 
-  try {
-    int i = 0 ;
-    while ( argv[ i ] ) {
-      MESSAGE("           argv" << i << " " << argv[ i ]) ;
+  try
+    {
       // Initializing omniORB
       CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
     
@@ -51,26 +49,15 @@ int main (int argc, char * argv[])
       CORBA::Object_var obj = orb->resolve_initial_references("RootPOA") ;
       PortableServer::POA_var poa = PortableServer::POA::_narrow(obj) ;
     
-      MESSAGE( "SALOME_NamingService :" ) ;
       SALOME_NamingService _NS(orb) ;
 
-      MESSAGE( "SALOME_LifeCycleCORBA :" ) ;
       SALOME_LifeCycleCORBA _LCC(&_NS) ;
 
       // get a local container (with a name based on local hostname),
       // load an engine, and invoque methods on that engine
 
-      string containerName ;
-      if ( i == 0 ) {
-        containerName = GetHostname() ;
-      }
-      else {
-        containerName = argv[ i ] ;
-      }
-      containerName += "/" ;
-      containerName += "TestComponentCpp" ;
+      string containerName = GetHostname();
 
-      MESSAGE("FindOrLoad_Component( " << containerName << " , SalomeTestComponent )" ) ;
       Engines::Component_var mycompo =
 	_LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
 
@@ -87,17 +74,8 @@ int main (int argc, char * argv[])
       // get another container (with a fixed name),
       // load an engine, and invoque methods on that engine
 
-      string containerName2 ;
-      if ( i == 0 ) {
-        containerName2 = GetHostname() ;
-      }
-      else {
-        containerName2 = argv[ i ] ;
-      }
-      containerName2 += "/" ;
-      containerName2 += "TestComponentPy" ;
+      string containerName2 = "FactoryServerPy";
 
-      MESSAGE("FindOrLoad_Component( " << containerName2 << " , SALOME_TestComponentPy )" ) ;
       Engines::Component_var mycompo2 =
 	_LCC.FindOrLoad_Component(containerName2.c_str(),"SALOME_TestComponentPy");
 
@@ -110,9 +88,7 @@ int main (int argc, char * argv[])
 
       SCRUTE(m2->instanceName());
       MESSAGE("Coucou " << m2->Coucou(1L));
-      i++ ;
     }
-  }
   catch(CORBA::COMM_FAILURE& ex)
     {
       INFOS("Caught system exception COMM_FAILURE -- unable to contact the object.");
