@@ -30,11 +30,14 @@
 #include <TCollection_AsciiString.hxx>
 
 #include "SALOMEDS_AttributeComment_i.hxx"
+#include "SALOMEDS.hxx"
 
 using namespace std;
 
 char* SALOMEDS_AttributeComment_i::Value()
 {
+  SALOMEDS::Locker lock;
+
   TCollection_ExtendedString S = Handle(TDataStd_Comment)::DownCast(_myAttr)->Get();
   CORBA::String_var c_s = CORBA::string_dup(TCollection_AsciiString(S).ToCString());
   return c_s._retn();
@@ -42,15 +45,21 @@ char* SALOMEDS_AttributeComment_i::Value()
 
 void SALOMEDS_AttributeComment_i::SetValue(const char* value) 
 {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
   Handle(TDataStd_Comment)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
 }
 
 char* SALOMEDS_AttributeComment_i::Store() {
+  SALOMEDS::Locker lock;
+
   return Value();
 }
 
 void SALOMEDS_AttributeComment_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   SetValue(value);
 }

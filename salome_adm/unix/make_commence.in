@@ -81,6 +81,7 @@ QT_MT_LIBS = @QT_MT_LIBS@
 MOC = @MOC@
 UIC = @UIC@
 
+QT_VERS = @QT_VERS@
 
 #QWT
 
@@ -192,6 +193,7 @@ CXXFLAGS+= $(CORBA_CXXFLAGS)
 # add corba libs when link salome application ! 
 #LDFLAGS+= $(CORBA_LIBS)
 LIBS+=$(CORBA_LIBS)
+LIBSFORBIN+=$(CORBA_LIBS)
 
 DOXYGEN = @DOXYGEN@
 

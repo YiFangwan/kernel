@@ -27,25 +27,34 @@
 //  $Header$
 
 #include "SALOMEDS_AttributeInteger_i.hxx"
+#include "SALOMEDS.hxx"
 
 using namespace std;
 
 CORBA::Long SALOMEDS_AttributeInteger_i::Value() {
+  SALOMEDS::Locker lock;
+
   return Handle(TDataStd_Integer)::DownCast(_myAttr)->Get();
 }
 
 void SALOMEDS_AttributeInteger_i::SetValue(CORBA::Long value) {
+  SALOMEDS::Locker lock;
+
   CheckLocked();
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(value);
 }
 
 char* SALOMEDS_AttributeInteger_i::Store() {
+  SALOMEDS::Locker lock;
+
   char* IntVal = new char[25];
   sprintf(IntVal, "%d", Value());
   return IntVal;
 }
 
 void SALOMEDS_AttributeInteger_i::Restore(const char* value) {
+  SALOMEDS::Locker lock;
+
   char *err = NULL;
   CORBA::Long l =  atol(value);
   SetValue(l);
