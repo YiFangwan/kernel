@@ -9,7 +9,17 @@
 #ifndef MED_Structures_HeaderFile
 #define MED_Structures_HeaderFile
 
+#if defined __GNUC__
+  #if __GNUC__ == 2
+    #define __GNUC_2__
+  #endif
+#endif
+
+#if defined __GNUC_2__
+#include <vector>
+#else
 #include <valarray>
+#endif
 
 #include "MED_Common.hxx"
 
@@ -18,7 +28,11 @@ namespace MED{
   using namespace boost;
 
 //---------------------------------------------------------------
+#if defined __GNUC_2__
+  typedef vector<char> TString;
+#else
   typedef valarray<char> TString;
+#endif
 
   string GetString(med_int theId, med_int theStep, const TString& theString);
   void SetString(med_int theId, med_int theStep, TString& theString, 
