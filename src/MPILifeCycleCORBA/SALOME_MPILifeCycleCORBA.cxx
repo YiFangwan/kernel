@@ -27,11 +27,13 @@ using namespace std;
 SALOME_MPILifeCycleCORBA::SALOME_MPILifeCycleCORBA() : 
   SALOME_LifeCycleCORBA()
 {
+  _MPIFactoryServer = NULL;
 }
 
 SALOME_MPILifeCycleCORBA::SALOME_MPILifeCycleCORBA(SALOME_NamingService *ns) :
   SALOME_LifeCycleCORBA(ns)
 {
+  _MPIFactoryServer = NULL;
 }
 
 SALOME_MPILifeCycleCORBA::~SALOME_MPILifeCycleCORBA()
@@ -91,18 +93,15 @@ Engines::MPIContainer_var SALOME_MPILifeCycleCORBA::FindOrStartMPIContainer(
       }
       string path = ComputerPath( theComputer.c_str() ) ;
       SCRUTE( path ) ;
-      if ( strlen(path.c_str()) > 0 ) {
-	cout << "path de longueur: " << strlen(path.c_str()) << endl;
-        rsh += path ;
-        rsh += "/../bin/" ;
-      }
-      rsh += "runSession " ;
+      //      rsh += "runSession " ;
       if ( pyCont ) {
-        rsh += "SALOME_MPIContainerPy.py " ;
-        rsh += "MPIFactoryServerPy -" ;
+	MESSAGE("MPI python container not implemented");
+	return Engines::MPIContainer::_nil();
+//         rsh += "SALOME_MPIContainerPy.py " ;
+//         rsh += "MPIFactoryServerPy -" ;
       }
       else {
-	sprintf(nbp,"mpirun -np %d SALOME_MPIContainer ",nbproc);
+	sprintf(nbp,"mpirun -np %d %sSALOME_MPIContainer ",nbproc,path.c_str());
         rsh += nbp;
         rsh += theMPIContainer +" -" ;
       }
@@ -155,7 +154,9 @@ Engines::MPIContainer_var SALOME_MPILifeCycleCORBA::FindOrStartMPIContainer(
 	}
       }
     }
-    //On a trouve le container generique: on renvoie une poigne dessus
+    // On a trouve le container generique distant: on se sert de lui
+    // pour lancer un nouveau container MPI
+    // a revoir...
     if ( !CORBA::is_nil( aMPIFactoryServer ) ) {
       if ( strcmp( theMPIContainer.c_str() , "MPIFactoryServer" ) ||
            strcmp( theMPIContainer.c_str() , "MPIFactoryServerPy" ) ) {

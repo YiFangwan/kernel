@@ -149,6 +149,7 @@ void Engines_Container_i::ping()
   MESSAGE("Engines_Container_i::ping() pid "<< getpid());
 }
 
+  // Kill current container
 bool Engines_Container_i::Kill_impl() {
   MESSAGE("Engines_Container_i::Kill() pid "<< getpid() << " containerName "
           << _containerName.c_str() << " machineName "
@@ -156,6 +157,7 @@ bool Engines_Container_i::Kill_impl() {
   exit( 0 ) ;
 }
 
+// Launch a new container from the current container
 Engines::Container_ptr Engines_Container_i::start_impl(
                                       const char* ContainerName ) {
   MESSAGE("start_impl argc " << _argc << " ContainerName " << ContainerName
@@ -186,7 +188,7 @@ Engines::Container_ptr Engines_Container_i::start_impl(
   }
   if ( !nilvar ) {
     _numInstanceMutex.unlock() ;
-    MESSAGE("start_impl container found without runSession") ;
+    MESSAGE("start_impl container found without new launch") ;
     return Engines::Container::_narrow(obj);
   }
   int i = 0 ;
@@ -194,12 +196,8 @@ Engines::Container_ptr Engines_Container_i::start_impl(
     MESSAGE("           argv" << i << " " << _argv[ i ]) ;
     i++ ;
   }
-//  string shstr( "rsh -n " ) ;
-//  shstr += machineName() ;
-//  shstr += " " ;
-//  shstr += _argv[ 0 ] ;
-//  string shstr( _argv[ 0 ] ) ;
-  string shstr( "./runSession SALOME_Container " ) ;
+  string shstr = string(getenv("KERNEL_ROOT_DIR")) + "/bin/salome/SALOME_Container ";
+//   string shstr( "./runSession SALOME_Container " ) ;
   shstr += ContainerName ;
   if ( _argc == 4 ) {
     shstr += " " ;
@@ -213,38 +211,37 @@ Engines::Container_ptr Engines_Container_i::start_impl(
   MESSAGE("system(" << shstr << ")") ;
   int status = system( shstr.c_str() ) ;
   if (status == -1) {
-    INFOS("Engines_Container_i::start_impl runSession(SALOME_Container) failed (system command status -1)") ;
+    INFOS("Engines_Container_i::start_impl SALOME_Container failed (system command status -1)") ;
   }
   else if (status == 217) {
-    INFOS("Engines_Container_i::start_impl runSession(SALOME_Container) failed (system command status 217)") ;
+    INFOS("Engines_Container_i::start_impl SALOME_Container failed (system command status 217)") ;
   }
-  INFOS(machineName() << " Engines_Container_i::start_impl runSession(SALOME_Container) done");
-#if 0
-  pid_t pid = fork() ;
-  if ( pid == 0 ) {
-    string anExe( _argv[ 0 ] ) ;
-    anExe += "runSession" ;
-    char * args[ 6 ] ;
-    args[ 0 ] = "runSession" ;
-    args[ 1 ] = "SALOME_Container" ;
-    args[ 2 ] = strdup( ContainerName ) ;
-    args[ 3 ] = strdup( _argv[ 2 ] ) ;
-    args[ 4 ] = strdup( _argv[ 3 ] ) ;
-    args[ 5 ] = NULL ;
-    MESSAGE("execl(" << anExe.c_str() << " , " << args[ 0 ] << " , "
-                     << args[ 1 ] << " , " << args[ 2 ] << " , " << args[ 3 ]
-                     << " , " << args[ 4 ] << ")") ;
-    int status = execv( anExe.c_str() , args ) ;
-    if (status == -1) {
-      INFOS("Engines_Container_i::start_impl execl failed (system command status -1)") ;
-      perror( "Engines_Container_i::start_impl execl error ") ;
-    }
-    else {
-      INFOS(machineName() << " Engines_Container_i::start_impl execl done");
-    }
-    exit(0) ;
-  }
-#endif
+  INFOS(machineName() << " Engines_Container_i::start_impl SALOME_Container launch done");
+
+//   pid_t pid = fork() ;
+//   if ( pid == 0 ) {
+//     string anExe( _argv[ 0 ] ) ;
+//     anExe += "runSession" ;
+//     char * args[ 6 ] ;
+//     args[ 0 ] = "runSession" ;
+//     args[ 1 ] = "SALOME_Container" ;
+//     args[ 2 ] = strdup( ContainerName ) ;
+//     args[ 3 ] = strdup( _argv[ 2 ] ) ;
+//     args[ 4 ] = strdup( _argv[ 3 ] ) ;
+//     args[ 5 ] = NULL ;
+//     MESSAGE("execl(" << anExe.c_str() << " , " << args[ 0 ] << " , "
+//                      << args[ 1 ] << " , " << args[ 2 ] << " , " << args[ 3 ]
+//                      << " , " << args[ 4 ] << ")") ;
+//     int status = execv( anExe.c_str() , args ) ;
+//     if (status == -1) {
+//       INFOS("Engines_Container_i::start_impl execl failed (system command status -1)") ;
+//       perror( "Engines_Container_i::start_impl execl error ") ;
+//     }
+//     else {
+//       INFOS(machineName() << " Engines_Container_i::start_impl execl done");
+//     }
+//     exit(0) ;
+//   }
 
   obj = Engines::Container::_nil() ;
   try {
@@ -266,7 +263,7 @@ Engines::Container_ptr Engines_Container_i::start_impl(
     }
     _numInstanceMutex.unlock() ;
     if ( !nilvar ) {
-      MESSAGE("start_impl container found after runSession(SALOME_Container)") ;
+      MESSAGE("start_impl container found after new launch of SALOME_Container") ;
     }
     return Engines::Container::_narrow(obj);
   }
@@ -277,10 +274,11 @@ Engines::Container_ptr Engines_Container_i::start_impl(
     INFOS(machineName() << "Caught unknown exception.");
   }
   _numInstanceMutex.unlock() ;
-  MESSAGE("start_impl container not found after runSession(SALOME_Container)") ;
+  MESSAGE("start_impl container not found after new launch of SALOME_Container") ;
   return Engines::Container::_nil() ;
 }
 
+// Load component in current container
 Engines::Component_ptr Engines_Container_i::load_impl
          (const char* nameToRegister,
 	  const char* componentName)

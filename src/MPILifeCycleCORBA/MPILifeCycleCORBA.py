@@ -29,15 +29,15 @@ class MPILifeCycleCORBA(LifeCycleCORBA):
                 else :
                     rshstr = "rsh -n " + theComputer + " "
                 path = self.ComputerPath( theComputer )
-                if path != "" :
-                    rshstr = rshstr + path + "/../bin/"
-                else :
-                    rshstr = rshstr + os.getenv( "KERNEL_ROOT_DIR" ) + "/bin/"
+##                if path != "" :
+##                    rshstr = rshstr + path + "/../bin/salome/"
+##                else :
+##                    rshstr = rshstr + os.getenv( "KERNEL_ROOT_DIR" ) + "/bin/"
 #                    rshstr = rshstr + os.getenv( "PWD" ) + "/"
                 if theMPIContainerRoot == "MPIFactoryServer" :
-                    rshstr = rshstr + "./runSession mpirun -np " + str(nbproc) + " ./SALOME_MPIContainer "
+                    rshstr = rshstr + "mpirun -np " + str(nbproc) + " " + path + "SALOME_MPIContainer "
                 else :
-                    rshstr = rshstr + "./runSession ./SALOME_MPIContainerPy.py '"
+                    rshstr = rshstr + path + "SALOME_MPIContainerPy.py '"
                 rshstr = rshstr + theMPIContainer + " -"
                 omniORBcfg = os.getenv( "OMNIORB_CONFIG" )
 #                omniORBcfg = os.getenv( "HOME" ) + "/.omniORB.cfg"

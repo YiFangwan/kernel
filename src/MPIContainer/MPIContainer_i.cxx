@@ -108,7 +108,7 @@ Engines::MPIContainer_ptr Engines_MPIContainer_i::start_MPIimpl(
   }
   if ( !nilvar ) {
     _numInstanceMutex.unlock() ;
-    MESSAGE("[" << _numproc << "] start_impl container found without runSession") ;
+    MESSAGE("[" << _numproc << "] start_impl container found without new launch") ;
     return Engines::MPIContainer::_narrow(obj);
   }
   int i = 0 ;
@@ -116,12 +116,7 @@ Engines::MPIContainer_ptr Engines_MPIContainer_i::start_MPIimpl(
     MESSAGE("[" << _numproc << "]            argv" << i << " " << _argv[ i ]) ;
     i++ ;
   }
-//  string shstr( "rsh -n " ) ;
-//  shstr += machineName() ;
-//  shstr += " " ;
-//  shstr += _argv[ 0 ] ;
-//  string shstr( _argv[ 0 ] ) ;
-  sprintf(nbp,"./runSession mpirun -np %d SALOME_MPIContainer ",nbproc);
+  sprintf(nbp,"mpirun -np %d SALOME_MPIContainer ",nbproc);
   string shstr(nbp);
   shstr += ContainerName ;
   if ( _argc == 4 ) {
@@ -136,43 +131,12 @@ Engines::MPIContainer_ptr Engines_MPIContainer_i::start_MPIimpl(
   MESSAGE("system(" << shstr << ")") ;
   int status = system( shstr.c_str() ) ;
   if (status == -1) {
-    INFOS("[" << _numproc << "] Engines_MPIContainer_i::start_impl runSession(SALOME_MPIContainer) failed (system command status -1)") ;
+    INFOS("[" << _numproc << "] Engines_MPIContainer_i::start_impl SALOME_MPIContainer failed (system command status -1)") ;
   }
   else if (status == 217) {
-    INFOS("[" << _numproc << "] Engines_MPIContainer_i::start_impl runSession(SALOME_MPIContainer) failed (system command status 217)") ;
+    INFOS("[" << _numproc << "] Engines_MPIContainer_i::start_impl SALOME_MPIContainer failed (system command status 217)") ;
   }
-  INFOS("[" << _numproc << "] " << machineName() << " Engines_MPIContainer_i::start_impl runSession(SALOME_MPIContainer) done");
-#if 0
-  pid_t pid = fork() ;
-  if ( pid == 0 ) {
-    string anExe( _argv[ 0 ] ) ;
-    anExe += "runSession" ;
-    char * args[ 9 ] ;
-    args[ 0 ] = "runSession" ;
-    args[ 1 ] = "mpirun" ;
-    args[ 2 ] = "-np" ;
-    args[ 3 ] = (char*)calloc(10,sizeof(char));
-    sprintf(args[ 3 ],"%d",nbproc);
-    args[ 4 ] = "SALOME_MPIContainer" ;
-    args[ 5 ] = strdup( ContainerName ) ;
-    args[ 6 ] = strdup( _argv[ 2 ] ) ;
-    args[ 7 ] = strdup( _argv[ 3 ] ) ;
-    args[ 8 ] = NULL ;
-    MESSAGE("[" << _numproc << "] execl(" << anExe.c_str() << " , " << args[ 0 ] << " , "
-                     << args[ 1 ] << " , " << args[ 2 ] << " , " << args[ 3 ]
-                     << " , " << args[ 4 ] << args[ 5 ] << args[ 6 ] 
-                     << args[ 7 ] << ")") ;
-    int status = execv( anExe.c_str() , args ) ;
-    if (status == -1) {
-      INFOS("[" << _numproc << "] Engines_MPIContainer_i::start_impl execl failed (system command status -1)") ;
-      perror( "Engines_MPIContainer_i::start_impl execl error ") ;
-    }
-    else {
-      INFOS("[" << _numproc << "] " << machineName() << " Engines_MPIContainer_i::start_impl execl done");
-    }
-    exit(0) ;
-  }
-#endif
+  INFOS("[" << _numproc << "] " << machineName() << " Engines_MPIContainer_i::start_impl SALOME_MPIContainer launch done");
 
   obj = Engines::MPIContainer::_nil() ;
   try {
@@ -194,7 +158,7 @@ Engines::MPIContainer_ptr Engines_MPIContainer_i::start_MPIimpl(
     }
     _numInstanceMutex.unlock() ;
     if ( !nilvar ) {
-      MESSAGE("[" << _numproc << "] start_impl container found after runSession(SALOME_MPIContainer)") ;
+      MESSAGE("[" << _numproc << "] start_impl container found after new launch of SALOME_MPIContainer") ;
     }
     return Engines::MPIContainer::_narrow(obj);
   }
@@ -205,7 +169,7 @@ Engines::MPIContainer_ptr Engines_MPIContainer_i::start_MPIimpl(
     INFOS("[" << _numproc << "] " << machineName() << "Caught unknown exception.");
   }
   _numInstanceMutex.unlock() ;
-  MESSAGE("[" << _numproc << "] start_impl MPI container not found after runSession(SALOME_MPIContainer)") ;
+  MESSAGE("[" << _numproc << "] start_impl MPI container not found after new launch of SALOME_MPIContainer") ;
   return Engines::MPIContainer::_nil() ;
 }
 

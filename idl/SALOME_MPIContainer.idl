@@ -19,19 +19,26 @@
 //
 //
 //
-//  File   : MPIContainer.idl
+//  File   : SALOME_MPIContainer.idl
 
 #ifndef _SALOME_MPICONTAINER_IDL_
 #define _SALOME_MPICONTAINER_IDL_
 
 #include "SALOME_Component.idl"
-#include "MPIObject.idl"
+#include "SALOME_MPIObject.idl"
 
 module Engines
 {
   interface MPIContainer:Container,MPIObject
   {
-  } ;
+    // start MPI container executable
+    MPIContainer start_MPIimpl( in string ContainerName, in short nbproc );
+
+    // asynchronous version to load and remove parallel component in parallel
+    oneway void SPload_impl(in string nameToRegister, in string componentName);
+    oneway void SPremove_impl(in Component component_i);
+    oneway void SPfinalize_removal();
+  };
 } ;
 
 #endif
