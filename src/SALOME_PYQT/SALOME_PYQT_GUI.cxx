@@ -43,15 +43,26 @@ static void setWorkSpace()
 {
   MESSAGE("setWorkSpace");
   PyObject *res,*pyws;
+  PyObject *qtmodule;
 
   interp->enter();
+  //   Try to import qt module. If it's not possible don't go on
+  qtmodule=PyImport_ImportModule("qt");
+  if (qtmodule == NULL)
+    {
+      MESSAGE ( " Problem... " );
+      PyErr_Print();
+      interp->quit();
+      return ;
+    }
+  // Now it's safe to map, through sip, C++ pointer to Python object
   pyws=sipMapCppToSelf( QAD_Application::getDesktop()->getMainFrame(),
 			sipClass_QWorkspace);
   res=PyObject_CallMethod(module,"setWorkSpace","O",pyws);
-  SCRUTE(pyws->ob_refcnt);
   Py_DECREF(pyws);
   if (res == NULL)
     {
+      MESSAGE ( " Problem... " );
       PyErr_Print();
       interp->quit();
       return ;
@@ -163,8 +174,8 @@ bool SALOME_PYQT_GUI::OnMouseMove (QMouseEvent* pe ,
 				   QAD_Desktop* parent, 
 				   QAD_StudyFrame* studyFrame)
 {
-  // La ligne suivante est commentée sinon multiple traces ...
-  // MESSAGE("SALOME_PYQT_GUI::OnMouseMouve");
+  // Commented out to avoid multiple traces ...
+  // MESSAGE("SALOME_PYQT_GUI::OnMouseMove");
   return true;
 }
 
@@ -186,6 +197,20 @@ bool SALOME_PYQT_GUI::SetSettings (QAD_Desktop* parent, char* moduleName)
   initInterp(StudyID);
   
   interp->enter();
+  /*
+   *     SetSettings is called when changing component (python module)
+   *     Get the right module
+   *     As module is a static in the shared library we need to restore the module
+   *     
+   */
+  module=PyImport_ImportModule((char*)_moduleName.c_str());
+  if (module == NULL)
+    {
+      MESSAGE ( " Problem... " );
+      PyErr_Print();
+      interp->quit();
+      return false;
+    }
   res=PyObject_CallMethod(module,"setSettings","");
   if (res == NULL)
     {
