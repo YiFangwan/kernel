@@ -32,6 +32,7 @@
 #include "SALOME_NamingService.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "OpUtil.hxx"
+#include <string.h>
 #include <stdio.h>
 #include <dlfcn.h>
 #include <unistd.h>
@@ -51,6 +52,8 @@ char ** _ArgV ;
 
 extern "C" {void ActSigIntHandler() ; }
 extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
+
+const char *Engines_Container_i::_defaultContainerName="FactoryServer";
 
 Engines_Container_i::Engines_Container_i () :
  _numInstance(0)
@@ -98,17 +101,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
   SCRUTE(hostname);
 
-  _containerName = "/Containers/";
-  if (strlen(containerName)== 0)
-    {
-      _containerName += hostname;
-    }
-  else
-    {
-      _containerName += hostname;
-      _containerName += "/" ;
-      _containerName += containerName;
-    }
+  _containerName = BuildContainerNameForNS(containerName,hostname.c_str());
 
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
@@ -152,6 +145,13 @@ char* Engines_Container_i::machineName()
 void Engines_Container_i::ping()
 {
   MESSAGE("Engines_Container_i::ping() pid "<< getpid());
+}
+
+// shutdown corba server
+void Engines_Container_i::Shutdown()
+{
+  MESSAGE("Engines_Container_i::Shutdown()");
+  _orb->shutdown(0);
 }
 
 //! Kill current container
@@ -457,3 +457,27 @@ CORBA::Long Engines_Container_i::getPID() {
 char* Engines_Container_i::getHostName() {
     return((char*)(GetHostname().c_str()));
 }
+
+// Retrieves only with container naming convention if it is a python container
+bool Engines_Container_i::isPythonContainer(const char* ContainerName)
+{
+  bool ret=false;
+  int len=strlen(ContainerName);
+  if(len>=2)
+    if(strcmp(ContainerName+len-2,"Py")==0)
+      ret=true;
+  return ret;
+}
+
+string Engines_Container_i::BuildContainerNameForNS(const char *ContainerName, const char *hostname)
+{
+  string ret="/Containers/";
+  ret += hostname;
+  ret+="/";
+  if (strlen(ContainerName)== 0)
+    ret+=_defaultContainerName;
+  else
+    ret += ContainerName;
+  return ret;
+}
+

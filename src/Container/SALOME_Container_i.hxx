@@ -71,13 +71,16 @@ public:
   char* name();
   char* machineName();
   void ping();
-
+  void Shutdown();
   //! Kill current container
   bool Kill_impl() ;
 
   char* getHostName();
   CORBA::Long getPID();
+  static bool isPythonContainer(const char* ContainerName);
 
+  static std::string BuildContainerNameForNS(const char *ContainerName, const char *hostname);
+  static const char *_defaultContainerName;
 protected:
 
   SALOME_NamingService *_NS ;

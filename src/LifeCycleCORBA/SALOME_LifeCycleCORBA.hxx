@@ -34,6 +34,7 @@
 #include <string>
 
 #include <SALOMEconfig.h>
+#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 
 class SALOME_NamingService;
@@ -41,29 +42,24 @@ class SALOME_NamingService;
 class SALOME_LifeCycleCORBA
 {
 public:
-  SALOME_LifeCycleCORBA();
   SALOME_LifeCycleCORBA(SALOME_NamingService *ns);
   virtual ~SALOME_LifeCycleCORBA();
-
-  Engines::Container_var FindContainer(const char *containerName);
-  Engines::Component_var FindOrLoad_Component(const char *containerName,
-					      const char *componentName,
-					      const char *implementationPath);
-  Engines::Component_var FindOrLoad_Component(const char *containerName,
+  Engines::Component_ptr FindOrLoad_Component(const MachineParameters& params,
+					      const char *componentName);
+  Engines::Component_ptr FindOrLoad_Component(const char *containerName,
 					      const char *componentName);
 protected:
+  Engines::Component_ptr DoesExistComponent(const char *componentName,
+					    const char *containerName,
+					    const MachineList& listOfMachines);
   SALOME_NamingService *_NS;
-  Engines::Container_var _FactoryServer ;
-
+  Engines::ContainerManager_var _ContManager;
+  
   //private:
   std::string ContainerName( const char * aComputerContainer ,
-                        std::string * theComputer ,
-                        std::string * theContainer ) ;
+			     std::string * theComputer ,
+			     std::string * theContainer ) ;
   std::string ComputerPath( const char * theComputer ) ;
-  Engines::Container_var FindOrStartContainer(const std::string aComputerContainer ,
-                                              const std::string theComputer ,
-                                              const std::string theContainer ) ;
-
 } ;
 
 #endif
