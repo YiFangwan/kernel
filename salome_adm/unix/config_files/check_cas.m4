@@ -101,22 +101,12 @@ fi
 if test "x$occ_ok" = "xyes"; then
 
 dnl test c++ compiler flag for unsigned character
-  AC_MSG_CHECKING(c++ compiler have unsigned character flag)
-  cat > conftest.cxx <<EOF
-int main(int argc, char **argv) { return 0; }
-EOF
-  fUCHAR_FLAG=no
-  for ac_CXX_UCHAR_FLAG in -funsigned-char -unsigned ; do
-    if $CXX ${ac_CXX_UCHAR_FLAG} conftest.cxx > /dev/null 2>&1; then
-      CXXFLAGS="$CXXFLAGS ${ac_CXX_UCHAR_FLAG}"
-      AC_MSG_RESULT(${ac_CXX_UCHAR_FLAG})
-      fUCHAR_FLAG=yes
+  for opt in -funsigned-char -unsigned ; do
+    AX_CXX_OPTION($opt,CXXFLAGS,flag=yes,flag=no)
+    if test "$flag" = "yes"; then
       break
     fi
   done
-  if test $fUCHAR_FLAG = no; then
-    AC_MSG_RESULT(no)
-  fi
   
 dnl cascade headers
 
@@ -159,7 +149,7 @@ else
 
   # E.A. compatibility version 4 and 5.x  
   CAS_OCAF="$CAS_LDPATH -lPTKernel -lTKCAF -lFWOSPlugin -lTKPShape -lTKPCAF -lTKStdSchema -lTKShapeSchema -lPAppStdPlugin"
-  if test $OCC_VERSION_MAJOR < 5 ; then
+  if test $OCC_VERSION_MAJOR -lt 5 ; then
     CAS_OCAF="$CAS_OCAF -lTKPAppStd"
   fi
   CAS_OCAF="$CAS_OCAF -lTKCDF"
@@ -169,7 +159,7 @@ else
 
   # E.A. compatibility version 4 and 5.x  
   CAS_DATAEXCHANGE="$CAS_LDPATH -lTKXSBase -lTKIGES -lTKSTEP -lTKShHealing"
-  if test $OCC_VERSION_MAJOR < 5 ; then
+  if test $OCC_VERSION_MAJOR -lt 5 ; then
     CAS_DATAEXCHANGE="$CAS_DATAEXCHANGE -lTKShHealingStd"
   fi
 

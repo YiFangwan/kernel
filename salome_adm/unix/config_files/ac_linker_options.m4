@@ -26,22 +26,12 @@ dnl
 dnl @author Bernard Secher (CEA) - 04/12/2003
 dnl
 AC_DEFUN([AC_LINKER_OPTIONS],[
-  AC_MSG_CHECKING(loader have export dynamic option)
-  cat > conftest.cxx <<EOF
-int main(int argc, char **argv) { return 0; }
-EOF
-  fEXPDYN_FLAG=no
-  for ac_LD_EXPDYN_FLAG in "-Xlinker -export-dynamic" -transitive_link; do
-    if $CXX ${ac_LD_EXPDYN_FLAG} conftest.cxx > /dev/null 2>&1; then
-      LDEXPDYNFLAGS="${ac_LD_EXPDYN_FLAG}"
-      AC_MSG_RESULT(${ac_LD_EXPDYN_FLAG})
-      fEXPDYN_FLAG=yes
+  for opt in "-Xlinker -export-dynamic" -transitive_link; do
+    AX_CXX_OPTION($opt,LDEXPDYNFLAGS,flag=yes,flag=no)
+    if test "$flag" = "yes"; then
       break
     fi
   done
-  if test $fEXPDYN_FLAG = no; then
-    AC_MSG_RESULT(no)
-  fi
   AC_SUBST(LDEXPDYNFLAGS)
 dnl 
   case $host_os in

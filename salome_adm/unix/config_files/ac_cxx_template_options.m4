@@ -19,12 +19,21 @@ dnl  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencasc
 dnl
 dnl
 dnl
-dnl @synopsis AC_CXX_WARNINGS
+dnl @synopsis AC_CXX_TEMPLATE_OPTIONS
 dnl
-dnl Check warning flags for C++ compiler to control warning messages
+dnl Check template options for C++ compiler
 dnl
 dnl @author Bernard Secher (CEA) - 04/12/2003
 dnl
-AC_DEFUN([AC_CXX_WARNINGS],[
-  AX_CXX_OPTION(-Wno-deprecated,CXXFLAGS)
+AC_DEFUN([AC_CXX_TEMPLATE_OPTIONS],[
+dnl 
+  for opt in -ftemplate-depth-42 "-pending_instantiations 42" ; do
+    AX_CXX_OPTION($opt,CXXTMPDPTHFLAGS,flag=yes,flag=no)
+    if test "$flag" = "yes"; then
+      break
+    fi
+    AC_SUBST(CXXTMPDPTHFLAGS)
+  done
+dnl
+  AX_CXX_OPTION(-ptr $ROOT_BUILDDIR/cxx_repository,CXXFLAGS)
 ])

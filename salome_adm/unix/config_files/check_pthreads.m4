@@ -30,21 +30,9 @@ dnl@id $Id$
 dnl ----------------------------------------------------------------
 dnl CHECK_PTHREADS
 AC_DEFUN(CHECK_PTHREADS,[
-AC_MSG_CHECKING(flags for using pthreads)
-cat > conftest.cxx <<EOF
-int main(int argc, char **argv) { return 0; }
-EOF
-fPTH_FLAG=no
-for ac_CXX_PTH_FLAG in -pthread ; do
-  if $CXX ${ac_CXX_PTH_FLAG} conftest.cxx > /dev/null 2>&1; then
-    CPPFLAGS="$CPPFLAGS ${ac_CXX_PTH_FLAG}"
-    fPTH_FLAG=yes
-    AC_MSG_RESULT($ac_CXX_PTH_FLAG)
-    break
-  fi
-done
+AX_CXX_OPTION(-pthread,CPPFLAGS,flag=yes,flag=no)
 
-if test $fPTH_FLAG = no; then
+if test $flag = no; then
   AC_REQUIRE([AC_CANONICAL_SYSTEM])dnl
   AC_CHECK_HEADER(pthread.h,AC_DEFINE(HAVE_PTHREAD_H))
   AC_CHECK_LIB(posix4,nanosleep, LIBS_PTHREADS="-lposix4",LIBS_PTHREADS="")
@@ -52,7 +40,7 @@ if test $fPTH_FLAG = no; then
                LIBS_PTHREADS="-lpthread $LIBS_PTHREADS",LIBS_PTHREADS="")
 fi
 
-if test $fPTH_FLAG = no && x$LIBS_PTHREADS = x; then
+if test $flag = no && x$LIBS_PTHREADS = x; then
   threads_ok=no
 else
   threads_ok=yes

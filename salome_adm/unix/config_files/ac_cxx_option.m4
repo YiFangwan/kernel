@@ -19,28 +19,27 @@ dnl  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencasc
 dnl
 dnl
 dnl
-dnl @synopsis AC_CXX_WARNINGS
+dnl @synopsis AC_CXX_OPTION(-option,variable where we add option if ok,action if ok; action if not ok)
 dnl
-dnl Check warning flags for C++ compiler to control warning messages
+dnl Check options for C++ compiler
 dnl
-dnl @author Bernard Secher (CEA) - 04/12/2003
+dnl @author Bernard Secher - 15/01/2004
 dnl
-AC_DEFUN([AC_CXX_TEMPLATE_DEPTH],[
-  AC_MSG_CHECKING(c++ compiler have template-depth flag)
+AC_DEFUN([AX_CXX_OPTION], [
+  AC_MSG_CHECKING(CXXFLAGS for $CXX in $1)
   cat > conftest.cxx <<EOF
 int main(int argc, char **argv) { return 0; }
 EOF
-  fTMPDPTH_FLAG=no
-  for ac_CXX_TMPDPTH_FLAG in -ftemplate-depth-42 "-pending_instantiations 42" ; do
-    if $CXX ${ac_CXX_TMPDPTH_FLAG} conftest.cxx > /dev/null 2>&1; then
-      CXXTMPDPTHFLAGS="${ac_CXX_TMPDPTH_FLAG}"
-      AC_MSG_RESULT(${ac_CXX_TMPDPTH_FLAG})
-      fTMPDPTH_FLAG=yes
-      break
-    fi
-  done
-  if test $fTMPDPTH_FLAG = no; then
+  $CXX $1 conftest.cxx > conftest.log 2>&1
+  var=`echo $1 | sed -e "s, .*$,," | sed -e "s,^-,,"`
+  if ! grep -e $var conftest.log > /dev/null 2>&1 ; then
+    AC_MSG_RESULT(yes)
+    $2="${$2} $1"
+    eval $3
+  else
     AC_MSG_RESULT(no)
+    eval $4
   fi
-  AC_SUBST(CXXTMPDPTHFLAGS)
 ])
+
+

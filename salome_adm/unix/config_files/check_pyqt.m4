@@ -3,30 +3,6 @@ dnl Copyright (C) 2003  CEA/DEN, EDF R&D
 AC_DEFUN([CHECK_PYQT],[
 AC_REQUIRE([CHECK_PYTHON])dnl
 
-AC_CHECKING(for pyqt)
-
-pyqt_ok=no
-
-PYTHON_SITE_PACKPYQT=$PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages
-AC_CHECK_FILES($PYTHON_SITE_PACKPYQT/qt.py $PYTHON_SITE_PACKPYQT/libqtcmodule.so,pyqt_ok=yes,pyqt_ok=no)
-if test "x$pyqt_ok" = xyes ; then
-   PYQT_INCLUDES="-I $PYTHON_SITE_PACKPYQT"
-   PYQT_LIBS="-L$PYTHON_SITE_PACKPYQT -lqtcmodule"
-fi
-
-if test "x$pyqt_ok" = xyes ; then
-   AC_CHECK_FILES(/usr/share/sip/qt/qtmod.sip,pyqt_ok=yes,pyqt_ok=no)
-   if test "x$pyqt_ok" = xyes ; then
-      PYQT_SIPS="/usr/share/sip/qt"
-   fi
-   AC_SUBST(PYQT_INCLUDES)
-   AC_SUBST(PYQT_LIBS)
-   AC_SUBST(PYQT_SIPS)
-else
-
-  pyqt_ok=yes
-  dnl were is pyqt ?
-
 AC_ARG_WITH(pyqt,
     [  --with-pyqt=DIR      root directory path to PyQt installation ],
     [PYQTDIR="$withval"
@@ -46,66 +22,62 @@ AC_ARG_WITH(pyuic,
       AC_MSG_RESULT("select $withval as pyqt executable")
     ])
 
+AC_CHECKING(for pyqt)
 
-if test -z $PYQTDIR; then
-   PYQTDIR="/usr/lib/python${PYTHON_VERSION}/site-packages"	
+pyqt_ok=no
+
+if test "x$PYQTDIR" = x; then
+  PYQTDIR="/usr"
+fi
+
+if test "x$PYQT_SIPS" = x; then
+  PYQT_SIPS="/usr/share/sip/qt"
+fi
+
+if test -d $PYQTDIR/lib/python${PYTHON_VERSION}/site-packages; then
+  PYQTLIB=$PYQTDIR/lib/python${PYTHON_VERSION}/site-packages
 else
-   if test -z $PYQT_SIPS; then
-      PYQT_SIPS="$PYQTDIR/sip"	
-   fi	
-   if test -z $PYUIC; then
-      AC_CHECK_FILE("$PYQTDIR/pyuic",pyqt_ok=yes,pyqt_ok=no)
-      if test "x$pyqt_ok" = xyes ; then	
-         PYUIC="$PYQTDIR/pyuic"
-      else
-         AC_PATH_PROG(PYUIC, pyuic)
-      fi	
-   fi	
+  if test -d $PYQTDIR/lib; then
+    PYQTLIB=$PYQTDIR/lib
+  else
+    PYQTLIB=$PYQTDIR
+  fi
 fi
 
-if test -z $PYQT_SIPS; then
-   PYQT_SIPS="/usr/share/sip/qt"	
-fi
-
-if test -z $PYUIC; then
-   PYUIC="/usr/bin/pyuic"	
-fi
-
-AC_CHECK_FILES("$PYQTDIR/qt.py","$PYQTDIR/qt/qt.py",pyqt_ok=yes,pyqt_ok=no)
-if test "x$pyqt_ok" = xno ; then
-   AC_MSG_WARN(pyqt not found)
+if test -d $PYQTDIR/bin; then
+  PYQTBIN=$PYQTDIR/bin
 else
-   AC_CHECK_FILE("$PYQTDIR/libqtcmodule.so",pyqt_ok=yes,pyqt_ok=no)
-   if test "x$pyqt_ok" = xno ; then
-      AC_MSG_WARN(pyqt not found)
-   else
-      PYQT_ROOT=$PYQTDIR
-      PYQT_LIBS="-L$PYQTDIR -lqtcmodule"
-   fi
-   AC_CHECK_FILE("$PYQT_SIPS/copying.sip",pyqt_ok=yes,pyqt_ok=no)
-   if test "x$pyqt_ok" = xno ; then
-      AC_MSG_WARN(pyqt not found)
-   else
-      PYQT_INCLUDES="-I$PYQT_SIPS"
-   fi
-
-   AC_SUBST(PYQT_ROOT)
-   AC_SUBST(PYQT_INCLUDES)
-   AC_SUBST(PYQT_LIBS)
-
+  PYQTBIN=$PYQTDIR
 fi
 
-PYQT_ROOT=$PYQTDIR
-PYQT_INCLUDES="-I$PYQT_SIPS"
-PYQT_LIBS="-L$PYQTDIR -lqtcmodule"
+AC_CHECK_FILE("$PYQTBIN/pyuic",pyqt_ok=yes,pyqt_ok=no)
 
-AC_SUBST(PYQT_ROOT)
-AC_SUBST(PYQT_INCLUDES)
-AC_SUBST(PYUIC)
-AC_SUBST(PYQT_SIPS)
-AC_SUBST(PYQT_LIBS)
-
+if test "x$pyqt_ok" = xyes ; then
+  AC_CHECK_FILES("$PYQTLIB/qt.py",pyqt_ok=yes,pyqt_ok=no)
 fi
+
+if test "x$pyqt_ok" = xyes ; then
+  AC_CHECK_FILE("$PYQTLIB/libqtcmodule.so",pyqt_ok=yes,pyqt_ok=no)
+fi
+
+if test "x$pyqt_ok" = xyes ; then
+  AC_CHECK_FILES("$PYQT_SIPS/qtmod.sip",pyqt_ok=yes,pyqt_ok=no)
+fi
+if test "x$pyqt_ok" = xyes ; then
+  AC_CHECK_FILE("$PYQT_SIPS/copying.sip",pyqt_ok=yes,pyqt_ok=no)
+fi
+
+if test "x$pyqt_ok" = xyes ; then
+  PYQT_ROOT=$PYQTDIR
+  PYQT_INCLUDES="-I$PYQT_SIPS"
+  PYQT_LIBS="-L$PYQTLIB -lqtcmodule"
+  AC_SUBST(PYQT_ROOT)
+  AC_SUBST(PYQT_INCLUDES)
+  AC_SUBST(PYQT_LIBS)
+  AC_SUBST(PYQT_SIPS)
+  AC_SUBST(PYUIC)
+fi
+
 ])dnl
 dnl
 
