@@ -3062,6 +3062,7 @@ void QAD_Desktop::onComboActiveComponent( const QString & component ){
 }
 void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoadData)
 {
+  QAD_WaitCursor wc;
   if (myActiveStudy != 0) {
     if (myActiveComp.compare(component)!=0) {
       // deactivate previous component
@@ -3075,10 +3076,12 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
 //	QApplication::setOverrideCursor( Qt::waitCursor );
 	bool isOk = ( !isLoadData || loadComponentData( getComponentName(component) ) );
 	if ( !isOk ) {
+	  wc.stop();
 	  QAD_MessageBox::error1( this, 
 				 tr("ERR_ERROR"),
 				 tr("ERR_COMP_DATA_NOT_LOADED").arg( component ), 
 				 tr("BUT_OK") );	  
+	  wc.start();
 	}
 
 	if ( !isOk || !loadComponent( getComponentName(component) ) ) {
