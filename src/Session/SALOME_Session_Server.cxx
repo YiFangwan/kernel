@@ -29,6 +29,7 @@
 # include "Utils_ORB_INIT.hxx"
 # include "Utils_SINGLETON.hxx"
 
+#include "SALOME_Container_i.hxx"
 #include <iostream>
 #include <unistd.h>
 using namespace std;
@@ -39,6 +40,12 @@ using namespace std;
 #include "utilities.h"
 
 #include "SALOME_Session_i.hxx"
+
+#include <Python.h>
+static PyMethodDef MethodPyVoidMethod[] = {
+  { NULL,        NULL }
+};
+
 
 //! CORBA server for SALOME Session
 /*!
@@ -55,45 +62,114 @@ using namespace std;
 int main(int argc, char **argv)
 {
 
+  Py_Initialize() ;
+  PySys_SetArgv( argc , argv ) ;
+  Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
+
+
   try
     {
+    // Initialise the ORB.
     ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
     ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
     CORBA::ORB_var &orb = init( argc , argv ) ;
 
+    // Obtain a reference to the root POA.
     CORBA::Object_var obj =orb->resolve_initial_references("RootPOA") ;
-    PortableServer::POA_var poa = PortableServer::POA::_narrow(obj) ;
+    PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj) ;
 
-    // servant
-    SALOME_Session_i * mySALOME_Session = new SALOME_Session_i(argc, argv, orb, poa) ;
-    PortableServer::ObjectId_var mySALOME_Sessionid = poa->activate_object(mySALOME_Session) ;
-    MESSAGE("poa->activate_object(mySALOME_Session)")
+    // -------------------------------------------------------------------------------
+    // ---- container
+
+    // define policy objects     
+    PortableServer::ImplicitActivationPolicy_var implicitActivation =
+      root_poa->create_implicit_activation_policy(PortableServer::NO_IMPLICIT_ACTIVATION) ;
+
+      // default = NO_IMPLICIT_ACTIVATION
+    PortableServer::ThreadPolicy_var threadPolicy =
+      root_poa->create_thread_policy(PortableServer::ORB_CTRL_MODEL) ;
+      // default = ORB_CTRL_MODEL, other choice SINGLE_THREAD_MODEL
+
+    // create policy list
+    CORBA::PolicyList policyList;
+    policyList.length(2);
+    policyList[0] = PortableServer::ImplicitActivationPolicy::_duplicate(implicitActivation) ;
+    policyList[1] = PortableServer::ThreadPolicy::_duplicate(threadPolicy) ;
+
+    // create the child POA
+    PortableServer::POAManager_var nil_mgr = PortableServer::POAManager::_nil() ;
+    // PortableServer::POA_var factory_poa =
+    //   root_poa->create_POA("factory_poa", pman, policyList) ;
+    PortableServer::POA_var factory_poa =
+      root_poa->create_POA("factory_poa", nil_mgr, policyList) ;
+    //with nil_mgr instead of pman, a new POA manager is created with the new POA
+    
+    // destroy policy objects
+    implicitActivation->destroy() ;
+    threadPolicy->destroy() ;
+
+    // servant : container
+
+    char *containerName = "";
+    if (argc >1) 
+    {
+	containerName = argv[1] ;
+    }
+
+    Engines_Container_i * myContainer 
+     = new Engines_Container_i(orb, factory_poa, containerName , argc , argv );
+
+    //PortableServer::ObjectId_var mySALOME_Containerid = factory_poa->activate_object(myContainer) ;
+    //MESSAGE("poa->activate_object(myContainer)");
+
+    // obtain the factory poa manager
+    PortableServer::POAManager_var pmanfac = factory_poa->the_POAManager();
+    pmanfac->activate() ;
+    MESSAGE("pmanfac->activate()")
+
+
+    // -------------------------------------------------------------------------------
+    // servant : session
+
+    //SALOME_Session_i * mySALOME_Session = new SALOME_Session_i(argc, argv, orb, factory_poa) ;
+    //PortableServer::ObjectId_var mySALOME_Sessionid = factory_poa->activate_object(mySALOME_Session) ;
+
+    SALOME_Session_i * mySALOME_Session = new SALOME_Session_i(argc, argv, orb, root_poa) ;
+    PortableServer::ObjectId_var mySALOME_Sessionid = root_poa->activate_object(mySALOME_Session) ;
+    MESSAGE("poa->activate_object(mySALOME_Session)");
 
     obj = mySALOME_Session->_this() ;
     CORBA::String_var sior(orb->object_to_string(obj)) ;
-
     mySALOME_Session->NSregister();
-
     mySALOME_Session->_remove_ref() ;
 
-    PortableServer::POAManager_var pman = poa->the_POAManager() ;
+    // obtain the root poa manager
+    PortableServer::POAManager_var pman = root_poa->the_POAManager();
     pman->activate() ;
     MESSAGE("pman->activate()")
 
     orb->run() ;
     orb->destroy() ;
     }
-    catch (CORBA::SystemException&)
+  catch (CORBA::SystemException&)
     {
-      INFOS("Caught CORBA::SystemException.")
+      INFOS("Caught CORBA::SystemException.");
     }
-    catch (CORBA::Exception&)
+  catch(PortableServer::POA::WrongPolicy&)
     {
-      INFOS("Caught CORBA::Exception.")
+      INFOS("Caught CORBA::WrongPolicyException.");
+    }
+  catch(PortableServer::POA::ServantAlreadyActive&)
+    {
+      INFOS("Caught CORBA::ServantAlreadyActiveException");
+    }
+  catch (CORBA::Exception&)
+    {
+      INFOS("Caught CORBA::Exception.");
     }
     catch (...)
     {
-      INFOS("Caught unknown exception.")
+      INFOS("Caught unknown exception.");
     }
   return 0 ;
 }

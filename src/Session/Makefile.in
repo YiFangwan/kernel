@@ -46,12 +46,12 @@ LIB_SRC=\
 # Executables targets
 BIN = SALOME_Session_Server
 BIN_SRC = 
-BIN_SERVER_IDL = SALOME_Session.idl
-BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOME_Registry.idl SALOME_ModuleCatalog.idl SALOME_Exception.idl
+BIN_SERVER_IDL = SALOME_Session.idl SALOME_Component.idl
+BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Registry.idl SALOME_ModuleCatalog.idl SALOME_Exception.idl
 
 CPPFLAGS+=$(QT_MT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+=$(QT_MT_LIBS) $(OCC_KERNEL_LIBS) $(OCC_OCAF_LIBS) $(OCC_VIEWER_LIBS) $(OCC_MODELER_LIBS) -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lSalomeLoggerServer -lPlot2d
+LDFLAGS+=$(QT_MT_LIBS) $(OCC_KERNEL_LIBS) $(OCC_OCAF_LIBS) $(OCC_VIEWER_LIBS) $(OCC_MODELER_LIBS) -lSalomeContainer -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lRegistry -lSalomeNotification -lOpUtil -lSalomeLoggerServer -lPlot2d
 
 
 @CONCLUDE@

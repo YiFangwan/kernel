@@ -203,7 +203,7 @@ class SessionLoader(Server):
        CMD=CMD+['GUI']
 
 class SessionServer(Server):
-   CMD=['SALOME_Session_Server']
+   CMD=['SALOME_Session_Server','FactoryServer','-ORBInitRef','NameService=corbaname::localhost']
 
 class NotifyServer(Server):
    CMD=['notifd','-c','${KERNEL_ROOT_DIR}/share/salome/resources/channel.cfg -DFactoryIORFileName=/tmp/${LOGNAME}_rdifact.ior -DChannelIORFileName=/tmp/${LOGNAME}_rdichan.ior']
@@ -374,6 +374,10 @@ def startSalome():
 
   import SALOME
   session=clt.waitNS("/Kernel/Session",SALOME.Session)
+  
+  theComputer = os.getenv("HOSTNAME")
+  computerSplitName = theComputer.split('.')
+  theComputer = computerSplitName[0]
 
   #
   # Lancement Container C++ local
@@ -384,10 +388,6 @@ def startSalome():
 	  #
 	  # Attente de la disponibilité du Container C++ local dans le Naming Service
 	  #
-
-	  theComputer = os.getenv("HOSTNAME")
-	  computerSplitName = theComputer.split('.')
-	  theComputer = computerSplitName[0]
 
 	  clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
 
@@ -404,12 +404,11 @@ def startSalome():
 	
 	  clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
 
+  #
+  # Lancement Container Supervision local
+  #
+
   if with_container_superv:
-
-	#
-	# Lancement Container Supervision local
-	#
-
 	ContainerSUPERVServer().run()
 
 	#
@@ -426,7 +425,7 @@ def startSalome():
   #session.GetInterface()
 
   end_time = os.times()
-  print
+
   print "Start SALOME, elpased time : %5.1f seconds"% (end_time[4] - init_time[4])
 
   return clt
