@@ -102,6 +102,7 @@
 #endif
 
 // Open CASCADE Includes
+#include <OSD_SharedLibrary.hxx>
 #include <OSD_LoadMode.hxx>
 #include <OSD_Function.hxx>
 #include <TCollection_AsciiString.hxx>
@@ -448,18 +449,36 @@ bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
       }
     }
   }
-  else if ( e->type() == QEvent::User + 1 ) { // SALOME_Event has type QEvent::User + 1
-    SALOME_Event* aSE = (SALOME_Event*)e;
-    MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 1 : o = " << o << ", e = " << e);
-    // here we do the job...
-    sleep( 5 );
+  else if ( e->type() == SALOME_EVENT ) { 
+    SALOME_Event* aSE = (SALOME_Event*)((QCustomEvent*)e)->data();
+    MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 1 : o = " << o << ", e = " << aSE);
 
+    processEvent( aSE );
     MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 2" );
+
+    // Signal the calling thread that the event has been processed
     aSE->processed();
     MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 3" );
+
+    ((QCustomEvent*)e)->setData( 0 );
+    delete aSE;
     return TRUE;
   }
   return QMainWindow::eventFilter( o, e );
+}
+
+/*!
+    Dispatches <theEvent> to the target component GUI
+*/
+void QAD_Desktop::processEvent( SALOME_Event* theEvent )
+{
+  if ( !theEvent )
+    return;
+
+  for ( ComponentMap::iterator it = myComponents.begin(); it != myComponents.end(); it++ ) {
+    if ( it.data()->CanProcessEvent( theEvent ) && it.data()->ProcessEvent( theEvent ) )
+      break;
+  }
 }
 
 /*!

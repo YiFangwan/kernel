@@ -72,6 +72,7 @@ public:
 /* component name */
   const char* getComponentName( const char* ComponentUserName );
   const char* getComponentUserName( const char* ComponentName );
+  void loadComponentGUI( const char* ComponentName );
 
 protected:
   int _studyId;

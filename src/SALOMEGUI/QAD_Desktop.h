@@ -59,11 +59,9 @@
 #include <qfiledialog.h>
 #include <qtoolbutton.h>
 
-// Open CASCADE Includes
-#include <OSD_SharedLibrary.hxx>
-
 class QAD_XmlHandler;
 class SALOMEGUI;
+class SALOME_Event;
 
 class QAD_EXPORT QAD_Desktop : public QMainWindow
 {
@@ -318,6 +316,9 @@ protected:
     QList<QToolButton> myComponentButton;
 
     QMap<QString,QString> mapComponentName;
+
+private:
+    void processEvent( SALOME_Event* );
 
 private:
     typedef QMap<QString, SALOMEGUI*> ComponentMap;

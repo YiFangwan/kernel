@@ -135,6 +135,13 @@ const char* SALOMEGUI_Swig::getComponentUserName( const char* ComponentName )
 {
   return QAD_Application::getDesktop()->getComponentUserName( ComponentName );
 }
+/*!
+  Loads component GUI library if not yet loaded
+*/
+void SALOMEGUI_Swig::loadComponentGUI( const char* ComponentName )
+{
+  QAD_Application::getDesktop()->getComponentGUI( QAD_Application::getDesktop()->getComponentUserName( ComponentName ) );
+}
 
 /*!
   Returns the number of selected objects.
