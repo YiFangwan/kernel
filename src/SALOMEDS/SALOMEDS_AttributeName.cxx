@@ -15,9 +15,7 @@ SALOMEDS_AttributeName::SALOMEDS_AttributeName(const Handle(SALOMEDSImpl_Attribu
 
 SALOMEDS_AttributeName::SALOMEDS_AttributeName(SALOMEDS::AttributeName_ptr theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
-{
-  cout <<"Creation of NAME attr : corba" << endl;
-}
+{}
 
 SALOMEDS_AttributeName::~SALOMEDS_AttributeName()
 {}
