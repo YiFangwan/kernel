@@ -53,7 +53,7 @@ void SALOME_PYQT_GUI::setWorkSpace()
     return ;
   }  
 
-  QWorkspace *sipRes=QAD_Application::getDesktop()->getMainFrame();
+  QWorkspaceP *sipRes=QAD_Application::getDesktop()->getMainFrame();
   PyObjWrapper pyws(sipMapCppToSelf( sipRes, sipClass_QWorkspace));
   PyObjWrapper res(PyObject_CallMethod(_module,"setWorkSpace","O",pyws.get()));
   SCRUTE(pyws->ob_refcnt);
