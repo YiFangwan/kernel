@@ -25,7 +25,7 @@ class NamingServer(Server):
    if USER is None:
       USER='anonymous'
    LOGDIR="/tmp/logs/" + USER
-   os.system("mkdir -m 777 -p " + LOGDIR)
+   os.system("mkdir -m 755 -p " + LOGDIR)
    CMD="runNS.sh > " + LOGDIR + "/salomeNS.log 2>&1"
 
 # -----------------------------------------------------------------------------

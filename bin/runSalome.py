@@ -153,6 +153,13 @@ liste_modules[:0]=["KERNEL"]
 os.environ["SALOMEPATH"]=":".join(modules_root_dir.values())
 if "SUPERV" in liste_modules:with_container_superv=1
 
+os.system("mkdir -m 777 -p /tmp/logs")
+if os.access('/tmp/logs', os.W_OK) == 0:
+    print """
+Cannot put log files in /tmp/logs.
+Check existence and write permission of /tmp/logs directory
+"""
+    sys.exit(1)
 
 # -----------------------------------------------------------------------------
 #

@@ -11,8 +11,7 @@ Username=`/usr/bin/whoami`
 
 # clear log files
 
-mkdir -m 775 ${BaseDir}/logs 
-mkdir ${BaseDir}/logs/${Username}
+mkdir -p ${BaseDir}/logs/${Username}
 touch ${BaseDir}/logs/${Username}/dummy
 \rm -f ${BaseDir}/logs/${Username}/omninames* ${BaseDir}/logs/${Username}/dummy ${BaseDir}/logs/${Username}/*.log
 
