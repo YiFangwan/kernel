@@ -40,7 +40,9 @@ extern "C"
 
 static list<DESTRUCTEUR_GENERIQUE_*> *Destructeurs=0 ;
 
-
+//CCRT
+static bool ATEXIT_Done = false ;
+//CCRT
 
 
 /*! \class ATEXIT_
@@ -63,14 +65,20 @@ public :
 	 *
 	 * La liste chaînée Destructeurs est détruite dans la fonction Nettoyage.
 	 */
-	ATEXIT_( void )
+//CCRT	ATEXIT_( void )
+	ATEXIT_( bool Make_ATEXIT )
 	{
+//CCRT
+	  if ( Make_ATEXIT && !ATEXIT_Done ) {
+//CCRT
 		ASSERT (Destructeurs==0);
 		MESSAGE("Construction ATEXIT"); // message necessaire pour utiliser logger dans Nettoyage (cf.BUG KERNEL4561)
 		Destructeurs = new list<DESTRUCTEUR_GENERIQUE_*> ; // Destructeurs alloué dynamiquement (cf. ci-dessous) ,
 								   // il est utilisé puis détruit par la fonction Nettoyage
 		int cr = atexit( Nettoyage );                      // exécute Nettoyage lors de exit, après la destruction des données statiques !
 		ASSERT(cr==0) ;
+                ATEXIT_Done = true ;
+	  }
 	}
 
 	~ATEXIT_( )
@@ -82,7 +90,7 @@ public :
 
 
 
-static ATEXIT_ nettoyage ;	/* singleton statique */
+static ATEXIT_ nettoyage = ATEXIT_( false ) ;	/* singleton statique */
 
 
 /*!
@@ -134,7 +142,14 @@ const int DESTRUCTEUR_GENERIQUE_::Ajout( DESTRUCTEUR_GENERIQUE_ &objet )
 	// N.B. : l'ordre de creation des SINGLETON etant important
 	//        on n'utilise pas deux fois la meme position pour
 	//        les stocker dans la pile des objets.
+//CCRT  cout << "DESTRUCTEUR_GENERIQUE_::Ajout objet " << &objet << endl ;
+//CCRT
+        if ( !ATEXIT_Done ) {
+          nettoyage = ATEXIT_( true ) ;
+	}
+//CCRT
 	ASSERT(Destructeurs) ;
 	Destructeurs->push_back( &objet ) ;
+//CCRT  cout << "DESTRUCTEUR_GENERIQUE_::Ajout Destructeurs->size() " << Destructeurs->size() << endl ;
 	return Destructeurs->size() ;
 }
