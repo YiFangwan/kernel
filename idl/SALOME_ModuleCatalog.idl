@@ -126,6 +126,20 @@ List of names of interfaces.
   typedef sequence<string> ListOfInterfaces ;
 
 /*!
+PathPrefix : association of a machine name and
+a path to a component
+*/
+  struct PathPrefix {
+    string             machine;
+    string             path;
+  };
+
+/*! 
+List of path prefixes
+*/
+  typedef sequence<PathPrefix> PathPrefixes;
+
+/*!
 Description of a component
 */
   struct Component
@@ -137,6 +151,7 @@ Description of a component
     string             icon;
     string             constraint;
     ListOfDefInterface interfaces;
+    PathPrefixes       paths;
   };
 
 /*! 
@@ -319,5 +334,7 @@ Reads a xml file and imports new components from this file.
 New components replace existing components with the same name.
 */
     void ImportXmlCatalogFile(in string filename) raises(NotFound);
+
+    void shutdown();
   } ;
 };
