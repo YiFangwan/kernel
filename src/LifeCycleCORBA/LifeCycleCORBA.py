@@ -32,12 +32,11 @@ import time
 from omniORB import CORBA
 import CosNaming
 import Engines
-import SALOME_ModuleCatalog
+import Resources
+import Containers
 
 from SALOME_utilities import *
 
-import Resources
-import Containers
 
 class LifeCycleCORBA:
     _orb = None

@@ -23,6 +23,10 @@
 //  Author : Jean Rahuel
 //  $Header: 
 
+#ifndef _RESOURCESMANAGER_IDL_
+#define _RESOURCESMANAGER_IDL_
+
+#include "SALOME_Component.idl"
 #include "ContainersManager.idl"
 
 module Resources {
@@ -92,3 +96,5 @@ module Resources {
   } ;
 
 } ;
+
+#endif

@@ -30,6 +30,7 @@ def killSalome():
    from omniORB import CORBA
    import CosNaming
    import Engines
+   import Resources
    import Containers
    try :
       orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
@@ -436,8 +437,12 @@ def startSalome():
   computerSplitName = theComputer.split('.')
   theComputer = computerSplitName[0]
   
+  import Engines
+  import Resources
+  import Containers
+
   #
-  # Lancement Resources Server
+  # Lancement ResourcesManager Server
   #
 
   ResourcesServer().run()
@@ -446,11 +451,10 @@ def startSalome():
   # Attente de la disponibilité du ResourcesServer dans le Naming Service
   #
 
-  import Resources
   session=clt.waitNS("/Kernel/ResourcesManager",Resources.Manager)
 
   #
-  # Lancement Containers Server
+  # Lancement ContainersManager Server
   #
 
   ContainersServer().run()
@@ -459,8 +463,6 @@ def startSalome():
   # Attente de la disponibilité du ContainersManager dans le Naming Service
   #
 
-  import Containers
-  import Engines
   MyContainersMgr = clt.waitNS("/Kernel/ContainersManager",Containers.Manager)
 
   #
