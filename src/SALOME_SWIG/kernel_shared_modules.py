@@ -17,6 +17,8 @@ register_name("Engines")
 register_name("SALOME")
 register_name("SALOMEDS")
 register_name("SALOME_ModuleCatalog")
+register_name("Resources")
+register_name("Containers")
 
 # BE CAREFUL
 # Engines, SALOME, SALOMEDS must be imported in that order because :
@@ -29,6 +31,8 @@ import SALOME
 import SALOMEDS
 
 import SALOME_ModuleCatalog
+import Resources
+import Containers
 from SALOME_utilities import MESSAGE
 #
 # We search all Python CORBA (omniorb) modules.
