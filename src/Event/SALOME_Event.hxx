@@ -76,6 +76,7 @@ class QSemaphore;
  */
 //===========================================================
 
+
 class SALOME_Event
 {
 public:
@@ -97,6 +98,14 @@ private:
   bool        myAutoRelease;
   QSemaphore* mySemaphore;
 };
+
+
+template<class TEvent> inline typename TEvent::TResult ProcessEvent(TEvent* theEvent){
+  theEvent->process();
+  typename TEvent::TResult aResult = theEvent->myResult;
+  theEvent->release();
+  return aResult;
+}
 
 
 inline void ProcessVoidEvent(SALOME_Event* theEvent){
