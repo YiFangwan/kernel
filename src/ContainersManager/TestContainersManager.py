@@ -340,3 +340,7 @@ lccMulComponent = lcc.FindOrLoadComponent( DefaultParams , "MulComponent" )
 
 print lccMulComponent.GetContainerRef()._get_name(),lccMulComponent._get_instanceName(),lccMulComponent._get_interfaceName()
 
+DefaultParams.HostName = 'bojolex'
+
+lccbojolexMulComponent = lcc.FindOrLoadComponent( DefaultParams , "MulComponent" )
+

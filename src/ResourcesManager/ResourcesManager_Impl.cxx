@@ -144,7 +144,7 @@ Resources::ListOfComputers * Manager_Impl::AllComputers() {
 
 Resources::ListOfComputers * Manager_Impl::GetComputers( const Containers::MachineParameters & aMachineParameters ) {
   MESSAGE("Manager_Impl::GetComputers() " << aMachineParameters.HostName << " in list of "
-          << _ComputersList->length() << " computers" ) ;
+          << _ComputersList->length() << " computers for '" << aMachineParameters.HostName << "'" ) ;
   Resources::ListOfComputers_var aListOfComputers = new Resources::ListOfComputers() ;
   int i ;
   if ( strlen( (char * ) ((CORBA::String_member ) aMachineParameters.HostName) ) ) {
