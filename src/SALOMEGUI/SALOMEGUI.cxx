@@ -107,7 +107,7 @@ bool SALOMEGUI::SetSettings( QAD_Desktop* parent )
 //=============================================================================
 bool SALOMEGUI::SetSettings( QAD_Desktop* parent, char* compName )
 {
-  return true;
+  return SetSettings( parent);
 }
 
 //=============================================================================

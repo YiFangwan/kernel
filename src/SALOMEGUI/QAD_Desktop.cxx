@@ -2612,12 +2612,8 @@ void QAD_Desktop::setSettings()
 {
   SALOMEGUI* anActiveGUI = getActiveGUI();
   if ( anActiveGUI ) {
-    if (_islibso)
-      anActiveGUI->SetSettings( this );
-    else {
-      QString Component = mapComponentName[myActiveComp];
-      anActiveGUI->SetSettings( this, (char*)Component.latin1() );
-    }
+    QString Component = mapComponentName[myActiveComp];
+    anActiveGUI->SetSettings( this, (char*)Component.latin1() );
   }
 }
 
@@ -2706,10 +2702,7 @@ bool QAD_Desktop::loadComponent(QString Component)
     return false;
 
   /* SETTINGS */
-  if (_islibso)
-    anActiveGUI->SetSettings( this );
-  else
-    anActiveGUI->SetSettings( this, (char*)Component.latin1() );
+  anActiveGUI->SetSettings( this, (char*)Component.latin1() );
 
   /* COMPONENT INTERFACE */
   SALOME_ModuleCatalog::Acomponent_ptr aComponent =
@@ -3242,6 +3235,8 @@ SALOMEGUI* QAD_Desktop::getComponentGUI( const QString& component )
 
     QAD_WaitCursor wc;
     
+    _islibso= false;
+
     if ( libs = getenv("LD_LIBRARY_PATH")) {
       //    MESSAGE ( " LD_LIBRARY_PATH : " << libs );
       QStringList dirList = QStringList::split( SEPARATOR, libs, false ); // skip empty entries
