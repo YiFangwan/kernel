@@ -168,6 +168,10 @@ def set_env(args, modules_list, modules_root_dir):
             pass
         pass
 
+    # set environment for SUPERV module
+    os.environ["ENABLE_MACRO_NODE"]="1"
+   
+
 # -----------------------------------------------------------------------------
 
 from killSalome import killAllPorts
@@ -469,6 +473,10 @@ def startSalome(args, modules_list, modules_root_dir):
     if "GEOM" in modules_list:
         print "GEOM OCAF Resources"
         os.environ["CSF_GEOMDS_ResourcesDefaults"] \
+        = os.path.join(modules_root_dir["GEOM"],"share",
+                       args['appname'],"resources")
+	print "GEOM Shape Healing Resources"
+        os.environ["CSF_ShHealingDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
                        args['appname'],"resources")
 

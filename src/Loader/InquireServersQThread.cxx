@@ -193,7 +193,7 @@ void InquireServersGUI::customEvent( QCustomEvent* pe )
 
 int InquireServersGUI::getExitStatus()
 {
-  myThread->getExitStatus();
+  return myThread->getExitStatus();
 }
 
 InquireServersQThread::InquireServersQThread( InquireServersGUI* r )

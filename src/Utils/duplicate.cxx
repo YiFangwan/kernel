@@ -37,6 +37,8 @@
 
 #include  "utilities.h"
 
+using namespace std;
+
 const char* duplicate( const char *const str )
 {
 	ASSERT(str!=NULL) ;
