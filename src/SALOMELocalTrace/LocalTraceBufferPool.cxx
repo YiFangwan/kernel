@@ -33,18 +33,26 @@
 using namespace std;
 
 LocalTraceBufferPool* LocalTraceBufferPool::_singleton = 0;
+pthread_mutex_t LocalTraceBufferPool::_singletonMutex;
 
 // ============================================================================
 /*!
- *  guarantees a unique object instance of the class (singleton)
- *  Must be done at first because not thread safe: 
- *  _singleton is not protected by a mutex
+ *  guarantees a unique object instance of the class (singleton thread safe)
  */
 // ============================================================================
 
 LocalTraceBufferPool* LocalTraceBufferPool::instance()
 {
-  if (_singleton == 0) _singleton = new LocalTraceBufferPool();
+  if (_singleton == 0) // no need of lock when singleton already exists
+    {
+      int ret;
+      ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+      if (_singleton == 0)                     // another thread may have got
+	{                                      // the lock after the first test
+	  _singleton = new LocalTraceBufferPool(); 
+	}
+      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+    }
   return _singleton;
 }
 

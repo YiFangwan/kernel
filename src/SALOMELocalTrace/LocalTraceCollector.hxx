@@ -43,6 +43,7 @@ class LocalTraceCollector
 
  private:
   static LocalTraceCollector* _singleton;
+  static pthread_mutex_t _singletonMutex;
   static pthread_t _threadId;
 };
 

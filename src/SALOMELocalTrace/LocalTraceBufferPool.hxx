@@ -57,6 +57,7 @@ class LocalTraceBufferPool
 
  private:
   static LocalTraceBufferPool* _singleton;
+  static pthread_mutex_t _singletonMutex;
   LocalTrace_TraceInfo _myBuffer[TRACE_BUFFER_SIZE];
   sem_t _freeBufferSemaphore;       // to wait until there is a free buffer
   sem_t _fullBufferSemaphore;       // to wait until there is a buffer to print

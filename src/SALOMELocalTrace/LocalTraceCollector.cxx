@@ -32,31 +32,33 @@
 using namespace std;
 
 LocalTraceCollector* LocalTraceCollector::_singleton = 0;
+pthread_mutex_t LocalTraceCollector::_singletonMutex;
 int LocalTraceCollector::_threadToClose = 0;
 pthread_t LocalTraceCollector::_threadId = 0;
 int LocalTraceCollector::_toFile = 0;           // public, set by user
 
 // ============================================================================
 /*!
- *  guarantees a unique object instance of the class (singleton)
- *  Must be done at first because not thread safe: 
- *  _singleton is not protected by a mutex
- *  LocalTraceCollector instance is created, then LocalTraceBufferPool
- *  instance is created immediately in the same thread (not thread safe, too).
- *  After thet, a separate thread for loop to print traces is launched.
+ *  guarantees a unique object instance of the class (singleton thread safe)
+ *  a separate thread for loop to print traces is launched.
  */
 // ============================================================================
 
 LocalTraceCollector* LocalTraceCollector::instance()
 {
-  if (_singleton == 0)
+  if (_singleton == 0) // no need of lock when singleton already exists
     {
-      _singleton = new LocalTraceCollector();
-      LocalTraceBufferPool* initTraceBuffer = LocalTraceBufferPool::instance();
-      pthread_t traceThread;
-      int bid;
-      int ret = pthread_create(&traceThread, NULL,
-			       LocalTraceCollector::run, (void *)bid);
+      int ret;
+      ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+      if (_singleton == 0)                     // another thread may have got
+	{                                      // the lock after the first test
+	  _singleton = new LocalTraceCollector(); 
+	  pthread_t traceThread;
+	  int bid;
+	  int ret = pthread_create(&traceThread, NULL,
+				   LocalTraceCollector::run, (void *)bid);
+	}
+      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
   return _singleton;
 }
