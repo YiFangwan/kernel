@@ -21,12 +21,33 @@
 //
 //
 //
-//  File   : SALOMEDS_OCAFApplication.jxx
+//  File   : SALOMEDS.cxx
+//  Author : Sergey ANIKIN
 //  Module : SALOME
+//  $Header$
 
-#ifndef _TColStd_SequenceOfExtendedString_HeaderFile
-#include <TColStd_SequenceOfExtendedString.hxx>
-#endif
-#ifndef _SALOMEDS_OCAFApplication_HeaderFile
-#include "SALOMEDS_OCAFApplication.hxx"
-#endif
+
+#include <SALOMEDS.hxx>
+
+using namespace SALOMEDS;
+
+// PAL8065: san -- Global recursive mutex for SALOMEDS methods
+Utils_Mutex Locker::MutexDS;
+
+// PAL8065: san -- Global SALOMEDS locker
+Locker::Locker()
+: Utils_Locker( &MutexDS )
+{}
+
+Locker::~Locker()
+{}
+
+void SALOMEDS::lock()
+{
+  Locker::MutexDS.lock();
+}
+
+void SALOMEDS::unlock()
+{
+  Locker::MutexDS.unlock();
+}

@@ -21,23 +21,47 @@
 //
 //
 //
-//  File   : SALOMEDS_SelectableAttribute.jxx
-//  Author : Yves FRICAUD
+//  File   : SALOMEDS.hxx
+//  Author : Sergey ANIKIN
 //  Module : SALOME
 //  $Header$
 
-#ifndef _Standard_GUID_HeaderFile
-#include <Standard_GUID.hxx>
-#endif
-#ifndef _TDF_Label_HeaderFile
-#include <TDF_Label.hxx>
-#endif
-#ifndef _TDF_Attribute_HeaderFile
-#include <TDF_Attribute.hxx>
-#endif
-#ifndef _TDF_RelocationTable_HeaderFile
-#include <TDF_RelocationTable.hxx>
-#endif
-#ifndef _SALOMEDS_SelectableAttribute_HeaderFile
-#include "SALOMEDS_SelectableAttribute.hxx"
+
+#ifndef SALOMEDS_HeaderFile
+#define SALOMEDS_HeaderFile
+
+#include <Utils_Mutex.hxx>
+
+namespace SALOMEDS
+{
+  // PAL8065: san -- Implementation of convenient locker based on simple recursive 
+  // mutex for POSIX platforms.
+  // This class is to protect SALOMEDS CORBA methods which deal with OCC calls from 
+  // parallel access by several threads
+  // To protect some method, an instance of Locker class should be created
+  // on the stack at the beginning of guarded code:
+  //
+  //    Locker lock;
+  //
+  class Locker : public Utils_Locker
+  {
+  public:
+    Locker();
+    virtual ~Locker();
+
+  private:
+    static Utils_Mutex MutexDS;
+
+    friend void lock();
+    friend void unlock();
+  };
+
+  // Convenient functions to lock/unlock the global SALOMEDS mutex temporarily.
+  // In particular, "unlock-dosomething-lock" scheme should be used, when some non-SALOMEDS
+  // CORBA interface is called (component's engine), to avoid deadlocks in case of 
+  // indirect recursion.
+  void lock();
+  void unlock();
+};
+
 #endif
