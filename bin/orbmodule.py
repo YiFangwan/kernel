@@ -77,15 +77,16 @@ class client:
 
    def showNScontext(self,context,dec=''):
       bl,bi=context.list(0)
-      ok,b=bi.next_one()
-      while(ok):
-         for s in b.binding_name :
-            print "%s%s.%s" %(dec,s.id,s.kind)
-            if s.kind == "dir":
-               obj=context.resolve([s])
-               scontext = obj._narrow(CosNaming.NamingContext)
-               self.showNScontext(scontext,dec=dec+'  ')
+      if bi is not None:
          ok,b=bi.next_one()
+         while(ok):
+            for s in b.binding_name :
+               print "%s%s.%s" %(dec,s.id,s.kind)
+               if s.kind == "dir":
+                  obj=context.resolve([s])
+                  scontext = obj._narrow(CosNaming.NamingContext)
+                  self.showNScontext(scontext,dec=dec+'  ')
+            ok,b=bi.next_one()
 
    # --------------------------------------------------------------------------
 
