@@ -185,6 +185,8 @@ unsigned long int SALOME_Actor::GetMTime(){
   unsigned long mTime = this->Superclass::GetMTime();
   unsigned long time = myTransformFilter->GetMTime();
   mTime = ( time > mTime ? time : mTime );
+  time = myPassFilter[0]->GetInput()->GetMTime();
+  mTime = ( time > mTime ? time : mTime );
   return mTime;
 }
 
