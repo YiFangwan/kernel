@@ -24,10 +24,7 @@ DEFINE_STANDARD_HANDLE( SALOMEDSImpl_StudyManager, MMgt_TShared )
 #include <TDocStd_Document.hxx>
 #include <TColStd_HSequenceOfTransient.hxx>
 
-// HDF
-#include <iostream.h>
-#include "HDFOI.hxx"
-#include <stdlib.h>
+class HDFgroup;
 
 class SALOMEDSImpl_StudyManager : public MMgt_TShared 
 {

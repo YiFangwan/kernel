@@ -29,6 +29,10 @@ using namespace std;
 #include "SALOMEDSImpl_SComponent.hxx"
 #include <map>
 
+#include "HDFOI.hxx"
+#include <iostream.h>
+#include <stdlib.h>
+
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_StudyManager, MMgt_TShared )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_StudyManager, MMgt_TShared )
 
