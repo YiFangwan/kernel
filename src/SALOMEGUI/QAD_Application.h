@@ -43,6 +43,7 @@
 #include <qtranslator.h>
 #include <qtoolbar.h>
 #include <qmap.h>
+#include <qthread.h> 
 
 class QAD_Operation;
 class QAD_Desktop;
@@ -67,6 +68,9 @@ public:
 
     const QString&               getApplicationName() const;
     const QPixmap&               getApplicationIcon() const;
+
+    QMutex*             getGUIMutex();
+    void                setGUIMutex(QMutex* guiMutex);
 
     /* studies management */
     const QString&  getStudyFormat() const;     
@@ -174,6 +178,8 @@ protected:
     QString                        myStudyFormat;
     QString                        myStudyExtension;
     QString                        myStudyDescription;    
+
+    QMutex*                        _GUIMutex;
 
 #if defined SOLARIS          
 /*  SUN C++ v4.1 compiler BUG ? 

@@ -74,6 +74,7 @@ EXPORT_HEADERS = \
 		  SALOMEGUI_Desktop.h \
 		  SALOMEGUI_ImportOperation.h \
 		  SALOMEGUI_ViewChoiceDlg.h \
+		  SALOMEGUI_VisuMutex.hxx \
 		  SALOMEGUI_Swig.hxx \
 		  SALOMEGUI_Swig.i \
 		  SALOMEGUI_QtCatchCorbaException.hxx \
@@ -159,6 +160,7 @@ LIB_SRC = 	  \
 		  SALOMEGUI_OpenWith.cxx \
 		  SALOMEGUI_StudyPropertiesDlg.cxx \
 		  SALOMEGUI_QtCatchCorbaException.cxx \
+		  SALOMEGUI_VisuMutex.cxx \
 		  SALOME_ListIO_0.cxx \
 		  SALOME_ListNodeOfListIO_0.cxx \
 		  SALOME_ListIteratorOfListIO_0.cxx \

@@ -54,13 +54,14 @@ using namespace std;
  */
 //=============================================================================
 
-SALOME_Session_QThread::SALOME_Session_QThread(int argc, char ** argv) : QThread()
+SALOME_Session_QThread::SALOME_Session_QThread(int argc, char ** argv, QMutex *theGUIMutex) : QThread()
 {
   _qappl = 0 ;
   _mw = 0 ;
   _argc = argc ;
   _argv = argv ;
   _NS = 0 ;
+  _GUIMutex = theGUIMutex;
 } ;
 
 //=============================================================================
@@ -81,6 +82,7 @@ void SALOME_Session_QThread::run()
   QAD_ASSERT ( QObject::connect(_qappl, SIGNAL(lastWindowClosed()), _qappl, SLOT(quit()) ) );
   _mw = new SALOMEGUI_Application ( "MDTV-Standard", "HDF", "hdf" );
   INFOS("creation SALOMEGUI_Application");
+  _mw->setGUIMutex(_GUIMutex);
   
   if ( !SALOMEGUI_Application::addToDesktop ( _mw, _NS ) )
     {

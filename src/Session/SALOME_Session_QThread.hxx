@@ -41,7 +41,7 @@ class SALOME_Session_QThread: public QThread
 {
 
 public:
-  SALOME_Session_QThread(int argc, char ** argv) ;
+  SALOME_Session_QThread(int argc, char ** argv, QMutex *theGUIMutex) ;
 
   //! launch the Qt main window of the GUI on a separate thread
   virtual void run() ;
@@ -55,6 +55,7 @@ protected:
   int _ret ;
   SALOME_NamingService *_NS;
   QApplication *_qappl ;
+  QMutex *_GUIMutex;
 
   SALOMEGUI_Application* _mw ;
 } ;

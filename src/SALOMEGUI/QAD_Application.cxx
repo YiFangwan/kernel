@@ -220,7 +220,8 @@ QAD_Application::QAD_Application( const QString& format, const QString& descript
 myActiveStudy( 0 ),
 myStudyFormat( format ),
 myStudyExtension( extension ),
-myStudyDescription( description )
+myStudyDescription( description ),
+_GUIMutex(0)
 {        
   /* actions are stored in vectors only */
   
@@ -365,6 +366,24 @@ const QString& QAD_Application::getApplicationName() const
 const QPixmap& QAD_Application::getApplicationIcon() const
 {
   return myIcon;
+}
+
+/*! 
+    Returns the GUI Mutex   
+*/
+QMutex* QAD_Application::getGUIMutex()
+{
+  //SCRUTE(_GUIMutex);
+  return _GUIMutex;
+}
+
+/*! 
+    Sets the GUI Mutex   
+*/
+void QAD_Application::setGUIMutex(QMutex* guiMutex)
+{
+  _GUIMutex = guiMutex;
+  //SCRUTE(_GUIMutex);
 }
 
 /*!

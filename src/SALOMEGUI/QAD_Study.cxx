@@ -50,6 +50,7 @@ using namespace std;
 #include "SALOME_TypeFilter.hxx"
 #include "SALOME_InteractiveObject.hxx"
 #include "SALOME_ListIteratorOfListIO.hxx"
+#include "SALOMEGUI_VisuMutex.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
@@ -948,6 +949,9 @@ void QAD_Study::onLastStudyFrameClosing( QAD_StudyFrame* sf )
 */
 QAD_StudyFrame* QAD_Study::newWindow3d(QString name, ViewType theViewType, bool toShow)
 {
+  QMutex *theGUIMutex = myApp->getGUIMutex();
+  //SCRUTE(theGUIMutex);
+  VISU::Mutex mt(theGUIMutex,qApp);
   if(name == "")  name = getNextStudyFrameName();
   QAD_StudyFrame* sf = createStudyFrame( name, theViewType );
   if ( myResult ) {
@@ -1271,6 +1275,10 @@ int QAD_Study::getStudyId()
 
 void QAD_Study::update3dViewers() 
 {
+  //MESSAGE("QAD_Study::update3dViewers");
+  QMutex *theGUIMutex = myApp->getGUIMutex();
+  //SCRUTE(theGUIMutex);
+  VISU::Mutex mt(theGUIMutex,qApp);
   for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf; sf = myStudyFrames.next() ) {
     sf->getRightFrame()->getViewFrame()->Repaint();
   }
