@@ -55,6 +55,8 @@ module Containers {
 
     boolean ping() ;
 
+    Engines::Container FindOneContainer( in string aContainerName ) ;
+
     Engines::Container FindContainer( in MachineParameters MyParams ) ;
 
     Engines::ListOfContainers FindContainers( in MachineParameters MyParams ) ;
@@ -63,6 +65,9 @@ module Containers {
 
     Engines::Component FindComponent( in MachineParameters MyParams ,
                                       in string ComponentName ) ;
+
+    Engines::Component FindOneComponent( in string aContainerName ,
+                                         in string ComponentName ) ;
 
     Engines::ListOfComponents FindComponents( in MachineParameters MyParams ,
                                               in string ComponentName ) ;
@@ -73,6 +78,8 @@ module Containers {
 
     Engines::Component FindOrLoad_Component( in MachineParameters MyParams ,
                                              in string ComponentName ) ;
+
+    void destroy() ;
 
   } ;
 

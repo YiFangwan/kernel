@@ -148,20 +148,25 @@ int main (int argc, char * argv[])
       for (int iter = 0; iter < 3 ; iter++)
 	{
 	  INFOS("----------------------------------------------------" << iter);   
-          string dirn = getenv("SALOME_ROOT_DIR");
-          dirn += "/lib/salome/libSalomeTestComponentEngine.so";
+//          string dirn = getenv("SALOME_ROOT_DIR");
+//          dirn += "/lib/salome/libSalomeTestComponentEngine.so";
+          iGenFact->ping() ;
+          string dirn = "libSalomeTestComponentEngine.so";
           obj = iGenFact->load_impl("SalomeTestComponent",dirn.c_str());
 	  m1 = Engines::TestComponent::_narrow(obj);
 	  INFOS("recup m1");
 	  SCRUTE(m1->instanceName());
 	  INFOS("Coucou " << m1->Coucou(1L));
 	  iGenFact->remove_impl(m1) ;
+	  INFOS("remove_impl done" );
 	  //iGenFact->finalize_removal() ; // unpredictable results ...
           sleep(5);
 	}    
       // Clean-up.
       iGenFact->finalize_removal() ;
+      INFOS("finalize_removal done" );
       orb->destroy();
+      INFOS("orb destroyed" );
     }
   catch(CORBA::COMM_FAILURE& ex) {
     INFOS("Caught system exception COMM_FAILURE -- unable to contact the object.")

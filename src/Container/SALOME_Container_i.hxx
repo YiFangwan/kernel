@@ -58,6 +58,7 @@ public:
 		      int flag);
   virtual ~Engines_Container_i();
 
+  void destroy() ;
 
   Engines::Container_ptr start_impl( const char* ContainerName , const Engines::ContainerType ) ;
 

@@ -145,6 +145,15 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 Engines_Container_i::~Engines_Container_i()
 {
   MESSAGE("Container_i::~Container_i()");
+  exit( 0 ) ;
+}
+
+void Engines_Container_i::destroy() {
+  MESSAGE( "Manager_i::destroy" ) ;
+  _poa->deactivate_object(*_id) ;
+  CORBA::release(_poa) ;
+  delete(_id) ;
+  this->_remove_ref();
 }
 
 char* Engines_Container_i::name()
@@ -181,7 +190,7 @@ Engines::Container_ptr Engines_Container_i::start_impl( const char* ContainerNam
                                                         const Engines::ContainerType aContainerType ) {
   MESSAGE("start_impl argc " << _argc << " ContainerName " << ContainerName
           << hex << this << dec) ;
-  _numInstanceMutex.lock() ; // lock on the instance number
+//  _numInstanceMutex.lock() ; // lock on the instance number
 
   CORBA::Object_var obj = Engines::Container::_nil() ;
   bool nilvar = true ;
@@ -206,7 +215,7 @@ Engines::Container_ptr Engines_Container_i::start_impl( const char* ContainerNam
     INFOS(machineName() << "Caught unknown exception.");
   }
   if ( !nilvar ) {
-    _numInstanceMutex.unlock() ;
+//    _numInstanceMutex.unlock() ;
     MESSAGE("start_impl container found without runSession") ;
     return Engines::Container::_narrow(obj);
   }
@@ -261,7 +270,7 @@ Engines::Container_ptr Engines_Container_i::start_impl( const char* ContainerNam
           count -= 1 ;
         }
       }
-      _numInstanceMutex.unlock() ;
+//      _numInstanceMutex.unlock() ;
       if ( !nilvar ) {
         MESSAGE("start_impl container found after runSession(SALOME_Container)") ;
       }
@@ -274,7 +283,7 @@ Engines::Container_ptr Engines_Container_i::start_impl( const char* ContainerNam
       INFOS(machineName() << "Caught unknown exception.");
     }
   }
-  _numInstanceMutex.unlock() ;
+//  _numInstanceMutex.unlock() ;
   MESSAGE("start_impl container not found after runSession(SALOME_Container)") ;
   return Engines::Container::_nil() ;
 }
@@ -306,7 +315,7 @@ Engines::Component_ptr Engines_Container_i::load_impl( const char* nameToRegiste
   }
   
   string factory_name = _nameToRegister + string("Engine_factory");
-  //  SCRUTE(factory_name) ;
+  SCRUTE(factory_name) ;
 
   typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION)
                             (CORBA::ORB_ptr,
@@ -328,6 +337,17 @@ Engines::Component_ptr Engines_Container_i::load_impl( const char* nameToRegiste
   Engines::Component_var iobject = Engines::Component::_nil() ;
   try {
     CORBA::Object_var obj = _NS->Resolve( component_registerName.c_str() ) ;
+    if ( !CORBA::is_nil( obj ) ) {
+      MESSAGE( "Container_i::load_impl " << component_registerName.c_str() << " already bound" ) ;
+      iobject = Engines::Component::_narrow( obj ) ;
+      try {
+        iobject->ping() ;
+      }
+      catch (...) {
+        MESSAGE( "Container_i::load_impl " << component_registerName.c_str() << " NOT responding" ) ;
+        obj = CORBA::Object::_nil() ;
+      }
+    }
     if ( CORBA::is_nil( obj ) ) {
 // Instanciate required CORBA object
       PortableServer::ObjectId * id ;
@@ -341,10 +361,6 @@ Engines::Component_ptr Engines_Container_i::load_impl( const char* nameToRegiste
   // register the engine under the name containerName.dir/nameToRegister.object
       _NS->Register( iobject , component_registerName.c_str() ) ;
       MESSAGE( "Container_i::load_impl " << component_registerName.c_str() << " bound" ) ;
-    }
-    else { // JR : No ReBind !!!
-      MESSAGE( "Container_i::load_impl " << component_registerName.c_str() << " already bound" ) ;
-      iobject = Engines::Component::_narrow( obj ) ;
     }
   }
   catch (...) {
@@ -361,6 +377,8 @@ Engines::Component_ptr Engines_Container_i::load_impl( const char* nameToRegiste
 void Engines_Container_i::remove_impl(Engines::Component_ptr component_i)
 {
   ASSERT(! CORBA::is_nil(component_i));
+  string component_registerName = _containerName + "/" + component_i->interfaceName() ;
+  _NS->Destroy_Name( component_registerName.c_str() ) ;
   string instanceName = component_i->instanceName() ;
   MESSAGE("unload component " << instanceName);
   component_i->destroy() ;
@@ -379,6 +397,7 @@ void Engines_Container_i::remove_impl(Engines::Component_ptr component_i)
     {
       MESSAGE("reste " << (*im).first);
     }
+  MESSAGE("end of remove_impl");
 }
 
 void Engines_Container_i::finalize_removal()

@@ -81,6 +81,18 @@ SuperVisionContainer.ping()
 print "Container SuperVisionContainer is running on",SuperVisionContainer._get_machineName(),"with name",SuperVisionContainer._get_name(),"and type",SuperVisionContainer.type()
 
 
+DefaultParams.ContainerName = ''
+DefaultParams.ContainerType = Engines.Undefined
+ContainerParameters( DefaultParams )
+Containers = MyContainersMgr.FindContainers( DefaultParams )
+ContainerParameters( DefaultParams )
+i = 0
+while i < len( Containers ) :
+    print "Container running on",Containers[ i ]._get_machineName(),"with name",Containers[ i ]._get_name(),"and type",Containers[ i ].type()
+    i = i + 1
+
+
+
 #ResourcesManager_Server -common /home/Salome2/KERNEL_install/share/salome/resources/ResourcesCatalog.xml -ORBInitRef NameService=corbaname::localhost
 
 import Resources
@@ -114,7 +126,7 @@ aComputer.Parameters().FullName
 aComputer = MyResourcesMgr.GetComputer( ListOfComputers )
 aComputer.Parameters().FullName
 
-aComputer = MyResourcesMgr.SearchComputer("bordolex")
+aComputer = MyResourcesMgr.SearchComputer("dunex")
 aComputer.Parameters().FullName
 
 aComputer = MyResourcesMgr.SearchComputer("bojolex")
@@ -206,11 +218,23 @@ while i < len( Containers ) :
 aContainer = MyContainersMgr.FindContainer( DefaultParams )
 print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
 
-aContainer = MyContainersMgr.FindContainer( 'FactoryServer' ) )
+aContainer = MyContainersMgr.FindOneContainer( 'FactoryServer' )
 print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
 
-aContainer = MyContainersMgr.FindContainer( 'localhost/FactoryServer' ) )
+aContainer = MyContainersMgr.FindOneContainer( 'FactoryServerPy' )
 print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
+
+aContainer = MyContainersMgr.FindOneContainer( 'SuperVisionContainer' )
+print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
+
+aContainer = MyContainersMgr.FindOneContainer( 'localhost/FactoryServer' )
+print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
+
+aContainer = MyContainersMgr.FindOneContainer( 'bojolex/SuperVisionContainer' )
+if aContainer is None :
+    print "None Container : Ok"
+else :
+    print "ERROR Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
 
 DefaultParams.ContainerType = Engines.Cpp
 Containers = MyContainersMgr.FindContainers( DefaultParams )
@@ -225,6 +249,10 @@ i = 0
 while i < len( Containers ) :
     print "Container running on",Containers[ i ]._get_machineName(),"with name",Containers[ i ]._get_name(),"and type",Containers[ i ].type()
     i = i + 1
+
+DefaultParams.ContainerName = 'DunexServerPython'
+aPyContainer = MyContainersMgr.FindOrStartContainer( DefaultParams )
+print "Container running on",aPyContainer._get_machineName(),"with name",aPyContainer._get_name(),"and type",aPyContainer.type()
 
 ContainerParameters( DefaultParams )
 
@@ -281,6 +309,15 @@ while i < len( ListOfComponents ) :
     print ListOfComponents[ i ].GetContainerRef()._get_name(),ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
     i = i + 1
 
+aAddComponent = MyContainersMgr.FindOneComponent( 'FactoryServer' , "AddComponent" )
+print aAddComponent.GetContainerRef()._get_name(),aAddComponent._get_instanceName(),aAddComponent._get_interfaceName()
+
+aSubComponent = MyContainersMgr.FindOneComponent( 'FactoryServer' , "SubComponent" )
+print aSubComponent.GetContainerRef()._get_name(),aSubComponent._get_instanceName(),aSubComponent._get_interfaceName()
+
+aSUPERVComponent = MyContainersMgr.FindOneComponent( 'SuperVisionContainer' , "SUPERV" )
+print aSUPERVComponent.GetContainerRef()._get_name(),aSUPERVComponent._get_instanceName(),aSUPERVComponent._get_interfaceName()
+
 
 
 
@@ -290,6 +327,8 @@ from LifeCycleCORBA import *
 orb = CORBA.ORB_init([''], CORBA.ORB_ID)
 lcc = LifeCycleCORBA( orb )
 
+t  = lcc.FindOrLoadComponent( 'FactoryServer' , 'SalomeTestComponent' )
+print t
 
 lccMulComponent = lcc.FindOrLoadComponent( 'SuperVisionContainer' , "MulComponent" )
 print lccMulComponent.GetContainerRef()._get_name(),lccMulComponent._get_instanceName(),lccMulComponent._get_interfaceName()
@@ -348,4 +387,7 @@ lccbojolexMulComponent = lcc.FindOrLoadComponent( DefaultParams , "MulComponent"
 DefaultParams.HostName = 'toto'
 
 lcctotoMulComponent = lcc.FindOrLoadComponent( DefaultParams , "MulComponent" )
+
+
+MyContainersMgr.destroy()
 

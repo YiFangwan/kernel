@@ -28,6 +28,7 @@
 
 #include <iostream.h>
 #include "SALOME_NamingService.hxx"
+#include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 
 #include "ResourcesManager_Impl.hxx"
@@ -38,7 +39,9 @@ int main(int argc,char **argv) {
   try {
 
 // initialize the ORB
-    CORBA::ORB_ptr orb = CORBA::ORB_init ( argc , argv ) ;
+    ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+    ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
+    CORBA::ORB_var &orb = init( argc , argv ) ;
 
     long TIMESleep = 250000000 ;
     int NumberOfTries = 40 ;
@@ -169,6 +172,8 @@ int main(int argc,char **argv) {
  
     poa->destroy( 1 , 1 ) ;
  
+    orb->destroy();
+
   }
   catch ( CORBA::SystemException& ) {
     INFOS("Caught CORBA::SystemException.") ;

@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string>
+#include <vector>
 
 #include "utilities.h"
 #include "OpUtil.hxx"
@@ -57,6 +58,8 @@ class Manager_i : public POA_Containers::Manager ,
   private:
 
     CORBA::ORB_ptr                    _Orb ;
+    PortableServer::POA_ptr           _Poa ;
+    PortableServer::ObjectId        * _Id ;
     SALOME_NamingService            * _NamingService ;
     Resources::Manager_var            _ResourcesManager ;
     string                            _NamingServiceHostName ;
@@ -80,7 +83,18 @@ class Manager_i : public POA_Containers::Manager ,
     CORBA::Object_var                 _ComponentObject ;
     Engines::Component_var            _EnginesComponent ;
 
+    vector< string >                  _ListOfContainersNames ;
+    vector< Engines::Container_var >  _ListOfEnginesContainers ;
+    vector< string >                  _ListOfComponentsNames ;
+    vector< Engines::Component_var >  _ListOfEnginesComponents ;
+
+    std::string ContainerName( const char * aComputerContainer ,
+                               std::string * theComputer ,
+                               std::string * theContainer ) ;
+
     Engines::Container_ptr StartContainer( const Containers::MachineParameters & myParams ) ;
+
+    Engines::ListOfContainers * FindContainersLocked( Containers::MachineParameters & MyParams ) ;
 
     Engines::Container_ptr FindOrStartContainerLocked( Containers::MachineParameters & MyParams ,
                                                        const char * ComponentName ) ;
@@ -92,12 +106,15 @@ class Manager_i : public POA_Containers::Manager ,
 
     Manager_i() ;
 
-    Manager_i( CORBA::ORB_ptr orb ,
+    void Init( CORBA::ORB_ptr orb ,
+               PortableServer::POA_ptr poa ,
                SALOME_NamingService * NamingService ,
                int argc ,
                char** argv ) ;
 
     virtual ~Manager_i() ;
+
+    virtual void destroy() ;
 
     virtual bool ping() ;
 
@@ -105,12 +122,17 @@ class Manager_i : public POA_Containers::Manager ,
 
     virtual Engines::Container_ptr FindContainer( const Containers::MachineParameters & MyParams ) ;
 
+    virtual Engines::Container_ptr FindOneContainer( const char * aContainerName ) ;
+
     virtual Engines::ListOfContainers * FindContainers( const Containers::MachineParameters & MyParams ) ;
 
     virtual Engines::Container_ptr FindOrStartContainer( const Containers::MachineParameters & MyParams ) ;
 
     virtual Engines::Component_ptr FindComponent( const Containers::MachineParameters & MyParams ,
                                                   const char * ComponentName ) ;
+
+    virtual Engines::Component_ptr FindOneComponent( const char * aContainerName ,
+                                                     const char * ComponentName ) ;
 
     virtual Engines::ListOfComponents * FindComponents( const Containers::MachineParameters & MyParams ,
                                                         const char * ComponentName ) ;

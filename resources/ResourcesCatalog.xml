@@ -1,8 +1,8 @@
 <resources-list>
 	<computer>
 		<parameters>
-			<fullname>bordolex.saclay.opencascade.com</fullname>
-			<alias>bordolex</alias>
+			<fullname>dunex.saclay.opencascade.com</fullname>
+			<alias>dunex</alias>
 			<sshaccess>0</sshaccess>
 			<interactive>1</interactive>
 			<batch>1</batch>
@@ -29,7 +29,7 @@
 			<modules_root_path>/home/Salome2/MED_install</modules_root_path>
 			<path>.:${KERNEL_ROOT_DIR}/bin/salome:${GEOM_ROOT_DIR}/bin/salome:${SUPERV_ROOT_DIR}/bin/salome:${MED_ROOT_DIR}/bin/salome:${SMESH_ROOT_DIR}/bin/salome:${VISU_ROOT_DIR}/bin/salome:/home/SALOME_1.2c/graphviz-1.9/bin:/home/SALOME_1.2c/doxygen-1.3-rc2/bin:/home/SALOME_1.2c/HappyDoc-r2_1/bin:/home/SALOME_1.2c/omniORB-3.0.5/bin/i586_linux_2.0_glibc2.1:/home/SALOME_1.2c/VTK-4.2.2/bin:/home/SALOME_1.2c/med-2.1.6/bin:/home/SALOME_1.2c/hdf5-1.4.4/bin:/home/SALOME_1.2c/SWIG-1.3.17/bin:/usr/bin:/opt/j2sdk1.4.0_02/bin:/usr/local/bin:/usr/X11R6/bin:/usr/bin:/bin:/usr/bin:/usr/bin:/usr/lib/qt-3.0.5/bin:/usr/bin:/usr/bin:/usr/bin:/usr/bin:/usr/lib/qt-3.0.5/bin:/usr/bin:/usr/bin</path>
 			<ld_library_path>${KERNEL_ROOT_DIR}/lib/salome:${GEOM_ROOT_DIR}/lib/salome:${SUPERV_ROOT_DIR}/lib/salome:${MED_ROOT_DIR}/lib/salome:${SMESH_ROOT_DIR}/lib/salome:${VISU_ROOT_DIR}/lib/salome:/home/SALOME_1.2c/graphviz-1.9/lib/graphviz:/home/SALOME_1.2c/omniORB-3.0.5/lib/i586_linux_2.0_glibc2.1:/home/SALOME_1.2c/VTK-4.2.2/lib/vtk:/home/SALOME_1.2c/med-2.1.6/lib:/home/SALOME_1.2c/hdf5-1.4.4/lib:/home/SALOME_1.2c/qwt-0.4.1/lib:/home/SALOME_1.2c/SWIG-1.3.17/lib::/usr/lib/python2.2:/home/SALOME_1.2c/CAS4.0/Linux/lib:/home/SALOME_1.2c/CAS4.0/lin/lib:/home/SALOME_1.2c/CAS4.0/Linux/lib::/usr/lib:/usr/lib:/usr/lib/qt-3.0.5/lib:/usr/bin:/usr/lib/python2.2/site-packages</ld_library_path>
-			<pythonpath>${KERNEL_ROOT_DIR}/bin/salome:${KERNEL_ROOT_DIR}/lib/salome:${GEOM_ROOT_DIR}/bin/salome:${GEOM_ROOT_DIR}/lib/salome:${SUPERV_ROOT_DIR}/bin/salome:${SUPERV_ROOT_DIR}/lib/salome:${MED_ROOT_DIR}/bin/salome:${MED_ROOT_DIR}/lib/salome:${SMESH_ROOT_DIR}/bin/salome:${SMESH_ROOT_DIR}/lib/salome:${VISU_ROOT_DIR}/bin/salome:${VISU_ROOT_DIR}/lib/salome:${KERNEL_ROOT_DIR}/lib/python2.2/site-packages/salome:${KERNEL_ROOT_DIR}/share/salome/resources/:/home/SALOME_1.2c/HappyDoc-r2_1/lib/python2.2/site-packages/happydoclib:/home/SALOME_1.2c/Numeric-22.0/lib/python2.2/site-packages/Numeric:/home/SALOME_1.2c/omniORB-3.0.5/lib/python:/home/SALOME_1.2c/omniORB-3.0.5/lib/i586_linux_2.0_glibc2.1::/usr/lib/python2.2:/usr/lib/python2.2/site-packages:/usr/lib/python2.2/site-packages</pythonpath>
+			<pythonpath>${KERNEL_ROOT_DIR}/lib/python2.2/site-packages/salome/shared_modules:${KERNEL_ROOT_DIR}/lib/salome:${KERNEL_ROOT_DIR}/lib/python2.2/site-packages/salome:${KERNEL_ROOT_DIR}/bin/salome:${GEOM_ROOT_DIR}/bin/salome:${GEOM_ROOT_DIR}/lib/salome:${SUPERV_ROOT_DIR}/lib/python2.2/site-packages/salome/shared_modules:${SUPERV_ROOT_DIR}/lib/salome:${SUPERV_ROOT_DIR}/lib/python2.2/site-packages/salome:${SUPERV_ROOT_DIR}/bin/salome:${MED_ROOT_DIR}/bin/salome:${MED_ROOT_DIR}/lib/salome:${SMESH_ROOT_DIR}/bin/salome:${SMESH_ROOT_DIR}/lib/salome:${VISU_ROOT_DIR}/bin/salome:${VISU_ROOT_DIR}/lib/salome:${KERNEL_ROOT_DIR}/lib/python2.2/site-packages/salome:${KERNEL_ROOT_DIR}/share/salome/resources/:/home/SALOME_1.2c/HappyDoc-r2_1/lib/python2.2/site-packages/happydoclib:/home/SALOME_1.2c/Numeric-22.0/lib/python2.2/site-packages/Numeric:/home/SALOME_1.2c/omniORB-3.0.5/lib/python:/home/SALOME_1.2c/omniORB-3.0.5/lib/i586_linux_2.0_glibc2.1::/usr/lib/python2.2:/usr/lib/python2.2/site-packages:/usr/lib/python2.2/site-packages</pythonpath>
 			<casroot>/home/SALOME_1.2c/CAS4.0</casroot>
 		</environment>
 	</computer>

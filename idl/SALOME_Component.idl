@@ -51,6 +51,7 @@ module Engines
 
   interface Container
   {
+    void destroy() ;
 /*!
     Initializes the %container with a definite name.
     \param ContainerName Name of the container

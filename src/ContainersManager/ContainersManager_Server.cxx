@@ -28,6 +28,7 @@
 
 #include <iostream.h>
 #include "SALOME_NamingService.hxx"
+#include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 
 #include "ContainersManager_i.hxx"
@@ -38,8 +39,10 @@ int main( int argc , char **argv ) {
   try {
 
 // initialize the ORB
-    CORBA::ORB_ptr orb = CORBA::ORB_init ( argc , argv ) ;
-
+    ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+    ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
+    CORBA::ORB_var &orb = init( argc , argv ) ;
+ 
     long TIMESleep = 250000000 ;
     int NumberOfTries = 40 ;
     int a ;
@@ -125,8 +128,9 @@ int main( int argc , char **argv ) {
     _NS = new SALOME_NamingService( orb ) ;
 
 // Active ContainersManager
-    Manager_i * MyContainersManager = new Manager_i( orb , _NS , argc , argv ) ;
-    poa->activate_object ( MyContainersManager ) ;
+    Manager_i * MyContainersManager = SINGLETON_<Manager_i>::Instance() ;
+    MyContainersManager->Init( orb , poa , _NS , argc , argv ) ;
+//    _Id = _Poa->activate_object ( MyContainersManager ) ;
     mgr->activate() ;
     CORBA::Object_ptr TheContainersManager = MyContainersManager->_this() ;
 
@@ -139,6 +143,8 @@ int main( int argc , char **argv ) {
  
     poa->destroy( 1 , 1 ) ;
  
+    orb->destroy();
+
   }
   catch ( CORBA::SystemException& ) {
     INFOS("Caught CORBA::SystemException.") ;
