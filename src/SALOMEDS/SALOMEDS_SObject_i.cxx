@@ -258,7 +258,7 @@ CORBA::Object_ptr SALOMEDS_SObject_i::GetObject()
  */
 //============================================================================
 char* SALOMEDS_SObject_i::GetName() {
-  CORBA::String_var aStr;
+  CORBA::String_var aStr = CORBA::string_dup( "" );
   Handle(TDataStd_Name) aName;
   if (_lab.FindAttribute(TDataStd_Name::GetID(), aName)) {
     aStr = CORBA::string_dup(TCollection_AsciiString(aName->Get()).ToCString());
@@ -272,7 +272,7 @@ char* SALOMEDS_SObject_i::GetName() {
  */
 //============================================================================
 char* SALOMEDS_SObject_i::GetComment() {
-  CORBA::String_var aStr;
+  CORBA::String_var aStr = CORBA::string_dup( "" );
   Handle(TDataStd_Comment) aComment;
   if (_lab.FindAttribute(TDataStd_Comment::GetID(), aComment)) {
     aStr = CORBA::string_dup(TCollection_AsciiString(aComment->Get()).ToCString());
@@ -286,7 +286,7 @@ char* SALOMEDS_SObject_i::GetComment() {
  */
 //============================================================================
 char* SALOMEDS_SObject_i::GetIOR() {
-  CORBA::String_var aStr;
+  CORBA::String_var aStr = CORBA::string_dup( "" );
   Handle(SALOMEDS_IORAttribute) anIOR;
   if (_lab.FindAttribute(SALOMEDS_IORAttribute::GetID(), anIOR)) {
     aStr = CORBA::string_dup(TCollection_AsciiString(anIOR->Get()).ToCString());
