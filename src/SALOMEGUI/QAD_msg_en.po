@@ -435,21 +435,6 @@ msgstr "Sketch a rectangular area to fit the view"
 # TOOL TIP
 #---------------
 
-#: QAD_HelpWindow.cxx:57
-msgid "QAD_HelpWindow::TOT_HELPWINDOW_BACKWARD"
-msgstr "Backward"
-
-#: QAD_HelpWindow.cxx:60
-msgid "QAD_HelpWindow::TOT_HELPWINDOW_FORWARD"
-msgstr "Forward"
-
-#: QAD_HelpWindow.cxx:63
-msgid "QAD_HelpWindow::TOT_HELPWINDOW_HOME"
-msgstr "Home"
-
-msgid "QAD_HelpWindow::QAD_HELP_CONTENTS"
-msgstr "Contents"
-
 #: QAD_Application.cxx:173
 msgid "QAD_Application::TOT_APP_EDIT_REDO"
 msgstr "Redo last operation"

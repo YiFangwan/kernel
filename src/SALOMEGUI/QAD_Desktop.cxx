@@ -53,7 +53,7 @@ using namespace std;
 #include "QAD_ObjectBrowser.h"
 #include "QAD_Resource.h"
 #include "QAD_FileDlg.h"
-#include "QAD_HelpWindow.h"
+//NRI#include "QAD_HelpWindow.h"
 #include "QAD_DirListDlg.h"
 #include "QAD_WaitCursor.h"
 #include "SALOMEGUI_OpenWith.h"
@@ -179,7 +179,7 @@ myStatusBar(0),
 myActiveApp(0),
 myActiveStudy(0),
 myCntUntitled(0),
-myHelpWindow(0),
+//NRImyHelpWindow(0),
 myDefaultTitle( tr("DESK_DEFAULTTITLE") ),
 myQueryClose( true )
 {
@@ -347,8 +347,8 @@ QAD_Desktop::~QAD_Desktop ()
   myToolBarAction.clear();
   myApps.clear();
   delete resourceMgr;
-  if (myHelpWindow)
-    myHelpWindow->close();
+//NRI   if (myHelpWindow)
+//     myHelpWindow->close();
   resourceMgr = 0;
   QAD_Application::desktop = 0;
 }
@@ -457,7 +457,7 @@ void QAD_Desktop::createActions()
     myMainMenu->insertItem ( tr("MEN_DESK_VIEW"),   &myViewPopup, 2 );	/* add popup VIEW */
     myMainMenu->insertItem ( tr("MEN_DESK_TOOLS"),  &myToolsPopup, 5 );	/* add popup TOOLS */
     myMainMenu->insertItem ( tr("MEN_DESK_PREF"),   &myPrefPopup, 4 );	/* add popup PREF */
-    myMainMenu->insertItem ( tr("MEN_DESK_WINDOW"), &myWindowPopup, 6 );	/* add popup WINDOW */
+    myMainMenu->insertItem ( tr("MEN_DESK_WINDOW"), &myWindowPopup, 6 );/* add popup WINDOW */
     myMainMenu->insertItem ( tr("MEN_DESK_HELP"),   &myHelpPopup, 7 );	/* add popup HELP */
 
     /*	Applications will insert their items after 'File' 'Edit' and 'View'
@@ -895,12 +895,14 @@ void QAD_Desktop::createActions()
     id = myHelpPopup.insertSeparator();
 						   
     /* GUI contents */
-    QActionP* helpContentsActionGUI = new QActionP( "", tr("MEN_DESK_HELP_GUICONTENTS"), 0, this );
-    helpContentsActionGUI->setStatusTip ( tr("PRP_DESK_HELP_GUICONTENTS") );
-    QAD_ASSERT(connect( helpContentsActionGUI, SIGNAL(activated()),
-			this, SLOT( onHelpContentsGUI() )));
-    helpContentsActionGUI->addTo( &myHelpPopup );
-    myStdActions.insert( HelpContentsId , helpContentsActionGUI );
+    // NRI : Temporary commented
+
+//     QActionP* helpContentsActionGUI = new QActionP( "", tr("MEN_DESK_HELP_GUICONTENTS"), 0, this );
+//     helpContentsActionGUI->setStatusTip ( tr("PRP_DESK_HELP_GUICONTENTS") );
+//     QAD_ASSERT(connect( helpContentsActionGUI, SIGNAL(activated()),
+// 			this, SLOT( onHelpContentsGUI() )));
+//     helpContentsActionGUI->addTo( &myHelpPopup );
+//     myStdActions.insert( HelpContentsId , helpContentsActionGUI );
 
     /* TUI contents */
     QActionP* helpContentsActionTUI = new QActionP( "", tr("MEN_DESK_HELP_TUICONTENTS"), 0, this );
@@ -1220,48 +1222,48 @@ QString QAD_Desktop::getComponentUserName(const char *componentName)
   return "";
 }
 
-/*!
-  gets application Help Window (and creates if necessary)
-*/
-QAD_HelpWindow* QAD_Desktop::getHelpWindow()
-{
-  if (!myHelpWindow) {
-    myHelpWindow = new QAD_HelpWindow();  
+// /*!
+//   gets application Help Window (and creates if necessary)
+// */
+// QAD_HelpWindow* QAD_Desktop::getHelpWindow()
+// {
+//   if (!myHelpWindow) {
+//     myHelpWindow = new QAD_HelpWindow();  
     
-    QMap<QString,QString>::Iterator it;
-    for( it = mapComponentName.begin(); it != mapComponentName.end(); ++it ) {
-      QCString dir;
-      QString root;
+//     QMap<QString,QString>::Iterator it;
+//     for( it = mapComponentName.begin(); it != mapComponentName.end(); ++it ) {
+//       QCString dir;
+//       QString root;
       
-      // look for index.html and set homeDir
-      // 1. $(MODULE_ROOT_DIR)/doc/index.html
-      // 2. $(MODULE_ROOT_DIR)/doc/html/index.html
-      // 3. $(MODULE_ROOT_DIR)/doc/html/html/index.html
+//       // look for index.html and set homeDir
+//       // 1. $(MODULE_ROOT_DIR)/doc/index.html
+//       // 2. $(MODULE_ROOT_DIR)/doc/html/index.html
+//       // 3. $(MODULE_ROOT_DIR)/doc/html/html/index.html
 
-      if (dir = getenv( QString( it.data() + "_ROOT_DIR")) ) {
-	root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + "doc" );
-	if ( QFileInfo( root + "index.html" ).exists() ) {
-	  helpContext( root + "index.html", "" );
-	}
-	else {
-	  root = QAD_Tools::addSlash( root + "html" );
-	  if ( QFileInfo( root + "index.html" ).exists() ) {
-	    helpContext( root + "index.html", "" );
-	  }
-	  else {
-	    root = QAD_Tools::addSlash( root + "html" );
-	    if ( QFileInfo( root + "index.html" ).exists() ) {
-	      helpContext( root + "index.html", "" );
-	    }
-	  }
-	}
-      }
-    }
+//       if (dir = getenv( QString( it.data() + "_ROOT_DIR")) ) {
+// 	root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + "doc" );
+// 	if ( QFileInfo( root + "index.html" ).exists() ) {
+// 	  helpContext( root + "index.html", "" );
+// 	}
+// 	else {
+// 	  root = QAD_Tools::addSlash( root + "html" );
+// 	  if ( QFileInfo( root + "index.html" ).exists() ) {
+// 	    helpContext( root + "index.html", "" );
+// 	  }
+// 	  else {
+// 	    root = QAD_Tools::addSlash( root + "html" );
+// 	    if ( QFileInfo( root + "index.html" ).exists() ) {
+// 	      helpContext( root + "index.html", "" );
+// 	    }
+// 	  }
+// 	}
+//       }
+//     }
     
-    connect(myHelpWindow, SIGNAL(helpWindowClosed()), this, SLOT(onHelpWindowClosed()));
-  }
-  return myHelpWindow;
-}
+//     connect(myHelpWindow, SIGNAL(helpWindowClosed()), this, SLOT(onHelpWindowClosed()));
+//   }
+//   return myHelpWindow;
+// }
 
 /*!
     Called when desktop is closing
@@ -1846,13 +1848,13 @@ void QAD_Desktop::onCascade()
       it.current()->resize((int)(0.8*w), (int)(0.8*h));
 }
 
-/*!
-  called when help window closed
-*/
-void QAD_Desktop::onHelpWindowClosed()
-{
-  myHelpWindow = 0;
-}
+// /*!
+//   called when help window closed
+// */
+// void QAD_Desktop::onHelpWindowClosed()
+// {
+//   myHelpWindow = 0;
+// }
 
 /*!
     Called when 'view status bar' option
@@ -2070,123 +2072,22 @@ private:
     Called on 'help\contents'
 */
 void QAD_Desktop::onHelpContents()
-{
+{  if (myActiveComp == "")
+    myActiveComp = getComponentUserName( "KERNEL" ); //NRI "Salome";
 
-  // look for main.html and set homeDir
-  // 1. $(SALOME_ROOT_DIR)/doc/main.html
-  // 2. $(SALOME_ROOT_DIR)/doc/html/main.html
-  // 3. $(SALOME_ROOT_DIR)/doc/html/html/main.html
-  // 4. /usr/local/doc/html/main.html
-  
   QCString dir;
   QString root;
   QString homeDir;
-  
-  if ( (dir = getenv("SALOME_ROOT_DIR")) ) {
-    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + "doc" );
-    if ( QFileInfo( root + "main.html" ).exists() ) {
-      homeDir = root;
-    }
-    else {
-      root = QAD_Tools::addSlash( root + "html" );
-      if ( QFileInfo( root + "main.html" ).exists() ) {
-	homeDir = root;
-      }
-      else {
-	root = QAD_Tools::addSlash( root + "html" );
-	if ( QFileInfo( root + "main.html" ).exists() ) {
-	  homeDir = root;
-	}
-      }
-    }
-  }
-  if ( root.isEmpty() ) {
-    if ( QFileInfo( "/usr/local/doc/html/main.html" ).exists() ) {
-      homeDir = "/usr/local/doc/html/";
-    }
-  }
-  if ( root.isEmpty() ) 
-    root = "./doc/";
-  
-  QString helpFile = QFileInfo( homeDir + "main.html" ).absFilePath(); 
-  
-  QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
-  QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
-   
-  RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
-  rs->start();
-    
-}
-
-/*!
-    Called on 'help\GUI Reference'
-*/
-void QAD_Desktop::onHelpContentsGUI()
-{
-
-  // look for main.html and set homeDir
-  // 1. $(SALOME_ROOT_DIR)/doc/guihtml/guihtml/salomedoc.html
-  // 2. /usr/local/doc/guihtml/salomedoc.html
-  
-  QCString dir;
-  QString root;
-  QString homeDir;
-  
-  if ( (dir = getenv("SALOME_ROOT_DIR")) ) {
-    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + "doc" );
-    root = QAD_Tools::addSlash( root + "guihtml" );
-    root = QAD_Tools::addSlash( root + "guihtml" );
-    if ( QFileInfo( root + "salomedoc.html" ).exists() ) {
-      homeDir = root;
-    }
-  }
-  if ( root.isEmpty() ) {
-    if ( QFileInfo( "/usr/local/doc/guihtml/salomedoc.html" ).exists() ) {
-      homeDir = "/usr/local/doc/guihtml/";
-    }
-  }
-  if ( root.isEmpty() ) 
-    root = "./doc/";
-  
-  QString helpFile = QFileInfo( homeDir + "salomedoc.html" ).absFilePath(); 
-  
-  QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
-  QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
-   
-  RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
-  rs->start();
-    
-}
-
-/*!
-    Called on 'help\TUI Reference'
-*/
-void QAD_Desktop::onHelpContentsTUI()
-{
-
-  // look for main.html and set homeDir
-  // 1. $(SALOME_ROOT_DIR)/doc/html/html/index.html
-  // 2. /usr/local/doc/html/index.html
-  
-  QCString dir;
-  QString root;
-  QString homeDir;
-  
-  if ( (dir = getenv("SALOME_ROOT_DIR")) ) {
-    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + "doc" );
-    root = QAD_Tools::addSlash( root + "html" );
-    root = QAD_Tools::addSlash( root + "html" );
+  if (dir = getenv( getComponentName( myActiveComp ) + "_ROOT_DIR")) {
+    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + QAD_Tools::addSlash("doc") + "html" );
     if ( QFileInfo( root + "index.html" ).exists() ) {
       homeDir = root;
+    } else {
+      QMessageBox::warning( this, tr("WRN_WARNING"), 
+			    QString( "%1index.html doesn't exist." ).arg(root), tr ("BUT_OK") );
+      return;
     }
   }
-  if ( root.isEmpty() ) {
-    if ( QFileInfo( "/usr/local/doc/html/index.html" ).exists() ) {
-      homeDir = "/usr/local/doc/html/";
-    }
-  }
-  if ( root.isEmpty() ) 
-    root = "./doc/";
   
   QString helpFile = QFileInfo( homeDir + "index.html" ).absFilePath(); 
   
@@ -2195,19 +2096,85 @@ void QAD_Desktop::onHelpContentsTUI()
    
   RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
   rs->start();
+}
+
+/*!
+    Called on 'help\GUI Reference'
+*/
+void QAD_Desktop::onHelpContentsGUI()
+{
+  
+//   QCString dir;
+//   QString root;
+//   QString homeDir;
+  
+//   if ( (dir = getenv("KERNEL_ROOT_DIR")) ) {
+//     root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + "doc" );
+//     root = QAD_Tools::addSlash( root + "guihtml" );
+//     root = QAD_Tools::addSlash( root + "guihtml" );
+//     if ( QFileInfo( root + "salomedoc.html" ).exists() ) {
+//       homeDir = root;
+//     }
+//   }
+//   if ( root.isEmpty() ) {
+//     if ( QFileInfo( "/usr/local/doc/guihtml/salomedoc.html" ).exists() ) {
+//       homeDir = "/usr/local/doc/guihtml/";
+//     }
+//   }
+//   if ( root.isEmpty() ) 
+//     root = "./doc/";
+  
+//   QString helpFile = QFileInfo( homeDir + "salomedoc.html" ).absFilePath(); 
+  
+//   QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
+//   QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+   
+//   RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
+//   rs->start();
     
 }
 
 /*!
-    Called on 'help\search'
+    Called on 'help\TUI Reference'
 */
-void QAD_Desktop::onHelpSearch()
+void QAD_Desktop::onHelpContentsTUI()
 {
-  if (myActiveApp)
-    myActiveApp->helpSearch();
-  else
-    helpSearch();
+  if (myActiveComp == "")
+    myActiveComp = getComponentUserName( "KERNEL" ); //NRI "Salome";
+
+  QCString dir;
+  QString root;
+  QString homeDir;
+  if (dir = getenv( getComponentName( myActiveComp ) + "_ROOT_DIR")) {
+    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + QAD_Tools::addSlash("doc") + "html" );
+    if ( QFileInfo( root + "index.html" ).exists() ) {
+      homeDir = root;
+    } else {
+      QMessageBox::warning( this, tr("WRN_WARNING"), 
+			    QString( "%1index.html doesn't exist." ).arg(root), tr ("BUT_OK") );
+      return;
+    }
+  }
+  
+  QString helpFile = QFileInfo( homeDir + "index.html" ).absFilePath(); 
+  
+  QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
+  QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+   
+  RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
+  rs->start();
 }
+
+// /*!
+//     Called on 'help\search'
+// */
+// void QAD_Desktop::onHelpSearch()
+// {
+//   if (myActiveApp)
+//     myActiveApp->helpSearch();
+//   else
+//     helpSearch();
+// }
 
 /*!
     Called on 'help\about'
@@ -2775,45 +2742,6 @@ void QAD_Desktop::onDispatchTools(int id)
   bool libToolsGUI = true;
   if( QAD_XmlHandler::_bibmap[ id ].isEmpty() ) 
   { 
-
-    if ( dir = getenv("SALOME_SITE_DIR"))  {
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
-#ifdef WNT
-      dir = dir + "libToolsGUI.dll" ;
-#else
-      dir = dir + "libToolsGUI.so" ;
-#endif
-      MESSAGE ( " GUI library = " << dir );
-      fileInfo.setFile(dir) ;
-      if (fileInfo.exists()) {
-	ToolsLib = fileInfo.fileName() ;
-	found = true;
-      }
-    }
-    
-    if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
-#ifdef WNT
-      dir = dir + "libToolsGUI.dll" ;
-#else
-      dir = dir + "libToolsGUI.so" ;
-#endif
-      MESSAGE ( " GUI library = " << dir );
-      fileInfo.setFile(dir) ;
-      if (fileInfo.exists()) {
-	ToolsLib = fileInfo.fileName() ;
-	found = true;
-      }
-    }
-    
     if ( (dir = getenv("KERNEL_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
@@ -2836,36 +2764,6 @@ void QAD_Desktop::onDispatchTools(int id)
   else {
     libToolsGUI = false;
     SCRUTE( QAD_XmlHandler::_bibmap[ id ] ) ;
-    if ( dir = getenv("SALOME_SITE_DIR"))  {
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + QAD_XmlHandler::_bibmap[ id ].latin1() ;
-      MESSAGE ( " GUI library = " << dir );
-      fileInfo.setFile(dir) ;
-      if (fileInfo.exists()) {
-	ToolsLib = fileInfo.fileName() ;
-	found = true;
-      }
-    }
-    
-    if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + QAD_XmlHandler::_bibmap[ id ].latin1() ;
-      MESSAGE ( " GUI library = " << dir );
-      fileInfo.setFile(dir) ;
-      if (fileInfo.exists()) {
-	ToolsLib = fileInfo.fileName() ;
-	found = true;
-      }
-    }
-    
     if ( (dir = getenv("KERNEL_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
@@ -3616,52 +3514,52 @@ void QAD_Desktop::helpAbout()
   delete About;
 }
 
-/* Help Search */
-void QAD_Desktop::helpSearch()
-{
-}
+// /* Help Search */
+// void QAD_Desktop::helpSearch()
+// {
+// }
 
-/* Help Contents */
-void QAD_Desktop::helpContents()
-{
-  if (myActiveComp == "")
-    myActiveComp = getComponentUserName( "KERNEL" ); //NRI "Salome";
+// /* Help Contents */
+// void QAD_Desktop::helpContents()
+// {
+//   if (myActiveComp == "")
+//     myActiveComp = getComponentUserName( "KERNEL" ); //NRI "Salome";
 
-  QCString dir;
-  QString root;
-  if (dir = getenv( getComponentName( myActiveComp ) + "_ROOT_DIR")) {
-    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + "doc" );
-    if ( QFileInfo( root + "index.html" ).exists() ) {
-      helpContext( root + "index.html", "" );
-    }
-    else {
-      root = QAD_Tools::addSlash( root + "html" );
-      if ( QFileInfo( root + "index.html" ).exists() ) {
-	helpContext( root + "index.html", "" );
-      }
-      else {
-	root = QAD_Tools::addSlash( root + "html" );
-	if ( QFileInfo( root + "index.html" ).exists() ) {
-	  helpContext( root + "index.html", "" );
-	}
-      }
-    }
-  }
+//   QCString dir;
+//   QString root;
+//   if (dir = getenv( getComponentName( myActiveComp ) + "_ROOT_DIR")) {
+//     root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + "doc" );
+//     if ( QFileInfo( root + "index.html" ).exists() ) {
+//       helpContext( root + "index.html", "" );
+//     }
+//     else {
+//       root = QAD_Tools::addSlash( root + "html" );
+//       if ( QFileInfo( root + "index.html" ).exists() ) {
+// 	helpContext( root + "index.html", "" );
+//       }
+//       else {
+// 	root = QAD_Tools::addSlash( root + "html" );
+// 	if ( QFileInfo( root + "index.html" ).exists() ) {
+// 	  helpContext( root + "index.html", "" );
+// 	}
+//       }
+//     }
+//   }
   
-  //NRI getHelpWindow()->contents();
-  getHelpWindow()->show();
-  getHelpWindow()->raise();
-  getHelpWindow()->setActiveWindow();
-}
+// //   //NRI getHelpWindow()->contents();
+// //   getHelpWindow()->show();
+// //   getHelpWindow()->raise();
+// //   getHelpWindow()->setActiveWindow();
+// }
 
 /* Help Context */
-void QAD_Desktop::helpContext(const QString& source, const QString& context)
-{
-  getHelpWindow()->context(source, context);
-  getHelpWindow()->show();
-  getHelpWindow()->raise();
-  getHelpWindow()->setActiveWindow();
-}
+// void QAD_Desktop::helpContext(const QString& source, const QString& context)
+// {
+// //   getHelpWindow()->context(source, context);
+// //   getHelpWindow()->show();
+// //   getHelpWindow()->raise();
+// //   getHelpWindow()->setActiveWindow();
+// }
 
 /* Preferences/MultiFile Save */
 void QAD_Desktop::onMultiFileSave()

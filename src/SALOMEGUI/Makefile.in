@@ -43,7 +43,6 @@ EXPORT_HEADERS = \
                   QAD_FileDlg.h \
                   QAD_FileValidator.h \
 		  QAD_Help.h \
-		  QAD_HelpWindow.h \
 		  QAD_PyInterp.h \
 		  QAD_LeftFrame.h \
 		  QAD_ListMenuIdAction.h \
@@ -124,7 +123,6 @@ LIB_SRC = 	  \
                   QAD_FileDlg.cxx \
                   QAD_FileValidator.cxx \
 		  QAD_Help.cxx \
-		  QAD_HelpWindow.cxx \
 		  PyInterp_base.cxx \
 		  QAD_PyInterp.cxx \
 		  QAD_PyInterp_mono.cxx \
@@ -191,7 +189,6 @@ LIB_MOC = \
 		  QAD_Desktop.h \
                   QAD_DirListDlg.h \
                   QAD_FileDlg.h \
-		  QAD_HelpWindow.h \
 		  QAD_ListView.h \
 		  QAD_ObjectBrowser.h \
 		  QAD_Operation.h \
