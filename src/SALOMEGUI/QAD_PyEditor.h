@@ -29,26 +29,32 @@
 #ifndef QAD_PyEditor_H
 #define QAD_PyEditor_H
 
-#include <qmultilineedit.h>
+#include <qtextedit.h>
+#include <qevent.h>
 
 class QAD_PyInterp;
+class PythonThread;
 
-class QAD_PyEditor : public QMultiLineEdit
+class QAD_PyEditor : public QTextEdit
 {
   Q_OBJECT
+
+public:
+  enum { PYTHON_OK = QEvent::User + 5000, PYTHON_ERROR, PYTHON_INCOMPLETE };
 
 public:
   QAD_PyEditor(QAD_PyInterp* interp, QWidget *parent=0, const char *name=0);
   ~QAD_PyEditor();
   
-  void setText(QString s); 
+  virtual void setText(QString s); 
   bool isCommand(const QString& str) const;
   
 protected:
-  void keyPressEvent (QKeyEvent * e);
-  void mousePressEvent (QMouseEvent * e);
-  void mouseReleaseEvent (QMouseEvent * e);
-  void dropEvent (QDropEvent *e);
+  virtual void keyPressEvent (QKeyEvent * e);
+  virtual void mousePressEvent (QMouseEvent * e);
+  virtual void mouseReleaseEvent (QMouseEvent * e);
+  virtual void dropEvent (QDropEvent *e);
+  virtual void customEvent (QCustomEvent *e);
   
 public slots:
   void handleReturn();
@@ -59,6 +65,8 @@ private:
   QString        _currentCommand;
   QString        _currentPrompt;
   bool           _isInHistory;
+
+  PythonThread*  _thread;
 };
 
 #endif
