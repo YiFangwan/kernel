@@ -9,10 +9,11 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
-using namespace std;
+
 #include "QAD_PyInterp_mono.h"
 #include "utilities.h"
+
+using namespace std;
 
 /*!
  * constructor : only one Python interpreter, shared within SALOME studies.
@@ -38,7 +39,6 @@ QAD_PyInterp_mono::~QAD_PyInterp_mono()
 
 void QAD_PyInterp_mono::initState()
 {
-  salomeAcquireLock(); //acquire python global lock (one for all interpreters)
   _tstate = PyThreadState_Get();
   PySys_SetArgv(PyInterp_base::_argc,PyInterp_base::_argv);      // initialize sys.argv
 }

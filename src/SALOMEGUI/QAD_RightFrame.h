@@ -33,7 +33,8 @@
 #include "QAD_Message.h"
 #include "QAD_PyEditor.h"
 #include "QAD_Splitter.h"
-#include "QAD_PyInterp.h"
+
+class QAD_PyInterp;
 
 class QAD_EXPORT QAD_RightFrame : public QAD_Splitter
 {

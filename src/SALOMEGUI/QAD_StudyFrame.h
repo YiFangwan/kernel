@@ -31,7 +31,6 @@
 
 #include "QAD.h" 
 #include "QAD_Splitter.h" 
-#include "QAD_PyInterp.h"
 
 // QT Includes
 #include <qwidget.h>
@@ -41,6 +40,7 @@ class QAD_RightFrame;
 class QAD_LeftFrame;
 class QAD_Splitter;
 class QAD_Study;
+class QAD_PyInterp;
 
 enum ViewType {
   VIEW_OCC,

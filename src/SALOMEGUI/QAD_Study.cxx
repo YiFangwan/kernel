@@ -91,6 +91,7 @@ myPath( path )
     /* create python interpreter */
     _interp = new QAD_PyInterp();
     SCRUTE(_interp);
+    _interp->initialize();
 
     /* create default selection */
     //NRI    Selection( "Salome" );

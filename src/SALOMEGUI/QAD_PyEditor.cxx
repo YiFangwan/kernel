@@ -103,7 +103,7 @@ QAD_PyEditor::QAD_PyEditor(QAD_PyInterp* interp,
   _currentPrompt = ">>> ";
   // put error messages of interpreter if they exist.
   _buf.truncate(0);
-  setText(_interp->getverr());
+  setText(_interp->getverr().c_str());
   setText(_currentPrompt);
   setPalette( QAD_Application::getPalette(true) );
   setWordWrap(NoWrap);
@@ -444,8 +444,8 @@ void QAD_PyEditor::customEvent(QCustomEvent *e)
   case PYTHON_ERROR:
     {
       _buf.truncate(0);
-      setText(_interp->getvout());
-      setText(_interp->getverr());
+      setText(_interp->getvout().c_str());
+      setText(_interp->getverr().c_str());
       _currentPrompt = ">>> ";
       setText(_currentPrompt);
       break;
