@@ -90,15 +90,33 @@ static int MYDEBUG = 0;
 static int MYDEBUG = 0;
 #endif
 
+void MessageOutput( QtMsgType type, const char *msg )
+{
+  switch ( type ) {
+  case QtDebugMsg:
+    MESSAGE( "Debug: " << msg );
+    break;
+  case QtWarningMsg:
+    MESSAGE( "Warning: " << msg );
+    break;
+  case QtFatalMsg:
+    MESSAGE( "Fatal: " << msg );
+    break;
+  }
+}
+
 int main(int argc, char **argv)
 {
-  SALOME_Event::GetSessionThread();
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  int orbArgc = 1;
-  CORBA::ORB_var &orb = init( orbArgc , argv ) ;
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+  qInstallMsgHandler( MessageOutput );
   try
     {
+      SALOME_Event::GetSessionThread();
+
+      ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+      ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
+      int orbArgc = 1;
+      CORBA::ORB_var &orb = init( orbArgc , argv ) ;
+
       CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
       PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
 
@@ -254,6 +272,6 @@ int main(int argc, char **argv)
       INFOS("Caught unknown exception.");
     }
   MESSAGE("End of SALOME_Session_Server");
-  delete myThreadTrace;
+//  delete myThreadTrace;
   return 0 ;
 }

@@ -61,9 +61,10 @@ public:
 protected:
   virtual void keyPressEvent (QKeyEvent * e);
   virtual void mousePressEvent (QMouseEvent * e);
-  virtual void mouseReleaseEvent (QMouseEvent * e);
+  //virtual void mouseReleaseEvent (QMouseEvent * e);
   virtual void dropEvent (QDropEvent *e);
   virtual void customEvent (QCustomEvent *e);
+  virtual bool eventFilter(QObject *o, QEvent *e);
   
 public slots:
   void handleReturn();

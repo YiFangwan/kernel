@@ -316,8 +316,42 @@ void QAD_PyEditor::mousePressEvent (QMouseEvent * event)
 }
 
 /*!
-    Called when a Mouse release event
+    Called when any event occures.  The function is redefined to handle MousePress events
+    in order to provide the following behaviour: on middle mouse button press a previously
+    selected text (by mouse drag or left mouse button double click) is appended to the last
+    paragraph.  This behaviour is similar to standard Unix terminal editor behaviour.
 */
+bool QAD_PyEditor::eventFilter( QObject *o, QEvent *e )
+{
+  const int t = e->type();
+  if ( t == QEvent::MouseButtonPress || t == QEvent::MouseButtonRelease ) {
+    QMouseEvent * event = (QMouseEvent*)e;
+    if ( event->button() == MidButton ) {
+      if ( t == QEvent::MouseButtonPress ) {
+	QString selection = selectedText();
+	QClipboard *cb = QApplication::clipboard();
+	if ( !selection.isNull() && !selection.isEmpty() ) 
+	  cb->setText( selection );
+	const int endPara = paragraphs()-1;
+	insertAt( cb->text(), endPara, paragraphLength( endPara )-1 );
+	return true; // don't allow futher event processing
+      }
+      // code from old mouseReleaseEvent() function.  
+      else if ( t == QEvent::MouseButtonRelease ) {
+	int curPara, curCol; // for cursor position
+	int endPara, endCol; // for last edited line
+	getCursorPosition(&curPara, &curCol);
+	endPara = paragraphs() -1;
+	return ( curPara != endPara || curCol < SIZEPR );
+      }
+    }
+  }
+  return QTextEdit::eventFilter( o, e );
+}
+
+/*!
+    Called when a Mouse release event
+
 void QAD_PyEditor::mouseReleaseEvent ( QMouseEvent * e )
 {
   //  MESSAGE("mouseReleaseEvent");
@@ -330,6 +364,7 @@ void QAD_PyEditor::mouseReleaseEvent ( QMouseEvent * e )
   else if ((curPara == endPara) && (curCol >= SIZEPR))
     QTextEdit::mouseReleaseEvent(e);
 }
+*/
 
 /*!
     Called when a drop event (Drag & Drop)

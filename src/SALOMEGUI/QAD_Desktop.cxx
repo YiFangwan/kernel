@@ -97,7 +97,7 @@
 #include <qlineedit.h>
 #include <qdatetime.h>
 #include <qthread.h>
-
+#include <qtooltip.h>
 #include <qstringlist.h>
 
 #if QT_VERSION > 300
@@ -292,6 +292,8 @@ myAboutToClose( false )
     QString iconfile = CORBA::string_dup(list_composants[ind].moduleicone) ;
     QString modulename = CORBA::string_dup(list_composants[ind].modulename) ;
     QString moduleusername = CORBA::string_dup(list_composants[ind].moduleusername) ;
+    QString moduleversion = CORBA::string_dup(list_composants[ind].moduleversion) ;
+    QString modulecomment = CORBA::string_dup(list_composants[ind].modulecomment) ;
 
     //    MESSAGE ( " MODULE = " << modulename )
     //    MESSAGE ( " MODULE icon = " << iconfile )
@@ -313,7 +315,10 @@ myAboutToClose( false )
 	QToolButton * toolb = 
 	  new QToolButton( QIconSet( Icone ), moduleusername, QString::null, this, 
 			   SLOT( onButtonActiveComponent () ),tbComponent );
+	QString ttip = QString("<b>") + moduleusername + QString("</b>");
+	if ( !moduleversion.isEmpty() ) ttip += QString("<br>Version:&nbsp;") + moduleversion;
 	toolb->setToggleButton( true );
+	QToolTip::add(toolb, ttip, this->toolTipGroup(), modulecomment);
 	myComponentButton.append(toolb);
       }
     else

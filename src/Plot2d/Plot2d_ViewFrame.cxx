@@ -387,6 +387,21 @@ void Plot2d_ViewFrame::Erase( const Handle(SALOME_InteractiveObject)& IObject, b
   Plot2d_Curve* curve = getCurveByIO( IObject );
   if ( curve )
     eraseCurve( curve, update );
+  // it can be table or container object selected
+  QAD_Study* activeStudy = QAD_Application::getDesktop()->getActiveStudy();
+  SALOMEDS::SObject_var aSO = activeStudy->getStudyDocument()->FindObjectID(IObject->getEntry());
+  if ( !aSO->_is_nil() ) {
+    SALOMEDS::ChildIterator_var aIter = activeStudy->getStudyDocument()->NewChildIterator( aSO );
+    for ( ; aIter->More(); aIter->Next() ) {
+      SALOMEDS::SObject_var aChildSO = aIter->Value();
+      SALOMEDS::SObject_var refSO;
+      if ( aChildSO->ReferencedObject( refSO ) && !refSO->_is_nil() )
+	aChildSO = refSO;
+      curve = getCurveByIO( new SALOME_InteractiveObject( aChildSO->GetID(), "", "" ) );
+      if ( curve )
+	eraseCurve( curve, update );
+    }
+  }
 }
 /*!
   Actually this method just re-displays all curves which are presented in the viewer
