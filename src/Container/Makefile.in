@@ -38,23 +38,25 @@ EXPORT_PYSCRIPTS = SALOME_ComponentPy.py SALOME_ContainerPy.py
 
 EXPORT_HEADERS = \
 	SALOME_Component_i.hxx \
+	SALOME_ContainerManager.hxx \
 	SALOME_Container_i.hxx
 
 # Libraries targets
 
 LIB = libSalomeContainer.la 
-LIB_SRC = Component_i.cxx  Container_i.cxx
+LIB_SRC = Component_i.cxx  Container_i.cxx SALOME_ContainerManager.cxx
 LIB_SERVER_IDL = SALOME_Registry.idl SALOME_Component.idl
+LIB_CLIENT_IDL = SALOME_ContainerManager.idl
 
 # Executables targets
-BIN = SALOME_Container
+BIN = SALOME_Container SALOME_ContainerManagerServer
 BIN_SRC = SALOME_Container_SignalsHandler.cxx
-BIN_SERVER_IDL = SALOME_Component.idl
+BIN_SERVER_IDL = SALOME_Component.idl SALOME_ContainerManager.idl
 
-CPPFLAGS+= $(PYTHON_INCLUDES) $(MPI_INCLUDE) $(OCC_INCLUDES)
+CPPFLAGS+= $(PYTHON_INCLUDES) $(MPI_INCLUDE) $(OCC_INCLUDES) $(QT_MT_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
 
-LDFLAGS+= -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace
+LDFLAGS+= $(QT_MT_LIBS) -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace
 
 LIBS += @LDEXPDYNFLAGS@ $(PYTHON_LIBS) $(MPI_LIBS) -lCASCatch
 
