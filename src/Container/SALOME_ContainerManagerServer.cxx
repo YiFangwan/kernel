@@ -16,8 +16,8 @@ int main(int argc, char *argv[])
   try { 
     SALOME_NamingService *ns=new SALOME_NamingService(orb);
     SALOME_ContainerManager *contManager=new SALOME_ContainerManager(ns);
-    Engines::ContainerManager_ptr contManagerServant=contManager->_this();
-    ns->Register(contManagerServant,SALOME_ContainerManager::_ContainerManagerNameInNS);
+    //Engines::ContainerManager_ptr contManagerServant=contManager->_this();
+    //ns->Register(contManagerServant,SALOME_ContainerManager::_ContainerManagerNameInNS);
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj);
     PortableServer::POAManager_var pman = root_poa->the_POAManager();

@@ -3,6 +3,9 @@
 
 #include "SALOME_Component.idl"
 
+module Engines
+{
+
 /*!
     Type to describe properties of wanted resource.
 */
@@ -21,8 +24,6 @@ struct MachineParameters {
 */
   typedef sequence<string> MachineList;
 
-module Engines
-{
 /*! \brief Interface of the %containerManager
     This interface is used for interaction with the unique instance of ContainerManager
 */
@@ -30,7 +31,8 @@ module Engines
   {
     Container FindOrStartContainer( in string containerName, in MachineList possibleComputers);
     string FindBest(in MachineList possibleComputers);
-    MachineList GetResourcesFitting( in MachineParameters params, in string componentName );
+    MachineList GetFittingResources( in MachineParameters params, in string componentName );
+    void Shutdown();
     void ShutdownContainers();
   } ;
 };

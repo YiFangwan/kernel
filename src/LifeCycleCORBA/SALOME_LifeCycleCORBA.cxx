@@ -109,42 +109,35 @@ Engines::Component_ptr SALOME_LifeCycleCORBA::FindOrLoad_Component
                                   (const char *containerName,
 				   const char *componentName)
 {
-  MachineList_var listOfMachine=new MachineList;
+  cout << "FindOrLoad_Component C++" << endl;
+  Engines::MachineList_var listOfMachine=new Engines::MachineList;
   listOfMachine->length(1);
   listOfMachine[0]=CORBA::string_dup(GetHostname().c_str());
-  Engines::Component_ptr ret=DoesExistComponent(componentName,containerName,listOfMachine.in());
+  Engines::Component_ptr ret=FindComponent(containerName,componentName,listOfMachine.in());
   if(CORBA::is_nil(ret))
-    {
-      Engines::Container_var cont=_ContManager->FindOrStartContainer(containerName,listOfMachine);
-      string implementation=Engines_Component_i::GetDynLibraryName(componentName);
-      return cont->load_impl(componentName, implementation.c_str());
-    }
+    return LoadComponent(containerName,componentName,listOfMachine);
   else
     return ret;
 }
 
-Engines::Component_ptr SALOME_LifeCycleCORBA::FindOrLoad_Component(const MachineParameters& params,
+Engines::Component_ptr SALOME_LifeCycleCORBA::FindOrLoad_Component(const Engines::MachineParameters& params,
 								   const char *componentName)
 {
-  MachineList_var listOfMachine=_ContManager->GetResourcesFitting(params,componentName);
-  Engines::Component_ptr ret=DoesExistComponent(componentName,params.container_name,listOfMachine);
+  Engines::MachineList_var listOfMachine=_ContManager->GetFittingResources(params,componentName);
+  Engines::Component_ptr ret=FindComponent(params.container_name,componentName,listOfMachine);
   if(CORBA::is_nil(ret))
-    {
-      Engines::Container_var cont=_ContManager->FindOrStartContainer(params.container_name,listOfMachine);
-      string implementation=Engines_Component_i::GetDynLibraryName(componentName);
-      return cont->load_impl(componentName, implementation.c_str());
-    }
+    return LoadComponent(params.container_name,componentName,listOfMachine);
   else
     return ret;
 }
 
-Engines::Component_ptr SALOME_LifeCycleCORBA::DoesExistComponent(const char *componentName,
-								 const char *containerName,
-								 const MachineList& listOfMachines)
+Engines::Component_ptr SALOME_LifeCycleCORBA::FindComponent(const char *containerName,
+								 const char *componentName,
+								 const Engines::MachineList& listOfMachines)
 {
   if(containerName[0]!='\0')
     {
-      MachineList_var machinesOK=new MachineList;
+      Engines::MachineList_var machinesOK=new Engines::MachineList;
       unsigned int lghtOfmachinesOK=0;
       machinesOK->length(listOfMachines.length());
       for(unsigned int i=0;i<listOfMachines.length();i++)
@@ -177,4 +170,11 @@ Engines::Component_ptr SALOME_LifeCycleCORBA::DoesExistComponent(const char *com
       CORBA::Object_var obj = _NS->Resolve(componentNameForNS.c_str());
       return Engines::Component::_narrow(obj);
     }
+}
+
+Engines::Component_ptr SALOME_LifeCycleCORBA::LoadComponent(const char *containerName, const char *componentName, const Engines::MachineList& listOfMachines)
+{
+  Engines::Container_var cont=_ContManager->FindOrStartContainer(containerName,listOfMachines);
+  string implementation=Engines_Component_i::GetDynLibraryName(componentName);
+  return cont->load_impl(componentName, implementation.c_str());
 }

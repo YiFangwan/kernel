@@ -30,8 +30,9 @@
 #include <string>
 #include <stdio.h>
 
-#include "Utils_ORB_INIT.hxx"
-#include "Utils_SINGLETON.hxx"
+//#include "Utils_ORB_INIT.hxx"
+//#include "Utils_SINGLETON.hxx"
+#include <unistd.h>
 #include "SALOME_NamingService.hxx"
 #include "SALOME_Container_i.hxx"
 #include "utilities.h"
@@ -59,8 +60,8 @@ int main(int argc, char* argv[])
   MPI_Init(&argc,&argv);
 #endif
   // Initialise the ORB.
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_var &orb = init( argc , argv ) ;
+  //ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
   LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
@@ -87,7 +88,7 @@ int main(int argc, char* argv[])
     CORBA::Object_var theObj;
     CORBA::Object_var obj;
     CORBA::Object_var object;
-    SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
+    //SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
     int CONTAINER=0;
     const char * Env = getenv("USE_LOGGER");
     int EnvL =0;
@@ -191,8 +192,6 @@ int main(int argc, char* argv[])
 #endif
     
     HandleServerSideSignals(orb);
-    
-    orb->destroy();
   }catch(CORBA::SystemException&){
     INFOS("Caught CORBA::SystemException.");
   }catch(PortableServer::POA::WrongPolicy&){

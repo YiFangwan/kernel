@@ -52,13 +52,9 @@ public:
 		      PortableServer::POA_ptr poa,
 		      char * containerName ,
                       int argc, char* argv[],
-		      bool regist = true,
-		      bool activ = true);
+		      bool activAndRegist = true);
   virtual ~Engines_Container_i();
 
-
-  //! Launch a new container from the current container
-  Engines::Container_ptr start_impl(const char* ContainerName);
 
   //! Load component in current container
   Engines::Component_ptr load_impl(const char* nameToRegister,

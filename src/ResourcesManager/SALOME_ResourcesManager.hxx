@@ -27,10 +27,10 @@ public:
   ~SALOME_ResourcesManager();
 
   //! method to get the list of name of ressources fitting for the specified module.
-  std::vector<std::string> GetResourcesFitting(const MachineParameters& params,const char *moduleName) throw(SALOME_Exception);
+  std::vector<std::string> GetFittingResources(const Engines::MachineParameters& params,const char *moduleName) throw(SALOME_Exception);
 
   //! method to dynamically obtain the best machines
-  std::string FindBest(const MachineList& listOfMachines);
+  std::string FindBest(const Engines::MachineList& listOfMachines);
 
   //! method that builds in a temporary file the script to be launched
   std::string BuildTempFileToLaunchRemoteContainer(const std::string& machine,const char *containerName);
@@ -45,7 +45,7 @@ public:
   std::string BuildCommand(const std::string& machine,const char *containerName);
 
   //! add an entry in the ressources catalog  xml file. Return 1 if OK. Return 0 if the ressource with the same hostname already exists.
-  int AddResourceInCatalog(const MachineParameters& paramsOfNewResources, const std::map<std::string,std::string>& modulesOnNewResources,
+  int AddResourceInCatalog(const Engines::MachineParameters& paramsOfNewResources, const std::map<std::string,std::string>& modulesOnNewResources,
 			   const char *environPathOfPrerequired,
 			   const char *alias, const char *userName, AccessModeType mode, AccessProtocolType prot) throw(SALOME_Exception);
   

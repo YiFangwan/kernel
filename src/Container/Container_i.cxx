@@ -30,7 +30,7 @@
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include "SALOME_Container_i.hxx"
 #include "SALOME_NamingService.hxx"
-#include "Utils_SINGLETON.hxx"
+//#include "Utils_SINGLETON.hxx"
 #include "OpUtil.hxx"
 #include <string.h>
 #include <stdio.h>
@@ -64,13 +64,12 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 					  PortableServer::POA_ptr poa,
 					  char *containerName ,
                                           int argc , char* argv[],
-					  bool regist,
-					  bool activ ) :
+					  bool activAndRegist ) :
  _numInstance(0)
 {
   _pid = (long)getpid();
 
-  if(regist)
+  if(activAndRegist)
     ActSigIntHandler() ;
 
   _ArgC = argc ;
@@ -105,21 +104,16 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
-  // Pour les containers paralleles: il ne faut pas activer le container generique, mais le container specialise
-  if(activ){
-    MESSAGE("activate object");
+
+  // Pour les containers paralleles: il ne faut pas enregistrer et activer le container generique, mais le container specialise
+  if(activAndRegist){
     _id = _poa->activate_object(this);
-  }
-
-  // Pour les containers paralleles: il ne faut pas enregistrer le container generique, mais le container specialise
-  if(regist){
-    //   _NS = new SALOME_NamingService(_orb);
-    _NS = SINGLETON_<SALOME_NamingService>::Instance() ;
-    ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
-    _NS->init_orb( orb ) ;
-
-    Engines::Container_ptr pCont 
-      = Engines::Container::_narrow(_this());
+    _NS = new SALOME_NamingService();//SINGLETON_<SALOME_NamingService>::Instance() ;
+    //ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
+    _NS->init_orb( CORBA::ORB::_duplicate(_orb) ) ;
+    CORBA::Object_var obj=_poa->id_to_reference(*_id);
+    Engines::Container_var pCont 
+      = Engines::Container::_narrow(obj);
     SCRUTE(_containerName);
     _NS->Register(pCont, _containerName.c_str()); 
   }
@@ -128,6 +122,8 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 Engines_Container_i::~Engines_Container_i()
 {
   MESSAGE("Container_i::~Container_i()");
+  delete _id;
+  cout << "Engines_Container_i ~~~~~~~~~~~~~~" << endl;
 }
 
 char* Engines_Container_i::name()
@@ -151,6 +147,9 @@ void Engines_Container_i::ping()
 void Engines_Container_i::Shutdown()
 {
   MESSAGE("Engines_Container_i::Shutdown()");
+  _NS->Destroy_Name(_containerName.c_str());
+  //_remove_ref();
+  //_poa->deactivate_object(*_id);
   _orb->shutdown(0);
 }
 
@@ -162,126 +161,123 @@ bool Engines_Container_i::Kill_impl() {
   exit( 0 ) ;
 }
 
-//! Launch a new container from the current container
-Engines::Container_ptr Engines_Container_i::start_impl(
-                                      const char* ContainerName ) {
-  MESSAGE("start_impl argc " << _argc << " ContainerName " << ContainerName
-          << hex << this << dec) ;
-  _numInstanceMutex.lock() ; // lock on the instance number
+// //! Launch a new container from the current container
+// Engines::Container_ptr Engines_Container_i::start_impl(
+//                                       const char* ContainerName ) {
+//   MESSAGE("start_impl argc " << _argc << " ContainerName " << ContainerName
+//           << hex << this << dec) ;
+//   _numInstanceMutex.lock() ; // lock on the instance number
 
-  CORBA::Object_var obj = Engines::Container::_nil() ;
-  bool nilvar = true ;
-  try {
-    string cont("/Containers/");
-    cont += machineName() ;
-    cont += "/" ;
-    cont += ContainerName;
-    INFOS(machineName() << " start_impl unknown container " << cont.c_str()
-          << " try to Resolve" );
-    obj = _NS->Resolve( cont.c_str() );
-    nilvar = CORBA::is_nil( obj ) ;
-    if ( nilvar ) {
-      INFOS(machineName() << " start_impl unknown container "
-            << ContainerName);
-    }
-  }
-  catch (ServiceUnreachable&) {
-    INFOS(machineName() << "Caught exception: Naming Service Unreachable");
-  }
-  catch (...) {
-    INFOS(machineName() << "Caught unknown exception.");
-  }
-  if ( !nilvar ) {
-    _numInstanceMutex.unlock() ;
-    MESSAGE("start_impl container found without new launch") ;
-    return Engines::Container::_narrow(obj);
-  }
-  int i = 0 ;
-  while ( _argv[ i ] ) {
-    MESSAGE("           argv" << i << " " << _argv[ i ]) ;
-    i++ ;
-  }
-  string shstr = string(getenv("KERNEL_ROOT_DIR")) + "/bin/salome/SALOME_Container ";
-//   string shstr( "./runSession SALOME_Container " ) ;
-  shstr += ContainerName ;
-  if ( _argc == 4 ) {
-    shstr += " " ;
-    shstr += _argv[ 2 ] ;
-    shstr += " " ;
-    shstr += _argv[ 3 ] ;
-  }
-  shstr += " > /tmp/" ;
-  shstr += ContainerName ;
-  shstr += ".log 2>&1 &" ;
-  MESSAGE("system(" << shstr << ")") ;
-  int status = system( shstr.c_str() ) ;
-  if (status == -1) {
-    INFOS("Engines_Container_i::start_impl SALOME_Container failed (system command status -1)") ;
-  }
-  else if (status == 217) {
-    INFOS("Engines_Container_i::start_impl SALOME_Container failed (system command status 217)") ;
-  }
-  INFOS(machineName() << " Engines_Container_i::start_impl SALOME_Container launch done");
-
-//   pid_t pid = fork() ;
-//   if ( pid == 0 ) {
-//     string anExe( _argv[ 0 ] ) ;
-//     anExe += "runSession" ;
-//     char * args[ 6 ] ;
-//     args[ 0 ] = "runSession" ;
-//     args[ 1 ] = "SALOME_Container" ;
-//     args[ 2 ] = strdup( ContainerName ) ;
-//     args[ 3 ] = strdup( _argv[ 2 ] ) ;
-//     args[ 4 ] = strdup( _argv[ 3 ] ) ;
-//     args[ 5 ] = NULL ;
-//     MESSAGE("execl(" << anExe.c_str() << " , " << args[ 0 ] << " , "
-//                      << args[ 1 ] << " , " << args[ 2 ] << " , " << args[ 3 ]
-//                      << " , " << args[ 4 ] << ")") ;
-//     int status = execv( anExe.c_str() , args ) ;
-//     if (status == -1) {
-//       INFOS("Engines_Container_i::start_impl execl failed (system command status -1)") ;
-//       perror( "Engines_Container_i::start_impl execl error ") ;
+//   CORBA::Object_var obj = Engines::Container::_nil() ;
+//   bool nilvar = true ;
+//   try {
+//     string cont=BuildContainerNameForNS(machineName(),ContainerName);
+//     INFOS(machineName() << " start_impl unknown container " << cont.c_str()
+//           << " try to Resolve" );
+//     obj = _NS->Resolve( cont.c_str() );
+//     nilvar = CORBA::is_nil( obj ) ;
+//     if ( nilvar ) {
+//       INFOS(machineName() << " start_impl unknown container "
+//             << ContainerName);
 //     }
-//     else {
-//       INFOS(machineName() << " Engines_Container_i::start_impl execl done");
-//     }
-//     exit(0) ;
 //   }
+//   catch (ServiceUnreachable&) {
+//     INFOS(machineName() << "Caught exception: Naming Service Unreachable");
+//   }
+//   catch (...) {
+//     INFOS(machineName() << "Caught unknown exception.");
+//   }
+//   if ( !nilvar ) {
+//     _numInstanceMutex.unlock() ;
+//     MESSAGE("start_impl container found without new launch") ;
+//     return Engines::Container::_narrow(obj);
+//   }
+//   int i = 0 ;
+//   while ( _argv[ i ] ) {
+//     MESSAGE("           argv" << i << " " << _argv[ i ]) ;
+//     i++ ;
+//   }
+//   string shstr = string(getenv("KERNEL_ROOT_DIR")) + "/bin/salome/SALOME_Container ";
+// //   string shstr( "./runSession SALOME_Container " ) ;
+//   shstr += ContainerName ;
+//   if ( _argc == 4 ) {
+//     shstr += " " ;
+//     shstr += _argv[ 2 ] ;
+//     shstr += " " ;
+//     shstr += _argv[ 3 ] ;
+//   }
+//   shstr += " > /tmp/" ;
+//   shstr += ContainerName ;
+//   shstr += ".log 2>&1 &" ;
+//   MESSAGE("system(" << shstr << ")") ;
+//   int status = system( shstr.c_str() ) ;
+//   if (status == -1) {
+//     INFOS("Engines_Container_i::start_impl SALOME_Container failed (system command status -1)") ;
+//   }
+//   else if (status == 217) {
+//     INFOS("Engines_Container_i::start_impl SALOME_Container failed (system command status 217)") ;
+//   }
+//   INFOS(machineName() << " Engines_Container_i::start_impl SALOME_Container launch done");
 
-  obj = Engines::Container::_nil() ;
-  try {
-    string cont("/Containers/");
-    cont += machineName() ;
-    cont += "/" ;
-    cont += ContainerName;
-    nilvar = true ;
-    int count = 20 ;
-    while ( nilvar && count >= 0) {
-      sleep( 1 ) ;
-      obj = _NS->Resolve(cont.c_str());
-      nilvar = CORBA::is_nil( obj ) ;
-      if ( nilvar ) {
-        INFOS(count << ". " << machineName()
-              << " start_impl unknown container " << cont.c_str());
-        count -= 1 ;
-      }
-    }
-    _numInstanceMutex.unlock() ;
-    if ( !nilvar ) {
-      MESSAGE("start_impl container found after new launch of SALOME_Container") ;
-    }
-    return Engines::Container::_narrow(obj);
-  }
-  catch (ServiceUnreachable&) {
-    INFOS(machineName() << "Caught exception: Naming Service Unreachable");
-  }
-  catch (...) {
-    INFOS(machineName() << "Caught unknown exception.");
-  }
-  _numInstanceMutex.unlock() ;
-  MESSAGE("start_impl container not found after new launch of SALOME_Container") ;
-  return Engines::Container::_nil() ;
-}
+// //   pid_t pid = fork() ;
+// //   if ( pid == 0 ) {
+// //     string anExe( _argv[ 0 ] ) ;
+// //     anExe += "runSession" ;
+// //     char * args[ 6 ] ;
+// //     args[ 0 ] = "runSession" ;
+// //     args[ 1 ] = "SALOME_Container" ;
+// //     args[ 2 ] = strdup( ContainerName ) ;
+// //     args[ 3 ] = strdup( _argv[ 2 ] ) ;
+// //     args[ 4 ] = strdup( _argv[ 3 ] ) ;
+// //     args[ 5 ] = NULL ;
+// //     MESSAGE("execl(" << anExe.c_str() << " , " << args[ 0 ] << " , "
+// //                      << args[ 1 ] << " , " << args[ 2 ] << " , " << args[ 3 ]
+// //                      << " , " << args[ 4 ] << ")") ;
+// //     int status = execv( anExe.c_str() , args ) ;
+// //     if (status == -1) {
+// //       INFOS("Engines_Container_i::start_impl execl failed (system command status -1)") ;
+// //       perror( "Engines_Container_i::start_impl execl error ") ;
+// //     }
+// //     else {
+// //       INFOS(machineName() << " Engines_Container_i::start_impl execl done");
+// //     }
+// //     exit(0) ;
+// //   }
+
+//   obj = Engines::Container::_nil() ;
+//   try {
+//     string cont("/Containers/");
+//     cont += machineName() ;
+//     cont += "/" ;
+//     cont += ContainerName;
+//     nilvar = true ;
+//     int count = 20 ;
+//     while ( nilvar && count >= 0) {
+//       sleep( 1 ) ;
+//       obj = _NS->Resolve(cont.c_str());
+//       nilvar = CORBA::is_nil( obj ) ;
+//       if ( nilvar ) {
+//         INFOS(count << ". " << machineName()
+//               << " start_impl unknown container " << cont.c_str());
+//         count -= 1 ;
+//       }
+//     }
+//     _numInstanceMutex.unlock() ;
+//     if ( !nilvar ) {
+//       MESSAGE("start_impl container found after new launch of SALOME_Container") ;
+//     }
+//     return Engines::Container::_narrow(obj);
+//   }
+//   catch (ServiceUnreachable&) {
+//     INFOS(machineName() << "Caught exception: Naming Service Unreachable");
+//   }
+//   catch (...) {
+//     INFOS(machineName() << "Caught unknown exception.");
+//   }
+//   _numInstanceMutex.unlock() ;
+//   MESSAGE("start_impl container not found after new launch of SALOME_Container") ;
+//   return Engines::Container::_nil() ;
+// }
 
 Engines::Component_ptr Engines_Container_i::load_impl( const char* nameToRegister,
 	                                               const char* componentName ) {

@@ -8,7 +8,7 @@
 class SALOME_LoadRateManager
 {
 public:
-  std::string FindBest(const MachineList& hosts);
+  std::string FindBest(const Engines::MachineList& hosts);
 };
 
 #endif

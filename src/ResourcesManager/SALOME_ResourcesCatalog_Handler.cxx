@@ -252,24 +252,24 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(QDomDocument& doc)
       switch((*iter).second.Protocol)
 	{
 	case rsh:
-	  eltRoot.setAttribute((char *)test_protocol,"r");
+	  eltRoot.setAttribute((char *)test_protocol,"rsh");
 	  break;
 	case ssh:
-	  eltRoot.setAttribute((char *)test_protocol,"s");
+	  eltRoot.setAttribute((char *)test_protocol,"ssh");
 	  break;
 	default:
-	  eltRoot.setAttribute((char *)test_protocol,"r");
+	  eltRoot.setAttribute((char *)test_protocol,"rsh");
 	}
       switch((*iter).second.Mode)
 	{
 	case interactive:
-	  eltRoot.setAttribute((char *)test_mode,"i");
+	  eltRoot.setAttribute((char *)test_mode,"interactive");
 	  break;
 	case batch:
-	  eltRoot.setAttribute((char *)test_mode,"b");
+	  eltRoot.setAttribute((char *)test_mode,"batch");
 	  break;
 	default:
-	  eltRoot.setAttribute((char *)test_mode,"i");
+	  eltRoot.setAttribute((char *)test_mode,"interactive");
 	}
       eltRoot.setAttribute((char *)test_user_name,(*iter).second.UserName.c_str());
       for(map<string, string>::const_iterator iter2=(*iter).second.ModulesPath.begin();iter2!=(*iter).second.ModulesPath.end();iter2++)

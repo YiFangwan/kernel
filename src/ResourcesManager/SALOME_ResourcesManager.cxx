@@ -11,6 +11,9 @@
 #include <iostream>
 #include <map>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
 using namespace std;
@@ -31,7 +34,7 @@ SALOME_ResourcesManager::~SALOME_ResourcesManager()
 {
 }
 
-vector<string> SALOME_ResourcesManager::GetResourcesFitting(const MachineParameters& params,const char *moduleName) throw(SALOME_Exception)
+vector<string> SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& params,const char *moduleName) throw(SALOME_Exception)
 {
   vector <std::string> ret;
   //To be sure that we search in a correct list.
@@ -77,7 +80,7 @@ vector<string> SALOME_ResourcesManager::GetResourcesFitting(const MachineParamet
   return ret;
 }
 
-int SALOME_ResourcesManager::AddResourceInCatalog(const MachineParameters& paramsOfNewResources, const map<string,string>& modulesOnNewResources,
+int SALOME_ResourcesManager::AddResourceInCatalog(const Engines::MachineParameters& paramsOfNewResources, const map<string,string>& modulesOnNewResources,
 						  const char *environPathOfPrerequired,
 						  const char *alias, const char *userName, AccessModeType mode, AccessProtocolType prot) throw(SALOME_Exception)
 {
@@ -179,7 +182,7 @@ const MapOfParserResourcesType& SALOME_ResourcesManager::GetList() const
   return _resourcesList;
 }
 
-string SALOME_ResourcesManager::FindBest(const MachineList& listOfMachines)
+string SALOME_ResourcesManager::FindBest(const Engines::MachineList& listOfMachines)
 {
   return _dynamicResourcesSelecter.FindBest(listOfMachines);
 }
@@ -187,18 +190,23 @@ string SALOME_ResourcesManager::FindBest(const MachineList& listOfMachines)
 string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const string& machine,const char *containerName)
 {
   _TmpFileName=BuildTemporaryFileName();
-  ofstream tempOutputFile(_TmpFileName.c_str());
+  ofstream tempOutputFile;
+  tempOutputFile.open(_TmpFileName.c_str(),ofstream::out );
   const ParserResourcesType& resInfo=_resourcesList[machine];
+  cout << "SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer 11 - " << _TmpFileName << endl;
   tempOutputFile << "/bin/sh <<EOF" << endl;
   //set env vars
   for(map<string,string>::const_iterator iter=resInfo.ModulesPath.begin();iter!=resInfo.ModulesPath.end();iter++)
     {
       string curModulePath((*iter).second);
-      tempOutputFile << "export " << (*iter).first << "_ROOT_DIR="<< curModulePath << endl;
-      tempOutputFile << "export LD_LIBRARY_PATH=" << curModulePath << "/lib/salome" << ":${LD_LIBRARY_PATH}" << endl;
-      tempOutputFile << "export PYTHONPATH=" << curModulePath << "/bin/salome:" << curModulePath << "/lib/python2.2/site-packages/salome:";
+      tempOutputFile << (*iter).first << "_ROOT_DIR="<< curModulePath << endl;
+      tempOutputFile << "export " << (*iter).first << "_ROOT_DIR" << endl;
+      tempOutputFile << "LD_LIBRARY_PATH=" << curModulePath << "/lib/salome" << ":${LD_LIBRARY_PATH}" << endl;
+      tempOutputFile << "PYTHONPATH=" << curModulePath << "/bin/salome:" << curModulePath << "/lib/python2.2/site-packages/salome:";
       tempOutputFile << curModulePath << "/lib/python2.2/site-packages/salome/shared_modules:${PYTHONPATH}" << endl;
     }
+  tempOutputFile << "export LD_LIBRARY_PATH" << endl;
+  tempOutputFile << "export PYTHONPATH" << endl;
   tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
   // ! env vars
   tempOutputFile << (*(resInfo.ModulesPath.find("KERNEL"))).second << "/bin/salome/";
@@ -210,20 +218,34 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
   AddOmninamesParams(tempOutputFile);
   tempOutputFile << " > /tmp/" << containerName << "_" << machine << ".log 2>&1 &" << endl;
   tempOutputFile << "EOF" << endl;
+  cout << "SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer 22" << endl;
   tempOutputFile.flush();
   tempOutputFile.close();
+  chmod(_TmpFileName.c_str(),0x1ED);
+  cout << "SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer 33" << endl;
   //Build command
   string command;
   if(resInfo.Protocol==rsh)
-    command = "rsh -n ";
+    {
+      command = "rsh ";
+      string commandRcp="rcp ";
+      commandRcp+=_TmpFileName;
+      commandRcp+=" ";
+      commandRcp+=machine;
+      commandRcp+=":";
+      commandRcp+=_TmpFileName;
+      cout << "************ " << commandRcp.c_str() << endl;
+      system(commandRcp.c_str());
+    }
   else if(resInfo.Protocol==ssh)
-    command = "ssh -n ";
+    command = "ssh ";
   else
     throw SALOME_Exception("Unknown protocol");
   command+=machine;
   _CommandForRemAccess=command;
-  command+=" < ";
+  command+=" ";//" ";//" < ";
   command+=_TmpFileName;
+  cout << "Command is ... " << command << endl;
   return command;
 }
 
@@ -243,17 +265,18 @@ string SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer(const char *c
   command += "_";
   command += GetHostname();
   command += ".log 2>&1 &" ;
+  cout << "#####  " << command << endl << flush;
   return command;
 }
 
 void SALOME_ResourcesManager::RmTmpFile()
 {
-  if(_TmpFileName!="")
-    {
-      string command="rm ";
-      command+=_TmpFileName;
-      system(command.c_str());
-    }
+//   if(_TmpFileName!="")
+//     {
+//       string command="rm ";
+//       command+=_TmpFileName;
+//       system(command.c_str());
+//     }
 }
 
 string SALOME_ResourcesManager::BuildCommand(const string& machine,const char *containerName)

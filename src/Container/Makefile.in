@@ -45,11 +45,11 @@ EXPORT_HEADERS = \
 
 LIB = libSalomeContainer.la 
 LIB_SRC = Component_i.cxx  Container_i.cxx SALOME_ContainerManager.cxx
-LIB_SERVER_IDL = SALOME_Registry.idl SALOME_Component.idl
-LIB_CLIENT_IDL = SALOME_ContainerManager.idl
+LIB_SERVER_IDL = SALOME_Registry.idl SALOME_Component.idl SALOME_ContainerManager.idl
+LIB_CLIENT_IDL = 
 
 # Executables targets
-BIN = SALOME_Container SALOME_ContainerManagerServer
+BIN = SALOME_Container
 BIN_SRC = SALOME_Container_SignalsHandler.cxx
 BIN_SERVER_IDL = SALOME_Component.idl SALOME_ContainerManager.idl
 

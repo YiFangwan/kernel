@@ -44,14 +44,19 @@ class SALOME_LifeCycleCORBA
 public:
   SALOME_LifeCycleCORBA(SALOME_NamingService *ns);
   virtual ~SALOME_LifeCycleCORBA();
-  Engines::Component_ptr FindOrLoad_Component(const MachineParameters& params,
+  Engines::Component_ptr FindOrLoad_Component(const Engines::MachineParameters& params,
 					      const char *componentName);
   Engines::Component_ptr FindOrLoad_Component(const char *containerName,
 					      const char *componentName);
 protected:
-  Engines::Component_ptr DoesExistComponent(const char *componentName,
-					    const char *containerName,
-					    const MachineList& listOfMachines);
+  //! Establish if a component called "componentName" in a container called "containerName" exists among the list of resources
+  //! in "listOfMachines". This method uses Naming Service to find the component.
+  Engines::Component_ptr FindComponent(const char *containerName,
+					    const char *componentName,
+					    const Engines::MachineList& listOfMachines);
+
+  Engines::Component_ptr LoadComponent(const char *containerName, const char *componentName, const Engines::MachineList& listOfMachines);
+
   SALOME_NamingService *_NS;
   Engines::ContainerManager_var _ContManager;
   

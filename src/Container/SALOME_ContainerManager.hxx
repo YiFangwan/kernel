@@ -8,7 +8,6 @@
 #include "SALOME_LoadRateManager.hxx"
 
 #include <string>
-#include <vector>
 
 class SALOME_NamingService;
 
@@ -19,15 +18,17 @@ private:
   SALOME_LoadRateManager _LoadManager;
   SALOME_NamingService *_NS;
 public:
-  SALOME_ContainerManager(SALOME_NamingService *ns);
-  Engines::Container_ptr FindOrStartContainer(const char *containerName, const MachineList& possibleComputer);
-  MachineList *GetResourcesFitting(const MachineParameters& params, const char *componentName);
-  char* FindBest(const MachineList& possibleComputers);
+  SALOME_ContainerManager(CORBA::ORB_ptr orb);
+  ~SALOME_ContainerManager();
+  Engines::Container_ptr FindOrStartContainer(const char *containerName, const Engines::MachineList& possibleComputer);
+  Engines::MachineList *GetFittingResources(const Engines::MachineParameters& params, const char *componentName);
+  char* FindBest(const Engines::MachineList& possibleComputers);
+  void Shutdown();
   void ShutdownContainers();
 
   static const char *_ContainerManagerNameInNS;
 private:
-  Engines::Container_ptr DoesExistContainer(const char *containerName,const MachineList& possibleComputers);
+  Engines::Container_ptr FindContainer(const char *containerName,const Engines::MachineList& possibleComputers);
   Engines::Container_ptr FindContainer(const char *containerName,const char *theMachine);
   std::string BuildContainerNameInNS(const char *containerName,const char *machineName);
 };

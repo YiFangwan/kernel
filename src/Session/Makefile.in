@@ -49,11 +49,11 @@ LIB_SRC=\
 BIN = SALOME_Session_Server
 BIN_SRC = 
 BIN_SERVER_IDL = SALOME_Session.idl
-BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOME_Registry.idl SALOME_ModuleCatalog.idl SALOME_Exception.idl
+BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOME_ContainerManager.idl SALOME_Registry.idl SALOME_ModuleCatalog.idl SALOME_Exception.idl
 
 CPPFLAGS+=$(QT_MT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES) $(HDF5_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
-LDFLAGS+=$(QT_MT_LIBS) $(HDF5_LIBS) -lSalomeHDFPersist -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lPlot2d -lSalomeVTKFilter -lSALOMELocalTrace -lSalomeContainer -lRegistry -lSalomeNotification -lSalomeDS -lTOOLSDS -lSalomeGenericObj -lSalomeCatalog -lEvent -lSalomePrs $(CAS_LDPATH) -lTKBO -lCASCatch
+LDFLAGS+=$(QT_MT_LIBS) $(HDF5_LIBS) -lSalomeHDFPersist -lSalomeNS -lSalomeGUI -lSalomeObject -lSalomeLifeCycleCORBA -lqsplitterP -lOpUtil -lPlot2d -lSalomeVTKFilter -lSALOMELocalTrace -lSalomeContainer -lRegistry -lSalomeNotification -lSalomeDS -lTOOLSDS -lSalomeGenericObj -lSalomeCatalog -lEvent -lSalomePrs $(CAS_LDPATH) -lTKBO -lCASCatch -lSalomeResourcesManager
 
 
 @CONCLUDE@

@@ -250,7 +250,6 @@ class Server:
         pid = os.spawnvp(os.P_NOWAIT, command[0], command)
         process_id[pid]=self.CMD
 
-# ---
 
 class CatalogServer(Server):
     def __init__(self,args):
@@ -447,6 +446,8 @@ def startSalome(args, modules_list, modules_root_dir):
     # Notify Server launch
     #
 
+    print "Notify Server to launch"
+
     myServer=NotifyServer(args,modules_root_dir)
     myServer.run()
 
@@ -464,6 +465,9 @@ def startSalome(args, modules_list, modules_root_dir):
     # Lancement Catalog Server,
     # attente de la disponibilité du Catalog Server dans le Naming Service
     #
+    
+    print "LAUNCHING Modeule Catalog ......."
+    
 
     if 'moduleCatalog' not in args['embedded']:
         cataServer=CatalogServer(args)
@@ -503,9 +507,13 @@ def startSalome(args, modules_list, modules_root_dir):
     # Lancement Session Server
     #
 
+    print "LAUNCHING Session Server ......."
+
     mySessionServ = SessionServer(args)
     mySessionServ.setpath(modules_list,modules_root_dir)
     mySessionServ.run()
+
+    print "LAUNCHING Session Server ....... end"
 
     #macomm2=['ddd']
     #pid = os.spawnvp(os.P_NOWAIT, macomm2[0], macomm2)
@@ -525,16 +533,16 @@ def startSalome(args, modules_list, modules_root_dir):
             os.environ["HOSTNAME"]=os.getenv("HOST")
 
     theComputer = getShortHostName()
-  
+    
     #
     # Lancement Container C++ local,
     # attente de la disponibilité du Container C++ local dans le Naming Service
     #
 
-    if 'cppContainer' in args['standalone']:
-        myServer=ContainerCPPServer(args)
-        myServer.run()
-        clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
+##    if 'cppContainer' in args['standalone']:
+##        myServer=ContainerCPPServer(args)
+##        myServer.run()
+##        clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
 
     #
     # Lancement Container Python local,
@@ -542,10 +550,10 @@ def startSalome(args, modules_list, modules_root_dir):
     # dans le Naming Service
     #
 
-    if 'pyContainer' in args['standalone']:
-        myServer=ContainerPYServer(args)
-        myServer.run()
-        clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
+##    if 'pyContainer' in args['standalone']:
+##        myServer=ContainerPYServer(args)
+##        myServer.run()
+##        clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
 
     #
     # Lancement Container Supervision local,
@@ -553,10 +561,10 @@ def startSalome(args, modules_list, modules_root_dir):
     # dans le Naming Service
     #
 
-    if 'supervContainer' in args['standalone']:
-        myServer=ContainerSUPERVServer(args)
-        myServer.run()
-        clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
+##    if 'supervContainer' in args['standalone']:
+##        myServer=ContainerSUPERVServer(args)
+##        myServer.run()
+##        clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
 
     end_time = os.times()
     print
