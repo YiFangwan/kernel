@@ -15,7 +15,7 @@ class SALOMEDS_Driver_i :  public virtual SALOMEDSImpl_Driver
 {
 protected:
   SALOMEDS::Driver_var _driver;
-  CORBA::ORB_ptr _orb;
+  CORBA::ORB_var _orb;
 
 public:
 
@@ -24,6 +24,9 @@ public:
       _driver = SALOMEDS::Driver::_duplicate(theDriver);
       _orb = CORBA::ORB::_duplicate(theORB);        
     }
+
+  ~SALOMEDS_Driver_i() {
+  }
 
   virtual TCollection_AsciiString GetIOR() 
     {

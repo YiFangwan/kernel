@@ -118,6 +118,9 @@ public:
   virtual CORBA::Boolean Copy(SALOMEDS::SObject_ptr theObject);
   virtual CORBA::Boolean CanPaste(SALOMEDS::SObject_ptr theObject);
   virtual SALOMEDS::SObject_ptr Paste(SALOMEDS::SObject_ptr theObject) throw(SALOMEDS::StudyBuilder::LockProtection);
+
+  virtual char* ConvertObjectToIOR(CORBA::Object_ptr theObject) {return _orb->object_to_string(theObject); }
+  virtual CORBA::Object_ptr ConvertIORToObject(const char* theIOR) { return _orb->string_to_object(theIOR); };  
   
   void ping(){};
 };
