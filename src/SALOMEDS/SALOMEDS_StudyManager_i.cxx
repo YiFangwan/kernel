@@ -1312,7 +1312,7 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 
 		
 		CORBA::String_var aFactoryType;
-		if (strcmp(aCompType, "Supervision") == 0) aFactoryType = "SuperVisionContainer";
+		if (strcmp(aCompType, "SUPERV") == 0) aFactoryType = "SuperVisionContainer";
 		else aFactoryType = "FactoryServer";
 		
 		Engines::Component_var aComp =
