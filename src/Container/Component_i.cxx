@@ -134,6 +134,31 @@ PortableServer::ObjectId * Engines_Component_i::getId()
   return _id ;
 }
 
+void Engines_Component_i::setProperties(const Engines::FieldsDict& dico)
+{
+  _fieldsDict.clear();
+  for (CORBA::ULong i=0; i<dico.length(); i++)
+    {
+      std::string cle(dico[i].key);
+      _fieldsDict[cle] = dico[i].value;
+    }
+}
+
+Engines::FieldsDict* Engines_Component_i::getProperties()
+{
+  Engines::FieldsDict_var copie = new Engines::FieldsDict;
+  copie->length(_fieldsDict.size());
+  map<std::string,CORBA::Any>::iterator it;
+  CORBA::ULong i = 0;
+  for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++, i++)
+    {
+      std::string cle((*it).first);
+      copie[i].key = CORBA::string_dup(cle.c_str());
+      copie[i].value = _fieldsDict[cle];
+    }
+  return copie._retn();
+}
+
 void Engines_Component_i::beginService(const char *serviceName)
 {
   MESSAGE(pthread_self() << "Send BeginService notification for " << serviceName << endl

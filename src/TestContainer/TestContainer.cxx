@@ -154,7 +154,34 @@ int main (int argc, char * argv[])
 	  m1 = Engines::TestComponent::_narrow(obj);
 	  MESSAGE("recup m1");
 	  SCRUTE(m1->instanceName());
+
+	  Engines::FieldsDict_var dico = new Engines::FieldsDict;
+	  dico->length(3);
+	  dico[0].key=CORBA::string_dup("key_0");
+	  dico[0].value <<="value_0";
+	  dico[1].key=CORBA::string_dup("key_1");
+	  dico[1].value <<=(CORBA::UShort)72;
+	  dico[2].key=CORBA::string_dup("key_2");
+	  dico[2].value <<="value_2";
+	  m1->setProperties(dico);
+
 	  MESSAGE("Coucou " << m1->Coucou(1L));
+
+	  m1->Setenv();
+
+	  Engines::FieldsDict_var dico2 =  m1->getProperties();
+	  for (CORBA::ULong i=0; i<dico2->length(); i++)
+	    {
+	      MESSAGE("dico2["<<i<<"].key="<<dico2[i].key);
+	      MESSAGE("dico2["<<i<<"].value type ="<<dico2[i].value.type()->kind());
+	      if (dico2[i].value.type()->kind() == CORBA::tk_string)
+		{
+		  const char* value;
+		  dico2[i].value >>= value;
+		  MESSAGE("dico2["<<i<<"].value="<<value);
+		}
+	    }
+
 	  iGenFact->remove_impl(m1) ;
 	  //iGenFact->finalize_removal() ; // unpredictable results ...
           sleep(5);

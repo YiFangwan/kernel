@@ -35,6 +35,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <string>
+#include <map>
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include "NOTIFICATION.hxx"
@@ -72,6 +73,9 @@ public:
   Engines::Container_ptr GetContainerRef();
   PortableServer::ObjectId * getId(); 
 
+  void setProperties(const Engines::FieldsDict& dico);
+  Engines::FieldsDict* getProperties();
+
   void beginService(const char *serviceName);
   void endService(const char *serviceName);
   void sendMessage(const char *event_type, const char *message);
@@ -101,6 +105,7 @@ protected:
   Engines_Component_i * _thisObj ;
   RegistryConnexion *_myConnexionToRegistry;
   NOTIFICATION_Supplier* _notifSupplier;
+  map<std::string,CORBA::Any>_fieldsDict;
 
 private:
   pthread_t _ThreadId ;
