@@ -51,7 +51,7 @@ class Standard_EXPORT SALOMEGUI : public QObject
   Q_OBJECT
 
 public:
-  SALOMEGUI( const QString& name, QObject* parent = 0 );
+  SALOMEGUI( const QString& name = "", QObject* parent = 0 );
   virtual ~SALOMEGUI();
 
   virtual bool OnGUIEvent        (int theCommandID, QAD_Desktop* parent);

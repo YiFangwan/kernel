@@ -135,6 +135,7 @@ void SALOMEGUI::DefinePopup( QString & theContext, QString & theParent, QString 
 //=============================================================================
 bool SALOMEGUI::ActiveStudyChanged( QAD_Desktop* parent )
 {
+  return true;
 }
 
 //=============================================================================
