@@ -1098,6 +1098,8 @@ void QAD_Desktop::createActions()
     myAccelMap[ accel->insertItem( CTRL+Key_Equal ) ] = voZoomIn;
     // fit all
     myAccelMap[ accel->insertItem( CTRL+Key_Asterisk ) ] = voZoomFit;
+    // fit all
+    myAccelMap[ accel->insertItem( CTRL+SHIFT+Key_Asterisk ) ] = voZoomFit;
     // rotate left
     myAccelMap[ accel->insertItem( ALT+Key_Left ) ]   = voRotateLeft;
     // rotate right
