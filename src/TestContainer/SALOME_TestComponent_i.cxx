@@ -83,7 +83,8 @@ void Engines_TestComponent_i::Setenv()
     {
       std::string cle((*it).first);
       char* valenv= getenv(cle.c_str());
-      MESSAGE("--- getenv: "<<cle<<" = "<< valenv);
+      if (valenv)
+	MESSAGE("--- getenv: "<<cle<<" = "<< valenv);
     }
 }
 
