@@ -47,6 +47,8 @@ public:
   SALOME_LifeCycleCORBA(SALOME_NamingService *ns);
   virtual ~SALOME_LifeCycleCORBA();
 
+  Containers::MachineParameters_var Parameters() ;
+
   Engines::Container_var FindContainer( const char *containerName ) ;
   Engines::Container_var FindContainer( Containers::MachineParameters & MyParams ) ;
   Engines::ListOfContainers_var FindContainers( Containers::MachineParameters & MyParams ) ;

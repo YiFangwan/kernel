@@ -60,6 +60,10 @@ SALOME_LifeCycleCORBA::~SALOME_LifeCycleCORBA()
 {
 }
 
+Containers::MachineParameters_var SALOME_LifeCycleCORBA::Parameters() {
+  return _MyContainersMgr->Parameters() ;
+}
+
 string SALOME_LifeCycleCORBA::ContainerName( const char * aComputerContainer ,
                                              string * theComputer ,
                                              string * theContainer ) {
@@ -287,7 +291,7 @@ Engines::ListOfContainers_var SALOME_LifeCycleCORBA::FindContainers( Containers:
 }
 
 Engines::Component_var SALOME_LifeCycleCORBA::FindComponent( Containers::MachineParameters & MyParams ,
-                                      const char * ComponentName ) {
+                                                             const char * ComponentName ) {
   if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
     MyParams.HostName = GetHostname().c_str() ;
   }
@@ -295,7 +299,7 @@ Engines::Component_var SALOME_LifeCycleCORBA::FindComponent( Containers::Machine
 }
 
 Engines::ListOfComponents_var SALOME_LifeCycleCORBA::FindComponents( Containers::MachineParameters & MyParams ,
-                                                const char * ComponentName ) {
+                                                                     const char * ComponentName ) {
   if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
     MyParams.HostName = GetHostname().c_str() ;
   }

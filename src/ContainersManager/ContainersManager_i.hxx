@@ -85,6 +85,9 @@ class Manager_i : public POA_Containers::Manager ,
     Engines::Container_ptr FindOrStartContainerLocked( Containers::MachineParameters & MyParams ,
                                                        const char * ComponentName ) ;
 
+    Engines::Component_ptr Find_Component( const Containers::MachineParameters & MyParams ,
+                                           const char * ComponentName ) ;
+
   public:
 
     Manager_i() ;

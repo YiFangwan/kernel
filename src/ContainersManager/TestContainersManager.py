@@ -152,7 +152,6 @@ DefaultParams.Memory = 1000
 
 ListOfComputers = MyResourcesMgr.GetComputers( DefaultParams )
 print  ''
-print 'ListOfComputers',len( ListOfComputers ),'computers found'
 if len( ListOfComputers ) > 0 :
     print "Error",len( ListOfComputers ),"Computers found"
     i = 0
@@ -161,6 +160,8 @@ if len( ListOfComputers ) > 0 :
         ComputerParameters( ListOfComputers[i].Parameters() )
         ComputerEnvironement( ListOfComputers[i].Environment() )
         i = i + 1
+else :
+    print 'ListOfComputers',len( ListOfComputers ),'computers found Ok'
 
 aComputer = MyResourcesMgr.SelectComputer( DefaultParams )
 if aComputer is None :
@@ -188,8 +189,12 @@ Containers = MyContainersMgr.FindContainers( DefaultParams )
 if len( Containers ) == 0 :
     print len( Containers ),"found Error"
 
+
+
 DefaultParams.Memory = 0
 DefaultParams.ContainerName = ''
+
+ContainerParameters( DefaultParams )
 
 DefaultParams.ContainerType = Engines.Undefined
 Containers = MyContainersMgr.FindContainers( DefaultParams )
@@ -197,6 +202,15 @@ i = 0
 while i < len( Containers ) :
     print "Container running on",Containers[ i ]._get_machineName(),"with name",Containers[ i ]._get_name(),"and type",Containers[ i ].type()
     i = i + 1
+
+aContainer = MyContainersMgr.FindContainer( DefaultParams )
+print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainers.type()
+
+aContainer = MyContainersMgr.FindContainer( 'FactoryServer' ) )
+print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainers.type()
+
+aContainer = MyContainersMgr.FindContainer( 'localhost/FactoryServer' ) )
+print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainers.type()
 
 DefaultParams.ContainerType = Engines.Cpp
 Containers = MyContainersMgr.FindContainers( DefaultParams )
@@ -217,31 +231,38 @@ ContainerParameters( DefaultParams )
 DefaultParams.ContainerType = Engines.Cpp
 DefaultParams.ContainerName = 'FactoryServer'
 FactoryServerAddComponent = MyContainersMgr.FindOrLoad_Component( DefaultParams , "AddComponent" )
-FactoryServerAddComponent._get_instanceName()
-FactoryServerAddComponent._get_interfaceName()
+print FactoryServerAddComponent.GetContainerRef()._get_name(),FactoryServerAddComponent._get_instanceName(),FactoryServerAddComponent._get_interfaceName()
+
+DefaultParams.ContainerType = Engines.Undefined
+DefaultParams.ContainerName = ''
+
+ContainerParameters( DefaultParams )
 
 AddComponent = MyContainersMgr.FindComponent( DefaultParams , 'AddComponent' )
-AddComponent._get_instanceName()
-AddComponent._get_interfaceName()
+print AddComponent.GetContainerRef()._get_name(),AddComponent._get_instanceName(),AddComponent._get_interfaceName()
 
 ListOfAddComponent = MyContainersMgr.FindComponents( DefaultParams , 'AddComponent' )
 i = 0
 while i < len( ListOfAddComponent ) :
-    print ListOfAddComponent[ i ]._get_instanceName(),ListOfAddComponent[ i ]._get_interfaceName()
+    print ListOfAddComponent[ i ].GetContainerRef()._get_name(),ListOfAddComponent[ i ]._get_instanceName(),ListOfAddComponent[ i ]._get_interfaceName()
     i = i + 1
 
-MyContainersMgr.FindOrLoad_Component( DefaultParams , "AddComponent" )
+aSameAddComponent = MyContainersMgr.FindOrLoad_Component( DefaultParams , "AddComponent" )
+print aSameAddComponent.GetContainerRef()._get_name(),aSameAddComponent._get_instanceName(),aSameAddComponent._get_interfaceName()
+
 ListOfAddComponent = MyContainersMgr.FindComponents( DefaultParams , 'AddComponent' )
 i = 0
 while i < len( ListOfAddComponent ) :
-    print ListOfAddComponent[ i ]._get_instanceName(),ListOfAddComponent[ i ]._get_interfaceName()
+    print  ListOfAddComponent[ i ].GetContainerRef()._get_name(),ListOfAddComponent[ i ]._get_instanceName(),ListOfAddComponent[ i ]._get_interfaceName()
     i = i + 1
+
+ContainerParameters( DefaultParams )
 
 FactoryServeSubComponent = MyContainersMgr.FindOrLoad_Component( DefaultParams , "SubComponent" )
 ListOfComponents = MyContainersMgr.FindComponents( DefaultParams , '' )
 i = 0
 while i < len( ListOfComponents ) :
-    print ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
+    print ListOfComponents[ i ].GetContainerRef()._get_name(),ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
     i = i + 1
 
 DefaultParams.ContainerName = 'SuperVisionContainer'
@@ -250,25 +271,72 @@ DefaultParams.ContainerName = ''
 ListOfAddComponent = MyContainersMgr.FindComponents( DefaultParams , 'AddComponent' )
 i = 0
 while i < len( ListOfAddComponent ) :
-    print ListOfAddComponent[ i ]._get_instanceName(),ListOfAddComponent[ i ]._get_interfaceName()
+    print ListOfAddComponent[ i ].GetContainerRef()._get_name(),ListOfAddComponent[ i ]._get_instanceName(),ListOfAddComponent[ i ]._get_interfaceName()
     i = i + 1
 
 
 ListOfComponents = MyContainersMgr.FindComponents( DefaultParams , '' )
 i = 0
 while i < len( ListOfComponents ) :
-    print ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
+    print ListOfComponents[ i ].GetContainerRef()._get_name(),ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
     i = i + 1
 
 from LifeCycleCORBA import *
 orb = CORBA.ORB_init([''], CORBA.ORB_ID)
 lcc = LifeCycleCORBA( orb )
 
-DefaultParams.ContainerName = 'SuperVisionContainer'
 
 lccMulComponent = lcc.FindOrLoadComponent( 'SuperVisionContainer' , "MulComponent" )
 
-DefaultParams.ContainerName = 'DivComponentContainer'
+print lccMulComponent.GetContainerRef()._get_name(),lccMulComponent._get_instanceName(),lccMulComponent._get_interfaceName()
 
 lccDivComponent = lcc.FindOrLoadComponent( 'DivComponentContainer' , "DivComponent" )
+
+print lccDivComponent.GetContainerRef()._get_name(),lccDivComponent._get_instanceName(),lccDivComponent._get_interfaceName()
+
+
+DefaultParams = lcc.Parameters()
+
+DefaultParams.ContainerName = 'SuperVisionContainer'
+
+lccAddComponent = lcc.FindOrLoadComponent( DefaultParams , "AddComponent" )
+print lccAddComponent.GetContainerRef()._get_name(),lccAddComponent._get_instanceName(),lccAddComponent._get_interfaceName()
+
+DefaultParams.ContainerName = 'SubComponentContainer'
+
+lccSubComponent = lcc.FindOrLoadComponent( DefaultParams , "SubComponent" )
+print lccSubComponent.GetContainerRef()._get_name(),lccSubComponent._get_instanceName(),lccSubComponent._get_interfaceName()
+
+aContainer = lcc.FindContainer( DefaultParams )
+print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
+
+aContainer = lcc.FindContainer( 'FactoryServer' )
+print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
+
+aContainer = lcc.FindContainer( 'localhost/FactoryServer' )
+print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
+
+ContainerParameters( DefaultParams )
+
+DefaultParams.ContainerName = ''
+
+ListOfContainers = lcc.FindContainers( DefaultParams )
+i = 0
+while i < len( ListOfContainers ) :
+    print "Container running on",ListOfContainers[ i ]._get_machineName(),"with name",ListOfContainers[ i ]._get_name(),"and type",ListOfContainers[ i ].type()
+    i = i + 1
+
+ListOfComponents = lcc.FindComponents( DefaultParams , '' )
+i = 0
+while i < len( ListOfComponents ) :
+    print ListOfComponents[ i ].GetContainerRef()._get_name(),ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
+    i = i + 1
+
+
+aComponent = lcc.FindComponent( DefaultParams , 'SubComponent' )
+print aComponent.GetContainerRef()._get_name(),aComponent._get_instanceName(),aComponent._get_interfaceName()
+
+lccMulComponent = lcc.FindOrLoadComponent( DefaultParams , "MulComponent" )
+
+print lccMulComponent.GetContainerRef()._get_name(),lccMulComponent._get_instanceName(),lccMulComponent._get_interfaceName()
 
