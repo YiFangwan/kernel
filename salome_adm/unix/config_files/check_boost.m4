@@ -38,7 +38,7 @@ else
   dnl BOOST headers
   CPPFLAGS_old="${CPPFLAGS}"
   BOOST_CPPFLAGS="@CXXTMPDPTHFLAGS@ -I${BOOSTDIR}"
-  CPPFLAGS="${CPPFLAGS} ${BOOST_CPPFLAGS}"
+  CPPFLAGS="${CXXTMPDPTHFLAGS} -I${BOOSTDIR} ${CPPFLAGS}"
 
   AC_CHECK_HEADER(boost/shared_ptr.hpp,boost_ok=yes,boost_ok=no)
 
