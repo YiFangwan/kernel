@@ -155,13 +155,12 @@ print  ''
 print 'ListOfComputers',len( ListOfComputers ),'computers found'
 if len( ListOfComputers ) > 0 :
     print "Error",len( ListOfComputers ),"Computers found"
-
-i = 0
-while i < len( ListOfComputers ) :
-    print  ''
-    ComputerParameters( ListOfComputers[i].Parameters() )
-    ComputerEnvironement( ListOfComputers[i].Environment() )
-    i = i + 1
+    i = 0
+    while i < len( ListOfComputers ) :
+        print  ''
+        ComputerParameters( ListOfComputers[i].Parameters() )
+        ComputerEnvironement( ListOfComputers[i].Environment() )
+        i = i + 1
 
 aComputer = MyResourcesMgr.SelectComputer( DefaultParams )
 if aComputer is None :
@@ -183,11 +182,61 @@ xmenServer = MyContainersMgr.FindOrStartContainer( DefaultParams )
 
 xmenServer.ping()
 
-component = MyContainersMgr.FindOrLoadComponent( DefaultParams , "AddComponent" )
+component = MyContainersMgr.FindOrLoad_Component( DefaultParams , "AddComponent" )
 
 Containers = MyContainersMgr.FindContainers( DefaultParams )
+if len( Containers ) == 0 :
+    print len( Containers ),"found Error"
 
+DefaultParams.Memory = 0
 DefaultParams.ContainerName = ''
 
+DefaultParams.ContainerType = Engines.Undefined
 Containers = MyContainersMgr.FindContainers( DefaultParams )
+i = 0
+while i < len( Containers ) :
+    print "Container running on",Containers[ i ]._get_machineName(),"with name",Containers[ i ]._get_name(),"and type",Containers[ i ].type()
+    i = i + 1
+
+DefaultParams.ContainerType = Engines.Cpp
+Containers = MyContainersMgr.FindContainers( DefaultParams )
+i = 0
+while i < len( Containers ) :
+    print "Container running on",Containers[ i ]._get_machineName(),"with name",Containers[ i ]._get_name(),"and type",Containers[ i ].type()
+    i = i + 1
+
+DefaultParams.ContainerType = Engines.Python
+Containers = MyContainersMgr.FindContainers( DefaultParams )
+i = 0
+while i < len( Containers ) :
+    print "Container running on",Containers[ i ]._get_machineName(),"with name",Containers[ i ]._get_name(),"and type",Containers[ i ].type()
+    i = i + 1
+
+ContainerParameters( DefaultParams )
+
+DefaultParams.ContainerType = Engines.Cpp
+DefaultParams.ContainerName = 'FactoryServer'
+FactoryServerAddComponent = MyContainersMgr.FindOrLoad_Component( DefaultParams , "AddComponent" )
+FactoryServerAddComponent._get_instanceName()
+FactoryServerAddComponent._get_interfaceName()
+
+AddComponent = MyContainersMgr.FindComponent( DefaultParams , 'AddComponent' )
+AddComponent._get_instanceName()
+AddComponent._get_interfaceName()
+
+ListOfAddComponent = MyContainersMgr.FindComponents( DefaultParams , 'AddComponent' )
+
+FactoryServeSubComponent = MyContainersMgr.FindOrLoad_Component( DefaultParams , "SubComponent" )
+
+from LifeCycleCORBA import *
+orb = CORBA.ORB_init([''], CORBA.ORB_ID)
+lcc = LifeCycleCORBA( orb )
+
+DefaultParams.ContainerName = 'SuperVisionContainer'
+
+lccMulComponent = lcc.FindOrLoadComponent( 'SuperVisionContainer' , "MulComponent" )
+
+DefaultParams.ContainerName = 'DivComponentContainer'
+
+lccDivComponent = lcc.FindOrLoadComponent( 'DivComponentContainer' , "DivComponent" )
 
