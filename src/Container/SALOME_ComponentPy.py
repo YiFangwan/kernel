@@ -67,6 +67,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         self._notif = notif
         self._myConnexionToRegistry = 0
         self._graphName = ''
+        self._serviceName = ''
         self._nodeName = ''
         self._ThreadId = 0
         self._StartUsed = 0
@@ -185,23 +186,27 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     #-------------------------------------------------------------------------
 
-    def Kill(self):
-        MESSAGE(  "SALOME_ComponentPy_i::Kill not yet implemented" )
+    def Kill_impl(self):
+        MESSAGE(  "SALOME_ComponentPy_i::Kill_impl not implemented" )
+        return 0
 
     #-------------------------------------------------------------------------
 
-    def Stop(self):
-        MESSAGE(  "SALOME_ComponentPy_i::Stop not yet implemented" )
+    def Stop_impl(self):
+        MESSAGE(  "SALOME_ComponentPy_i::Stop_impl not implemented" )
+        return 0
 
     #-------------------------------------------------------------------------
 
-    def Suspend(self):
-        MESSAGE(  "SALOME_ComponentPy_i::Suspend not yet implemented" )
+    def Suspend_impl(self):
+        MESSAGE(  "SALOME_ComponentPy_i::Suspend_impl not implemented" )
+        return 0
 
     #-------------------------------------------------------------------------
 
-    def Resume(self):
-        MESSAGE(  "SALOME_ComponentPy_i::Resume not yet implemented" )
+    def Resume_impl(self):
+        MESSAGE(  "SALOME_ComponentPy_i::Resume_impl not implemented" )
+        return 0
 
     #-------------------------------------------------------------------------
 
