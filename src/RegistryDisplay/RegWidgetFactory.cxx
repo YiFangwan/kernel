@@ -37,7 +37,7 @@ void OnGUIEvent( CORBA::ORB_var &orb, QWidget *parent, const char *name )
 {
   // N.B. parent can be 0
  RegWidget* ptrRegWidget = RegWidget::GetRegWidget( orb, parent, name );
- ASSERT ( !ptrRegWidget );
+ //ASSERT ( !ptrRegWidget );
  ptrRegWidget->show();
  ptrRegWidget->raise();
  ptrRegWidget->setActiveWindow();
