@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
+#include CORBA_CLIENT_HEADER(ContainersManager)
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
 
 #include "SALOME_NamingService.hxx"
@@ -39,6 +40,7 @@
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "Utils_CommException.hxx"
+
 using namespace std;
 
 int main (int argc, char * argv[])
@@ -138,11 +140,34 @@ int main (int argc, char * argv[])
       SALOME_NamingService _NS(orb) ;
       string containerName = "/Containers/" ;
       string hostName = GetHostname();
-      containerName += hostName + "/FactoryServer";
+      containerName += hostName + "/TestContainerCpp";
 
+      Engines::Container_var iGenFact = Engines::Container::_nil() ;
       obj = _NS.Resolve(containerName.c_str()) ;
-      Engines::Container_var iGenFact = Engines::Container::_narrow(obj);
-
+      if ( !CORBA::is_nil( obj ) ) {
+        try {
+          iGenFact = Engines::Container::_narrow( obj ) ;
+          iGenFact->ping() ;
+	}
+	catch ( ... ) {
+          INFOS("TestContainerCpp unreachable") ;
+	}
+      }
+      if ( CORBA::is_nil( iGenFact ) ) {
+        obj = _NS.Resolve( "/Kernel/ContainersManager" ) ;
+        if ( !CORBA::is_nil( obj ) ) {
+          try {
+            Containers::Manager_var MyContainersMgr = Containers::Manager::_narrow( obj ) ;
+            MyContainersMgr->ping() ;
+            Containers::MachineParameters * Params = MyContainersMgr->Parameters() ;
+            Params->ContainerName = "TestContainerCpp" ;
+            iGenFact = MyContainersMgr->FindOrStartContainer( *Params ) ;
+	  }
+	  catch ( ... ) {
+            INFOS("ContainersManager unreachable") ;
+	  }
+	}
+      }
       Engines::TestComponent_var m1;
     
       for (int iter = 0; iter < 3 ; iter++)
@@ -165,6 +190,8 @@ int main (int argc, char * argv[])
       // Clean-up.
       iGenFact->finalize_removal() ;
       INFOS("finalize_removal done" );
+      iGenFact->destroy() ;
+      INFOS("Container destroyed" );
       orb->destroy();
       INFOS("orb destroyed" );
     }

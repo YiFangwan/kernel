@@ -150,9 +150,10 @@ Engines_Container_i::~Engines_Container_i()
 
 void Engines_Container_i::destroy() {
   MESSAGE( "Container_i::destroy" ) ;
-  _poa->deactivate_object(*_id) ;
-  CORBA::release(_poa) ;
-  delete(_id) ;
+  _NS->Destroy_Name( _containerName.c_str() ) ;
+  _poa->deactivate_object( *_id ) ;
+  CORBA::release( _poa ) ;
+  delete( _id ) ;
   this->_remove_ref();
 }
 
@@ -241,7 +242,8 @@ Engines::Container_ptr Engines_Container_i::start_impl( const char* ContainerNam
     }
     shstr += " > /tmp/" ;
     shstr += ContainerName ;
-    shstr += ".log 2>&1 &" ;
+    shstr += ".log 2>&1" ;
+    shstr += " &" ;
     MESSAGE("system(" << shstr << ")") ;
     int status = system( shstr.c_str() ) ;
     if (status == -1) {
@@ -378,7 +380,7 @@ void Engines_Container_i::remove_impl(Engines::Component_ptr component_i)
 {
   ASSERT(! CORBA::is_nil(component_i));
   string component_registerName = _containerName + "/" + component_i->interfaceName() ;
-  _NS->Destroy_Name( component_registerName.c_str() ) ;
+//  _NS->Destroy_Name( component_registerName.c_str() ) ;
   string instanceName = component_i->instanceName() ;
   MESSAGE("unload component " << instanceName);
   component_i->destroy() ;

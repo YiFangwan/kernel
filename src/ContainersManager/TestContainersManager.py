@@ -1,10 +1,6 @@
 
 #ContainersManager_Server -ORBInitRef NameService=corbaname::localhost
 
-import Engines
-
-import Containers
-
 def ContainerParameters( Params ) :
     print "ContainerParameters :"
     print "Os            :",Params.Os
@@ -46,6 +42,12 @@ def ComputerEnvironement( env ) :
     print 'PythonPath     ',env.PythonPath
     print 'CasRoot        ',env.CasRoot
 
+
+import Engines
+
+import Containers
+
+import Resources
 
 
 MyContainersMgr = clt.waitNS("/Kernel/ContainersManager",Containers.Manager)
@@ -94,8 +96,6 @@ while i < len( Containers ) :
 
 
 #ResourcesManager_Server -common /home/Salome2/KERNEL_install/share/salome/resources/ResourcesCatalog.xml -ORBInitRef NameService=corbaname::localhost
-
-import Resources
 
 MyResourcesMgr = clt.waitNS("/Kernel/ResourcesManager",Resources.Manager)
 
@@ -218,23 +218,17 @@ while i < len( Containers ) :
 aContainer = MyContainersMgr.FindContainer( DefaultParams )
 print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
 
-aContainer = MyContainersMgr.FindOneContainer( 'FactoryServer' )
+aContainer = MyContainersMgr.FindOneContainer( 'localhost' , 'FactoryServer' )
 print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
 
-aContainer = MyContainersMgr.FindOneContainer( 'FactoryServerPy' )
+aContainer = MyContainersMgr.FindOneContainer( 'localhost' , 'FactoryServerPy' )
 print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
 
-aContainer = MyContainersMgr.FindOneContainer( 'SuperVisionContainer' )
+aContainer = MyContainersMgr.FindOneContainer( 'localhost' , 'SuperVisionContainer' )
 print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
 
-aContainer = MyContainersMgr.FindOneContainer( 'localhost/FactoryServer' )
+aContainer = MyContainersMgr.FindOneContainer( '' , 'SuperVisionContainer' )
 print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
-
-aContainer = MyContainersMgr.FindOneContainer( 'bojolex/SuperVisionContainer' )
-if aContainer is None :
-    print "None Container : Ok"
-else :
-    print "ERROR Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
 
 DefaultParams.ContainerType = Engines.Cpp
 Containers = MyContainersMgr.FindContainers( DefaultParams )
@@ -321,15 +315,59 @@ while i < len( ListOfComponents ) :
     print ListOfComponents[ i ].GetContainerRef()._get_name(),ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
     i = i + 1
 
-aAddComponent = MyContainersMgr.FindOneComponent( 'FactoryServer' , "AddComponent" )
+
+ListOfComponents = MyContainersMgr.FindComponents( DefaultParams , '' )
+i = 0
+while i < len( ListOfComponents ) :
+    print ListOfComponents[ i ].GetContainerRef()._get_name(),ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
+    i = i + 1
+
+aAddComponent = MyContainersMgr.FindOneComponent( '' , 'FactoryServer' , "AddComponent" )
 print aAddComponent.GetContainerRef()._get_name(),aAddComponent._get_instanceName(),aAddComponent._get_interfaceName()
 
-aSubComponent = MyContainersMgr.FindOneComponent( 'FactoryServer' , "SubComponent" )
+aSubComponent = MyContainersMgr.FindOneComponent( '' , 'FactoryServer' , "SubComponent" )
 print aSubComponent.GetContainerRef()._get_name(),aSubComponent._get_instanceName(),aSubComponent._get_interfaceName()
 
-aSUPERVComponent = MyContainersMgr.FindOneComponent( 'SuperVisionContainer' , "SUPERV" )
+aSUPERVComponent = MyContainersMgr.FindOneComponent( '' , 'SuperVisionContainer' , "SUPERV" )
 print aSUPERVComponent.GetContainerRef()._get_name(),aSUPERVComponent._get_instanceName(),aSUPERVComponent._get_interfaceName()
 
+aAddComponent = MyContainersMgr.FindOneComponent( '' , '' , "AddComponent" )
+print aAddComponent.GetContainerRef()._get_name(),aAddComponent._get_instanceName(),aAddComponent._get_interfaceName()
+
+aSubComponent = MyContainersMgr.FindOneComponent( '' , '' , "SubComponent" )
+print aSubComponent.GetContainerRef()._get_name(),aSubComponent._get_instanceName(),aSubComponent._get_interfaceName()
+
+aSubComponent = MyContainersMgr.FindOneComponent( 'dunex' , '' , "SubComponent" )
+print aSubComponent.GetContainerRef()._get_name(),aSubComponent._get_instanceName(),aSubComponent._get_interfaceName()
+
+aSubComponent = MyContainersMgr.FindOneComponent( 'localhost' , '' , "SubComponent" )
+print aSubComponent.GetContainerRef()._get_name(),aSubComponent._get_instanceName(),aSubComponent._get_interfaceName()
+
+aSUPERVComponent = MyContainersMgr.FindOneComponent( '' , '' , "SUPERV" )
+print aSUPERVComponent.GetContainerRef()._get_name(),aSUPERVComponent._get_instanceName(),aSUPERVComponent._get_interfaceName()
+
+ServerPy = MyContainersMgr.FindOneContainer( '' , 'ServerPy' )
+print "Container running on",ServerPy._get_machineName(),"with name",ServerPy._get_name(),"and type",ServerPy.type()
+
+DefaultParams.ContainerType = Engines.Python
+ContainerParameters( DefaultParams )
+TestComponentPy = MyContainersMgr.FindOrLoad_Component( DefaultParams , "SALOME_TestComponentPy" )
+print TestComponentPy.GetContainerRef()._get_name(),TestComponentPy._get_instanceName(),TestComponentPy._get_interfaceName()
+ListOfComponents = MyContainersMgr.FindComponents( DefaultParams , '' )
+i = 0
+while i < len( ListOfComponents ) :
+    print ListOfComponents[ i ].GetContainerRef()._get_name(),ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
+    i = i + 1
+
+DefaultParams.ContainerType = Engines.Cpp
+ContainerParameters( DefaultParams )
+TestComponent = MyContainersMgr.FindOrLoad_Component( DefaultParams , "SalomeTestComponent" )
+print TestComponent.GetContainerRef()._get_name(),TestComponent._get_instanceName(),TestComponent._get_interfaceName()
+ListOfComponents = MyContainersMgr.FindComponents( DefaultParams , '' )
+i = 0
+while i < len( ListOfComponents ) :
+    print ListOfComponents[ i ].GetContainerRef()._get_name(),ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
+    i = i + 1
 
 
 
@@ -339,8 +377,20 @@ from LifeCycleCORBA import *
 orb = CORBA.ORB_init([''], CORBA.ORB_ID)
 lcc = LifeCycleCORBA( orb )
 
-t  = lcc.FindOrLoadComponent( 'FactoryServer' , 'SalomeTestComponent' )
-print t
+TestComponent  = lcc.FindOrLoadComponent( 'FactoryServer' , 'SalomeTestComponent' )
+print TestComponent.GetContainerRef()._get_name(),TestComponent._get_instanceName(),TestComponent._get_interfaceName()
+
+TestComponent  = lcc.FindOrLoadComponent( '' , 'SalomeTestComponent' )
+print TestComponent.GetContainerRef()._get_name(),TestComponent._get_instanceName(),TestComponent._get_interfaceName()
+
+TestComponentPy  = lcc.FindOrLoadComponent( '' , 'SALOME_TestComponentPy' )
+if TestComponentPy is None :
+    print 'SALOME_TestComponentPy not found : Ok'
+else :
+    print 'Error',TestComponentPy.GetContainerRef()._get_name(),TestComponentPy._get_instanceName(),TestComponentPy._get_interfaceName(),'was found'
+
+TestComponentPy  = lcc.FindOrLoadComponent( 'ServerPy' , 'SALOME_TestComponentPy' )
+print TestComponentPy.GetContainerRef()._get_name(),TestComponentPy._get_instanceName(),TestComponentPy._get_interfaceName()
 
 lccMulComponent = lcc.FindOrLoadComponent( 'SuperVisionContainer' , "MulComponent" )
 print lccMulComponent.GetContainerRef()._get_name(),lccMulComponent._get_instanceName(),lccMulComponent._get_interfaceName()
@@ -368,6 +418,7 @@ print "Container running on",aContainer._get_machineName(),"with name",aContaine
 
 aContainer = lcc.FindContainer( 'localhost/FactoryServer' )
 print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
+
 
 ContainerParameters( DefaultParams )
 
@@ -399,6 +450,27 @@ lccbojolexMulComponent = lcc.FindOrLoadComponent( DefaultParams , "MulComponent"
 DefaultParams.HostName = 'toto'
 
 lcctotoMulComponent = lcc.FindOrLoadComponent( DefaultParams , "MulComponent" )
+
+
+MyContainersMgr.DestroyContainer( '' , 'FactoryServer' )
+MyContainersMgr.DestroyContainer( '' , 'FactoryServerPy' )
+
+
+DefaultParams.HostName = ''
+DefaultParams.ContainerName = ''
+DefaultParams.ContainerType = Engines.Undefined
+
+ListOfContainers = lcc.FindContainers( DefaultParams )
+i = 0
+while i < len( ListOfContainers ) :
+    print "Container running on",ListOfContainers[ i ]._get_machineName(),"with name",ListOfContainers[ i ]._get_name(),"and type",ListOfContainers[ i ].type()
+    i = i + 1
+
+ListOfComponents = lcc.FindComponents( DefaultParams , '' )
+i = 0
+while i < len( ListOfComponents ) :
+    print ListOfComponents[ i ].GetContainerRef()._get_name(),ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
+    i = i + 1
 
 
 MyContainersMgr.destroy()

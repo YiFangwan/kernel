@@ -42,8 +42,10 @@ class SALOME_TestComponentPy( Engines__POA.TestComponent, SALOME_ComponentPy_i):
         return result
     
     def __init__(self, orb, poa, contID, containerName, instanceName, interfaceName):
+        print "SALOME_TestComponentPy::__init__ --> SALOME_ComponentPy_i.__init__"
         notif = 0
         SALOME_ComponentPy_i.__init__(self, orb, poa, contID, containerName,
                                       instanceName, interfaceName, notif)
-        print "SALOME_TestComponentPy::__init__"
+        self._Id = self._poa.reference_to_id( self._this() )
+        print "SALOME_TestComponentPy::__init__ done"
 

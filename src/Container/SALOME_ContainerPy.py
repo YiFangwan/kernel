@@ -52,21 +52,38 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
     #-------------------------------------------------------------------------
 
-    def __init__(self, orb, poa, containerName):
-        MESSAGE( "SALOME_ContainerPy_i::__init__" )
+    def __init__( self , orb , poa , containerName ):
+        MESSAGE( "SALOME_ContainerPy_i::__init__ " + containerName )
         self._orb = orb
         self._poa = poa
         self._containerName = containerName
+        self._contId = self._poa.reference_to_id( self._this() )
 
         myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
         self._machineName = myMachine[0]
-        naming_service = SALOME_NamingServicePy_i(self._orb)
-        self._naming_service = naming_service
+        self.naming_service = SALOME_NamingServicePy_i(self._orb)
         Container_path = "/Containers/" + myMachine[0] + "/" + self._containerName
         self._Name = Container_path
         MESSAGE( str(Container_path) )
-        naming_service.Register(self._this(), Container_path)
+        self.naming_service.Register( self._this() , Container_path )
             
+    #-------------------------------------------------------------------------
+
+    def destroy(self):
+        MESSAGE(  "SALOME_ContainerPy_i::destroy" )
+        self.naming_service.Destroy_Name( self._Name ) ;
+        print "SALOME_ContainerPy_i::destroy _poa.deactivate_object id",self._contId
+        self._poa.deactivate_object( self._contId )
+        MESSAGE(  "SALOME_ContainerPy_i::destroy _poa.deactivate_object done" )
+        self._poa._release()
+        MESSAGE(  "SALOME_ContainerPy_i::destroy _poa._released" )
+        #self.delete( self._contId )
+        #MESSAGE(  "SALOME_ContainerPy_i::destroy self._contId deleted" )
+        #self._remove_ref()
+        #MESSAGE(  "SALOME_ContainerPy_i::destroy self _removed_ref" )
+        MESSAGE(  "SALOME_ContainerPy_i::destroyed" )
+        sys.exit(0)
+        
     #-------------------------------------------------------------------------
 
     def start_impl( self , ContainerName , ContainerType ) :
@@ -105,11 +122,8 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         
         shstr += " > "
         shstr += fileName
-        shstr += " 2>&1 &"
-        
-        #shstr += " > /tmp/"
-        #shstr += ContainerName
-        #shstr += ".log 2>&1 &"
+        shstr += " 2>&1"
+        shstr += " &"
         
         MESSAGE(  "SALOME_ContainerPy_i::start_impl " + "os.system(" + str(shstr) + ")" )
         os.system( shstr )
@@ -184,11 +198,13 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
 #initialise the ORB and find the root POA
 orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
+print "CORBA.ORB_init done"
 poa = orb.resolve_initial_references("RootPOA")
+print "orb.resolve_initial_references('RootPOA') done"
 
 #create an instance of SALOME_ContainerPy_i and a Container reference
 #containerName = "FactoryServerPy"
-MESSAGE( str(sys.argv) )
+MESSAGE( "SALOME_ContainerPy.py " + str(sys.argv) )
 containerName = sys.argv[1]
 cpy_i = SALOME_ContainerPy_i(orb, poa, containerName)
 cpy_o = cpy_i._this()
@@ -200,8 +216,7 @@ poaManager.activate()
 #Block for ever
 orb.run()
 
-
-        
-            
-
+print "SALOME_ContainerPy --> orb.destroy"
+orb.destroy()
+print "SALOME_ContainerPy orb.destroyed"
 

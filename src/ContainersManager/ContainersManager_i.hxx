@@ -88,9 +88,9 @@ class Manager_i : public POA_Containers::Manager ,
     vector< string >                  _ListOfComponentsNames ;
     vector< Engines::Component_var >  _ListOfEnginesComponents ;
 
-    std::string ContainerName( const char * aComputerContainer ,
-                               std::string * theComputer ,
-                               std::string * theContainer ) ;
+//    std::string ContainerName( const char * aComputerContainer ,
+//                               std::string * theComputer ,
+//                               std::string * theContainer ) ;
 
     Engines::Container_ptr StartContainer( const Containers::MachineParameters & myParams ) ;
 
@@ -99,8 +99,11 @@ class Manager_i : public POA_Containers::Manager ,
     Engines::Container_ptr FindOrStartContainerLocked( Containers::MachineParameters & MyParams ,
                                                        const char * ComponentName ) ;
 
-    Engines::Component_ptr Find_Component( const Containers::MachineParameters & MyParams ,
-                                           const char * ComponentName ) ;
+    Engines::Component_ptr FindComponentLocked( const Containers::MachineParameters & MyParams ,
+                                                const char * ComponentName ) ;
+
+    Engines::ListOfComponents * FindComponentsLocked( const Containers::MachineParameters & MyParams ,
+                                                      const char * ComponentName ) ;
 
   public:
 
@@ -122,7 +125,8 @@ class Manager_i : public POA_Containers::Manager ,
 
     virtual Engines::Container_ptr FindContainer( const Containers::MachineParameters & MyParams ) ;
 
-    virtual Engines::Container_ptr FindOneContainer( const char * aContainerName ) ;
+    virtual Engines::Container_ptr FindOneContainer( const char * aHostName ,
+                                                     const char * aContainerName ) ;
 
     virtual Engines::ListOfContainers * FindContainers( const Containers::MachineParameters & MyParams ) ;
 
@@ -131,7 +135,8 @@ class Manager_i : public POA_Containers::Manager ,
     virtual Engines::Component_ptr FindComponent( const Containers::MachineParameters & MyParams ,
                                                   const char * ComponentName ) ;
 
-    virtual Engines::Component_ptr FindOneComponent( const char * aContainerName ,
+    virtual Engines::Component_ptr FindOneComponent( const char * aHostName ,
+                                                     const char * aContainerName ,
                                                      const char * ComponentName ) ;
 
     virtual Engines::ListOfComponents * FindComponents( const Containers::MachineParameters & MyParams ,
@@ -143,6 +148,11 @@ class Manager_i : public POA_Containers::Manager ,
 
     virtual Engines::Component_ptr FindOrLoad_Component( const Containers::MachineParameters & MyParams ,
                                                          const char * ComponentName ) ;
+
+    virtual bool DestroyContainer( const char * aHostName ,
+                                   const char * aContainerName ) ;
+
+    virtual bool DestroyContainers( const Containers::MachineParameters & MyParams ) ;
 
 } ;
 

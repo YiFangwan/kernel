@@ -59,9 +59,11 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         MESSAGE(  "SALOME_ComponentPy_i::__init__" + " " + str (containerName) + " " + str(instanceName) + " " + str(interfaceName) )
         self._orb = orb
         self._poa = poa
+        self._contId = self._poa.reference_to_id( contID )
         self._instanceName = instanceName
         self._interfaceName = interfaceName
         self._containerName = containerName
+        self._Id = None
         self._notif = notif
         self._myConnexionToRegistry = 0
         self._graphName = ''
@@ -72,9 +74,11 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         self._Executed = 0
 
         naming_service = SALOME_NamingServicePy_i(self._orb)
+        self.naming_service = naming_service
         Component_path = "/Containers/" +  os.getenv( "HOSTNAME" ) + "/" + self._containerName + "/" + self._interfaceName
         MESSAGE(  'SALOME_ComponentPy_i Register' + str( Component_path ) )
-        naming_service.Register(self._this(), Component_path)
+        naming_service.Register( self._this(), Component_path )
+        self.Component_path = Component_path
 
         # Add componentinstance to registry
         obj = naming_service.Resolve('/Registry')
@@ -126,13 +130,28 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     def destroy(self):
         MESSAGE(  "SALOME_ComponentPy_i::destroy" )
-        poa.deactivate_object(self)
-        CORBA.release(_poa)
+        self.naming_service.Destroy_Name( self.Component_path )
+        self._poa.deactivate_object( self._Id )
+        MESSAGE(  "SALOME_ComponentPy_i::destroy _poa.deactivate_object done" )
+        #self._poa._release()
+        #self._delete( self._Id )
+        #self._remove_ref()
+        MESSAGE(  "SALOME_ComponentPy_i::destroyed" )
         
     #-------------------------------------------------------------------------
 
     def GetContainerRef(self):
         MESSAGE(  "SALOME_ComponentPy_i::GetContainerRef" )
+        theContainer = None
+        try :
+            obj = self._poa.id_to_reference( self._contId )
+            try :
+                theContainer = obj._narrow( Engines.Container )
+            except :
+                print "SALOME_ComponentPy_i::GetContainerRef _narrow( Engines.Container ) exception"
+        except :
+            print "SALOME_ComponentPy_i::GetContainerRef _poa.id_to_reference( _contId ) exception"
+        return theContainer
         
     #-------------------------------------------------------------------------
 
