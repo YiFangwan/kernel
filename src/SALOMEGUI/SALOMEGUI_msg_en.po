@@ -67,7 +67,7 @@ msgstr "Appropriate view must be created to display selected object(s)"
 
 #: SALOMEGUI_TrihedronSizeDlg.cxx:77
 msgid "SALOMEGUI_TrihedronSizeDlg::MEN_TRIHEDRON_SIZE"
-msgstr "Size :"
+msgstr "Size (% of bounding box) :"
 
 #: SALOMEGUI_TrihedronSizeDlg.cxx:36
 msgid "SALOMEGUI_TrihedronSizeDlg::MEN_TRIHEDRON"
@@ -697,7 +697,7 @@ msgid "SALOMEGUI_ActivateComponentDlg::ActivateComponent_DESCRIPTION"
 msgstr "You need to create, open or load study before."
 
 msgid "SALOMEGUI_HELP_TITLE"
-msgstr "SALOME Professional Help"
+msgstr "SALOME Help"
 
 msgid "TOT_PLOT2D_FITDATA"
 msgstr "Fit range"
