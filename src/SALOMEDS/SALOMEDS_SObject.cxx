@@ -52,7 +52,6 @@ SALOMEDS_SObject::SALOMEDS_SObject(const Handle(SALOMEDSImpl_SObject)& theSObjec
 
 SALOMEDS_SObject::~SALOMEDS_SObject()
 {
-  cout << "@@@@@@@@@@ Deleting the SOBject" << endl;
 }
 
 char* SALOMEDS_SObject::GetID()
