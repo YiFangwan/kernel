@@ -62,6 +62,10 @@ typedef std::vector<ParserDataStreamParameter> ParserDataStreamParameters;
 
 struct ParserService
 {
+  ParserService() {
+    typeOfNode = 1;
+    byDefault = 1;
+  }
   std::string                name;
   ParserParameters           inParameters;
   ParserParameters           outParameters;
