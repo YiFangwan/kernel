@@ -58,11 +58,34 @@ This struct contains fields defining the parameter of the service.
     string Parametername; /*!<Name of the parameter.*/
   } ;
 
+  enum DataStreamDependency {
+    DATASTREAM_UNDEFINED,
+    DATASTREAM_TEMPORAL,
+    DATASTREAM_ITERATIVE
+  } ;
+
+  enum DataStreamType {
+    DATASTREAM_UNKNOWN,
+    DATASTREAM_INTEGER,
+    DATASTREAM_FLOAT,
+    DATASTREAM_DOUBLE,
+    DATASTREAM_STRING,
+    DATASTREAM_BOOLEAN
+  } ;
+
+  struct ServicesDataStreamParameter
+  {
+    DataStreamType Parametertype; /*!<Type of the parameter.*/
+    string Parametername;         /*!<Name of the parameter.*/
+    DataStreamDependency Parameterdependency; /*!<Temporal or iterative dependency.*/
+  } ;
+
 /*! 
 The list of the parameters of service.
 */
 
   typedef sequence<ServicesParameter> ListOfServicesParameter;
+  typedef sequence<ServicesDataStreamParameter> ListOfServicesDataStreamParameter;
 
 /*! 
 This struct contains fields completely defining each service.
@@ -70,10 +93,12 @@ This struct contains fields completely defining each service.
 
   struct Service
   {
-    string                  ServiceName; /*!<Name of the service.*/
-    ListOfServicesParameter ServiceinParameter; /*!< List of input parameters of the services.*/
-    ListOfServicesParameter ServiceoutParameter; /*!< List of output parameters of the services.*/
-    boolean                 Servicebydefault; /*!<True if the service is taken with its defult fields.*/
+    string                            ServiceName; /*!<Name of the service.*/
+    ListOfServicesParameter           ServiceinParameter; /*!< List of input parameters of the services.*/
+    ListOfServicesParameter           ServiceoutParameter; /*!< List of output parameters of the services.*/
+    ListOfServicesDataStreamParameter ServiceinDataStreamParameter; /*!< List of input parameters of the services.*/
+    ListOfServicesDataStreamParameter ServiceoutDataStreamParameter; /*!< List of output parameters of the services.*/
+    boolean                           Servicebydefault; /*!<True if the service is taken with its defult fields.*/
   } ;
 /*! 
 List of services of the interface.

@@ -35,34 +35,34 @@
 // Type Definitions
 struct ParserPathPrefix
 {
-  string         path;
-  vector<string> listOfComputer ;
+  std::string         path;
+  std::vector<std::string> listOfComputer ;
 };
 
-typedef vector<ParserPathPrefix> ListOfParserPathPrefix ;
+typedef std::vector<ParserPathPrefix> ListOfParserPathPrefix ;
 
 enum ParserComponentType {GEOM, MESH, Med, SOLVER, DATA, VISU, SUPERV, OTHER} ;
 
 struct ParserServParam
 {
-  string parserParamType;
-  string parserParamName;
+  std::string parserParamType;
+  std::string parserParamName;
 } ;
 
 
 struct ParserServDataStreamParam 
 {
-  string parserParamType;
-  string parserParamName;
-  string parserParamDependency;
+  std::string parserParamType;
+  std::string parserParamName;
+  std::string parserParamDependency;
 } ;
 
-typedef vector<ParserServParam> ListOfParserServicesParameter;
-typedef vector<ParserServDataStreamParam> ListOfParserServicesDataStreamParameter;
+typedef std::vector<ParserServParam> ListOfParserServicesParameter;
+typedef std::vector<ParserServDataStreamParam> ListOfParserServicesDataStreamParameter;
 
 struct ParserService
 {
-  string                        parserServiceName;
+  std::string                        parserServiceName;
   ListOfParserServicesParameter parserServiceInParameter;
   ListOfParserServicesParameter parserServiceOutParameter;
   ListOfParserServicesDataStreamParameter parserServiceInDataStreamParameter;
@@ -70,28 +70,28 @@ struct ParserService
   bool                          parserServiceByDefault;
 } ;
 
-typedef vector<ParserService> ListOfParserServices ;
+typedef std::vector<ParserService> ListOfParserServices ;
 
 struct ParserDefInterface
 {
-  string               parserInterfaceName ;
+  std::string               parserInterfaceName ;
   ListOfParserServices parserInterfaceServiceList ;
 } ;
 
-typedef vector<ParserDefInterface> ListOfDefinitionInterface;
+typedef std::vector<ParserDefInterface> ListOfDefinitionInterface;
 
 struct ParserComponent
 {
-  string parserComponentName;
-  string parserComponentUsername;
+  std::string parserComponentName;
+  std::string parserComponentUsername;
   ParserComponentType parserComponentType;
   bool parserComponentMultistudy ;
-  string parserComponentIcon;
+  std::string parserComponentIcon;
   ListOfDefinitionInterface parserListInterface;
-  string parserConstraint ;
+  std::string parserConstraint ;
 };
 
-typedef vector<ParserComponent> ListOfParserComponent ;
+typedef std::vector<ParserComponent> ListOfParserComponent ;
 
 #ifdef WRITE_CATA_COMPONENT
 // contains all the paths and the computers defined in the catalog
@@ -104,53 +104,5 @@ extern ListOfParserPathPrefix _pathList;
 extern ListOfParserComponent _moduleList; 
 #endif
 
-
-inline void DebugParserService(const ParserService &S)
-{
-  MESSAGE("Service name : " << S.parserServiceName);
-  MESSAGE("Service default : " << S.parserServiceByDefault);
-  
-  for (unsigned int k=0; k<S.parserServiceInParameter.size() ; k++)
-    {
-      const ParserServParam & P = S.parserServiceInParameter[k];
-      MESSAGE("Service Parameter in name : " << P.parserParamName);
-      MESSAGE("Service Parameter in type : " << P.parserParamType);
-    }
-  for (unsigned int k=0; k<S.parserServiceOutParameter.size() ; k++)
-    {
-      const ParserServParam & P = S.parserServiceOutParameter[k];
-      MESSAGE("Service Parameter out name : " << P.parserParamName);
-      MESSAGE("Service Parameter out type : " << P.parserParamType);
-    }
-  
-  for (unsigned int k=0; k<S.parserServiceInDataStreamParameter.size() ; k++)
-    {
-      const ParserServDataStreamParam & P = S.parserServiceInDataStreamParameter[k];
-      MESSAGE("Service DataStreamParameter in name : " << P.parserParamName);
-      MESSAGE("Service DataStreamParameter in type : " << P.parserParamType);
-    }
-  for (unsigned int k=0; k<S.parserServiceOutDataStreamParameter.size() ; k++)
-    {
-      const ParserServDataStreamParam & P = S.parserServiceOutDataStreamParameter[k];
-      MESSAGE("Service DataStreamParameter out name : " << P.parserParamName);
-      MESSAGE("Service DataStreamParameter out type : " << P.parserParamType);
-    }
-}
-
-inline void DebugParserComponent(const ParserComponent &P)
-{
-  MESSAGE("Component name : " << P.parserComponentName);
-  MESSAGE("Component type : " << P.parserComponentType);
-  MESSAGE("Component constraint : " << P.parserConstraint);
-  MESSAGE("Component icone : " << P.parserComponentIcon);
-  for (unsigned int i = 0; i < P.parserListInterface.size(); i++)
-    {
-      const ParserDefInterface &L = P.parserListInterface[i];
-      
-      MESSAGE("Component interface name : " << L.parserInterfaceName);
-      for (unsigned int j=0; j<L.parserInterfaceServiceList.size(); j++)
-	DebugParserService(L.parserInterfaceServiceList[j]);
-    }
-};
 
 #endif // SALOME_CATALOG_PARSER_H

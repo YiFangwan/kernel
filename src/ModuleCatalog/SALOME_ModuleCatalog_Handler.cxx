@@ -28,6 +28,7 @@
 
 #define WRITE_CATA_COMPONENT
 #include "SALOME_ModuleCatalog_Handler.hxx"
+#include "SALOME_ModuleCatalog_Parser_IO.hxx"
 using namespace std;
 
 //----------------------------------------------------------------------
@@ -127,7 +128,7 @@ bool SALOME_ModuleCatalog_Handler::startElement(const QString&,
 						const QString& qName, 
 						const QXmlAttributes& atts)
 {
-  SCRUTE(qName);
+//  SCRUTE(qName);
   return true;
 } 
 
@@ -139,8 +140,8 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 					      const QString &,
 					      const QString& qName)
 {
-  BEGIN_OF("endElement");
-  MESSAGE(qName << " : " << content);
+//  BEGIN_OF("endElement");
+//  MESSAGE(qName << " : " << content);
 
   // Path prefix
 
@@ -414,10 +415,10 @@ bool SALOME_ModuleCatalog_Handler::endDocument()
     }
 
    // _moduleList
-  SCRUTE(_moduleList.size());
+//  SCRUTE(_moduleList.size());
   for (unsigned int ind = 0; ind < _moduleList.size(); ind++)
     {
-      DebugParserComponent( _moduleList[ind]);
+      SCRUTE(_moduleList[ind]);
     }
 
   MESSAGE("Document parsed");

@@ -39,12 +39,14 @@ EXPORT_HEADERS = \
 		SALOME_ModuleCatalog_Acomponent_impl.hxx \
 		PathPrefix.hxx \
 		SALOME_ModuleCatalog_Parser.hxx \
+		SALOME_ModuleCatalog_Parser_IO.hxx \
                 SALOME_ModuleCatalog_Handler.hxx 
 
 # Libraries targets
 LIB = libSalomeCatalog.la
 LIB_SRC = \
 		  SALOME_ModuleCatalog_Handler.cxx  \
+		  SALOME_ModuleCatalog_Parser_IO.cxx \
 		  SALOME_ModuleCatalog_impl.cxx \
 		  SALOME_ModuleCatalog_Acomponent_impl.cxx
 

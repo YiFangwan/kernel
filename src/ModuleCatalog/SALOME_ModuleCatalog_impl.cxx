@@ -434,7 +434,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
 
   if (p) {
     
-    DebugParserComponent(*p);
+//    DebugParserComponent(*p);
 
     // get constraint
     _constraint = CORBA::string_dup(p->parserConstraint.c_str());
