@@ -17,9 +17,8 @@
 
 #if defined __GNUC_2__
 #include <vector>
-#else
-#include <valarray>
 #endif
+#include <valarray>
 
 #include "MED_Common.hxx"
 
