@@ -62,7 +62,7 @@ public:
  /*! If the XML file doesn't exist or is not readable, the Notfound exception is thrown
    \param  const char* xmlFileName 
  */
-  virtual void ImportXmlFile(const char* xmlFileName);
+  virtual void ImportXmlCatalogFile(const char* xmlFileName);
 
   //! method to get a component list
   /*!
