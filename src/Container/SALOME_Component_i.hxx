@@ -108,6 +108,7 @@ protected:
   std::map<std::string,CORBA::Any>_fieldsDict;
 
 private:
+  pthread_mutex_t _MutexThreadId ;
   pthread_t _ThreadId ;
   long      _StartUsed ;
   long      _ThreadCpuUsed ;
