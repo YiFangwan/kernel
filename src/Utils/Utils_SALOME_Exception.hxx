@@ -43,7 +43,7 @@ private :
 	SALOME_Exception( void );
 
 protected :
-	const char* _text ;	// pointeur constant et zone pointee constante !!!!
+	const char* _text ;	// non constant pointer but read only char variable
 
 public :
 	SALOME_Exception( const char *text, const char *fileName=0, const unsigned int lineNumber=0 );

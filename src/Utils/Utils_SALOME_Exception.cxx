@@ -90,8 +90,7 @@ SALOME_Exception::~SALOME_Exception() throw ()
 	if ( _text )
 	{
 		delete [] _text ;
-		char *& txt = (char*)_text ;
-		txt = 0 ;
+		_text = 0 ;
 	}
 	ASSERT(_text==NULL) ;
 }
