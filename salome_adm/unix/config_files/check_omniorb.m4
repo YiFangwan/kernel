@@ -239,7 +239,7 @@ dnl AC_LANG_CPLUSPLUS
 CXXFLAGS_old=$CXXFLAGS
 CXXFLAGS="$CXXFLAGS $OMNIORB_CXXFLAGS $OMNIORB_INCLUDES"
 LIBS_old=$LIBS
-LIBS="$LIBS $OMNIORB_LDFLAGS -lomnithread"
+LIBS="$LIBS $OMNIORB_LDFLAGS $OMNIORB_LIBS"
 AC_MSG_CHECKING(whether we have double and CORBA::Double compatibility)
 AC_TRY_RUN(
 #include <stdlib.h>
@@ -251,10 +251,14 @@ int main ()
   double *b;
   b=(double *)a;
 
-  if( (c==*b) && (sizeof(double)==sizeof(CORBA::Double)) )
+  if( (c==*b) && (sizeof(double)==sizeof(CORBA::Double)) ){
+    delete a;
     exit(0);
-  else
+  }
+  else{
+    delete a;
     exit(1);
+  }
 }
 ,DOUBLECOMP="yes",DOUBLECOMP="no")
 if test "$DOUBLECOMP" = yes; then
