@@ -42,7 +42,7 @@ SUBDIRS = MSG2QM SALOMELocalTrace Logger SALOMELogger Utils PatchQt \
           SALOMEGUI Plot2d VTKViewer OCCViewer \
 	  SUPERVGraph \
 	  Session SALOME_SWIG TOOLSGUI SALOME_PY \
-          RegistryDisplay ModuleGenerator SALOME_PYQT Loader
+          RegistryDisplay ModuleGenerator SALOME_PYQT Loader Communication
 
 ifeq (@WITHMPICH@,yes)
   SUBDIRS+= MPIContainer
