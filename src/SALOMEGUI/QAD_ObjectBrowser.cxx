@@ -1423,9 +1423,6 @@ void QAD_ObjectBrowser::showUseCasePopupMenu(QListViewItem* theItem)
 */
 void QAD_ObjectBrowser::onSelectedItem()
 {
-  if (currentPage()==myListView)
-    myUseCaseView->clearSelection();
-
   QListView* whoIs;
   if ( sender()->inherits("QListView") )
     whoIs = (QListView*)sender();
