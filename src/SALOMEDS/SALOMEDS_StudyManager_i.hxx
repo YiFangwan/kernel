@@ -113,22 +113,6 @@ public:
     \return Study_ptr arguments
   */ 
   virtual SALOMEDS::Study_ptr GetStudyByID(CORBA::Short aStudyID) ;
-
-
-  Handle(TDocStd_Document) GetDocumentOfStudy(SALOMEDS::Study_ptr theStudy);
-  
-  void CopyLabel(const SALOMEDS::Study_ptr theSourceStudy, 
-		 const SALOMEDS::Driver_ptr theEngine,
-		 const Standard_Integer theSourceStartDepth,
-		 const TDF_Label& theSource,
-		 const TDF_Label& theDestinationMain);
-
-  TDF_Label PasteLabel(const SALOMEDS::Study_ptr theDestinationStudy,
-		       const SALOMEDS::Driver_ptr theEngine,
-		       const TDF_Label& theSource,
-		       const TDF_Label& theDestinationStart,
-		       const int theCopiedStudyID,
-		       const bool isFirstElement);
   
   virtual CORBA::Boolean CanCopy(SALOMEDS::SObject_ptr theObject);
   virtual CORBA::Boolean Copy(SALOMEDS::SObject_ptr theObject);

@@ -308,20 +308,6 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByID(CORBA::Short aStudyID)
   return Study;
 }
 
-//============================================================================
-/*! Function : GetDocumentOfStudy
- *  Purpose  : 
- */
-//============================================================================
-Handle(TDocStd_Document) SALOMEDS_StudyManager_i::GetDocumentOfStudy(SALOMEDS::Study_ptr theStudy) 
-{
-  SALOMEDS::Locker lock;
-
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(theStudy->StudyId());
-  Handle(TDocStd_Document) aDocument = _impl->GetDocumentOfStudy(aStudyImpl);  
-  return aDocument;
-}
-
 
 //============================================================================
 /*! Function : CanCopy
