@@ -11,6 +11,10 @@ usage="""USAGE: runSalome.py [options]
 --containers=cpp,python,superv: lancement des containers cpp, python et de supervision
 --killall	              : arrêt des serveurs de salome
 
+ Les modules utilisateurs peuvent etre declares dans la variable
+ SALOME_USER_COMPONENTS sous la forme :
+    setenv SALOME_USER_COMPONENTS usermodule1,usermodule2,...
+    
  La variable d'environnement <modulen>_ROOT_DIR doit etre préalablement
  positionnée (modulen doit etre en majuscule).
  KERNEL_ROOT_DIR est obligatoire.
@@ -119,6 +123,10 @@ except:
   print usage
   sys.exit(1)
 
+user_modules=os.environ["SALOME_USER_COMPONENTS"]
+if user_modules:
+   liste_modules = liste_modules + user_modules.split(',')
+
 for module in liste_modules :
    try:
       module=module.upper()
@@ -172,7 +180,7 @@ class CatalogServer(Server):
           print "   ", module_cata
           cata_path.extend(glob.glob(os.path.join(module_root_dir,"share","salome","resources",module_cata)))
       self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
-
+      
 class SalomeDSServer(Server):
    CMD=['SALOMEDS_Server']
 
