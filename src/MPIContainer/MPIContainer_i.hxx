@@ -44,6 +44,7 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
 			  PortableServer::POA_ptr poa,
 			  char * containerName,
 			  int argc, char *argv[]);
+  Engines_MPIContainer_i(int nbproc, int numproc);
   // Destructor
   ~Engines_MPIContainer_i();
 

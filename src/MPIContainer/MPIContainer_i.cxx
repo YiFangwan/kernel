@@ -63,6 +63,11 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
   BCastIOR(_orb,pobj,true);
 }
 
+Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc) 
+  : Engines_Container_i(), MPIObject_i(nbproc,numproc)
+{
+}
+
 Engines_MPIContainer_i::~Engines_MPIContainer_i(void)
 {
   MESSAGE("[" << _numproc << "] Engines_MPIContainer_i::~Engines_MPIContainer_i()");

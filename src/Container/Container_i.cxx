@@ -52,6 +52,11 @@ char ** _ArgV ;
 extern "C" {void ActSigIntHandler() ; }
 extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 
+Engines_Container_i::Engines_Container_i () :
+ _numInstance(0)
+{
+}
+
 Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb, 
 					  PortableServer::POA_ptr poa,
 					  char *containerName ,
@@ -61,7 +66,8 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
  _numInstance(0)
 {
 
-  ActSigIntHandler() ;
+  if(regist)
+    ActSigIntHandler() ;
 
   _ArgC = argc ;
   _ArgV = argv ;
@@ -78,7 +84,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
   }
   string hostname = GetHostname();
   MESSAGE(hostname << " " << getpid() << " Engines_Container_i starting argc "
-          << _argc << " Thread " << pthread_self() ) ;
+	  << _argc << " Thread " << pthread_self() ) ;
   i = 0 ;
   while ( _argv[ i ] ) {
     MESSAGE("           argv" << i << " " << _argv[ i ]) ;
