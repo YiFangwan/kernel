@@ -51,8 +51,7 @@ LIB_SRC = ToolsGUI.cxx \
 LIB_MOC = ToolsGUI_moc.cxx \
 	  ToolsGUI_CatalogGeneratorDlg_moc.cxx
 
-LIB_CLIENT_IDL = SALOME_Exception.idl \
-		 ContainersManager.idl
+LIB_CLIENT_IDL = SALOME_Exception.idl 
 
 # additionnal information to compil and link file
 

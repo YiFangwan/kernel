@@ -47,7 +47,7 @@ LIB_SRC=\
 BIN = SALOME_Session_Server
 BIN_SRC = 
 BIN_SERVER_IDL = SALOME_Session.idl
-BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOME_Registry.idl SALOME_ModuleCatalog.idl SALOME_Exception.idl ContainersManager.idl
+BIN_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl SALOME_Registry.idl SALOME_ModuleCatalog.idl SALOME_Exception.idl 
 
 CPPFLAGS+=$(QT_MT_INCLUDES) $(OCC_INCLUDES) $(PYTHON_INCLUDES)
 CXXFLAGS+=$(OCC_CXXFLAGS)
