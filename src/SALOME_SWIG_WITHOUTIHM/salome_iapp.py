@@ -68,7 +68,7 @@ def salome_iapp_init():
     if salome_iapp_initial:
         salome_iapp_initial=0
         
-        # create an SALOMEGUI_Swig instance
+        # create a SALOMEGUI_Swig instance
         sg = SalomeGUI()
         IN_SALOME_GUI=sg.hasDesktop()
     return sg

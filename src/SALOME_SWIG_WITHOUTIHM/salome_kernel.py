@@ -42,10 +42,10 @@ def salome_kernel_init():
         # initialise the ORB
         orb = CORBA.ORB_init([''], CORBA.ORB_ID)
 
-        # create an LifeCycleCORBA instance
+        # create a LifeCycleCORBA instance
         lcc = LifeCycleCORBA(orb)
 
-        #create an naming service instance
+        #create a naming service instance
         naming_service = SALOME_NamingServicePy_i(orb)
 
         # get Container Manager

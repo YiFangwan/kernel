@@ -104,7 +104,7 @@ def IDToSObject(id):
 
 salome_study_ID = -1
 
-def getActiveStudy():
+def getActiveStudy(theStudyId=0):
     global salome_study_ID
     
     print "getActiveStudy"
@@ -115,8 +115,14 @@ def getActiveStudy():
             salome_study_ID = sg.getActiveStudyId()
         else:
             print "---outside gui"
-            salome_study_ID = createNewStudy()
-            print"---", salome_study_ID
+            if theStudyId:
+                aStudy=myStudyManager.GetStudyByID(theStudyId)
+                if aStudy:
+                    print "connection to existing study ", theStudyId
+                    salome_study_ID = theStudyId
+            if salome_study_ID == -1:
+                salome_study_ID = createNewStudy()
+            print"--- Study Id ", salome_study_ID
     return salome_study_ID
     
     #--------------------------------------------------------------------------
@@ -144,7 +150,17 @@ def createNewStudy():
 
 salome_study_initial = 1
 
-def salome_study_init():
+def salome_study_init(theStudyId=0):
+    """
+    Performs only once study creation or connection.
+    optional argument : theStudyId
+      When in embedded interpreter inside IAPP, theStudyId is not used
+      When used without GUI (external interpreter)
+        0      : create a new study (default).
+        n (>0) : try connection to study with Id = n, or create a new one
+                 if study not found.
+    """
+    
     global salome_study_initial
     global myStudyManager, myStudyId, myStudy, myStudyName
     global orb, lcc, naming_service, cm
@@ -161,7 +177,7 @@ def salome_study_init():
         print "studyManager found"
 
         # get active study Id, ref and name
-        myStudyId = getActiveStudy()
+        myStudyId = getActiveStudy(theStudyId)
         print "myStudyId",myStudyId
         myStudy = myStudyManager.GetStudyByID(myStudyId)
         myStudyName = myStudy._get_Name()

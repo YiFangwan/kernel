@@ -29,7 +29,27 @@ from salome_study import *
 from salome_iapp import *
 
 salome_initial=1
-def salome_init():
+def salome_init(theStudyId=0):
+    """
+    Performs only once SALOME general purpose intialisation for scripts.
+    optional argument : theStudyId
+      When in embedded interpreter inside IAPP, theStudyId is not used
+      When used without GUI (external interpreter)
+        0      : create a new study (default).
+        n (>0) : try connection to study with Id = n, or create a new one
+                 if study not found.
+                 If study creation, its Id may be different from theStudyId !
+    Provides:
+    orb             reference to CORBA
+    lcc             a LifeCycleCorba instance
+    naming_service  a naming service instance
+    cm              reference to the container manager
+    sg              access to SALOME GUI (when linked with IAPP GUI)
+    myStudyManager  the study manager
+    myStudyId       active study identifier
+    myStudy         active study itself (CORBA reference)
+    myStudyName     active study name
+    """
     global salome_initial
     global orb, lcc, naming_service, cm
     global sg
@@ -38,9 +58,6 @@ def salome_init():
     if salome_initial:
         salome_initial=0
         sg = salome_iapp_init()
-        if not sg.hasDesktop():
-            print "import salome_shared_modules once"
-            import salome_shared_modules
         orb, lcc, naming_service, cm = salome_kernel_init()
-        myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init()
+        myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init(theStudyId)
 
