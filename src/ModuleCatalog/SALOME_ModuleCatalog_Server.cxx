@@ -130,13 +130,13 @@ int main(int argc,char **argv)
   
       // Active catalog
 
-      SALOME_ModuleCatalogImpl* Catalogue_i = new SALOME_ModuleCatalogImpl(argc, argv);
-      poa->activate_object (Catalogue_i);
+      SALOME_ModuleCatalogImpl Catalogue_i(argc, argv, orb);
+      poa->activate_object (&Catalogue_i);
 
       mgr->activate();
 
   
-      CORBA::Object_ptr myCata = Catalogue_i->_this();
+      CORBA::Object_ptr myCata = Catalogue_i._this();
 
       // initialise Naming Service
       SALOME_NamingService *_NS;
@@ -155,8 +155,9 @@ int main(int argc,char **argv)
 #endif
       orb->run();
  
+      mgr->deactivate(true,true);
       poa->destroy(1,1);
- 
+
     }
   catch(CORBA::SystemException&) {
     INFOS("Caught CORBA::SystemException.")

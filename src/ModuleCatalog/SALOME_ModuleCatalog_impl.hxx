@@ -43,7 +43,7 @@ class SALOME_ModuleCatalogImpl: public POA_SALOME_ModuleCatalog::ModuleCatalog,
 {
 public:
   //! standard constructor
-  SALOME_ModuleCatalogImpl(int artgc, char** argv);
+  SALOME_ModuleCatalogImpl(int artgc, char** argv, CORBA::ORB_ptr & orb);
 
   //! standard destructor
   virtual ~SALOME_ModuleCatalogImpl();
@@ -103,6 +103,8 @@ public:
     GetComponentInfo(const char *name);
 
   void ping(){};
+
+  void shutdown() { _orb->shutdown(1); };
 
 private:
   //! method to parse one module catalog
@@ -209,6 +211,8 @@ private:
 
   std::map <ParserComponentType, SALOME_ModuleCatalog::ComponentType> 
   ComponentTypeConvert;
+
+  CORBA::ORB_ptr _orb;
 };
 
 #endif // MODULECATALOG_IMPL_H

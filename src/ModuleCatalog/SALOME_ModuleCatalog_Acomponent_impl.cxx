@@ -324,41 +324,39 @@ SALOME_ModuleCatalog_AcomponentImpl::GetPathPrefix(const char* machinename)
   BEGIN_OF("GetPathPrefix");
   SCRUTE(machinename);
 
-//   // Variables initialisation
-//   char* _path = NULL;
-//   bool _find = false ;
+ // Variables initialisation
+  char* _path = NULL;
+  bool _find = false ;
 
-//   // Parse all the path prefixes
-//   // looking for the wanted computer
-//   for (unsigned int ind = 0 ; ind < _Component.PathPrefixes.size() ; ind++)
-//     {
-//       for (unsigned int ind1 = 0 ; ind1 < _pathes[ind].listOfComputer.size() ; ind1++)    
-// 	{
-// 	  if (strcmp(machinename, _pathes[ind].listOfComputer[ind1].c_str()) == 0)
-// 	    {
-// 	      _find = true ;
-// 	      // Wanted computer
-// 	      // affect the path to be returned
-// 	        const char* _temp = _pathes[ind].path.c_str() ;
-// 		  _path = new char[strlen(_temp)+1];
-// 	      strcpy(_path,_temp);
-// 	    }
-// 	}
-//     }
+  // Parse all the path prefixes
+  // looking for the wanted computer
+  for (unsigned int ind = 0 ; ind < _Component.paths.length() ; ind++)
+    {
+      if (strcmp(machinename, _Component.paths[ind].machine) == 0)
+ 	    {
+ 	      _find = true ;
+ 	      // Wanted computer
+ 	      // affect the path to be returned
+ 	        const char* _temp = _Component.paths[ind].path ;
+ 		_path = new char[strlen(_temp)+1];
+ 	        strcpy(_path,_temp);
+ 	    }
+     }
 
-//   if (!_find)
-//     {
-//       // The computer was not found, the exception should be thrown
-//       string message = "The computer ";
-//       message += machinename;
-//       message += " was not found in the catalog associated to the component ";
-//       message += _Component.name;
-//       MESSAGE(message)
-// 	throw SALOME_ModuleCatalog::NotFound(message.c_str());
-//     }
+   SCRUTE(_find);
+   if (!_find)
+     {
+       // The computer was not found, the exception should be thrown
+       string message = "The computer ";
+       message += machinename;
+       message += " was not found in the catalog associated to the component ";
+       message += _Component.name;
+       MESSAGE(message)
+       throw SALOME_ModuleCatalog::NotFound(message.c_str());
+     }
 
   END_OF("GetPathPrefix");
-  return NULL;
+  return _path;
 }
 
 //----------------------------------------------------------------------
@@ -657,3 +655,5 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
     duplicate(I_out.interfaceservicelist[ind1],
 	      I_in.interfaceservicelist[ind1]);
 }
+
+

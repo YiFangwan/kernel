@@ -41,7 +41,7 @@ static const char* SEPARATOR    = ":";
 // Function : SALOME_ModuleCatalogImpl
 // Purpose  : Constructor 
 //----------------------------------------------------------------------
-SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv)
+SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA::ORB_ptr & orb) : _orb(orb)
 {
   MESSAGE("Catalog creation");
 
