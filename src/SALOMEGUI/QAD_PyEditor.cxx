@@ -74,7 +74,8 @@ public:
     myStudyMutex(theStudyMutex),
     myListener(theListener)
   {
-    QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::SET_WAIT_CURSOR));
+    // san - commented as inefficient: sometimes event is processed significant period of time after this moment
+    //QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::SET_WAIT_CURSOR));
   }
 
   virtual ~TInitEditorThread(){}
@@ -111,7 +112,7 @@ public:
     myListener(theListener), 
     myCommand("")
   {
-    QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::SET_WAIT_CURSOR));
+    //QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::SET_WAIT_CURSOR));
   }
 
   virtual ~TExecCommandThread() {}
@@ -123,7 +124,7 @@ public:
 
 protected:
   virtual void run(){
-    QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::SET_WAIT_CURSOR));
+    //QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::SET_WAIT_CURSOR));
     int anId = QAD_PyEditor::PYTHON_OK;
     if(myCommand != ""){
       ThreadLock anEditorLock(myMutex,"TExecCommandThread::anEditorLock");
@@ -169,6 +170,10 @@ QAD_PyEditor::QAD_PyEditor(QAD_PyInterp*& theInterp, QMutex* theMutex,
 //  QFont myFont("Courier",11);
   setFont(myFont);
   setTextFormat(QTextEdit::PlainText);
+
+  // san - This is necessary for troubleless initialization
+  setReadOnly( true );
+  viewport()->setCursor( waitCursor );
 
   myInitEditorThread = new TInitEditorThread(myInterp,myStudyMutex,myInitEditorMutex,this);
   myExecCommandThread = new TExecCommandThread(myInterp,myStudyMutex,myExecCommandMutex,this);
@@ -249,6 +254,7 @@ void QAD_PyEditor::handleReturn()
   _buf.append(text(para).remove(0,SIZEPR));
   _buf.truncate( _buf.length() - 1 );
   setReadOnly( true );
+  viewport()->setCursor( waitCursor );
   myExecCommandThread->exec(_buf.latin1());
 }
 
@@ -546,6 +552,7 @@ void QAD_PyEditor::customEvent(QCustomEvent *e)
     {
       setText(myInterp->getbanner().c_str());
       _buf.truncate(0);
+      QApplication::restoreOverrideCursor();
       break;
     }  
   case SET_WAIT_CURSOR:
