@@ -54,10 +54,10 @@ extern bool IsSessionThread();
  *  a SALOME_Event object is active at any moment.
  *
  *  Usage:
- *  - create SALOME_Event object on the heap with proper <type> and <wait> parameters. 
+ *  - create SALOME_Event. 
  *    Components can derive their own event class from SALOME_Event
  *    in order to pass custom data to the event handler.
- *  - call process() method to post the event. Between process() and release()
+ *  - call process() method to post the event. After process() execution
  *    it is possible to examine fields of your custom event object.
  *  - perform delete operator on the event to wake up the desktop (you can also set <autoRelease>
  *    parameter to TRUE to automatically wake up desktop after process()
