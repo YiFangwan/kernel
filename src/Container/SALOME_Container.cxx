@@ -195,11 +195,12 @@ int main(int argc, char* argv[])
       Utils_Timer timer;
       timer.Start();
       timer.Stop();
-      MESSAGE("SALOME_Registry_Server.cxx - orb->run()");
       timer.ShowAbsolute();
 #endif
+      MESSAGE("SALOME_Registry_Server.cxx - orb->run()");
       orb->run();
 
+      MESSAGE("SALOME_Registry_Server.cxx - orb->runned : -> orb->destroy()");
       orb->destroy();
     }
   catch(CORBA::SystemException&)
