@@ -18,38 +18,39 @@ SALOMEDS_AttributeTextColor::~SALOMEDS_AttributeTextColor()
 {}
 
 
-std::vector<double> SALOMEDS_AttributeTextColor::TextColor()
+STextColor SALOMEDS_AttributeTextColor::TextColor()
 {
-  std::vector<double> aVector;
-  int i, aLength;
+  STextColor aColor;
   if(_isLocal) {
     Handle(TColStd_HArray1OfReal) aSeq = Handle(SALOMEDSImpl_AttributeTextColor)::DownCast(_local_impl)->TextColor();
-    aLength = aSeq->Length();
-    for(i=1; i<=aLength; i++) aVector.push_back(aSeq->Value(i));
+    aColor.R = aSeq->Value(1);
+    aColor.G = aSeq->Value(2);
+    aColor.B = aSeq->Value(3);	
   }
   else {
-    SALOMEDS::Color aColor = SALOMEDS::AttributeTextColor::_narrow(_corba_impl)->TextColor();
-    aVector.push_back(aColor.R);
-    aVector.push_back(aColor.G);
-    aVector.push_back(aColor.B);
+    SALOMEDS::Color anImplColor = SALOMEDS::AttributeTextColor::_narrow(_corba_impl)->TextColor();
+    aColor.R = anImplColor.R;
+    aColor.G = anImplColor.G;
+    aColor.B = anImplColor.B;
   }
-  return aVector;
+  return aColor;
 }
  
-void SALOMEDS_AttributeTextColor::SetTextColor(const std::vector<double>& value)
+void SALOMEDS_AttributeTextColor::SetTextColor(STextColor value)
 {
   CheckLocked();
-  int i;
   if(_isLocal) {
     Handle(TColStd_HArray1OfReal) aSeq = new TColStd_HArray1OfReal(1, 3);
-    for(i=0; i<3; i++) aSeq->SetValue(i+1, value[i]);
+    aSeq->SetValue(1, value.R);
+    aSeq->SetValue(2, value.G);
+    aSeq->SetValue(3, value.B);
     Handle(SALOMEDSImpl_AttributeTextColor)::DownCast(_local_impl)->ChangeArray(aSeq);
   }
   else {
     SALOMEDS::Color aColor;
-    aColor.R = value[0];
-    aColor.G = value[1];
-    aColor.B = value[2];
+    aColor.R = value.R;
+    aColor.G = value.G;
+    aColor.B = value.B;
     SALOMEDS::AttributeTextColor::_narrow(_corba_impl)->SetTextColor(aColor);
   }
 }

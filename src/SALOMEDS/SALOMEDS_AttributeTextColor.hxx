@@ -8,6 +8,7 @@
 #include "SALOMEDSClient_AttributeTextColor.hxx"
 #include "SALOMEDS_GenericAttribute.hxx"
 #include "SALOMEDSImpl_AttributeTextColor.hxx"
+#include "SALOMEDSClient_definitions.hxx"
 
 // IDL headers
 #include <SALOMEconfig.h>
@@ -23,8 +24,8 @@ public:
   SALOMEDS_AttributeTextColor(SALOMEDS::AttributeTextColor_ptr theAttr);
   ~SALOMEDS_AttributeTextColor();
 
-  virtual std::vector<double> TextColor();
-  virtual void SetTextColor(const std::vector<double>& value);
+  virtual STextColor TextColor();
+  virtual void SetTextColor(STextColor value);
 
 };
 
