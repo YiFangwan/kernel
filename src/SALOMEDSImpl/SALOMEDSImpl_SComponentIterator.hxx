@@ -24,6 +24,14 @@ private:
 
 public:
   
+  SALOMEDSImpl_SComponentIterator(const SALOMEDSImpl_SComponentIterator& theIterator) 
+  {
+    _it = theIterator._it;
+    _lab = theIterator._lab;
+  } 
+
+  SALOMEDSImpl_SComponentIterator() {};
+  
   SALOMEDSImpl_SComponentIterator(const Handle(TDocStd_Document)& theDocument);
  
   ~SALOMEDSImpl_SComponentIterator() {};
