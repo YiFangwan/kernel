@@ -172,7 +172,6 @@ void VTKViewer_ViewFrame::onAdjustTrihedron(){
     if(fabs(aNewSize-aSize) > aSize*EPS_SIZE || fabs(aNewSize-aSize) > aNewSize*EPS_SIZE)
       m_Triedron->SetSize(aNewSize);
   }
-  m_Triedron->Render(m_Renderer);
   ::ResetCameraClippingRange(m_Renderer);
 }
 
