@@ -94,7 +94,6 @@
 #include <qlineedit.h>
 #include <qdatetime.h>
 #include <qthread.h>
-#include <qwaitcondition.h>
 
 #if QT_VERSION > 300
   #include <qlistbox.h>
@@ -452,12 +451,10 @@ bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
     SALOME_Event* aSE = (SALOME_Event*)e;
     MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 1 : o = " << o << ", e = " << e);
     // here we do the job...
-    for ( int i = 0; i < 100000; i++ ) {
-    }
+    sleep( 5 );
 
     MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 2" );
-    if ( aSE->getWaitCondition() )
-      aSE->getWaitCondition()->wakeAll();
+    aSE->processed();
     MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 3" );
     return TRUE;
   }
