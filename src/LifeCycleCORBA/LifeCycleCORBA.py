@@ -37,6 +37,8 @@ import SALOME_ModuleCatalog
 
 from SALOME_utilities import *
 from Utils_Identity import getShortHostName
+import Utils_Identity 
+import Launchers
 
 class LifeCycleCORBA:
     _orb = None
@@ -87,12 +89,10 @@ class LifeCycleCORBA:
         except:
             theComputer = ""
             theContainer = containerName
-        if theComputer == "" :
+
+        if theComputer in ("","localhost") :
             theComputer = getShortHostName()
-        if theComputer == "localhost" :
-            theComputer = getShortHostName()
-        computerSplitName = theComputer.split('.')
-        theComputer = computerSplitName[0]
+
         MESSAGE( theComputer + theContainer )
         return theComputer,theContainer
 
@@ -130,59 +130,57 @@ class LifeCycleCORBA:
     
     #-------------------------------------------------------------------------
 
+    def setLauncher(self,name):
+        """Change default launcher to the launcher identified by name
+
+           See module Launchers.py
+        """
+        Launchers.setLauncher(name)
+
+    #-------------------------------------------------------------------------
+
+    def StartContainer(self, theComputer , theContainer ):
+        """Start a container on theComputer machine with theContainer name
+	"""
+	# Get the Naming Service address
+	#
+        addr=self._orb.object_to_string(self._rootContext)
+	#
+	# If container name contains "Py" launch a Python Container
+	#
+        if theContainer.find('Py') == -1 :
+           CMD=['SALOME_Container',theContainer,'-ORBInitRef','NameService='+addr]
+        else:
+           CMD=['SALOME_ContainerPy.py',theContainer,'-ORBInitRef','NameService='+addr]
+        if theComputer in ("","localhost"):
+           theComputer=getShortHostName()
+	#
+	# Get the appropriate launcher and ask to launch
+	#
+        Launchers.getLauncher(theComputer).launch(theComputer,CMD)
+	#
+	# Wait until the container is registered in Naming Service
+	#
+        count =5 
+	aContainer=None
+        while aContainer is None and count > 0:
+            time.sleep(1)
+            count = count - 1
+            MESSAGE( str(count) + ". Waiting for " + theComputer + "/" + theContainer )
+            aContainer = self.FindContainer( theComputer + "/" + theContainer )
+	return aContainer
+
+    #-------------------------------------------------------------------------
+
     def FindOrStartContainer(self, theComputer , theContainer ):
-        MESSAGE( "FindOrStartContainer" + theComputer + theContainer )
+        """Find or Start a container on theComputer machine with theContainer name
+	"""
+        MESSAGE( "FindOrStartContainer: " + theComputer + theContainer )
         aContainer = self.FindContainer( theComputer + "/" + theContainer )
         if aContainer is None :
-            if (theContainer == "FactoryServer") | (theContainer == "FactoryServerPy") :
-                myMachine=getShortHostName()
-                if theComputer == myMachine :
-                    rshstr = ""
-                else :
-                    rshstr = "rsh -n " + theComputer + " "
-                path = self.ComputerPath( theComputer )
-##                if path != "" :
-##                    rshstr = rshstr + path + "/../bin/"
-##                else :
-##                    rshstr = rshstr + os.getenv( "KERNEL_ROOT_DIR" ) + "/bin/"
-                if theContainer == "FactoryServer" :
-                    rshstr = rshstr + path + "SALOME_Container "
-                else :
-                    rshstr = rshstr + path + "SALOME_ContainerPy.py '"
-                rshstr = rshstr + theContainer + " -"
-		omniORBcfg = os.getenv( "OMNIORB_CONFIG" )
-                file = os.open( omniORBcfg , os.O_RDONLY )
-                ORBInitRef = os.read(file,132)
-                if ORBInitRef[len(ORBInitRef)-1] == '\n' :
-                    ORBInitRef,bsn = ORBInitRef.split('\n')
-                os.close( file )
-                rshstr = rshstr + ORBInitRef
-                if theContainer == "FactoryServerPy" :
-                    rshstr = rshstr + "'"
-                rshstr = rshstr + " > /tmp/" + theContainer + "_"
-                rshstr = rshstr + theComputer
-                rshstr = rshstr + ".log 2>&1 &"
-                os.system( rshstr )
-                MESSAGE( "FindOrStartContainer" + rshstr + " done" )
-            else :
-                if theContainer.find('Py') == -1 :
-                    aContainer = self.FindContainer( theComputer + "/" + "FactoryServer" )
-                else :
-                    aContainer = self.FindContainer( theComputer + "/" + "FactoryServerPy" )
-                aContainer = aContainer.start_impl( theContainer )
-
-            count = 21
-            while aContainer is None :
-                time.sleep(1)
-                count = count - 1
-                MESSAGE( str(count) + ". Waiting for " + theComputer + "/" + theContainer )
-                aContainer = self.FindContainer( theComputer + "/" + theContainer )
-                if count == 0 :
-                    return aContainer
-            
-        return  aContainer       
-        #os.system("rsh -n dm2s0017 /export/home/KERNEL_ROOT/bin/runSession SALOME_Container -ORBInitRef NameService=corbaname::dm2s0017:1515")
-
+            aContainer= self.StartContainer(theComputer , theContainer )
+	return aContainer
+	    
     #-------------------------------------------------------------------------
 
     def FindOrLoadComponent(self, containerName, componentName):

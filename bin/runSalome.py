@@ -122,7 +122,7 @@ def set_env(args, modules_list, modules_root_dir):
     
     os.environ["SALOME_trace"]="local"
     if args['file']:
-        os.environ["SALOME_trace"]=args['file'][0]
+            os.environ["SALOME_trace"]=args['file'][0]
     if args['logger']:
         os.environ["SALOME_trace"]="with_logger"
         locdir=os.environ['PWD']
@@ -401,10 +401,12 @@ class NotifyServer(Server):
         self.modules_root_dir=modules_root_dir
         myLogName = os.environ["LOGNAME"]
         self.CMD=['notifd','-c',
-                  self.modules_root_dir["KERNEL"]
-                  +'/share/salome/resources/channel.cfg',
+                  self.modules_root_dir["KERNEL"] +'/share/salome/resources/channel.cfg',
                   '-DFactoryIORFileName=/tmp/'+myLogName+'_rdifact.ior',
-                  '-DChannelIORFileName=/tmp/'+myLogName+'_rdichan.ior']
+                  '-DChannelIORFileName=/tmp/'+myLogName+'_rdichan.ior',
+                  '-DReportLogFile=/tmp/'+myLogName+'_notifd.report',
+                  '-DDebugLogFile=/tmp/'+myLogName+'_notifd.debug',
+                  ]
 
 #
 # -----------------------------------------------------------------------------
@@ -580,6 +582,8 @@ def useSalome(args, modules_list, modules_root_dir):
     try:
         clt = startSalome(args, modules_list, modules_root_dir)
     except:
+        import traceback
+        traceback.print_exc()
         print
         print
         print "--- erreur au lancement Salome ---"
@@ -666,4 +670,5 @@ def main():
 # -----------------------------------------------------------------------------
 
 if __name__ == "__main__":
+   import user
    clt,args = main()
