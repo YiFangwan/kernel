@@ -104,7 +104,7 @@ if test "x$occ_ok" = "xyes"; then
 
 dnl test c++ compiler flag for unsigned character
   for opt in -funsigned-char -unsigned ; do
-    AC_CXX_OPTION($opt,CXXFLAGS,flag=yes,flag=no)
+    AC_CXX_OPTION($opt,CAS_CXXFLAGS,flag=yes,flag=no)
     if test "$flag" = "yes"; then
       break
     fi
@@ -146,6 +146,8 @@ dnl cascade headers
   AC_CHECK_HEADER(Standard_Type.hxx,occ_ok=yes ,occ_ok=no)
 
 fi
+
+AC_SUBST(OWN_CONFIG_H)
 
 if test "x$occ_ok" = xyes ; then
 
