@@ -1,0 +1,80 @@
+//  SALOME SALOMEDSImpl : data structure of SALOME and sources of Salome data server 
+//
+//  Copyright (C) 2003  CEA/DEN, EDF R&D
+//
+//
+//
+//  File   : Handle_SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString.hxx
+//  Author : Sergey Ruin
+//  Module : SALOME
+
+#ifndef _Handle_SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString_HeaderFile
+#define _Handle_SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString_HeaderFile
+
+#ifndef _Standard_Macro_HeaderFile
+#include <Standard_Macro.hxx>
+#endif
+#ifndef _Standard_HeaderFile
+#include <Standard.hxx>
+#endif
+
+#ifndef _Handle_TCollection_MapNode_HeaderFile
+#include <Handle_TCollection_MapNode.hxx>
+#endif
+
+class Standard_Transient;
+class Handle_Standard_Type;
+class Handle(TCollection_MapNode);
+class SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString;
+Standard_EXPORT Handle_Standard_Type& STANDARD_TYPE(SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString);
+
+class Handle(SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString) : public Handle(TCollection_MapNode) {
+  public:
+    void* operator new(size_t,void* anAddress) 
+      {
+        return anAddress;
+      }
+    void* operator new(size_t size) 
+      { 
+        return Standard::Allocate(size); 
+      }
+    void  operator delete(void *anAddress) 
+      { 
+        if (anAddress) Standard::Free((Standard_Address&)anAddress); 
+      }
+    Handle(SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString)():Handle(TCollection_MapNode)() {} 
+    Handle(SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString)(const Handle(SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString)& aHandle) : Handle(TCollection_MapNode)(aHandle) 
+     {
+     }
+
+    Handle(SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString)(const SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString* anItem) : Handle(TCollection_MapNode)((TCollection_MapNode *)anItem) 
+     {
+     }
+
+    Handle(SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString)& operator=(const Handle(SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString)& aHandle)
+     {
+      Assign(aHandle.Access());
+      return *this;
+     }
+
+    Handle(SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString)& operator=(const SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString* anItem)
+     {
+      Assign((Standard_Transient *)anItem);
+      return *this;
+     }
+
+    SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString* operator->() 
+     {
+      return (SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString *)ControlAccess();
+     }
+
+    SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString* operator->() const 
+     {
+      return (SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString *)ControlAccess();
+     }
+
+   Standard_EXPORT ~Handle(SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString)();
+ 
+   Standard_EXPORT static const Handle(SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString) DownCast(const Handle(Standard_Transient)& AnObject);
+};
+#endif
