@@ -195,7 +195,7 @@ MEDA::GetFamiliesByEntity(TWrapper& theWrapper,
     typedef map<med_entite_maillage,TFamilyIdSet> TFamilyIdByEntity;
     TFamilyIdByEntity aFamilyIdByEntity;
 
-    if(theNodeInfo){
+    if(theNodeInfo!=0){
       if(med_int aNbElem = theNodeInfo->GetNbElem()){
 	TFamilyIdSet& aFamilyIdSet = aFamilyIdByEntity[MED_NOEUD];
 	for(med_int i = 0; i < aNbElem; i++){
