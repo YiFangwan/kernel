@@ -373,7 +373,7 @@ def startSalome():
 
   end_time = os.times()
   print
-  print "Start SALOME, elpased time : %5.1f seconds"% (end_time[4] - init_time[4])
+  print "Start SALOME, elapsed time : %5.1f seconds"% (end_time[4] - init_time[4])
 
   return clt
 
