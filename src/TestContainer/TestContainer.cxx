@@ -31,6 +31,7 @@
 #include <unistd.h>
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
+#include CORBA_CLIENT_HEADER(ContainersManager)
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
 
 #include "SALOME_NamingService.hxx"
@@ -138,18 +139,48 @@ int main (int argc, char * argv[])
       SALOME_NamingService _NS(orb) ;
       string containerName = "/Containers/" ;
       string hostName = GetHostname();
-      containerName += hostName + "/FactoryServer";
+      containerName += hostName + "/TestContainerCpp";
 
+      Engines::Container_var iGenFact = Engines::Container::_nil() ;
+      MESSAGE( "TestContainer : " << containerName.c_str() ) ;
       obj = _NS.Resolve(containerName.c_str()) ;
-      Engines::Container_var iGenFact = Engines::Container::_narrow(obj);
+      if ( !CORBA::is_nil( obj ) ) {
+        try {
+          iGenFact = Engines::Container::_narrow( obj ) ;
+          iGenFact->ping() ;
+	}
+	catch ( ... ) {
+          INFOS("TestContainerCpp unreachable") ;
+	}
+      }
+      if ( CORBA::is_nil( iGenFact ) ) {
+        obj = _NS.Resolve( "/Kernel/ContainersManager" ) ;
+        if ( !CORBA::is_nil( obj ) ) {
+          try {
+            Containers::Manager_var MyContainersMgr = Containers::Manager::_narrow( obj ) ;
+            MyContainersMgr->ping() ;
+            Containers::MachineParameters * Params = MyContainersMgr->Parameters() ;
+            Params->ContainerName = "TestContainerCpp" ;
+            iGenFact = MyContainersMgr->FindOrStartContainer( *Params ) ;
+	  }
+	  catch ( ... ) {
+            INFOS("ContainersManager unreachable") ;
+	  }
+	}
+      }
+
+//      obj = _NS.Resolve(containerName.c_str()) ;
+//      Engines::Container_var iGenFact = Engines::Container::_narrow(obj);
 
       Engines::TestComponent_var m1;
     
       for (int iter = 0; iter < 3 ; iter++)
 	{
 	  INFOS("----------------------------------------------------" << iter);   
-          string dirn = getenv("KERNEL_ROOT_DIR");
-          dirn += "/lib/salome/libSalomeTestComponentEngine.so";
+//          string dirn = getenv("KERNEL_ROOT_DIR");
+//          dirn += "/lib/salome/libSalomeTestComponentEngine.so";
+          iGenFact->ping() ;
+          string dirn = "libSalomeTestComponentEngine.so";
           obj = iGenFact->load_impl("SalomeTestComponent",dirn.c_str());
 	  m1 = Engines::TestComponent::_narrow(obj);
 	  INFOS("recup m1");
@@ -161,7 +192,11 @@ int main (int argc, char * argv[])
 	}    
       // Clean-up.
       iGenFact->finalize_removal() ;
+      INFOS("finalize_removal done" );
+      iGenFact->destroy() ;
+      INFOS("Container destroyed" );
       orb->destroy();
+      INFOS("orb destroyed" );
     }
   catch(CORBA::COMM_FAILURE& ex) {
     INFOS("Caught system exception COMM_FAILURE -- unable to contact the object.")
