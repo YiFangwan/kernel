@@ -100,14 +100,18 @@ if "SUPERV" in modules_list and not 'superv' in args['containers']:
 class Server:
    CMD=[]
    if args['xterm']:
-	ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-hold', '-e']
+	ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-hold']
    else:
    	ARGS=[]	
 
    def run(self):
        global process_id
-       env_ld_library_path=['env', 'LD_LIBRARY_PATH='+ os.getenv("LD_LIBRARY_PATH")]
-       command = self.ARGS+ env_ld_library_path + self.CMD
+       myargs=self.ARGS
+       if args['xterm']:
+           # (Debian) Transfert variable LD_LIBRARY_PATH aux shells fils (xterm)
+           env_ld_library_path=['env', 'LD_LIBRARY_PATH='+ os.getenv("LD_LIBRARY_PATH")]
+           myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
+       command = myargs + self.CMD
        #print "command = ", command
        pid = os.spawnvp(os.P_NOWAIT, command[0], command)
        process_id[pid]=self.CMD
