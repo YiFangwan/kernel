@@ -61,7 +61,6 @@ using namespace std;
 // QT Include
 #include <qapplication.h>
 
-#define MAX_UNDO 10
 /*!
     Constructor
 */
@@ -76,7 +75,7 @@ myPath( path )
 {
     myStudy = aStudy;
 
-    myTitle = QAD_Tools::getFileNameFromPath( path, false );
+    myTitle = QAD_Tools::getFileNameFromPath( path, true );
 
     myIsActive = false;
     myIsSaved = false;
@@ -105,7 +104,12 @@ myPath( path )
     /* set default Undo/Redo limit */
     QAD_ASSERT_DEBUG_ONLY( !myStudy->_is_nil() );
     SALOMEDS::StudyBuilder_var SB = myStudy->NewBuilder();
-    SB->UndoLimit( MAX_UNDO );
+
+    int aLocked = myStudy->GetProperties()->IsLocked();
+    if (aLocked) myStudy->GetProperties()->SetLocked(false);
+    SB->UndoLimit(QAD_Desktop::getUndoLevel());
+    if (aLocked) myStudy->GetProperties()->SetLocked(true);
+
 }
 
 /*!
@@ -170,7 +174,10 @@ void QAD_Study::removeStudyFrame( QAD_StudyFrame* sf )
       SALOMEDS::SObject_var fatherSF = myStudy->FindObjectID(sf->entry());
       if (!fatherSF->_is_nil()) {
 	SALOMEDS::StudyBuilder_var aStudyBuilder = myStudy->NewBuilder();
+	int aLocked = myStudy->GetProperties()->IsLocked();
+	if (aLocked) myStudy->GetProperties()->SetLocked(false);
 	aStudyBuilder->RemoveObject(fatherSF);
+	if (aLocked) myStudy->GetProperties()->SetLocked(true);
       }
       
       updateObjBrowser( true );
@@ -275,7 +282,7 @@ void QAD_Study::setTitle( const QString& path )
 {
   myPath = path;
 
-  QString title = QAD_Tools::getFileNameFromPath( path, false );
+  QString title = QAD_Tools::getFileNameFromPath( path, true );
   QAD_ASSERT_DEBUG_ONLY ( !title.isNull() );
 
   for ( QAD_StudyFrame* sf = myStudyFrames.first(); sf ; sf = myStudyFrames.next() )
@@ -381,6 +388,7 @@ void QAD_Study::onStudyDeactivated()
 */
 void QAD_Study::close()
 {
+  emit closed();
   if ( !myStudy->_is_nil() )
     abortAllOperations();
     /* clear each study frame */
