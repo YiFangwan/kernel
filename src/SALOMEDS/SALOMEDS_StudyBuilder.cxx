@@ -49,10 +49,16 @@ SALOMEDSClient_SComponent* SALOMEDS_StudyBuilder::NewComponent(const char* Compo
   SALOMEDS_SComponent* aSCO = NULL;
   TCollection_AsciiString aType((char*)ComponentDataType);
   
-  if(_isLocal) 
-    aSCO = new SALOMEDS_SComponent(_local_impl->NewComponent(aType));
-  else 
-    aSCO = new SALOMEDS_SComponent(_corba_impl->NewComponent(aType.ToCString()));
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SComponent) aSCO_impl =_local_impl->NewComponent(aType);
+    if(aSCO_impl.IsNull()) return NULL;
+    aSCO = new SALOMEDS_SComponent(aSCO_impl);
+  }
+  else {
+    SALOMEDS::SComponent_var aSCO_impl = _corba_impl->NewComponent(aType.ToCString());
+    if(CORBA::is_nil(aSCO_impl)) return NULL;
+    aSCO = new SALOMEDS_SComponent(aSCO_impl);
+  }
  
   return aSCO;
 }
@@ -87,8 +93,16 @@ SALOMEDSClient_SObject* SALOMEDS_StudyBuilder::NewObject(SALOMEDSClient_SObject*
   SALOMEDS_SObject* aSO = NULL;
   SALOMEDS_SObject* father = dynamic_cast< SALOMEDS_SObject*>(theFatherObject);
   if(father == NULL) return aSO;
-  if(_isLocal) aSO = new SALOMEDS_SObject(_local_impl->NewObject(father->GetLocalImpl()));
-  else aSO = new SALOMEDS_SObject(_corba_impl->NewObject(father->GetCORBAImpl()));
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->NewObject(father->GetLocalImpl());
+    if(aSO_impl.IsNull()) return NULL;
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
+  else {
+    SALOMEDS::SObject_var aSO_impl = _corba_impl->NewObject(father->GetCORBAImpl());
+    if(CORBA::is_nil(aSO_impl)) return NULL;
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
 
   return aSO;
 }
@@ -100,8 +114,16 @@ SALOMEDSClient_SObject* SALOMEDS_StudyBuilder::NewObjectToTag(SALOMEDSClient_SOb
   SALOMEDS_SObject* aSO = NULL;
   SALOMEDS_SObject* father = dynamic_cast< SALOMEDS_SObject*>(theFatherObject);
   if(father == NULL) return aSO;
-  if(_isLocal) aSO = new SALOMEDS_SObject(_local_impl->NewObjectToTag(father->GetLocalImpl(), theTag));
-  else aSO = new SALOMEDS_SObject(_corba_impl->NewObjectToTag(father->GetCORBAImpl(), theTag));
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->NewObjectToTag(father->GetLocalImpl(), theTag);
+    if(aSO_impl.IsNull()) return NULL;
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
+  else {
+    SALOMEDS::SObject_var aSO_impl = _corba_impl->NewObjectToTag(father->GetCORBAImpl(), theTag);
+    if(CORBA::is_nil(aSO_impl)) return NULL;
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
 
   return aSO;
   

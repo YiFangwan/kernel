@@ -100,8 +100,16 @@ SALOMEDSClient_SComponent* SALOMEDS_Study::FindComponent (const char* aComponent
 {
   SALOMEDS_SComponent* aSCO = NULL;
   TCollection_AsciiString aName((char*)aComponentName);
-  if(_isLocal) aSCO = new SALOMEDS_SComponent(_local_impl->FindComponent(aName));
-  else aSCO = new SALOMEDS_SComponent(_corba_impl->FindComponent(aName.ToCString()));
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SComponent) aSCO_impl =_local_impl->FindComponent(aName);
+    if(aSCO_impl.IsNull()) return NULL;
+    aSCO = new SALOMEDS_SComponent(aSCO_impl);
+  }
+  else {
+    SALOMEDS::SComponent_var aSCO_impl = _corba_impl->FindComponent(aName.ToCString());
+    if(CORBA::is_nil(aSCO_impl)) return NULL;
+    aSCO = new SALOMEDS_SComponent(aSCO_impl);
+  }
   return aSCO;
 }
  
@@ -109,8 +117,16 @@ SALOMEDSClient_SComponent* SALOMEDS_Study::FindComponentID(const char* aComponen
 {  
   SALOMEDS_SComponent* aSCO = NULL;
   TCollection_AsciiString anID((char*)aComponentID);
-  if(_isLocal) aSCO = new SALOMEDS_SComponent(_local_impl->FindComponentID(anID));
-  else aSCO = new SALOMEDS_SComponent(_corba_impl->FindComponentID(anID.ToCString()));
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SComponent) aSCO_impl =_local_impl->FindComponentID(anID);
+    if(aSCO_impl.IsNull()) return NULL;
+    aSCO = new SALOMEDS_SComponent(aSCO_impl);
+  }
+  else {
+    SALOMEDS::SComponent_var aSCO_impl = _corba_impl->FindComponentID(anID.ToCString());
+    if(CORBA::is_nil(aSCO_impl)) return NULL;
+    aSCO = new SALOMEDS_SComponent(aSCO_impl);
+  }
   return aSCO;
   
 }
@@ -119,8 +135,16 @@ SALOMEDSClient_SObject* SALOMEDS_Study::FindObject(const char* anObjectName)
 {
   SALOMEDS_SObject* aSO = NULL;
   TCollection_AsciiString aName((char*)anObjectName);
-  if(_isLocal) aSO = new SALOMEDS_SObject(_local_impl->FindObject(aName));
-  else aSO = new SALOMEDS_SObject(_corba_impl->FindObject(aName.ToCString()));
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObject(aName);
+    if(aSO_impl.IsNull()) return NULL;
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
+  else { 
+    SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObject(aName.ToCString());
+    if(CORBA::is_nil(aSO_impl)) return NULL;
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
   return aSO;
 }
  
@@ -151,8 +175,16 @@ SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectID(const char* anObjectID)
 {
   SALOMEDS_SObject* aSO = NULL;
   TCollection_AsciiString anID((char*)anObjectID);
-  if(_isLocal) aSO = new SALOMEDS_SObject(_local_impl->FindObjectID(anID));
-  else aSO = new SALOMEDS_SObject(_corba_impl->FindObjectID(anID.ToCString())); 
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectID(anID);
+    if(aSO_impl.IsNull()) return NULL;
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
+  else { 
+    SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectID(anID.ToCString());
+    if(CORBA::is_nil(aSO_impl)) return NULL;
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
   return aSO;
 }
  
@@ -169,8 +201,16 @@ SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectIOR(const char* anObjectIOR)
 {
   SALOMEDS_SObject* aSO = NULL;
   TCollection_AsciiString anIOR((char*)anObjectIOR);
-  if(_isLocal) aSO = new SALOMEDS_SObject(_local_impl->FindObjectIOR(anIOR));
-  else aSO = new SALOMEDS_SObject(_corba_impl->FindObjectIOR(anIOR.ToCString())); 
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectIOR(anIOR);
+    if(aSO_impl.IsNull()) return NULL;
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
+  else { 
+    SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectIOR(anIOR.ToCString());
+    if(CORBA::is_nil(aSO_impl)) return NULL;
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
   return aSO;
 }
 
@@ -178,8 +218,16 @@ SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectByPath(const char* thePath)
 {
   SALOMEDS_SObject* aSO = NULL;
   TCollection_AsciiString aPath((char*)thePath);
-  if(_isLocal) aSO = new SALOMEDS_SObject(_local_impl->FindObjectByPath(aPath));
-  else aSO = new SALOMEDS_SObject(_corba_impl->FindObjectByPath(aPath.ToCString())); 
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectByPath(aPath);
+    if(aSO_impl.IsNull()) return NULL;
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
+  else {
+    SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectByPath(aPath.ToCString());
+    if(CORBA::is_nil(aSO_impl)) return NULL;
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
   return aSO;
 }
 

@@ -50,8 +50,16 @@ SALOMEDSClient_Study* SALOMEDS_StudyManager::NewStudy(const char* study_name)
   SALOMEDS_Study* aStudy;
   TCollection_AsciiString aName((char*)study_name);
 
-  if(_isLocal) aStudy = new SALOMEDS_Study(_local_impl->NewStudy(aName));
-  else aStudy = new SALOMEDS_Study(_corba_impl->NewStudy(aName.ToCString()));
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->NewStudy(aName);
+    if(aStudy_impl.IsNull()) return NULL;
+    aStudy = new SALOMEDS_Study(aStudy_impl);
+  }
+  else {
+    SALOMEDS::Study_var aStudy_impl = _corba_impl->NewStudy(aName.ToCString());
+    if(CORBA::is_nil(aStudy_impl)) return NULL; 
+    aStudy = new SALOMEDS_Study(aStudy_impl);
+  }
 
   return aStudy;
 }
@@ -61,8 +69,16 @@ SALOMEDSClient_Study* SALOMEDS_StudyManager::Open(const char* theStudyUrl)
   SALOMEDS_Study* aStudy;
   TCollection_AsciiString aName((char*)theStudyUrl);
 
-  if(_isLocal) aStudy = new SALOMEDS_Study(_local_impl->Open(aName));
-  else aStudy = new SALOMEDS_Study(_corba_impl->Open(aName.ToCString()));
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->Open(aName);
+    if(aStudy_impl.IsNull()) return NULL;
+    aStudy = new SALOMEDS_Study(aStudy_impl);
+  }
+  else {
+    SALOMEDS::Study_var aStudy_impl = _corba_impl->Open(aName.ToCString());
+    if(CORBA::is_nil(aStudy_impl)) return NULL; 
+    aStudy = new SALOMEDS_Study(aStudy_impl);
+  }
 
   return aStudy;
 }
@@ -128,16 +144,32 @@ SALOMEDSClient_Study* SALOMEDS_StudyManager::GetStudyByName(const char* theStudy
 {
   SALOMEDS_Study* aStudy = NULL;
   TCollection_AsciiString aName((char*)theStudyName);
-  if(_isLocal) aStudy = new SALOMEDS_Study(_local_impl->GetStudyByName(aName));
-  else aStudy = new SALOMEDS_Study(_corba_impl->GetStudyByName(aName.ToCString()));
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->GetStudyByName(aName);
+    if(aStudy_impl.IsNull()) return NULL;
+    aStudy = new SALOMEDS_Study(aStudy_impl);
+  }
+  else  {
+    SALOMEDS::Study_var aStudy_impl = _corba_impl->GetStudyByName(aName.ToCString());
+    if(CORBA::is_nil(aStudy_impl)) return NULL; 
+    aStudy = new SALOMEDS_Study(aStudy_impl);
+  }
   return aStudy;
 }
 
 SALOMEDSClient_Study* SALOMEDS_StudyManager::GetStudyByID(int theStudyID) 
 {
   SALOMEDS_Study* aStudy = NULL;
-  if(_isLocal) aStudy = new SALOMEDS_Study(_local_impl->GetStudyByID(theStudyID));
-  else aStudy = new SALOMEDS_Study(_corba_impl->GetStudyByID(theStudyID));
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->GetStudyByID(theStudyID);
+    if(aStudy_impl.IsNull()) return NULL;
+    aStudy = new SALOMEDS_Study(aStudy_impl);
+  }
+  else { 
+    SALOMEDS::Study_var aStudy_impl = _corba_impl->GetStudyByID(theStudyID);
+    if(CORBA::is_nil(aStudy_impl)) return NULL; 
+    aStudy = new SALOMEDS_Study(aStudy_impl);
+  }
   return aStudy; 
 }
  
@@ -166,7 +198,9 @@ SALOMEDSClient_SObject* SALOMEDS_StudyManager::Paste(SALOMEDSClient_SObject* the
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
   //SRN: Pure CORBA call as SALOMEDS::Driver required for this method
-  SALOMEDS_SObject* aResultSO = new SALOMEDS_SObject(_corba_impl->Paste(aSO->GetCORBAImpl()));
+  SALOMEDS::SObject_var aSO_impl = _corba_impl->Paste(aSO->GetCORBAImpl());
+  if(CORBA::is_nil(aSO_impl)) return NULL;
+  SALOMEDS_SObject* aResultSO = new SALOMEDS_SObject(aSO_impl);
   return aResultSO;
 }
 
