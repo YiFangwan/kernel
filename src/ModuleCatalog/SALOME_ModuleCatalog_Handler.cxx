@@ -46,11 +46,11 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
   test_computer_name = "computer-name" ;
   test_path_prefix = "path-prefix" ;
 
-  test_component_name = "component-name";
-  test_component_username = "component-username";
-  test_component_type = "component-type" ;
-  test_component_multistudy="component-multistudy";
-  test_component_icone="component-icone" ;
+  test_component_name       = "component-name";
+  test_component_username   = "component-username";
+  test_component_type       = "component-type" ;
+  test_component_multistudy = "component-multistudy";
+  test_component_icon       = "component-icone" ;
 
   test_interface_name = "component-interface-name" ;
   
@@ -67,17 +67,17 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
   test_outParameter="outParameter";
   test_outParameter_list="outParameter-list";
 
-  test_inDataStreamParameter_type="inParameter-dependency";
   test_inDataStreamParameter_type="inParameter-type";
   test_inDataStreamParameter_name="inParameter-name";
+  test_inDataStreamParameter_dependency="inParameter-dependency";
   test_inDataStreamParameter="inParameter";
+  test_inDataStreamParameter_list="inDataStreamParameter-list";
 
-  test_outDataStreamParameter_type="outParameter-dependency";
   test_outDataStreamParameter_type="outParameter-type";
   test_outDataStreamParameter_name="outParameter-name";
+  test_outDataStreamParameter_dependency="outParameter-dependency";
   test_outDataStreamParameter="outParameter";
-
-  test_DataStreamParameter_list="DataStream-list";
+  test_outDataStreamParameter_list="outDataStreamParameter-list";
 
   test_service= "component-service";
   test_service_list="component-service-list";
@@ -129,7 +129,6 @@ bool SALOME_ModuleCatalog_Handler::startElement(const QString&,
 						const QString& qName, 
 						const QXmlAttributes& atts)
 {
-//  SCRUTE(qName);
   _xml_pile.push(qName);
 
   return true;
@@ -143,35 +142,52 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 					      const QString &,
 					      const QString& qName)
 {
-//  BEGIN_OF("endElement");
-//  MESSAGE(qName << " : " << content);
+  QString parent, grandparent;
+  _xml_pile.pop();
+  if (!_xml_pile.empty()) {
+    parent = _xml_pile.top();
+    _xml_pile.pop();
+    if (!_xml_pile.empty()) grandparent = _xml_pile.top();
+    _xml_pile.push(parent);
+  }
 
   // Path prefix
 
   // tag test_path_prefix_name
-  if((qName.compare(QString(test_path_prefix_name))==0))
+  if((qName.compare(test_path_prefix_name)==0)) {
     _pathPrefix.path = content;
+    return true;
+  }
+
   // tag test_computer_name
-  if((qName.compare(QString(test_computer_name))==0)) 
+  if((qName.compare(test_computer_name)==0)) {
     _pathPrefix.listOfComputer.push_back(content);
+    return true;
+  }
    
   // tag test_path_prefix
-  if((qName.compare(QString(test_path_prefix))==0))
-    {
-      _pathList.push_back(_pathPrefix);
-      _pathPrefix.listOfComputer.resize(0);
-    }
+  if((qName.compare(test_path_prefix)==0)) {
+    _pathList.push_back(_pathPrefix);
+    _pathPrefix.listOfComputer.resize(0);
+    return true;
+  }
 
   // Component identification
 
   // tag test_component_name
-  if((qName.compare(QString(test_component_name))==0)) 
+  if((qName.compare(test_component_name)==0)) {
     _aModule.parserComponentName = content ;
+    return true;
+  }
+
   // tag test_component_username
-  if((qName.compare(QString(test_component_username))==0)) 
+  if((qName.compare(test_component_username)==0)) {
     _aModule.parserComponentUsername = content ;
+    return true;
+  }
+
   // tag test_component_type
-   if((qName.compare(QString(test_component_type))==0)) 
+   if((qName.compare(test_component_type)==0)) 
      {
        if ((content.compare("MESH") == 0) ||
 	   (content.compare("Mesh") == 0) ||
@@ -209,133 +225,216 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
        else
 	 // If it'not in all theses cases, the type is affected to OTHER
 	 _aModule.parserComponentType = OTHER ;
+       return true;
      }
 
    // tag test_component_multistudy
-  if((qName.compare(QString(test_component_multistudy))==0)) 
+   if((qName.compare(test_component_multistudy)==0)) {
     _aModule.parserComponentMultistudy = atoi(content.c_str()) ;
+    return true;
+   }
 
-  // tag test_component_icone
-  if((qName.compare(QString(test_component_icone))==0)) 
-    _aModule.parserComponentIcon = content ;
+  // tag test_component_icon
+   if((qName.compare(test_component_icon)==0)) {
+     _aModule.parserComponentIcon = content ;
+     return true;
+   }
 
    // interface identification
 
    // tag test_interface_name
-   if((qName.compare(QString(test_interface_name))==0)) 
+   if ((qName.compare(test_interface_name)==0)) {
        _aInterface.parserInterfaceName = content ;
+       return true;
+   }
 
    // Service identification
 
    // tag test_service_name
-   if((qName.compare(QString(test_service_name))==0))
+   if ((qName.compare(test_service_name)==0)) {
      _aService.parserServiceName = content ;
-     
+     return true;
+   }
+
    //tag test_defaultservice
-   if((qName.compare(QString(test_defaultservice))==0))
+   if ((qName.compare(test_defaultservice)==0)) {
      _aService.parserServiceByDefault = atoi(content.c_str()) ;
+     return true;
+   }
 
    // Parameter in
 
+   // tag test_inDataStreamParameter_type
+   if ((qName.compare(test_inDataStreamParameter_type)==0)) {
+     if (grandparent.compare(test_inDataStreamParameter_list) == 0)
+       _inDataStreamParam.parserParamType = content ;
+     else 
+        _inParam.parserParamType = content ;
+     return true;
+   }
+	 
    // tag test_inParameter_type
-   if((qName.compare(QString(test_inParameter_type))==0))
-     _inParam.parserParamType = content ;
+   if ((qName.compare(test_inParameter_type)==0)) {
+     if (grandparent.compare(test_inDataStreamParameter_list) == 0)
+       _inDataStreamParam.parserParamType = content ;
+     else 
+        _inParam.parserParamType = content ;
+     return true;
+   }
+	 
+   //tag test_inDataStreamParameter_name
+   if ((qName.compare(test_inDataStreamParameter_name)==0)) {
+     if (grandparent.compare(test_inDataStreamParameter_list) == 0)
+       _inDataStreamParam.parserParamName = content ;
+     else 
+        _inParam.parserParamName = content ;
+     return true;
+   }
+
    //tag test_inParameter_name
-   if((qName.compare(QString(test_inParameter_name))==0))
-     _inParam.parserParamName = content ; 
+   if ((qName.compare(test_inParameter_name)==0)) {
+     if (grandparent.compare(test_inDataStreamParameter_list) == 0)
+       _inDataStreamParam.parserParamName = content ;
+     else 
+        _inParam.parserParamName = content ;
+     return true;
+   }
+
+   //tag test_inDataStreamParameter_dependency
+   if ((qName.compare(test_inDataStreamParameter_dependency)==0)) {
+       _inDataStreamParam.parserParamDependency = content ;
+     return true;
+   }
 
    //tag test_inParameter
-  if((qName.compare(QString(test_inParameter))==0))
+  if ((qName.compare(test_inParameter)==0))
     {
-      _inParamList.push_back(_inParam) ; 
-
-      // Empty temporary structures
-      _inParam.parserParamType = "";
-      _inParam.parserParamName = "";
+      SCRUTE(parent);
+      if (parent.compare(test_inParameter_list)==0) {
+	
+	_inParamList.push_back(_inParam) ; 
+	
+	// Empty temporary structures
+	_inParam.parserParamType = "";
+	_inParam.parserParamName = "";
+      }
+      else if ((qName.compare(test_inDataStreamParameter)==0)) {
+	SCRUTE(parent);
+	
+	_inDataStreamParamList.push_back(_inDataStreamParam) ; 
+	
+	// Empty temporary structures
+	_inDataStreamParam.parserParamType = "";
+	_inDataStreamParam.parserParamName = "";
+	_inDataStreamParam.parserParamDependency = "";
+      }
+      return true;
     }
   
    //tag test_inParameter_list
-   if((qName.compare(QString(test_inParameter_list))==0))
+   if((qName.compare(test_inParameter_list)==0))
      {
        _aService.parserServiceInParameter = _inParamList;
        _inParamList.resize(0);
+       return true;
+     }
+  
+   //tag test_inDataStreamParameter_list
+   if((qName.compare(test_inDataStreamParameter_list)==0))
+     {
+       _aService.parserServiceInDataStreamParameter = _inDataStreamParamList;
+       _inDataStreamParamList.resize(0);
+       return true;
      }
 
    // Parameter out
 
    // tag test_outParameter_type
-   if((qName.compare(QString(test_outParameter_type))==0))
-     _outParam.parserParamType = content ;
+   if ((qName.compare(test_outParameter_type)==0)) {
+     if (grandparent.compare(test_outDataStreamParameter_list) == 0)
+       _outDataStreamParam.parserParamType = content ;
+     else 
+        _outParam.parserParamType = content ;
+     return true;
+   }
+	 
+   // tag test_outDataStreamParameter_type
+   if ((qName.compare(test_outDataStreamParameter_type)==0)) {
+     if (grandparent.compare(test_outDataStreamParameter_list) == 0)
+       _outDataStreamParam.parserParamType = content ;
+     else 
+        _outParam.parserParamType = content ;
+     return true;
+   }
+	 
    //tag test_outParameter_name
-   if((qName.compare(QString(test_outParameter_name))==0))
-     _outParam.parserParamName = content ; 
-   
+   if ((qName.compare(test_outParameter_name)==0)) {
+     if (grandparent.compare(test_outDataStreamParameter_list) == 0)
+       _outDataStreamParam.parserParamName = content ;
+     else 
+        _outParam.parserParamName = content ;
+     return true;
+   }
+	 
+   //tag test_outDataStreamParameter_name
+   if ((qName.compare(test_outDataStreamParameter_name)==0)) {
+     if (grandparent.compare(test_outDataStreamParameter_list) == 0)
+       _outDataStreamParam.parserParamName = content ;
+     else 
+        _outParam.parserParamName = content ;
+     return true;
+   }
+	 
+   //tag test_outParameter_dependency
+   if ((qName.compare(test_outDataStreamParameter_dependency)==0)) {
+     _outDataStreamParam.parserParamDependency = content ;
+     return true;
+   }
+
    //tag test_outParameter
-  if((qName.compare(QString(test_outParameter))==0))
+  if ((qName.compare(test_outParameter)==0))
     {
-      _outParamList.push_back(_outParam) ; 
-     
-      // Empty temporary structures
-      _outParam.parserParamType = "";
-      _outParam.parserParamName = "";
-    }
-   //tag test_outParameter_list
-   if((qName.compare(QString(test_outParameter_list))==0)) 
-     {
-       _aService.parserServiceOutParameter=_outParamList;
-       _outParamList.resize(0);
-     }
-     
-   // DataStreamParameter in
-
-   // tag test_inDataStreamParameter_type
-   if((qName.compare(QString(test_inDataStreamParameter_type))==0))
-     _inDataStreamParam.parserParamType = content ;
-   //tag test_inDataStreamParameter_name
-   if((qName.compare(QString(test_inDataStreamParameter_name))==0))
-     _inDataStreamParam.parserParamName = content ; 
-
-   //tag test_inDataStreamParameter
-  if((qName.compare(QString(test_inDataStreamParameter))==0))
-    {
-      _inDataStreamParamList.push_back(_inDataStreamParam) ; 
-
-      // Empty temporary structures
-      _inDataStreamParam.parserParamType = "";
-      _inDataStreamParam.parserParamName = "";
+      SCRUTE(parent);
+      if (parent.compare(test_outParameter_list)==0) {
+	
+	_outParamList.push_back(_outParam) ; 
+	
+	// Empty temporary structures
+	_outParam.parserParamType = "";
+	_outParam.parserParamName = "";
+      }
+      else if ((qName.compare(test_outDataStreamParameter)==0)) {
+	SCRUTE(parent);
+	
+	_outDataStreamParamList.push_back(_outDataStreamParam) ; 
+	
+	// Empty temporary structures
+	_outDataStreamParam.parserParamType = "";
+	_outDataStreamParam.parserParamName = "";
+	_outDataStreamParam.parserParamDependency = "";
+      }
+      return true;
     }
   
-   // DataStreamParameter out
-
-   // tag test_outDataStreamParameter_type
-   if((qName.compare(QString(test_outDataStreamParameter_type))==0))
-     _outDataStreamParam.parserParamType = content ;
-   //tag test_outDataStreamParameter_name
-   if((qName.compare(QString(test_outDataStreamParameter_name))==0))
-     _outDataStreamParam.parserParamName = content ; 
-   
-   //tag test_outDataStreamParameter
-  if((qName.compare(QString(test_outDataStreamParameter))==0))
-    {
-      _outDataStreamParamList.push_back(_outDataStreamParam) ; 
-     
-      // Empty temporary structures
-      _outDataStreamParam.parserParamType = "";
-      _outDataStreamParam.parserParamName = "";
-    }
-
-   //tag test_DataStreamParameter_list
-   if((qName.compare(QString(test_DataStreamParameter_list))==0))
+   //tag test_outParameter_list
+   if((qName.compare(test_outParameter_list)==0))
      {
-       _aService.parserServiceInDataStreamParameter = _inDataStreamParamList;
-       _inDataStreamParamList.resize(0);
+       _aService.parserServiceOutParameter = _outParamList;
+       _outParamList.resize(0);
+       return true;
+     }
+  
+   //tag test_outDataStreamParameter_list
+   if((qName.compare(test_outDataStreamParameter_list)==0))
+     {
        _aService.parserServiceOutDataStreamParameter = _outDataStreamParamList;
        _outDataStreamParamList.resize(0);
+       return true;
      }
 
 
    // tag   test_service
-   if((qName.compare(QString(test_service))==0))
+   if((qName.compare(test_service)==0))
      {
        _serviceList.push_back(_aService);
 
@@ -348,7 +447,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
      }
 
    // tag   test_service_list
-   if((qName.compare(QString(test_service_list))==0))
+   if((qName.compare(test_service_list)==0))
      {
        _aInterface.parserInterfaceServiceList = _serviceList ;
 
@@ -361,18 +460,18 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
      }
 
    //tag test_interface_list
-   if((qName.compare(QString(test_interface_list))==0))
+   if((qName.compare(test_interface_list)==0))
      {
        _aModule.parserListInterface = _interfaceList ;
        _interfaceList.resize(0);
      }
 
    //tag test_constraint
-   if((qName.compare(QString(test_constraint))==0))
+   if((qName.compare(test_constraint)==0))
      _aModule.parserConstraint = content ;
 
    // tag test_component
-   if((qName.compare(QString(test_component))==0))
+   if((qName.compare(test_component)==0))
      {
        _moduleList.push_back(_aModule) ;
        
