@@ -25,7 +25,7 @@ namespace Batch {
     Couple(const Couple & C) : _local(C._local), _remote(C._remote) {}
 
     // Operateur pour l'affichage sur un stream
-    friend ostream & operator << (ostream & os, const Couple & cp);
+    friend std::ostream & operator << (std::ostream & os, const Couple & cp);
 
     // Operateur d'affectation
     virtual Couple & operator =(const Couple &);

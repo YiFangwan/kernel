@@ -63,7 +63,7 @@ namespace Batch {
 
 		// Conversion de type vers un type de "base"
     operator long() const throw(TypeMismatchException);
-    operator string() const throw(TypeMismatchException);
+    operator std::string() const throw(TypeMismatchException);
     operator Couple() const throw(TypeMismatchException);
     std::string str() const throw(TypeMismatchException);
 
@@ -79,7 +79,7 @@ namespace Batch {
 		int getMaxSize() const { return _maxsize; }
 
 		// Positionnement et recuperation du nom de l'objet
-    string getName() const;
+    std::string getName() const;
     void setName(const std::string & name);
 
   protected:

@@ -42,7 +42,7 @@ namespace Batch {
 
   private:
     // Convertit une date HH:MM:SS en secondes
-    long HMStoLong(const string &);
+    long HMStoLong(const std::string &);
 
   };
 
