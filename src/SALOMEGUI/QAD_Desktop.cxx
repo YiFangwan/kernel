@@ -37,8 +37,8 @@
 #define  DEFAULT_BROWSER "mozilla"
 
 
+#include "QAD_PyEditor.h" // this include must be first (see PyInterp_base.h)!
 #include "QAD.h"
-#include "QAD_PyEditor.h"
 #include "QAD_Help.h"
 #include "QAD_Tools.h"
 #include "QAD_Desktop.h"

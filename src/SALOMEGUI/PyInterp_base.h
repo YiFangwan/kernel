@@ -16,7 +16,10 @@
 #include <string>
 #include <iostream>
 
-#include <Python.h>
+// include order important!
+// pthread then python then qt
+#include <pthread.h>  // must be before Python.h !
+#include <Python.h>   // must be before qt includes ...
 
 class QSemaphore;
 class QMutex;

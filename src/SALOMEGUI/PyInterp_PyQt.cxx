@@ -9,7 +9,7 @@
 //  Module : SALOME
 //  $Header$
 
-#include "PyInterp_PyQt.h"
+#include "PyInterp_PyQt.h" // this include must be first (see PyInterp_base.h)!
 #include "utilities.h"
 
 using namespace std;
@@ -47,11 +47,14 @@ void PyInterp_PyQt::initContext()
 void PyInterp_PyQt::run(const char *command)
 {
   MESSAGE("compile");
-  PyLockWrapper aLock(_tstate);
+  //PyLockWrapper aLock(_tstate);
+  PyEval_AcquireLock();
+  PyThreadState_Swap(_tstate);
   PyObject *code = Py_CompileString((char *)command,"PyGUI",Py_file_input);
   if(!code){
     // Une erreur s est produite en general SyntaxError
     PyErr_Print();
+    PyEval_ReleaseLock();
     return;
   }
   PyObject *r = PyEval_EvalCode(code,_g,_g);
@@ -59,8 +62,10 @@ void PyInterp_PyQt::run(const char *command)
   if(!r){
     // Une erreur s est produite a l execution
     PyErr_Print();
+    PyEval_ReleaseLock();
     return;
   }
   Py_DECREF(r);
+  PyEval_ReleaseLock();
 }
 

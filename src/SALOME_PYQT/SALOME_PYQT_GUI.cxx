@@ -7,7 +7,7 @@
 // $Header$
 //=============================================================================
 
-#include "SALOME_PYQT_GUI.h"
+#include "SALOME_PYQT_GUI.h" // this include must be first (see PyInterp_base.h)!
 
 #include "QAD_Desktop.h"
 

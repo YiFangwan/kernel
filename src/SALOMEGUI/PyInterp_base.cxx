@@ -13,12 +13,11 @@
 #include <string>
 #include <vector>
 
-#include <Python.h>
+#include "PyInterp_base.h" // this include must be first (see PyInterp_base.h)!
 #include <cStringIO.h>
 
 #include <qmutex.h>
 
-#include "PyInterp_base.h"
 #include "utilities.h"
 
 
@@ -37,12 +36,12 @@ static int MYPYDEBUG = 0;
 static QMutex myMutex(true);
 
 
-PyLockWrapper::PyLockWrapper(PyThreadState* theThreadState): 
+PyLockWrapper::PyLockWrapper(PyThreadState* theThreadState):
   myThreadState(theThreadState),
   mySaveThreadState(PyInterp_base::_gtstate)
 {
   PyEval_AcquireLock();
-  mySaveThreadState = PyThreadState_Swap(myThreadState);
+  mySaveThreadState = PyThreadState_Swap(theThreadState);
 }
 
 
@@ -113,8 +112,11 @@ PyInterp_base::PyInterp_base(): _tstate(0), _vout(0), _verr(0), _g(0), _atFirst(
 PyInterp_base::~PyInterp_base()
 {
   if(MYPYDEBUG) MESSAGE("PyInterp_base::~PyInterp_base() - this = "<<this);
-  PyLockWrapper aLock(_tstate);
+  //PyLockWrapper aLock(_tstate);
+  PyEval_AcquireLock();
+  PyThreadState_Swap(_tstate);
   //Py_EndInterpreter(_tstate);
+  PyEval_ReleaseLock();
 }
 
 
@@ -130,7 +132,7 @@ void PyInterp_base::initialize()
   _ith = _history.begin();
 
   if(!_gtstate){
-    PyReleaseLock aReleaseLock;
+    //PyReleaseLock aReleaseLock;
     Py_Initialize(); // Initialize the interpreter
     PyEval_InitThreads(); // Initialize and acquire the global interpreter lock
     PySys_SetArgv(_argc,_argv); // initialize sys.argv
@@ -151,7 +153,7 @@ void PyInterp_base::initialize()
   if(MYPYDEBUG) MESSAGE("PyInterp_base::initialize() - this = "<<this<<"; _gtstate = "<<_gtstate);
 
   // The lock will be acquired in initState. Make provision to release it on exit
-  PyReleaseLock aReleaseLock;
+  //PyReleaseLock aReleaseLock;
 
   initState();
   initContext();
@@ -173,6 +175,7 @@ void PyInterp_base::initialize()
   
   // All the initRun outputs are redirected to the standard output (console)
   initRun();
+  PyEval_ReleaseLock();
 }
 
 
@@ -278,7 +281,9 @@ int PyInterp_base::simpleRun(const char *command)
 
   // We come from C++ to enter Python world
   // We need to acquire the Python global lock
-  PyLockWrapper aLock(_tstate);
+  //PyLockWrapper aLock(_tstate);
+  PyEval_AcquireLock();
+  PyThreadState_Swap(_tstate);
 
   // Reset redirected outputs before treatment
   PySys_SetObject("stderr",_verr);
@@ -292,6 +297,7 @@ int PyInterp_base::simpleRun(const char *command)
   // Outputs are redirected on standards outputs (console)
   PySys_SetObject("stdout",PySys_GetObject("__stdout__"));
   PySys_SetObject("stderr",PySys_GetObject("__stderr__"));
+  PyEval_ReleaseLock();
   return ier;
 }
 
@@ -320,17 +326,23 @@ const char * PyInterp_base::getNext()
 
 
 string PyInterp_base::getverr(){ 
-  PyLockWrapper aLock(_tstate);
+  //PyLockWrapper aLock(_tstate);
+  PyEval_AcquireLock();
+  PyThreadState_Swap(_tstate);
   PyObjWrapper v(PycStringIO->cgetvalue(_verr));
   string aRet(PyString_AsString(v));
+  PyEval_ReleaseLock();
   return aRet;
 }
 
 
 string PyInterp_base::getvout(){  
-  PyLockWrapper aLock(_tstate);
+  //PyLockWrapper aLock(_tstate);
+  PyEval_AcquireLock();
+  PyThreadState_Swap(_tstate);
   PyObjWrapper v(PycStringIO->cgetvalue(_vout));
   string aRet(PyString_AsString(v));
+  PyEval_ReleaseLock();
   return aRet;
 }
  

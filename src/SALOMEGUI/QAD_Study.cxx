@@ -31,7 +31,7 @@
   \brief Study for QAD-based application.
 */
 
-#include "QAD_PyInterp.h"
+#include "QAD_PyInterp.h" // this include must be first (see PyInterp_base.h)!
 #include "QAD.h"
 #include "QAD_Tools.h"
 #include "QAD_Desktop.h"
@@ -41,7 +41,6 @@
 #include "QAD_MessageBox.h"
 #include "QAD_Application.h"
 #include "QAD_ObjectBrowser.h"
-#include "QAD_PyInterp.h"
 #include "QAD_Config.h"
  
 #include "utilities.h"
