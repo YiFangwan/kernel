@@ -36,6 +36,6 @@ def killMyPort(port):
             pid = commands.getoutput("ps -eo pid,command | egrep \"[0-9] omniNames -start "+str(port)+"\" | sed -e \"s%[^0-9]*\([0-9]*\) .*%\\1%g\"")
               
 
-if sys.argv[0] == "killSalomeWithPort.py":
+if __name__ == "__main__":
     for port in sys.argv[1:]:
         killMyPort(port)

@@ -32,7 +32,7 @@ fi
 #  
 #  $: ${KERNEL_ROOT_DIR}/bin/salome/runSalome --modules=GEOM,SMESH,VISU,SUPERV,MED --embedded=registry,study,moduleCatalog,cppContainer --standalone=pyContainer,supervContainer --xterm --killall
 #
-#     parameter from command line supersedes thoses from $HOME/.salome/salome.launch
+#     parameters from command line supersede those from $HOME/.salome/salome.launch
 #
 # Some CORBA servers could be launched in the SALOME_Session_Server
 # (embedded = same process) or in a separate process (standalone):

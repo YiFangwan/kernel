@@ -13,5 +13,5 @@ def killAllPorts():
                     killMyPort(l[len(l)-3])
         pass
 
-if sys.argv[0] == "killSalome.py":
+if __name__ == "__main__":
     killAllPorts()
