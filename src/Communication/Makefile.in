@@ -12,7 +12,8 @@ EXPORT_PYSCRIPTS =
 EXPORT_HEADERS = \
 	ReceiverFactory.hxx \
 	SenderFactory.hxx \
-
+	SALOMEMultiComm.hxx \
+	MultiCommException.hxx
 # Libraries targets
 
 LIB = libSalomeCommunication.la 
