@@ -22,7 +22,7 @@ if test "$hh" = "1" ; then
     echo ""
     echo "   to run IDLparser:"
     echo ""
-    echo "        $0 -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,multistudy=<component_multistudy>][,remove=component_name] <file.idl>   "
+    echo "        $0 -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,username=<component_username>][,multistudy=<component_multistudy>][,remove=component_name] <file.idl>   "
     echo ""
     echo "   to have omniidl help:"
     echo ""
@@ -37,9 +37,6 @@ fi
 
 cd $DIR
 
-PYTHONPATH=${PYTHONPATH}:${SALOME_HOME_DIR}/bin
-#============================================================
-
 # omiidl ====================================================
-omniidl -bIDLparser -I ${SALOME_SRC_DIR}/idl $@
+omniidl -bIDLparser -I ${KERNEL_ROOT_DIR}/idl  -I ${MED_ROOT_DIR}/idl $@
 #============================================================
