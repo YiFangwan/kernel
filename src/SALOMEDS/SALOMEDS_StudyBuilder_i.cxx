@@ -694,8 +694,8 @@ void SALOMEDS_StudyBuilder_i::RemoveReference(SALOMEDS::SObject_ptr me)
   CORBA::String_var roid = theReferencedObject->GetID();
   TDF_Tool::Label(_doc->GetData(),roid,RefLab);
 
-  RemoveAttribute(theReferencedObject, "AttributeTarget");
-  //if(!CORBA::is_nil(_callbackOnRemove) && Lab.IsDescendant(_doc->Main())) _callbackOnRemove->OnRemoveSObject(me);
+  Handle(SALOMEDS_TargetAttribute) aTarget;
+  if(RefLab.FindAttribute(SALOMEDS_TargetAttribute::GetID(), aTarget)) aTarget->Remove(Lab);
 }
 
 
