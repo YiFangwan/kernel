@@ -1221,7 +1221,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
     return false;    
   }
 
-  TCollection_AsciiString aBatchModeScript = "batchmode_salome";
+  TCollection_AsciiString aBatchModeScript = "salome";
 
   //Output to the main Study script required Python modules import, set sys.path and add a creation of the study.
   fp << "import sys" << endl;
