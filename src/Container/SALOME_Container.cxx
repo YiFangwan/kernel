@@ -140,47 +140,14 @@ int main(int argc, char* argv[])
 	break;
     }
     
-    // define policy objects     
-    PortableServer::ImplicitActivationPolicy_var implicitActivation =
-      root_poa->create_implicit_activation_policy(PortableServer::NO_IMPLICIT_ACTIVATION) ;
-    
-    // default = NO_IMPLICIT_ACTIVATION
-    PortableServer::ThreadPolicy_var threadPolicy =
-      root_poa->create_thread_policy(PortableServer::ORB_CTRL_MODEL);
-    // default = ORB_CTRL_MODEL, other choice SINGLE_THREAD_MODEL
-    
-    // create policy list
-    CORBA::PolicyList policyList;
-    policyList.length(2);
-    policyList[0] = PortableServer::ImplicitActivationPolicy::_duplicate(implicitActivation) ;
-    policyList[1] = PortableServer::ThreadPolicy::_duplicate(threadPolicy) ;
-    
-    // create the child POA
-    PortableServer::POAManager_var nil_mgr = PortableServer::POAManager::_nil() ;
-    PortableServer::POA_var factory_poa =
-      root_poa->create_POA("factory_poa", pman, policyList) ;
-    //with nil_mgr instead of pman, a new POA manager is created with the new POA
-    
-    // destroy policy objects
-    implicitActivation->destroy() ;
-    threadPolicy->destroy() ;
-    
     char *containerName = "";
     if(argc > 1){
       containerName = argv[1] ;
     }
     
     Engines_Container_i * myContainer 
-      = new Engines_Container_i(orb, factory_poa, containerName , argc , argv );
-    
-    //     Engines_Container_i * myContainer 
-    //      = new Engines_Container_i(string(argv[1]),string(argv[2]), orb, factory_poa);
-    
-    // use naming service
-    //     myContainer->_NS.init_orb(orb);
-    //     Engines::Container_ptr pCont = Engines::Container::_narrow(myContainer->_this());
-    //     myContainer->_NS.Register(pCont, argv[2]); 
-    
+      = new Engines_Container_i(orb, root_poa, containerName , argc , argv );
+
     pman->activate();
     
 #ifdef CHECKTIME

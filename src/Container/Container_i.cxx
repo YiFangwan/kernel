@@ -123,7 +123,6 @@ Engines_Container_i::~Engines_Container_i()
 {
   MESSAGE("Container_i::~Container_i()");
   delete _id;
-  cout << "Engines_Container_i ~~~~~~~~~~~~~~" << endl;
 }
 
 char* Engines_Container_i::name()

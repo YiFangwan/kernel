@@ -18,7 +18,6 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
   PortableServer::ObjectId_var id=root_poa->activate_object(this);
   CORBA::Object_var obj=root_poa->id_to_reference(id);
   Engines::ContainerManager_var refContMan = Engines::ContainerManager::_narrow(obj);
-  cout << "SALOME_ContainerManager constructor ***** " << endl;
   _NS->Register(refContMan,_ContainerManagerNameInNS);
 }
 
@@ -61,11 +60,7 @@ Engines::Container_ptr SALOME_ContainerManager::FindOrStartContainer(const char 
   if(theMachine==GetHostname())
     command=_ResManager.BuildCommandToLaunchLocalContainer(containerName);
   else
-    {
-      cout << "SALOME_ContainerManager::FindOrStartContainer -- Building file ..." << endl;
-      command=_ResManager.BuildTempFileToLaunchRemoteContainer(theMachine,containerName);
-      cout << "SALOME_ContainerManager::FindOrStartContainer -- Building file done !!! ..." << endl;
-    }
+    command=_ResManager.BuildTempFileToLaunchRemoteContainer(theMachine,containerName);
   _ResManager.RmTmpFile();
   int status=system(command.c_str());
   if (status == -1) {
@@ -96,17 +91,13 @@ Engines::Container_ptr SALOME_ContainerManager::FindOrStartContainer(const char 
 
 Engines::MachineList *SALOME_ContainerManager::GetFittingResources(const Engines::MachineParameters& params, const char *componentName)
 {
-  cout << "*********SALOME_ContainerManager::GetFittingResources" << endl;
   vector<string> vec=_ResManager.GetFittingResources(params,componentName);
   Engines::MachineList *ret=new Engines::MachineList;
   ret->length(vec.size());
-  cout << "*********SALOME_ContainerManager::GetFittingResources 2" << endl;
   for(unsigned int i=0;i<vec.size();i++)
     {
       (*ret)[i]=(vec[i]).c_str();
-      cout << "*********SALOME_ContainerManager::GetFittingResources -- " << vec[i] << endl;
     }
-  cout << "*********SALOME_ContainerManager::GetFittingResources 3" << endl;
   return ret;
 }
 
