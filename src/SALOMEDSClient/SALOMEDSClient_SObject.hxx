@@ -18,9 +18,9 @@ public:
   virtual char* GetID()  = 0;
   virtual SALOMEDSClient_SComponent* GetFatherComponent() = 0;
   virtual SALOMEDSClient_SObject*    GetFather() = 0;
-  virtual bool FindAttribute(SALOMEDSClient_GenericAttribute* anAttribute, const char* aTypeOfAttribute) = 0;
-  virtual bool ReferencedObject(SALOMEDSClient_SObject* theObject) = 0;
-  virtual bool FindSubObject(int theTag, SALOMEDSClient_SObject* theObject) = 0;
+  virtual bool FindAttribute(SALOMEDSClient_GenericAttribute*& anAttribute, const char* aTypeOfAttribute) = 0;
+  virtual bool ReferencedObject(SALOMEDSClient_SObject*& theObject) = 0;
+  virtual bool FindSubObject(int theTag, SALOMEDSClient_SObject*& theObject) = 0;
   virtual SALOMEDSClient_Study* GetStudy() = 0;
   virtual char* Name() = 0;
   virtual void  Name(const char* theName)  = 0;
