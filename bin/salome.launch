@@ -17,9 +17,14 @@
 	        <module name="COMPONENT"/>
 	        <module name="PYCALCULATOR"/>
         </modules-list>
-	<containers-list>
-	        <containertype>cpp</containertype>
-	        <containertype>python</containertype>
-	        <containertype>superv</containertype>
-	</containers-list>
+	<embedded-list>
+	        <embeddedserver>registry</embeddedserver>
+	        <embeddedserver>study</embeddedserver>
+	        <embeddedserver>moduleCatalog</embeddedserver>
+	        <embeddedserver>cppContainer</embeddedserver>
+	</embedded-list>
+	<standalone-list>
+	        <standaloneserver>pyContainer</standaloneserver>
+	        <standaloneserver>supervContainer</standaloneserver>
+	</standalone-list>
 </Configuration-list>

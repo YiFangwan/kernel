@@ -7,16 +7,23 @@ import launchConfigureParser
 args = launchConfigureParser.args
 
 ### kill servers if it is need
-if args['killall']:
-    import killSalome
-elif args['portkill']:
-    from killSalomeWithPort import killSalome
-    filedict='/tmp/'+os.getenv('USER')+"_"+str(args['port'])+'_'+args['appname'].upper()+'_pidict'
+
+from killSalome import killAllPorts
+
+def killLocalPort():
+    from killSalomeWithPort import killMyPort
+    my_port=str(args['port'])
     try:
-        killSalome(my_port)
+        killMyPort(my_port)
     except:
+        print "problem in killLocalPort()"
         pass
     pass
+    
+if args['killall']:
+    killAllPorts()
+elif args['portkill']:
+    killLocalPort()
 	
 # -----------------------------------------------------------------------------
 #
@@ -164,13 +171,18 @@ class SessionLoader(Server):
        CMD=CMD+['GUI']
 
 class SessionServer(Server):
-   #CMD=['SALOME_Session_Server']
-   SCMD1=['SALOME_Session_Server',
-        '--with','Registry','(','--salome_session','theSession',')',
-        '--with','ModuleCatalog','(','-common']
-   SCMD2=['-personal','${HOME}/Salome/resources/CatalogModulePersonnel.xml',')',
-        '--with','SALOMEDS','(',')',
-        '--with','Container','(','FactoryServer',')']
+   SCMD1=['SALOME_Session_Server']
+   SCMD2=[]
+   if 'registry' in args['embedded']:
+       SCMD1+=['--with','Registry','(','--salome_session','theSession',')']
+   if 'moduleCatalog' in args['embedded']:
+       SCMD1+=['--with','ModuleCatalog','(','-common']
+       SCMD2+=['-personal','${HOME}/Salome/resources/CatalogModulePersonnel.xml',')']
+   if 'study' in args['embedded']:
+       SCMD2+=['--with','SALOMEDS','(',')']
+   if 'cppContainer' in args['embedded']:
+       SCMD2+=['--with','Container','(','FactoryServer',')']
+
    def setpath(self,modules_list):
       cata_path=[]
       list_modules = modules_list[:]
@@ -180,7 +192,10 @@ class SessionServer(Server):
           module_cata=module+"Catalog.xml"
           print "   ", module_cata
           cata_path.extend(glob.glob(os.path.join(module_root_dir,"share",args['appname'],"resources",module_cata)))
-      self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
+      if 'moduleCatalog' in args['embedded']:
+          self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
+      else:
+          self.CMD=self.SCMD1 + self.SCMD2
 
 class NotifyServer(Server):
     myLogName = os.environ["LOGNAME"]
@@ -275,50 +290,37 @@ def startSalome():
   NotifyServer().run()
 
   #
-  # Lancement Registry Server
+  # Lancement Registry Server, attente de la disponibilité du Registry dans le Naming Service
   #
-
-  #RegistryServer().run()
-
-  #
-  # Attente de la disponibilité du Registry dans le Naming Service
-  #
-
-  #clt.waitNS("/Registry")
+  if 'registry' not in args['embedded']:
+      RegistryServer().run()
+      clt.waitNS("/Registry")
 
   #
-  # Lancement Catalog Server
+  # Lancement Catalog Server, attente de la disponibilité du Catalog Server dans le Naming Service
   #
 
-  #cataServer=CatalogServer()
-  #cataServer.setpath(modules_list)
-  #cataServer.run()
+  if 'moduleCatalog' not in args['embedded']:
+      cataServer=CatalogServer()
+      cataServer.setpath(modules_list)
+      cataServer.run()
+      import SALOME_ModuleCatalog
+      clt.waitNS("/Kernel/ModulCatalog",SALOME_ModuleCatalog.ModuleCatalog)
 
   #
-  # Attente de la disponibilité du Catalog Server dans le Naming Service
-  #
-
-  #import SALOME_ModuleCatalog
-  #clt.waitNS("/Kernel/ModulCatalog",SALOME_ModuleCatalog.ModuleCatalog)
-
-  #
-  # Lancement SalomeDS Server
+  # Lancement SalomeDS Server, attente de la disponibilité du SalomeDS dans le Naming Service
   #
 
   os.environ["CSF_PluginDefaults"]=os.path.join(modules_root_dir["KERNEL"],"share",args['appname'],"resources")
   os.environ["CSF_SALOMEDS_ResourcesDefaults"]=os.path.join(modules_root_dir["KERNEL"],"share",args['appname'],"resources")
-  #SalomeDSServer().run()
 
   if "GEOM" in modules_list:
 	print "GEOM OCAF Resources"
 	os.environ["CSF_GEOMDS_ResourcesDefaults"]=os.path.join(modules_root_dir["GEOM"],"share",args['appname'],"resources")
 
-
-  #
-  # Attente de la disponibilité du SalomeDS dans le Naming Service
-  #
-
-  #clt.waitNS("/myStudyManager")
+  if 'study' not in args['embedded']:
+      SalomeDSServer().run()
+      clt.waitNS("/myStudyManager")
 
   #
   # Lancement Session Server
@@ -327,7 +329,6 @@ def startSalome():
   mySessionServ=SessionServer()
   mySessionServ.setpath(modules_list)
   mySessionServ.run()
-  #SessionServer().run()
 
   #
   # Attente de la disponibilité du Session Server dans le Naming Service
@@ -347,50 +348,28 @@ def startSalome():
   theComputer = computerSplitName[0]
   
   #
-  # Lancement Container C++ local
-  #
-  #if 'cpp' in args['containers']:
-	  #ContainerCPPServer().run()
-
-	  #
-	  # Attente de la disponibilité du Container C++ local dans le Naming Service
-	  #
-
-	  #clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
-
-  #
-  # Lancement Container Python local
+  # Lancement Container C++ local, attente de la disponibilité du Container C++ local dans le Naming Service
   #
 
-  if 'python' in args['containers']:
+  if 'cppContainer' in args['standalone']:
+	  ContainerCPPServer().run()
+	  clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
+
+  #
+  # Lancement Container Python local, attente de la disponibilité du Container Python local dans le Naming Service
+  #
+
+  if 'pyContainer' in args['standalone']:
 	  ContainerPYServer().run()
-
-	  #
-	  # Attente de la disponibilité du Container Python local dans le Naming Service
-	  #
-	
 	  clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
 
-  if 'superv' in args['containers']:
-
-	#
-	# Lancement Container Supervision local
-	#
-
-	ContainerSUPERVServer().run()
-
-	#
-	# Attente de la disponibilité du Container Supervision local dans le Naming Service
-	#
-
-	clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
-
-
   #
-  # Activation du GUI de Session Server
+  # Lancement Container Supervision local, attente de la disponibilité du Container Supervision local dans le Naming Service
   #
-	
-  #session.GetInterface()
+
+  if 'supervContainer' in args['standalone']:
+      ContainerSUPERVServer().run()
+      clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
 
   end_time = os.times()
   print
@@ -431,15 +410,16 @@ if __name__ == "__main__":
     pickle.dump(process_ids,fpid)
     fpid.close()
     
-    print
-    print "Saving of the dictionary of Salome processes in ", filedict
-    print "To kill SALOME processes launch : python killSalome.py from"
-    print "a console or killSalome() from the present interpreter, if it is not closed."
-    print
-    print "runSalome, with --killall option, starts with killing the processes resulting from the previous execution."
-    print
-    print "To launch only GUI only execute startGUI() from the present interpreter,"
-    print "if it is not closed."
+    print """
+    Saving of the dictionary of Salome processes in %s
+    To kill SALOME processes from a console (kill all sessions from all ports):
+      python killSalome.py 
+    To kill SALOME from the present interpreter, if it is not closed :
+      killLocalPort()  --> kill this session
+      killAllPorts()   --> kill all sessions
+    
+    runSalome, with --killall option, starts with killing the processes resulting from the previous execution.
+    """%filedict
     
     #
     #  Impression arborescence Naming Service

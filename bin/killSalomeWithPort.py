@@ -2,7 +2,7 @@
 import os, sys, pickle, signal, commands
 
 ########## kills all salome processes with the given port ##########
-def killSalome(port):
+def killMyPort(port):
     filedict='/tmp/'+os.getenv('USER')+"_"+port+'_SALOME_pidict'
     found = 0
     try:
@@ -20,6 +20,7 @@ def killSalome(port):
             for process_id in process_ids:
 
                 for pid, cmd in process_id.items():
+                    print "stop process %s : %s"% (pid, cmd[0])
                     try:
                         os.kill(int(pid),signal.SIGKILL)
                     except:
@@ -37,4 +38,4 @@ def killSalome(port):
 
 if sys.argv[0] == "killSalomeWithPort.py":
     for port in sys.argv[1:]:
-        killSalome(port)
+        killMyPort(port)

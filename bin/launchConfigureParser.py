@@ -1,7 +1,10 @@
 import os, glob, string, sys
 import xml.sax
 
+# -----------------------------------------------------------------------------
+
 ### xml reader for launch configuration file usage
+
 class xml_parser:
     def __init__(self, fileName):
         self.space = []
@@ -45,6 +48,12 @@ class xml_parser:
                 self.opts[key]=[]
                 pass
             self.opts[key].append(attrs.getValue("name"))
+        elif self.space == ["Configuration-list","embedded-list"]:
+            self.opts["embedded"] = []
+            pass
+        elif self.space == ["Configuration-list","standalone-list"]:
+            self.opts["standalone"] = []
+            pass
         elif self.space == ["Configuration-list","containers-list"]:
             self.opts["containers"] = []
             pass
@@ -59,6 +68,10 @@ class xml_parser:
         #print "Characters content:",content
         if self.current:
             self.opts[self.current] = self.CorrectBoolean(content)
+        elif self.space == ["Configuration-list","embedded-list", "embeddedserver"]:
+            self.opts["embedded"].append(content)
+        elif self.space == ["Configuration-list","standalone-list", "standaloneserver"]:
+            self.opts["standalone"].append(content)
         elif self.space == ["Configuration-list","containers-list", "containertype"]:
             self.opts["containers"].append(content)
         pass
@@ -77,7 +90,10 @@ class xml_parser:
         self.read = None
         pass
 
+# -----------------------------------------------------------------------------
+
 ### searching for launch configuration file : $HOME/.$(application_name)/$(application_name).launch
+
 appname = None
 filename = None
 for bindir in glob.glob(os.environ["KERNEL_ROOT_DIR"]+"/bin/*"):
@@ -104,6 +120,7 @@ elif not filename or not os.path.exists(filename):
     pass
 
 ### get options from launch configuration file
+
 try:
     p = xml_parser(filename)
 except:
@@ -120,6 +137,7 @@ else:
 args["appname"] = appname
 
 ### searching for my port
+
 my_port = 2809
 try:
   file = open(os.environ["OMNIORB_CONFIG"], "r")
@@ -136,7 +154,10 @@ except:
 
 args["port"] = my_port
 
+# -----------------------------------------------------------------------------
+
 ### command line options reader
+
 def options_parser(line):
   source = line
   list = []
@@ -148,6 +169,8 @@ def options_parser(line):
     list = []
     pass
 
+  print "source=",source
+  
   result = {}
   i = 0
   while i < len(source):
@@ -170,19 +193,28 @@ def options_parser(line):
     pass
   return result
 
-### read command-line options
+# -----------------------------------------------------------------------------
+
+### read command-line options : each arg given in command line supersedes arg from xml config file
+
 try:
     opts = options_parser(sys.argv[1:])
+    print "opts=",opts
     kernel_root_dir=os.environ["KERNEL_ROOT_DIR"]
 except:
     opts["h"] = 1
     pass
 
 ### check all options are right
-for opt in opts:
-    if not opt in ("h","g","l","x","m","c","p","k","t"):
-        opts["h"] = 1
 
+opterror=0
+for opt in opts:
+    if not opt in ("h","g","l","x","m","e","s","c","p","k","t"):
+        print "command line error: -", opt
+        opterror=1
+
+if opterror == 1:
+    opts["h"] = 1
 
 if opts.has_key("h"):
     print """USAGE: runSalome.py [options]
@@ -194,8 +226,15 @@ if opts.has_key("h"):
     --xterm or -x                 : les serveurs ouvrent une fenêtre xterm et les messages sont affichés dans cette fenêtre
     --modules=module1,module2,... : où modulen est le nom d'un module Salome à charger dans le catalogue
     or -m=module1,module2,...
-    --containers=cpp,python,superv: lancement des containers cpp, python et de supervision
-    or -c=cpp,python,superv
+    --embedded=registry,study,moduleCatalog,cppContainer
+    or -e=registry,study,moduleCatalog,cppContainer
+                                  : serveurs CORBA embarqués (par defaut: registry,study,moduleCatalog,cppContainer)
+                                  : (logger,pyContainer,supervContainer ne peuvent pas être embarqués
+    --standalone=registry,study,moduleCatalog,cppContainer,pyContainer,supervContainer
+    or -s=registry,study,moduleCatalog,cppContainer,pyContainer,supervContainer
+                                  : executables serveurs CORBA indépendants (par défaut: pyContainer,supervContainer)
+    --containers=cpp,python,superv: (obsolete) lancement des containers cpp, python et de supervision
+    or -c=cpp,python,superv       : = on prend les defauts de -e et -s
     --portkill or -p              : kill the salome with current port
     --killall or -k               : kill salome
     
@@ -216,6 +255,10 @@ for opt in opts:
         args['xterm'] = 1
     elif opt == 'm':
         args['modules'] = opts['m']
+    elif opt == 'e':
+        args['embedded'] = opts['e']
+    elif opt == 's':
+        args['standalone'] = opts['s']
     elif opt == 'c':
         args['containers'] = opts['c']
     elif opt == 'p':
@@ -229,3 +272,5 @@ for opt in opts:
 if 't' in opts:
     args['gui'] = 0
     pass
+
+print "args=",args
