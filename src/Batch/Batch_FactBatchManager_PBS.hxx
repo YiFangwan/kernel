@@ -23,7 +23,7 @@ namespace Batch {
     FactBatchManager_PBS();
     virtual ~FactBatchManager_PBS();
 
-    virtual BatchManager_PBS * operator() (const char * hostname) const;
+    virtual BatchManager * operator() (const char * hostname) const;
 
   protected:
 
