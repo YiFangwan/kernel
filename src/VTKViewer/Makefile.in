@@ -27,7 +27,7 @@
 #  $Header$
 
 top_srcdir=@top_srcdir@
-top_builddir=../../..
+top_builddir=../..
 srcdir=@srcdir@
 VPATH=.:@srcdir@:$(top_builddir)/inc:$(top_builddir)/idl
 
@@ -47,7 +47,9 @@ LIB_SRC= VTKViewer.cxx \
 	 VTKViewer_RenderWindow.cxx \
 	 VTKViewer_RenderWindowInteractor.cxx \
 	 VTKViewer_InteractorStyleSALOME.cxx \
-	 VTKViewer_VectorText.cxx
+	 VTKViewer_Trihedron.cxx \
+	 VTKViewer_VectorText.cxx \
+	 VTKViewer_Utilities.cxx
 
 LIB_MOC = \
 	 VTKViewer.h \

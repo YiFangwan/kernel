@@ -66,13 +66,13 @@ msgstr "La vue appropriée doit étre créée pour afficher l'objet choisi"
 #---------------
 
 msgid "INF_VERSION"
-msgstr "Version 1.0"
+msgstr ""
 
 msgid "INF_COPYRIGHT"
-msgstr "Copyright (C) 2002"
+msgstr ""
 
 msgid "INF_LICENSE"
-msgstr "All rights reserved"
+msgstr ""
 
 
 #---------------
@@ -81,7 +81,7 @@ msgstr "All rights reserved"
 
 #: SALOMEGUI_TrihedronSizeDlg.cxx:77
 msgid "SALOMEGUI_TrihedronSizeDlg::MEN_TRIHEDRON_SIZE"
-msgstr "Size :"
+msgstr "Size (% of bounding box) :"
 
 #: SALOMEGUI_TrihedronSizeDlg.cxx:36
 msgid "SALOMEGUI_TrihedronSizeDlg::MEN_TRIHEDRON"

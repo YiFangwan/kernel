@@ -259,6 +259,12 @@ msgstr "Interface Applicative"
 msgid "MEN_DESK_PREF_OBJECTBROWSER_CHRONO_SORT"
 msgstr "Chronological sort of objects" 
 
+msgid "MEN_DESK_PREF_OBJECTBROWSER_SHOW_USECASE"
+msgstr "Show UseCase Browser" 
+
+msgid "MEN_DESK_PREF_OBJECTBROWSER_NO_AUTOSIZE"
+msgstr "No autosize columns" 
+
 
 msgid "QAD_Desktop::MEN_DESK_SELECTION_MODE"
 msgstr "Selection Mode"
@@ -516,6 +522,10 @@ msgstr "An exception has been caught. Click <OK> to continue."
 msgid "ERR_ONLY_PLOT2D_VIEWER"
 msgstr "This function is available only in Plot2d viewer"
 
+#: QAD_Desktop.cxx:2339
+msgid "ERR_LIBGUI"
+msgstr "lib%1.so has not been found. Check LD_LIBRARY_PATH environment variable"
+
 #---------------
 # QUESTION
 #---------------
@@ -762,6 +772,9 @@ msgstr "ASCII Save"
 
 msgid "TOT_APP_EDIT_COPY"
 msgstr "Copy"
+
+msgid "MEN_DESK_PREF_UNDO_LEVEL"
+msgstr "Undo Level"
 
 msgid "MEN_APP_EDIT_COPY"
 msgstr "&Copy"
