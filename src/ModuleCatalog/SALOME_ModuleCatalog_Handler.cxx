@@ -36,7 +36,8 @@ using namespace std;
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
 {
-  MESSAGE("SALOME_ModuleCatalog_Handler creation")
+  BEGIN_OF("SALOME_ModuleCatalog_Handler");
+
   // XML Tags initialisation
   // Used in the function endElement
   test_path_prefix_name = "path-prefix-name";
@@ -83,6 +84,8 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
   test_constraint="constraint";
 
   test_component="component";
+
+  END_OF("SALOME_ModuleCatalog_Handler");
 }
 
 //----------------------------------------------------------------------
@@ -91,7 +94,8 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog_Handler::~SALOME_ModuleCatalog_Handler()
 {
-  MESSAGE("SALOME_ModuleCatalog_Handler destruction")
+  BEGIN_OF("~SALOME_ModuleCatalog_Handler()")
+  END_OF("~SALOME_ModuleCatalog_Handler()")
 }
 
 //----------------------------------------------------------------------
@@ -135,6 +139,9 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 					      const QString &,
 					      const QString& qName)
 {
+  BEGIN_OF("endElement");
+  MESSAGE(qName << " : " << content);
+
   // Path prefix
 
   // tag test_path_prefix_name
@@ -275,8 +282,6 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
        _outParamList.resize(0);
      }
      
-
-
    // DataStreamParameter in
 
    // tag test_inDataStreamParameter_type
@@ -321,13 +326,13 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
       _outDataStreamParam.parserParamType = "";
       _outDataStreamParam.parserParamName = "";
     }
+
    //tag test_outDataStreamParameter_list
    if((qName.compare(QString(test_outDataStreamParameter_list))==0)) 
      {
        _aService.parserServiceOutDataStreamParameter=_outDataStreamParamList;
        _outDataStreamParamList.resize(0);
      }
-     
 
    // tag   test_service
    if((qName.compare(QString(test_service))==0))
@@ -359,7 +364,6 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    if((qName.compare(QString(test_interface_list))==0))
      {
        _aModule.parserListInterface = _interfaceList ;
-       SCRUTE(_aModule.parserListInterface[0].parserInterfaceServiceList[0].parserServiceInDataStreamParameter.size());
        _interfaceList.resize(0);
      }
 
