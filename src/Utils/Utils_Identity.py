@@ -30,6 +30,7 @@
 
 import sys
 import os
+import string
 import socket
 import pwd
 import time
@@ -38,8 +39,11 @@ class Identity:
     def __init__(self,name):
         self._name = name
         self._pid =  os.getpid()
-        self._machine = os.getenv( "HOSTNAME" )
-        self._adip	=  socket.gethostbyname(self._machine) # IP adress
+        #self._machine = os.getenv( "HOSTNAME" )
+        HostName = os.getenv( "HOST" )
+        myMachine = string.split( HostName , '.' )
+        self._machine = myMachine[0]
+        self._adip	=  socket.gethostbyname( myMachine[0] ) # IP adress
         self._uid	= os.getuid() 
         list = pwd.getpwuid(self._uid)
         self._pwname	= list[0] # user name
