@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "VTKViewer_RenderWindowInteractor.h"
 #include "VTKViewer_RenderWindow.h"
 #include "VTKViewer_InteractorStyleSALOME.h"
@@ -58,6 +57,7 @@ using namespace std;
 #include <vtkVertex.h>
 #include <vtkRendererCollection.h>
 #include <vtkPolyDataWriter.h>
+using namespace std;
 
 
 // QT Includes

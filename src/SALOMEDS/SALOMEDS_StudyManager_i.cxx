@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "utilities.h"
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
@@ -74,6 +73,7 @@ using namespace std;
 #include "Utils_CorbaException.hxx"
 
 #include <strstream>
+using namespace std;
 
 #define USE_CASE_LABEL_ID            "0:2"
 
@@ -90,7 +90,9 @@ static void ReadAttributes(Handle(TDF_Data)& DF,
 
     if (!strncmp(hdf_dataset->GetName(),"AttributeTreeNode",17)) {
       MESSAGE("Create a Attribute :     AttributeTreeNode");
-      char current_strings[5][hdf_dataset->GetSize()/5];
+      char **current_strings = (char**)malloc(5*sizeof(char*));
+      for(int i=0;i<5;i++)
+	current_strings[i] = (char*)malloc((hdf_dataset->GetSize()/5)*sizeof(char));
       hdf_dataset->ReadFromDisk(current_strings);
 
       MESSAGE("Create an Attribute :     AttributeTreeNode"); 
@@ -118,6 +120,9 @@ static void ReadAttributes(Handle(TDF_Data)& DF,
         if (!aLabel.FindAttribute(aGUID,aNode)) aNode = TDataStd_TreeNode::Set(aLabel,aGUID);
         aNewNode->SetFirst(aNode);
       }
+      for(int i=0;i<5;i++)
+	free(current_strings[i]);
+      free(current_strings);
     } else {
 
       int size =  hdf_dataset->GetSize();
@@ -565,10 +570,9 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 //        MESSAGE( "HDFexception ! " );
 //        cerr << "HDFexception ! " << endl;
       delete aHDFUrl;
-      char eStr[strlen(aUrl)+17];
+      char *eStr = (char*)malloc((strlen(aUrl)+17)*sizeof(char*));
       sprintf(eStr,"Can't open file %s",aUrl);
       THROW_SALOME_CORBA_EXCEPTION(CORBA::string_dup(eStr),SALOME::BAD_PARAM);
-      
     } 
   MESSAGE("Open : Creating the CORBA servant holding it... ");
 
@@ -633,7 +637,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 //        MESSAGE( "HDFexception ! " );
 //        cerr << "HDFexception ! " << endl;
       delete aHDFUrl;
-      char eStr[strlen(aUrl)+17];
+      char *eStr = (char*)malloc((strlen(aUrl)+17)*sizeof(char*));
       sprintf(eStr,"Can't open file %s",aUrl);
       THROW_SALOME_CORBA_EXCEPTION(CORBA::string_dup(eStr),SALOME::BAD_PARAM);
     } 
@@ -1178,7 +1182,9 @@ static void SaveAttributes(SALOMEDS::SObject_ptr SO, HDFgroup *hdf_group_sobject
       
       TNsize[0]=5;
       TNsize[1]=maxSize+1;
-      char Data[5][maxSize+1];
+      char **Data = (char**)malloc(5*sizeof(char*));
+      for(int i=0;i<5;i++)
+	Data[i] = (char*)malloc((maxSize+1)*sizeof(char));
       for(index=0;index<5;index++) {
 	strcpy(Data[index],Val[index]);
 	for(int a = strlen(Data[index]) + 1; a < maxSize; a++) Data[index][a] = ' '; // mpv: for ASCII format
@@ -1194,6 +1200,9 @@ static void SaveAttributes(SALOMEDS::SObject_ptr SO, HDFgroup *hdf_group_sobject
       MESSAGE("attribute AttributeTreeNode with various GUID wrote on file:");
       MESSAGE(aDataSetName);
       delete(aDataSetName);
+      for(int i=0;i<5;i++)
+	free(Data[i]);
+      free(Data);
     }
   }
 }

@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 # include <stdlib.h>
-# include <iostream.h>
-# include <fstream.h>
+# include <iostream>
+# include <fstream>
+using namespace std;
 
 extern "C"
 {

@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 /*!
   \class SALOME_Actor SALOME_Actor.h
   \brief Abstract class of SALOME Objects in VTK.
@@ -36,6 +35,7 @@ using namespace std;
  
 // SALOME Includes
 #include "utilities.h"
+using namespace std;
 
 // VTK Includes
 #include <vtkObjectFactory.h>

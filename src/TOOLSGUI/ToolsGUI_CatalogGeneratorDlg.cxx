@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "ToolsGUI_CatalogGeneratorDlg.h"
 
 #include "QAD_Application.h"
@@ -47,6 +46,7 @@ using namespace std;
 #include <OSD_Path.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <Standard_CString.hxx>
+using namespace std;
 
 #define SPACING_SIZE             6
 #define MARGIN_SIZE             11

@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "VTKViewer_InteractorStyleSALOME.h"
 #include "VTKViewer_RenderWindow.h"
 
@@ -51,6 +50,7 @@ using namespace std;
 #include <vtkPolyDataMapper.h>
 #include <vtkDataSetCollection.h>
 #include <vtkImageData.h>
+using namespace std;
 
 
 //VRV: porting on Qt 3.0.5

@@ -36,7 +36,7 @@
 #include "Handle_SALOME_InteractiveObject.hxx"
 #endif
 
-#include <vector.h>
+#include <vector>
 #include "VTKViewer_Common.h"
 
 class SALOME_Actor : public vtkLODActor 

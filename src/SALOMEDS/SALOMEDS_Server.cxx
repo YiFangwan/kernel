@@ -26,11 +26,11 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "utilities.h"
+using namespace std;
 
 //#define CHECKTIME
 #ifdef CHECKTIME

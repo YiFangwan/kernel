@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "VTKViewer_ViewFrame.h"
 #include "VTKViewer_RenderWindow.h"
 //#include "VTKViewer_InteractorStyleSALOME.h"
@@ -64,6 +63,7 @@ using namespace std;
 #include <vtkTIFFWriter.h>
 #include <vtkVectorText.h>
 #include <vtkFollower.h>
+using namespace std;
 
 /*!
     Constructor

@@ -26,11 +26,11 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "utilities.h"
 #include <iostream>
 #include <unistd.h>
 #include <SALOMEconfig.h>
+using namespace std;
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
 
