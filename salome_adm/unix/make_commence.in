@@ -28,15 +28,12 @@ CPPFLAGS=@CPPFLAGS@ -I$(inc_builddir) -I$(srcdir) -I.
 
 CC = @CC@
 CFLAGS = @CFLAGS@
-DEPCC = @DEPCC@
 C_DEPEND_FLAG = @C_DEPEND_FLAG@
 
 # C++
 
 CXX = @CXX@
 CXXFLAGS = @CXXFLAGS@ 
-DEPCXX = @DEPCXX@
-DEPCXXFLAGS = @DEPCXXFLAGS@
 CXX_DEPEND_FLAG = @CXX_DEPEND_FLAG@
 
 # JAVA
@@ -106,17 +103,21 @@ MED2_MT_LIBS=@MED2_MT_LIBS@
 OCC_INCLUDES=@CAS_CPPFLAGS@
 OCC_CXXFLAGS=@CAS_CXXFLAGS@
 
-OCC_KERNEL_LIBS=@CAS_KERNEL@
-OCC_OCAF_LIBS=@CAS_OCAF@
-OCC_VIEWER_LIBS=@CAS_VIEWER@
-OCC_MODELER_LIBS=@CAS_MODELER@
-OCC_DATAEXCHANGE_LIBS=@CAS_DATAEXCHANGE@
-OCC_LIBS=@CAS_LDFLAGS@
-
+#OCC_KERNEL_LIBS=@CAS_KERNEL@
+#OCC_OCAF_LIBS=@CAS_OCAF@
+#OCC_VIEWER_LIBS=@CAS_VIEWER@
+#OCC_MODELER_LIBS=@CAS_MODELER@
+#OCC_DATAEXCHANGE_LIBS=@CAS_DATAEXCHANGE@
+#OCC_LIBS=@CAS_LDFLAGS@
+CAS_KERNEL=@CAS_KERNEL@
+CAS_OCAF=@CAS_OCAF@
+CAS_VIEWER=@CAS_VIEWER@
+CAS_MODELER=@CAS_MODELER@
+CAS_DATAEXCHANGE=@CAS_DATAEXCHANGE@
+CAS_LDPATH=@CAS_LDPATH@
 # MPI
 MPI_INCLUDES=@MPI_INCLUDES@
 MPI_LIBS=@MPI_LIBS@
-
 # MPICH
 MPICH_INCLUDES=@MPICH_INCLUDES@
 MPICH_LIBS=@MPICH_LIBS@
@@ -172,6 +173,8 @@ CXXFLAGS+= $(CORBA_CXXFLAGS)
 #LDFLAGS+= $(CORBA_LIBS)
 LIBS+=$(CORBA_LIBS)
 
+DOXYGEN = @DOXYGEN@
+
 ## Shared libraries
 LT_STATIC_EXEC=@LT_STATIC_EXEC@
 DYNAMIC_DIRS=@DYNAMIC_DIRS@
@@ -210,7 +213,7 @@ docdir=$(datadir)/doc
 # begin of package rules
 #
 
-.PHONY: all lib bin inc resources tests install uninstall dep depend depend_idl cleandep mostlyclean clean distclean
+.PHONY: all lib bin inc resources data doc tests install uninstall dep depend depend_idl cleandep mostlyclean clean distclean
 
 .SUFFIXES: .cxx .cc .c .f .o .lo .idl .py .i .ui .po .qm
 
@@ -221,6 +224,7 @@ all:
 	$(MAKE) lib
 	$(MAKE) bin
 	$(MAKE) resources
+	$(MAKE) data
 
 #
 # add target to build administrative files

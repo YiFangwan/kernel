@@ -20,6 +20,11 @@
 ## otherwise the file is changed and a backup is saved by appending a
 ## tilde to the file name.
 ##
+
+DEPCC = @DEPCC@
+DEPCXX = @DEPCXX@
+DEPCXXFLAGS = @DEPCXXFLAGS@
+
 $(srcdir)/Dependencies: .depend
 	@if test "$(srcdir)" != "."; then				      \
 	    echo '## This file is machine generated on GNU systems.' >$@;     \
