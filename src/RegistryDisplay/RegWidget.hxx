@@ -85,6 +85,7 @@ protected :
   QTabWidget*         _tabWidget;
   QPushButton*        _refresh;
   QPushButton*        _interval;
+  QPushButton*        _close;
   QTimer*             _counter;
   Registry::AllInfos* _serverhistory;
   Registry::AllInfos* _serverclients;
@@ -104,6 +105,9 @@ public:
 
   void setText( const QString& text );
   QTextView* textView() const { return myTextView; }
+
+protected:
+  void keyPressEvent( QKeyEvent * e );
 
 private:
   QTextView* myTextView;

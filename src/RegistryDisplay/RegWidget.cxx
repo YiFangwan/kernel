@@ -57,6 +57,80 @@ QString findFile( QString filename );
 
 #define BOLD( text ) ( QString( "<b>" ) + QString( text ) + QString( "</b>" ) )
 
+static const char* const time_data[] = { 
+"16 16 6 1",
+". c None",
+"b c None",
+"# c #000000",
+"a c #4c4c4c",
+"d c #878787",
+"c c #ffffff",
+".....#####ab....",
+"...##cc#dc##ab..",
+"..#ccc###dcc#ab.",
+".#ccccc#dcccc#a.",
+".#ccccc#dcccc#ab",
+"#cccccc#dccccc#a",
+"#cccccc#dccc#c#a",
+"#c##ccc########a",
+"#ccddcccdddd#d#a",
+"#cccccccccccdc#a",
+".#ccccccccccc#aa",
+".#ccccc#ccccc#a.",
+"..#cccc#dccc#aa.",
+"...##cccdc##aa..",
+".....#####aaa...",
+"......aaaaa....."};
+
+static const char* const close_data[] = { 
+"16 16 6 1",
+"d c None",
+". c None",
+"# c #000000",
+"a c #4c4c4c",
+"c c #5b5b5b",
+"b c #ffffff",
+".....#####a.....",
+"...##bbbbb##a...",
+"..#bbbbbbbbb#a..",
+".#b#cbbbbbb#d#a.",
+".#bc#cbbbb#cb#a.",
+"#bbbc#cbb#cbbb#a",
+"#bbbbc#c#cbbbb#a",
+"#bbbbbc#cbbbbb#a",
+"#bbbbc#c#cbbbb#a",
+"#bbb#ccbb##bbb#a",
+".#b#c#bbbbc#b#aa",
+".#bc#bbbbbb#c#a.",
+"..#bbbbbbbbb#aa.",
+"...##bbbbb##aa..",
+".....#####aaa...",
+"......aaaaa....."};
+
+static const char* const refresh_data[] = { 
+"16 16 5 1",
+". c None",
+"# c #000000",
+"a c #4c4c4c",
+"c c #878787",
+"b c #ffffff",
+".....#####a.....",
+"...##bb#bb##a...",
+"..#bbbbc#bbb#a..",
+".#bbbb####cbb#a.",
+".#bbb#cc#cbbb#a.",
+"#bbb#cb#cbbbbb#a",
+"#bb#cbbbbbb#bb#a",
+"#bb#cbbbbbb#cb#a",
+"#bb#cbbbbbb#cb#a",
+"#bbbbbb#bb#cbb#a",
+".#bbbb#cb#cbb#aa",
+".#bbb####cbbb#a.",
+"..#bbb#cbbbb#aa.",
+"...##bb#cb##aa..",
+".....#####aaa...",
+"......aaaaa....."};
+
 /*!
   Creates components list
 */
@@ -125,12 +199,19 @@ RegWidget::RegWidget(CORBA::ORB_var &orb, QWidget *parent, const char *name )
   if ( !pm.isNull() )
     setIcon( pm );
 
+  // pixmap for buttons
+  QPixmap image_refresh ( ( const char** ) refresh_data );
+  QPixmap image_interval( ( const char** ) time_data );
+  QPixmap image_close   ( ( const char** ) close_data );
+
   // Buttons definition
   QToolBar* topbar = new QToolBar( tr("Toolbar"), this );
   setDockEnabled( topbar, DockTornOff, false );
   setDockMenuEnabled( false );
 
   _refresh = new QPushButton( tr( "Refresh" ), topbar );
+  _refresh->setIconSet( image_refresh );
+  _refresh->setFocusPolicy( NoFocus );
   connect( _refresh, SIGNAL( clicked() ), this, SLOT( slotListeSelect() ) );
   QToolTip::add( _refresh, "", toolTipGroup(), tr("Immediately updates list of components") );
   
@@ -141,8 +222,17 @@ RegWidget::RegWidget(CORBA::ORB_var &orb, QWidget *parent, const char *name )
   */
   
   _interval = new QPushButton( tr( "Interval" ), topbar );
+  _interval->setIconSet( image_interval );
+  _interval->setFocusPolicy( NoFocus );
   connect( _interval, SIGNAL( clicked() ), this, SLOT( slotSelectRefresh() ) );
   QToolTip::add( _interval, "", toolTipGroup(), tr("Changes refresh interval") );
+  
+  topbar->addSeparator();
+  _close = new QPushButton( tr("Close"), topbar );
+  _close->setIconSet( image_close );
+  _close->setFocusPolicy( NoFocus );
+  connect( _close, SIGNAL( clicked() ), this, SLOT( close() ) );
+  QToolTip::add( _close, "", toolTipGroup(), tr("Closes Registry window") );
   
   // Display area and associated slots definition
   _tabWidget = new QTabWidget( this );
@@ -197,6 +287,18 @@ bool RegWidget::eventFilter( QObject* object, QEvent* event )
     }
     else if ( object == myIntervalWindow && event->type() == QEvent::Close ) {
       myIntervalWindow = 0;
+    }
+    else if ( object == _clients && event->type() == QEvent::KeyPress ) {
+      QKeyEvent* ke = (QKeyEvent*)event;
+      if ( ke->key() == Key_Enter || ke->key() == Key_Return ) {
+	slotClientChanged( _clients->currentItem() );
+      }
+    }
+    else if ( object == _history && event->type() == QEvent::KeyPress ) {
+      QKeyEvent* ke = (QKeyEvent*)event;
+      if ( ke->key() == Key_Enter || ke->key() == Key_Return ) {
+	slotHistoryChanged( _history->currentItem() );
+      }
     }
   }
   return QMainWindow::eventFilter( object, event );
@@ -317,6 +419,8 @@ void RegWidget::closeEvent( QCloseEvent *e)
 void RegWidget::SetListe()
 {
   BEGIN_OF("SetListe");
+  _clients->installEventFilter( this );
+  _clients->setAllColumnsShowFocus( true );
   _clients->addColumn( tr( "Component" ), -1);
   _clients->addColumn( tr( "PID" ), -1 );
   _clients->addColumn( tr( "User Name" ), -1 );
@@ -333,6 +437,8 @@ void RegWidget::SetListe()
 void RegWidget::SetListeHistory()
 {
    BEGIN_OF("SetListeHistory")
+  _history->installEventFilter( this );
+  _history->setAllColumnsShowFocus( true );
   _history->addColumn( tr( "Component" ), -1);
   _history->addColumn( tr( "PID" ), -1 );
   _history->addColumn( tr( "User Name" ), -1 );
@@ -580,6 +686,16 @@ InfoWindow::InfoWindow( QWidget* parent, const char* name )
 void InfoWindow::setText( const QString& text )
 {
   myTextView->setText( text );
+}
+
+/*!
+  Key press event
+*/
+void InfoWindow::keyPressEvent( QKeyEvent * e )
+{
+  QMainWindow::keyPressEvent( e );
+  if ( e->key() == Key_Escape )
+    close();
 }
 
 static const char* SEPARATOR    = ":";
