@@ -66,6 +66,7 @@ public :
 	ATEXIT_( void )
 	{
 		ASSERT (Destructeurs==0);
+		MESSAGE("ATEXIT constructor") ; // Messages nécéssaire pour pouvoir utiliser le logger dans la fonction Nettoyage
 		Destructeurs = new list<DESTRUCTEUR_GENERIQUE_*> ; // Destructeurs alloué dynamiquement (cf. ci-dessous) ,
 								   // il est utilisé puis détruit par la fonction Nettoyage
 		int cr = atexit( Nettoyage );                      // exécute Nettoyage lors de exit, après la destruction des données statiques !
