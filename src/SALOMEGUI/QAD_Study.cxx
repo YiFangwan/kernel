@@ -134,6 +134,7 @@ QAD_Study::QAD_Study(QAD_Application* theApp,
   Selection( QAD_Application::getDesktop()->getComponentUserName( "KERNEL" ) );
   
   /* create python interpreter */
+  QAD_PyInterp::init_python(); // initialize Python out of qthread
   myInitStudyThread = new TInitStudyThread(myInterp,myMutex);
   myInitStudyThread->start();
 

@@ -47,14 +47,14 @@ void SALOME_PYQT_GUI::setWorkSpace()
   PyLockWrapper aLock = interp->GetLockWrapper();
 
   //   Try to import qt module. If it's not possible don't go on
-  PyObjWrapper qtmodule(PyImport_ImportModule("qt"));
+  PyObjWrapper qtmodule(PyImport_ImportModule("SalomePyQt"));
   if(!qtmodule){
     PyErr_Print();
     return ;
   }  
 
-  PyObjWrapper pyws(sipMapCppToSelf( QAD_Application::getDesktop()->getMainFrame(),
-				     sipClass_QWorkspace));
+  QWorkspace *sipRes=QAD_Application::getDesktop()->getMainFrame();
+  PyObjWrapper pyws(sipMapCppToSelf( sipRes, sipClass_QWorkspace));
   PyObjWrapper res(PyObject_CallMethod(_module,"setWorkSpace","O",pyws.get()));
   SCRUTE(pyws->ob_refcnt);
   if(!res){

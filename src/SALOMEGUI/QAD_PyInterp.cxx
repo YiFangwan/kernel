@@ -72,7 +72,11 @@ QAD_PyInterp::~QAD_PyInterp()
 
 void QAD_PyInterp::initState()
 {
-  //PyLockWrapper aLock(_tstate);
+  /*
+   * The GIL is acquired and will be held on initState output
+   * It is the caller responsability to release the lock if needed
+   */
+  PyEval_AcquireLock();
   _tstate = Py_NewInterpreter(); // create an interpreter and save current state
   PySys_SetArgv(PyInterp_base::_argc,PyInterp_base::_argv); // initialize sys.argv
   if(MYDEBUG) MESSAGE("QAD_PyInterp::initState - this = "<<this<<"; _tstate = "<<_tstate);
@@ -93,7 +97,11 @@ void QAD_PyInterp::initState()
 
 void QAD_PyInterp::initContext()
 {
-  //PyLockWrapper aLock(_tstate);
+  /*
+   * The GIL is assumed to be held
+   * It is the caller responsability caller to acquire the GIL
+   * It will still be held on initContext output
+   */
   PyObject *m = PyImport_AddModule("__main__");  // interpreter main module (module context)
   if(!m){
     if(MYDEBUG) MESSAGE("problem...");

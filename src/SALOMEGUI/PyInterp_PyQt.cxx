@@ -30,16 +30,25 @@ PyInterp_PyQt::~PyInterp_PyQt()
 
 void PyInterp_PyQt::initState()
 {
+ /*
+  * The GIL is assumed to not be held on the call
+  * The GIL is acquired in initState and will be held on initState exit
+  * It is the caller responsability to release the lock on exit if needed
+  */
   SCRUTE(PyInterp_base::_gtstate);
-  //PyLockWrapper aLock(_tstate);
   _tstate=PyInterp_base::_gtstate;
+  PyEval_AcquireLock();
   PyThreadState_Swap(_tstate);
   SCRUTE(_tstate);
 }
 
 void PyInterp_PyQt::initContext()
 {
-  //PyLockWrapper aLock(_tstate);
+  /*
+   * The GIL is assumed to be held
+   * It is the caller responsability to acquire the GIL before calling initContext
+   * It will still be held on initContext exit
+   */
   _g = PyDict_New();          // create interpreter dictionnary context
   PyObject *bimod = PyImport_ImportModule("__builtin__");
   PyDict_SetItemString(_g, "__builtins__", bimod);

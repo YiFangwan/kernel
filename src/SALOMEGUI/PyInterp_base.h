@@ -74,6 +74,7 @@ class PyInterp_base{
   ~PyInterp_base();
   
   virtual void initialize();
+  static void init_python();
 
   int run(const char *command); 
 
@@ -91,6 +92,7 @@ class PyInterp_base{
   PyObject * _vout;
   PyObject * _verr;
   PyObject * _g;
+  PyObject * _codeop;
   std::list<std::string> _history;
   std::list<std::string>::iterator _ith;
   bool _atFirst;

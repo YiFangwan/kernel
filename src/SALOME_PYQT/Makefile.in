@@ -42,10 +42,11 @@ MOC_SRC = sipSalomePyQtcmodule_moc.cxx
 MOC_H = sipSalomePyQtcmodule.h
 SIP_FILES = SalomePyQt_v4.sip
 #LDFLAGS+= -lSalomeGUI 
-LDFLAGS+= -lSalomeGUI -module
+#LDFLAGS+= -lSalomeGUI -module
+LDFLAGS+= -shared -lSalomeGUI
 
 # Libraries targets
-LIB = SalomePyQt.la
+LIB = SalomePyQt.so
 else
 ifeq ($(SIP_VERS),new2)
 SIP_FLAGS    = -t WS_X11 -t Qt_3_0_5 -s ".cc" -c $(CURDIR) -I $(PYQT_SIPS)

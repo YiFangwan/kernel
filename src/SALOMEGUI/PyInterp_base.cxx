@@ -129,24 +129,7 @@ void PyInterp_base::initialize()
   _history.clear();       // start a new list of user's commands 
   _ith = _history.begin();
 
-  if(!_gtstate){
-    //PyReleaseLock aReleaseLock;
-    Py_Initialize(); // Initialize the interpreter
-    PyEval_InitThreads(); // Initialize and acquire the global interpreter lock
-    PySys_SetArgv(_argc,_argv); // initialize sys.argv
-    _gtstate = PyThreadState_Get();
-    
-    /*
-     * salome_shared_modules should be imported only once
-     */
-    salome_shared_modules_module = PyImport_ImportModule("salome_shared_modules");
-    if(!salome_shared_modules_module)
-      {
-	INFOS("PyInterp_base::initialize() - salome_shared_modules_module == NULL");
-	PyErr_Print();
-	PyErr_Clear();
-      }
-  }
+  if(!_gtstate) init_python();
   // Here the global lock is released
   if(MYPYDEBUG) MESSAGE("PyInterp_base::initialize() - this = "<<this<<"; _gtstate = "<<_gtstate);
 
@@ -175,6 +158,31 @@ void PyInterp_base::initialize()
   initRun();
 }
 
+void PyInterp_base::init_python()
+{
+  /*
+   * Initialize the main state (_gtstate) if not already done
+   * The lock is released on init_python output
+   * It is the caller responsability to acquire it if needed
+   */
+  if(!_gtstate){
+    PyReleaseLock aReleaseLock;
+    Py_Initialize(); // Initialize the interpreter
+    PyEval_InitThreads(); // Initialize and acquire the global interpreter lock
+    PySys_SetArgv(_argc,_argv); // initialize sys.argv
+    _gtstate = PyThreadState_Get();
+    /*
+     * salome_shared_modules should be imported only once
+     */
+    salome_shared_modules_module = PyImport_ImportModule("salome_shared_modules");
+    if(!salome_shared_modules_module)
+      {
+	INFOS("PyInterp_base::initialize() - salome_shared_modules_module == NULL");
+	PyErr_Print();
+	PyErr_Clear();
+      }
+  }
+}
 
 string PyInterp_base::getbanner()
 {
@@ -193,7 +201,7 @@ int PyInterp_base::initRun()
   PyObjWrapper verr(PyObject_CallMethod(_verr,"reset",""));
   PyObjWrapper vout(PyObject_CallMethod(_vout,"reset",""));
 
-  PyObject *m = PyImport_GetModuleDict();
+  //PyObject *m = PyImport_GetModuleDict();
   
   PySys_SetObject("stdout",PySys_GetObject("__stdout__"));
   PySys_SetObject("stderr",PySys_GetObject("__stderr__"));
