@@ -52,7 +52,7 @@ SALOME_Session_i::SALOME_Session_i(int argc, char ** argv, CORBA::ORB_ptr orb, P
 {
   _argc = argc ;
   _argv = argv ;
-  _IAPPThread = new SALOME_Session_QThread(_argc, _argv) ;
+  _IAPPThread = SALOME_Session_QThread::Instance(_argc, _argv);
   _isGUI = FALSE ;
   _runningStudies= 0 ;
   _orb = CORBA::ORB::_duplicate(orb) ;
@@ -172,6 +172,7 @@ void SALOME_Session_i::StopSession()
 SALOME::StatSession SALOME_Session_i::GetStatSession()
 {
   // update Session state
+  //qApp->lock(); // rollback bug 
   _GUIMutex.lock();    
   _isGUI = _IAPPThread->running();
   _runningStudies = 0;
@@ -182,6 +183,7 @@ SALOME::StatSession SALOME_Session_i::GetStatSession()
     qApp->unlock();
   }
   _GUIMutex.unlock();
+  //qApp->unlock();
   // getting stat info
   SALOME::StatSession_var myStats = new SALOME::StatSession ;
   if (_runningStudies)

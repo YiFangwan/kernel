@@ -51,7 +51,7 @@ BIN_SRC =
 BIN_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
 		 SALOME_ModuleCatalog.idl
 
-LDFLAGS += -lSalomeNS -lOpUtil -lSalomeLoggerServer
+LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace
 
 @CONCLUDE@
 
