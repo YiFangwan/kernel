@@ -11,6 +11,8 @@
 #include <TDF_Attribute.hxx>
 #include <Standard_GUID.hxx>     
 
+#include "SALOMEDSImpl_SObject.hxx"
+
 class Handle(TDF_Attribute);
 class Handle(TDF_RelocationTable);
 
@@ -34,6 +36,7 @@ Standard_EXPORT virtual void Load(const TCollection_AsciiString&) {}
 Standard_EXPORT virtual TCollection_AsciiString Type();
 Standard_EXPORT virtual void CheckLocked();
 Standard_EXPORT TCollection_AsciiString GetClassType() { return _type; }
+Standard_EXPORT Handle(SALOMEDSImpl_SObject) GetSObject();
 
 Standard_EXPORT static char* Impl_GetType(const Handle(TDF_Attribute)& theAttr); 
 Standard_EXPORT static void Impl_CheckLocked(const Handle(TDF_Attribute)& theAttr);

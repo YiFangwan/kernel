@@ -41,3 +41,10 @@ void SALOMEDSImpl_GenericAttribute::CheckLocked()
     throw LockProtection("LockProtection");
   }                                         
 }
+
+Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_GenericAttribute::GetSObject()
+{
+  TDF_Label aLabel = Label();
+  if(aLabel.IsNull()) return NULL;
+  return SALOMEDSImpl_Study::GetStudy(aLabel)->GetSObject(aLabel);
+}
