@@ -2,7 +2,8 @@
 inc_builddir=$(top_builddir)/include/salome
 
 @SET_MAKE@
-SHELL=/bin/sh
+# Modifcation B. Secher portage sur osf
+SHELL=@SHELL@
 
 # header missing
 
@@ -10,9 +11,10 @@ HAVE_SSTREAM=@HAVE_SSTREAM@
 
 
 LIBS=@LIBS@ 
-LDFLAGS=@LDFLAGS@ -L$(top_builddir)/lib/salome -Xlinker -rpath-link -Xlinker -L$(top_builddir)/lib/salome
+# LDFLAGS=@LDFLAGS@ -L$(top_builddir)/lib/salome -Xlinker -rpath-link -Xlinker -L$(top_builddir)/lib/salome
+LDFLAGS=@LDFLAGS@ -L$(top_builddir)/lib/salome
 # add libstdc++ to link c++ library with libtool !
-LDFLAGS+= -lstdc++
+LDFLAGS+= @STDLIB@
 
 CP=@CP@
 
