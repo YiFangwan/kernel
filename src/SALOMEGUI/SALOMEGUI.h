@@ -55,8 +55,6 @@ public:
   virtual ~SALOMEGUI();
 
   virtual bool OnGUIEvent        (int theCommandID, QAD_Desktop* parent);
-  virtual bool CanProcessEvent   (SALOME_Event* se);
-  virtual bool ProcessEvent      (SALOME_Event* se);
   virtual bool OnKeyPress        (QKeyEvent* pe, QAD_Desktop* parent, QAD_StudyFrame* studyFrame);
   virtual bool OnMousePress      (QMouseEvent* pe, QAD_Desktop* parent, QAD_StudyFrame* studyFrame);
   virtual bool OnMouseMove       (QMouseEvent* pe, QAD_Desktop* parent, QAD_StudyFrame* studyFrame);

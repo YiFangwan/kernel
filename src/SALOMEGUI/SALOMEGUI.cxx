@@ -63,26 +63,6 @@ bool SALOMEGUI::OnGUIEvent(int theCommandID, QAD_Desktop* parent)
  *
  */
 //=============================================================================
-bool SALOMEGUI::CanProcessEvent(SALOME_Event* se)
-{
-  return false;
-}
-
-//=============================================================================
-/*!
- *
- */
-//=============================================================================
-bool SALOMEGUI::ProcessEvent(SALOME_Event* se)
-{
-  return false;
-}
-
-//=============================================================================
-/*!
- *
- */
-//=============================================================================
 bool SALOMEGUI::OnKeyPress(QKeyEvent* pe, QAD_Desktop* parent, QAD_StudyFrame* studyFrame)
 {
   return true;

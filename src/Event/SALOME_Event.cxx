@@ -46,10 +46,9 @@ static int MYDEBUG = 0;
  *  Constructor
  */
 //===========================================================
-SALOME_Event::SALOME_Event( int salomeEventType, bool wait, bool autoRelease ): 
-  myType( salomeEventType ), 
-  myWait( wait ),
-  myAutoRelease( autoRelease )
+SALOME_Event::SALOME_Event(): 
+  myWait( true ),
+  myAutoRelease( false )
 {
   if(MYDEBUG) MESSAGE( "SALOME_Event::SALOME_Event(): this = "<<this<<", myWait = "<<myWait );
   if ( myWait ) {

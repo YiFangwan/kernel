@@ -85,12 +85,11 @@ class QSemaphore;
 class SALOME_Event
 {
 public:
-  SALOME_Event( int salomeEventType = -1, bool wait = true, bool autoRelease = false );
+  SALOME_Event();
   virtual ~SALOME_Event();
 
-  int getType() const { return myType; }
-
-  virtual bool Execute() { return false; }
+  // To do real work
+  virtual void Execute() = 0;
 
   void process();
   void processed();
@@ -98,7 +97,6 @@ public:
   void release();
 
 private:
-  int         myType;
   bool        myWait;
   bool        myAutoRelease;
   QSemaphore* mySemaphore;
@@ -119,9 +117,8 @@ public:
     myAction(theAction),
     myResult(theResult)
   {}
-  virtual bool Execute(){
+  virtual void Execute(){
     myResult = (myObject->*myAction)();
-    return true; 
   }
 private:
   TObject* myObject;
@@ -137,9 +134,8 @@ public:
     myObject(theObject),
     myAction(theAction)
   {}
-  virtual bool Execute(){
+  virtual void Execute(){
     (myObject->*myAction)();
-    return true; 
   }
 private:
   TObject* myObject;
@@ -163,9 +159,8 @@ public:
     myResult(theResult),
     myArg(theArg)
   {}
-  virtual bool Execute(){
+  virtual void Execute(){
     myResult = (myObject->*myAction)(myArg);
-    return true; 
   }
 private:
   TObject* myObject;
@@ -183,9 +178,8 @@ public:
     myAction(theAction),
     myArg(theArg)
   {}
-  virtual bool Execute(){
+  virtual void Execute(){
     (myObject->*myAction)(myArg);
-    return true; 
   }
 private:
   TObject* myObject;
@@ -213,9 +207,8 @@ public:
     myArg(theArg),
     myArg1(theArg1)
   {}
-  virtual bool Execute(){
+  virtual void Execute(){
     myResult = (myObject->*myAction)(myArg,myArg1);
-    return true; 
   }
 private:
   TObject* myObject;
@@ -236,9 +229,8 @@ public:
     myArg(theArg),
     myArg1(theArg1)
   {}
-  virtual bool Execute(){
+  virtual void Execute(){
     (myObject->*myAction)(myArg,myArg1);
-    return true; 
   }
 private:
   TObject* myObject;
@@ -262,5 +254,6 @@ inline void ProcessVoidEvent(SALOME_Event* theEvent){
   theEvent->process();
   theEvent->release();
 }
+
 
 #endif

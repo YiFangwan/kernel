@@ -452,15 +452,9 @@ bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
   }
   else if ( e->type() == SALOME_EVENT ) { 
     SALOME_Event* aSE = (SALOME_Event*)((QCustomEvent*)e)->data();
-    MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 1 : o = " << o << ", e = " << aSE);
-
     processEvent( aSE );
-    MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 2" );
-
     // Signal the calling thread that the event has been processed
     aSE->processed();
-    MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 3" );
-
     ((QCustomEvent*)e)->setData( 0 );
     delete aSE;
     return TRUE;
@@ -475,16 +469,7 @@ void QAD_Desktop::processEvent( SALOME_Event* theEvent )
 {
   if ( !theEvent )
     return;
-
-  if(theEvent->Execute())
-    return;
-
-  // san - temporary code - to be removed together with VISU_Event and test operations in VISU_I...
-  for ( ComponentMap::iterator it = myComponents.begin(); it != myComponents.end(); it++ ) {
-    if ( it.data()->CanProcessEvent( theEvent ) && it.data()->ProcessEvent( theEvent ) )
-      break;
-  }
-  // san - temporary code - to be removed together with VISU_Event and test operations in VISU_I...
+  theEvent->Execute();
 }
 
 /*!
