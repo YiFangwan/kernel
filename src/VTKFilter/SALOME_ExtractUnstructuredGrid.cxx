@@ -44,6 +44,12 @@ static int MYDEBUG = 1;
 static int MYDEBUG = 0;
 #endif
 
+#if defined __GNUC__
+  #if __GNUC__ == 2
+    #define __GNUC_2__
+  #endif
+#endif
+
 vtkStandardNewMacro(SALOME_ExtractUnstructuredGrid);
 
 
@@ -77,7 +83,11 @@ void SALOME_ExtractUnstructuredGrid::SetStoreMapping(int theStoreMapping){
 vtkIdType SALOME_ExtractUnstructuredGrid::GetOutId(int theOutId) const{
   if(myCellIds.empty() && myCellTypes.empty()) return theOutId;
   if(myOut2InId.empty() || theOutId > myOut2InId.size()) return -1;
+#if defined __GNUC_2__
+  return myOut2InId[theOutId];
+#else
   return myOut2InId.at(theOutId);
+#endif
 }
 
 vtkIdType SALOME_ExtractUnstructuredGrid::GetInId(int theInId) const{

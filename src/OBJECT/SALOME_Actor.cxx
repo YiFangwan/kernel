@@ -47,6 +47,12 @@
 
 using namespace std;
 
+#if defined __GNUC__
+  #if __GNUC__ == 2
+    #define __GNUC_2__
+  #endif
+#endif
+
 int SALOME_POINT_SIZE = 3;
 
 
@@ -108,29 +114,64 @@ void SALOME_Actor::SetTransform(SALOME_Transform* theTransform){
 void SALOME_Actor::SetMapper(vtkMapper* theMapper){
   if(theMapper){
     int anId = 0;
+#if defined __GNUC_2__
+    myPassFilter[anId]->SetInput(theMapper->GetInput());
+#else
     myPassFilter.at(anId)->SetInput(theMapper->GetInput());
+#endif
     myGeomFilter->SetStoreMapping(myStoreMapping);
+#if defined __GNUC_2__
+    myGeomFilter->SetInput(myPassFilter[anId]->GetOutput());
+#else
     myGeomFilter->SetInput(myPassFilter.at(anId)->GetOutput());
+#endif
 
     anId++;
+
+#if defined __GNUC_2__
+    myPassFilter[anId]->SetInput(myGeomFilter->GetOutput());
+    myPassFilter[anId+1]->SetInput(myPassFilter[anId]->GetOutput());
+#else
     myPassFilter.at(anId)->SetInput(myGeomFilter->GetOutput());
     myPassFilter.at(anId+1)->SetInput(myPassFilter.at(anId)->GetOutput());
+#endif
 
     anId++;
+#if defined __GNUC_2__
+    myPassFilter[anId+1]->SetInput(myPassFilter[anId]->GetOutput());
+#else
     myPassFilter.at(anId+1)->SetInput(myPassFilter.at(anId)->GetOutput());
+#endif
 
     anId++;
+#if defined __GNUC_2__
+    myTransformFilter->SetInput(myPassFilter[anId]->GetPolyDataOutput());
+#else
     myTransformFilter->SetInput(myPassFilter.at(anId)->GetPolyDataOutput());
+#endif
 
     anId++;
+#if defined __GNUC_2__
+    myPassFilter[anId]->SetInput(myTransformFilter->GetOutput());
+    myPassFilter[anId+1]->SetInput(myPassFilter[anId]->GetOutput());
+#else
     myPassFilter.at(anId)->SetInput(myTransformFilter->GetOutput());
     myPassFilter.at(anId+1)->SetInput(myPassFilter.at(anId)->GetOutput());
+#endif
 
     anId++;
     if(vtkDataSetMapper* aMapper = dynamic_cast<vtkDataSetMapper*>(theMapper))
+#if defined __GNUC_2__
+      aMapper->SetInput(myPassFilter[anId]->GetOutput());
+#else
       aMapper->SetInput(myPassFilter.at(anId)->GetOutput());
+#endif
     else if(vtkPolyDataMapper* aMapper = dynamic_cast<vtkPolyDataMapper*>(theMapper))
+#if defined __GNUC_2__
+      aMapper->SetInput(myPassFilter[anId]->GetPolyDataOutput());
+#else
       aMapper->SetInput(myPassFilter.at(anId)->GetPolyDataOutput());
+#endif
   }
   vtkLODActor::SetMapper(theMapper);
 }

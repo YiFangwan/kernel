@@ -52,6 +52,12 @@ static int MYDEBUG = 0;
 static int MYDEBUGWITHFILES = 0;
 #endif
 
+#if defined __GNUC__
+  #if __GNUC__ == 2
+    #define __GNUC_2__
+  #endif
+#endif
+
 vtkCxxRevisionMacro(SALOME_GeometryFilter, "$Revision$");
 vtkStandardNewMacro(SALOME_GeometryFilter);
 
@@ -92,14 +98,22 @@ void SALOME_GeometryFilter::SetStoreMapping(int theStoreMapping){
 
 vtkIdType SALOME_GeometryFilter::GetObjId(int theVtkID){
   if(myVTK2ObjIds.empty() || theVtkID > myVTK2ObjIds.size()) return -1;
+#if defined __GNUC_2__
+  return myVTK2ObjIds[theVtkID];
+#else
   return myVTK2ObjIds.at(theVtkID);
+#endif
 }
 
 
 SALOME_GeometryFilter::TVectorId SALOME_GeometryFilter::GetVtkId(int theObjID){
   TVectorId aVect;
   if(myObj2VTKIds.empty() || theObjID > myObj2VTKIds.size()) return aVect;
+#if defined __GNUC_2__
+  return myObj2VTKIds[theObjID];
+#else
   return myObj2VTKIds.at(theObjID);
+#endif
 }
 
 

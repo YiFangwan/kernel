@@ -8,7 +8,7 @@
 
 #include "MED_Structures.hxx"
 #include "MED_Utilities.hxx"
-
+#include <string>
 using namespace std;
 using namespace MED;
 
@@ -18,6 +18,11 @@ static int MYDEBUG = 1;
 static int MYDEBUG = 0;
 #endif
 
+#if defined __GNUC__
+  #if __GNUC__ == 2
+    #define __GNUC_2__
+  #endif
+#endif
 
 //---------------------------------------------------------------
 string MED::GetString(med_int theId, med_int theStep,
@@ -226,12 +231,21 @@ TNodeInfo::TNodeInfo(const PMeshInfo& theMeshInfo,
     EXCEPTION(runtime_error,"myCoord.size() != myNbElem*theMeshInfo->myDim");
 
   for(med_int anId = 0; anId < theMeshInfo->myDim; anId++){
+#if defined __GNUC_2__
+    const string& aVal = theCoordNames[anId];
+#else
     const string& aVal = theCoordNames.at(anId);
+#endif
+ 
     SetCoordName(anId,aVal);
   }
 
   for(med_int anId = 0; anId < theMeshInfo->myDim; anId++){
+#if defined __GNUC_2__
+    const string& aVal = theCoordUnits[anId];
+#else
     const string& aVal = theCoordUnits.at(anId);
+#endif
     SetCoordUnit(anId,aVal);
   }
 }
