@@ -223,8 +223,8 @@ void Session_ServerLauncher::ActivateAll()
 void Session_ServerLauncher::KillAll()
 {
   MESSAGE("Session_ServerLauncher::KillAll()");
-  list<Session_ServerThread*>::iterator itServ;
-  for (itServ = _serverThreads.begin(); itServ !=_serverThreads.end(); itServ++)
+  list<Session_ServerThread*>::reverse_iterator itServ;
+  for (itServ = _serverThreads.rbegin(); itServ !=_serverThreads.rend(); itServ++)
     {
       delete (*itServ);
     }
