@@ -92,6 +92,7 @@ EXPORT_HEADERS = \
 		  Handle_SALOME_NumberFilter.hxx \
 		  SALOME_DataMapOfIOMapOfInteger.hxx \
 		  Handle_SALOME_DataMapNodeOfDataMapOfIOMapOfInteger.hxx \
+		  SALOMEGUI.h \
 		  SALOMEGUI_LoadStudiesDlg.h \
                   SALOMEGUI_TableDlg.h \
                   SALOMEGUI_NameDlg.h \
@@ -149,6 +150,7 @@ LIB_SRC = 	  \
 		  QAD_StudyFrame.cxx \
 		  QAD_Tools.cxx \
 		  QAD_ViewFrame.cxx \
+		  SALOMEGUI.cxx \
 		  SALOMEGUI_Application.cxx \
 		  SALOMEGUI_Desktop.cxx \
 		  SALOMEGUI_ImportOperation.cxx \
@@ -181,6 +183,7 @@ LIB_SRC = 	  \
                   SALOMEGUI_CloseDlg.cxx \
 		  SALOMEGUI_ActivateComponentDlg.cxx    
 LIB_MOC = \
+		  SALOMEGUI.h \
 		  SALOMEGUI_Application.h \
 		  SALOMEGUI_Desktop.h \
 		  QAD_Application.h \
