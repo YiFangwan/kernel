@@ -427,7 +427,7 @@ def startSalome():
   # Lancement Container C++ local
   #
   if with_container_cpp:
-     ContainerCPPServer().run()
+	  ContainerCPPServer().run()
 
 	  #
 	  # Attente de la disponibilité du Container C++ local dans le Naming Service
@@ -440,7 +440,7 @@ def startSalome():
   #
 
   if with_container_python:
-     ContainerPYServer().run()
+	  ContainerPYServer().run()
 
 	  #
 	  # Attente de la disponibilité du Container Python local dans le Naming Service
@@ -454,7 +454,7 @@ def startSalome():
 	# Lancement Container Supervision local
 	#
 
-        ContainerSUPERVServer().run()
+	ContainerSUPERVServer().run()
 	#
 	# Attente de la disponibilité du Container Supervision local dans le Naming Service
 	#
