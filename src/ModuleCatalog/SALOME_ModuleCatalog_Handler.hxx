@@ -33,7 +33,7 @@
 #include "SALOME_ModuleCatalog_Parser.hxx"
 #include <qxml.h>
 #include <string>
-#include <vector>
+#include <stack>
 
 class SALOME_ModuleCatalog_Handler : public QXmlDefaultHandler 
 {
@@ -133,12 +133,11 @@ private:
   const char* test_inDataStreamParameter_type;
   const char* test_inDataStreamParameter_name;
   const char* test_inDataStreamParameter;
-  const char* test_inDataStreamParameter_list;
   const char* test_outDataStreamParameter_dependency;
   const char* test_outDataStreamParameter_type;
   const char* test_outDataStreamParameter_name;
   const char* test_outDataStreamParameter;
-  const char* test_outDataStreamParameter_list;
+  const char* test_DataStreamParameter_list;
 
   const char* test_service;
   const char* test_service_list;
@@ -164,6 +163,8 @@ private:
   ListOfParserServicesParameter _outParamList;
   ListOfParserServicesDataStreamParameter _inDataStreamParamList;
   ListOfParserServicesDataStreamParameter _outDataStreamParamList;
+
+  std::stack<std::string> _xml_pile;
 };
 
 #endif // SALOME_CATALOG_HANDLER_H

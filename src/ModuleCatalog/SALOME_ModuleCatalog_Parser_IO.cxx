@@ -58,21 +58,25 @@ std::ostream & operator<< (std::ostream & f,
   f << "      in parameters : " << n << std::endl;
   for (i=0; i<n; i++)
     f << S.parserServiceInParameter[i] << std::endl;
+  if (n == 0) f << std::endl;
 
   n = S.parserServiceInDataStreamParameter.size();
   f << "      in DataStream parameters : " << n << std::endl;
   for (i=0; i<n; i++)
     f << S.parserServiceInDataStreamParameter[i] << std::endl;
+  if (n == 0) f << std::endl;
 
   n = S.parserServiceOutParameter.size();
   f << "      out parameters : " << n << std::endl;
   for (i=0; i<n; i++)
     f << S.parserServiceOutParameter[i] << std::endl;
+  if (n == 0) f << std::endl;
 
   n = S.parserServiceOutDataStreamParameter.size();
   f << "      out DataStream parameters : " << n << std::endl;
   for (i=0; i<n; i++)
     f << S.parserServiceOutDataStreamParameter[i] << std::endl;
+  if (n == 0) f << std::endl;
 
   return f;
 }
@@ -85,8 +89,10 @@ std::ostream & operator<< (std::ostream & f,
 
   n = I.parserInterfaceServiceList.size();
   f << "    services : " << n << std::endl;
-  for (j=0; j<n; j++)
+  for (j=0; j<n; j++) {
+    std::cerr << I.parserInterfaceServiceList[j].parserServiceName << std::endl;
     f << I.parserInterfaceServiceList[j] << std::endl;
+  }
 
   return f;
 }
@@ -113,7 +119,8 @@ std::ostream & operator<< (std::ostream & f,
 			   const ParserComponent & C)
 {
   int j, n;
-  f << "    name :       " << C.parserComponentName << std::endl;
+  f << std::endl
+    << "    name :       " << C.parserComponentName << std::endl;
   f << "    user name :  " << C.parserComponentUsername << std::endl;
   f << "    type :       " << C.parserComponentType << std::endl;
   f << "    multistudy : " << (C.parserComponentMultistudy ? "yes" : "no")
@@ -125,6 +132,7 @@ std::ostream & operator<< (std::ostream & f,
   f << "    interfaces : " << n << std::endl;
   for (j=0; j<n; j++)
     f << C.parserListInterface[j] << std::endl;
+  if (n == 0) f << std::endl;
 
   return f;
 }

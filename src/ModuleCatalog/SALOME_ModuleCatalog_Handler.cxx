@@ -30,6 +30,7 @@
 #include "SALOME_ModuleCatalog_Handler.hxx"
 #include "SALOME_ModuleCatalog_Parser_IO.hxx"
 using namespace std;
+#include <sstream>
 
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalog_Handler
@@ -66,17 +67,17 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
   test_outParameter="outParameter";
   test_outParameter_list="outParameter-list";
 
-  test_inDataStreamParameter_type="inDataStreamParameter-type";
-  test_inDataStreamParameter_dependency="inDataStreamParameter-dependency";
-  test_inDataStreamParameter_name="inDataStreamParameter-name";
-  test_inDataStreamParameter="inDataStreamParameter";
-  test_inDataStreamParameter_list="inDataStreamParameter-list";
+  test_inDataStreamParameter_type="inParameter-dependency";
+  test_inDataStreamParameter_type="inParameter-type";
+  test_inDataStreamParameter_name="inParameter-name";
+  test_inDataStreamParameter="inParameter";
 
-  test_outDataStreamParameter_type="outDataStreamParameter-dependency";
-  test_outDataStreamParameter_type="outDataStreamParameter-type";
-  test_outDataStreamParameter_name="outDataStreamParameter-name";
-  test_outDataStreamParameter="outDataStreamParameter";
-  test_outDataStreamParameter_list="outDataStreamParameter-list";
+  test_outDataStreamParameter_type="outParameter-dependency";
+  test_outDataStreamParameter_type="outParameter-type";
+  test_outDataStreamParameter_name="outParameter-name";
+  test_outDataStreamParameter="outParameter";
+
+  test_DataStreamParameter_list="DataStream-list";
 
   test_service= "component-service";
   test_service_list="component-service-list";
@@ -129,6 +130,8 @@ bool SALOME_ModuleCatalog_Handler::startElement(const QString&,
 						const QXmlAttributes& atts)
 {
 //  SCRUTE(qName);
+  _xml_pile.push(qName);
+
   return true;
 } 
 
@@ -302,13 +305,6 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
       _inDataStreamParam.parserParamName = "";
     }
   
-   //tag test_inDataStreamParameter_list
-   if((qName.compare(QString(test_inDataStreamParameter_list))==0))
-     {
-       _aService.parserServiceInDataStreamParameter = _inDataStreamParamList;
-       _inDataStreamParamList.resize(0);
-     }
-
    // DataStreamParameter out
 
    // tag test_outDataStreamParameter_type
@@ -328,12 +324,15 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
       _outDataStreamParam.parserParamName = "";
     }
 
-   //tag test_outDataStreamParameter_list
-   if((qName.compare(QString(test_outDataStreamParameter_list))==0)) 
+   //tag test_DataStreamParameter_list
+   if((qName.compare(QString(test_DataStreamParameter_list))==0))
      {
-       _aService.parserServiceOutDataStreamParameter=_outDataStreamParamList;
+       _aService.parserServiceInDataStreamParameter = _inDataStreamParamList;
+       _inDataStreamParamList.resize(0);
+       _aService.parserServiceOutDataStreamParameter = _outDataStreamParamList;
        _outDataStreamParamList.resize(0);
      }
+
 
    // tag   test_service
    if((qName.compare(QString(test_service))==0))
@@ -403,8 +402,10 @@ bool SALOME_ModuleCatalog_Handler::characters(const QString& chars)
 //            Print all informations find in the catalog 
 //            (only in DEBUG mode!!)
 //----------------------------------------------------------------------  
+#include <fstream>
 bool SALOME_ModuleCatalog_Handler::endDocument()
 {
+  ofstream f("/tmp/logs/tajchman/xxx.log", std::ofstream::app);
   BEGIN_OF("endDocument");
   //_pathlist
   for (unsigned int ind = 0; ind < _pathList.size(); ind++)
@@ -418,7 +419,7 @@ bool SALOME_ModuleCatalog_Handler::endDocument()
 //  SCRUTE(_moduleList.size());
   for (unsigned int ind = 0; ind < _moduleList.size(); ind++)
     {
-      SCRUTE(_moduleList[ind]);
+      f << _moduleList[ind] << std::endl;
     }
 
   MESSAGE("Document parsed");
