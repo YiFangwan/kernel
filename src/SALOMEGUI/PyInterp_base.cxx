@@ -26,8 +26,10 @@ using namespace std;
 
 #ifdef _DEBUG_
 static int MYDEBUG = 0;
+static int MYPYDEBUG = 0;
 #else
 static int MYDEBUG = 0;
+static int MYPYDEBUG = 0;
 #endif
 
 
@@ -38,32 +40,14 @@ PyLockWrapper::PyLockWrapper(PyThreadState* theThreadState):
   myThreadState(theThreadState),
   mySaveThreadState(PyInterp_base::_gtstate)
 {
-  //if(MYDEBUG) MESSAGE(" PyLockWrapper(...) - myThreadState = "<<myThreadState<<" - "<<myMutex.locked());
-  //myMutex.lock();
-  //PyEval_RestoreThread(myThreadState);
-
   PyEval_AcquireLock();
   mySaveThreadState = PyThreadState_Swap(myThreadState);
-
-  //PyEval_SaveThread();
-
-  //mySaveThreadState = PyThreadState_Swap(myThreadState);
-  //PyEval_ReleaseLock();
 }
 
 
 PyLockWrapper::~PyLockWrapper(){
-  //if(MYDEBUG) MESSAGE("~PyLockWrapper(...) - myThreadState = "<<myThreadState);
-  //PyEval_SaveThread();
-  //myMutex.unlock();
-
   PyThreadState_Swap(mySaveThreadState);
   PyEval_ReleaseLock();
-
-  //PyEval_RestoreThread(myThreadState);
-
-  //PyEval_AcquireLock();
-  //PyThreadState_Swap(mySaveThreadState);
 }
 
 
@@ -95,16 +79,14 @@ ThreadLock GetPyThreadLock(const char* theComment){
 class PyReleaseLock{
 public:
   ~PyReleaseLock(){
-    //if(MYDEBUG) MESSAGE("~PyReleaseLock()");
-    //PyEval_SaveThread();
-
+    if(MYPYDEBUG) MESSAGE("~PyReleaseLock()");
     PyEval_ReleaseLock();
   }
 };
 
 
 PyLockWrapper PyInterp_base::GetLockWrapper(){
-  return PyLockWrapper(_tstate);
+  return _tstate;
 }
 
 
@@ -124,15 +106,14 @@ PyObject *PyInterp_base::salome_shared_modules_module = NULL;
  */
 PyInterp_base::PyInterp_base(): _tstate(0), _vout(0), _verr(0), _g(0), _atFirst(true)
 {
-  //if(MYDEBUG) MESSAGE("PyInterp_base::PyInterp_base() - this = "<<this);
+  if(MYPYDEBUG) MESSAGE("PyInterp_base::PyInterp_base() - this = "<<this);
 }
 
 PyInterp_base::~PyInterp_base()
 {
-  if(MYDEBUG) MESSAGE("PyInterp_base::~PyInterp_base() - this = "<<this);
+  if(MYPYDEBUG) MESSAGE("PyInterp_base::~PyInterp_base() - this = "<<this);
   PyLockWrapper aLock(_tstate);
-  PyThreadState_Swap(_tstate);
-  Py_EndInterpreter(_tstate);
+  //Py_EndInterpreter(_tstate);
 }
 
 
@@ -154,11 +135,11 @@ void PyInterp_base::initialize()
     PySys_SetArgv(_argc,_argv); // initialize sys.argv
     _gtstate = PyThreadState_Get();
   }
-  //if(MYDEBUG) MESSAGE("PyInterp_base::initialize() - this = "<<this<<"; _gtstate = "<<_gtstate);
+  if(MYPYDEBUG) MESSAGE("PyInterp_base::initialize() - this = "<<this<<"; _gtstate = "<<_gtstate);
 
   salome_shared_modules_module = PyImport_ImportModule("salome_shared_modules");
   if(!salome_shared_modules_module){
-    if(MYDEBUG) MESSAGE("init_python: problem with salome_shared_modules import");
+    INFOS("PyInterp_base::initialize() - salome_shared_modules_module == NULL");
     PyErr_Print();
     PyErr_Clear();
   }
@@ -170,7 +151,7 @@ void PyInterp_base::initialize()
   // used to interpret & compile commands
   PyObjWrapper m(PyImport_ImportModule("codeop"));
   if(!m){
-    if(MYDEBUG)  MESSAGE("Problem...");
+    INFOS("PyInterp_base::initialize() - PyImport_ImportModule('codeop') failed");
     PyErr_Print();
     ASSERT(0);
     return;
@@ -209,7 +190,7 @@ int PyInterp_base::initRun()
   PySys_SetObject("stdout",PySys_GetObject("__stdout__"));
   PySys_SetObject("stderr",PySys_GetObject("__stderr__"));
 
-  //if(MYDEBUG) MESSAGE("PyInterp_base::initRun() - this = "<<this<<"; _verr = "<<_verr<<"; _vout = "<<_vout);
+  if(MYPYDEBUG) MESSAGE("PyInterp_base::initRun() - this = "<<this<<"; _verr = "<<_verr<<"; _vout = "<<_vout);
   return 0;
 }
 
@@ -288,7 +269,6 @@ int PyInterp_base::simpleRun(const char *command)
   PyObjWrapper vout(PyObject_CallMethod(_vout,"reset",""));
   
   int ier = compile_command(command,_g);
-  //if(MYDEBUG) MESSAGE("simpleRun(...) - this = "<<this<<"; command = '"<<command<<"'; ier = "<<ier); 
 
   // Outputs are redirected on standards outputs (console)
   PySys_SetObject("stdout",PySys_GetObject("__stdout__"));

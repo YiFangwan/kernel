@@ -171,6 +171,7 @@ QAD_Study::~QAD_Study ()
       delete myInitStudyThread;
     }
     delete myMutex;
+    delete myInterp;
   }
 }
 

@@ -85,6 +85,7 @@ protected:
     ThreadLock aStudyLock(myStudyMutex,"TInitEditorThread::aStudyLock");
     ThreadLock aPyLock = GetPyThreadLock("TInitEditorThread::aPyLock");
     if(MYDEBUG) MESSAGE("TInitEditorThread::run() - myInterp = "<<myInterp<<"; myMutex = "<<myMutex);
+    myListener->myBanner = myInterp->getbanner().c_str();
     QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::INITIALIZE));
     QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::PYTHON_OK));
     QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::UNSET_CURSOR));
@@ -133,7 +134,8 @@ protected:
 	anId = QAD_PyEditor::PYTHON_ERROR;
       if(ret > 0)
 	anId = QAD_PyEditor::PYTHON_INCOMPLETE;
-      myListener->viewport()->unsetCursor();
+      myListener->myError = myInterp->getverr().c_str();
+      myListener->myOutput = myInterp->getvout().c_str();
       QThread::postEvent(myListener, new QCustomEvent(anId));
       QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::UNSET_CURSOR));
     }
@@ -289,8 +291,7 @@ void QAD_PyEditor::mousePressEvent (QMouseEvent * event)
     }
     else if ( r == idMap[ IdClear ] ) {
       clear();
-      ThreadLock aPyLock = GetPyThreadLock();
-      setText(myInterp->getbanner().c_str());
+      setText(myBanner);
       setText(_currentPrompt);
     }
     else if ( r == idMap[ IdSelectAll ] ) {
@@ -527,9 +528,8 @@ void QAD_PyEditor::customEvent(QCustomEvent *e)
   case PYTHON_ERROR:
     {
       _buf.truncate(0);
-      ThreadLock aPyLock = GetPyThreadLock();
-      setText(myInterp->getvout().c_str());
-      setText(myInterp->getverr().c_str());
+      setText(myOutput);
+      setText(myError);
       _currentPrompt = ">>> ";
       setText(_currentPrompt);
       break;

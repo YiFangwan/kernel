@@ -40,7 +40,10 @@ class TExecCommandThread;
 
 class QAD_PyEditor : public QTextEdit
 {
-  Q_OBJECT
+  Q_OBJECT;
+
+  friend class TInitEditorThread;
+  friend class TExecCommandThread;
 
 public:
   enum { PYTHON_OK = QEvent::User + 5000, PYTHON_ERROR, PYTHON_INCOMPLETE, 
@@ -77,6 +80,10 @@ private:
   QMutex* myExecCommandMutex;
   TInitEditorThread* myInitEditorThread;
   TExecCommandThread* myExecCommandThread;
+
+  QString myBanner;
+  QString myOutput;
+  QString myError;
 };
 
 #endif
