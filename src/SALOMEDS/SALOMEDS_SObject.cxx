@@ -80,8 +80,6 @@ bool SALOMEDS_SObject::FindAttribute(SALOMEDSClient_GenericAttribute*& anAttribu
   if(_isLocal) {
     Handle(SALOMEDSImpl_GenericAttribute) anAttr;
     ret = _local_impl->FindAttribute(anAttr, aType);
-    cout << "############## ret = " << ret << " type requested " << aType << endl;
-    if(!anAttr.IsNull()) cout << "############## recieved " << anAttr->Type() << endl;
     if(ret) anAttribute = SALOMEDS_GenericAttribute::CreateAttribute(anAttr);
   }
   else {
