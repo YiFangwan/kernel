@@ -75,6 +75,25 @@ then
   fi
 fi
 
+version=`moc -v > mocversion 2>&1;cut -c40-44 mocversion;rm -rf mocversion`
+case "$version" in
+  3.3.3)
+   QT_VERS=v3_3_3
+   AC_MSG_RESULT(QT3.3.3 install detected)
+   qt_ok=yes;;
+  3.0.5)
+   AC_MSG_RESULT(QT3.0.5 install detected)
+   QT_VERS=v3_0_5
+   qt_ok=yes;;
+  *)
+   AC_MSG_RESULT(qt version $version not supported)
+   qt_ok=no
+   QT_VERS=no ;;
+esac
+
+AC_SUBST(QT_VERS)
+AC_MSG_RESULT(qt version $QT_VERS )
+
 AC_SUBST(QTDIR)
 QT_ROOT=$QTDIR
 
@@ -160,6 +179,7 @@ AC_SUBST(QT_ROOT)
 AC_SUBST(QT_INCLUDES)
 AC_SUBST(QT_LIBS)
 AC_SUBST(QT_MT_LIBS)
+AC_SUBST(QT_VERS)
 
 AC_LANG_RESTORE
 

@@ -72,6 +72,7 @@ QAD_PyInterp::~QAD_PyInterp()
 
 void QAD_PyInterp::initState()
 {
+  //PyLockWrapper aLock(_tstate);
   _tstate = Py_NewInterpreter(); // create an interpreter and save current state
   PySys_SetArgv(PyInterp_base::_argc,PyInterp_base::_argv); // initialize sys.argv
   if(MYDEBUG) MESSAGE("QAD_PyInterp::initState - this = "<<this<<"; _tstate = "<<_tstate);
@@ -92,6 +93,7 @@ void QAD_PyInterp::initState()
 
 void QAD_PyInterp::initContext()
 {
+  //PyLockWrapper aLock(_tstate);
   PyObject *m = PyImport_AddModule("__main__");  // interpreter main module (module context)
   if(!m){
     if(MYDEBUG) MESSAGE("problem...");

@@ -7,7 +7,7 @@
 // $Header$
 //=============================================================================
 
-#include "SALOME_PYQT_GUI.h" // this include must be first (see PyInterp_base.h)!
+#include "SALOME_PYQT_GUI.h"
 
 #include "QAD_Desktop.h"
 
@@ -16,8 +16,13 @@
 #include "SALOMEGUI_QtCatchCorbaException.hxx"
 #include "utilities.h"
 
-//#include <sipSalomePyQtDeclSalomePyQt.h>
+
+#if QT_VERSION > 0x030005
 #include <sipAPISalomePyQt.h>
+#else
+#include <sipSalomePyQtDeclSalomePyQt.h>
+#endif
+
 #include <sipqtQWorkspace.h>
 #include <sipqtQPopupMenu.h>
 

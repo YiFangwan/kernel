@@ -31,6 +31,7 @@ PyInterp_PyQt::~PyInterp_PyQt()
 void PyInterp_PyQt::initState()
 {
   SCRUTE(PyInterp_base::_gtstate);
+  //PyLockWrapper aLock(_tstate);
   _tstate=PyInterp_base::_gtstate;
   PyThreadState_Swap(_tstate);
   SCRUTE(_tstate);
@@ -38,6 +39,7 @@ void PyInterp_PyQt::initState()
 
 void PyInterp_PyQt::initContext()
 {
+  //PyLockWrapper aLock(_tstate);
   _g = PyDict_New();          // create interpreter dictionnary context
   PyObject *bimod = PyImport_ImportModule("__builtin__");
   PyDict_SetItemString(_g, "__builtins__", bimod);
@@ -47,14 +49,11 @@ void PyInterp_PyQt::initContext()
 void PyInterp_PyQt::run(const char *command)
 {
   MESSAGE("compile");
-  //PyLockWrapper aLock(_tstate);
-  PyEval_AcquireLock();
-  PyThreadState_Swap(_tstate);
+  PyLockWrapper aLock(_tstate);
   PyObject *code = Py_CompileString((char *)command,"PyGUI",Py_file_input);
   if(!code){
     // Une erreur s est produite en general SyntaxError
     PyErr_Print();
-    PyEval_ReleaseLock();
     return;
   }
   PyObject *r = PyEval_EvalCode(code,_g,_g);
@@ -62,10 +61,8 @@ void PyInterp_PyQt::run(const char *command)
   if(!r){
     // Une erreur s est produite a l execution
     PyErr_Print();
-    PyEval_ReleaseLock();
     return;
   }
   Py_DECREF(r);
-  PyEval_ReleaseLock();
 }
 
