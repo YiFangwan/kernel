@@ -43,8 +43,7 @@ SUBDIRS = MSG2QM SALOMELocalTrace Logger SALOMELogger Utils PatchQt \
           SALOMEGUI Plot2d VTKViewer OCCViewer \
 	  SUPERVGraph \
 	  Session SALOME_SWIG_WITHOUTIHM SALOME_SWIG TOOLSGUI SALOME_PY \
-          RegistryDisplay ModuleGenerator SALOME_PYQT Loader \
-          ResourcesManager ContainersManager
+          RegistryDisplay ModuleGenerator SALOME_PYQT Loader 
 endif
 
 ifeq (@WITHIHM@,no)
@@ -54,8 +53,7 @@ SUBDIRS = MSG2QM SALOMELocalTrace Logger SALOMELogger Utils \
           Notification  NOTIFICATION_SWIG \
 	  Container TestContainer LifeCycleCORBA HDFPersist \
           TOOLSDS SALOMEDS \
-          SALOME_SWIG_WITHOUTIHM ModuleGenerator \
-          ResourcesManager ContainersManager
+          SALOME_SWIG_WITHOUTIHM ModuleGenerator 
 endif
 
 ifeq (@WITHMPI@,yes)
