@@ -27,6 +27,8 @@
 //  $Header$
 
 #include "SALOMEGUI.h"
+#include "QAD_Desktop.h"
+
 
 //=============================================================================
 /*!
@@ -135,6 +137,15 @@ void SALOMEGUI::DefinePopup( QString & theContext, QString & theParent, QString 
 //=============================================================================
 bool SALOMEGUI::ActiveStudyChanged( QAD_Desktop* parent )
 {
+  //static QAD_Study* aPrevStudy = NULL;
+  //QAD_Study* aStudy = parent->getActiveStudy();
+  //if(!aPrevStudy)
+  //  aPrevStudy = aStudy;
+  //if(aStudy != aPrevStudy){
+  //  emit SignalCloseAllDialogs();
+  //  aPrevStudy = aStudy;
+  //}
+  emit SignalCloseAllDialogs();
   return true;
 }
 
