@@ -496,6 +496,7 @@ void QAD_ObjectBrowser::onCreatePopup()
   QAD_Study*   myActiveStudy = Desktop->getActiveStudy();
   SALOME_Selection*      Sel = SALOME_Selection::Selection( myActiveStudy->getSelection() );
 
+  bool canExpand = false;
   /* VSR : Creation of common POPUP menu for Object Browser/Use Case Browser */
   if ( Sel->IObjectCount() > 0 ) {
     QString theContext;
@@ -518,7 +519,6 @@ void QAD_ObjectBrowser::onCreatePopup()
 			     SLOT( onEditAttribute() ) );
       }
 
-      bool canExpand = false;
       for ( QListViewItemIterator it( currentPage() == myListView ? myListView : myUseCaseView ); it.current() && !canExpand; ++it )
 	canExpand = canExpand || ( it.current()->isSelected() && hasCollapsed( it.current() ) );
 
@@ -553,8 +553,14 @@ void QAD_ObjectBrowser::onCreatePopup()
       bool isUseCase = isOne && 
 	( isRoot || UCBuilder->IsUseCase( myStudy->FindObjectID( (( QAD_ObjectBrowserItem* )( ucSelected.at(0) ))->getEntry() ) ) ); 
 
-      if ( isRoot )
+      if ( isRoot ) {
 	myPopup->clear();
+	if ( canExpand ) {
+	  myPopup->insertItem( tr( "EXPAND_ALL_CMD" ),
+			       this,
+			       SLOT( onExpandAll() ) );
+	}
+      }
       QPopupMenu *UseCasePopup = new QPopupMenu( myPopup );
       if ( isOne )
 	UseCasePopup->insertItem( tr( "UC_NEW_ID" ), this, SLOT( onUseCasePopupMenu( int ) ), 0, UC_NEW_EMPTY_ID );
