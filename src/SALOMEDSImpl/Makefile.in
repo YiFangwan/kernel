@@ -16,6 +16,7 @@ EXPORT_HEADERS= \
 	SALOMEDSImpl_SComponent.hxx \
 	SALOMEDSImpl_Driver.hxx \
 	SALOMEDSImpl_Callback.hxx \
+	SALOMEDSImpl_ChildIterator.hxx \
 	SALOMEDSImpl_GenericAttribute.hxx \
 	SALOMEDSImpl_AttributeIOR.hxx \
 	SALOMEDSImpl_AttributeExternalFileDef.hxx \
@@ -73,6 +74,7 @@ LIB_SRC =	  SALOMEDSImpl_Tool.cxx \
 	          SALOMEDSImpl_GenericAttribute.cxx \
 		  SALOMEDSImpl_SObject.cxx \
 		  SALOMEDSImpl_SComponent.cxx \
+		  SALOMEDSImpl_ChildIterator.cxx \
 		  SALOMEDSImpl_OCAFApplication.cxx \
 		  SALOMEDSImpl_AttributeIOR.cxx \
 		  SALOMEDSImpl_AttributeExternalFileDef.cxx \

@@ -18,7 +18,6 @@ DEFINE_STANDARD_HANDLE( SALOMEDSImpl_Study, MMgt_TShared )
 #include <TDF_Tool.hxx>
 #include <TDF_Data.hxx>
 #include <TDF_Label.hxx>
-#include <TDF_ChildIterator.hxx>
 #include <stdio.h>
 #include <TCollection_AsciiString.hxx>
 #include <TColStd_SequenceOfInteger.hxx>
@@ -36,6 +35,7 @@ DEFINE_STANDARD_HANDLE( SALOMEDSImpl_Study, MMgt_TShared )
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 #include "SALOMEDSImpl_Callback.hxx"
 #include "SALOMEDSImpl_Driver.hxx" 
+#include "SALOMEDSImpl_ChildIterator.hxx" 
 
 class SALOMEDSImpl_StudyManager;
 class SALOMEDSImpl_GenericAttribute;
@@ -148,7 +148,7 @@ public:
   virtual Handle(TColStd_HSequenceOfAsciiString) GetComponentNames(const TCollection_AsciiString& theContext);
 
   //! method to Create a ChildIterator from an SObject 
-  virtual TDF_ChildIterator NewChildIterator(const Handle(SALOMEDSImpl_SObject)& aSO);
+  virtual Handle(SALOMEDSImpl_ChildIterator) NewChildIterator(const Handle(SALOMEDSImpl_SObject)& aSO);
 
   //! method to Create a SComponentIterator 
   virtual SALOMEDSImpl_SComponentIterator NewComponentIterator();

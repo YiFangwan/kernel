@@ -16,7 +16,7 @@ using namespace std;
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
-
+#include "SALOMEDSImpl_ChildIterator.hxx"
 
 #include <TColStd_SequenceOfExtendedString.hxx>
 #include <TColStd_HSequenceOfAsciiString.hxx>
@@ -364,9 +364,10 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
   SALOMEDS::Locker lock; 
 
   Handle(SALOMEDSImpl_SObject) aSO = _impl->GetSObject(theSO->GetID());
+  Handle(SALOMEDSImpl_ChildIterator) anItr = new SALOMEDSImpl_ChildIterator(aSO);
 
   //Create iterator
-  SALOMEDS_ChildIterator_i* it_servant = new SALOMEDS_ChildIterator_i(aSO->GetLabel(), _orb);
+  SALOMEDS_ChildIterator_i* it_servant = new SALOMEDS_ChildIterator_i(anItr, _orb);
   SALOMEDS::ChildIterator_var it = SALOMEDS::ChildIterator::_narrow(it_servant->_this()); 
 
   return it;

@@ -15,13 +15,12 @@ using namespace std;
  *  Purpose  :
  */
 //============================================================================
-SALOMEDS_ChildIterator_i::SALOMEDS_ChildIterator_i(TDF_Label lab,
+SALOMEDS_ChildIterator_i::SALOMEDS_ChildIterator_i(const Handle(SALOMEDSImpl_ChildIterator)& theImpl,
 						   CORBA::ORB_ptr orb) 
-  : _lab(lab)
+  : _it(theImpl)
 {
   SALOMEDS::Locker lock;
   _orb = CORBA::ORB::_duplicate(orb);
-  _it.Initialize (lab);
 }
 
 //============================================================================
@@ -41,7 +40,7 @@ SALOMEDS_ChildIterator_i::~SALOMEDS_ChildIterator_i()
 void SALOMEDS_ChildIterator_i::Init()
 { 
   SALOMEDS::Locker lock;
-  _it.Initialize (_lab);
+  _it->Init();
 }
 
 //============================================================================
@@ -52,7 +51,7 @@ void SALOMEDS_ChildIterator_i::Init()
 void SALOMEDS_ChildIterator_i::InitEx(CORBA::Boolean allLevels)
 { 
   SALOMEDS::Locker lock;
-  _it.Initialize (_lab, allLevels);
+  _it->InitEx (allLevels);
 }
 
 //============================================================================
@@ -63,7 +62,7 @@ void SALOMEDS_ChildIterator_i::InitEx(CORBA::Boolean allLevels)
 CORBA::Boolean SALOMEDS_ChildIterator_i::More()
 {
   SALOMEDS::Locker lock;
-  return _it.More();
+  return _it->More();
 }
 
  //============================================================================
@@ -74,12 +73,12 @@ CORBA::Boolean SALOMEDS_ChildIterator_i::More()
 void SALOMEDS_ChildIterator_i::Next()
 {
   SALOMEDS::Locker lock;
-  _it.Next();
+  _it->Next();
 }
 
 
 //============================================================================
-/*! Function :
+/*! Function : Value
  *  Purpose  :
  */
 //============================================================================
@@ -87,7 +86,7 @@ void SALOMEDS_ChildIterator_i::Next()
 SALOMEDS::SObject_ptr SALOMEDS_ChildIterator_i::Value()
 {
   SALOMEDS::Locker lock;
-  Handle(SALOMEDSImpl_SObject) aSO = SALOMEDSImpl_Study::GetStudy(_it.Value())->GetSObject(_it.Value());
+  Handle(SALOMEDSImpl_SObject) aSO = _it->Value();
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }

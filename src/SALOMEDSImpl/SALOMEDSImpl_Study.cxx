@@ -16,6 +16,7 @@ using namespace std;
 #include <CDM_Document.hxx>
 #include <CDM_Application.hxx>
 #include <TDF_ChildIDIterator.hxx>
+#include <TDF_ChildIterator.hxx>
 
 #include "SALOMEDSImpl_ChildNodeIterator.hxx"
 #include "SALOMEDSImpl_Attributes.hxx"
@@ -287,10 +288,10 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_Study::FindObjectByName(const 
   TCollection_AsciiString childName ;
 
   TCollection_AsciiString compoId = compo->GetID();
-  TDF_ChildIterator it = NewChildIterator(compo);
-  for ( ; it.More();it.Next() ) {
+  Handle(SALOMEDSImpl_ChildIterator) it = NewChildIterator(compo);
+  for ( ; it->More(); it->Next() ) {
     
-    Handle(SALOMEDSImpl_SObject) CSO = GetSObject(it.Value());
+    Handle(SALOMEDSImpl_SObject) CSO = it->Value();
     if ( CSO->GetName() == anObjectName ) {
 	/* add to list */
 	listSO->Append(CSO) ;
@@ -680,10 +681,10 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetComponentNames(con
  *  Purpose  : Create a ChildIterator from an SObject
  */
 //============================================================================
-TDF_ChildIterator SALOMEDSImpl_Study::NewChildIterator(const Handle(SALOMEDSImpl_SObject)& aSO)
+Handle(SALOMEDSImpl_ChildIterator) SALOMEDSImpl_Study::NewChildIterator(const Handle(SALOMEDSImpl_SObject)& aSO)
 {
   _errorCode = "";
-  return TDF_ChildIterator(aSO->GetLabel());
+  return new SALOMEDSImpl_ChildIterator(aSO);
 }
 
 
