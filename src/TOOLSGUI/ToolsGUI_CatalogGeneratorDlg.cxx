@@ -394,7 +394,7 @@ void ToolsGUI_CatalogGeneratorDlg::onApply()
     else {
       QString command = "";
       if ( getenv("KERNEL_ROOT_DIR")  )
-	command = QString( getenv( "KERNEL_ROOT_DIR" ) ) + "/bin/salome/runIDLparser " + IDLpath + " -Wbcatalog=" + XmlFile;
+	command = QString( getenv( "KERNEL_ROOT_DIR" ) ) + "/bin/salome/runIDLparser -K " + IDLpath + " -Wbcatalog=" + XmlFile;
       else {
 	QAD_MessageBox::error1( this, 
 				tr("TOOLS_ERR_ERROR"), 
