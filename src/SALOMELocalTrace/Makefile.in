@@ -37,7 +37,8 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 # header files  
 EXPORT_HEADERS= utilities.h \
 		LocalTraceBufferPool.hxx \
-		LocalTraceCollector.hxx
+		LocalTraceCollector.hxx \
+		LocalTrace_WaitForServerReadiness.hxx
 
 EXPORT_PYSCRIPTS = 
 
@@ -45,8 +46,10 @@ EXPORT_PYSCRIPTS =
 
 LIB = libSALOMELocalTrace.la 
 LIB_SRC = LocalTraceCollector.cxx \
-	  LocalTraceBufferPool.cxx
+	  LocalTraceBufferPool.cxx \
+	  LocalTrace_WaitForServerReadiness.cxx
 
+LIB_CLIENT_IDL = Logger.idl 
 LDFLAGS+= 
 
 @CONCLUDE@

@@ -27,24 +27,28 @@
 #ifndef _LOCALTRACECOLLECTOR_HXX_
 #define _LOCALTRACECOLLECTOR_HXX_
 
+#include <string>
+#include <CORBA.h>
 #include "LocalTraceBufferPool.hxx"
 
 class LocalTraceCollector
 {
  public:
-  static LocalTraceCollector* instance();
+  static LocalTraceCollector* instance(CORBA::ORB_ptr theOrb, int typeTrace=0);
   static void *run(void *bid);
   ~LocalTraceCollector();
-  static int _threadToClose;
-  static int _toFile;
 
  protected:
   LocalTraceCollector();
 
  private:
+  static int _threadToClose;
+  static int _toFile;
   static LocalTraceCollector* _singleton;
   static pthread_mutex_t _singletonMutex;
   static pthread_t _threadId;
+  static std::string _fileName;
+  static CORBA::ORB_ptr _orb;
 };
 
 #endif

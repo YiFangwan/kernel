@@ -1,6 +1,4 @@
-//  SALOME_LocalTrace : log on local machine
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  Copyright (C) 2004  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
 //  This library is free software; you can redistribute it and/or 
@@ -21,42 +19,18 @@
 //
 //
 //
-//  File   : SALOME_Log.hxx
-//  Author : Vasily Rusyaev, Paul RASCLE, EDF
+//  File   : LocalTrace_WaitForServerReadiness.hxx
+//  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
 //  $Header$
 
+#ifndef _LOCALTRACE_WAITFORSERVERREADINESS_HXX_
+#define _LOCALTRACE_WAITFORSERVERREADINESS_HXX_
+
+#include <CORBA.h> 
 #include <string>
-#include <iostream>
 
-#include "SALOME_Log.hxx"
-using namespace std;
+CORBA::Object_ptr  LocalTrace_WaitForServerReadiness(CORBA::ORB_ptr theOrb,
+						     std::string serverName);
 
-SALOME_Log* SALOME_Log::_singleton = 0;
-
-// log line size: if too short, log line is truncated, without crash...
-char SALOME_LogStr[1024]; 
-
-SALOME_Log::SALOME_Log(): ostrstream(SALOME_LogStr,sizeof(SALOME_LogStr))
-{
-}
-
-SALOME_Log::~SALOME_Log()
-{
-}
-
-SALOME_Log* SALOME_Log::Instance()
-{
-  if (_singleton == 0) _singleton = new SALOME_Log();
-  return _singleton;
-}
-
-void SALOME_Log::putMessage(std::ostream& msg)
-{
-  cout << std::flush;
-  cerr <<str() << std::flush;
-  rdbuf()->freeze(false);
-  seekp(0);
-}
-
-
+#endif

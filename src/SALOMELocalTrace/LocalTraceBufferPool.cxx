@@ -30,6 +30,10 @@
 #include "LocalTraceBufferPool.hxx"
 #include "utilities.h"
 
+// In case of truncated message, end of trace contains "...\n\0"
+#define TRUNCATED_MESSAGE "...\n"
+#define MAXMESS_LENGTH MAX_TRACE_LENGTH-5
+
 using namespace std;
 
 LocalTraceBufferPool* LocalTraceBufferPool::_singleton = 0;
@@ -85,8 +89,8 @@ int LocalTraceBufferPool::insert(int traceType, const char* msg)
 
   strncpy(_myBuffer[myInsertPos%TRACE_BUFFER_SIZE].trace,
 	  msg,
-	  MAX_TRACE_LENGTH-1);    // last char always 0 even if msg too long
-  _myBuffer[myInsertPos%TRACE_BUFFER_SIZE].threadId = pthread_self(); // thread id
+	  MAXMESS_LENGTH); // last chars always "...\n\0" if msg too long
+  _myBuffer[myInsertPos%TRACE_BUFFER_SIZE].threadId =pthread_self();//thread id
   _myBuffer[myInsertPos%TRACE_BUFFER_SIZE].traceType = traceType;
   _myBuffer[myInsertPos%TRACE_BUFFER_SIZE].position = myMessageNumber;
 
@@ -129,9 +133,9 @@ int LocalTraceBufferPool::retrieve(LocalTrace_TraceInfo& aTrace)
 
   // increment the free buffer semaphore
   // (if previously 0, awake one of the threads waiting to put a trace, if any)
-  // there is no way to preserve the order of waiting threads if several threads
-  // are waiting to put a trace: the waken up thread is not necessarily the
-  // first thread to wait.
+  // there is no way to preserve the order of waiting threads if several
+  // threads are waiting to put a trace: the waken up thread is not
+  // necessarily the first thread to wait.
 
   ret = sem_post(&_freeBufferSemaphore);
 
@@ -164,13 +168,15 @@ unsigned long LocalTraceBufferPool::toCollect()
 
 LocalTraceBufferPool::LocalTraceBufferPool()
 {
-  cout << "LocalTraceBufferPool::LocalTraceBufferPool()" << endl;
+  //cout << "LocalTraceBufferPool::LocalTraceBufferPool()" << endl;
 
   _insertPos   = ULONG_MAX;  // first increment will give 0
   _retrievePos = ULONG_MAX;
   _position=0;               // first message will have number = 1
 
   memset(_myBuffer, 0, sizeof(_myBuffer)); // to guarantee end of strings = 0
+  for (int i=0; i<TRACE_BUFFER_SIZE; i++)
+    strcpy(&(_myBuffer[i].trace[MAXMESS_LENGTH]),TRUNCATED_MESSAGE);
   int ret;
   ret=sem_init(&_freeBufferSemaphore, 0, TRACE_BUFFER_SIZE); // all buffer free
   if (ret!=0) IMMEDIATE_ABORT(ret);
