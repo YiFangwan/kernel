@@ -205,7 +205,7 @@ void Engines_Component_i::beginService(const char *serviceName)
 
   // --- for supervisor : all strings given with setProperties
   //     are set in environment
-  bool overwrite = true;
+//  bool overwrite = true;
   map<std::string,CORBA::Any>::iterator it;
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++)
     {
@@ -219,7 +219,7 @@ void Engines_Component_i::beginService(const char *serviceName)
 	  s+='=';
 	  s+=value;
 	  //char* cast because 1st arg of linux putenv function is not a const char* !!!
-	  int ret=putenv((char *)s.c_str());
+	  putenv((char *)s.c_str());
 	  //End of CCRT porting
 	  //int ret = setenv(cle.c_str(), value, overwrite);
 	  MESSAGE("--- setenv: "<<cle<<" = "<< value);
@@ -275,16 +275,19 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum ) {
   else if ( signum == SIGUSR2 ) {
     signame = string("SIGUSR2 Suspend") ;// 12
   }
-  MESSAGE( pthread_self() << "Killer : ThreadId " << ThreadId << " pthread_cancel/kill( "
-           << signame << " ) :" << endl ) ;
-  if ( ThreadId ) {
+  cout << pthread_self() << "Killer : ThreadId " << ThreadId << " pthread_cancel/kill( "
+       << signame << " ) :" << endl ;
+  if ( ThreadId > 0 ) {
     if ( signum == 0 ) {
-      if ( pthread_cancel( ThreadId ) ) {
-        perror("Killer pthread_cancel error") ;
+      int sts = pthread_cancel( ThreadId ) ;
+      if ( sts != 0 && sts != ESRCH ) {
+        perror("perror Killer pthread_cancel error") ;
+        cout << pthread_self() << "Killer : ThreadId " << ThreadId << " sts " << sts
+             << " errno " << errno << endl ;
         return false ;
       }
       else {
-        MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId << " pthread_canceled") ;
+        cout << pthread_self() << "Killer : ThreadId " << ThreadId << " pthread_canceled" << endl ;
       }
     }
     else {
@@ -298,16 +301,21 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum ) {
       }
     }
   }
+  else {
+    return false ;
+  }
   return true ;
 }
 
 bool Engines_Component_i::Kill_impl() {
-  MESSAGE( "Engines_Component_i::Kill_impl() pthread_t "<< pthread_self()
-           << " _ThreadId " << _ThreadId << endl ) ;
+  cout << "Engines_Component_i::Kill_impl() pthread_t "<< pthread_self()
+           << " _ThreadId " << _ThreadId << " errno " << errno << endl ;
   bool RetVal = false ;
-  if ( _ThreadId > 0 && pthread_self() != _ThreadId ) {
-    RetVal = Killer( _ThreadId , 0 ) ;
-    _ThreadId = (pthread_t ) -1 ;
+  if ( _ThreadId > 0 ) {
+    if ( pthread_self() != _ThreadId ) { // Do not kill myself ...
+      RetVal = Killer( _ThreadId , 0 ) ;
+    }
+    _ThreadId = 0 ;
   }
   return RetVal ;
 }
@@ -316,9 +324,11 @@ bool Engines_Component_i::Stop_impl() {
   MESSAGE( "Engines_Component_i::Stop_impl() pthread_t "<< pthread_self()
            << " _ThreadId " << _ThreadId << endl ) ;
   bool RetVal = false ;
-  if ( _ThreadId > 0 && pthread_self() != _ThreadId ) {
-    RetVal = Killer( _ThreadId , 0 ) ;
-    _ThreadId = (pthread_t ) -1 ;
+  if ( _ThreadId > 0 ) {
+    if ( pthread_self() != _ThreadId ) { // Do not kill myself ...
+      RetVal = Killer( _ThreadId , 0 ) ;
+    }
+    _ThreadId = 0 ;
   }
   return RetVal ;
 }
