@@ -7,6 +7,7 @@ using namespace std;
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
+#include "SALOMEDSImpl_Study.hxx"
 #include "utilities.h"
 
 //============================================================================
@@ -86,9 +87,8 @@ void SALOMEDS_ChildIterator_i::Next()
 SALOMEDS::SObject_ptr SALOMEDS_ChildIterator_i::Value()
 {
   SALOMEDS::Locker lock;
-  Handle(SALOMEDSImpl_SObject) aSO = new SALOMEDSImpl_SObject(_it.Value());
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSO, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this());
-  return so;
+  Handle(SALOMEDSImpl_SObject) aSO = SALOMEDSImpl_Study::GetStudy(_it.Value())->GetSObject(_it.Value());
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
+  return so._retn();
 }
 

@@ -22,7 +22,7 @@ public:
   SALOMEDS_Driver_i(SALOMEDS::Driver_ptr theDriver, CORBA::ORB_ptr theORB) 
     {
       _driver = SALOMEDS::Driver::_duplicate(theDriver);
-      _orb = CORBA::ORB::_duplicate(theORB);  
+      _orb = CORBA::ORB::_duplicate(theORB);        
     }
 
   virtual TCollection_AsciiString GetIOR() 

@@ -29,10 +29,12 @@ class SALOMEDS_Study_i: public POA_SALOMEDS::Study,
 			public PortableServer::RefCountServantBase 
 {
 private:
-  CORBA::ORB_ptr             _orb;
-  Handle(SALOMEDSImpl_Study) _impl;  
-  SALOMEDS_StudyBuilder_i*   _Builder;    
-  SALOMEDS_UseCaseBuilder_i* _UseCaseBuilder;
+  CORBA::ORB_ptr                 _orb;
+  Handle(SALOMEDSImpl_Study)     _impl;  
+  SALOMEDS_StudyBuilder_i*       _builder;    
+  SALOMEDS_UseCaseBuilder_i*     _useCaseBuilder;
+  SALOMEDS_SComponentIterator_i* _it;
+
 public:
 
   //! standard constructor

@@ -38,8 +38,10 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(const Handle(SALOMEDSImpl_Study) theImpl,
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl;
-  _UseCaseBuilder = new SALOMEDS_UseCaseBuilder_i(_impl->GetUseCaseBuilder(), _orb);
-  _Builder = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);
+
+  _useCaseBuilder = new SALOMEDS_UseCaseBuilder_i(_impl->GetUseCaseBuilder(), _orb);
+  _builder = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);  
+  _it = new SALOMEDS_SComponentIterator_i(_impl->NewComponentIterator(), _orb);
 }
   
 //============================================================================
@@ -95,9 +97,8 @@ SALOMEDS::SComponent_ptr SALOMEDS_Study_i::FindComponent (const char* aComponent
   Handle(SALOMEDSImpl_SComponent) aCompImpl = _impl->FindComponent(TCollection_AsciiString((char*)aComponentName));
   if(aCompImpl.IsNull()) return SALOMEDS::SComponent::_nil();
 
-  SALOMEDS_SComponent_i *  so_servant = new SALOMEDS_SComponent_i (aCompImpl, _orb);
-  SALOMEDS::SComponent_var compo = SALOMEDS::SComponent::_narrow(so_servant->SComponent::_this()); 
-  return compo._retn();
+  SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (aCompImpl, _orb);
+  return sco._retn();
 }
 
 //============================================================================
@@ -112,9 +113,8 @@ SALOMEDS::SComponent_ptr SALOMEDS_Study_i::FindComponentID(const char* aComponen
   Handle(SALOMEDSImpl_SComponent) aCompImpl = _impl->FindComponentID(TCollection_AsciiString((char*)aComponentID));
   if(aCompImpl.IsNull()) return SALOMEDS::SComponent::_nil();
 
-  SALOMEDS_SComponent_i *  so_servant = new SALOMEDS_SComponent_i (aCompImpl, _orb);
-  SALOMEDS::SComponent_var compo = SALOMEDS::SComponent::_narrow(so_servant->SComponent::_this()); 
-  return compo._retn();
+  SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (aCompImpl, _orb);
+  return sco._retn();
 }
 
 //============================================================================
@@ -131,13 +131,11 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObject(const char* anObjectName)
 
   if(aSO->DynamicType() == STANDARD_TYPE(SALOMEDSImpl_SComponent)) {
     Handle(SALOMEDSImpl_SComponent) aSCO = Handle(SALOMEDSImpl_SComponent)::DownCast(aSO);
-    SALOMEDS_SComponent_i *  sco_servant = new SALOMEDS_SComponent_i (aSCO, _orb);
-    SALOMEDS::SComponent_var sco = SALOMEDS::SComponent::_narrow(sco_servant->SComponent::_this()); 
+    SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (aSCO, _orb);
     return sco._retn();
   }
    
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSO, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
  
  return so._retn();
 }
@@ -153,8 +151,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectID(const char* anObjectID)
 
   Handle(SALOMEDSImpl_SObject) aSO = _impl->FindObjectID(TCollection_AsciiString((char*)anObjectID));
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSO, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }
 
@@ -170,8 +167,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::CreateObjectID(const char* anObjectID)
   Handle(SALOMEDSImpl_SObject) aSO = _impl->CreateObjectID((char*)anObjectID);
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
 
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSO, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }
 
@@ -193,8 +189,7 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindObjectByName( const char* 
   listSO->length(aLength);
   for(int i = 1; i<=aLength; i++) {
     Handle(SALOMEDSImpl_SObject) aSO = Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i));
-    SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSO, _orb);
-    SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this());
+    SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
     listSO[i-1] = so ;
   }
   return listSO._retn() ;
@@ -212,8 +207,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectIOR(const char* anObjectIOR)
   Handle(SALOMEDSImpl_SObject) aSO = _impl->FindObjectIOR(TCollection_AsciiString((char*)anObjectIOR));
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
 
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSO, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }
 
@@ -229,8 +223,7 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::FindObjectByPath(const char* thePath)
   Handle(SALOMEDSImpl_SObject) aSO = _impl->FindObjectByPath(TCollection_AsciiString((char*)thePath));
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
 
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSO, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }
 
@@ -388,11 +381,8 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
 SALOMEDS::SComponentIterator_ptr SALOMEDS_Study_i::NewComponentIterator()
 {
   SALOMEDS::Locker lock; 
-
-  SALOMEDSImpl_SComponentIterator aCI = _impl->NewComponentIterator();
-  SALOMEDS_SComponentIterator_i* it_servant = new SALOMEDS_SComponentIterator_i(aCI, _orb);
-  SALOMEDS::SComponentIterator_var it = SALOMEDS::SComponentIterator::_narrow(it_servant->_this()); 
-  return it;
+  _it->Init();
+  return _it->_this();
 }
 
 
@@ -404,7 +394,7 @@ SALOMEDS::SComponentIterator_ptr SALOMEDS_Study_i::NewComponentIterator()
 SALOMEDS::StudyBuilder_ptr SALOMEDS_Study_i::NewBuilder()
 {
   SALOMEDS::Locker lock; 
-  return _Builder->_this();
+  return _builder->_this();
 }
  
 //============================================================================
@@ -580,7 +570,7 @@ SALOMEDS::ListOfDates* SALOMEDS_Study_i::GetModificationsDate()
 SALOMEDS::UseCaseBuilder_ptr SALOMEDS_Study_i::GetUseCaseBuilder() 
 {
   SALOMEDS::Locker lock; 
-  return _UseCaseBuilder->_this();
+  return _useCaseBuilder->_this();
 }
 
 

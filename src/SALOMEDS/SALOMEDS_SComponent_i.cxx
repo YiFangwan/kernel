@@ -6,7 +6,26 @@ using namespace std;
 #include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS.hxx"
 #include "utilities.h"
+#include <map>
 
+SALOMEDS::SComponent_ptr SALOMEDS_SComponent_i::New(const Handle(SALOMEDSImpl_SComponent)& theImpl, CORBA::ORB_ptr theORB)
+{
+  static std::map<SALOMEDSImpl_SComponent*, SALOMEDS_SComponent_i*> _mapOfSCO;
+  SALOMEDS::SComponent_var sco;
+  SALOMEDS_SComponent_i* sco_servant = NULL;
+
+  if(_mapOfSCO.find(theImpl.operator->()) != _mapOfSCO.end()) {
+    sco_servant = _mapOfSCO[theImpl.operator->()];
+  }
+  else {
+    sco_servant = new SALOMEDS_SComponent_i(theImpl, theORB);
+    _mapOfSCO[theImpl.operator->()] = sco_servant;
+  }
+
+  sco  = SALOMEDS::SComponent::_narrow(sco_servant->SComponent::_this()); 
+
+  return sco._retn();
+}    
 
 //============================================================================
 /*! Function : constructor

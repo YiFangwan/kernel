@@ -74,8 +74,7 @@ SALOMEDS::SObject_ptr SALOMEDS_UseCaseIterator_i::Value()
 {
   SALOMEDS::Locker lock;
   Handle(SALOMEDSImpl_SObject) aSO = _impl->Value();
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSO, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this());
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }
 

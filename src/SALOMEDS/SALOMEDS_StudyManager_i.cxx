@@ -164,7 +164,9 @@ void SALOMEDS_StudyManager_i::Close(SALOMEDS::Study_ptr aStudy)
     _name_service->Destroy_Name(aString.in());
   }    
 
+  SALOMEDS::unlock();
   aStudy->Close();
+  SALOMEDS::lock();
 }
 
 //============================================================================
@@ -393,16 +395,13 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
     throw SALOMEDS::StudyBuilder::LockProtection();
   }
 
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aNewSO, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aNewSO, _orb);
   return so._retn();
 }
 
 
 SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb)
 {
-  SALOMEDS::Locker lock;
-
   SALOMEDS_Driver_i* driver = NULL;
   
   Handle(SALOMEDSImpl_SComponent) aSCO = theObject->GetFatherComponent();

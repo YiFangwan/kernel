@@ -70,8 +70,7 @@ void SALOMEDS_SComponentIterator_i::Next()
 SALOMEDS::SComponent_ptr SALOMEDS_SComponentIterator_i::Value()
 {
   SALOMEDS::Locker lock; 
-  SALOMEDS_SComponent_i *  so_servant = new SALOMEDS_SComponent_i (_impl.Value(), _orb);
-  SALOMEDS::SComponent_var so  = SALOMEDS::SComponent::_narrow(so_servant->SComponent::_this());
-  return so;
+  SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (_impl.Value(), _orb);
+  return sco._retn();
 }
 

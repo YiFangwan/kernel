@@ -18,6 +18,27 @@ using namespace std;
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <TColStd_HSequenceOfTransient.hxx>
+#include <map>
+
+SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const Handle(SALOMEDSImpl_SObject)& theImpl, CORBA::ORB_ptr theORB)
+{
+  static std::map<SALOMEDSImpl_SObject*, SALOMEDS_SObject_i*> _mapOfSO;
+  SALOMEDS::SObject_var so;
+  SALOMEDS_SObject_i* so_servant = NULL;
+
+  if(_mapOfSO.find(theImpl.operator->()) != _mapOfSO.end()) {
+    so_servant = _mapOfSO[theImpl.operator->()];
+  }
+  else {
+    so_servant = new SALOMEDS_SObject_i(theImpl, theORB);
+    _mapOfSO[theImpl.operator->()] = so_servant;
+  }
+
+  so  = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+
+  return so._retn();
+}     
+
 
 //============================================================================
 /*! Function : constructor
@@ -59,9 +80,8 @@ char* SALOMEDS_SObject_i::GetID()
 SALOMEDS::SComponent_ptr SALOMEDS_SObject_i::GetFatherComponent()
 {
   SALOMEDS::Locker lock;
-  SALOMEDS_SComponent_i *  so_servant = new SALOMEDS_SComponent_i (_impl->GetFatherComponent(), _orb);
-  SALOMEDS::SComponent_var so = SALOMEDS::SComponent::_narrow(so_servant->SComponent::_this()); 
-  return so;
+  SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (_impl->GetFatherComponent(), _orb);
+  return sco._retn();
 }
   
 //============================================================================
@@ -72,9 +92,8 @@ SALOMEDS::SComponent_ptr SALOMEDS_SObject_i::GetFatherComponent()
 SALOMEDS::SObject_ptr SALOMEDS_SObject_i::GetFather()
 {
   SALOMEDS::Locker lock;
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (_impl->GetFather(), _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
-  return so;
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (_impl->GetFather(), _orb);
+  return so._retn();
 }
 
 //============================================================================
@@ -156,8 +175,7 @@ CORBA::Boolean SALOMEDS_SObject_i::ReferencedObject(SALOMEDS::SObject_out obj)
   Handle(SALOMEDSImpl_SObject) aRefObj;
   if(!_impl->ReferencedObject(aRefObj)) return false;
 
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aRefObj, _orb);
-  obj  = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  obj = SALOMEDS_SObject_i::New (aRefObj, _orb);
   return true;
 }
 
@@ -172,8 +190,7 @@ CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(long atag, SALOMEDS::SObject_ou
   Handle(SALOMEDSImpl_SObject) aSubObj;
   if(!_impl->FindSubObject(atag, aSubObj)) return false;
 
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSubObj, _orb);
-  obj  = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  obj = SALOMEDS_SObject_i::New (aSubObj, _orb);
   return true;
     
 }  

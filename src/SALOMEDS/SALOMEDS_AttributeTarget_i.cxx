@@ -6,6 +6,7 @@
 using namespace std;
 #include "SALOMEDS_AttributeTarget_i.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
+#include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDS.hxx"
 
 #include <TDF_LabelList.hxx>
@@ -31,8 +32,8 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_AttributeTarget_i::Get()
   TDF_ListIteratorOfLabelList anIter(aLList);
   int index;
   for(index=0;anIter.More();anIter.Next(),index++) {
-    SALOMEDS_SObject_i* anSO = new SALOMEDS_SObject_i(new SALOMEDSImpl_SObject(anIter.Value()), _orb);
-    aSList[index] = anSO->_this();
+    SALOMEDS::SObject_var anSO = SALOMEDS_SObject_i::New(SALOMEDSImpl_Study::GetStudy(anIter.Value())->GetSObject(anIter.Value()), _orb);
+    aSList[index] = anSO;
   }
   return aSList._retn();
 }

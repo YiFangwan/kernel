@@ -144,8 +144,7 @@ SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::GetCurrentObject()
   
   if(_impl.IsNull()) return NULL;
   Handle(SALOMEDSImpl_SObject) aSO = _impl->GetCurrentObject();
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSO, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }
 
@@ -184,8 +183,7 @@ SALOMEDS::SObject_ptr SALOMEDS_UseCaseBuilder_i::AddUseCase(const char* theName)
   
   if(_impl.IsNull()) return SALOMEDS::SObject::_nil();
   Handle(SALOMEDSImpl_SObject) aSO = _impl->AddUseCase((char*)theName);
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSO, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
   return so._retn();
 }
 

@@ -59,9 +59,8 @@ SALOMEDS::SComponent_ptr SALOMEDS_StudyBuilder_i::NewComponent(const char* DataT
   //CORBA::free_string(aDataType);
   if(aSCO.IsNull()) return SALOMEDS::SComponent::_nil();
 
-  SALOMEDS_SComponent_i *  so_servant = new SALOMEDS_SComponent_i (aSCO,_orb);
-  SALOMEDS::SComponent_var so= SALOMEDS::SComponent::_narrow(so_servant->SComponent::_this()); 
-  return so;
+  SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (aSCO,_orb);
+  return sco._retn();
 }
 
 //============================================================================
@@ -110,10 +109,9 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyBuilder_i::NewObject(SALOMEDS::SObject_ptr t
   aFO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)theFatherObject->GetID());
   aSO = _impl->NewObject(aFO);
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSO,_orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO,_orb);
 
-  return so;
+  return so._retn();
 }
 
 //============================================================================
@@ -130,9 +128,8 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyBuilder_i::NewObjectToTag(SALOMEDS::SObject_
   aFO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)theFatherObject->GetID());
   aSO = _impl->NewObjectToTag(aFO, atag);
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (aSO, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
-  return so;
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (aSO, _orb);
+  return so._retn();
 }
 
 //============================================================================

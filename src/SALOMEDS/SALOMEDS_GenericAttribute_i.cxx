@@ -8,8 +8,10 @@ using namespace std;
 #include "SALOMEDS_Attributes.hxx"
 #include "SALOMEDS.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
+#include "SALOMEDSImpl_Study.hxx"
 #include "Utils_ExceptHandlers.hxx"
 #include <TCollection_AsciiString.hxx>
+#include <map>
 
 UNEXPECT_CATCH(GALockProtection, SALOMEDS::GenericAttribute::LockProtection);
 
@@ -38,9 +40,8 @@ SALOMEDS::SObject_ptr SALOMEDS_GenericAttribute_i::GetSObject()
 {
   SALOMEDS::Locker lock;
   if (_impl.IsNull() || _impl->Label().IsNull()) return SALOMEDS::SObject::_nil();
-  Handle(SALOMEDSImpl_SObject) so_impl = new SALOMEDSImpl_SObject(_impl->Label());
-  SALOMEDS_SObject_i *  so_servant = new SALOMEDS_SObject_i (so_impl, _orb);
-  SALOMEDS::SObject_var so = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  Handle(SALOMEDSImpl_SObject) so_impl = SALOMEDSImpl_Study::GetStudy(_impl->Label())->GetSObject(_impl->Label());
+  SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (so_impl, _orb);
   return so._retn();
 }
 
@@ -60,8 +61,20 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute(cons
 									    CORBA::ORB_ptr theOrb) 
 {
   SALOMEDS::Locker lock;
-  char* aTypeOfAttribute = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(theAttr)->GetClassType().ToCString();
+  
+  static std::map<TDF_Attribute*, SALOMEDS_GenericAttribute_i*> _mapOfAttrib;
   SALOMEDS::GenericAttribute_var anAttribute;
-  __CreateGenericCORBAAttribute
+  SALOMEDS_GenericAttribute_i* attr_servant = NULL;
+
+  if(_mapOfAttrib.find(theAttr.operator->()) != _mapOfAttrib.end()) {
+    attr_servant = _mapOfAttrib[theAttr.operator->()];
+    anAttribute = SALOMEDS::GenericAttribute::_narrow(attr_servant->_this());
+  }
+  else {
+    char* aTypeOfAttribute = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(theAttr)->GetClassType().ToCString();
+    __CreateGenericCORBAAttribute
+    _mapOfAttrib[theAttr.operator->()] = attr_servant;
+  }
+
   return anAttribute._retn(); 
 }                                                                                                                    

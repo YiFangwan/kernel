@@ -22,6 +22,8 @@ protected:
   Handle(SALOMEDSImpl_SObject)  _impl;
 
 public:
+
+  static SALOMEDS::SObject_ptr New(const Handle(SALOMEDSImpl_SObject)&, CORBA::ORB_ptr); 
   
   SALOMEDS_SObject_i(const Handle(SALOMEDSImpl_SObject)&, CORBA::ORB_ptr);
   
