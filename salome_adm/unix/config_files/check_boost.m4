@@ -43,7 +43,6 @@ else
   AC_CHECK_HEADER(boost/shared_ptr.hpp,boost_ok=yes,boost_ok=no)
 
   CPPFLAGS="${CPPFLAGS_old}"
-  boost_ok=yes
 fi
 
 AC_LANG_RESTORE
