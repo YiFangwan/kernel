@@ -50,7 +50,7 @@ using namespace std;
 
 
 #ifdef _DEBUG_
-static int MYDEBUG = 1;
+static int MYDEBUG = 0;
 #else
 static int MYDEBUG = 0;
 #endif
@@ -123,22 +123,23 @@ public:
 
 protected:
   virtual void run(){
+    QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::SET_WAIT_CURSOR));
+    int anId = QAD_PyEditor::PYTHON_OK;
     if(myCommand != ""){
       ThreadLock anEditorLock(myMutex,"TExecCommandThread::anEditorLock");
       //ThreadLock aStudyLock(myStudyMutex,"TExecCommandThread::aStudyLock");
       ThreadLock aPyLock = GetPyThreadLock("TExecCommandThread::aPyLock");
       int ret = myInterp->run( myCommand.latin1() );
       if(MYDEBUG) MESSAGE("TExecCommand::run() - myInterp = "<<myInterp<<"; myCommand = '"<<myCommand.latin1()<<"' - "<<ret);
-      int anId = QAD_PyEditor::PYTHON_OK;
       if(ret < 0)
 	anId = QAD_PyEditor::PYTHON_ERROR;
       if(ret > 0)
 	anId = QAD_PyEditor::PYTHON_INCOMPLETE;
       myListener->myError = myInterp->getverr().c_str();
       myListener->myOutput = myInterp->getvout().c_str();
-      QThread::postEvent(myListener, new QCustomEvent(anId));
-      QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::UNSET_CURSOR));
     }
+    QThread::postEvent(myListener, new QCustomEvent(anId));
+    QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::UNSET_CURSOR));
   }
 
 private:
