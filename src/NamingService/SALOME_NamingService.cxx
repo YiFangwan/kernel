@@ -1311,3 +1311,7 @@ SALOME_NamingService::_current_directory(char** result_path,
   _current_context = _ref_context ; 
 }
 //----------------------------------------------------------------------
+
+char * SALOME_NamingService::getIORaddr(){
+   return _orb->object_to_string(_root_context);
+}

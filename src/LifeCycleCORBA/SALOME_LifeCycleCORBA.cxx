@@ -33,6 +33,7 @@
 
 #include "OpUtil.hxx"
 #include "utilities.h"
+#include "Launchers.hxx"
 
 #include <ServiceUnreachable.hxx>
 
@@ -139,117 +140,52 @@ Engines::Container_var SALOME_LifeCycleCORBA::FindOrStartContainer(
                                               const string aComputerContainer ,
                                               const string theComputer ,
                                               const string theContainer ) {
-  Engines::Container_var aContainer = FindContainer( aComputerContainer.c_str() ) ;
-  Engines::Container_var aFactoryServer ;
   SCRUTE( aComputerContainer ) ;
   SCRUTE( theComputer ) ;
   SCRUTE( theContainer ) ;
+
+  Engines::Container_var aContainer = FindContainer( aComputerContainer.c_str() ) ;
+
+  if ( !CORBA::is_nil( aContainer ) ) {
+    return aContainer ;
+  }
+
+  Engines::Container_var aFactoryServer ;
+
   bool pyCont = false ;
   int len = theContainer.length() ;
   if ( !strcmp( &theContainer.c_str()[len-2] , "Py" ) ) {
     pyCont = true ;
   }
-  if ( !CORBA::is_nil( aContainer ) ) {
-    return aContainer ;
+
+  string addr=_NS->getIORaddr();
+  string CMD="SALOME_Container";
+  if ( pyCont ) {
+    CMD="SALOME_ContainerPy.py";
   }
-  else {
-    string FactoryServer = theComputer ;
-    if ( pyCont ) {
-      FactoryServer += "/FactoryServerPy" ;
-    }
-    else {
-      FactoryServer += "/FactoryServer" ;
-    }
-    aFactoryServer = FindContainer( FactoryServer.c_str() ) ;
-    if ( CORBA::is_nil( aFactoryServer ) ) {
-// rsh -n ikkyo /export/home/rahuel/SALOME_ROOT/bin/runSession SALOME_Container -ORBInitRef NameService=corbaname::dm2s0017:1515 &
-      string rsh( "" ) ;
-      if ( theComputer!= GetHostname() ) {
-        rsh += "rsh -n " ;
-        rsh += theComputer ;
-        rsh += " " ;
-      }
-      string path = ComputerPath( theComputer.c_str() ) ;
-      SCRUTE( path ) ;
-      if ( path[0] != '\0' ) {
-        rsh += path ;
-        rsh += "/../bin/" ;
-      }
-      rsh += "runSession " ;
-      if ( pyCont ) {
-        rsh += "SALOME_ContainerPy.py " ;
-        rsh += "FactoryServerPy -" ;
-      }
-      else {
-        rsh += "SALOME_Container " ;
-        rsh += "FactoryServer -" ;
-      }
-      string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
-      ifstream omniORBfile( omniORBcfg.c_str() ) ;
-      char ORBInitRef[12] ;
-      char nameservice[132] ;
-      omniORBfile >> ORBInitRef ;
-      rsh += ORBInitRef ;
-      rsh += " " ;
-      omniORBfile >> nameservice ;
-      omniORBfile.close() ;
-      char * bsn = strchr( nameservice , '\n' ) ;
-      if ( bsn ) {
-        bsn[ 0 ] = '\0' ;
-      }
-      rsh += nameservice ;
-      if ( pyCont ) {
-        rsh += " > /tmp/FactoryServerPy_" ;
-      }
-      else {
-        rsh += " > /tmp/FactoryServer_" ;
-      }
-      rsh += theComputer ;
-      rsh += ".log 2>&1 &" ;
-      SCRUTE( rsh );
-      int status = system( rsh.c_str() ) ;
-      if (status == -1) {
-        MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed (system command status -1)") ;
-      }
-      else if (status == 217) {
-        MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed (system command status 217)") ;
-      }
-      else {
-        int count = 21 ;
-        while ( CORBA::is_nil( aFactoryServer ) && count ) {
-          sleep( 1 ) ;
-          count-- ;
-          if ( count != 10 )
+  CMD=CMD + " " + theContainer;
+  CMD=CMD + " -ORBInitRef NameService="+addr;
+
+  /*
+   *  Get the appropriate launcher and ask to launch
+   */
+  PyObject * launcher=getLauncher((char *)theComputer.c_str());
+  Launcher_Slaunch(launcher,(char *)theComputer.c_str(),(char *)CMD.c_str());
+  /*
+   *  Wait until the container is registered in Naming Service
+   */
+  int count = 5 ;
+  while ( CORBA::is_nil( aFactoryServer ) && count ) {
+      sleep( 1 ) ;
+      count-- ;
+      if ( count != 10 )
             MESSAGE( count << ". Waiting for FactoryServer on " << theComputer)
-          aFactoryServer = FindContainer( FactoryServer.c_str() ) ;
-	}
-        if ( CORBA::is_nil( aFactoryServer ) ) {
-          MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed") ;
-	}
-        else if ( strcmp( theComputer.c_str() , GetHostname().c_str() ) ) {
-          _FactoryServer = aFactoryServer ;
-	}
-      }
-    }
-    if ( !CORBA::is_nil( aFactoryServer ) ) {
-      if ( strcmp( theContainer.c_str() , "FactoryServer" ) ||
-           strcmp( theContainer.c_str() , "FactoryServerPy" ) ) {
-        MESSAGE("Container not found ! trying to start " << aComputerContainer);
-        Engines::Container_var myContainer = aFactoryServer->start_impl( theContainer.c_str() ) ;
-        if ( !CORBA::is_nil( myContainer ) ) {
-          MESSAGE("Container " << aComputerContainer << " started");
-          return myContainer ;
-        }
-        else {
-          MESSAGE("Container " << aComputerContainer << " NOT started");
-        }
-      }
-      else {
-        MESSAGE("Container " << aComputerContainer << " started");
-        return aFactoryServer ;
-      }
-    }
+      aFactoryServer = FindContainer( aComputerContainer.c_str() ) ;
   }
+  if ( !CORBA::is_nil( aFactoryServer ) ) {
+     return aFactoryServer;
+  }
+  MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed") ;
   return Engines::Container::_nil();
 }
 

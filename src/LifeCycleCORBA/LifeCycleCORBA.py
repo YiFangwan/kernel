@@ -175,6 +175,8 @@ class LifeCycleCORBA:
     def FindOrStartContainer(self, theComputer , theContainer ):
         """Find or Start a container on theComputer machine with theContainer name
 	"""
+        if theComputer in ("","localhost"):
+           theComputer=getShortHostName()
         MESSAGE( "FindOrStartContainer: " + theComputer + theContainer )
         aContainer = self.FindContainer( theComputer + "/" + theContainer )
         if aContainer is None :
