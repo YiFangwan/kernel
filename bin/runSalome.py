@@ -466,8 +466,6 @@ def startSalome(args, modules_list, modules_root_dir):
     # attente de la disponibilité du Catalog Server dans le Naming Service
     #
     
-    print "LAUNCHING Modeule Catalog ......."
-    
 
     if 'moduleCatalog' not in args['embedded']:
         cataServer=CatalogServer(args)
@@ -507,13 +505,9 @@ def startSalome(args, modules_list, modules_root_dir):
     # Lancement Session Server
     #
 
-    print "LAUNCHING Session Server ......."
-
     mySessionServ = SessionServer(args)
     mySessionServ.setpath(modules_list,modules_root_dir)
     mySessionServ.run()
-
-    print "LAUNCHING Session Server ....... end"
 
     #macomm2=['ddd']
     #pid = os.spawnvp(os.P_NOWAIT, macomm2[0], macomm2)
@@ -539,10 +533,10 @@ def startSalome(args, modules_list, modules_root_dir):
     # attente de la disponibilité du Container C++ local dans le Naming Service
     #
 
-##    if 'cppContainer' in args['standalone']:
-##        myServer=ContainerCPPServer(args)
-##        myServer.run()
-##        clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
+    if 'cppContainer' in args['standalone']:
+        myServer=ContainerCPPServer(args)
+        myServer.run()
+        clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
 
     #
     # Lancement Container Python local,
@@ -550,10 +544,10 @@ def startSalome(args, modules_list, modules_root_dir):
     # dans le Naming Service
     #
 
-##    if 'pyContainer' in args['standalone']:
-##        myServer=ContainerPYServer(args)
-##        myServer.run()
-##        clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
+    if 'pyContainer' in args['standalone']:
+        myServer=ContainerPYServer(args)
+        myServer.run()
+        clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
 
     #
     # Lancement Container Supervision local,
@@ -561,10 +555,10 @@ def startSalome(args, modules_list, modules_root_dir):
     # dans le Naming Service
     #
 
-##    if 'supervContainer' in args['standalone']:
-##        myServer=ContainerSUPERVServer(args)
-##        myServer.run()
-##        clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
+    if 'supervContainer' in args['standalone']:
+        myServer=ContainerSUPERVServer(args)
+        myServer.run()
+        clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
 
     end_time = os.times()
     print
