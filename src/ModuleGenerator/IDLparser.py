@@ -288,7 +288,8 @@ class Service(Tree):
 
     def createDataStreamParameter(self, p):
         L = self.getChild('DataStream-list')
-        p = dataStreamParameter(p[0], p[1], p[2], p[3])
+        print p
+        p = dataStreamParameter(p[0], p[2], p[1], p[3])
         L.replaceChild(p)
         return p
     
@@ -675,13 +676,13 @@ def run(tree, args):
         print "Creating ",CatalogFileName
         C = Catalog()
 
-##    C.Dump()
-    
     print "Reading idl file"
     
     visitor = ModuleCatalogVisitor(C)
     tree.accept(visitor)
 
+    C.Dump()
+    
     if remove_comp :
         C.removeComponent(remove_comp)
     
