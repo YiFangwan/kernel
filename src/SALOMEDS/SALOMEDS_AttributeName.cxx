@@ -9,9 +9,7 @@
 
 SALOMEDS_AttributeName::SALOMEDS_AttributeName(const Handle(SALOMEDSImpl_AttributeName)& theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
-{
-    cout <<"Creation of NAME attr : local" << endl;
-}
+{}
 
 SALOMEDS_AttributeName::SALOMEDS_AttributeName(SALOMEDS::AttributeName_ptr theAttr)
 :SALOMEDS_GenericAttribute(theAttr)
