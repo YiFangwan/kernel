@@ -204,13 +204,13 @@ while i < len( Containers ) :
     i = i + 1
 
 aContainer = MyContainersMgr.FindContainer( DefaultParams )
-print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainers.type()
+print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
 
 aContainer = MyContainersMgr.FindContainer( 'FactoryServer' ) )
-print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainers.type()
+print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
 
 aContainer = MyContainersMgr.FindContainer( 'localhost/FactoryServer' ) )
-print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainers.type()
+print "Container running on",aContainer._get_machineName(),"with name",aContainer._get_name(),"and type",aContainer.type()
 
 DefaultParams.ContainerType = Engines.Cpp
 Containers = MyContainersMgr.FindContainers( DefaultParams )
@@ -292,11 +292,9 @@ lcc = LifeCycleCORBA( orb )
 
 
 lccMulComponent = lcc.FindOrLoadComponent( 'SuperVisionContainer' , "MulComponent" )
-
 print lccMulComponent.GetContainerRef()._get_name(),lccMulComponent._get_instanceName(),lccMulComponent._get_interfaceName()
 
 lccDivComponent = lcc.FindOrLoadComponent( 'DivComponentContainer' , "DivComponent" )
-
 print lccDivComponent.GetContainerRef()._get_name(),lccDivComponent._get_instanceName(),lccDivComponent._get_interfaceName()
 
 
@@ -308,7 +306,6 @@ lccAddComponent = lcc.FindOrLoadComponent( DefaultParams , "AddComponent" )
 print lccAddComponent.GetContainerRef()._get_name(),lccAddComponent._get_instanceName(),lccAddComponent._get_interfaceName()
 
 DefaultParams.ContainerName = 'SubComponentContainer'
-
 lccSubComponent = lcc.FindOrLoadComponent( DefaultParams , "SubComponent" )
 print lccSubComponent.GetContainerRef()._get_name(),lccSubComponent._get_instanceName(),lccSubComponent._get_interfaceName()
 
@@ -342,7 +339,6 @@ aComponent = lcc.FindComponent( DefaultParams , 'SubComponent' )
 print aComponent.GetContainerRef()._get_name(),aComponent._get_instanceName(),aComponent._get_interfaceName()
 
 lccMulComponent = lcc.FindOrLoadComponent( DefaultParams , "MulComponent" )
-
 print lccMulComponent.GetContainerRef()._get_name(),lccMulComponent._get_instanceName(),lccMulComponent._get_interfaceName()
 
 DefaultParams.HostName = 'bojolex'

@@ -80,7 +80,7 @@ class Manager_Impl : public POA_Resources::Manager ,
 
     virtual long SshAccess( const char * aComputerName ) ;
 
-    virtual long UserName( const char * aComputerName ) ;
+    virtual char * UserName( const char * aComputerName ) ;
 
     virtual Resources::ListOfComputers * AllComputers() ;
 

@@ -37,7 +37,7 @@
 		<parameters>
 			<fullname>xmen.saclay.opencascade.com</fullname>
 			<alias>xmen</alias>
-			<sshaccess>1</sshaccess>
+			<sshaccess>0</sshaccess>
 			<interactive>1</interactive>
 			<batch>1</batch>
 			<username></username>
@@ -73,10 +73,10 @@
 		<parameters>
 			<fullname>bojolex.saclay.opencascade.com</fullname>
 			<alias>bojolex</alias>
-			<sshaccess>0</sshaccess>
+			<sshaccess>1</sshaccess>
 			<interactive>1</interactive>
 			<batch>1</batch>
-			<username></username>
+			<username>jr</username>
 			<os>Linux</os>
 			<memory>400</memory>
 			<swap>400</swap>

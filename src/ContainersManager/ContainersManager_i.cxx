@@ -392,7 +392,7 @@ Engines::Container_ptr Manager_i::StartContainer( const Containers::MachineParam
       }
       if ( !CORBA::is_nil( _ResourcesComputer ) ) {
         string aUserName = _ResourcesManager->UserName( HostName ) ;
-        if ( strlen( aUserName ) ) {
+        if ( aUserName.length() ) {
           rsh += "-l " ;
           rsh += aUserName ;
           rsh += " " ;

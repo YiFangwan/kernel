@@ -94,35 +94,6 @@ long Manager_Impl::ping() {
   return 1 ;
 }
 
-Resources::Computer_ptr Manager_Impl::TestComputer() {
-#if 1
-  Resources::ComputerParameters * aComputerParameters = new Resources::ComputerParameters() ;
-  aComputerParameters->FullName = CORBA::string_dup( "FullName" ) ;
-  aComputerParameters->Alias = CORBA::string_dup( "Alias" ) ;
-  aComputerParameters->SshAccess = 1  ;
-  aComputerParameters->Interactive = 1  ;
-  aComputerParameters->Batch = 1  ;
-  aComputerParameters->UserName = CORBA::string_dup( "UserName" ) ;
-  aComputerParameters->Os = Containers::Linux ;
-  aComputerParameters->Memory = 100  ;
-  aComputerParameters->Swap = 200  ;
-  aComputerParameters->CpuClock = 300  ;
-  aComputerParameters->NbProc = 1  ;
-  aComputerParameters->NbNode = 1  ;
-  Resources::ComputerEnvironment * aComputerEnvironment = new Resources::ComputerEnvironment() ;
-  aComputerEnvironment->Path = CORBA::string_dup( "Path" ) ;
-  aComputerEnvironment->Ld_Library_Path = CORBA::string_dup( "Ld_Library_Path" ) ;
-  aComputerEnvironment->PythonPath = CORBA::string_dup( "PythonPath" ) ;
-  aComputerEnvironment->CasRoot = CORBA::string_dup( "CasRoot" ) ;
-  Computer_Impl * aComputer = new Computer_Impl( _Orb , _Poa ,
-                                                 aComputerParameters , aComputerEnvironment ) ;
-  PortableServer::ObjectId * id = aComputer->getId() ;
-  CORBA::Object_var obj = _Poa->id_to_reference( *id ) ;
-  Resources::Computer_var iobject = Resources::Computer::_narrow( obj ) ;
-  return Resources::Computer::_duplicate( iobject ) ;
-#endif
-}
-
 long Manager_Impl::SshAccess( const char * aComputerName ) {
   if ( !CORBA::is_nil( SearchComputer( aComputerName ) ) ) {
     return SearchComputer( aComputerName )->Parameters()->SshAccess ;
