@@ -226,8 +226,13 @@ obj = naming_service.Resolve('myStudyManager')
 myStudyManager = obj._narrow(SALOMEDS.StudyManager)
 
 # create new study
-myStudy = myStudyManager.NewStudy("Study1")
-
+aListOfOpenStudies = myStudyManager.GetOpenStudies();
+myStudy = None;
+if len(aListOfOpenStudies) == 0 :
+    myStudy = myStudyManager.NewStudy("Study1")
+else:
+    myStudy = aListOfOpenStudies[0]
+    
 myStudyName = myStudy._get_Name()
 
 myStudyId = myStudy._get_StudyId()

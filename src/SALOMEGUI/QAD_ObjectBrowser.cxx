@@ -73,6 +73,14 @@ using namespace std;
 #define UC_CLEAR_ID        1000014
 #define UC_SET_CURRENT_ID  1000016
 
+
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+#else
+static int MYDEBUG = 0;
+#endif
+
+
 /*!
   Small button which updates Object Browser's contents
 */
@@ -658,7 +666,7 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
 	myListViewMap[ RefSOEntry ].append( Item );
       }
       else {
-	MESSAGE("QAD_ObjectBrowser::Update : noname item: "<<CSO->GetID());
+	if(MYDEBUG) MESSAGE("QAD_ObjectBrowser::Update : noname item: "<<CSO->GetID());
       }
     } else {
       // getting Value
@@ -675,7 +683,7 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
 	myListViewMap[ CSOEntry ].append( Item );
       } 
       else {
-	MESSAGE("QAD_ObjectBrowser::Update : noname item: "<<CSO->GetID());
+	if(MYDEBUG) MESSAGE("QAD_ObjectBrowser::Update : noname item: "<<CSO->GetID());
       }
       // adding other attributes 
       if (Item) {
@@ -860,8 +868,8 @@ void QAD_ObjectBrowser::Update()
 	  QString msg;
 	  QAD_ResourceMgr* resMgr = QAD_Desktop::createResourceManager();
 	  if ( resMgr ) {
-	    MESSAGE ( " Component " << aName->Value() )
-	      MESSAGE ( " Icon " << aPixmap->GetPixMap() )
+	    if(MYDEBUG) MESSAGE ( " Component " << aName->Value() );
+	    if(MYDEBUG) MESSAGE ( " Icon " << aPixmap->GetPixMap() );
 	    if(resMgr->loadResources( QAD_Application::getDesktop()->getComponentName(QString(aName->Value())), msg )) {
 	      QPixmap icon ( resMgr->loadPixmap( QAD_Application::getDesktop()->getComponentName(QString(aName->Value())),
 						 tr(aPixmap->GetPixMap()) /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ));

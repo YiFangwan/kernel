@@ -69,13 +69,13 @@ SALOME_Session_i::SALOME_Session_i(int argc, char ** argv, CORBA::ORB_ptr orb, P
 Engines::Component_ptr SALOME_Session_i::GetVisuComponent()
 {
   MESSAGE("SALOME_Session_i::GetVisuGen");
-  typedef Engines::Component_ptr VisuGen(CORBA::ORB_ptr,
+  typedef Engines::Component_ptr TGetImpl(CORBA::ORB_ptr,
 					 PortableServer::POA_ptr,
 					 SALOME_NamingService*,QMutex*);
-  OSD_SharedLibrary  visuSharedLibrary("libVISUEngine.so");
-  if(visuSharedLibrary.DlOpen(OSD_RTLD_LAZY))
-    if(OSD_Function osdFun = visuSharedLibrary.DlSymb("GetVisuGen"))
-      return ((VisuGen (*)) osdFun)(_orb,_poa,_NS,_GUIMutex);
+  OSD_SharedLibrary  aSharedLibrary("libVISUEngineImpl.so");
+  if(aSharedLibrary.DlOpen(OSD_RTLD_LAZY))
+    if(OSD_Function anOSDFun = aSharedLibrary.DlSymb("GetImpl"))
+      return ((TGetImpl (*)) anOSDFun)(_orb,_poa,_NS,_GUIMutex);
   return Engines::Component::_nil();
 }
 
