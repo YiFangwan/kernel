@@ -188,7 +188,8 @@ namespace SALOMEDS{
     TAttrID2FunMap::const_iterator anEnd = __AttrID2FunMap__.end();
     for(; anIter != anEnd; anIter++){
       const TAttrID2FunMap::key_type& aKey = anIter->first;
-      const TAttrID2FunMap::data_type& aValue = anIter->second;
+      const TAttrID2FunMap::mapped_type& aValue = anIter->second;
+      //const TAttrID2FunMap::data_type& aValue = anIter->second;
       __GUID2AttrIDMap__[aValue.myGetGUID()] = aKey;
     };
 
@@ -223,7 +224,8 @@ namespace SALOMEDS{
   {
     TAttrID2FunMap::const_iterator anIter = __AttrID2FunMap__.find(theType);
     if(anIter != __AttrID2FunMap__.end()){
-      const TAttrID2FunMap::data_type& aValue = anIter->second;
+      const TAttrID2FunMap::mapped_type& aValue = anIter->second;
+      //const TAttrID2FunMap::data_type& aValue = anIter->second;
       return aValue.myGetGUID();
     }
     // create tree node GUID by name
@@ -567,7 +569,8 @@ SALOMEDS_SObject_i::_CreateGenAttribute(const Handle(TDF_Attribute)& theAttr,
   
   TAttrID2FunMap::const_iterator anIter = __AttrID2FunMap__.find(theType);
   if(anIter != __AttrID2FunMap__.end()){
-    const TAttrID2FunMap::data_type& aValue = anIter->second;
+    const TAttrID2FunMap::mapped_type& aValue = anIter->second;
+    //const TAttrID2FunMap::data_type& aValue = anIter->second;
     
     if(aValue.myIsCheckLockedStudy())
       _study->CheckLocked();
@@ -646,7 +649,8 @@ Handle(TDF_Attribute)
   Handle(TDF_Attribute) anAttr;
   TAttrID2FunMap::const_iterator anIter = __AttrID2FunMap__.find(theType);
   if(anIter != __AttrID2FunMap__.end()){
-    const TAttrID2FunMap::data_type& aValue = anIter->second;
+    const TAttrID2FunMap::mapped_type& aValue = anIter->second;
+    //const TAttrID2FunMap::data_type& aValue = anIter->second;
     
     if(aValue.myIsCheckLockedStudy())
       _study->CheckLocked();
