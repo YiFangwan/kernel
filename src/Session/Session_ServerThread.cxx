@@ -237,16 +237,13 @@ void Session_ServerThread::ActivateModuleCatalog(int argc,
 
       SALOME_ModuleCatalogImpl* Catalogue_i
 	= new SALOME_ModuleCatalogImpl(argc, argv);
-      MESSAGE("---");
+
       // Tell the POA that the objects are ready to accept requests.
 
       _root_poa->activate_object (Catalogue_i);
-      MESSAGE("---");
 
       CORBA::Object_ptr myCata = Catalogue_i->_this();
-      MESSAGE("---");
       _NS->Register(myCata ,"/Kernel/ModulCatalog");
-      MESSAGE("---");
     }
   catch(CORBA::SystemException&)
     {
@@ -293,7 +290,6 @@ void Session_ServerThread::ActivateSALOMEDS(int argc,
 
       PortableServer::ObjectId_var myStudyManager_iid
 	= _root_poa->activate_object(myStudyManager_i);
-
       myStudyManager_i->register_name("/myStudyManager");
     }
   catch(CORBA::SystemException&)
@@ -350,8 +346,7 @@ void Session_ServerThread::ActivateRegistry(int argc,
   Registry::Components_var varComponents;
   try
     {
-      //RegistryService *ptrRegistry = SINGLETON_<RegistryService>::Instance();
-      RegistryService *ptrRegistry = new RegistryService();
+      RegistryService *ptrRegistry = SINGLETON_<RegistryService>::Instance();
       ptrRegistry->SessionName( ptrSessionName );
       varComponents = ptrRegistry->_this();
       // The RegistryService must not already exist.
@@ -408,12 +403,10 @@ void Session_ServerThread::ActivateContainer(int argc,
 	  PortableServer::ImplicitActivationPolicy_var implicitActivation =
 	    _root_poa->create_implicit_activation_policy(
 				PortableServer::NO_IMPLICIT_ACTIVATION);
-	  MESSAGE("---");
 	  // default = NO_IMPLICIT_ACTIVATION
 	  PortableServer::ThreadPolicy_var threadPolicy =
 	    _root_poa->create_thread_policy(PortableServer::ORB_CTRL_MODEL);
 	  // default = ORB_CTRL_MODEL, other choice SINGLE_THREAD_MODEL
-	  MESSAGE("---");
       
 	  // create policy list
 	  CORBA::PolicyList policyList;
@@ -422,7 +415,6 @@ void Session_ServerThread::ActivateContainer(int argc,
 	    _duplicate(implicitActivation);
 	  policyList[1] = PortableServer::ThreadPolicy::
 	    _duplicate(threadPolicy);
-	  MESSAGE("---");
       
 	  PortableServer::POAManager_var nil_mgr
 	    = PortableServer::POAManager::_nil();
@@ -431,12 +423,10 @@ void Session_ServerThread::ActivateContainer(int argc,
 					      policyList);
 	  //with nil_mgr instead of pman,
 	  //a new POA manager is created with the new POA
-	  MESSAGE("---");
       
 	  // destroy policy objects
 	  implicitActivation->destroy();
 	  threadPolicy->destroy();
-	  MESSAGE("---");
 
 	  // obtain the factory poa manager
 	  PortableServer::POAManager_var pmanfac = factory_poa->the_POAManager();
@@ -444,7 +434,6 @@ void Session_ServerThread::ActivateContainer(int argc,
 	  MESSAGE("pmanfac->activate()");
 	}
       
-      MESSAGE("---");
       char *containerName = "";
       if (argc >1) 
 	{

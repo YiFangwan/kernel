@@ -197,7 +197,7 @@ void Session_ServerLauncher::ActivateAll()
 	}
       Session_ServerThread* aServerThread
 	= new Session_ServerThread(argc, argv, _orb,_root_poa,_GUIMutex);
-      _serverThreads.push_back(aServerThread);
+      _serverThreads.push_front(aServerThread);
 
       aServerThread->Init();
     }
@@ -209,8 +209,23 @@ void Session_ServerLauncher::ActivateAll()
   argv[0] = "Session";
   Session_ServerThread* aServerThread
     = new Session_ServerThread(argc, argv, _orb,_root_poa,_GUIMutex);
-  _serverThreads.push_back(aServerThread);
+  _serverThreads.push_front(aServerThread);
 
   aServerThread->Init();
 }
 
+//=============================================================================
+/*! 
+ *  Destruction des classes serveur dans l'ordre inverse de creation
+ */
+//=============================================================================
+
+void Session_ServerLauncher::KillAll()
+{
+  MESSAGE("Session_ServerLauncher::KillAll()");
+  list<Session_ServerThread*>::iterator itServ;
+  for (itServ = _serverThreads.begin(); itServ !=_serverThreads.end(); itServ++)
+    {
+      delete (*itServ);
+    }
+}

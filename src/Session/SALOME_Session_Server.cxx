@@ -222,6 +222,8 @@ int main(int argc, char **argv)
 	  MESSAGE (confMsg );
 	  QAD_CONFIG->createConfigFile(true);
 	}
+      orb->shutdown(0);
+      myServerLauncher->KillAll();
       aCatch.Deactivate();
     }
   catch (SALOME_Exception& e)
@@ -249,5 +251,6 @@ int main(int argc, char **argv)
     {
       INFOS("Caught unknown exception.");
     }
+  MESSAGE("End of SALOME_Session_Server");
   return 0 ;
 }

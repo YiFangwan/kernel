@@ -65,14 +65,13 @@ public:
 			 QWaitCondition *ServerLaunch);
   virtual ~Session_ServerLauncher();
   void run();
+  void KillAll();
+
 protected:
-
   void CheckArgs();
-
   void ActivateAll();
 
 private:
-
   int _argc;
   char ** _argv;
   CORBA::ORB_var _orb;
