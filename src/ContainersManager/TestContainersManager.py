@@ -281,6 +281,11 @@ while i < len( ListOfComponents ) :
     print ListOfComponents[ i ].GetContainerRef()._get_name(),ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
     i = i + 1
 
+
+
+
+
+
 from LifeCycleCORBA import *
 orb = CORBA.ORB_init([''], CORBA.ORB_ID)
 lcc = LifeCycleCORBA( orb )
@@ -343,4 +348,8 @@ print lccMulComponent.GetContainerRef()._get_name(),lccMulComponent._get_instanc
 DefaultParams.HostName = 'bojolex'
 
 lccbojolexMulComponent = lcc.FindOrLoadComponent( DefaultParams , "MulComponent" )
+
+DefaultParams.HostName = 'toto'
+
+lcctotoMulComponent = lcc.FindOrLoadComponent( DefaultParams , "MulComponent" )
 

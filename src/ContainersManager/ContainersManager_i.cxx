@@ -376,84 +376,97 @@ Engines::Container_ptr Manager_i::StartContainer( const Containers::MachineParam
            << MyParams.NsHostName << " " << MyParams.NsPort << " " <<  _ListOfContainers->length()
            << " computers" ) ;
   _ResourcesComputer = _ResourcesManager->SearchComputer( MyParams.HostName ) ;
-  if ( CORBA::is_nil( _EnginesContainer ) && !CORBA::is_nil( _ResourcesComputer ) ) {
-    Resources::ComputerEnvironment * aComputerEnvironment = _ResourcesComputer->Environment() ;
+  if ( CORBA::is_nil( _EnginesContainer ) ) {
+    Resources::ComputerEnvironment * aComputerEnvironment = NULL ;
+    if ( !CORBA::is_nil( _ResourcesComputer ) ) {
+      aComputerEnvironment = _ResourcesComputer->Environment() ;
+    }
     string rsh( "" ) ;
     char * HostName = MyParams.HostName ;
     if ( strcmp( HostName , GetHostname().c_str() ) ) {
-      if ( _ResourcesManager->SshAccess( HostName ) ) {
+      if ( aComputerEnvironment == NULL || _ResourcesManager->SshAccess( HostName ) ) {
         rsh += "ssh " ;
       }
       else {
         rsh += "rsh -n " ;
       }
+      if ( !CORBA::is_nil( _ResourcesComputer ) ) {
+        string aUserName = _ResourcesManager->UserName( HostName ) ;
+        if ( strlen( aUserName ) ) {
+          rsh += "-l " ;
+          rsh += aUserName ;
+          rsh += " " ;
+	}
+      }
       rsh += MyParams.HostName ;
       rsh += " sh -c \"'" ;
-      int size = aComputerEnvironment->Module_Root_Dir_Names.length() ;
-      int i ;
-      bool GeomModule = false ;
-      for ( i = 0 ; i < size ; i++ ) {
-        if ( i > 0 ) {
+      if ( aComputerEnvironment != NULL ) {
+        int size = aComputerEnvironment->Module_Root_Dir_Names.length() ;
+        int i ;
+        bool GeomModule = false ;
+        for ( i = 0 ; i < size ; i++ ) {
+          if ( i > 0 ) {
+            rsh += " ; " ;
+          }
+          rsh += aComputerEnvironment->Module_Root_Dir_Names[ i ] ;
+          if ( strcmp( aComputerEnvironment->Module_Root_Dir_Names[ i ] , "GEOM_ROOT_DIR" ) == 0 ) {
+            GeomModule = true ;
+          }
+          rsh += "=" ;
+          rsh += aComputerEnvironment->Module_Root_Dir_Values[ i ] ;
+          rsh += " ; export " ;
+          rsh += aComputerEnvironment->Module_Root_Dir_Names[ i ] ;
+        }
+        if ( size > 0 ) {
           rsh += " ; " ;
         }
-        rsh += aComputerEnvironment->Module_Root_Dir_Names[ i ] ;
-        if ( strcmp( aComputerEnvironment->Module_Root_Dir_Names[ i ] , "GEOM_ROOT_DIR" ) == 0 ) {
-          GeomModule = true ;
+        rsh += "PATH=" ;
+        int j ;
+        string Path = (char * ) aComputerEnvironment->Path ;
+        for ( j = 0 ; j < Path.size() ; j++ ) {
+          if ( Path[ j ] == '$' ) {
+            rsh += "\\" ;
+  	  }
+          rsh += Path[ j ] ;
         }
-        rsh += "=" ;
-        rsh += aComputerEnvironment->Module_Root_Dir_Values[ i ] ;
-        rsh += " ; export " ;
-        rsh += aComputerEnvironment->Module_Root_Dir_Names[ i ] ;
-      }
-      if ( size > 0 ) {
+        rsh += " ; export PATH" ;
+        rsh += " ; LD_LIBRARY_PATH=" ;
+        string Ld_Library_Path = (char * ) aComputerEnvironment->Ld_Library_Path ;
+        for ( j = 0 ; j < Ld_Library_Path.size() ; j++ ) {
+          if ( Ld_Library_Path[ j ] == '$' ) {
+            rsh += "\\" ;
+  	  }
+          rsh += Ld_Library_Path[ j ] ;
+        }
+        rsh += " ; export LD_LIBRARY_PATH" ;
+        rsh += " ; PYTHONPATH=" ;
+        string PythonPath = (char * ) aComputerEnvironment->PythonPath ;
+        for ( j = 0 ; j < PythonPath.size() ; j++ ) {
+          if ( PythonPath[ j ] == '$' ) {
+            rsh += "\\" ;
+	  }
+          rsh += PythonPath[ j ] ;
+        }
+        rsh += " ; export PYTHONPATH" ;
+        rsh += " ; CASROOT=" ;
+        rsh += aComputerEnvironment->CasRoot ;
+        rsh += " ; export CASROOT" ;
+        rsh += " ; CSF_PluginDefaults=" ;
+        rsh += "\\" ;
+        rsh += "${KERNEL_ROOT_DIR}/share/salome/resources" ;
+        rsh += " ; export CSF_PluginDefaults" ;
+        rsh += " ; CSF_SALOMEDS_ResourcesDefaults=" ;
+        rsh += "\\" ;
+        rsh += "${KERNEL_ROOT_DIR}/share/salome/resources" ;
+        rsh += " ; export CSF_SALOMEDS_ResourcesDefaults" ;
+        if ( GeomModule ) {
+          rsh += " ; CSF_GEOMDS_ResourcesDefaults=" ;
+          rsh += "\\" ;
+          rsh += "${GEOM_ROOT_DIR}/share/salome/resources" ;
+          rsh += " ; export CSF_GEOMDS_ResourcesDefaults" ;
+        }
         rsh += " ; " ;
       }
-      rsh += "PATH=" ;
-      int j ;
-      string Path = (char * ) aComputerEnvironment->Path ;
-      for ( j = 0 ; j < Path.size() ; j++ ) {
-        if ( Path[ j ] == '$' ) {
-          rsh += "\\" ;
-	}
-        rsh += Path[ j ] ;
-      }
-      rsh += " ; export PATH" ;
-      rsh += " ; LD_LIBRARY_PATH=" ;
-      string Ld_Library_Path = (char * ) aComputerEnvironment->Ld_Library_Path ;
-      for ( j = 0 ; j < Ld_Library_Path.size() ; j++ ) {
-        if ( Ld_Library_Path[ j ] == '$' ) {
-          rsh += "\\" ;
-	}
-        rsh += Ld_Library_Path[ j ] ;
-      }
-      rsh += " ; export LD_LIBRARY_PATH" ;
-      rsh += " ; PYTHONPATH=" ;
-      string PythonPath = (char * ) aComputerEnvironment->PythonPath ;
-      for ( j = 0 ; j < PythonPath.size() ; j++ ) {
-        if ( PythonPath[ j ] == '$' ) {
-          rsh += "\\" ;
-	}
-        rsh += PythonPath[ j ] ;
-      }
-      rsh += " ; export PYTHONPATH" ;
-      rsh += " ; CASROOT=" ;
-      rsh += aComputerEnvironment->CasRoot ;
-      rsh += " ; export CASROOT" ;
-      rsh += " ; CSF_PluginDefaults=" ;
-      rsh += "\\" ;
-      rsh += "${KERNEL_ROOT_DIR}/share/salome/resources" ;
-      rsh += " ; export CSF_PluginDefaults" ;
-      rsh += " ; CSF_SALOMEDS_ResourcesDefaults=" ;
-      rsh += "\\" ;
-      rsh += "${KERNEL_ROOT_DIR}/share/salome/resources" ;
-      rsh += " ; export CSF_SALOMEDS_ResourcesDefaults" ;
-      if ( GeomModule ) {
-        rsh += " ; CSF_GEOMDS_ResourcesDefaults=" ;
-        rsh += "\\" ;
-        rsh += "${GEOM_ROOT_DIR}/share/salome/resources" ;
-        rsh += " ; export CSF_GEOMDS_ResourcesDefaults" ;
-      }
-      rsh += " ; " ;
     }
     if ( MyParams.ContainerType == Engines::Cpp ||  MyParams.ContainerType == Engines::Undefined ) {
       rsh += "SALOME_Container " ;
