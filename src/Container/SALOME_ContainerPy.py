@@ -112,7 +112,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
     #-------------------------------------------------------------------------
 
-    def start_impl( self, ContainerName , ContainerType ):
+    def start_impl( self, ContainerName ):
         MESSAGE(  "SALOME_ContainerPy_i::start_impl " + str(ContainerName) )
         myMachine=string.split(os.getenv( "HOST" ),'.')
         theContainer = "/Containers/" + myMachine[0] + "/" + ContainerName
@@ -130,10 +130,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
             else :
                 MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(ContainerName) + ".object found" )
             return container
-        if ContainerType == Engines.CppContainer :
-            shstr = "SALOME_Container "
-        else :
-            shstr = "SALOME_ContainerPy.py "
+        shstr = "SALOME_ContainerPy.py "
         shstr += ContainerName
 
         # mpv: fix for SAL4731 - allways create new file to write log of server
@@ -184,15 +181,6 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         the_command = "import " + nameToRegister + "\n"
         the_command = the_command + "comp_i = " + nameToRegister + "." + nameToRegister
         the_command = the_command + "(self._orb, self._poa, self._this(), self._containerName, instanceName, interfaceName)\n"
-        valdir = dir()
-        print "dir() : ",valdir
-        print "self._orb",self._orb
-        print "self._poa",self._poa
-        print "self._this()",self._this()
-        print "self._containerName",self._containerName
-        print "instanceName",instanceName
-        print "interfaceName",interfaceName
-        print "exec the_command = '",the_command,"' :"
         try :
             exec the_command
             comp_o = comp_i._this()
@@ -217,12 +205,6 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
     def ping(self):
         MESSAGE( "SALOME_ContainerPy_i::ping" )
-
-    #-------------------------------------------------------------------------
-
-    def type(self):
-        MESSAGE( "SALOME_ContainerPy_i::type" )
-        return Engines.PythonContainer
 
     #-------------------------------------------------------------------------
 
