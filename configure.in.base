@@ -150,6 +150,14 @@ dnl
 CHECK_MPI
 CHECK_MPICH
 
+dnl
+dnl ---------------------------------------------
+dnl testing WITHIHM
+dnl ---------------------------------------------
+dnl
+
+CHECK_WITHIHM
+
 echo
 echo ---------------------------------------------
 echo testing LEX \& YACC
