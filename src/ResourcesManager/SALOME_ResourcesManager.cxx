@@ -68,15 +68,6 @@ vector<string> SALOME_ResourcesManager::GetFittingResources(const Engines::Machi
       for(list<ResourceDataToSort>::iterator iter2=li.begin();iter2!=li.end();iter2++)
 	ret[i++]=(*iter2)._hostName;
     }
-//     }
-//   else
-//     // user don't specify parameters so default behaviour, only localhost returned
-//     {
-//       char *hostName=new char[MAX_SIZE_FOR_HOSTNAME];
-//       gethostname(hostName,MAX_SIZE_FOR_HOSTNAME);
-//       ret.push_back(hostName);
-//       delete [] hostName;
-//     }
   return ret;
 }
 
@@ -94,8 +85,6 @@ int SALOME_ResourcesManager::AddResourceInCatalog(const Engines::MachineParamete
       newElt.Mode=mode;
       newElt.UserName=userName;
       newElt.ModulesPath=modulesOnNewResources;
-//       for(int i=0;i<modulesOnNewResources.size();i++)
-// 	newElt.ModulesPath[modulesOnNewResources[i]]=pathOfModulesOnNewResources[i];
       newElt.PreReqFilePath=environPathOfPrerequired;
       newElt.OS=paramsOfNewResources.OS;
       newElt.DataForSort._memInMB=paramsOfNewResources.mem_mb;
@@ -103,7 +92,6 @@ int SALOME_ResourcesManager::AddResourceInCatalog(const Engines::MachineParamete
       newElt.DataForSort._nbOfNodes=paramsOfNewResources.nb_node;
       newElt.DataForSort._nbOfProcPerNode=paramsOfNewResources.nb_proc_per_node;
       _resourcesList[newElt.DataForSort._hostName]=newElt;
-      cout << "AddResourceInCatalog ... " << _resourcesList.size() << endl;
       return 0;
     }
   else
@@ -124,7 +112,6 @@ void SALOME_ResourcesManager::WriteInXmlFile()
   QFile file( _path_resources );
   if( !file.open( IO_WriteOnly ) )
     cout << "WRITING ERROR !!!" << endl;
-    //return -1;
 
   QTextStream ts( &file );
   ts << doc.toString();
@@ -193,8 +180,7 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
   ofstream tempOutputFile;
   tempOutputFile.open(_TmpFileName.c_str(),ofstream::out );
   const ParserResourcesType& resInfo=_resourcesList[machine];
-  cout << "SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer 11 - " << _TmpFileName << endl;
-  tempOutputFile << "/bin/sh <<EOF" << endl;
+  tempOutputFile << "#! /bin/sh" << endl;
   //set env vars
   for(map<string,string>::const_iterator iter=resInfo.ModulesPath.begin();iter!=resInfo.ModulesPath.end();iter++)
     {
@@ -216,13 +202,12 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
     tempOutputFile << "SALOME_Container ";
   tempOutputFile << containerName << " -";
   AddOmninamesParams(tempOutputFile);
-  tempOutputFile << " > /tmp/" << containerName << "_" << machine << ".log 2>&1 &" << endl;
-  tempOutputFile << "EOF" << endl;
-  cout << "SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer 22" << endl;
+  tempOutputFile << " > /tmp/" << containerName << "_" << machine << ".log 2>&1 &" << endl;//" &" << endl;
+  //tempOutputFile << "EOF" << endl;
+  //tempOutputFile << "&" << endl;
   tempOutputFile.flush();
   tempOutputFile.close();
   chmod(_TmpFileName.c_str(),0x1ED);
-  cout << "SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer 33" << endl;
   //Build command
   string command;
   if(resInfo.Protocol==rsh)
@@ -234,7 +219,6 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
       commandRcp+=machine;
       commandRcp+=":";
       commandRcp+=_TmpFileName;
-      cout << "************ " << commandRcp.c_str() << endl;
       system(commandRcp.c_str());
     }
   else if(resInfo.Protocol==ssh)
@@ -243,8 +227,9 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
     throw SALOME_Exception("Unknown protocol");
   command+=machine;
   _CommandForRemAccess=command;
-  command+=" ";//" ";//" < ";
+  command+=" ";
   command+=_TmpFileName;
+  command+=" & ";
   cout << "Command is ... " << command << endl;
   return command;
 }
@@ -265,18 +250,18 @@ string SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer(const char *c
   command += "_";
   command += GetHostname();
   command += ".log 2>&1 &" ;
-  cout << "#####  " << command << endl << flush;
+  cout << "Command is ... " << command << endl << flush;
   return command;
 }
 
 void SALOME_ResourcesManager::RmTmpFile()
 {
-//   if(_TmpFileName!="")
-//     {
-//       string command="rm ";
-//       command+=_TmpFileName;
-//       system(command.c_str());
-//     }
+  if(_TmpFileName!="")
+    {
+      string command="rm ";
+      command+=_TmpFileName;
+      system(command.c_str());
+    }
 }
 
 string SALOME_ResourcesManager::BuildCommand(const string& machine,const char *containerName)
@@ -310,29 +295,6 @@ string SALOME_ResourcesManager::BuildCommand(const string& machine,const char *c
   command += ".log 2>&1 &" ;
   SCRUTE( command );
   return command;
-//     int status = system( command.c_str() ) ;
-//     if (status == -1) {
-//       MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed (system command status -1)") ;
-//       }
-//       else if (status == 217) {
-//         MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed (system command status 217)") ;
-//       }
-//       else {
-//         int count = 21 ;
-//         while ( CORBA::is_nil( aFactoryServer ) && count ) {
-//           sleep( 1 ) ;
-//           count-- ;
-//           if ( count != 10 )
-//             MESSAGE( count << ". Waiting for FactoryServer on " << machine)
-//           aFactoryServer = FindContainer( FactoryServer.c_str() ) ;
-// 	}
-//         if ( CORBA::is_nil( aFactoryServer ) ) {
-//           MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed") ;
-// 	}
-//         else if ( strcmp( theComputer.c_str() , GetHostname().c_str() ) ) {
-//           _FactoryServer = aFactoryServer ;
-// 	}
-//       }
 }
 
 // Warning need an updated parsed list : _resourcesList
