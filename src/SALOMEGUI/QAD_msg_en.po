@@ -83,6 +83,10 @@ msgstr "Open study"
 msgid "INF_DESK_DOC_SAVE"
 msgstr "Save study"
 
+#: QAD_Desktop.cxx:654
+msgid "INF_DESK_DUMP"
+msgstr "Dump study"
+
 #: QAD_Desktop.cxx:465
 msgid "QAD_Desktop::INF_DESK_EXIT"
 msgstr "Exit"
@@ -102,6 +106,14 @@ msgstr "Study %1 saved"
 #: QAD_Desktop.cxx:679
 msgid "QAD_Desktop::INF_DOC_SAVING"
 msgstr "Saving study "
+
+#: QAD_Desktop.cxx:1987
+msgid "QAD_Desktop::INF_DOC_DUMPED"
+msgstr "Study %1 dumped"
+
+#: QAD_Desktop.cxx:1977
+msgid "QAD_Desktop::INF_DOC_DUMPING"
+msgstr "Dumping study "
 
 #: QAD_Desktop.cxx:993
 msgid "QAD_Desktop::INF_PARSE_ERROR"
@@ -162,6 +174,10 @@ msgstr "&Save"
 #: QAD_Desktop.cxx:195
 msgid "QAD_Desktop::MEN_DESK_FILE_SAVEAS"
 msgstr "Save As ..."
+
+#: QAD_Desktop.cxx:608
+msgid "QAD_Desktop::MEN_DESK_FILE_DUMP_STUDY"
+msgstr "Dump Study ..."
 
 #: QAD_Desktop.cxx:141
 msgid "QAD_Desktop::MEN_DESK_HELP"
@@ -374,6 +390,10 @@ msgstr "Saves the active study"
 msgid "QAD_Desktop::PRP_DESK_FILE_SAVEAS"
 msgstr "Saves the active study with a new name"
 
+#: QAD_Desktop.cxx:609
+msgid "QAD_Desktop::PRP_DESK_FILE_DUMP_STUDY"
+msgstr "Dumps the active study to the python scripts"
+
 #: QAD_Desktop.cxx:3759
 msgid "QAD_Desktop::PRP_DESK_FILE_IMPORT"
 msgstr "Import file"
@@ -559,6 +579,10 @@ msgstr "Cannot open study"
 #: QAD_Desktop.cxx:683
 msgid "QAD_Desktop::ERR_DOC_CANTWRITE"
 msgstr "Cannot save study"
+
+#: QAD_Desktop.cxx:683
+msgid "QAD_Desktop::ERR_DOC_CANTDUMP"
+msgstr "Cannot dump study"
 
 #: QAD_Desktop.cxx:599
 msgid "QAD_Desktop::ERR_DOC_UNKNOWNTYPE"

@@ -71,7 +71,7 @@ class QAD_EXPORT QAD_Desktop : public QMainWindow
 protected:
   //NRI - unused - :  enum ComponentType {GEOM, MESH, SOLVER, DATA, VISU, OTHER} ;
 
-  enum {  FileNewId = -1000, FileOpenId, FileLoadId, FileCloseId, FileSaveId, FileSaveAsId, FilePropsId, FileExitId,
+  enum {  FileNewId = -1000, FileOpenId, FileLoadId, FileCloseId, FileSaveId, FileSaveAsId, FileDumpStudyId, FilePropsId, FileExitId,
 	  ViewStatusBarId,
 	  SelectionPointId, SelectionEdgeId, SelectionCellId, SelectionActorId,
 	  PrefViewerOCCId, PrefViewerVTKId, PrefGraphSupervisorId, PrefViewerPlot2dId,
@@ -205,6 +205,8 @@ protected slots:
     virtual bool      onSaveStudy(QAD_Study* doc);
     virtual bool      onSaveAsStudy();
     virtual bool      onSaveAsStudy(QAD_Study* doc);
+    virtual bool      onDumpStudy();
+    virtual bool      onDumpStudy(QAD_Study* doc);
     virtual bool      onCloseStudy();
     virtual bool      onCloseStudy(QAD_Study* doc);
     //ask user to remove study from study manager permanently

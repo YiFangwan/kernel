@@ -99,7 +99,8 @@ EXPORT_HEADERS = \
                   SALOMEGUI_NameDlg.h \
                   SALOMEGUI_SetValueDlg.h \
                   SALOMEGUI_SetupCurveDlg.h \
-                  SALOMEGUI_CloseDlg.h
+                  SALOMEGUI_CloseDlg.h \
+		  SALOMEGUI_AdvancedFileDlg.h
 
 # .po files to transform in .qm
 PO_FILES = \
@@ -182,7 +183,8 @@ LIB_SRC = 	  \
                   SALOMEGUI_SetValueDlg.cxx \
                   SALOMEGUI_SetupCurveDlg.cxx \
                   SALOMEGUI_CloseDlg.cxx \
-		  SALOMEGUI_ActivateComponentDlg.cxx    
+		  SALOMEGUI_ActivateComponentDlg.cxx \
+		   SALOMEGUI_AdvancedFileDlg.cxx    
 LIB_MOC = \
 		  SALOMEGUI.h \
 		  SALOMEGUI_Application.h \
@@ -213,7 +215,8 @@ LIB_MOC = \
                   SALOMEGUI_NameDlg.h \
                   SALOMEGUI_SetupCurveDlg.h \
                   SALOMEGUI_CloseDlg.h \
-                  SALOMEGUI_ActivateComponentDlg.h    
+                  SALOMEGUI_ActivateComponentDlg.h \
+		  SALOMEGUI_AdvancedFileDlg.h    
 LIB_CLIENT_IDL = SALOMEDS.idl \
                  SALOMEDS_Attributes.idl \
 		 SALOME_ModuleCatalog.idl \

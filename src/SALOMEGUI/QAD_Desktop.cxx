@@ -68,6 +68,7 @@
 #include "SALOMEGUI_AboutDlg.h"
 #include "SALOMEGUI_ViewChoiceDlg.h"
 #include "SALOMEGUI_SetValueDlg.h"
+#include "SALOMEGUI_AdvancedFileDlg.h"
 #include "utilities.h"
 
 #include "SALOMEGUI_CloseDlg.h"
@@ -600,8 +601,18 @@ void QAD_Desktop::createActions()
 			  this, SLOT( onSaveAsStudy() )));
     fileSaveAsAction->addTo( &myFilePopup );
     myStdActions.insert ( FileSaveAsId, fileSaveAsAction );
-
     
+    /* separator */
+    myFilePopup.insertSeparator();
+
+    /* dump study */
+    QActionP* fileDumpStudyAction = new QActionP( "", tr("MEN_DESK_FILE_DUMP_STUDY"), 0, this );
+    fileDumpStudyAction->setStatusTip ( tr("PRP_DESK_FILE_DUMP_STUDY") );
+    QAD_ASSERT ( connect( fileDumpStudyAction, SIGNAL( activated() ),
+			  this, SLOT( onDumpStudy() )));
+    fileDumpStudyAction->addTo( &myFilePopup );
+    myStdActions.insert ( FileDumpStudyId, fileDumpStudyAction );
+
     /* separator */
     myFilePopup.insertSeparator();
 
@@ -1934,6 +1945,57 @@ bool QAD_Desktop::onSaveAsStudy( QAD_Study* study )
 }
 
 /*!
+    Dumps the active study to the python scripts
+*/
+bool QAD_Desktop::onDumpStudy()
+{
+  return onDumpStudy( myActiveStudy );
+}
+
+/*!
+    Dumps the given study to the python scripts
+*/
+bool QAD_Desktop::onDumpStudy( QAD_Study* study )
+{
+  if ( !study ) return true;
+  
+  /*	Select a path where to save the scrips and the base name of the sripts
+   */
+  QString aDir = QAD_Tools::getDirFromPath ( myActiveStudy->getPath(), false );
+  QStringList flt;
+  flt.append( "Python Files (*.py)" );
+  QFileInfo aFileInfo = SALOMEGUI_AdvancedFileDlg::getFileName(QAD_Application::getDesktop(),
+							       aDir,flt,tr("INF_DESK_DUMP"), tr("Publish in study"), false);
+
+  QString aPath = aFileInfo.dirPath(true);
+  QString aBaseName = aFileInfo.baseName();
+  
+  if ( aPath.isNull() || aPath.isEmpty() || aBaseName.isNull() || aBaseName.isEmpty() || !aFileInfo.dir(true).exists())
+    {
+      putInfo( tr("INF_CANCELLED") );
+      return false;
+    }
+  
+  bool toPublished = SALOMEGUI_AdvancedFileDlg::IsChecked;
+
+  /*	Dumping study
+   */
+  const QString aStudyTitle = study->getTitle();
+  putInfo ( tr("INF_DOC_DUMPING") + aStudyTitle );
+  if ( !study->getStudyDocument()->DumpStudy( aPath, aBaseName, toPublished ) ) {
+    /* can't save the file */
+    QAD_MessageBox::error1( this, 
+			    tr("ERR_ERROR"), 
+			    tr("ERR_DOC_CANTDUMP") + "\n" + aStudyTitle,
+			    tr("BUT_OK") );
+    putInfo("");
+    return false;	/* cannot dump */
+  }
+  putInfo ( tr("INF_DOC_DUMPED").arg( aStudyTitle ) + tr(" to %1_*.py").arg(aPath + "/" + aBaseName) );
+  return true;	/* dumped ok */
+}
+
+/*!
     Closes the active study
 */
 bool QAD_Desktop::onCloseStudy()
@@ -2440,6 +2502,7 @@ void QAD_Desktop::updateActions()
     myStdActions.at( FileCloseId )->setEnabled ( myActiveStudy != NULL );
     myStdActions.at( FileSaveId )->setEnabled ( myActiveStudy != NULL );
     myStdActions.at( FileSaveAsId )->setEnabled ( myActiveStudy != NULL );
+    myStdActions.at( FileDumpStudyId )->setEnabled ( myActiveStudy != NULL );
     myStdActions.at( FilePropsId )->setEnabled( myActiveStudy != NULL );
 //    myStdActions.at( HelpContentsId )->setEnabled ( myActiveApp != NULL );
 //    myStdActions.at( HelpSearchId )->setEnabled ( myActiveApp != NULL );
