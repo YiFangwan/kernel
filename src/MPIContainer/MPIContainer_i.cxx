@@ -24,12 +24,12 @@
 //  File   : MPIContainer_i.cxx
 //  Module : SALOME
 
-using namespace std;
 #include <iostream.h>
 #include <dlfcn.h>
 #include <stdio.h>
 #include "MPIContainer_i.hxx"
 #include "utilities.h"
+using namespace std;
 
 MPIContainer_i::MPIContainer_i(int nbproc, int numproc,
 			       CORBA::ORB_ptr orb, 

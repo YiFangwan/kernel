@@ -35,8 +35,8 @@ namespace Batch {
 
     // Methodes pour l'interfacage avec Python (SWIG)
     // TODO : supprimer ces methodes et transferer leur definitions dans SWIG
-    string  __str__() const; // SWIG : affichage en Python
-    string  __repr__() const { return __str__(); }; // SWIG : affichage en Python
+    std::string  __str__() const; // SWIG : affichage en Python
+    std::string  __repr__() const { return __str__(); }; // SWIG : affichage en Python
 
   protected:
 

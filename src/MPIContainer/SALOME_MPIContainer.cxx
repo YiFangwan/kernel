@@ -24,12 +24,12 @@
 //  File   : SALOME_MPIContainer.cxx
 //  Module : SALOME
 
-using namespace std;
 #include <iostream>
 #include "MPIContainer_i.hxx"
 #include "utilities.h"
 #include "LocalTraceCollector.hxx"
 #include <mpi.h>
+using namespace std;
 
 int main(int argc, char* argv[])
 {

@@ -24,6 +24,7 @@
 #include <signal.h>
 
 #include "Utils_SignalsHandler.h"
+using namespace std;
 
 
 //============================================================================
