@@ -22,6 +22,7 @@ cascade.png \
 CatalogDataType.xml \
 KERNELCatalog.xml \
 CatalogRessources.xml \
+ResourcesCatalog.xml \
 close.png \
 config \
 default.png \
@@ -90,6 +91,7 @@ runIDLparser \
 VERSION \
 orbmodule.py \
 runSalome.py \
+startContainer.py \
 killSalome.py \
 runSalome \
 runNS.sh
