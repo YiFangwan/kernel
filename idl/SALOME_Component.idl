@@ -34,19 +34,29 @@ module Engines
 {
   interface Component ;
 
+  enum ContainerType { UndefinedContainerType , CppContainer , PythonContainer } ;
+
 /*! \brief Interface of the %Container
 
    This interface defines the process of loading and registration
     of new components in %SALOME application
 */
+
+  interface Container ;
+
+  typedef sequence<Container> ListOfContainers ;
+
+  typedef sequence<Component> ListOfComponents ;
+
   interface Container
   {
+    void destroy() ;
 /*!
     Initializes the %container with a definite name.
     \param ContainerName Name of the container
     \return an initialized container
 */
-    Container start_impl( in string ContainerName ) ;
+    Container start_impl( in string ContainerName , in Engines::ContainerType aContainerType ) ;
 
 /*!
     Loads into the container a new component, registers it and starts it's CORBA servant.
@@ -71,6 +81,11 @@ module Engines
 */
 
     void ping();
+/*!
+     Determines whether the type of container (C++ or Python).
+*/
+
+    Engines::ContainerType type();
 /*!
    Name of the %container
 */
