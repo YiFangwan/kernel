@@ -1328,3 +1328,81 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
   fp.close();
   return true;
 }
+
+void dumpSO(const Handle(SALOMEDSImpl_SObject)& theSO, 
+	    fstream& fp, 
+	    const TCollection_AsciiString& Tab,
+	    const Handle(SALOMEDSImpl_Study) theStudy);
+//============================================================================
+/*! Function : dump
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDSImpl_Study::dump(const TCollection_AsciiString& theFileName)
+{
+  //Create a file that will contain a main Study script
+  fstream fp;
+  fp.open(theFileName.ToCString(), ios::out);  
+
+#ifdef WIN32 
+  bool isOpened = fp.is_open();
+#else
+  bool isOpened = fp.rdbuf()->is_open();
+#endif
+
+  if(!isOpened) {
+    _errorCode = TCollection_AsciiString("Can't create a file ")+theFileName;
+    cout << "### SALOMEDSImpl_Study::dump Error: " << _errorCode << endl;
+    return;    
+  }
+
+  Handle(SALOMEDSImpl_SObject) aSO = FindObjectID("0:1");
+  fp << "0:1" << endl;
+  Handle(SALOMEDSImpl_ChildIterator) Itr = NewChildIterator(aSO);
+  TCollection_AsciiString aTab("   ");
+  for(; Itr->More(); Itr->Next()) {
+    dumpSO(Itr->Value(), fp, aTab, this);
+  }
+
+  fp.close();
+}
+
+
+void dumpSO(const Handle(SALOMEDSImpl_SObject)& theSO, 
+	    fstream& fp, 
+	    const TCollection_AsciiString& Tab,
+	    const Handle(SALOMEDSImpl_Study) theStudy)
+{
+  TCollection_AsciiString aTab(Tab), anID(theSO->GetID());
+  fp << aTab << anID << endl;
+  int aLength, i;
+  Handle(TColStd_HSequenceOfTransient) aSeq = theSO->GetAllAttributes();
+  aLength = aSeq->Length();
+  for(i=1; i<=aLength; i++) {
+    Handle(SALOMEDSImpl_GenericAttribute) anAttr = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(aSeq->Value(i));
+    TCollection_AsciiString aType = anAttr->GetClassType();
+    fp << Tab << "  -- " << aType;
+    if(aType == "AttributeReal") {
+      fp << " : " << Handle(SALOMEDSImpl_AttributeReal)::DownCast(anAttr)->Value();
+    }
+    else if(aType == "AttributeInteger") {
+      fp << " : " << Handle(SALOMEDSImpl_AttributeInteger)::DownCast(anAttr)->Value();
+    }
+    else if(aType ==  "AttributeName") {
+      fp << " : " << Handle(SALOMEDSImpl_AttributeName)::DownCast(anAttr)->Value();
+    }
+    else if(aType == "AttributeComment") {
+      fp << " : " << Handle(SALOMEDSImpl_AttributeComment)::DownCast(anAttr)->Value();
+    }
+    fp << endl;
+  }
+
+  Handle(SALOMEDSImpl_ChildIterator) Itr = theStudy->NewChildIterator(theSO);
+  TCollection_AsciiString aNewTab("   ");
+  aNewTab+=aTab;
+  for(; Itr->More(); Itr->Next()) {
+    dumpSO(Itr->Value(), fp, aNewTab, theStudy);
+  }
+
+  return;
+}

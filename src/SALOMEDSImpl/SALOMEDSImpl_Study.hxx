@@ -232,6 +232,8 @@ public:
 
   virtual Handle(TDocStd_Document) GetDocument() { return _doc; } 
 
+  //The method dump creates a txt file that contain a dump of the study, for debug use
+  void dump(const TCollection_AsciiString& theFileName);
 
 public:
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_Study )
