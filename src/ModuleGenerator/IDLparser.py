@@ -22,7 +22,7 @@
 #  File   : IDLparser.py
 #  Module : SALOME
 
-import string, sys, fpformat, re, os, compiler
+import string, sys, fpformat, re, os
 import xml.sax
 import pdb
 
@@ -36,7 +36,8 @@ common_data={"AUTHOR"     : "",
              "COMP_TYPE"  : "",
              "COMP_NAME"  : "",
              "COMP_UNAME" : "",
-             "COMP_MULT"  : ""
+             "COMP_MULT"  : "",
+             "COMP_IMPL"  : ""
              }
 
 nb_components = 0
@@ -78,7 +79,8 @@ class Tree:
         self.key = key
         self.parent = None
         self.childs = []
-    
+        self.comments = []
+        
     def addChild(self, tree):
         if tree is not None: 
             self.childs.append(tree)
@@ -253,7 +255,44 @@ class dataStreamParameter(parameter):
 
         parameter.merge(self, P)
         self.replaceChild(P.getChild(mode + 'Parameter-dependency'))
+
+
+def parseComment(comment):
+
+    spaces = '[\t\n ]*'
+    word = spaces + '([a-zA-Z][a-zA-Z0-9_]*)' + spaces
+    
+    result = []
+    type = None
+    key = None
+    
+    ## match :  // followed by a 'DataStreamPorts' string,
+    ## the service name, and a list of ports
+    pattern = '// *DataStreamPorts{,1}' + word
+    m = re.match(pattern, comment)
+
+    ## if there is a match, parse remaining part of comment
+    if m:
+        ## service
+        type = 'DataStreamPorts'
+        key = m.group(1)
         
+        sPorts = comment[m.end():]
+        pattern = word + '\('+word+','+word +','+word+'\),{,1}' + spaces
+        while len(sPorts) > 0:
+            ## process next DataStreamPort
+            ## match a definition like xx(a,b,c) with a possible trailing ,
+            ## returns a tuple (xx, a, b, c) and
+            ## the remaining part of input string
+
+            m = re.match(pattern, sPorts)
+            if m is None:
+                raise LookupError, \
+                      'format error in DataStreamPort definition : '+sPorts
+            sPorts = sPorts[m.end():]
+            result.append(m.groups())
+            
+    return type, key, result;
 
 #--------------------------------------------------
 # implements service tree
@@ -292,7 +331,7 @@ class Service(Tree):
         p = dataStreamParameter(p[0], p[2], p[1], p[3])
         L.replaceChild(p)
         return p
-    
+            
     def merge(self, S):
 
         self.replaceChild(S.getChild('service-author'))
@@ -347,50 +386,21 @@ class Interface(Tree):
             self.replaceChild(C)
 
         self.mergeChilds(I, 'component-service-list')
-
-    def parseDataStreamPort(self, s):
-
-        # match a definition like xx(a,b,c) with a possible trailing ,
-        # returns a tuple (xx, a, b, c) and the remaining part of input string
-
-        spaces = '[\t\n ]*'
-        word = spaces + '([a-zA-Z][a-zA-Z0-9_]*)' + spaces
-        pattern = word + '\('+word+','+word +','+word+'\),{,1}' + spaces
-
-        m = re.match(pattern, s)
-        if m is None:
-            raise LookupError, 'format error in DataStreamPort definition : '+s
-        return m.groups(), s[m.end():]
-
     
-    def processDataStream(self, comment):
-        
-        ## match :  // followed by a 'DataStreamPorts' string,
-        ## the service name, and a list of ports
-        sComment = str(comment)
+    def processDataStreams(self):
+        for sComment in self.comments:
 
-        spaces = '[\t\n ]*'
-        word = spaces + '([a-zA-Z][a-zA-Z0-9_]*)' + spaces
-        pattern = '// *DataStreamPorts{,1}' + word
-        m = re.match(pattern, sComment)
+            type, key, result = parseComment(sComment)
 
-        ## if m is None, ignore comment
-        if m is None:
-            return
-
-        ## find service
-        Service = self.findService(m.group(1))
-        if (Service is None):
-            raise LookupError, "when parsing :\n"  + str(comment) + '\n' \
-                  + m.group(1) + " not found in interface " \
-                  + self.getChild('component-interface-name').content
-
-        sPorts = sComment[m.end():]
-        while len(sPorts) > 0:
-            ## process next DataStreamPort
-            p, sPorts = self.parseDataStreamPort(sPorts)
-            if p:
-                Service.createDataStreamParameter(p)
+            if type == 'DataStreamPorts':
+                Service = self.findService(key)
+                if Service is None:
+                    raise LookupError, \
+                          'service ' + key + \
+                          ' not found in interface : ' + self.key
+                for p in result:
+                ## process next DataStreamPort
+                    Service.createDataStreamParameter(p)
 
 
 #--------------------------------------------------
@@ -602,11 +612,12 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
             for c in node.declarations():
                 if isinstance(c, idlast.Struct):
                     c.accept(self)
-
-            ## process DataStreams parameters defined in comments
-            for i in node.comments():
-                self.currentInterface.processDataStream(i)
                 
+            for i in node.comments():
+                self.currentInterface.comments.append(str(i))
+
+            self.currentInterface.processDataStreams()
+            
             if (self.EngineType):    
                 global nb_components
                 nb_components = nb_components + 1
@@ -627,6 +638,9 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
         if (self.currentType != "void"):
             self.currentService.createOutParameter \
                 ("return", self.currentType)
+            
+        for i in node.comments():
+            self.currentInterface.comments.append(str(i))
         
 
     def visitDeclaredType(self, type):
@@ -664,6 +678,9 @@ def run(tree, args):
     common_data["COMP_UNAME"] = getParamValue("username",   "",                args)
     common_data["COMP_TYPE"]  = getParamValue("type",       "OTHER",           args)
     common_data["COMP_MULT"]  = getParamValue("multistudy", "1",               args)
+    common_data["COMP_IMPL"]  = getParamValue("impltype",   "1",               args)
+
+    print common_data
     
     remove_comp = getParamValue("remove", "", args)
     
@@ -711,4 +728,5 @@ if __name__ == "__main__":
     print
     print "Usage : omniidl -bIDLparser [-I<catalog files directory>]* -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,username=<component_username>][,multistudy=<component_multistudy>] <file.idl>"
     print
+
 
