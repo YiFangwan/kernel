@@ -164,7 +164,7 @@ private:
   ListOfParserServicesDataStreamParameter _inDataStreamParamList;
   ListOfParserServicesDataStreamParameter _outDataStreamParamList;
 
-  std::stack<std::string> _xml_pile;
+  std::stack<QString> _xml_pile;
 };
 
 #endif // SALOME_CATALOG_HANDLER_H
