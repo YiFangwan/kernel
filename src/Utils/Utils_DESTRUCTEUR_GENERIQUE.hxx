@@ -129,6 +129,7 @@ template <class TYPE> void DESTRUCTEUR_DE_<TYPE>::operator()( void )
          	  MESSAGE("deleting _PtrObjet") ;
 		delete (TYPE*)_PtrObjet ;
 		_PtrObjet = NULL ;
+         	  MESSAGE("_PtrObjet deleted") ;
 	}
 }
 
