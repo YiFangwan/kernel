@@ -158,6 +158,8 @@ args["port"] = my_port
 
 ### command line options reader
 
+args['containers'] = []
+
 def options_parser(line):
   source = line
   list = []
