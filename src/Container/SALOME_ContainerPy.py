@@ -49,6 +49,12 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     _orb = None
     _poa = None
     _numInstance = 0
+    _containerName = None
+    _contId = None
+    _machineName = None
+    _naming_service = None
+    _Name = None
+    _Pid = None
 
     #-------------------------------------------------------------------------
 
@@ -57,19 +63,58 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         self._orb = orb
         self._poa = poa
         self._containerName = containerName
-
-        myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
+        self._contId = self._poa.reference_to_id( self._this() )
+        #HostName = os.getenv( "HOSTNAME" )
+        HostName = os.getenv( "HOST" )
+        MESSAGE( "SALOME_ContainerPy_i::__init__ _machineName : " + HostName )
+        myMachine = string.split( HostName , '.' )
+        self._machineName = myMachine[0]
         naming_service = SALOME_NamingServicePy_i(self._orb)
         self._naming_service = naming_service
         Container_path = "/Containers/" + myMachine[0] + "/" + self._containerName
-        MESSAGE( str(Container_path) )
+        self._Name = Container_path
+        MESSAGE( "SALOME_ContainerPy_i::__init__ _Name : " + str(Container_path) )
         naming_service.Register(self._this(), Container_path)
+        self._Pid = os.getpid()
             
     #-------------------------------------------------------------------------
 
-    def start_impl(self, ContainerName):
+    def delete(self):
+        MESSAGE( "SALOME_ContainerPy_i::delete" )
+
+    #-------------------------------------------------------------------------
+
+    def destroy(self):
+        MESSAGE( "SALOME_ContainerPy_i::destroy : " + self._Name )
+        try :
+            self._naming_service.Destroy_Name( self._Name )
+            #d = dir(self._poa)
+            #print "dir(self._poa) ",d,type(self._poa)
+            MESSAGE( "SALOME_ContainerPy_i::destroy _poa.deactivate_object self._contId " )
+            self._poa.deactivate_object( self._contId )
+            MESSAGE( "SALOME_ContainerPy_i::destroy _poa.deactivate_object done" )
+            self._poa._release()
+            MESSAGE( "SALOME_ContainerPy_i::destroy _poa._released" )
+            #d = dir(self)
+            #print "dir(self) ",d,type(self)
+            #d = dir(self._contId)
+            #print "dir(self._contId) ",d,type(self._contId)
+            #MESSAGE( "SALOME_ContainerPy_i::destroy " )
+            #self.delete( self._contId )
+            #self._contId.delete()
+            #MESSAGE( "SALOME_ContainerPy_i::destroy self._contId deleted" )
+            #self._remove_ref()
+            #MESSAGE( "SALOME_ContainerPy_i::destroy self _removed_ref" )
+            MESSAGE( "SALOME_ContainerPy_i::destroyed" )
+        except :
+            MESSAGE( "SALOME_ContainerPy_i::destroy failed" )
+        #sys.exit(0)
+
+    #-------------------------------------------------------------------------
+
+    def start_impl( self, ContainerName , ContainerType ):
         MESSAGE(  "SALOME_ContainerPy_i::start_impl " + str(ContainerName) )
-        myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
+        myMachine=string.split(os.getenv( "HOST" ),'.')
         theContainer = "/Containers/" + myMachine[0] + "/" + ContainerName
         try:
             obj = self._naming_service.Resolve(theContainer)
@@ -83,11 +128,12 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
             if container is None:
                 MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(containerName) + ".object exists but is not a Container" )
             else :
-                MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(ContainerName) + ".object found without runSession" )
+                MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(ContainerName) + ".object found" )
             return container
-        #shstr = os.getenv( "PWD" ) + "/"
-        #shstr += "runSession ./SALOME_ContainerPy.py "
-        shstr = "runSession SALOME_ContainerPy.py "
+        if ContainerType == Engines.CppContainer :
+            shstr = "SALOME_Container "
+        else :
+            shstr = "SALOME_ContainerPy.py "
         shstr += ContainerName
 
         # mpv: fix for SAL4731 - allways create new file to write log of server
@@ -103,10 +149,6 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         shstr += " > "
         shstr += fileName
         shstr += " 2>&1 &"
-        
-        #shstr += " > /tmp/"
-        #shstr += ContainerName
-        #shstr += ".log 2>&1 &"
         
         MESSAGE(  "SALOME_ContainerPy_i::start_impl " + "os.system(" + str(shstr) + ")" )
         os.system( shstr )
@@ -125,8 +167,11 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
                 container = obj._narrow(Engines.Container)
                 if container is None:
                     MESSAGE(  str(containerName) + ".object exists but is not a Container" )
+                else :
+                    MESSAGE(  str(containerName) + ".object registered" )
                 return container
             if count == 0 :
+                MESSAGE(  "start_impl of " + str(theContainer) + " failed." )
                 return container
 
     #-------------------------------------------------------------------------
@@ -139,9 +184,23 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         the_command = "import " + nameToRegister + "\n"
         the_command = the_command + "comp_i = " + nameToRegister + "." + nameToRegister
         the_command = the_command + "(self._orb, self._poa, self._this(), self._containerName, instanceName, interfaceName)\n"
-        MESSAGE( "SALOME_ContainerPy_i::load_impl :" + str (the_command) )
-        exec the_command
-        comp_o = comp_i._this()
+        valdir = dir()
+        print "dir() : ",valdir
+        print "self._orb",self._orb
+        print "self._poa",self._poa
+        print "self._this()",self._this()
+        print "self._containerName",self._containerName
+        print "instanceName",instanceName
+        print "interfaceName",interfaceName
+        print "exec the_command = '",the_command,"' :"
+        try :
+            exec the_command
+            comp_o = comp_i._this()
+            MESSAGE( "SALOME_ContainerPy_i::load_impl " + componentName + " imported" )
+        except :
+            comp_o = None
+            MESSAGE( "SALOME_ContainerPy_i::load_impl " + componentName + " except" )
+        print "return from SALOME_ContainerPy_i::load_impl "
         return comp_o
     
     #-------------------------------------------------------------------------
@@ -161,15 +220,28 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
     #-------------------------------------------------------------------------
 
+    def type(self):
+        MESSAGE( "SALOME_ContainerPy_i::type" )
+        return Engines.PythonContainer
+
+    #-------------------------------------------------------------------------
+
     def _get_name(self):
-        MESSAGE( "SALOME_ContainerPy_i::_get_name" )
+        MESSAGE( "SALOME_ContainerPy_i::_get_name " + self._Name )
+        return self._Name
 
     #-------------------------------------------------------------------------
 
     def _get_machineName(self):
-        MESSAGE( "SALOME_ContainerPy_i::_get_MachineName" )
-        self._machineName = "localhost"
+        MESSAGE( "SALOME_ContainerPy_i::_get_MachineName " + self._machineName )
         return self._machineName
+
+
+    #-------------------------------------------------------------------------
+
+    def getPID(self):
+        MESSAGE( "SALOME_ContainerPy_i::getPID" )
+        return self._Pid
 
 #=============================================================================
 
@@ -179,8 +251,11 @@ poa = orb.resolve_initial_references("RootPOA")
 
 #create an instance of SALOME_ContainerPy_i and a Container reference
 #containerName = "FactoryServerPy"
-MESSAGE( str(sys.argv) )
-containerName = sys.argv[1]
+MESSAGE( "SALOME_ContainerPy.py " + str(sys.argv) )
+if len( sys.argv ) > 1 :
+    containerName = sys.argv[1]
+else :
+    containerName = "FactoryServerPy"
 cpy_i = SALOME_ContainerPy_i(orb, poa, containerName)
 cpy_o = cpy_i._this()
 
@@ -190,6 +265,10 @@ poaManager.activate()
 
 #Block for ever
 orb.run()
+
+print "SALOME_ContainerPy --> orb.destroy"
+orb.destroy()
+print "SALOME_ContainerPy orb.destroyed"
 
 
         

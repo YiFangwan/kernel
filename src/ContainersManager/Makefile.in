@@ -1,4 +1,4 @@
-#  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
+#  SALOME ContainersManager : data structure of SALOME and sources of Salome data server 
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -22,36 +22,37 @@
 #
 #
 #  File   : Makefile.in
-#  Author : Paul RASCLE, EDF - Marc Tajchman, CEA
+#  Author : Jean Rahuel
 #  Module : SALOME
-#  $Header$
 
 top_srcdir=@top_srcdir@
 top_builddir=../..
 srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
+VPATH=.:@srcdir@:@top_srcdir@/idl:$(top_srcdir)/idl
 
 
 @COMMENCE@
 
-EXPORT_HEADERS = SALOME_LifeCycleCORBA.hxx
-
-EXPORT_PYSCRIPTS = LifeCycleCORBA.py
+EXPORT_PYSCRIPTS = runContainer.py ResourcesContainers.py TestContainersManager.py
 
 # Libraries targets
 
-LIB = libSalomeLifeCycleCORBA.la
-LIB_SRC = SALOME_LifeCycleCORBA.cxx
-LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
-		 SALOME_ModuleCatalog.idl ContainersManager.idl
-
+LIB = libContainersManager.la
+LIB_SRC = 	\
+		  ContainersManager_i.hxx \
+		  ContainersManager_i.cxx
 # Executables targets
-BIN = TestLifeCycleCORBA
-BIN_SRC =
-BIN_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
-		 SALOME_ModuleCatalog.idl ContainersManager.idl
+BIN = ContainersManager_Server 
+BIN_SRC = 
 
-LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace
+LIB_SERVER_IDL = ResourcesManager.idl ContainersManager.idl SALOME_Component.idl
+BIN_SERVER_IDL = 
+BIN_CLIENT_IDL = 
+
+#CPPFLAGS+=
+#CXXFLAGS+=
+LDFLAGS+= -lResourcesManager -lSalomeNS -lOpUtil -lSALOMELocalTrace
 
 @CONCLUDE@
+
 

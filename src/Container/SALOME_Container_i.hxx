@@ -30,6 +30,7 @@
 #define _SALOME_CONTAINER_I_HXX_
 
 #include <iostream>
+#include <sstream>
 #include <signal.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -55,12 +56,14 @@ public:
 		      bool activ = true);
   virtual ~Engines_Container_i();
 
+  void destroy() ;
+
   // Launch a new container from the current container
-  Engines::Container_ptr start_impl(const char* ContainerName);
+  Engines::Container_ptr start_impl( const char* ContainerName , const Engines::ContainerType );
 
   // Load component in current container
-  Engines::Component_ptr load_impl(const char* nameToRegister,
-				   const char* componentName);
+  Engines::Component_ptr load_impl( const char* nameToRegister ,
+				    const char* componentName ) ;
 
   // Unload component from current container
   void remove_impl(Engines::Component_ptr component_i);
@@ -69,11 +72,12 @@ public:
   char* name();
   char* machineName();
   void ping();
+  Engines::ContainerType type();
 
   // Kill current container
   bool Kill_impl() ;
   char* getHostName();
-  long getPID();
+  CORBA::Long getPID();
 
 protected:
 
@@ -95,6 +99,8 @@ protected:
   long _pid;
 
 };
+
+std::ostream & operator<< (std::ostream &,const Engines::ContainerType &);
 
 #endif
 
