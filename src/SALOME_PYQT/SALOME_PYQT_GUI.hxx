@@ -11,30 +11,34 @@
 #define _SALOME_PYQT_GUI_HXX_
 
 #include "QAD_Desktop.h"
+#include "SALOMEGUI.h"
 
-class SALOME_PYQT_GUI: public QObject
+class SALOME_PYQT_GUI: public SALOMEGUI
 {
-  Q_OBJECT
-    
+  Q_OBJECT;
+  
 private:
   
 public:
   
-  static bool OnGUIEvent   (int theCommandID, QAD_Desktop* parent);
-  static bool OnMousePress (QMouseEvent* pe, QAD_Desktop* parent,
-			    QAD_StudyFrame* studyFrame);
-  static bool OnMouseMove  (QMouseEvent* pe, QAD_Desktop* parent,
-			    QAD_StudyFrame* studyFrame);
-  static bool OnKeyPress   (QKeyEvent* pe, QAD_Desktop* parent,
-			    QAD_StudyFrame* studyFrame);
-  static bool SetSettings  (QAD_Desktop* parent, char* moduleName);
-  static bool CustomPopup  (QAD_Desktop* parent, QPopupMenu* popup,
-			    const QString & theContext,
-			    const QString & theParent,
-			    const QString & theObject);
-  static void DefinePopup  (QString & theContext, QString & theParent,
-			    QString & theObject) ;
-  static void ActiveStudyChanged (QAD_Desktop* parent);
+  SALOME_PYQT_GUI( const QString& name = "", QObject* parent = 0 );
+  virtual ~SALOME_PYQT_GUI();
+
+  virtual bool OnGUIEvent   (int theCommandID, QAD_Desktop* parent);
+  virtual bool OnKeyPress   (QKeyEvent* pe, QAD_Desktop* parent,
+			     QAD_StudyFrame* studyFrame);
+  virtual bool OnMousePress (QMouseEvent* pe, QAD_Desktop* parent,
+			     QAD_StudyFrame* studyFrame);
+  virtual bool OnMouseMove  (QMouseEvent* pe, QAD_Desktop* parent,
+			     QAD_StudyFrame* studyFrame);
+  virtual bool SetSettings  (QAD_Desktop* parent, char* moduleName);
+  virtual bool CustomPopup  (QAD_Desktop* parent, QPopupMenu* popup,
+			     const QString & theContext,
+			     const QString & theParent,
+			     const QString & theObject);
+  virtual void DefinePopup  (QString & theContext, QString & theParent,
+			     QString & theObject) ;
+  virtual bool ActiveStudyChanged (QAD_Desktop* parent);
   
 protected:
   
