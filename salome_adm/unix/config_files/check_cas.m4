@@ -102,7 +102,7 @@ if test "x$occ_ok" = "xyes"; then
 
 dnl test c++ compiler flag for unsigned character
   for opt in -funsigned-char -unsigned ; do
-    AX_CXX_OPTION($opt,CXXFLAGS,flag=yes,flag=no)
+    AC_CXX_OPTION($opt,CXXFLAGS,flag=yes,flag=no)
     if test "$flag" = "yes"; then
       break
     fi

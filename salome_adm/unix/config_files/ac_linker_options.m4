@@ -27,7 +27,7 @@ dnl @author Bernard Secher (CEA) - 04/12/2003
 dnl
 AC_DEFUN([AC_LINKER_OPTIONS],[
   for opt in "-Xlinker -export-dynamic" -transitive_link; do
-    AX_CXX_OPTION($opt,LDEXPDYNFLAGS,flag=yes,flag=no)
+    AC_CXX_OPTION($opt,LDEXPDYNFLAGS,flag=yes,flag=no)
     if test "$flag" = "yes"; then
       break
     fi

@@ -30,7 +30,7 @@ dnl@id $Id$
 dnl ----------------------------------------------------------------
 dnl CHECK_PTHREADS
 AC_DEFUN(CHECK_PTHREADS,[
-AX_CXX_OPTION(-pthread,CPPFLAGS,flag=yes,flag=no)
+AC_CXX_OPTION(-pthread,CPPFLAGS,flag=yes,flag=no)
 
 if test $flag = no; then
   AC_REQUIRE([AC_CANONICAL_SYSTEM])dnl

@@ -25,7 +25,7 @@ dnl Check options for C++ compiler
 dnl
 dnl @author Bernard Secher - 15/01/2004
 dnl
-AC_DEFUN([AX_CXX_OPTION], [
+AC_DEFUN([AC_CXX_OPTION], [
   AC_MSG_CHECKING(CXXFLAGS for $CXX in $1)
   cat > conftest.cxx <<EOF
 int main(int argc, char **argv) { return 0; }

@@ -28,12 +28,12 @@ dnl
 AC_DEFUN([AC_CXX_TEMPLATE_OPTIONS],[
 dnl 
   for opt in -ftemplate-depth-42 "-pending_instantiations 42" ; do
-    AX_CXX_OPTION($opt,CXXTMPDPTHFLAGS,flag=yes,flag=no)
+    AC_CXX_OPTION($opt,CXXTMPDPTHFLAGS,flag=yes,flag=no)
     if test "$flag" = "yes"; then
       break
     fi
     AC_SUBST(CXXTMPDPTHFLAGS)
   done
 dnl
-  AX_CXX_OPTION(-tweak,CXXFLAGS)
+  AC_CXX_OPTION(-tweak,CXXFLAGS)
 ])
