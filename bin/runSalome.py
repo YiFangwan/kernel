@@ -211,8 +211,8 @@ class SessionServer(Server):
         '--with','ModuleCatalog','(','-common']
    SCMD2=['-personal','${HOME}/Salome/resources/CatalogModulePersonnel.xml',')',
         '--with','SALOMEDS','(',')',
-        '--with','Container','(','FactoryServer','-ORBInitRef','NameService=corbaname::localhost',')',
-        '--with','Container','(','SuperVisionContainer','-ORBInitRef','NameService=corbaname::localhost',')']
+        '--with','Container','(','FactoryServer','-ORBInitRef','NameService=corbaname::localhost',')']
+        #'--with','Container','(','SuperVisionContainer','-ORBInitRef','NameService=corbaname::localhost',')']
    def setpath(self,liste_modules):
       cata_path=[]
       for module in liste_modules:
@@ -438,28 +438,28 @@ def startSalome():
   # Lancement Container Python local
   #
 
-  #if with_container_python:
-	  #ContainerPYServer().run()
+  if with_container_python:
+	  ContainerPYServer().run()
 
 	  #
 	  # Attente de la disponibilité du Container Python local dans le Naming Service
 	  #
 	
-	  #clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
+	  clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
 
-  #if with_container_superv:
+  if with_container_superv:
 
 	#
 	# Lancement Container Supervision local
 	#
 
-	#ContainerSUPERVServer().run()
+	ContainerSUPERVServer().run()
 
 	#
 	# Attente de la disponibilité du Container Supervision local dans le Naming Service
 	#
 
-	#clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
+	clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
 
 
   #
