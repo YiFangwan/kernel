@@ -123,6 +123,8 @@ public:
   virtual CORBA::Object_ptr ConvertIORToObject(const char* theIOR) { return _orb->string_to_object(theIOR); };  
   
   void ping(){};
+
+  virtual long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 };
 
 #endif 

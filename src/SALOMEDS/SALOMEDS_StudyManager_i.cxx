@@ -24,6 +24,15 @@
 #include <strstream>
 using namespace std;
 
+#ifdef WNT
+#include <process.h>
+#else
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
+#include "OpUtil.hxx"
+
 #include "SALOME_GenericObj_i.hh"
 
 #include "Utils_ExceptHandlers.hxx"
@@ -401,6 +410,20 @@ SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORB
   }  
 
   return driver;
+}
+//===========================================================================
+//   PRIVATE FUNCTIONS
+//===========================================================================
+long SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+{
+#ifdef WNT
+  long pid = (long)_getpid();
+#else
+  long pid = (long)getpid();
+#endif  
+  isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
+  SALOMEDSImpl_StudyManager* aManager = _impl.operator->();
+  return ((long)aManager);
 }
 
 //===========================================================================

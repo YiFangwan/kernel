@@ -13,6 +13,15 @@ using namespace std;
 #include <TCollection_AsciiString.hxx>
 #include <map>
 
+#ifdef WNT
+#include <process.h>
+#else
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
+#include "OpUtil.hxx"
+
 UNEXPECT_CATCH(GALockProtection, SALOMEDS::GenericAttribute::LockProtection);
 
 SALOMEDS_GenericAttribute_i::SALOMEDS_GenericAttribute_i(const Handle(TDF_Attribute)& theImpl, CORBA::ORB_ptr theOrb)
@@ -40,7 +49,7 @@ SALOMEDS::SObject_ptr SALOMEDS_GenericAttribute_i::GetSObject()
 {
   SALOMEDS::Locker lock;
   if (_impl.IsNull() || _impl->Label().IsNull()) return SALOMEDS::SObject::_nil();
-  Handle(SALOMEDSImpl_SObject) so_impl = SALOMEDSImpl_Study::GetStudy(_impl->Label())->GetSObject(_impl->Label());
+  Handle(SALOMEDSImpl_SObject) so_impl = SALOMEDSImpl_Study::SObject(_impl->Label());
   SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New (so_impl, _orb);
   return so._retn();
 }
@@ -55,6 +64,16 @@ char* SALOMEDS_GenericAttribute_i::Type()
 
   return "";
 }
+
+char* SALOMEDS_GenericAttribute_i::GetClassType()
+{
+  SALOMEDS::Locker lock;
+  if (!_impl.IsNull()) {
+    return CORBA::string_dup(SALOMEDSImpl_GenericAttribute::Impl_GetClassType(_impl));
+  }
+	  
+  return "";
+}  
 
 
 SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute(const Handle(TDF_Attribute)& theAttr,
@@ -78,3 +97,18 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute(cons
 
   return anAttribute._retn(); 
 }                                                                                                                    
+
+//===========================================================================
+//   PRIVATE FUNCTIONS
+//===========================================================================
+long SALOMEDS_GenericAttribute_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+{
+#ifdef WNT
+  long pid = (long)_getpid();
+#else
+  long pid = (long)getpid();
+#endif  
+  isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
+  TDF_Attribute* local_impl = _impl.operator->();
+  return ((long)local_impl);
+}

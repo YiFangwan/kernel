@@ -9,7 +9,7 @@ using namespace std;
 CORBA::Boolean SALOMEDS_AttributeOpened_i::IsOpened() 
 {
   SALOMEDS::Locker lock; 
-  return (Handle(SALOMEDSImpl_AttributeOpened)::DownCast(_impl)->Get() == 1);
+  return (Handle(SALOMEDSImpl_AttributeOpened)::DownCast(_impl)->IsOpened() == 1);
 }
                                                            
 void SALOMEDS_AttributeOpened_i::SetOpened(CORBA::Boolean value) 
@@ -18,5 +18,5 @@ void SALOMEDS_AttributeOpened_i::SetOpened(CORBA::Boolean value)
   
   Standard_Integer val = 0;
   if (value != 0) val = 1;
-  Handle(SALOMEDSImpl_AttributeOpened)::DownCast(_impl)->Set(val);
+  Handle(SALOMEDSImpl_AttributeOpened)::DownCast(_impl)->SetOpened(val);
 }

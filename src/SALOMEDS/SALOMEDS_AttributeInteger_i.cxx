@@ -9,14 +9,14 @@ using namespace std;
 CORBA::Long SALOMEDS_AttributeInteger_i::Value() 
 {
   SALOMEDS::Locker lock; 
-  return Handle(SALOMEDSImpl_AttributeInteger)::DownCast(_impl)->Get();
+  return Handle(SALOMEDSImpl_AttributeInteger)::DownCast(_impl)->Value();
 }
 
 void SALOMEDS_AttributeInteger_i::SetValue(CORBA::Long value) 
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeInteger)::DownCast(_impl)->Set(value);
+  Handle(SALOMEDSImpl_AttributeInteger)::DownCast(_impl)->SetValue(value);
 }
 
 

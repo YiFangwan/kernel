@@ -9,31 +9,27 @@ using namespace std;
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDS.hxx"
 
-#include <TDF_LabelList.hxx>
-#include <TDF_ListIteratorOfLabelList.hxx>
+#include <TColStd_HSequenceOfTransient.hxx>
 
 void SALOMEDS_AttributeTarget_i::Add(SALOMEDS::SObject_ptr anObject) 
 {
   SALOMEDS::Locker lock; 
   TDF_Label aLabel;
   TDF_Tool::Label(_impl->Label().Data(),anObject->GetID(),aLabel,1);
-  (Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_impl))->Append(aLabel);
+  (Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_impl))->Add(SALOMEDSImpl_Study::SObject(aLabel));
 }
 
 SALOMEDS::Study::ListOfSObject* SALOMEDS_AttributeTarget_i::Get() 
 {
   SALOMEDS::Locker lock; 
-  TDF_LabelList aLList;
+  Handle(TColStd_HSequenceOfTransient) aSeq = (Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_impl))->Get();
   SALOMEDS::Study::ListOfSObject_var aSList = new SALOMEDS::Study::ListOfSObject;
-  (Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_impl))->Get(aLList);
-  if (aLList.Extent() == 0) 
-    return aSList._retn();
-  aSList->length(aLList.Extent());
-  TDF_ListIteratorOfLabelList anIter(aLList);
-  int index;
-  for(index=0;anIter.More();anIter.Next(),index++) {
-    SALOMEDS::SObject_var anSO = SALOMEDS_SObject_i::New(SALOMEDSImpl_Study::GetStudy(anIter.Value())->GetSObject(anIter.Value()), _orb);
-    aSList[index] = anSO;
+  int aLength = aSeq->Length(), i;
+  if (aLength == 0) return aSList._retn();
+  aSList->length(aLength);
+  for(i=1; i <=aLength; i++) {
+    SALOMEDS::SObject_var anSO = SALOMEDS_SObject_i::New(Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i)), _orb);
+    aSList[i-1] = anSO;
   }
   return aSList._retn();
 }
@@ -43,5 +39,5 @@ void SALOMEDS_AttributeTarget_i::Remove(SALOMEDS::SObject_ptr anObject)
   SALOMEDS::Locker lock; 
   TDF_Label aLabel;
   TDF_Tool::Label(_impl->Label().Data(),anObject->GetID(),aLabel,1);
-  (Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_impl))->Remove(aLabel);
+  (Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_impl))->Remove(SALOMEDSImpl_Study::SObject(aLabel));
 }

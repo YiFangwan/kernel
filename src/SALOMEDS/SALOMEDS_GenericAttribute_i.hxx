@@ -26,13 +26,17 @@ public:
 
   void CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection);
   
-  char* Type();
+  virtual char* Type();
+
+  char* GetClassType();
 
   SALOMEDS::SObject_ptr GetSObject();
   
   virtual Handle(TDF_Attribute) GetImpl() { return _impl; }
 
   static SALOMEDS::GenericAttribute_ptr CreateAttribute(const Handle(TDF_Attribute)& theAttr, CORBA::ORB_ptr theOrb);  
+
+  virtual long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 };
 
 #endif

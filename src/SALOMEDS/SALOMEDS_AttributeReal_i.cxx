@@ -12,13 +12,13 @@ using namespace std;
 CORBA::Double SALOMEDS_AttributeReal_i::Value() 
 {
   SALOMEDS::Locker lock;
-  return Handle(SALOMEDSImpl_AttributeReal)::DownCast(_impl)->Get();
+  return Handle(SALOMEDSImpl_AttributeReal)::DownCast(_impl)->Value();
 }
 
 void SALOMEDS_AttributeReal_i::SetValue(CORBA::Double value) 
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  Handle(SALOMEDSImpl_AttributeReal)::DownCast(_impl)->Set(value);
+  Handle(SALOMEDSImpl_AttributeReal)::DownCast(_impl)->SetValue(value);
 }
 

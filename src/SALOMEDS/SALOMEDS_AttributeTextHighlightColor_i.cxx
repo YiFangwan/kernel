@@ -11,7 +11,7 @@ SALOMEDS::Color SALOMEDS_AttributeTextHighlightColor_i::TextHighlightColor()
 {
   SALOMEDS::Locker lock;
   SALOMEDS::Color TextHighlightColor;
-  Handle(TColStd_HArray1OfReal) anArray=Handle(SALOMEDSImpl_AttributeTextHighlightColor)::DownCast(_impl)->GetTextColor();
+  Handle(TColStd_HArray1OfReal) anArray=Handle(SALOMEDSImpl_AttributeTextHighlightColor)::DownCast(_impl)->TextHighlightColor();
   if (anArray.IsNull() || anArray->Length()!=3) { 
     TextHighlightColor.R = 0;
     TextHighlightColor.G = 0;

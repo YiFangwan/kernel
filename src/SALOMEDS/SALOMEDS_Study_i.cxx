@@ -27,6 +27,14 @@ using namespace std;
 #include <TDF_Label.hxx>
 #include <TDF_Attribute.hxx>
 
+#ifdef WNT
+#include <process.h>
+#else
+#include <sys/types.h>
+#include <unistd.h>
+#endif
+
+#include "OpUtil.hxx"
 
 //============================================================================
 /*! Function : SALOMEDS_Study_i
@@ -699,4 +707,19 @@ CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath, const char* theB
   CORBA::Boolean ret = _impl->DumpStudy(aPath, aBaseName, isPublished, factory);
   delete factory;
   return ret;
+}
+
+//===========================================================================
+//   PRIVATE FUNCTIONS
+//===========================================================================
+long SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+{
+#ifdef WNT
+  long pid = (long)_getpid();
+#else
+  long pid = (long)getpid();
+#endif  
+  isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
+  SALOMEDSImpl_Study* local_impl = _impl.operator->();
+  return ((long)local_impl);
 }

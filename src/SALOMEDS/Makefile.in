@@ -13,7 +13,12 @@ VPATH=.:@srcdir@:@top_srcdir@/idl:$(top_srcdir)/idl
 
 EXPORT_HEADERS= \
 	SALOMEDS_StudyManager_i.hxx \
-	SALOMEDS_Driver_i.hxx
+	SALOMEDS_Driver_i.hxx \
+	SALOMEDS_StudyManager.hxx \
+	SALOMEDS_Study.hxx \
+	SALOMEDS_SObject.hxx \
+	SALOMEDS_SComponent.hxx \
+	SALOMEDS_GenericAttribute.hxx
 
 # Libraries targets
 
@@ -58,7 +63,46 @@ LIB_SRC = 	\
 	          SALOMEDS_AttributeTableOfReal_i.cxx \
 		  SALOMEDS_AttributeTableOfString_i.cxx \
 		  SALOMEDS_AttributeStudyProperties_i.cxx \
-		  SALOMEDS_AttributePythonObject_i.cxx
+		  SALOMEDS_AttributePythonObject_i.cxx \
+		  SALOMEDS_SObject.cxx \
+		  SALOMEDS_SComponent.cxx \
+		  SALOMEDS_GenericAttribute.cxx \
+		  SALOMEDS_ChildIterator.cxx \
+		  SALOMEDS_SComponentIterator.cxx \
+		  SALOMEDS_UseCaseIterator.cxx \
+		  SALOMEDS_UseCaseBuilder.cxx \
+		  SALOMEDS_StudyBuilder.cxx \
+		  SALOMEDS_Study.cxx \
+		  SALOMEDS_StudyManager.cxx \
+		  SALOMEDS_AttributeStudyProperties.cxx \
+		  SALOMEDS_AttributeComment.cxx \
+		  SALOMEDS_AttributeDrawable.cxx \
+		  SALOMEDS_AttributeExpandable.cxx \
+		  SALOMEDS_AttributeExternalFileDef.cxx \
+		  SALOMEDS_AttributeFileType.cxx \
+		  SALOMEDS_AttributeFlags.cxx \
+		  SALOMEDS_AttributeGraphic.cxx \
+		  SALOMEDS_AttributeIOR.cxx \
+		  SALOMEDS_AttributeInteger.cxx \
+		  SALOMEDS_AttributeLocalID.cxx \
+		  SALOMEDS_AttributeName.cxx \
+		  SALOMEDS_AttributeOpened.cxx \
+		  SALOMEDS_AttributePythonObject.cxx \
+		  SALOMEDS_AttributeReal.cxx \
+		  SALOMEDS_AttributeSelectable.cxx \
+		  SALOMEDS_AttributeSequenceOfInteger.cxx \
+		  SALOMEDS_AttributePersistentRef.cxx \
+		  SALOMEDS_AttributePixMap.cxx \
+		  SALOMEDS_AttributeSequenceOfReal.cxx \
+		  SALOMEDS_AttributeTableOfInteger.cxx \
+		  SALOMEDS_AttributeTableOfReal.cxx \
+		  SALOMEDS_AttributeTableOfString.cxx \
+		  SALOMEDS_AttributeTarget.cxx \
+		  SALOMEDS_AttributeTextColor.cxx \
+		  SALOMEDS_AttributeTextHighlightColor.cxx \
+		  SALOMEDS_AttributeTreeNode.cxx \
+		  SALOMEDS_AttributeUserID.cxx
+		  
 
 # Executables targets
 BIN = SALOMEDS_Server SALOMEDS_Client

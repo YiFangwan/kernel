@@ -258,5 +258,7 @@ public:
   virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished); 
 
   virtual Handle(SALOMEDSImpl_Study) GetImpl() { return _impl; }
+
+  virtual long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 };
 #endif

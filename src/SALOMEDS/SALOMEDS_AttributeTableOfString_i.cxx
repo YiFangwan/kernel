@@ -20,28 +20,6 @@ using namespace std;
 UNEXPECT_CATCH(ATS_IncorrectIndex, SALOMEDS::AttributeTableOfString::IncorrectIndex);
 UNEXPECT_CATCH(ATS_IncorrectArgumentLength, SALOMEDS::AttributeTableOfString::IncorrectArgumentLength);
 
-#define SEPARATOR '\1'
-
-static TCollection_ExtendedString getUnit(TCollection_ExtendedString theString)
-{
-  TCollection_ExtendedString aString(theString);
-  int aPos = aString.Search(SEPARATOR);
-  if(aPos <= 0 || aPos == aString.Length() ) return TCollection_ExtendedString();
-  return aString.Split(aPos);
-}
-
-static TCollection_ExtendedString getTitle(TCollection_ExtendedString theString)
-{
-  TCollection_ExtendedString aString(theString);
-  int aPos = aString.Search(SEPARATOR);
-  if(aPos < 1) return aString;
-  if(aPos == 1) return TCollection_ExtendedString();
-  aString.Split(aPos-1);
-  return aString;
-}
-
-
-
 void SALOMEDS_AttributeTableOfString_i::SetTitle(const char* theTitle) 
 {
   SALOMEDS::Locker lock;
@@ -67,15 +45,8 @@ void SALOMEDS_AttributeTableOfString_i::SetRowTitle(CORBA::Long theIndex, const 
   CheckLocked();
   Handle(SALOMEDSImpl_AttributeTableOfString) aTable = Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_impl);
   if (theIndex <= 0 || theIndex > aTable->GetNbRows()) throw SALOMEDS::AttributeTableOfString::IncorrectIndex();
-  CORBA::String_var aStr = CORBA::string_dup(theTitle);
-  TCollection_ExtendedString aTitle(aStr);
-  TCollection_ExtendedString aUnit = getUnit(aTable->GetRowTitle(theIndex));
-  if(aUnit.Length() > 0) {
-    aTitle += SEPARATOR;
-    aTitle += aUnit;
-  }
 
-  aTable->SetRowTitle(theIndex, aTitle);
+  aTable->SetRowTitle(theIndex, TCollection_ExtendedString((char*)theTitle));
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetRowTitles(const SALOMEDS::StringSeq& theTitles)
@@ -87,7 +58,7 @@ void SALOMEDS_AttributeTableOfString_i::SetRowTitles(const SALOMEDS::StringSeq& 
   Handle(SALOMEDSImpl_AttributeTableOfString) aTable = Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_impl);
   if (theTitles.length() != aTable->GetNbRows()) throw SALOMEDS::AttributeTableOfString::IncorrectArgumentLength();
   for (int i = 0; i < theTitles.length(); i++) {
-    SetRowTitle(i + 1, CORBA::string_dup(theTitles[i]));
+    aTable->SetRowTitle(i + 1, TCollection_ExtendedString((char*)theTitles[i].in()));
   }
 }
 
@@ -98,7 +69,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetRowTitles()
   SALOMEDS::StringSeq_var aTitles = new SALOMEDS::StringSeq;
   aTitles->length(aTable->GetNbRows());
   for(int i = 0; i < aTitles->length(); i++)
-    aTitles[i] = CORBA::string_dup(TCollection_AsciiString(getTitle(aTable->GetRowTitle(i + 1))).ToCString());
+    aTitles[i] =CORBA::string_dup(TCollection_AsciiString(aTable->GetRowTitle(i + 1)).ToCString());
   return aTitles._retn();
 }
 
@@ -110,8 +81,7 @@ void SALOMEDS_AttributeTableOfString_i::SetColumnTitle(CORBA::Long theIndex, con
   CheckLocked();
   Handle(SALOMEDSImpl_AttributeTableOfString) aTable = Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_impl);
   if (theIndex <= 0 || theIndex > aTable->GetNbColumns()) throw SALOMEDS::AttributeTableOfString::IncorrectIndex();
-  CORBA::String_var aStr = CORBA::string_dup(theTitle);
-  aTable->SetColumnTitle(theIndex, TCollection_ExtendedString(aStr));
+  aTable->SetColumnTitle(theIndex, TCollection_ExtendedString((char*)theTitle));
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetColumnTitles(const SALOMEDS::StringSeq& theTitles)
@@ -123,7 +93,7 @@ void SALOMEDS_AttributeTableOfString_i::SetColumnTitles(const SALOMEDS::StringSe
   Handle(SALOMEDSImpl_AttributeTableOfString) aTable = Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_impl);
   if (theTitles.length() != aTable->GetNbColumns()) throw SALOMEDS::AttributeTableOfString::IncorrectArgumentLength();
   for (int i = 0; i < theTitles.length(); i++) {
-    SetColumnTitle(i + 1, CORBA::string_dup(theTitles[i]));
+    aTable->SetColumnTitle(i + 1, TCollection_ExtendedString((char*)theTitles[i].in()));
   }
 }
 
@@ -147,12 +117,7 @@ void SALOMEDS_AttributeTableOfString_i::SetRowUnit(CORBA::Long theIndex, const c
   CheckLocked();
   Handle(SALOMEDSImpl_AttributeTableOfString) aTable = Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_impl);
   if (theIndex <= 0 || theIndex > aTable->GetNbRows()) throw SALOMEDS::AttributeTableOfString::IncorrectIndex();
-  CORBA::String_var aStr = CORBA::string_dup(theUnit);
-  TCollection_ExtendedString aTitle = getTitle(aTable->GetRowTitle(theIndex));
-  TCollection_ExtendedString aUnit(aStr);
-  aTitle += SEPARATOR;
-  aTitle += aUnit;
-  aTable->SetRowTitle(theIndex, aTitle);
+  aTable->SetRowUnit(theIndex, TCollection_ExtendedString((char*)theUnit));
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetRowUnits(const SALOMEDS::StringSeq& theUnits)
@@ -164,7 +129,7 @@ void SALOMEDS_AttributeTableOfString_i::SetRowUnits(const SALOMEDS::StringSeq& t
   Handle(SALOMEDSImpl_AttributeTableOfString) aTable = Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_impl);
   if (theUnits.length() != aTable->GetNbRows()) throw SALOMEDS::AttributeTableOfString::IncorrectArgumentLength();
   for (int i = 0; i < theUnits.length(); i++) {
-    SetRowUnit(i + 1, CORBA::string_dup(theUnits[i]));
+    aTable->SetRowUnit(i + 1, TCollection_ExtendedString((char*)theUnits[i].in()));
   }
 }
 
@@ -175,7 +140,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetRowUnits()
   SALOMEDS::StringSeq_var aUnits = new SALOMEDS::StringSeq;
   aUnits->length(aTable->GetNbRows());
   for(int i = 0; i < aUnits->length(); i++)
-    aUnits[i] = CORBA::string_dup(TCollection_AsciiString(getUnit(aTable->GetRowTitle(i + 1))).ToCString());
+    aUnits[i] = CORBA::string_dup(TCollection_AsciiString(aTable->GetRowTitle(i + 1)).ToCString());
   return aUnits._retn();
 }
 

@@ -14,7 +14,7 @@ char* SALOMEDS_AttributeComment_i::Value()
   SALOMEDS::Locker lock;
   
   CORBA::String_var c_s =
-    CORBA::string_dup(TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeComment)::DownCast(_impl)->Get()).ToCString());
+    CORBA::string_dup(TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeComment)::DownCast(_impl)->Value()).ToCString());
   return c_s._retn();
 }
 
@@ -24,5 +24,5 @@ void SALOMEDS_AttributeComment_i::SetValue(const char* value)
 
   CheckLocked();
   TCollection_AsciiString aStr((char*)value);
-  Handle(SALOMEDSImpl_AttributeComment)::DownCast(_impl)->Set(TCollection_ExtendedString(aStr));
+  Handle(SALOMEDSImpl_AttributeComment)::DownCast(_impl)->SetValue(TCollection_ExtendedString(aStr));
 }
