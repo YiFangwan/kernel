@@ -671,6 +671,34 @@ SALOMEDS_StudyBuilder_i::Addreference(SALOMEDS::SObject_ptr me,
   if(!CORBA::is_nil(_callbackOnRemove) && Lab.IsDescendant(_doc->Main())) _callbackOnRemove->OnRemoveSObject(me);
 }
 
+//============================================================================
+/*! Function : RemoveReference
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_StudyBuilder_i::RemoveReference(SALOMEDS::SObject_ptr me)
+{
+  SALOMEDS::SObject_var theReferencedObject;
+  if(!me->ReferencedObject(theReferencedObject)) return;  //No reference is found
+
+  CheckLocked();
+  TDF_Label Lab;
+  ASSERT(!CORBA::is_nil(me));
+  CORBA::String_var meid = me->GetID();
+  TDF_Tool::Label(_doc->GetData(),meid,Lab);  
+
+  Lab.ForgetAttribute(TDF_Reference::GetID());  
+
+  TDF_Label RefLab;  
+  ASSERT(!CORBA::is_nil(theReferencedObject));
+  CORBA::String_var roid = theReferencedObject->GetID();
+  TDF_Tool::Label(_doc->GetData(),roid,RefLab);
+
+  RemoveAttribute(theReferencedObject, "AttributeTarget");
+  //if(!CORBA::is_nil(_callbackOnRemove) && Lab.IsDescendant(_doc->Main())) _callbackOnRemove->OnRemoveSObject(me);
+}
+
+
 
 //============================================================================
 /*! Function : AddDirectory

@@ -122,6 +122,8 @@ public:
 
   virtual void Addreference(SALOMEDS::SObject_ptr me, SALOMEDS::SObject_ptr thereferencedObject);
 
+  virtual void RemoveReference(SALOMEDS::SObject_ptr me);
+
   virtual void SetGUID(SALOMEDS::SObject_ptr anObject, const char* theGUID);
   virtual bool IsGUID(SALOMEDS::SObject_ptr anObject, const char* theGUID);
 

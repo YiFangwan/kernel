@@ -502,6 +502,14 @@ during each working session.
 
     void Addreference(in SObject anObject,
 		      in SObject theReferencedObject) ;
+
+/*!
+    Removes a reference from %anObject to another object.
+    \param anObject The %SObject which contains a reference
+*/
+
+    void RemoveReference(in SObject anObject) ;
+
 /*!
    Adds a directory in the %Study.
    \param theName String parameter defining the name of the directory.
