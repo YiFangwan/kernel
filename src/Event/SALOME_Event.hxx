@@ -79,10 +79,12 @@ class QSemaphore;
 class SALOME_Event
 {
 public:
-  SALOME_Event( int salomeEventType, bool wait, bool autoRelease = false );
+  SALOME_Event( int salomeEventType = -1, bool wait = true, bool autoRelease = false );
   virtual ~SALOME_Event();
 
   int getType() const { return myType; }
+
+  virtual bool Execute() { return false; }
 
   void process();
   void processed();
@@ -95,5 +97,11 @@ private:
   bool        myAutoRelease;
   QSemaphore* mySemaphore;
 };
+
+
+inline void ProcessVoidEvent(SALOME_Event* theEvent){
+  theEvent->process();
+  theEvent->release();
+}
 
 #endif

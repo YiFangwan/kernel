@@ -475,6 +475,9 @@ void QAD_Desktop::processEvent( SALOME_Event* theEvent )
   if ( !theEvent )
     return;
 
+  if(theEvent->Execute())
+    return;
+
   for ( ComponentMap::iterator it = myComponents.begin(); it != myComponents.end(); it++ ) {
     if ( it.data()->CanProcessEvent( theEvent ) && it.data()->ProcessEvent( theEvent ) )
       break;
