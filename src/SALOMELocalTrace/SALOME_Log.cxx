@@ -29,11 +29,15 @@
 #include <string>
 #include <iostream>
 
+#include "SALOME_Log.hxx"
 using namespace std;
 
-#include "SALOME_Log.hxx"
+SALOME_Log* SALOME_Log::_singleton = 0;
 
-SALOME_Log::SALOME_Log()
+// log line size: if too short, log line is truncated, without crash...
+char SALOME_LogStr[1024]; 
+
+SALOME_Log::SALOME_Log(): ostrstream(SALOME_LogStr,sizeof(SALOME_LogStr))
 {
 }
 
@@ -41,10 +45,10 @@ SALOME_Log::~SALOME_Log()
 {
 }
 
-SALOME_Log& SALOME_Log::Instance()
+SALOME_Log* SALOME_Log::Instance()
 {
-  static SALOME_Log instance;
-  return instance;
+  if (_singleton == 0) _singleton = new SALOME_Log();
+  return _singleton;
 }
 
 void SALOME_Log::putMessage(std::ostream& msg)
@@ -54,4 +58,5 @@ void SALOME_Log::putMessage(std::ostream& msg)
   rdbuf()->freeze(false);
   seekp(0);
 }
+
 

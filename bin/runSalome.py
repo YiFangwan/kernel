@@ -100,14 +100,15 @@ if "SUPERV" in modules_list and not 'superv' in args['containers']:
 class Server:
    CMD=[]
    if args['xterm']:
-	ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-e']
+	ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-hold', '-e']
    else:
    	ARGS=[]	
 
    def run(self):
        global process_id
-       command = self.ARGS+self.CMD
-       #print "args = ", args
+       env_ld_library_path=['env', 'LD_LIBRARY_PATH='+ os.getenv("LD_LIBRARY_PATH")]
+       command = self.ARGS+ env_ld_library_path + self.CMD
+       #print "command = ", command
        pid = os.spawnvp(os.P_NOWAIT, command[0], command)
        process_id[pid]=self.CMD
 
@@ -159,7 +160,23 @@ class SessionLoader(Server):
        CMD=CMD+['GUI']
 
 class SessionServer(Server):
-   CMD=['SALOME_Session_Server']
+   #CMD=['SALOME_Session_Server']
+   SCMD1=['SALOME_Session_Server',
+        '--with','Registry','(','--salome_session','theSession',')',
+        '--with','ModuleCatalog','(','-common']
+   SCMD2=['-personal','${HOME}/Salome/resources/CatalogModulePersonnel.xml',')',
+        '--with','SALOMEDS','(',')',
+        '--with','Container','(','FactoryServer',')']
+   def setpath(self,modules_list):
+      cata_path=[]
+      list_modules = modules_list[:]
+      list_modules.reverse()
+      for module in ["KERNEL"] + list_modules:
+          module_root_dir=modules_root_dir[module]
+          module_cata=module+"Catalog.xml"
+          print "   ", module_cata
+          cata_path.extend(glob.glob(os.path.join(module_root_dir,"share",args['appname'],"resources",module_cata)))
+      self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
 
 class NotifyServer(Server):
     myLogName = os.environ["LOGNAME"]
@@ -257,28 +274,28 @@ def startSalome():
   # Lancement Registry Server
   #
 
-  RegistryServer().run()
+  #RegistryServer().run()
 
   #
   # Attente de la disponibilité du Registry dans le Naming Service
   #
 
-  clt.waitNS("/Registry")
+  #clt.waitNS("/Registry")
 
   #
   # Lancement Catalog Server
   #
 
-  cataServer=CatalogServer()
-  cataServer.setpath(modules_list)
-  cataServer.run()
+  #cataServer=CatalogServer()
+  #cataServer.setpath(modules_list)
+  #cataServer.run()
 
   #
   # Attente de la disponibilité du Catalog Server dans le Naming Service
   #
 
-  import SALOME_ModuleCatalog
-  clt.waitNS("/Kernel/ModulCatalog",SALOME_ModuleCatalog.ModuleCatalog)
+  #import SALOME_ModuleCatalog
+  #clt.waitNS("/Kernel/ModulCatalog",SALOME_ModuleCatalog.ModuleCatalog)
 
   #
   # Lancement SalomeDS Server
@@ -286,7 +303,7 @@ def startSalome():
 
   os.environ["CSF_PluginDefaults"]=os.path.join(modules_root_dir["KERNEL"],"share",args['appname'],"resources")
   os.environ["CSF_SALOMEDS_ResourcesDefaults"]=os.path.join(modules_root_dir["KERNEL"],"share",args['appname'],"resources")
-  SalomeDSServer().run()
+  #SalomeDSServer().run()
 
   if "GEOM" in modules_list:
 	print "GEOM OCAF Resources"
@@ -297,21 +314,29 @@ def startSalome():
   # Attente de la disponibilité du SalomeDS dans le Naming Service
   #
 
-  clt.waitNS("/myStudyManager")
+  #clt.waitNS("/myStudyManager")
 
   #
   # Lancement Session Server
   #
 
-  SessionServer().run()
+  mySessionServ=SessionServer()
+  mySessionServ.setpath(modules_list)
+  mySessionServ.run()
+  #SessionServer().run()
 
   #
   # Attente de la disponibilité du Session Server dans le Naming Service
   #
 
-  import SALOME
-  session=clt.waitNS("/Kernel/Session",SALOME.Session)
+  #import SALOME
+  #session=clt.waitNS("/Kernel/Session",SALOME.Session)
 
+  if os.getenv("HOSTNAME") == None:
+     if os.getenv("HOST") == None:
+        os.environ["HOSTNAME"]="localhost"
+     else:
+        os.environ["HOSTNAME"]=os.getenv("HOST")
 
   theComputer = os.getenv("HOSTNAME")
   computerSplitName = theComputer.split('.')
@@ -320,14 +345,14 @@ def startSalome():
   #
   # Lancement Container C++ local
   #
-  if 'cpp' in args['containers']:
-	  ContainerCPPServer().run()
+  #if 'cpp' in args['containers']:
+	  #ContainerCPPServer().run()
 
 	  #
 	  # Attente de la disponibilité du Container C++ local dans le Naming Service
 	  #
 
-	  clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
+	  #clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
 
   #
   # Lancement Container Python local

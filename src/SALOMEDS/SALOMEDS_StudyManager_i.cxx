@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "utilities.h"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
@@ -75,8 +74,9 @@ using namespace std;
 #include "Utils_CorbaException.hxx"
 
 #include <strstream>
+using namespace std;
 
-#include <SALOME_GenericObj_i.hh>
+#include "SALOME_GenericObj_i.hh"
 
 #include "Utils_ExceptHandlers.hxx"
 

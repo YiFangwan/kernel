@@ -33,12 +33,13 @@
 
 #include <string>
 #include <iostream>
+#include <cstdlib>
 #include "SALOME_Log.hxx"
 
 /* ---  INFOS is always defined (without _DEBUG_): to be used for warnings, with release version --- */
 
-#define INFOS(msg)    {SLog.putMessage(SLog<<__FILE__<<" ["<<__LINE__<<"] : "<<msg<<endl<<ends);}
-#define PYSCRIPT(msg) {SLog.putMessage(SLog<<"---PYSCRIPT--- "<<msg<<endl<<ends);}
+#define INFOS(msg)    {SLog->putMessage(*SLog<<__FILE__<<" ["<<__LINE__<<"] : "<<msg<<endl);}
+#define PYSCRIPT(msg) {SLog->putMessage(*SLog<<"---PYSCRIPT--- "<<msg<<endl);}
 
 /* --- To print date and time of compilation of current source --- */
 
@@ -50,6 +51,8 @@
 #define COMPILER		"KCC" 
 #elif defined ( __PGI )
 #define COMPILER		"pgCC" 
+#elif defined ( __alpha )
+#define COMPILER		"cxx" 
 #else
 #define COMPILER		"undefined" 
 #endif
@@ -59,28 +62,28 @@
 #endif
 
 #define INFOS_COMPILATION { \
-			   SLog.putMessage(\
-					   SLog<<__FILE__<<" ["<< __LINE__<<"] : "\
+			   SLog->putMessage(\
+					   *SLog<<__FILE__<<" ["<< __LINE__<<"] : "\
 					   << "COMPILED with " << COMPILER \
 					   << ", " << __DATE__ \
-					   << " at " << __TIME__ <<endl<<ends); }
+					   << " at " << __TIME__ <<endl); }
 
 #ifdef _DEBUG_
 
 /* --- the following MACROS are useful at debug time --- */
 
-#define MYTRACE SLog << "- Trace " << __FILE__ << " [" << __LINE__ << "] : " 
+#define MYTRACE *SLog << "- Trace " << __FILE__ << " [" << __LINE__ << "] : " 
 
-#define MESSAGE(msg) {SLog.putMessage( MYTRACE <<msg<<endl<<ends); }
-#define SCRUTE(var)  {SLog.putMessage( MYTRACE << #var << "=" << var <<endl<<ends); }
+#define MESSAGE(msg) {SLog->putMessage( MYTRACE <<msg<<endl<<ends); }
+#define SCRUTE(var)  {SLog->putMessage( MYTRACE << #var << "=" << var <<endl<<ends); }
 
-#define REPERE SLog << "   --------------" << endl 
+#define REPERE *SLog << "   --------------" << endl 
 #define BEGIN_OF(msg) {REPERE;MYTRACE<<"Begin of: "     <<msg<<endl;REPERE;} 
 #define END_OF(msg)   {REPERE;MYTRACE<<"Normal end of: "<<msg<<endl;REPERE;} 
 
 #define HERE {cout<<flush ;cerr<<"- Trace "<<__FILE__<<" ["<<__LINE__<<"] : "<<flush ;}
 
-#define INTERRUPTION(code) {HERE;cerr<<"INTERRUPTION return code= "<<code<< endl;exit(code);}
+#define INTERRUPTION(code) {HERE;cerr<<"INTERRUPTION return code= "<<code<< endl;std::exit(code);}
 
 #ifndef ASSERT
 #define ASSERT(condition) \

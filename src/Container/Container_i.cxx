@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include "SALOME_Container_i.hxx"
@@ -38,6 +37,7 @@ using namespace std;
 #include <unistd.h>
 
 #include "utilities.h"
+using namespace std;
 
 bool _Sleeping = false ;
 
@@ -52,15 +52,23 @@ char ** _ArgV ;
 extern "C" {void ActSigIntHandler() ; }
 extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 
+Engines_Container_i::Engines_Container_i () :
+ _numInstance(0)
+{
+}
+
 Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb, 
 					  PortableServer::POA_ptr poa,
 					  char *containerName ,
-                                          int argc , char* argv[] ) :
+                                          int argc , char* argv[],
+					  bool regist,
+					  bool activ ) :
  _numInstance(0)
 {
   _pid = (long)getpid();
 
-  ActSigIntHandler() ;
+  if(regist)
+    ActSigIntHandler() ;
 
   _ArgC = argc ;
   _ArgV = argv ;
@@ -77,7 +85,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
   }
   string hostname = GetHostname();
   MESSAGE(hostname << " " << getpid() << " Engines_Container_i starting argc "
-          << _argc << " Thread " << pthread_self() ) ;
+	  << _argc << " Thread " << pthread_self() ) ;
   i = 0 ;
   while ( _argv[ i ] ) {
     MESSAGE("           argv" << i << " " << _argv[ i ]) ;
@@ -104,44 +112,24 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
-  MESSAGE("activate object");
-  _id = _poa->activate_object(this);
+  // Pour les containers paralleles: il ne faut pas activer le container generique, mais le container specialise
+  if(activ){
+    MESSAGE("activate object");
+    _id = _poa->activate_object(this);
+  }
 
-//   _NS = new SALOME_NamingService(_orb);
-  _NS = SINGLETON_<SALOME_NamingService>::Instance() ;
-  ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
-  _NS->init_orb( orb ) ;
+  // Pour les containers paralleles: il ne faut pas enregistrer le container generique, mais le container specialise
+  if(regist){
+    //   _NS = new SALOME_NamingService(_orb);
+    _NS = SINGLETON_<SALOME_NamingService>::Instance() ;
+    ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
+    _NS->init_orb( orb ) ;
 
-  Engines::Container_ptr pCont 
-    = Engines::Container::_narrow(_this());
-  SCRUTE(_containerName);
-  _NS->Register(pCont, _containerName.c_str()); 
-}
-
-// Constructeur pour composant parallele : ne pas faire appel au naming service
-Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb, 
-					  PortableServer::POA_ptr poa,
-					  char *containerName,
-					  int flag ) 
-  : _numInstance(0)
-{
-  _pid = (long)getpid();
-  string hostname = GetHostname();
-  SCRUTE(hostname);
-
-  _containerName = "/Containers/";
-  if (strlen(containerName)== 0)
-    {
-      _containerName += hostname;
-    }
-  else
-    {
-      _containerName += containerName;
-    }
-
-  _orb = CORBA::ORB::_duplicate(orb) ;
-  _poa = PortableServer::POA::_duplicate(poa) ;
-
+    Engines::Container_ptr pCont 
+      = Engines::Container::_narrow(_this());
+    SCRUTE(_containerName);
+    _NS->Register(pCont, _containerName.c_str()); 
+  }
 }
 
 Engines_Container_i::~Engines_Container_i()
@@ -166,6 +154,7 @@ void Engines_Container_i::ping()
   MESSAGE("Engines_Container_i::ping() pid "<< getpid());
 }
 
+//! Kill current container
 bool Engines_Container_i::Kill_impl() {
   MESSAGE("Engines_Container_i::Kill() pid "<< getpid() << " containerName "
           << _containerName.c_str() << " machineName "
@@ -173,6 +162,7 @@ bool Engines_Container_i::Kill_impl() {
   exit( 0 ) ;
 }
 
+//! Launch a new container from the current container
 Engines::Container_ptr Engines_Container_i::start_impl(
                                       const char* ContainerName ) {
   MESSAGE("start_impl argc " << _argc << " ContainerName " << ContainerName
@@ -186,12 +176,12 @@ Engines::Container_ptr Engines_Container_i::start_impl(
     cont += machineName() ;
     cont += "/" ;
     cont += ContainerName;
-    MESSAGE(machineName() << " start_impl unknown container " << cont.c_str()
+    INFOS(machineName() << " start_impl unknown container " << cont.c_str()
           << " try to Resolve" );
     obj = _NS->Resolve( cont.c_str() );
     nilvar = CORBA::is_nil( obj ) ;
     if ( nilvar ) {
-      MESSAGE(machineName() << " start_impl unknown container "
+      INFOS(machineName() << " start_impl unknown container "
             << ContainerName);
     }
   }
@@ -226,12 +216,12 @@ Engines::Container_ptr Engines_Container_i::start_impl(
   MESSAGE("system(" << shstr << ")") ;
   int status = system( shstr.c_str() ) ;
   if (status == -1) {
-    MESSAGE("Engines_Container_i::start_impl SALOME_Container failed (system command status -1)") ;
+    INFOS("Engines_Container_i::start_impl SALOME_Container failed (system command status -1)") ;
   }
   else if (status == 217) {
-    MESSAGE("Engines_Container_i::start_impl SALOME_Container failed (system command status 217)") ;
+    INFOS("Engines_Container_i::start_impl SALOME_Container failed (system command status 217)") ;
   }
-  MESSAGE(machineName() << " Engines_Container_i::start_impl SALOME_Container launch done");
+  INFOS(machineName() << " Engines_Container_i::start_impl SALOME_Container launch done");
 
 //   pid_t pid = fork() ;
 //   if ( pid == 0 ) {
@@ -271,7 +261,7 @@ Engines::Container_ptr Engines_Container_i::start_impl(
       obj = _NS->Resolve(cont.c_str());
       nilvar = CORBA::is_nil( obj ) ;
       if ( nilvar ) {
-        MESSAGE(count << ". " << machineName()
+        INFOS(count << ". " << machineName()
               << " start_impl unknown container " << cont.c_str());
         count -= 1 ;
       }
@@ -420,7 +410,7 @@ void ActSigIntHandler() {
     exit(0) ;
   }
   else {
-    MESSAGE(pthread_self() << "SigIntHandler activated") ;
+    INFOS(pthread_self() << "SigIntHandler activated") ;
   }
 }
 
