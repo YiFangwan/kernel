@@ -3252,10 +3252,10 @@ SALOMEGUI* QAD_Desktop::getComponentGUI( const QString& component )
 #else
 	fileString = QAD_Tools::addSlash( dir ) + "lib" + getComponentName( component ) + "GUI.so" ;
 #endif
-    
+
 	fileInfo.setFile(fileString) ;
 	if (fileInfo.exists()) {
-	  //	MESSAGE ( " GUI library = " << fileString );
+	  // MESSAGE( " GUI library = " << fileString.latin1() );
 	  ComponentLib = fileInfo.fileName() ;
 	  _islibso = true;
 	  break;
@@ -3316,7 +3316,7 @@ SALOMEGUI* QAD_Desktop::getComponentGUI( const QString& component )
 	wc.stop();
 	QMessageBox::critical( this,
 			      tr("ERR_ERROR"),
-			      tr("ERR_LIBGUI" ).arg(component) );
+			      tr("ERR_GET_GUI_FAILED" ).arg(component) );
 	return aCompGUI;
       }
     }
@@ -3324,7 +3324,7 @@ SALOMEGUI* QAD_Desktop::getComponentGUI( const QString& component )
       wc.stop();
       QMessageBox::critical( this,
 			    tr("ERR_ERROR"),
-			    tr("ERR_LIBGUI" ).arg(component) );
+			    tr("ERR_GET_GUI_NOT_FOUND" ).arg(ComponentLib) );
       return aCompGUI;
     }
   }
