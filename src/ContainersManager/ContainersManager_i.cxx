@@ -112,7 +112,7 @@ void Manager_i::destroy() {
   MESSAGE( "Manager_i::destroy " << _ListOfEnginesComponents.size() << " components" ) ;
   for ( i = 0 ; i < _ListOfEnginesComponents.size() ; i++ ) {
     try {
-      _NamingService->Destroy_Name( _ListOfComponentsNames[ i ].c_str() ) ;
+//      _NamingService->Destroy_Name( _ListOfComponentsNames[ i ].c_str() ) ;
       _ListOfEnginesComponents[ i ]->destroy() ;
       MESSAGE( "Manager_i::destroy Component " << _ListOfComponentsNames[ i ] ) ;
     }
@@ -123,7 +123,7 @@ void Manager_i::destroy() {
   MESSAGE( "Manager_i::destroy " << _ListOfEnginesContainers.size() << " containers" ) ;
   for ( i = 0 ; i < _ListOfEnginesContainers.size() ; i++ ) {
     try {
-      _NamingService->Destroy_Name( _ListOfContainersNames[ i ].c_str() ) ;
+//      _NamingService->Destroy_Name( _ListOfContainersNames[ i ].c_str() ) ;
       _ListOfEnginesContainers[ i ]->destroy() ;
       MESSAGE( "Manager_i::destroy Container " << _ListOfContainersNames[ i ] ) ;
     }
@@ -135,11 +135,12 @@ void Manager_i::destroy() {
   CORBA::release(_Poa) ;
   delete(_Id) ;
   this->_remove_ref();
-  _NamingService->Destroy_Name( "/Kernel/ContainersManager" ) ;
+//  _NamingService->Destroy_Name( "/Kernel/ContainersManager" ) ;
 }
 
 Manager_i::~Manager_i() {
   MESSAGE( "Manager_i::~Manager_i" ) ;
+  exit( 0 ) ;
 }
 
 Containers::MachineParameters * Manager_i::Parameters() {
@@ -320,19 +321,25 @@ Engines::ListOfContainers * Manager_i::FindContainersLocked( Containers::Machine
 	}
       }
       if ( !CORBA::is_nil( _ContainerObject ) ) {
-        _EnginesContainer = Engines::Container::_narrow( _ContainerObject ) ;
-        if ( _EnginesContainer->type() == MyParams.ContainerType ) {
-          int size = _ListOfContainers->length() ;
-          _ListOfContainers->length( size + 1 ) ;
-          _ListOfContainers[ size ] = Engines::Container::_duplicate( _EnginesContainer ) ;
-          MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
-                   << _EnginesContainer->name() << " " << _EnginesContainer->type() ) ;
+	try {
+          _EnginesContainer = Engines::Container::_narrow( _ContainerObject ) ;
+          if ( MyParams.ContainerType == Engines::Undefined ||
+            _EnginesContainer->type() == MyParams.ContainerType ) {
+            int size = _ListOfContainers->length() ;
+            _ListOfContainers->length( size + 1 ) ;
+            _ListOfContainers[ size ] = Engines::Container::_duplicate( _EnginesContainer ) ;
+            MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
+                     << _EnginesContainer->name() << " " << _EnginesContainer->type() ) ;
+          }
+          else {
+            MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
+                     << _EnginesContainer->name() << " " << _EnginesContainer->type() << " # "
+                     << MyParams.ContainerType ) ;
+  	  }
         }
-        else {
-          MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
-                   << _EnginesContainer->name() << " " << _EnginesContainer->type() << " # "
-                   << MyParams.ContainerType ) ;
-	}
+        catch ( ... ) {
+          MESSAGE( "Manager_i::FindContainers " << _FullContainerName << " catched NOT responding " ) ;
+        }
       }
       else {
         MESSAGE( "Manager_i::FindContainers " << _FullContainerName << " unknown" ) ;
@@ -348,21 +355,26 @@ Engines::ListOfContainers * Manager_i::FindContainersLocked( Containers::Machine
           MESSAGE( "Manager_i::FindContainers " << j << " " << _FullContainerName ) ;
           _ContainerObject = _NamingService->Resolve( _FullContainerName.c_str() ) ;
           if ( !CORBA::is_nil( _ContainerObject ) ) {
-            _EnginesContainer = Engines::Container::_narrow( _ContainerObject ) ;
-            if ( MyParams.ContainerType == Engines::Undefined ||
-                 _EnginesContainer->type() == MyParams.ContainerType ) {
-              int size = _ListOfContainers->length() ;
-              _ListOfContainers->length( size + 1 ) ;
-              _ListOfContainers[ size ] = Engines::Container::_duplicate( _EnginesContainer );
-              MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
-                       << _EnginesContainer->name() << " " << _EnginesContainer->type() ) ;
-            }
-            else {
-              MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
-                       << _EnginesContainer->name() << " " << _EnginesContainer->type() << " # "
-                       << MyParams.ContainerType ) ;
-              _EnginesContainer = Engines::Container::_nil() ;
-  	    }
+            try {
+              _EnginesContainer = Engines::Container::_narrow( _ContainerObject ) ;
+              if ( MyParams.ContainerType == Engines::Undefined ||
+                   _EnginesContainer->type() == MyParams.ContainerType ) {
+                int size = _ListOfContainers->length() ;
+                _ListOfContainers->length( size + 1 ) ;
+                _ListOfContainers[ size ] = Engines::Container::_duplicate( _EnginesContainer );
+                MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
+                         << _EnginesContainer->name() << " " << _EnginesContainer->type() ) ;
+              }
+              else {
+                MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
+                         << _EnginesContainer->name() << " " << _EnginesContainer->type() << " # "
+                         << MyParams.ContainerType ) ;
+                _EnginesContainer = Engines::Container::_nil() ;
+  	      }
+	    }
+            catch( ... ) {
+              MESSAGE( "Manager_i::FindContainers " << _FullContainerName << " catched NOT responding" ) ;
+	    }
           }
           else {
             MESSAGE( "Manager_i::FindContainers " << _FullContainerName << " unknown" ) ;
@@ -472,12 +484,17 @@ Engines::Container_ptr Manager_i::FindOrStartContainerLocked( Containers::Machin
             if ( !CORBA::is_nil( _ComponentObject ) ) {
               MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesContainer->machineName() << " "
                        << _EnginesContainer->name() ) ;
-              _EnginesComponent = Engines::Component::_duplicate( Engines::Component::_narrow( _ComponentObject ) ) ;
-              int size = _ListOfComponents->length() ;
-              _ListOfComponents->length( size + 1 ) ;
-              _ListOfComponents[ size ] = Engines::Component::_duplicate( _EnginesComponent ) ;
-              MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesComponent->instanceName()
-                       << " " << _EnginesComponent->interfaceName() ) ;
+              try {
+                _EnginesComponent = Engines::Component::_duplicate( Engines::Component::_narrow( _ComponentObject ) ) ;
+                int size = _ListOfComponents->length() ;
+                _ListOfComponents->length( size + 1 ) ;
+                _ListOfComponents[ size ] = Engines::Component::_duplicate( _EnginesComponent ) ;
+                MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesComponent->instanceName()
+                         << " " << _EnginesComponent->interfaceName() ) ;
+	      }
+              catch ( ... ) {
+                MESSAGE( "Manager_i::FindOrStartContainerLocked catched NOT responding" ) ;
+	      }
 	    }
 	  }
         }
@@ -491,9 +508,15 @@ Engines::Container_ptr Manager_i::FindOrStartContainerLocked( Containers::Machin
     if ( !CORBA::is_nil( _ComponentObject ) ) {
       MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesContainer->machineName() << " "
                << _EnginesContainer->name() << " Component " << _FullComponentName ) ;
-      _EnginesComponent = Engines::Component::_duplicate( Engines::Component::_narrow( _ComponentObject ) ) ;
-      MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesComponent->instanceName() << " "
-               << _EnginesComponent->interfaceName() ) ;
+      try {
+        _EnginesComponent = Engines::Component::_duplicate( Engines::Component::_narrow( _ComponentObject ) ) ;
+        MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesComponent->instanceName() << " "
+                 << _EnginesComponent->interfaceName() ) ;
+      }
+      catch ( ... ) {
+        MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << myParams.HostName << " "
+                 << myParams.ContainerName << " " << _ComponentName << " catched NOT responding" ) ;
+      }
     }
     else {
       MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << myParams.HostName << " "

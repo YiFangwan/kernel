@@ -261,6 +261,14 @@ DefaultParams.ContainerName = 'FactoryServer'
 FactoryServerAddComponent = MyContainersMgr.FindOrLoad_Component( DefaultParams , "AddComponent" )
 print FactoryServerAddComponent.GetContainerRef()._get_name(),FactoryServerAddComponent._get_instanceName(),FactoryServerAddComponent._get_interfaceName()
 
+DefaultParams.ContainerType = Engines.Python
+DefaultParams.ContainerName = ''
+Containers = MyContainersMgr.FindContainers( DefaultParams )
+i = 0
+while i < len( Containers ) :
+    print "Container running on",Containers[ i ]._get_machineName(),"with name",Containers[ i ]._get_name(),"and type",Containers[ i ].type()
+    i = i + 1
+
 DefaultParams.ContainerType = Engines.Undefined
 DefaultParams.ContainerName = ''
 
@@ -286,12 +294,16 @@ while i < len( ListOfAddComponent ) :
 
 ContainerParameters( DefaultParams )
 
-FactoryServeSubComponent = MyContainersMgr.FindOrLoad_Component( DefaultParams , "SubComponent" )
+FactoryServerSubComponent = MyContainersMgr.FindOrLoad_Component( DefaultParams , "SubComponent" )
 ListOfComponents = MyContainersMgr.FindComponents( DefaultParams , '' )
 i = 0
 while i < len( ListOfComponents ) :
     print ListOfComponents[ i ].GetContainerRef()._get_name(),ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
     i = i + 1
+
+DefaultParams.ContainerName = 'ServerPy'
+ServerPy = MyContainersMgr.FindContainer( DefaultParams )
+print "Container running on",ServerPy._get_machineName(),"with name",ServerPy._get_name(),"and type",ServerPy.type()
 
 DefaultParams.ContainerName = 'SuperVisionContainer'
 SuperVisionContainerAddComponent = MyContainersMgr.FindOrLoad_Component( DefaultParams , "AddComponent" )

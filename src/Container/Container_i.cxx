@@ -149,7 +149,7 @@ Engines_Container_i::~Engines_Container_i()
 }
 
 void Engines_Container_i::destroy() {
-  MESSAGE( "Manager_i::destroy" ) ;
+  MESSAGE( "Container_i::destroy" ) ;
   _poa->deactivate_object(*_id) ;
   CORBA::release(_poa) ;
   delete(_id) ;
