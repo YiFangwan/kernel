@@ -350,7 +350,8 @@ void Session_ServerThread::ActivateRegistry(int argc,
   Registry::Components_var varComponents;
   try
     {
-      RegistryService *ptrRegistry = SINGLETON_<RegistryService>::Instance();
+      //RegistryService *ptrRegistry = SINGLETON_<RegistryService>::Instance();
+      RegistryService *ptrRegistry = new RegistryService();
       ptrRegistry->SessionName( ptrSessionName );
       varComponents = ptrRegistry->_this();
       // The RegistryService must not already exist.
