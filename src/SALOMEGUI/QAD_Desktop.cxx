@@ -3062,7 +3062,6 @@ void QAD_Desktop::onComboActiveComponent( const QString & component ){
 }
 void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoadData)
 {
-  QAD_WaitCursor wc;
   if (myActiveStudy != 0) {
     if (myActiveComp.compare(component)!=0) {
       // deactivate previous component
@@ -3076,6 +3075,10 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
 //	QApplication::setOverrideCursor( Qt::waitCursor );
 	bool isOk = ( !isLoadData || loadComponentData( getComponentName(component) ) );
 	if ( !isOk ) {
+	  // It is only to remove Wait cursor set outside of this method
+	  // QAD_WaitCursor has recursive behaviour
+	  // This is PAL8026 fix
+	  QAD_WaitCursor wc;
 	  wc.stop();
 	  QAD_MessageBox::error1( this, 
 				 tr("ERR_ERROR"),
