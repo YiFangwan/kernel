@@ -345,7 +345,6 @@ Engines::Component_ptr Engines_Container_i::load_impl( const char* nameToRegiste
     _numInstanceMutex.unlock() ;
     return Engines::Component::_nil() ;
   }
-//JR Debug : Check of Undefined symbols :
   char *error ;
   if ( (error = dlerror() ) != NULL) {
       INFOS("dlopen error : " << error );
@@ -542,7 +541,9 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
       throw std::runtime_error("SIGINT");
 //      cout << pthread_self() << "SigIntHandler throwed " << signame << endl ;
     }
-    else if ( siginfo->si_signo == SIGSEGV ) {
+    else if ( siginfo->si_signo == SIGSEGV ||
+              siginfo->si_signo == SIGFPE ||
+              siginfo->si_signo == SIGBUS ) {
 //      cout << "Engines_Container_i(SigIntHandler) Signal = " << signame.c_str()
 //           << " was cautch!" << endl ;
       if ( k_setjmp ) {
