@@ -91,6 +91,10 @@ module Engines
 */
     readonly attribute string machineName ;
 /*!
+   shutdown corba server
+*/
+    void Shutdown() ;
+/*!
    Returns True if the %container has been killed
 */
     boolean Kill_impl() ;

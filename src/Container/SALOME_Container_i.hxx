@@ -72,6 +72,9 @@ public:
   char* machineName();
   void ping();
 
+  // shutdown corba server
+  void Shutdown();
+
   //! Kill current container
   bool Kill_impl() ;
 

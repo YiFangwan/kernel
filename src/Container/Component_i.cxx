@@ -115,10 +115,10 @@ void Engines_Component_i::destroy()
 
   delete _myConnexionToRegistry;
   _myConnexionToRegistry = 0 ;
+  _thisObj->_remove_ref();
   _poa->deactivate_object(*_id) ;
   CORBA::release(_poa) ;
   delete(_id) ;
-  _thisObj->_remove_ref();
   MESSAGE("Engines_Component_i::destroyed") ;
 }
 

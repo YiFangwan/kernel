@@ -154,6 +154,13 @@ void Engines_Container_i::ping()
   MESSAGE("Engines_Container_i::ping() pid "<< getpid());
 }
 
+  // shutdown corba server
+void Engines_Container_i::Shutdown()
+{
+  MESSAGE("Engines_Container_i::Shutdown()");
+  _orb->shutdown(0);
+}
+
 //! Kill current container
 bool Engines_Container_i::Kill_impl() {
   MESSAGE("Engines_Container_i::Kill() pid "<< getpid() << " containerName "
