@@ -56,17 +56,31 @@ class Manager_i : public POA_Containers::Manager ,
 		  public PortableServer::RefCountServantBase {
   private:
 
-    CORBA::ORB_ptr           _Orb ;
-    SALOME_NamingService   * _NamingService ;
-    Resources::Manager_var   _ResourcesManager ;
-    string                   _NamingServiceHostName ;
-    long                     _NamingServicePort ;
-    pthread_mutex_t          _MutexManager ;
-    string                   _ContainerName ;
-    string                   _ComponentName ;
-    Engines::Container_var   _EnginesContainer ;
+    CORBA::ORB_ptr                    _Orb ;
+    SALOME_NamingService            * _NamingService ;
+    Resources::Manager_var            _ResourcesManager ;
+    string                            _NamingServiceHostName ;
+    long                              _NamingServicePort ;
+    pthread_mutex_t                   _MutexManager ;
+    bool                              _StartContainer ;
+    string                            _HostName ;
+    string                            _FullHostName ;
+    string                            _ContainerName ;
+    string                            _FullContainerName ;
+    Engines::ContainerType            _ContainerType ;
+    string                            _ComponentName ;
+    string                            _FullComponentName ;
+    Resources::ListOfComputers_var    _ListOfComputers ;
+    Resources::Computer_var           _ResourcesComputer ;
+    Resources::ComputerParameters_var _ComputerParameters ;
+    Engines::ListOfContainers_var     _ListOfContainers ;
+    CORBA::Object_var                 _ContainerObject ;
+    Engines::Container_var            _EnginesContainer ;
+    Engines::ListOfComponents_var     _ListOfComponents ;
+    CORBA::Object_var                 _ComponentObject ;
+    Engines::Component_var            _EnginesComponent ;
 
-    Engines::Container_ptr StartContainer( Containers::MachineParameters & myParams ) ;
+    Engines::Container_ptr StartContainer( const Containers::MachineParameters & myParams ) ;
 
     Engines::Container_ptr FindOrStartContainerLocked( Containers::MachineParameters & MyParams ,
                                                        const char * ComponentName ) ;
@@ -94,6 +108,9 @@ class Manager_i : public POA_Containers::Manager ,
 
     virtual Engines::Component_ptr FindComponent( const Containers::MachineParameters & MyParams ,
                                                   const char * ComponentName ) ;
+
+    virtual Engines::ListOfComponents * FindComponents( const Containers::MachineParameters & MyParams ,
+                                                        const char * ComponentName ) ;
 
     virtual Engines::Component_ptr FindOrLoad_ComponentPath( const Containers::MachineParameters & MyParams ,
                                                              const char * ComponentName ,

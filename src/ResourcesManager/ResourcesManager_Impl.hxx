@@ -57,7 +57,9 @@ class Manager_Impl : public POA_Resources::Manager ,
 
     vector< Computer_Impl * >      _ComputersVector ;
     Resources::ListOfComputers_var _ComputersList ;
-    map< string , int >            _MapOfComputers ;
+
+    map< string , int >            _MapOfFullNameComputers ;
+    map< string , int >            _MapOfAliasComputers ;
 
 //    virtual Resources::ListOfComputers_var ParseXmlFile( const char * xmlfile ) ;
     virtual void ParseXmlFile( const char * xmlfile ) ;

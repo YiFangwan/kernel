@@ -41,7 +41,8 @@ LIB_MOC = \
 LIB_CLIENT_IDL = SALOMEDS.idl \
 		 SALOME_ModuleCatalog.idl \
 		 SALOME_Component.idl \
-		 SALOME_Exception.idl
+		 SALOME_Exception.idl \
+		 ContainersManager.idl
 
 CPPFLAGS+=$(QT_INCLUDES) $(OCC_INCLUDES) $(OGL_INCLUDES) $(PYTHON_INCLUDES) $(QWT_INCLUDES) 
 LDFLAGS+=$(QT_MT_LIBS) $(OGL_LIBS) $(QWT_LIBS) -lSalomeGUI

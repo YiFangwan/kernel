@@ -10,6 +10,7 @@ usage="""USAGE: runSalome.py [options]
 --modules=module1,module2,... : où modulen est le nom d'un module Salome à charger dans le catalogue
 --containers=cpp,python,superv: lancement des containers cpp, python et de supervision
 --killall	              : arrêt des serveurs de salome
+--startcontainer=ContainerName,ContainerCpp,NSHostName,NSHostPort : demarrage d'un container
 
  La variable d'environnement <modulen>_ROOT_DIR doit etre préalablement
  positionnée (modulen doit etre en majuscule).
@@ -44,7 +45,7 @@ def message(code, msg=''):
 import sys,os,string,glob,time,signal,pickle,getopt
 
 init_time=os.times()
-opts, args=getopt.getopt(sys.argv[1:], 'hmglxck:', ['help','modules=','gui','logger','xterm','containers=','killall'])
+opts, args=getopt.getopt(sys.argv[1:], 'hmglxcks:', ['help','modules=','gui','logger','xterm','containers=','killall'])
 modules_root_dir={}
 process_id={}
 liste_modules={}
@@ -103,6 +104,7 @@ try:
          killSalome()
 	 process_id={}
          os.remove(filedict)
+       
 	
 except getopt.error, msg:
   print usage
@@ -179,14 +181,24 @@ class SalomeDSServer(Server):
 class RegistryServer(Server):
    CMD=['SALOME_Registry_Server', '--salome_session','theSession']
 
-class ContainerCPPServer(Server):
-   CMD=['SALOME_Container','FactoryServer','-ORBInitRef','NameService=corbaname::localhost']
+class ResourcesServer(Server):
+   CMD=['ResourcesManager_Server','-common',os.getenv('KERNEL_ROOT_DIR')+'/share/salome/resources/ResourcesCatalog.xml','-ORBInitRef','NameService=corbaname::localhost']
 
-class ContainerPYServer(Server):
-   CMD=['SALOME_ContainerPy.py','FactoryServerPy','-ORBInitRef','NameService=corbaname::localhost']
+class ContainersServer(Server):
+   CMD=['ContainersManager_Server','-ORBInitRef','NameService=corbaname::localhost']
 
-class ContainerSUPERVServer(Server):
-   CMD=['SALOME_Container','SuperVisionContainer','-ORBInitRef','NameService=corbaname::localhost']
+class ContainerServer( Server) :
+   def Params( self , ContainerName , ContainerType ) :
+      self.CMD=['startContainer.py',str(with_xterm),'localhost',ContainerName,ContainerType,'localhost','0']
+
+#class ContainerCPPServer(Server):
+   #CMD=['SALOME_Container','FactoryServer','-ORBInitRef','NameService=corbaname::localhost']
+
+#class ContainerPYServer(Server):
+   #CMD=['SALOME_ContainerPy.py','FactoryServerPy','-ORBInitRef','NameService=corbaname::localhost']
+
+#class ContainerSUPERVServer(Server):
+   #CMD=['SALOME_Container','SuperVisionContainer','-ORBInitRef','NameService=corbaname::localhost']
 
 class LoggerServer(Server):
    CMD=['SALOME_Logger_Server', 'logger.log']
@@ -398,10 +410,39 @@ def startSalome():
   theComputer = computerSplitName[0]
   
   #
+  # Lancement Resources Server
+  #
+
+  ResourcesServer().run()
+
+  #
+  # Attente de la disponibilité du ResourcesServer dans le Naming Service
+  #
+
+  import Resources
+  session=clt.waitNS("/Kernel/ResourcesManager",Resources.Manager)
+
+  #
+  # Lancement Containers Server
+  #
+
+  ContainersServer().run()
+
+  #
+  # Attente de la disponibilité du ContainersManager dans le Naming Service
+  #
+
+  import Containers
+  import Engines
+  MyContainersMgr = clt.waitNS("/Kernel/ContainersManager",Containers.Manager)
+
+  #
   # Lancement Container C++ local
   #
   if with_container_cpp:
-	  ContainerCPPServer().run()
+          FactoryServer = ContainerServer()
+          FactoryServer.Params( 'FactoryServer' , 'Engines.Cpp' )
+          FactoryServer.run()
 
 	  #
 	  # Attente de la disponibilité du Container C++ local dans le Naming Service
@@ -414,7 +455,9 @@ def startSalome():
   #
 
   if with_container_python:
-	  ContainerPYServer().run()
+          FactoryServerPy = ContainerServer()
+	  FactoryServerPy.Params( 'FactoryServerPy' , 'Engines.Python' )
+          FactoryServerPy.run()
 
 	  #
 	  # Attente de la disponibilité du Container Python local dans le Naming Service
@@ -428,7 +471,9 @@ def startSalome():
 	# Lancement Container Supervision local
 	#
 
-	ContainerSUPERVServer().run()
+        SuperVisionContainer = ContainerServer()
+	SuperVisionContainer.Params( 'SuperVisionContainer' , 'Engines.Cpp' )
+        SuperVisionContainer.run()
 
 	#
 	# Attente de la disponibilité du Container Supervision local dans le Naming Service

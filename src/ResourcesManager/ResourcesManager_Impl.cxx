@@ -66,12 +66,20 @@ Manager_Impl::Manager_Impl( CORBA::ORB_ptr orb ,
     _ComputersList[ i ] = Resources::Computer::_duplicate( iobject ) ;
     Resources::ComputerParameters * aComputerParameters = aComputer->Parameters() ;
     const char * anAlias = aComputerParameters->Alias ;
-    if ( _MapOfComputers[ anAlias ] > 0 ) {
+    if ( _MapOfAliasComputers[ anAlias ] > 0 ) {
       MESSAGE("Duplicate computer " << aComputerParameters->FullName << " " << anAlias ) ;
     }
     else {
       MESSAGE("Computer " << aComputerParameters->FullName << " " << anAlias ) ;
-      _MapOfComputers[ anAlias ] = i + 1 ;
+      _MapOfAliasComputers[ anAlias ] = i + 1 ;
+    }
+    const char * aFullName = aComputerParameters->FullName ;
+    if ( _MapOfFullNameComputers[ aFullName ] > 0 ) {
+      MESSAGE("Duplicate computer " << aComputerParameters->FullName << " " << aFullName ) ;
+    }
+    else {
+      MESSAGE("Computer " << aComputerParameters->FullName << " " << aFullName ) ;
+      _MapOfFullNameComputers[ aFullName ] = i + 1 ;
     }
   }
   MESSAGE(_ComputersList->length() << " computers") ;
@@ -135,18 +143,26 @@ Resources::ListOfComputers * Manager_Impl::AllComputers() {
 }
 
 Resources::ListOfComputers * Manager_Impl::GetComputers( const Containers::MachineParameters & aMachineParameters ) {
-  MESSAGE("Manager_Impl::GetComputers()") ;
+  MESSAGE("Manager_Impl::GetComputers() " << aMachineParameters.HostName << " in list of "
+          << _ComputersList->length() << " computers" ) ;
   Resources::ListOfComputers_var aListOfComputers = new Resources::ListOfComputers() ;
   int i ;
   if ( strlen( (char * ) ((CORBA::String_member ) aMachineParameters.HostName) ) ) {
     for ( i = 0 ; i < _ComputersList->length() ; i++ ) {
       Resources::Computer_var aComputer = _ComputersList[ i ] ;
-      if ( aComputer->Parameters()->FullName == aMachineParameters.HostName ||
-           aComputer->Parameters()->Alias == aMachineParameters.HostName ) {
+      if ( strcmp( aComputer->Parameters()->FullName , aMachineParameters.HostName ) == 0 ||
+           strcmp( aComputer->Parameters()->Alias , aMachineParameters.HostName ) == 0 ) {
         aListOfComputers->length( 1 ) ;
         aListOfComputers[ 0 ] = Resources::Computer::_duplicate( aComputer ) ;
-        MESSAGE("Manager_Impl::GetComputers() " << aComputer->FullName() << " selected" ) ;
+        MESSAGE("Manager_Impl::GetComputers() " << aComputer->Parameters()->FullName << " "
+                << aComputer->Parameters()->Alias << " selected" ) ;
         break ;
+      }
+      else {
+        MESSAGE("Manager_Impl::GetComputers() " << aComputer->Parameters()->FullName << " "
+                << strcmp( aComputer->Parameters()->FullName , aMachineParameters.HostName ) << " "
+                << aComputer->Parameters()->Alias << " "
+                << strcmp( aComputer->Parameters()->Alias , aMachineParameters.HostName ) << " skipped" ) ;
       }
     }
   }
@@ -190,11 +206,22 @@ Resources::Computer_ptr Manager_Impl::GetComputer( const Resources::ListOfComput
 Resources::Computer_ptr Manager_Impl::SearchComputer( const char * aComputerName ) {
   MESSAGE("Manager_Impl::SearchComputer()") ;
   Resources::Computer_var aComputer = Resources::Computer::_nil() ;
-  int i = _MapOfComputers[ aComputerName ] ;
+  int i = _MapOfAliasComputers[ aComputerName ] ;
   if ( i ) {
     aComputer = _ComputersList[ i - 1 ] ;
+    MESSAGE("Manager_Impl::SearchComputer " << aComputerName << " found in MapOfAliasComputers") ;
   }
-  MESSAGE("Manager_Impl::SearchComputer()") ;
+  else {
+    MESSAGE("Manager_Impl::SearchComputer " << aComputerName << " NOT found in MapOfAliasComputers") ;
+  }
+  i = _MapOfFullNameComputers[ aComputerName ] ;
+  if ( i ) {
+    aComputer = _ComputersList[ i - 1 ] ;
+    MESSAGE("Manager_Impl::SearchComputer " << aComputerName << " found in MapOfFullNameComputers") ;
+  }
+  else {
+    MESSAGE("Manager_Impl::SearchComputer " << aComputerName << " NOT found in MapOfFullNameComputers") ;
+  }
   return Resources::Computer::_duplicate( aComputer ) ;
 }
 

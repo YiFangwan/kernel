@@ -88,6 +88,9 @@ string SALOME_LifeCycleCORBA::ContainerName( const char * aComputerContainer ,
     theComputerContainer += "/" ;
     theComputerContainer += *theContainer ;
   }
+  if ( strlen( theContainer->c_str() ) == 0 ) {
+    theContainer = new string( "FactoryServer" ) ;
+  }
   return theComputerContainer ;
 }
 
@@ -124,7 +127,10 @@ Engines::Container_var SALOME_LifeCycleCORBA::FindContainer( const char * contai
   return FindContainer( *MyParams ) ;
 }
 
-Engines::Container_var SALOME_LifeCycleCORBA::FindContainer( const Containers::MachineParameters & MyParams ) {
+Engines::Container_var SALOME_LifeCycleCORBA::FindContainer( Containers::MachineParameters & MyParams ) {
+  if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
+    MyParams.HostName = GetHostname().c_str() ;
+  }
   return _MyContainersMgr->FindContainer( MyParams ) ;
 }
 //  ASSERT(_NamingService != NULL);
@@ -273,6 +279,29 @@ Engines::Container_var SALOME_LifeCycleCORBA::FindContainer( const Containers::M
 //  return Engines::Container::_nil();
 //}
 
+Engines::ListOfContainers_var SALOME_LifeCycleCORBA::FindContainers( Containers::MachineParameters & MyParams ) {
+  if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
+    MyParams.HostName = GetHostname().c_str() ;
+  }
+  return _MyContainersMgr->FindContainers( MyParams ) ;
+}
+
+Engines::Component_var SALOME_LifeCycleCORBA::FindComponent( Containers::MachineParameters & MyParams ,
+                                      const char * ComponentName ) {
+  if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
+    MyParams.HostName = GetHostname().c_str() ;
+  }
+  return _MyContainersMgr->FindComponent( MyParams , ComponentName ) ;
+}
+
+Engines::ListOfComponents_var SALOME_LifeCycleCORBA::FindComponents( Containers::MachineParameters & MyParams ,
+                                                const char * ComponentName ) {
+  if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
+    MyParams.HostName = GetHostname().c_str() ;
+  }
+  return _MyContainersMgr->FindComponents( MyParams , ComponentName ) ;
+}
+
 Engines::Component_var SALOME_LifeCycleCORBA::FindOrLoad_Component( const char *containerName ,
 				                                    const char *componentName ,
 				                                    const char *implementation ) {
@@ -291,10 +320,13 @@ Engines::Component_var SALOME_LifeCycleCORBA::FindOrLoad_Component( const char *
   }
   return FindOrLoad_Component( *MyParams , componentName , implementation ) ;
 }
-Engines::Component_var SALOME_LifeCycleCORBA::FindOrLoad_Component( const Containers::MachineParameters & MyParams ,
+Engines::Component_var SALOME_LifeCycleCORBA::FindOrLoad_Component( Containers::MachineParameters & MyParams ,
 				                                    const char * componentName ,
 				                                    const char * implementation ) {
   
+  if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
+    MyParams.HostName = GetHostname().c_str() ;
+  }
   return _MyContainersMgr->FindOrLoad_ComponentPath( MyParams , componentName , implementation ) ;
 }
 //{
@@ -371,8 +403,11 @@ Engines::Component_var SALOME_LifeCycleCORBA::FindOrLoad_Component( const char *
   }
   return FindOrLoad_Component( *MyParams , componentName ) ;
 }
-Engines::Component_var SALOME_LifeCycleCORBA::FindOrLoad_Component( const Containers::MachineParameters & MyParams ,
+Engines::Component_var SALOME_LifeCycleCORBA::FindOrLoad_Component( Containers::MachineParameters & MyParams ,
 				                                    const char * componentName ) {
+  if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
+    MyParams.HostName = GetHostname().c_str() ;
+  }
   return _MyContainersMgr->FindOrLoad_Component( MyParams , componentName ) ;
 }
 //  BEGIN_OF("FindOrLoad_Component(2)");

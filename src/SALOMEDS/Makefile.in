@@ -105,8 +105,8 @@ LIB_SRC = 	\
 # Executables targets
 BIN = SALOMEDS_Server SALOMEDS_Client
 BIN_SRC = 
-LIB_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Exception.idl
-BIN_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl
+LIB_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Exception.idl SALOME_Component.idl ContainersManager.idl
+BIN_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Component.idl ContainersManager.idl
 BIN_CLIENT_IDL = 
 
 CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES)

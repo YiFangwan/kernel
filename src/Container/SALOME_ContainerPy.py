@@ -59,15 +59,17 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         self._containerName = containerName
 
         myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
+        self._machineName = myMachine[0]
         naming_service = SALOME_NamingServicePy_i(self._orb)
         self._naming_service = naming_service
         Container_path = "/Containers/" + myMachine[0] + "/" + self._containerName
+        self._Name = Container_path
         MESSAGE( str(Container_path) )
         naming_service.Register(self._this(), Container_path)
             
     #-------------------------------------------------------------------------
 
-    def start_impl(self, ContainerName):
+    def start_impl( self , ContainerName , ContainerType ) :
         MESSAGE(  "SALOME_ContainerPy_i::start_impl " + str(ContainerName) )
         myMachine=string.split(os.getenv( "HOSTNAME" ),'.')
         theContainer = "/Containers/" + myMachine[0] + "/" + ContainerName
@@ -83,11 +85,12 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
             if container is None:
                 MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(containerName) + ".object exists but is not a Container" )
             else :
-                MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(ContainerName) + ".object found without runSession" )
+                MESSAGE( "SALOME_ContainerPy_i::start_impl " + str(ContainerName) + ".object found" )
             return container
-        #shstr = os.getenv( "PWD" ) + "/"
-        #shstr += "runSession ./SALOME_ContainerPy.py "
-        shstr = "runSession SALOME_ContainerPy.py "
+        if ContainerType == Engines.Cpp :
+            shstr = "SALOME_Container "
+        else :
+            shstr = "SALOME_ContainerPy.py "
         shstr += ContainerName
 
         # mpv: fix for SAL4731 - allways create new file to write log of server
@@ -161,14 +164,20 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
     #-------------------------------------------------------------------------
 
+    def type(self):
+        MESSAGE( "SALOME_ContainerPy_i::type" )
+        return Engines.Python
+
+    #-------------------------------------------------------------------------
+
     def _get_name(self):
         MESSAGE( "SALOME_ContainerPy_i::_get_name" )
+        return self._Name
 
     #-------------------------------------------------------------------------
 
     def _get_machineName(self):
         MESSAGE( "SALOME_ContainerPy_i::_get_MachineName" )
-        self._machineName = "localhost"
         return self._machineName
 
 #=============================================================================

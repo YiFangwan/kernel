@@ -164,6 +164,12 @@ void Engines_Container_i::ping()
   MESSAGE("Engines_Container_i::ping() pid "<< getpid());
 }
 
+Engines::ContainerType Engines_Container_i::type()
+{
+  MESSAGE( "Engines_Container_i::type() "<< Engines::Cpp );
+  return Engines::Cpp ;
+}
+
 bool Engines_Container_i::Kill_impl() {
   MESSAGE("Engines_Container_i::Kill() pid "<< getpid() << " containerName "
           << _containerName.c_str() << " machineName "
@@ -171,8 +177,8 @@ bool Engines_Container_i::Kill_impl() {
   exit( 0 ) ;
 }
 
-Engines::Container_ptr Engines_Container_i::start_impl(
-                                      const char* ContainerName ) {
+Engines::Container_ptr Engines_Container_i::start_impl( const char* ContainerName ,
+                                                        const Engines::ContainerType aContainerType ) {
   MESSAGE("start_impl argc " << _argc << " ContainerName " << ContainerName
           << hex << this << dec) ;
   _numInstanceMutex.lock() ; // lock on the instance number
@@ -209,87 +215,64 @@ Engines::Container_ptr Engines_Container_i::start_impl(
     MESSAGE("           argv" << i << " " << _argv[ i ]) ;
     i++ ;
   }
-//  string shstr( "rsh -n " ) ;
-//  shstr += machineName() ;
-//  shstr += " " ;
-//  shstr += _argv[ 0 ] ;
-//  string shstr( _argv[ 0 ] ) ;
-  string shstr( "./runSession SALOME_Container " ) ;
-  shstr += ContainerName ;
-  if ( _argc == 4 ) {
-    shstr += " " ;
-    shstr += _argv[ 2 ] ;
-    shstr += " " ;
-    shstr += _argv[ 3 ] ;
-  }
-  shstr += " > /tmp/" ;
-  shstr += ContainerName ;
-  shstr += ".log 2>&1 &" ;
-  MESSAGE("system(" << shstr << ")") ;
-  int status = system( shstr.c_str() ) ;
-  if (status == -1) {
-    INFOS("Engines_Container_i::start_impl runSession(SALOME_Container) failed (system command status -1)") ;
-  }
-  else if (status == 217) {
-    INFOS("Engines_Container_i::start_impl runSession(SALOME_Container) failed (system command status 217)") ;
-  }
-  INFOS(machineName() << " Engines_Container_i::start_impl runSession(SALOME_Container) done");
-#if 0
-  pid_t pid = fork() ;
-  if ( pid == 0 ) {
-    string anExe( _argv[ 0 ] ) ;
-    anExe += "runSession" ;
-    char * args[ 6 ] ;
-    args[ 0 ] = "runSession" ;
-    args[ 1 ] = "SALOME_Container" ;
-    args[ 2 ] = strdup( ContainerName ) ;
-    args[ 3 ] = strdup( _argv[ 2 ] ) ;
-    args[ 4 ] = strdup( _argv[ 3 ] ) ;
-    args[ 5 ] = NULL ;
-    MESSAGE("execl(" << anExe.c_str() << " , " << args[ 0 ] << " , "
-                     << args[ 1 ] << " , " << args[ 2 ] << " , " << args[ 3 ]
-                     << " , " << args[ 4 ] << ")") ;
-    int status = execv( anExe.c_str() , args ) ;
+  string shstr ;
+  if ( aContainerType != Engines::Undefined ) {
+    if ( aContainerType == Engines::Cpp ) {
+      shstr = "SALOME_Container " ;
+    }
+    else if ( aContainerType == Engines::Python ) {
+      shstr = "SALOME_ContainerPy.py " ;
+    }
+    shstr += ContainerName ;
+    if ( _argc == 4 ) {
+      shstr += " " ;
+      shstr += _argv[ 2 ] ;
+      shstr += " " ;
+      shstr += _argv[ 3 ] ;
+    }
+    shstr += " > /tmp/" ;
+    shstr += ContainerName ;
+    shstr += ".log 2>&1 &" ;
+    MESSAGE("system(" << shstr << ")") ;
+    int status = system( shstr.c_str() ) ;
     if (status == -1) {
-      INFOS("Engines_Container_i::start_impl execl failed (system command status -1)") ;
-      perror( "Engines_Container_i::start_impl execl error ") ;
+      INFOS("Engines_Container_i::start_impl runSession(SALOME_Container) failed (system command status -1)") ;
     }
-    else {
-      INFOS(machineName() << " Engines_Container_i::start_impl execl done");
+    else if (status == 217) {
+      INFOS("Engines_Container_i::start_impl runSession(SALOME_Container) failed (system command status 217)") ;
     }
-    exit(0) ;
-  }
-#endif
+    INFOS(machineName() << " Engines_Container_i::start_impl runSession(SALOME_Container) done");
 
-  obj = Engines::Container::_nil() ;
-  try {
-    string cont("/Containers/");
-    cont += machineName() ;
-    cont += "/" ;
-    cont += ContainerName;
-    nilvar = true ;
-    int count = 20 ;
-    while ( nilvar && count >= 0) {
-      sleep( 1 ) ;
-      obj = _NS->Resolve(cont.c_str());
-      nilvar = CORBA::is_nil( obj ) ;
-      if ( nilvar ) {
-        INFOS(count << ". " << machineName()
-              << " start_impl unknown container " << cont.c_str());
-        count -= 1 ;
+    obj = Engines::Container::_nil() ;
+    try {
+      string cont("/Containers/");
+      cont += machineName() ;
+      cont += "/" ;
+      cont += ContainerName;
+      nilvar = true ;
+      int count = 20 ;
+      while ( nilvar && count >= 0) {
+        sleep( 1 ) ;
+        obj = _NS->Resolve(cont.c_str());
+        nilvar = CORBA::is_nil( obj ) ;
+        if ( nilvar ) {
+          INFOS(count << ". " << machineName()
+                << " start_impl unknown container " << cont.c_str());
+          count -= 1 ;
+        }
       }
+      _numInstanceMutex.unlock() ;
+      if ( !nilvar ) {
+        MESSAGE("start_impl container found after runSession(SALOME_Container)") ;
+      }
+      return Engines::Container::_narrow(obj);
     }
-    _numInstanceMutex.unlock() ;
-    if ( !nilvar ) {
-      MESSAGE("start_impl container found after runSession(SALOME_Container)") ;
+    catch (ServiceUnreachable&) {
+      INFOS(machineName() << "Caught exception: Naming Service Unreachable");
     }
-    return Engines::Container::_narrow(obj);
-  }
-  catch (ServiceUnreachable&) {
-    INFOS(machineName() << "Caught exception: Naming Service Unreachable");
-  }
-  catch (...) {
-    INFOS(machineName() << "Caught unknown exception.");
+    catch (...) {
+      INFOS(machineName() << "Caught unknown exception.");
+    }
   }
   _numInstanceMutex.unlock() ;
   MESSAGE("start_impl container not found after runSession(SALOME_Container)") ;

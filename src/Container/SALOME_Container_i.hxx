@@ -59,16 +59,17 @@ public:
   virtual ~Engines_Container_i();
 
 
-  Engines::Container_ptr start_impl(const char* ContainerName);
+  Engines::Container_ptr start_impl( const char* ContainerName , const Engines::ContainerType ) ;
 
-  Engines::Component_ptr load_impl(const char* nameToRegister,
-				   const char* componentName);
+  Engines::Component_ptr load_impl( const char* nameToRegister ,
+				    const char* componentName ) ;
   void remove_impl(Engines::Component_ptr component_i);
   void finalize_removal();
 
   char* name();
   char* machineName();
   void ping();
+  Engines::ContainerType type();
   bool Kill_impl() ;
 
 protected:

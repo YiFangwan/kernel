@@ -94,6 +94,10 @@ Manager_i::Manager_i( CORBA::ORB_ptr orb ,
 
   pthread_mutex_init( &_MutexManager , NULL ) ;
 
+  _ListOfComputers = new Resources::ListOfComputers() ;
+  _ListOfContainers = new Engines::ListOfContainers() ;
+  _ListOfComponents = new Engines::ListOfComponents() ;
+
 }
 
 Manager_i::~Manager_i() {
@@ -121,285 +125,199 @@ bool Manager_i::ping() {
   return true ;
 }
 
-Engines::Container_ptr Manager_i::FindContainer( const Containers::MachineParameters & MyParams ) {
-  MESSAGE( "Manager_i::FindContainer starting" ) ;
-  CORBA::Object_var ContainerObject = CORBA::Object::_nil() ;
-  _EnginesContainer = Engines::Container::_nil() ;
-  string _ContainerName = string( "/Containers/" ) ;
-  Containers::MachineParameters & myParams = (Containers::MachineParameters & ) MyParams ;
+Engines::Container_ptr Manager_i::FindContainer( const Containers::MachineParameters & myParams ) {
+  Containers::MachineParameters MyParams = (Containers::MachineParameters & ) myParams ;
   if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
-    myParams.HostName = GetHostname().c_str() ;
+    MyParams.HostName = GetHostname().c_str() ;
   }
-  _ContainerName += myParams.HostName ;
-  if ( strlen( MyParams.ContainerName ) == 0 ) {
-    MESSAGE( "Manager_i::FindContainer ContainerName " << _ContainerName.c_str() ) ;
-    if ( _NamingService->Change_Directory( _ContainerName.c_str() ) ) {
-      vector<string> aListOfContainers = _NamingService->list_directory() ;
-      if ( aListOfContainers.size() ) {
-        _ContainerName += "/" ;
-        _ContainerName += aListOfContainers[ 0 ] ;
-        MESSAGE( "Manager_i::FindContainer ContainerName " << _ContainerName.c_str() ) ;
-      }
-    }
+  MESSAGE( "Manager_i::FindContainer " << MyParams.HostName << " " << MyParams.ContainerName ) ;
+  _ListOfContainers = FindContainers( MyParams ) ;
+  _EnginesContainer = Engines::Container::_nil() ;
+  if ( _ListOfContainers->length() ) {
+    _EnginesContainer = _ListOfContainers[ 0 ] ;
+    MESSAGE( "Manager_i::FindContainer --> " << _EnginesContainer->machineName() << " "
+             << _EnginesContainer->name() ) ;
   }
   else {
-    _ContainerName += "/" ;
-    _ContainerName += MyParams.ContainerName ;
-    MESSAGE( "Manager_i::FindContainer ContainerName " << _ContainerName.c_str() ) ;
+    MESSAGE( "Manager_i::FindContainer --> Engines::Container::_nil" ) ;
   }
-  try {
-    MESSAGE( "Manager_i::FindContainer ContainerName " << _ContainerName.c_str() ) ;
-    ContainerObject = _NamingService->Resolve( _ContainerName.c_str() ) ;
-    if ( !CORBA::is_nil( ContainerObject ) ) {
-      _EnginesContainer = Engines::Container::_narrow( ContainerObject ) ;
-      MESSAGE( "Manager_i::FindContainer Container " << _ContainerName.c_str() << " is known ==> ping" ) ;
-      _EnginesContainer->ping() ;
-    }
-    else {
-      MESSAGE( "Manager_i::FindContainer Container " << _ContainerName.c_str() << " unknown" ) ;
-    }
-  }
-  catch (ServiceUnreachable&) {
-    MESSAGE( "Caught exception: Naming Service Unreachable" );
-  }
-  catch (...) {
-    MESSAGE( "Caught unknown exception." );
-  }
-  MESSAGE( "Manager_i::FindContainer ended" ) ;
   return Engines::Container::_duplicate( _EnginesContainer ) ;
 }
 
-Engines::ListOfContainers * Manager_i::Containers( const Containers::MachineParameters & MyParams ) {
-  MESSAGE("Manager_i::Containers()") ;
-  Engines::ListOfContainers_var aListOfContainers = new Engines::ListOfContainers() ;
-  CORBA::Object_var ContainerObject = CORBA::Object::_nil() ;
-  anEnginesContainer = Engines::Container::_nil() ;
-  string aContainerName = string( "/Containers/" ) ;
+Engines::ListOfContainers * Manager_i::FindContainers( const Containers::MachineParameters & myParams ) {
+  Containers::MachineParameters MyParams = (Containers::MachineParameters & ) myParams ;
   if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
-    myParams.HostName = GetHostname().c_str() ;
+    MyParams.HostName = GetHostname().c_str() ;
   }
-  if ( strlen( MyParams.HostName ) ) { // HostName
-    aContainerName += MyParams.HostName ;
-    if ( strlen( MyParams.ContainerName ) ) { // ContainerName
-      aContainerName += "/" ;
-      aContainerName += MyParams.ContainerName ;
-      ContainerObject = _NamingService->Resolve( aContainerName.c_str() ) ;
-      if ( !CORBA::is_nil( ContainerObject ) ) {
-        anEnginesContainer = Engines::Container::_narrow( ContainerObject ) ;
-        int size = aListOfContainers.length() ;
-        aListOfContainers.length( size + 1 ) ;
-        aListOfContainers[ size ] = anEnginesContainer ;
+  if ( MyParams.ContainerType == Engines::Undefined ) {
+    MyParams.ContainerType = Engines::Cpp ;
+  }
+  _ListOfComputers = _ResourcesManager->GetComputers( MyParams ) ;
+  MESSAGE( "Manager_i::FindContainers " << MyParams.HostName << " " << MyParams.ContainerName << " "
+           << _ListOfComputers->length() << " computers found" ) ;
+  _ListOfContainers = new Engines::ListOfContainers() ;
+  _ListOfContainers->length( 0 ) ;
+  int i ;
+  for ( i = 0 ; i < _ListOfComputers->length() ; i++ ) {
+    _FullHostName = string( "/Containers/" ) ;
+    _ResourcesComputer = _ListOfComputers[ i ] ;
+    _ComputerParameters = _ResourcesComputer->Parameters() ;
+    _FullHostName += _ComputerParameters->Alias ;
+    if ( strlen( MyParams.ContainerName ) ) {
+      _FullContainerName = _FullHostName + "/" + string( (char * ) MyParams.ContainerName ) ;
+      _ContainerObject = _NamingService->Resolve( _FullContainerName.c_str() ) ;
+      MESSAGE( "Manager_i::FindContainers NamingService->Resolve( " << _FullContainerName << ")" ) ;
+      if ( !CORBA::is_nil( _ContainerObject ) ) {
+        _EnginesContainer = Engines::Container::_narrow( _ContainerObject ) ;
+        if ( _EnginesContainer->type() == MyParams.ContainerType ) {
+          int size = _ListOfContainers->length() ;
+          _ListOfContainers->length( size + 1 ) ;
+          _ListOfContainers[ size ] = _EnginesContainer ;
+          MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
+                   << _EnginesContainer->name() << " " << _EnginesContainer->type() ) ;
+        }
+        else {
+          MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
+                   << _EnginesContainer->name() << " " << _EnginesContainer->type() << " # "
+                   << MyParams.ContainerType ) ;
+	}
+      }
+      else {
+        MESSAGE( "Manager_i::FindContainers " << _FullContainerName << " unknown" ) ;
       }
     }
-    else { // Pas de ContainerName
-      if ( _NamingService->Change_Directory( _ContainerName.c_str() ) ) {
+    else {
+      if ( _NamingService->Change_Directory( _FullHostName.c_str() ) ) {
         vector<string> theListOfContainers = _NamingService->list_directory() ;
-        int i ;
-        for ( i = 0 ; i < theListOfContainers->length() ; i++ ) {
-          string ContainersNames = aContainerName + "/" + theListOfContainers[ i ] ;
-          ContainerObject = _NamingService->Resolve( ContainersNames.c_str() ) ;
-          if ( !CORBA::is_nil( ContainerObject ) ) {
-            anEnginesContainer = Engines::Container::_narrow( ContainerObject ) ;
-            int size = aListOfContainers.length() ;
-            aListOfContainers.length( size + 1 ) ;
-            aListOfContainers[ size ] = anEnginesContainer ;
+        MESSAGE( "Manager_i::FindContainers " << theListOfContainers.size() << " containers found." ) ;
+        int j ;
+        for ( j = 0 ; j < theListOfContainers.size() ; j++ ) {
+          _FullContainerName = _FullHostName + "/" + theListOfContainers[ j ] ;
+          MESSAGE( "Manager_i::FindContainers " << j << " " << _FullContainerName ) ;
+          _ContainerObject = _NamingService->Resolve( _FullContainerName.c_str() ) ;
+          if ( !CORBA::is_nil( _ContainerObject ) ) {
+            _EnginesContainer = Engines::Container::_narrow( _ContainerObject ) ;
+            if ( _EnginesContainer->type() == MyParams.ContainerType ) {
+              int size = _ListOfContainers->length() ;
+              _ListOfContainers->length( size + 1 ) ;
+              _ListOfContainers[ size ] = _EnginesContainer ;
+              MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
+                       << _EnginesContainer->name() ) ;
+            }
+            else {
+              MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
+                       << _EnginesContainer->name() << " " << _EnginesContainer->type() << " # "
+                       << MyParams.ContainerType ) ;
+              _EnginesContainer = Engines::Container::_nil() ;
+  	    }
+          }
+          else {
+            MESSAGE( "Manager_i::FindContainers " << _FullContainerName << " unknown" ) ;
           }
 	}
       }
+      
     }
   }
-  else { // Pas de HostName
-    if ( _NamingService->Change_Directory( _ContainerName.c_str() ) ) {
-      vector<string> aListOfHosts = _NamingService->list_directory() ;
-      int j ;
-      for ( j = 0 ; j < aListOfHosts.size() ; j++ ) {
-        string HostsNames = aContainerName + aListOfHosts[ j ] ;
-        if ( strlen( MyParams.ContainerName ) ) { // ContainerName
-          HostsNames = HostsNames + "/" + MyParams.ContainerName ;
-          ContainerObject = _NamingService->Resolve( HostsNames.c_str() ) ;
-          if ( !CORBA::is_nil( ContainerObject ) ) {
-            anEnginesContainer = Engines::Container::_narrow( ContainerObject ) ;
-            int size = aListOfContainers.length() ;
-            aListOfContainers.length( size + 1 ) ;
-            aListOfContainers[ size ] = anEnginesContainer ;
-	  }
-	}
-        else { // Pas de ContainerName
-          if ( _NamingService->Change_Directory( HostsNames.c_str() ) ) {
-            vector<string> theListOfContainers = _NamingService->list_directory() ;
-            int k ;
-            for ( k = 0 ; k < aListOfContainers.size() ; k++ ) {
-              string ContainersNames = HostsNames + theListOfContainers[ k ] ;
-              ContainerObject = _NamingService->Resolve( HostsNames.c_str() ) ;
-              if ( !CORBA::is_nil( ContainerObject ) ) {
-                anEnginesContainer = Engines::Container::_narrow( ContainerObject ) ;
-                int size = aListOfContainers.length() ;
-                aListOfContainers.length( size + 1 ) ;
-                aListOfContainers[ size ] = anEnginesContainer ;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-  }
-
-  aListOfContainers._retn() ;
+  return _ListOfContainers._retn() ;
 }
 
-Engines::Container_ptr Manager_i::FindOrStartContainer( const Containers::MachineParameters & MyParams ) {
+Engines::Container_ptr Manager_i::FindOrStartContainer( const Containers::MachineParameters & myParams ) {
+  Containers::MachineParameters MyParams = (Containers::MachineParameters & ) myParams ;
+  if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
+    MyParams.HostName = GetHostname().c_str() ;
+  }
   Engines::Container_var aContainer = Engines::Container::_nil() ;
+  MESSAGE( "Manager_i::FindOrStartContainer " << MyParams.HostName << " " << MyParams.ContainerName
+           << " " << MyParams.ContainerType << " " << MyParams.Os << " " << MyParams.Memory << " "
+           << MyParams.CpuClock << " " << MyParams.NbProc << " " << MyParams.NbNode << " "
+           << MyParams.NsHostName << " " << MyParams.NsPort  ) ;
   MESSAGE( "MutexManager pthread_mutex_lock :" ) ;
   if ( pthread_mutex_lock( &_MutexManager ) ) {
     perror("MutexManager pthread_mutex_lock ") ;
     exit( 0 ) ;
   }
   MESSAGE( "MutexManager pthread_mutex_locked" ) ;
-  Containers::MachineParameters & myParams = (Containers::MachineParameters & ) MyParams ;
-  aContainer = FindOrStartContainerLocked( myParams , "" ) ;
+  _StartContainer = true ;
+  _EnginesContainer  = FindOrStartContainerLocked( MyParams , "" ) ;
   if ( pthread_mutex_unlock( &_MutexManager ) ) {
     perror("MutexManager pthread_nriContainmutex_unlock ") ;
     exit( 0 ) ;
   }
   MESSAGE( "MutexManager pthread_mutex_unlocked" ) ;
-  return Engines::Container::_duplicate( aContainer ) ;
+  return Engines::Container::_duplicate( _EnginesContainer ) ;
 }
 
 Engines::Container_ptr Manager_i::FindOrStartContainerLocked( Containers::MachineParameters & myParams ,
-                                                              const char * ComponentName ) {
-  Engines::Container_var aContainer = Engines::Container::_nil() ;
-  Containers::MachineParameters SearchParams = myParams ;
-  if ( strcmp( myParams.HostName , "localhost" ) == 0 ) {
-    myParams.HostName = GetHostname().c_str() ;
-  }
-  if ( myParams.ContainerType == Engines::Undefined ) {
-    myParams.ContainerType = Engines::Cpp ;
-  }
-  if (  myParams.ContainerType == Engines::Cpp ||  myParams.ContainerType == Engines::Python ) {
-    if ( ( strlen( myParams.HostName ) || strcmp( myParams.HostName ,"localhost" ) == 0 ) &&
-         strlen( myParams.ContainerName ) ) {
-      aContainer =  FindContainer( myParams ) ;
-      if ( CORBA::is_nil( aContainer ) ) {
-        aContainer = StartContainer( myParams ) ;
-        if ( CORBA::is_nil( aContainer ) ) {
-          MESSAGE( "Manager_i::FindOrStartContainer FindOrStartContainerLocked failed" ) ;
+                                                              const char * aComponentName ) {
+  _EnginesContainer = Engines::Container::_nil() ;
+  _EnginesComponent = Engines::Component::_nil() ;
+  _ListOfComponents = new Engines::ListOfComponents() ;
+  _ListOfComponents->length( 0 ) ;
+  _ListOfContainers = FindContainers( myParams ) ;
+  _ComponentName = aComponentName ;
+  MESSAGE( "MutexManager FindOrStartContainerLocked " << _ListOfContainers->length() << " containers found" ) ;
+  if ( _ListOfContainers->length() ) {
+    if ( strlen( _ComponentName.c_str() ) ) {
+      int i ;
+      for ( i = 0 ; i < _ListOfContainers->length() && CORBA::is_nil( _EnginesContainer ) ; i++ ) {
+        _FullHostName = "/Containers/" ;
+        _HostName += _ListOfContainers[ i ]->machineName() ;
+        _FullHostName += _HostName ;
+        _ContainerName = _ListOfContainers[ i ]->name() ;
+        _FullContainerName = _FullHostName + "/" + _ContainerName ;
+        _FullComponentName = _FullContainerName + "/" + _ComponentName ;
+        _ComponentObject = _NamingService->Resolve( _FullComponentName.c_str() ) ;
+        if ( !CORBA::is_nil( _ComponentObject ) ) {
+          _EnginesContainer = _ListOfContainers[ i ] ;
+          MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesContainer->machineName() << " "
+                   << _EnginesContainer->name() ) ;
+          _EnginesComponent = Engines::Component::_narrow( _ComponentObject ) ;
+          int size = _ListOfComponents->length() ;
+          _ListOfComponents->length( size + 1 ) ;
+          _ListOfComponents[ size ] = _EnginesComponent ;
         }
-        else {
-          MESSAGE( "Manager_i::FindOrStartContainer FindOrStartContainerLocked " << aContainer->name()
-                   << " successed" ) ;
-	}
-      }
-      else {
-        MESSAGE( "Manager_i::FindOrStartContainer FindOrStartContainerLocked " << aContainer->name()
-                 << " successed" ) ;
       }
     }
     else {
-      Resources::ListOfComputers_var aListOfComputers ;
-      Resources::Computer_var aComputer ;
-      if ( strlen( myParams.HostName ) == 0 || strcmp( myParams.HostName ,"localhost" ) == 0 ) {
-        if ( strcmp( myParams.HostName ,"localhost" ) == 0 ) {
-          myParams.HostName = CORBA::string_dup( _NamingServiceHostName.c_str() ) ;
-        }
-      }
-// appel au ResourcesManager ---> liste de machines ...
-      aListOfComputers = _ResourcesManager->GetComputers( myParams ) ;
-      if ( aListOfComputers->length() == 0 ) {
-        MESSAGE( "Manager_i::FindOrStartContainer NO computer found in ResourcesManager" ) ;
-      }
-      else if ( strlen( myParams.ContainerName ) ) {
-// Boucle de recherche du container dans la liste de machines
-        int i ;
-        for ( i = 0 ; i < aListOfComputers->length() && CORBA::is_nil( aContainer ) ; i++ ) {
-          SearchParams.HostName = aListOfComputers[ i ]->Alias() ;
-          aContainer =  FindContainer( SearchParams ) ;
-          if ( CORBA::is_nil( aContainer ) ) {
-            MESSAGE( "Manager_i::FindOrStartContainer FindOrStartContainerLocked not found on "
-                     << SearchParams.HostName ) ;
-          }
-          else {
-            MESSAGE( "Manager_i::FindOrStartContainer FindOrStartContainerLocked " << aContainer->name()
-                     << " found on " << SearchParams.HostName ) ;
-  	  }
-	}
-        if ( CORBA::is_nil( aContainer ) ) {
-          myParams.HostName = aListOfComputers[ 0 ]->Alias() ;
-          aContainer = StartContainer( myParams ) ;
-          if ( CORBA::is_nil( aContainer ) ) {
-            MESSAGE( "Manager_i::FindOrStartContainer FindOrStartContainerLocked not started with "
-                     << myParams.HostName ) ;
-          }
-          else {
-            MESSAGE( "Manager_i::FindOrStartContainer FindOrStartContainerLocked started with "
-                     << myParams.HostName << " for " << aContainer->name() ) ;
-  	  }
-        }
+       _EnginesContainer = _ListOfContainers[ 0 ] ;
+       MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesContainer->machineName() << " "
+                << _EnginesContainer->name() ) ;
+    }
+  }
+  if ( CORBA::is_nil( _EnginesContainer ) && _StartContainer ) {
+    StartContainer( myParams ) ;
+  }
+  return Engines::Container::_duplicate( _EnginesContainer ) ;
+}
+
+Engines::Container_ptr Manager_i::StartContainer( const Containers::MachineParameters & myParams ) {
+  Containers::MachineParameters MyParams = (Containers::MachineParameters & ) myParams ;
+  if ( _ListOfContainers->length() ) {
+    MyParams.HostName = _ListOfContainers[ 0 ]->machineName() ;
+    MyParams.ContainerName = _ListOfContainers[ 0 ]->name() ;
+  }
+  else if ( _ListOfComputers->length() ) {
+    MyParams.HostName = _ListOfComputers[ 0 ]->Alias() ;
+    if ( strlen( MyParams.ContainerName ) == 0 ) {
+      if ( MyParams.ContainerType == Engines::Cpp ) {
+        MyParams.ContainerName = "FactoryServer" ;
       }
       else {
-// Rechercher dans tous les containers de toutes les machines le composant
-        if ( strlen( ComponentName ) ) {
-
-	}
-        else {
-          aComputer = _ResourcesManager->GetComputer( aListOfComputers ) ;
-          if ( CORBA::is_nil( aComputer ) ) {
-            MESSAGE( "Manager_i::FindOrStartContainer FindOrStartContainerLocked GetComputer failed" ) ;
-	  }
-          else {
-            MESSAGE( "Manager_i::FindOrStartContainer FindOrStartContainerLocked GetComputer successed : "
-                     << aComputer->Alias() ) ;
-            myParams.HostName = aComputer->Alias() ;
-	  }
-	}
-// Si on ne le trouve pas, prendre les par-defauts
-        if ( CORBA::is_nil( aContainer ) ) {
-          if ( myParams.ContainerType == Engines::Cpp ) {
-            myParams.ContainerName = CORBA::string_dup( Containers::DefaultContainerCpp ) ;
-          }
-          else if ( myParams.ContainerType == Engines::Python ) {
-            myParams.ContainerName = CORBA::string_dup( Containers::DefaultContainerPython ) ;
-          }
-          aContainer =  FindContainer( myParams ) ;
-          if ( CORBA::is_nil( aContainer ) ) {
-            aContainer = StartContainer( myParams ) ;
-            if ( CORBA::is_nil( aContainer ) ) {
-              MESSAGE( "Manager_i::FindOrStartContainer FindOrStartContainerLocked failed" ) ;
-            }
-            else {
-              MESSAGE( "Manager_i::FindOrStartContainer FindOrStartContainerLocked " << aContainer->name()
-                       << " successed" ) ;
-    	    }
-          }
-          else {
-            MESSAGE( "Manager_i::FindOrStartContainer FindOrStartContainerLocked " << aContainer->name()
-                 << " successed" ) ;
-	  }
-        }
+        MyParams.ContainerName = "FactoryServerPy" ;
       }
     }
   }
-  if ( !CORBA::is_nil( aContainer ) ) {
-    MESSAGE( "Manager_i::FindOrStartContainer Container " << aContainer->name() << " is known ==> ping" ) ;
-    aContainer->ping() ;
-  }
-  else {
-    MESSAGE( "Manager_i::FindOrStartContainer Container " << _ContainerName << " unknown" ) ;
-  }
-  _EnginesContainer = aContainer ;
-  return Engines::Container::_duplicate( aContainer ) ;
-}
-
-Engines::Container_ptr Manager_i::StartContainer( Containers::MachineParameters & myParams ) {
-  Engines::Container_var aContainer = Engines::Container::_nil() ;
-  Engines::Container_var aStartContainer = Engines::Container::_nil() ;
-  string  theContainerName = (char * ) myParams.ContainerName ;
-  myParams.ContainerName = "" ;
-  aStartContainer = FindContainer( myParams ) ;
-  if ( CORBA::is_nil( aStartContainer ) ) {
-    MESSAGE( "Manager_i::StartContainer NO Container on " << myParams.HostName ) ;
-    myParams.ContainerName = CORBA::string_dup( theContainerName.c_str() ) ;
+  MESSAGE( "Manager_i::StartContainer " << MyParams.HostName << " " << MyParams.ContainerName
+           << " " << MyParams.ContainerType << " " << MyParams.Os << " " << MyParams.Memory << " "
+           << MyParams.CpuClock << " " << MyParams.NbProc << " " << MyParams.NbNode << " "
+           << MyParams.NsHostName << " " << MyParams.NsPort << " " <<  _ListOfContainers->length()
+           << " computers" ) ;
+  _ResourcesComputer = _ResourcesManager->SearchComputer( MyParams.HostName ) ;
+  if ( CORBA::is_nil( _EnginesContainer ) && !CORBA::is_nil( _ResourcesComputer ) ) {
+    Resources::ComputerEnvironment * aComputerEnvironment = _ResourcesComputer->Environment() ;
     string rsh( "" ) ;
-    char * HostName = myParams.HostName ;
+    char * HostName = MyParams.HostName ;
     if ( strcmp( HostName , GetHostname().c_str() ) ) {
       if ( _ResourcesManager->SshAccess( HostName ) ) {
         rsh += "ssh " ;
@@ -407,9 +325,8 @@ Engines::Container_ptr Manager_i::StartContainer( Containers::MachineParameters 
       else {
         rsh += "rsh -n " ;
       }
-      rsh += myParams.HostName ;
+      rsh += MyParams.HostName ;
       rsh += " sh -c \"'" ;
-      Resources::ComputerEnvironment * aComputerEnvironment = _ResourcesManager->SearchComputer( myParams.HostName )->Environment() ;
       int size = aComputerEnvironment->Module_Root_Dir_Names.length() ;
       int i ;
       bool GeomModule = false ;
@@ -417,18 +334,19 @@ Engines::Container_ptr Manager_i::StartContainer( Containers::MachineParameters 
         if ( i > 0 ) {
           rsh += " ; " ;
         }
-        rsh += "export " ;
         rsh += aComputerEnvironment->Module_Root_Dir_Names[ i ] ;
         if ( strcmp( aComputerEnvironment->Module_Root_Dir_Names[ i ] , "GEOM_ROOT_DIR" ) == 0 ) {
           GeomModule = true ;
         }
         rsh += "=" ;
         rsh += aComputerEnvironment->Module_Root_Dir_Values[ i ] ;
+        rsh += " ; export " ;
+        rsh += aComputerEnvironment->Module_Root_Dir_Names[ i ] ;
       }
       if ( size > 0 ) {
         rsh += " ; " ;
       }
-      rsh += "export PATH=" ;
+      rsh += "PATH=" ;
       int j ;
       string Path = (char * ) aComputerEnvironment->Path ;
       for ( j = 0 ; j < Path.size() ; j++ ) {
@@ -437,7 +355,8 @@ Engines::Container_ptr Manager_i::StartContainer( Containers::MachineParameters 
 	}
         rsh += Path[ j ] ;
       }
-      rsh += " ; export LD_LIBRARY_PATH=" ;
+      rsh += " ; export PATH" ;
+      rsh += " ; LD_LIBRARY_PATH=" ;
       string Ld_Library_Path = (char * ) aComputerEnvironment->Ld_Library_Path ;
       for ( j = 0 ; j < Ld_Library_Path.size() ; j++ ) {
         if ( Ld_Library_Path[ j ] == '$' ) {
@@ -445,7 +364,8 @@ Engines::Container_ptr Manager_i::StartContainer( Containers::MachineParameters 
 	}
         rsh += Ld_Library_Path[ j ] ;
       }
-      rsh += " ; export PYTHONPATH=" ;
+      rsh += " ; export LD_LIBRARY_PATH" ;
+      rsh += " ; PYTHONPATH=" ;
       string PythonPath = (char * ) aComputerEnvironment->PythonPath ;
       for ( j = 0 ; j < PythonPath.size() ; j++ ) {
         if ( PythonPath[ j ] == '$' ) {
@@ -453,45 +373,50 @@ Engines::Container_ptr Manager_i::StartContainer( Containers::MachineParameters 
 	}
         rsh += PythonPath[ j ] ;
       }
-      rsh += " ; export CASROOT=" ;
+      rsh += " ; export PYTHONPATH" ;
+      rsh += " ; CASROOT=" ;
       rsh += aComputerEnvironment->CasRoot ;
-      rsh += " ; export CSF_PluginDefaults=" ;
+      rsh += " ; export CASROOT" ;
+      rsh += " ; CSF_PluginDefaults=" ;
       rsh += "\\" ;
       rsh += "${KERNEL_ROOT_DIR}/share/salome/resources" ;
-      rsh += " ; export CSF_SALOMEDS_ResourcesDefaults=" ;
+      rsh += " ; export CSF_PluginDefaults" ;
+      rsh += " ; CSF_SALOMEDS_ResourcesDefaults=" ;
       rsh += "\\" ;
       rsh += "${KERNEL_ROOT_DIR}/share/salome/resources" ;
+      rsh += " ; export CSF_SALOMEDS_ResourcesDefaults" ;
       if ( GeomModule ) {
-        rsh += " ; export CSF_GEOMDS_ResourcesDefaults=" ;
+        rsh += " ; CSF_GEOMDS_ResourcesDefaults=" ;
         rsh += "\\" ;
         rsh += "${GEOM_ROOT_DIR}/share/salome/resources" ;
+        rsh += " ; export CSF_GEOMDS_ResourcesDefaults" ;
       }
       rsh += " ; " ;
     }
-    if ( myParams.ContainerType == Engines::Cpp ) {
+    if ( MyParams.ContainerType == Engines::Cpp ) {
       rsh += "SALOME_Container " ;
     }
-    else if ( myParams.ContainerType == Engines::Python ) {
+    else if ( MyParams.ContainerType == Engines::Python ) {
       rsh += "SALOME_ContainerPy.py " ;
     }
-    rsh += myParams.ContainerName ;
+    rsh += MyParams.ContainerName ;
     rsh += " -ORBInitRef NameService=corbaname::" ;
-    rsh += myParams.NsHostName ;
-    if ( myParams.NsPort != 0 ) {
+    rsh += MyParams.NsHostName ;
+    if ( MyParams.NsPort != 0 ) {
       rsh += ":" ;
       ostringstream astr ;
-      astr << myParams.NsPort ;
+      astr << MyParams.NsPort ;
       rsh += astr.str().c_str() ;
     }
     rsh += " > /tmp/" ;
-    rsh += myParams.ContainerName ;
-    if ( myParams.ContainerType == Engines::Cpp ) {
+    rsh += MyParams.ContainerName ;
+    if ( MyParams.ContainerType == Engines::Cpp || MyParams.ContainerType == Engines::Undefined ) {
       rsh += "_Cpp_" ;
     }
-    else if ( myParams.ContainerType == Engines::Python ) {
+    else if ( MyParams.ContainerType == Engines::Python ) {
       rsh += "_Py_" ;
     }
-    rsh += myParams.HostName ;
+    rsh += MyParams.HostName ;
     rsh += ".log 2>&1 " ;
     if ( strcmp( HostName , GetHostname().c_str() ) ) {
       rsh += "'\"" ;
@@ -507,66 +432,58 @@ Engines::Container_ptr Manager_i::StartContainer( Containers::MachineParameters 
     }
     else {
       int count = 21 ;
-      while ( CORBA::is_nil( aContainer ) && count ) {
+      while ( CORBA::is_nil( _EnginesContainer ) && count ) {
         sleep( 1 ) ;
         count-- ;
         if ( count != 21 ) {
-          MESSAGE( "StartContainer" << count << ". Waiting for " << myParams.ContainerName << " on "
-                   << myParams.HostName ) ;
+          MESSAGE( "StartContainer" << count << ". Waiting for " << MyParams.ContainerName << " on "
+                   << MyParams.HostName ) ;
 	}
-        aContainer = FindContainer( myParams ) ;
+        _EnginesContainer = FindContainer( MyParams ) ;
       }
-      if ( CORBA::is_nil( aContainer ) ) {
+      if ( CORBA::is_nil( _EnginesContainer ) ) {
         INFOS("StartContainer rsh/ssh failed " ) ;
       }
     }
   }
   else {
-    MESSAGE( "Manager_i::StartContainer -> Container start_impl( " << aStartContainer->name() << ") for "
-             << theContainerName.c_str() ) ;
-    aContainer = aStartContainer->start_impl( theContainerName.c_str() , myParams.ContainerType ) ;
+    MESSAGE( "Manager_i::StartContainer -> Container start_impl( " << _EnginesContainer->name() << ") for "
+             << MyParams.ContainerName ) ;
+    _EnginesContainer = _EnginesContainer->start_impl( MyParams.ContainerName , MyParams.ContainerType ) ;
   }
-  return Engines::Container::_duplicate( aContainer ) ;
+  return Engines::Container::_duplicate( _EnginesContainer ) ;
 }
 
-Engines::Component_ptr Manager_i::FindComponent( const Containers::MachineParameters & MyParams ,
+Engines::Component_ptr Manager_i::FindComponent( const Containers::MachineParameters & myParams ,
                                                  const char * ComponentName ) {
-  CORBA::Object_var ComponentObject = CORBA::Object::_nil() ;
-  Engines::Component_var EnginesComponent = Engines::Component::_nil() ;
-  Engines::Container_var aContainer = FindContainer( MyParams ) ;
-  if ( !CORBA::is_nil( aContainer ) ) {
-    _ComponentName = _ContainerName ;
-    _ComponentName += "/" ;
-    _ComponentName += ComponentName ;
-    try {
-      ComponentObject = _NamingService->Resolve( _ComponentName.c_str() ) ;
-      if ( !CORBA::is_nil( ComponentObject ) ) {
-        MESSAGE( "Component found !" << _ComponentName ) ;
-        Engines::Component_var EnginesComponent = Engines::Component::_narrow( ComponentObject ) ;
-        if ( !CORBA::is_nil( EnginesComponent ) ) {
-	  try {
-	    EnginesComponent->ping() ; 
-	  }
-	  catch ( CORBA::COMM_FAILURE& ) {
-	    INFOS("Caught CORBA::SystemException CommFailure. Engine " << _ComponentName << "does not respond" ) ;
-            EnginesComponent = Engines::Component::_nil() ;
-	  }
-        }
-      }
-    }
-    catch ( ServiceUnreachable& ) {
-      INFOS("Caught exception: Naming Service Unreachable") ;
-    }
-    catch (...) {
-      INFOS("Caught unknown exception.") ;
-    }
+  Containers::MachineParameters MyParams = (Containers::MachineParameters & ) myParams ;
+  if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
+    MyParams.HostName = GetHostname().c_str() ;
   }
-  return Engines::Component::_duplicate( EnginesComponent ) ;
+  _StartContainer = false ;
+  FindOrStartContainerLocked( (Containers::MachineParameters & ) MyParams , ComponentName ) ;
+  return Engines::Component::_duplicate( _EnginesComponent ) ;
 }
 
-Engines::Component_ptr Manager_i::FindOrLoad_ComponentPath( const Containers::MachineParameters & MyParams ,
+Engines::ListOfComponents * Manager_i::FindComponents( const Containers::MachineParameters & myParams ,
+                                                       const char * ComponentName ) {
+  Containers::MachineParameters MyParams = (Containers::MachineParameters & ) myParams ;
+  if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
+    MyParams.HostName = GetHostname().c_str() ;
+  }
+  _StartContainer = false ;
+  _EnginesContainer = FindOrStartContainerLocked( (Containers::MachineParameters & ) MyParams , ComponentName ) ;
+  _ListOfComponents._retn() ;
+}
+
+
+Engines::Component_ptr Manager_i::FindOrLoad_ComponentPath( const Containers::MachineParameters & myParams ,
                                                             const char * ComponentName ,
                                                             const char * ImplementationPath ) {
+  Containers::MachineParameters MyParams = (Containers::MachineParameters & ) myParams ;
+  if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
+    MyParams.HostName = GetHostname().c_str() ;
+  }
   BEGIN_OF("FindOrLoad_Component( const Containers::MachineParameters & MyParams , const char * ComponentName , const char * ImplementationPath 1)");
   MESSAGE( "MutexManager pthread_mutex_lock :" ) ;
   if ( pthread_mutex_lock( &_MutexManager ) ) {
@@ -577,6 +494,7 @@ Engines::Component_ptr Manager_i::FindOrLoad_ComponentPath( const Containers::Ma
   Engines::Container_var aContainer = Engines::Container::_nil() ;
   Engines::Component_var EnginesComponent = FindComponent(  MyParams , ComponentName ) ;
   if ( CORBA::is_nil( EnginesComponent ) ) {
+    _StartContainer = true ;
     aContainer = FindOrStartContainerLocked( (Containers::MachineParameters & ) MyParams , ComponentName ) ;
   }
   else {
@@ -607,8 +525,12 @@ Engines::Component_ptr Manager_i::FindOrLoad_ComponentPath( const Containers::Ma
   return Engines::Component::_duplicate( EnginesComponent ) ;
 }
 
-Engines::Component_ptr Manager_i::FindOrLoad_Component( const Containers::MachineParameters & MyParams ,
+Engines::Component_ptr Manager_i::FindOrLoad_Component( const Containers::MachineParameters & myParams ,
                                                         const char * ComponentName ) {
+  Containers::MachineParameters MyParams = (Containers::MachineParameters & ) myParams ;
+  if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
+    MyParams.HostName = GetHostname().c_str() ;
+  }
   BEGIN_OF("FindOrLoad_Component( const Containers::MachineParameters & MyParams , const char * ComponentName )");
   MESSAGE( "MutexManager pthread_mutex_lock :" ) ;
   if ( pthread_mutex_lock( &_MutexManager ) ) {
@@ -619,6 +541,7 @@ Engines::Component_ptr Manager_i::FindOrLoad_Component( const Containers::Machin
   Engines::Container_var aContainer = Engines::Container::_nil() ;
   Engines::Component_var EnginesComponent = FindComponent(  MyParams , ComponentName ) ;
   if ( CORBA::is_nil( EnginesComponent ) ) {
+    _StartContainer = true ;
     aContainer = FindOrStartContainerLocked( (Containers::MachineParameters & ) MyParams , ComponentName ) ;
   }
   else {

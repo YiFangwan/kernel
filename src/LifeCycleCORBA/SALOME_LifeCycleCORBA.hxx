@@ -48,16 +48,21 @@ public:
   virtual ~SALOME_LifeCycleCORBA();
 
   Engines::Container_var FindContainer( const char *containerName ) ;
-  Engines::Container_var FindContainer( const Containers::MachineParameters & MyParams ) ;
+  Engines::Container_var FindContainer( Containers::MachineParameters & MyParams ) ;
+  Engines::ListOfContainers_var FindContainers( Containers::MachineParameters & MyParams ) ;
+  Engines::Component_var FindComponent( Containers::MachineParameters & MyParams ,
+                                        const char * ComponentName ) ;
+  Engines::ListOfComponents_var FindComponents( Containers::MachineParameters & MyParams ,
+                                                const char * ComponentName ) ;
   Engines::Component_var FindOrLoad_Component( const char *containerName ,
 					       const char *componentName ,
 					       const char *implementationPath ) ;
-  Engines::Component_var FindOrLoad_Component( const Containers::MachineParameters & MyParams ,
+  Engines::Component_var FindOrLoad_Component( Containers::MachineParameters & MyParams ,
 					       const char *componentName ,
 					       const char *implementationPath ) ;
   Engines::Component_var FindOrLoad_Component( const char *containerName ,
 					       const char *componentName ) ;
-  Engines::Component_var FindOrLoad_Component( const Containers::MachineParameters & MyParams ,
+  Engines::Component_var FindOrLoad_Component( Containers::MachineParameters & MyParams ,
 					       const char *componentName ) ;
 protected:
   Containers::Manager_var _MyContainersMgr ;

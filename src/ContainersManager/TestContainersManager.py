@@ -5,23 +5,56 @@ import Engines
 
 import Containers
 
+def ContainerParameters( Params ) :
+    print "ContainerParameters :"
+    print "Os            :",Params.Os
+    print "Memory        :",Params.Memory
+    print "CpuClock      :",Params.CpuClock
+    print "NbProc        :",Params.NbProc
+    print "NbNode        :",Params.NbNode
+    print "HostName      :",Params.HostName
+    print "ContainerName :",Params.ContainerName
+    print "ContainerType :",Params.ContainerType
+    print "NsHostName    :",Params.NsHostName
+    print "NsPort        :",Params.NsPort
+
+def ComputerParameters( Params ) :
+    print "ComputerParameters :"
+    print "FullName      :",Params.FullName
+    print "Alias         :",Params.Alias
+    print "SshAccess     :",Params.SshAccess
+    print "Interactive   :",Params.Interactive
+    print "Batch         :",Params.Batch
+    print "UserName      :",Params.UserName
+    print "Os            :",Params.Os
+    print "Memory        :",Params.Memory
+    print "Swap          :",Params.Swap
+    print "CpuClock      :",Params.CpuClock
+    print "NbProc        :",Params.NbProc
+    print "NbNode        :",Params.NbNode
+
+
+def ComputerEnvironement( env ) :
+    rootNames = env.Module_Root_Dir_Names
+    rootValues = env.Module_Root_Dir_Values
+    j = 0
+    while j < len( rootNames ) :
+        print rootNames[ j ],rootValues[ j ]
+        j = j + 1
+    print 'Path           ',env.Path
+    print 'Ld_Library_Path',env.Ld_Library_Path
+    print 'PythonPath     ',env.PythonPath
+    print 'CasRoot        ',env.CasRoot
+
+
+
 MyContainersMgr = clt.waitNS("/Kernel/ContainersManager",Containers.Manager)
 
 MyContainersMgr.ping()
 
 DefaultParams = MyContainersMgr.Parameters()
 
-print "DefaultParameters :"
-print "Os            :",DefaultParams.Os
-print "Memory        :",DefaultParams.Memory
-print "CpuClock      :",DefaultParams.CpuClock
-print "NbProc        :",DefaultParams.NbProc
-print "NbNode        :",DefaultParams.NbNode
-print "HostName      :",DefaultParams.HostName
-print "ContainerName :",DefaultParams.ContainerName
-print "ContainerType :",DefaultParams.ContainerType
-print "NsHostName    :",DefaultParams.NsHostName
-print "NsPort        :",DefaultParams.NsPort
+ContainerParameters( DefaultParams )
 
 FactoryServer = MyContainersMgr.FindOrStartContainer( DefaultParams )
 
@@ -61,30 +94,8 @@ print 'AllComputers',len( AllComputers ),'computers found'
 i = 0
 while i < len( AllComputers ) :
     print  ''
-    params = AllComputers[i].Parameters()
-    print 'FullName   ',params.FullName
-    print 'Alias      ',params.Alias
-    print 'SshAccess  ',params.SshAccess
-    print 'Interactive',params.Interactive
-    print 'Batch      ',params.Batch
-    print 'UserName   ',params.UserName
-    print 'Os         ',params.Os
-    print 'Memory     ',params.Memory
-    print 'Swap       ',params.Swap
-    print 'CpuClock   ',params.CpuClock
-    print 'NbProc     ',params.NbProc
-    print 'NbNode     ',params.NbNode
-    env = AllComputers[i].Environment()
-    rootNames = env.Module_Root_Dir_Names
-    rootValues = env.Module_Root_Dir_Values
-    j = 0
-    while j < len( rootNames ) :
-        print rootNames[ j ],rootValues[ j ]
-        j = j + 1
-    print 'Path           ',env.Path
-    print 'Ld_Library_Path',env.Ld_Library_Path
-    print 'PythonPath     ',env.PythonPath
-    print 'CasRoot        ',env.CasRoot
+    ComputerParameters( AllComputers[i].Parameters() )
+    ComputerEnvironement( AllComputers[i].Environment() )
     i = i + 1
 
 ListOfComputers = MyResourcesMgr.GetComputers( DefaultParams )
@@ -93,30 +104,8 @@ print 'ListOfComputers',len( ListOfComputers ),'computers found'
 i = 0
 while i < len( ListOfComputers ) :
     print  ''
-    params = ListOfComputers[i].Parameters()
-    print 'FullName   ',params.FullName
-    print 'Alias      ',params.Alias
-    print 'SshAccess  ',params.SshAccess
-    print 'Interactive',params.Interactive
-    print 'Batch      ',params.Batch
-    print 'UserName   ',params.UserName
-    print 'Os         ',params.Os
-    print 'Memory     ',params.Memory
-    print 'Swap       ',params.Swap
-    print 'CpuClock   ',params.CpuClock
-    print 'NbProc     ',params.NbProc
-    print 'NbNode     ',params.NbNode
-    env = ListOfComputers[i].Environment()
-    rootNames = env.Module_Root_Dir_Names
-    rootValues = env.Module_Root_Dir_Values
-    j = 0
-    while j < len( rootNames ) :
-        print rootNames[ j ],rootValues[ j ]
-        j = j + 1
-    print 'Path           ',env.Path
-    print 'Ld_Library_Path',env.Ld_Library_Path
-    print 'PythonPath     ',env.PythonPath
-    print 'CasRoot        ',env.CasRoot
+    ComputerParameters( ListOfComputers[i].Parameters() )
+    ComputerEnvironement( ListOfComputers[i].Environment() )
     i = i + 1
 
 aComputer = MyResourcesMgr.SelectComputer( DefaultParams )
@@ -129,6 +118,9 @@ aComputer = MyResourcesMgr.SearchComputer("bordolex")
 aComputer.Parameters().FullName
 
 aComputer = MyResourcesMgr.SearchComputer("bojolex")
+aComputer.Parameters().FullName
+
+aComputer = MyResourcesMgr.SearchComputer("xmen.saclay.opencascade.com")
 aComputer.Parameters().FullName
 
 aComputer = MyResourcesMgr.SearchComputer("unknown")
@@ -146,30 +138,8 @@ print 'ListOfComputers',len( ListOfComputers ),'computers found'
 i = 0
 while i < len( ListOfComputers ) :
     print  ''
-    params = ListOfComputers[i].Parameters()
-    print 'FullName   ',params.FullName
-    print 'Alias      ',params.Alias
-    print 'SshAccess  ',params.SshAccess
-    print 'Interactive',params.Interactive
-    print 'Batch      ',params.Batch
-    print 'UserName   ',params.UserName
-    print 'Os         ',params.Os
-    print 'Memory     ',params.Memory
-    print 'Swap       ',params.Swap
-    print 'CpuClock   ',params.CpuClock
-    print 'NbProc     ',params.NbProc
-    print 'NbNode     ',params.NbNode
-    env = ListOfComputers[i].Environment()
-    rootNames = env.Module_Root_Dir_Names
-    rootValues = env.Module_Root_Dir_Values
-    j = 0
-    while j < len( rootNames ) :
-        print rootNames[ j ],rootValues[ j ]
-        j = j + 1
-    print 'Path           ',env.Path
-    print 'Ld_Library_Path',env.Ld_Library_Path
-    print 'PythonPath     ',env.PythonPath
-    print 'CasRoot        ',env.CasRoot
+    ComputerParameters( ListOfComputers[i].Parameters() )
+    ComputerEnvironement( ListOfComputers[i].Environment() )
     i = i + 1
 
 aComputer = MyResourcesMgr.SelectComputer( DefaultParams )
@@ -185,33 +155,12 @@ print  ''
 print 'ListOfComputers',len( ListOfComputers ),'computers found'
 if len( ListOfComputers ) > 0 :
     print "Error",len( ListOfComputers ),"Computers found"
+
 i = 0
 while i < len( ListOfComputers ) :
     print  ''
-    params = ListOfComputers[i].Parameters()
-    print 'FullName   ',params.FullName
-    print 'Alias      ',params.Alias
-    print 'SshAccess  ',params.SshAccess
-    print 'Interactive',params.Interactive
-    print 'Batch      ',params.Batch
-    print 'UserName   ',params.UserName
-    print 'Os         ',params.Os
-    print 'Memory     ',params.Memory
-    print 'Swap       ',params.Swap
-    print 'CpuClock   ',params.CpuClock
-    print 'NbProc     ',params.NbProc
-    print 'NbNode     ',params.NbNode
-    env = ListOfComputers[i].Environment()
-    rootNames = env.Module_Root_Dir_Names
-    rootValues = env.Module_Root_Dir_Values
-    j = 0
-    while j < len( rootNames ) :
-        print rootNames[ j ],rootValues[ j ]
-        j = j + 1
-    print 'Path           ',env.Path
-    print 'Ld_Library_Path',env.Ld_Library_Path
-    print 'PythonPath     ',env.PythonPath
-    print 'CasRoot        ',env.CasRoot
+    ComputerParameters( ListOfComputers[i].Parameters() )
+    ComputerEnvironement( ListOfComputers[i].Environment() )
     i = i + 1
 
 aComputer = MyResourcesMgr.SelectComputer( DefaultParams )
@@ -235,4 +184,10 @@ xmenServer = MyContainersMgr.FindOrStartContainer( DefaultParams )
 xmenServer.ping()
 
 component = MyContainersMgr.FindOrLoadComponent( DefaultParams , "AddComponent" )
+
+Containers = MyContainersMgr.FindContainers( DefaultParams )
+
+DefaultParams.ContainerName = ''
+
+Containers = MyContainersMgr.FindContainers( DefaultParams )
 

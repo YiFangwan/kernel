@@ -215,7 +215,8 @@ LIB_CLIENT_IDL = SALOMEDS.idl \
                  SALOMEDS_Attributes.idl \
 		 SALOME_ModuleCatalog.idl \
 		 SALOME_Component.idl \
-		 SALOME_Exception.idl
+		 SALOME_Exception.idl \
+ 		 ContainersManager.idl
 
 CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(OCC_INCLUDES)
 LDFLAGS+=$(QT_MT_LIBS) -lSalomeNS -lqsplitterP -lSalomeLifeCycleCORBA -lOpUtil -lSalomeObject
