@@ -374,6 +374,54 @@ msgstr "Saves the active study"
 msgid "QAD_Desktop::PRP_DESK_FILE_SAVEAS"
 msgstr "Saves the active study with a new name"
 
+#: QAD_Desktop.cxx:3759
+msgid "QAD_Desktop::PRP_DESK_FILE_IMPORT"
+msgstr "Import file"
+
+#: QAD_Desktop.cxx:3765
+msgid "QAD_Desktop::PRP_DESK_FILE_IMPORTMESH"
+msgstr "Import Mesh from file"
+
+#: QAD_Desktop.cxx:3765
+msgid "QAD_Desktop::PRP_DESK_FILE_IMPORTMED"
+msgstr "Import MED file"
+
+#: QAD_Desktop.cxx:3765
+msgid "QAD_Desktop::PRP_DESK_FILE_IMPORTTABLE"
+msgstr "Import TABLE from file"
+
+#: QAD_Desktop.cxx:3765
+msgid "QAD_Desktop::PRP_DESK_FILE_EXPLOREMEDFILE"
+msgstr "Explore MED file"
+
+#: QAD_Desktop.cxx:3771
+msgid "QAD_Desktop::PRP_DESK_FILE_IMPORTDF"
+msgstr "Import Dataflow from file"
+
+#: QAD_Desktop.cxx:3761
+msgid "QAD_Desktop::PRP_DESK_FILE_EXPORT"
+msgstr "Export file"
+
+#: QAD_Desktop.cxx:3761
+msgid "QAD_Desktop::PRP_DESK_FILE_EXPORTRESULT"
+msgstr "Export Result"
+
+#: QAD_Desktop.cxx:3773
+msgid "QAD_Desktop::PRP_DESK_FILE_EXPORTDF"
+msgstr "Export Dataflow"
+
+#: QAD_Desktop.cxx:3793
+msgid "QAD_Desktop::PRP_DESK_EDIT_DELETE"
+msgstr "Delete object"
+
+#: QAD_Desktop.cxx:3799
+msgid "QAD_Desktop::PRP_DESK_EDIT_NEWDF"
+msgstr "Creates new Dataflow"
+
+#: QAD_Desktop.cxx:3801
+msgid "QAD_Desktop::PRP_DESK_EDIT_MODIFYDF"
+msgstr "Modifies already existent Dataflow"
+
 #: QAD_Desktop.cxx:292
 msgid "QAD_Desktop::PRP_DESK_HELP_ABOUT"
 msgstr "Shows \'About\' dialog"
@@ -408,6 +456,14 @@ msgstr "Toggles status bar view on/off"
 #: QAD_Desktop.cxx:220
 msgid "QAD_Desktop::PRP_DESK_VIEW_TOOLBAR"
 msgstr "Toggles toolbar on/off"
+
+#: QAD_Desktop.cxx:220
+msgid "QAD_Desktop::PRP_DESK_VIEW_DISPLAYMODE"
+msgstr "Choose the display mode"
+
+#: QAD_Desktop.cxx:220
+msgid "QAD_Desktop::PRP_DESK_VIEW_UPDATE"
+msgstr "Update view"
 
 #: QAD_Desktop.cxx:871
 msgid "QAD_Desktop::PRP_DESK_WINDOW_ACTIVATE"

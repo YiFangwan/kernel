@@ -3912,6 +3912,7 @@ void QAD_Desktop::onFilePopupStatusText( int id )
     //one of the modules is active now
     int importId = myFilePopup.idAt(8);
     int exportId = myFilePopup.idAt(9);
+    int importTableId = myFilePopup.idAt(10);
    
     if (component == getComponentUserName("SMESH") || component == getComponentUserName("GEOM")) {
       if (id == importId)
@@ -3922,8 +3923,10 @@ void QAD_Desktop::onFilePopupStatusText( int id )
     if (component == getComponentUserName("VISU")) {
       if (id == importId)
 	putInfo( tr("PRP_DESK_FILE_IMPORTMED") );
-      if (id == exportId)
+      if (id == importTableId)
 	putInfo( tr("PRP_DESK_FILE_IMPORTTABLE") );
+      if (id == exportId)
+	putInfo( tr("PRP_DESK_FILE_EXPLOREMEDFILE") );
     }
     if (component == getComponentUserName("SUPERV")) {
       if (id == importId)
@@ -3972,7 +3975,7 @@ void QAD_Desktop::onViewPopupStatusText( int id )
 	putInfo( tr("PRP_DESK_VIEW_DISPLAYMODE") );
     }
     if (component == getComponentUserName("SMESH")) {
-      int updateId = myViewPopup.idAt(4);
+      int updateId = myViewPopup.idAt(3);
 
       if (id == DispModeId)
 	putInfo( tr("PRP_DESK_VIEW_DISPLAYMODE") );
