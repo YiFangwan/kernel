@@ -40,7 +40,6 @@ EXPORT_HEADERS= SALOME_Session_i.hxx
 # Libraries targets
 LIB = libSalomeSession.la
 LIB_SRC=\
-	SALOME_Session_QThread.cxx \
 	SALOME_Session_i.cxx
 
 # Executables targets
