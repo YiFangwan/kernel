@@ -35,6 +35,9 @@
 #include <stdio.h>
 #include <dlfcn.h>
 #include <unistd.h>
+#include <stdexcept>
+#include <signal.h>
+#include <setjmp.h>
 
 #include "utilities.h"
 using namespace std;
@@ -67,8 +70,8 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 {
   _pid = (long)getpid();
 
-  if(regist)
-    ActSigIntHandler() ;
+//  if(regist)
+//    ActSigIntHandler() ;
 
   _ArgC = argc ;
   _ArgV = argv ;
@@ -130,6 +133,20 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
     SCRUTE(_containerName);
     _NS->Register(pCont, _containerName.c_str()); 
   }
+
+//Double conditionnal mutex for synchonization between python functions
+// execution in the main thread and other threads of SuperVisionEngine
+  pthread_mutex_init( &_ExecutePythonMutex , NULL ) ;
+  if ( pthread_cond_init( &_ExecutePythonCond , NULL ) ) {
+    perror("pthread_cond_init( &_ExecutePythonCond , NULL )") ;
+    exit( 0 ) ;
+  }
+  _ExecutePythonSync = false ;
+  if ( pthread_cond_init( &_ReturnPythonCond , NULL ) ) {
+    perror("pthread_cond_init( &_ReturnPythonCond , NULL )") ;
+    exit( 0 ) ;
+  }
+  _ReturnPythonSync = false ;
 }
 
 Engines_Container_i::~Engines_Container_i()
@@ -210,9 +227,29 @@ Engines::Container_ptr Engines_Container_i::start_impl(
     shstr += " " ;
     shstr += _argv[ 3 ] ;
   }
-  shstr += " > /tmp/" ;
-  shstr += ContainerName ;
-  shstr += ".log 2>&1 &" ;
+
+  // asv : 16.11.04 : creation of log file in /tmp/logs/$USER dir. 
+  // "/tmp/logs/$USER" was created by  runSalome.py -> orbmodule.py.
+  string tempfilename = "/tmp/logs/";
+  tempfilename += getenv( "USER" ) ;
+  tempfilename += "/" ;
+  tempfilename += ContainerName ;
+  tempfilename += ".log" ;
+  FILE* f = fopen ( tempfilename.c_str(), "a" );
+  if ( f ) { // check if file can be opened for writing
+    fclose( f );
+    shstr += " > " ;
+    shstr += tempfilename;
+    shstr += " 2>&1 &" ;
+  }
+  else { // if file can't be opened - use a guaranteed temp file name
+    char* tmpFileName = tempnam( NULL, ContainerName );
+    shstr += " > ";
+    shstr += tmpFileName;
+    shstr += " 2>&1 &";
+    free( tmpFileName );    
+  }
+
   MESSAGE("system(" << shstr << ")") ;
   int status = system( shstr.c_str() ) ;
   if (status == -1) {
@@ -308,6 +345,13 @@ Engines::Component_ptr Engines_Container_i::load_impl( const char* nameToRegiste
     _numInstanceMutex.unlock() ;
     return Engines::Component::_nil() ;
   }
+//JR Debug : Check of Undefined symbols :
+  char *error ;
+  if ( (error = dlerror() ) != NULL) {
+      INFOS("dlopen error : " << error );
+      _numInstanceMutex.unlock() ;
+      return Engines::Component::_nil() ;
+    }
   
   string factory_name = _nameToRegister + string("Engine_factory");
   //  SCRUTE(factory_name) ;
@@ -320,7 +364,6 @@ Engines::Component_ptr Engines_Container_i::load_impl( const char* nameToRegiste
 			     const char *) ; 
   FACTORY_FUNCTION Component_factory = (FACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
 
-  char *error ;
   if ( (error = dlerror() ) != NULL) {
       INFOS("Can't resolve symbol: " + factory_name);
       SCRUTE(error);
@@ -401,46 +444,138 @@ void Engines_Container_i::finalize_removal()
   MESSAGE("remove_map.clear()");
 }
 
+//Initialize the signal handler SigIntAct
 void ActSigIntHandler() {
   struct sigaction SigIntAct ;
+  SigIntAct.sa_mask = __sigset_t() ;
   SigIntAct.sa_sigaction = &SigIntHandler ;
   SigIntAct.sa_flags = SA_SIGINFO ;
-  if ( sigaction( SIGINT | SIGUSR1 , &SigIntAct, NULL ) ) {
-    perror("SALOME_Container main ") ;
+//If there is a SIGBUS and if a python function is executing
+// the stack is "rewinded" until the setjmp called in the
+// main loop that execute the python functions in the main thread
+  if ( sigaction( SIGBUS , &SigIntAct, NULL ) ) {
+    perror("SALOME_Container mainThread SIGBUS") ;
+    exit(0) ;
+  }
+//Same as SIGBUS
+  else if ( sigaction( SIGFPE , &SigIntAct, NULL ) ) {
+    perror("SALOME_Container mainThread SIGFPE") ;
+    exit(0) ;
+  }
+//SIGUSR1 is used to get the cpu used by a thread
+  else if ( sigaction( SIGUSR1 , &SigIntAct, NULL ) ) {
+    perror("SALOME_Container mainThread SIGUSR1") ;
+    exit(0) ;
+  }
+//Same as SIGBUS
+  else if ( sigaction( SIGSEGV , &SigIntAct, NULL ) ) {
+    perror("SALOME_Container mainThread SIGSEGV") ;
+    exit(0) ;
+  }
+//SIGUSR2 is used to suspend a thread
+  else if ( sigaction( SIGUSR2 , &SigIntAct, NULL ) ) {
+    perror("SALOME_Container mainThread SIGUSR2") ;
+    exit(0) ;
+  }
+//SIGCONT is used to resume a suspended thread
+  else if ( sigaction( SIGCONT , &SigIntAct, NULL ) ) {
+    perror("SALOME_Container mainThread SIGCONT") ;
     exit(0) ;
   }
   else {
-    INFOS(pthread_self() << "SigIntHandler activated") ;
+//    INFOS(pthread_self() << "SigIntHandler activated") ;
   }
 }
 
-void SetCpuUsed() ;
+bool SetCpuUsed() ;// in Component_i.cxx
 
+//JR if there is a SIGSEGV or a SIGFPE signal and if we are executing
+// a python function in the SuperVisionEngine, we use setjmp/longjmp
+// for catching of that errors to avoid a crash of SuperVisionEngine
+//The SIGINT signal is used to kill the execution of a python function.
+//If we are in a Container other than the one of SuperVision SIGSEGV
+// or SIGFPE will abort the Container because if we return, the same
+// fault will occur again.
+static jmp_buf jmp_env ;
+static bool k_setjmp = false ;
+
+//Signals handler
 void SigIntHandler(int what , siginfo_t * siginfo ,
                                         void * toto ) {
-  MESSAGE(pthread_self() << "SigIntHandler what     " << what << endl
-          << "              si_signo " << siginfo->si_signo << endl
-          << "              si_code  " << siginfo->si_code << endl
-          << "              si_pid   " << siginfo->si_pid) ;
-  if ( _Sleeping ) {
+  string signame ;
+  if ( what == SIGINT ) {
+    signame = string("SIGINT Python KeyBoardInterrupt ?...") ;// 2
+  }
+  else if ( what == SIGBUS ) {
+    signame = string("SIGBUS") ;// 7
+  }
+  else if ( what == SIGFPE ) {
+    signame = string("SIGFPE") ;// 8
+  }
+  else if ( what == SIGUSR1 ) {
+    signame = string("SIGUSR1 CpuUsed") ;// 10
+  }
+  else if ( what == SIGSEGV ) {
+    signame = string("SIGSEGV") ;// 11
+  }
+  else if ( what == SIGUSR2 ) {
+    signame = string("SIGUSR2 Suspend") ;// 12
+  }
+  else if ( what == SIGCONT ) {
+    signame = string("SIGCONT Resume") ;// 18
+  }
+//JR Warning : cout/MESSAGE ===> hangup if it is a stream operation that is interrupted ...
+//  MESSAGE(pthread_self() << "SigIntHandler what     " << what << endl
+//          << "              si_signo " << siginfo->si_signo << endl
+//          << "              si_code  " << siginfo->si_code << endl
+//          << "              si_pid   " << siginfo->si_pid) ;
+  if ( siginfo->si_signo == SIGCONT ) {
     _Sleeping = false ;
-    MESSAGE("SigIntHandler END sleeping.") ;
+//    MESSAGE("SigIntHandler END sleeping.") ;
     return ;
   }
   else {
-    ActSigIntHandler() ;
-    if ( siginfo->si_signo == SIGUSR1 ) {
-      SetCpuUsed() ;
+//    MESSAGE(pthread_self() << "SigIntHandler " << signame ) ;
+    if ( siginfo->si_signo == SIGINT ) {
+      ActSigIntHandler() ;
+      cout << pthread_self() << "SigIntHandler throw " << signame << endl ;
+      throw std::runtime_error("SIGINT");
+//      cout << pthread_self() << "SigIntHandler throwed " << signame << endl ;
     }
-    else {
+    else if ( siginfo->si_signo == SIGSEGV ) {
+//      cout << "Engines_Container_i(SigIntHandler) Signal = " << signame.c_str()
+//           << " was cautch!" << endl ;
+      if ( k_setjmp ) {
+        ActSigIntHandler() ;
+        longjmp( jmp_env , 1 ) ;
+        k_setjmp = false ;
+      }
+      else {
+        throw std::runtime_error(signame);
+      }
+    }
+    else if ( siginfo->si_signo == SIGUSR1 ) {
+      if ( !SetCpuUsed() ) {
+//        cout << "Engines_Container_i(SigIntHandler) Signal = " << signame.c_str()
+//             << " was cautch!" << endl ;
+      }
+      ActSigIntHandler() ;
+    }
+    else if ( siginfo->si_signo == SIGUSR2 ) {
+      ActSigIntHandler() ;
       _Sleeping = true ;
-      MESSAGE("SigIntHandler BEGIN sleeping.") ;
+//      cout << pthread_self() << "SigIntHandler BEGIN sleeping." << endl ;
       int count = 0 ;
       while( _Sleeping ) {
         sleep( 1 ) ;
         count += 1 ;
+//        if ( (count % 10) == 0 ) {
+//          cout << pthread_self() << "SigIntHandler sleeping after " << count << " s."
+//               << endl ;
+//	}
       }
-      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+//      cout << pthread_self() << "SigIntHandler LEAVE sleeping after" << count << "s."
+//           << endl ;
     }
     return ;
   }
@@ -457,3 +592,187 @@ CORBA::Long Engines_Container_i::getPID() {
 char* Engines_Container_i::getHostName() {
     return((char*)(GetHostname().c_str()));
 }
+
+//Returns the Thread identification of the main thread
+pthread_t Engines_Container_i::MainThreadId() {
+  return _MainThreadId ;
+}
+
+// Called by the main : execute python functions
+void Engines_Container_i::WaitPythonFunction() {
+  _MainThreadId = pthread_self() ;
+  ActSigIntHandler() ;
+  while ( true ) {
+    cout << pthread_self() << "Engines_Container_i::WaitActivatePythonExecution :" << endl ;
+    WaitActivatePythonExecution() ;
+    cout << pthread_self() << "Engines_Container_i::WaitActivatedPythonExecution" << endl ;
+
+    if ( setjmp( jmp_env ) == 0 ) {
+      k_setjmp = true ;
+      if ( _InitPyRunMethod ) {
+        cout << pthread_self() << "Engines_Container_i::WaitPythonFunction --> Py_InitModule"  << endl ;
+        Py_InitModule( _InitPyRunMethod , _MethodPyRunMethod ) ;
+        cout << pthread_self() << "Engines_Container_i::WaitPythonFunction <-- Py_InitModule"  << endl ;
+      }
+      else if ( _PyString ) {
+        _ReturnValue = false ;
+        cout << pthread_self() << "Engines_Container_i::WaitPythonFunction --> PyRun_SimpleString : " << _PyString << endl ;
+        _ReturnValue = PyRun_SimpleString( _PyString ) ;
+        cout << pthread_self() << "Engines_Container_i::WaitPythonFunction <-- PyRun_SimpleString _ReturnValue " << _ReturnValue << endl ;
+      }
+      else {
+        _Result = NULL ;
+        cout << pthread_self() << "Engines_Container_i::WaitPythonFunction --> PyEval_CallObject" << endl ;
+        _Result = PyEval_CallObject( _PyRunMethod , _ArgsList ) ;
+        cout << pthread_self() << "Engines_Container_i::WaitPythonFunction <-- PyEval_CallObject _Result " << _Result << endl ;
+      }
+    }
+    else {
+      cout << pthread_self() << "Engines_Container_i::WaitPythonFunction ERROR catched" << endl ;
+    }
+
+    cout << pthread_self() << "Engines_Container_i::ActivatePythonReturn :" << endl ;
+    ActivatePythonReturn() ;
+    cout << pthread_self() << "Engines_Container_i::ActivatedPythonReturn" << endl ;
+  }
+}
+
+// Called by the main thread : wait for activation by a SuperVisionExecutor thread
+void Engines_Container_i::WaitActivatePythonExecution() {
+  if ( pthread_mutex_lock( &_ExecutePythonMutex ) ) {
+    perror("WaitActivatePythonExecution pthread_mutex_lock ") ;
+    exit( 0 ) ;
+  }
+  if ( !_ExecutePythonSync ) {
+    cout << pthread_self() << "pthread_cond WaitActivatePythonExecution pthread_cond_wait" << endl ;
+    _ExecutePythonSync = true ;
+    if ( pthread_cond_wait( &_ExecutePythonCond , &_ExecutePythonMutex ) ) {
+      perror("WaitActivatePythonExecution pthread_cond_wait ") ;
+    }
+    cout << pthread_self() << "pthread_cond WaitActivatePythonExecution pthread_cond_waited" << endl ;
+  }
+  else {
+    cout << pthread_self() << "pthread_cond NO WaitActivatePythonExecution pthread_cond_wait" << endl ;
+  }
+  _ExecutePythonSync = false ;  
+  if ( pthread_mutex_unlock( &_ExecutePythonMutex ) ) {
+    perror("WaitActivatePythonExecution pthread_mutex_unlock ") ;
+    exit( 0 ) ;
+  }
+}
+
+// Called by the main thread at Return from the python function ==> activation of
+// a SuperVisionExecutor thread
+void Engines_Container_i::ActivatePythonReturn() {
+  if ( _ReturnPythonSync ) {
+    cout << pthread_self() << "pthread_cond ActivatePythonReturn pthread_cond_signal :" << endl ;
+    if ( pthread_cond_signal( &_ReturnPythonCond ) ) {
+      perror("ActivatePythonReturn pthread_cond_broadcast ") ;
+    }
+    cout << pthread_self() << "pthread_cond ActivatePythonReturn pthread_cond_signaled" << endl ;
+  }
+  else {
+    cout << pthread_self() << "pthread_cond NO ActivatePythonReturn pthread_cond_signal" << endl ;
+    _ReturnPythonSync = true ;  
+  }
+  if ( pthread_mutex_unlock( &_ExecutePythonMutex ) ) {
+    perror("ActivatePythonReturn pthread_mutex_unlock ") ;
+    exit( 0 ) ;
+  }
+}
+
+// Called by a SuperVisionExecutor  thread ===> activate the main thread that have to
+// execute Py_InitModule( InitPyRunMethod , PyMethodDef )
+void Engines_Container_i::ActivatePythonExecution( char* InitPyRunMethod ,
+                                                   PyMethodDef * MethodPyRunMethod ) {
+  if ( pthread_mutex_lock( &_ExecutePythonMutex ) ) {
+    perror("ActivatePythonExecution pthread_mutex_lock ") ;
+    exit( 0 ) ;
+  }
+  _InitPyRunMethod = InitPyRunMethod ;
+  _MethodPyRunMethod = MethodPyRunMethod ;
+  _PyString = NULL ;
+  _PyRunMethod = NULL ;
+  _ArgsList = NULL ;
+  ActivatePythonExecution() ;
+  WaitReturnPythonExecution() ;
+}
+
+// Called by a SuperVisionExecutor  thread ===> activate the main thread that have to
+// execute PyRun_SimpleString( thePyString )
+bool Engines_Container_i::ActivatePythonExecution( char* thePyString ) {
+  if ( pthread_mutex_lock( &_ExecutePythonMutex ) ) {
+    perror("ActivatePythonExecution pthread_mutex_lock ") ;
+    exit( 0 ) ;
+  }
+  _InitPyRunMethod = NULL ;
+  _MethodPyRunMethod = NULL ;
+  _PyString = thePyString ;
+  _PyRunMethod = NULL ;
+  _ArgsList = NULL ;
+  ActivatePythonExecution() ;
+  WaitReturnPythonExecution() ;
+  return _ReturnValue ;
+}
+
+// Called by a SuperVisionExecutor  thread ===> activate the main thread that have to
+// execute PyEval_CallObject( thePyRunMethod , ArgsList )
+PyObject * Engines_Container_i::ActivatePythonExecution( PyObject * thePyRunMethod ,
+                                                         PyObject * ArgsList ) {
+  if ( pthread_mutex_lock( &_ExecutePythonMutex ) ) {
+    perror("ActivatePythonExecution pthread_mutex_lock ") ;
+    exit( 0 ) ;
+  }
+  _InitPyRunMethod = NULL ;
+  _MethodPyRunMethod = NULL ;
+  _PyString = NULL ;
+  _PyRunMethod = thePyRunMethod ;
+  _ArgsList = ArgsList ;
+  ActivatePythonExecution() ;
+  WaitReturnPythonExecution() ;
+  return _Result ;
+}
+
+// Called by a SuperVisionExecutor  thread ===> activation of the main thread
+void Engines_Container_i::ActivatePythonExecution() {
+  if ( _ExecutePythonSync ) {
+    cout << pthread_self() << "pthread_cond ActivatePythonExecution pthread_cond_signal :" << endl ;
+    if ( pthread_cond_signal( &_ExecutePythonCond ) ) {
+      perror("ActivatePythonExecution pthread_cond_broadcast ") ;
+    }
+    cout << pthread_self() << "pthread_cond ActivatePythonExecution pthread_cond_signaled" << endl ;
+  }
+  else {
+    cout << pthread_self() << "pthread_cond NO ActivatePythonExecution pthread_cond_signal" << endl ;
+    _ExecutePythonSync = true ;  
+  }
+  if ( pthread_mutex_unlock( &_ExecutePythonMutex ) ) {
+    perror("ActivatePythonExecution pthread_mutex_unlock ") ;
+    exit( 0 ) ;
+  }
+}
+
+// Called by a SuperVisionExecutor  thread ===> wait for the end of python execution
+void Engines_Container_i::WaitReturnPythonExecution() {
+  if ( pthread_mutex_lock( &_ExecutePythonMutex ) ) {
+    perror("WaitReturnPythonExecution pthread_mutex_lock ") ;
+    exit( 0 ) ;
+  }
+  if ( !_ReturnPythonSync ) {
+    cout << pthread_self() << "pthread_cond WaitReturnPythonExecution pthread_cond_wait :" << endl ;
+    _ReturnPythonSync = true ;
+    if ( pthread_cond_wait( &_ReturnPythonCond , &_ExecutePythonMutex ) ) {
+      perror("WaitReturnPythonExecution pthread_cond_wait ") ;
+    }
+    cout << pthread_self() << "pthread_cond WaitReturnPythonExecution pthread_cond_waited" << endl ;
+  }
+  else {
+    cout << pthread_self() << "pthread_cond NO WaitReturnPythonExecution pthread_cond_wait" << endl ;
+  }
+  _ReturnPythonSync = false ;  
+  if ( pthread_mutex_unlock( &_ExecutePythonMutex ) ) {
+    perror("WaitReturnPythonExecution pthread_mutex_unlock ") ;
+    exit( 0 ) ;
+  }
+}
+
