@@ -35,6 +35,7 @@
 #include <iostream>
 #include <string>
 #include "utilities.h"
+#include "LocalTraceCollector.hxx"
 #include "Utils_CatchSignals.h"
 using namespace std;
 
@@ -51,6 +52,7 @@ static PyMethodDef MethodPyVoidMethod[] =
 
 int main(int argc, char* argv[])
 {
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance();
   INFOS_COMPILATION;
   BEGIN_OF(argv[0])
 
@@ -228,5 +230,7 @@ int main(int argc, char* argv[])
       INFOS("Caught unknown exception.")
 	}
   END_OF(argv[0]);
+  delete myThreadTrace;
+  return 0 ;
 }
 

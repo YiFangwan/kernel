@@ -19,6 +19,7 @@ using namespace std;
 #include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
 #include "utilities.h"
+#include "LocalTraceCollector.hxx"
 
 //! CORBA client for SALOME Session server : launch GUI
 /*!
@@ -30,6 +31,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance();
 //VRV: T2.4 - Trace management improvement
   QApplication myQApp(argc, argv) ;
   InquireServersGUI myIS;
@@ -85,8 +87,9 @@ int main(int argc, char **argv)
       {
 	INFOS("Caught unknown exception.");
       }
-    return 0 ;
   }
+  delete myThreadTrace;
+  return 0 ;
 }
 
 

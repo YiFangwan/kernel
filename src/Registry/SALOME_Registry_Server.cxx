@@ -36,6 +36,7 @@ extern "C"
 }
 
 #include "utilities.h"
+#include "LocalTraceCollector.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
@@ -51,6 +52,7 @@ using namespace std;
 
 int main( int argc , char **argv )
 {
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance();
   BEGIN_OF( argv[0] )
     INFOS_COMPILATION 
     SCRUTE(argc) 
@@ -210,5 +212,6 @@ int main( int argc , char **argv )
     }
 	
   END_OF( argv[0] ) ;
+  delete myThreadTrace;
   return 0 ;
 }

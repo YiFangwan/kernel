@@ -57,6 +57,7 @@ using namespace std;
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
 #include "utilities.h"
+#include "LocalTraceCollector.hxx"
 
 #include "SALOME_Session_i.hxx"
 
@@ -88,6 +89,7 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance();
   try
     {
       ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
@@ -252,5 +254,6 @@ int main(int argc, char **argv)
       INFOS("Caught unknown exception.");
     }
   MESSAGE("End of SALOME_Session_Server");
+  delete myThreadTrace;
   return 0 ;
 }

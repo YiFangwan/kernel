@@ -29,6 +29,7 @@
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ModuleCatalog_impl.hxx"
 #include "utilities.h"
+#include "LocalTraceCollector.hxx"
 #include "Utils_SINGLETON.hxx"
 
 #ifdef CHECKTIME
@@ -38,6 +39,7 @@ using namespace std;
 
 int main(int argc,char **argv)
 {
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance();
   try 
     {
       CosNaming::NamingContext_var _rootContext, catalogContext;
@@ -166,5 +168,6 @@ int main(int argc,char **argv)
     INFOS("Caught CORBA::Exception.")
       }
 
+  delete myThreadTrace;
   return 0;
 }
