@@ -47,28 +47,61 @@
 
 #include <Python.h>
 
-using namespace std;
+void * run_orb_function( void * ) ;
 
-extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
+using namespace std;
 
 static PyMethodDef MethodPyVoidMethod[] = {{ NULL, NULL }};
 
+Engines_Container_i * _TheContainer = NULL ;
+
+static int _argc ;
+static char ** _argv ;
+
 int main(int argc, char* argv[])
 {
+  _argc = argc ;
+  _argv = argv ;
 #ifdef HAVE_MPI2
   MPI_Init(&argc,&argv);
 #endif
-  // Initialise the ORB.
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_var &orb = init( argc , argv ) ;
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
-  INFOS_COMPILATION;
-  BEGIN_OF(argv[0]);
-    
+
+//A thread is created to run the orb
+//The main thread may be used to execute python function. It is a
+// requirement of python for signal handlers
+  pthread_t T;
+  int pthread_sts = pthread_create(&T , NULL , run_orb_function , NULL ) ;
+  if ( pthread_sts ) {
+    perror("Container main") ;
+    exit(pthread_sts) ;
+  }
+
+//Python initialization
+  PyEval_InitThreads() ;
   Py_Initialize() ;
   PySys_SetArgv( argc , argv ) ;
   Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
-  
+
+//Waiting for the container object.
+  while ( _TheContainer == NULL ) {
+    sleep(1) ;
+  }
+
+//The main thread will wait a request for the execution of a python function
+  _TheContainer->WaitPythonFunction() ;
+
+  return 0 ;
+}
+
+//Running the orb
+void * run_orb_function( void * ) {
+  // Initialise the ORB.
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  CORBA::ORB_var &orb = init( _argc , _argv ) ;
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
+  INFOS_COMPILATION;
+  BEGIN_OF(_argv[0]);
+
   try{
     // Obtain a reference to the root POA.
     // obtain the root poa manager
@@ -165,12 +198,12 @@ int main(int argc, char* argv[])
     threadPolicy->destroy() ;
     
     char *containerName = "";
-    if(argc > 1){
-      containerName = argv[1] ;
+    if(_argc > 1){
+      containerName = _argv[1] ;
     }
     
-    Engines_Container_i * myContainer 
-      = new Engines_Container_i(orb, factory_poa, containerName , argc , argv );
+    _TheContainer 
+      = new Engines_Container_i(orb, factory_poa, containerName , _argc , _argv );
     
     //     Engines_Container_i * myContainer 
     //      = new Engines_Container_i(string(argv[1]),string(argv[2]), orb, factory_poa);
@@ -190,7 +223,7 @@ int main(int argc, char* argv[])
     timer.ShowAbsolute();
 #endif
     
-    HandleServerSideSignals(orb);
+    orb->run();
     
     orb->destroy();
   }catch(CORBA::SystemException&){
@@ -209,7 +242,7 @@ int main(int argc, char* argv[])
 #ifdef HAVE_MPI2
   MPI_Finalize();
 #endif
-  END_OF(argv[0]);
+  END_OF(_argv[0]);
   delete myThreadTrace;
   return 0 ;
 }
