@@ -27,7 +27,7 @@
 #  $Header$
 
 top_srcdir=@top_srcdir@
-top_builddir=../../..
+top_builddir=../..
 srcdir=@srcdir@
 VPATH=.:@srcdir@:@top_srcdir@/idl
 
@@ -47,7 +47,7 @@ LIB_SRC = NOTIFICATION.cxx          \
           NOTIFICATION_Supplier.cxx \
           NOTIFICATION_Consumer.cxx
 
-LDFLAGS+= -lOpUtil
+LDFLAGS+= -lOpUtil -lSALOMELocalTrace
 OMNIORB_IDLCXXFLAGS+= -Wbtp
 
 @CONCLUDE@
