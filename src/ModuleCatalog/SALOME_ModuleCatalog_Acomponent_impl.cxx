@@ -462,6 +462,9 @@ void SALOME_ModuleCatalog_AcomponentImpl::duplicate
 (SALOME_ModuleCatalog::Service & S_out,
  const SALOME_ModuleCatalog::Service &S_in)
 {
+  // type of node
+  S_out.TypeOfNode = S_in.TypeOfNode;
+
     // duplicate service name
   S_out.ServiceName = CORBA::string_dup(S_in.ServiceName);
   

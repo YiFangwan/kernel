@@ -237,6 +237,10 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
     return true;
    }
 
+   // tag test_component_impltype
+  if((qName.compare(QString(test_component_impltype))==0)) 
+    _aModule.implementationType = atoi(content.c_str()) ;
+
   // tag test_component_icon
    if((qName.compare(test_component_icon)==0)) {
      _aModule.icon = content ;
@@ -264,6 +268,10 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
      _aService.byDefault = atoi(content.c_str()) ;
      return true;
    }
+
+   //tag test_typeofnode
+   if((qName.compare(QString(test_typeofnode))==0))
+     _aService.typeOfNode = atoi(content.c_str()) ;
 
    // Parameter in
 
@@ -450,6 +458,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 
        // Empty temporary structures
        _aService.name = "";
+       _aService.typeOfNode = 1;
        _aService.inParameters.resize(0);
        _aService.outParameters.resize(0);
        _aService.inDataStreamParameters.resize(0);

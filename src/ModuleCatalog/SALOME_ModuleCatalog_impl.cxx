@@ -646,6 +646,8 @@ void SALOME_ModuleCatalogImpl::duplicate
   // duplicate service by default
   S_corba.Servicebydefault = S_parser.byDefault;
 
+  S_corba.TypeOfNode = S_parser.typeOfNode;
+
   unsigned int _length;
 
   // duplicate in Parameters
