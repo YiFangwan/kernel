@@ -35,5 +35,5 @@ dnl
     AC_SUBST(CXXTMPDPTHFLAGS)
   done
 dnl
-  AX_CXX_OPTION(-ptr $ROOT_BUILDDIR/cxx_repository,CXXFLAGS)
+  AX_CXX_OPTION(-tweak,CXXFLAGS)
 ])
