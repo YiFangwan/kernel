@@ -62,6 +62,8 @@ if test "$WITHMPICH" = yes; then
   if test "$WITHMPICH" = "yes";then
      mpi_ok=yes
      MPI_LIBS="$MPI_LIBS -lpmpich -lmpich"
+  else
+     mpi_ok=no
   fi
 
 fi

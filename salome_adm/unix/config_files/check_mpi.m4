@@ -63,6 +63,8 @@ if test "$WITHMPI" = yes; then
   if test "$WITHMPI" = "yes";then
     mpi_ok=yes
     MPI_LIBS="$MPI_LIBS -lmpi"
+  else
+    mpi_ok=no
   fi
 
 fi
