@@ -39,9 +39,9 @@ SUBDIRS = MSG2QM SALOMELocalTrace Logger Utils CASCatch PatchQt \
 	  Container TestContainer LifeCycleCORBA HDFPersist Prs \
 	  VTKFilter OBJECT \
           TOOLSDS SALOMEDS Event \
-          SALOMEGUI Plot2d VTKViewer OCCViewer \
+          SALOMEGUI TOOLSGUI Plot2d VTKViewer OCCViewer \
 	  SUPERVGraph \
-	  Session SALOME_SWIG TOOLSGUI SALOME_PY \
+	  Session SALOME_SWIG SALOME_PY \
           RegistryDisplay ModuleGenerator SALOME_PYQT Loader Communication
 
 ifeq (@mpi_ok@,yes)
