@@ -912,10 +912,6 @@ Gets the list of open studies
 */
     void CheckLocked() raises (LockProtection);
 
-    string Store();
-
-    void Restore(in string theData);
-
     string Type();
 
     SObject GetSObject();

@@ -33,10 +33,6 @@ public:
   virtual Handle(TDF_Attribute) GetImpl() { return _impl; }
 
   static SALOMEDS::GenericAttribute_ptr CreateAttribute(const Handle(TDF_Attribute)& theAttr, CORBA::ORB_ptr theOrb);  
-
-  //SRN (Feb 14, 2005): Depricated, to be removed from IDL
-  virtual char* Store() {return ""; };
-  virtual void Restore(const char*) {};
 };
 
 #endif
