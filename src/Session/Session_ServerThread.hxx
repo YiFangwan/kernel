@@ -29,20 +29,18 @@
 #ifndef _SESSION_SERVERTHREAD_HXX_
 #define _SESSION_SERVERTHREAD_HXX_
 
-#include <qthread.h>
 #include <CORBA.h> 
+#include <string>
 
 #include "SALOME_NamingService.hxx"
-
-#include <qwaitcondition.h>
-#include <string>
+#include <qthread.h>
 
 using namespace std;
 
 void WaitForServerReadiness(string serverName);
 
 
-class Session_ServerThread: public QThread
+class Session_ServerThread
 {
 public:
   static const int NB_SRV_TYP;
@@ -53,10 +51,9 @@ public:
 		       char ** argv, 
 		       CORBA::ORB_ptr orb, 
 		       PortableServer::POA_ptr poa,
-		       QMutex *GUIMutex,
-		       QWaitCondition *ServerLaunch);
+		       QMutex *GUIMutex);
   virtual ~Session_ServerThread();
-  void run();
+  void Init();
 protected:
   void ActivateModuleCatalog(int argc,
 			     char ** argv);
@@ -76,7 +73,6 @@ private:
   CORBA::ORB_var _orb;
   PortableServer::POA_var _root_poa;
   QMutex* _GUIMutex;
-  QWaitCondition *_ServerLaunch;
   SALOME_NamingService *_NS;
 };
 

@@ -104,14 +104,21 @@ int main(int argc, char **argv)
       // CORBA Servant Launcher
 
       QMutex _GUIMutex ;
+      QWaitCondition _ServerLaunch;
+      _GUIMutex.lock();     // to block Launch server thread until wait(mutex)
 
       Session_ServerLauncher* myServerLauncher
-	= new Session_ServerLauncher(argc, argv, orb, poa, &_GUIMutex);
-      myServerLauncher->Init();
+	= new Session_ServerLauncher(argc, argv, orb, poa, &_GUIMutex, &_ServerLaunch);
+      myServerLauncher->start();
+
+      MESSAGE("waiting wakeAll()");
+      _ServerLaunch.wait(&_GUIMutex); // to be reseased by Launch server thread when ready:
+      // atomic operation lock - unlock on mutex
+      // unlock mutex: serverThread runs, calls  _ServerLaunch->wakeAll()
+      // this thread wakes up, and lock mutex
 
       INFOS("Session activated, Launch IAPP...");
 
-      _GUIMutex.lock();
       int qappArgc = 1;
       QApplication *_qappl = new QApplication(qappArgc, argv );
       INFOS("creation QApplication");

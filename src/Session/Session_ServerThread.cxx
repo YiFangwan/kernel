@@ -135,8 +135,7 @@ Session_ServerThread::Session_ServerThread(int argc,
 					   char ** argv, 
 					   CORBA::ORB_ptr orb, 
 					   PortableServer::POA_ptr poa,
-					   QMutex *GUIMutex,
-					   QWaitCondition *ServerLaunch)
+					   QMutex *GUIMutex)
 {
   MESSAGE("Session_ServerThread Constructor " << argv[0]);
   _argc = argc;
@@ -144,7 +143,6 @@ Session_ServerThread::Session_ServerThread(int argc,
   _orb = CORBA::ORB::_duplicate(orb);
   _root_poa = PortableServer::POA::_duplicate(poa);
   _GUIMutex = GUIMutex;
-  _ServerLaunch = ServerLaunch;
   _servType =-1;
   _NS = new SALOME_NamingService(_orb); // one instance per server to limit
                                         // multi thread coherence problems
@@ -168,13 +166,9 @@ Session_ServerThread::~Session_ServerThread()
  */
 //=============================================================================
 
-void Session_ServerThread::run()
+void Session_ServerThread::Init()
 {
-  MESSAGE("Session_ServerThread::run "<< _argv[0]); 
-
-   _GUIMutex->lock(); // lock released by calling thread when ready: wait(mutex)
-   MESSAGE("Server thread " << _argv[0] << " free to go...");
-   _GUIMutex->unlock();
+  MESSAGE("Session_ServerThread::Init "<< _argv[0]); 
 
   for (int i=0; i<_argc; i++) SCRUTE(_argv[i]);
   for (int i=0; i<NB_SRV_TYP; i++)
@@ -253,8 +247,6 @@ void Session_ServerThread::ActivateModuleCatalog(int argc,
       MESSAGE("---");
       _NS->Register(myCata ,"/Kernel/ModulCatalog");
       MESSAGE("---");
-      _ServerLaunch->wakeAll();
-      _orb->run();   // this thread wait, during process events
     }
   catch(CORBA::SystemException&)
     {
@@ -303,9 +295,6 @@ void Session_ServerThread::ActivateSALOMEDS(int argc,
 	= _root_poa->activate_object(myStudyManager_i);
 
       myStudyManager_i->register_name("/myStudyManager");
-       
-      _ServerLaunch->wakeAll();
-      _orb->run();   // this thread wait, during process events
     }
   catch(CORBA::SystemException&)
     {
@@ -382,16 +371,6 @@ void Session_ServerThread::ActivateRegistry(int argc,
       string absoluteName = string("/") + registryName;
       _NS->Register( varComponents , absoluteName.c_str() );
       MESSAGE("On attend les requetes des clients");
-      try
-	{
-	  _ServerLaunch->wakeAll();
-	  _orb->run();
-	}
-      catch( const CORBA::Exception &ex )
-	{
-	  INFOS("Erreur systeme");
-	  ASSERT(0);
-	}
     }
   catch( const SALOME_Exception &ex )
     {
@@ -473,9 +452,6 @@ void Session_ServerThread::ActivateContainer(int argc,
       
       Engines_Container_i * myContainer 
 	= new Engines_Container_i(_orb, factory_poa, containerName , argc , argv );
-      MESSAGE("---");
-      _ServerLaunch->wakeAll();
-      _orb->run();   // this thread wait, during process events
     }
   catch(CORBA::SystemException&)
     {
@@ -521,13 +497,7 @@ void Session_ServerThread::ActivateSession(int argc,
 	CORBA::String_var sior(_orb->object_to_string(obj));
       
 	mySALOME_Session->NSregister();
-      
-	mySALOME_Session->_remove_ref();
-
-	_ServerLaunch->wakeAll();
-	MESSAGE("---");
-	_orb->run() ;   // this thread wait, during process events
-    }
+         }
     catch (CORBA::SystemException&)
       {
 	INFOS("Caught CORBA::SystemException.");

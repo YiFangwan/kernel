@@ -35,6 +35,7 @@
 #include <list>
 #include <vector>
 #include <string>
+#include <qthread.h>
 #include <qwaitcondition.h>
 
 using namespace std;
@@ -52,7 +53,7 @@ inline ServArg::ServArg(int servType, int firstArg, int lastArg):
   _servType(servType),_firstArg(firstArg),_lastArg(lastArg)
 {}
 
-class Session_ServerLauncher
+class Session_ServerLauncher: public QThread
 {
 public:
   Session_ServerLauncher();
@@ -60,9 +61,10 @@ public:
 			 char ** argv, 
 			 CORBA::ORB_ptr orb, 
 			 PortableServer::POA_ptr poa,
-			 QMutex *GUIMutex);
-  virtual ~Session_ServerLauncher();;
-  void Init();
+			 QMutex *GUIMutex,
+			 QWaitCondition *ServerLaunch);
+  virtual ~Session_ServerLauncher();
+  void run();
 protected:
 
   void CheckArgs();
@@ -76,7 +78,7 @@ private:
   CORBA::ORB_var _orb;
   PortableServer::POA_var _root_poa;
   QMutex* _GUIMutex;
-  QWaitCondition _ServerLaunch;
+  QWaitCondition *_ServerLaunch;
   list<ServArg> _argServToLaunch;
   vector<string> _argCopy;
   list<Session_ServerThread*> _serverThreads;
