@@ -100,6 +100,150 @@ private:
 };
 
 
+// Template classes for member function
+//-------------------------------------
+template<class TObject, typename TRes>
+class TMemFunEvent: public SALOME_Event{
+public:
+  typedef TRes TResult;
+  TResult myResult;
+  typedef TResult (TObject::* TAction)();
+  TMemFunEvent(TObject* theObject, TAction theAction, 
+	       TResult theResult = TResult()):
+    myObject(theObject),
+    myAction(theAction),
+    myResult(theResult)
+  {}
+  virtual bool Execute(){
+    myResult = (myObject->*myAction)();
+    return true; 
+  }
+private:
+  TObject* myObject;
+  TAction myAction;
+};
+
+
+template<class TObject>
+class TVoidMemFunEvent: public SALOME_Event{
+public:
+  typedef void (TObject::* TAction)();
+  TVoidMemFunEvent(TObject* theObject, TAction theAction):
+    myObject(theObject),
+    myAction(theAction)
+  {}
+  virtual bool Execute(){
+    (myObject->*myAction)();
+    return true; 
+  }
+private:
+  TObject* myObject;
+  TAction myAction;
+};
+
+
+// Template for member function with one argument
+//-----------------------------------------------
+template<class TObject, typename TRes, 
+	 typename TArg, typename TStoreArg = TArg>
+class TMemFun1ArgEvent: public SALOME_Event{
+public:
+  typedef TRes TResult;
+  TResult myResult;
+  typedef TResult (TObject::* TAction)(TArg);
+  TMemFun1ArgEvent(TObject* theObject, TAction theAction, TArg theArg, 
+		   TResult theResult = TResult()):
+    myObject(theObject),
+    myAction(theAction),
+    myResult(theResult),
+    myArg(theArg)
+  {}
+  virtual bool Execute(){
+    myResult = (myObject->*myAction)(myArg);
+    return true; 
+  }
+private:
+  TObject* myObject;
+  TAction myAction;
+  TStoreArg myArg;
+};
+
+
+template<class TObject, typename TArg, typename TStoreArg = TArg>
+class TVoidMemFun1ArgEvent: public SALOME_Event{
+public:
+  typedef void (TObject::* TAction)(TArg);
+  TVoidMemFun1ArgEvent(TObject* theObject, TAction theAction, TArg theArg):
+    myObject(theObject),
+    myAction(theAction),
+    myArg(theArg)
+  {}
+  virtual bool Execute(){
+    (myObject->*myAction)(myArg);
+    return true; 
+  }
+private:
+  TObject* myObject;
+  TAction myAction;
+  TStoreArg myArg;
+};
+
+
+// Template for member function with one argument
+//-----------------------------------------------
+template<class TObject, typename TRes,
+	 typename TArg, typename TArg1, 
+	 typename TStoreArg = TArg, typename TStoreArg1 = TArg1>
+class TMemFun2ArgEvent: public SALOME_Event{
+public:
+  typedef TRes TResult;
+  TResult myResult;
+  typedef TResult (TObject::* TAction)(TArg,TArg1);
+  TMemFun2ArgEvent(TObject* theObject, TAction theAction, 
+		   TArg theArg, TArg1 theArg1,
+		   TResult theResult = TResult()):
+    myObject(theObject),
+    myAction(theAction),
+    myResult(theResult),
+    myArg(theArg),
+    myArg1(theArg1)
+  {}
+  virtual bool Execute(){
+    myResult = (myObject->*myAction)(myArg,myArg1);
+    return true; 
+  }
+private:
+  TObject* myObject;
+  TAction myAction;
+  TStoreArg myArg;
+  TStoreArg1 myArg1;
+};
+
+
+template<class TObject, typename TArg, typename TArg1, 
+	 typename TStoreArg = TArg, typename TStoreArg1 = TArg1>
+class TVoidMemFun2ArgEvent: public SALOME_Event{
+public:
+  typedef void (TObject::* TAction)(TArg,TArg1);
+  TVoidMemFun2ArgEvent(TObject* theObject, TAction theAction, TArg theArg, TArg1 theArg1):
+    myObject(theObject),
+    myAction(theAction),
+    myArg(theArg),
+    myArg1(theArg1)
+  {}
+  virtual bool Execute(){
+    (myObject->*myAction)(myArg,myArg1);
+    return true; 
+  }
+private:
+  TObject* myObject;
+  TAction myAction;
+  TStoreArg myArg;
+  TStoreArg1 myArg1;
+};
+
+
+// Template function for processing events with result returing
 template<class TEvent> inline typename TEvent::TResult ProcessEvent(TEvent* theEvent){
   theEvent->process();
   typename TEvent::TResult aResult = theEvent->myResult;
@@ -108,6 +252,7 @@ template<class TEvent> inline typename TEvent::TResult ProcessEvent(TEvent* theE
 }
 
 
+// Template function for processing events without result
 inline void ProcessVoidEvent(SALOME_Event* theEvent){
   theEvent->process();
   theEvent->release();
