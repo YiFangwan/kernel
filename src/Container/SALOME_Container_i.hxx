@@ -41,6 +41,8 @@
 #include <map>
 #include <string>
 
+#include <Python.h>
+
 class SALOME_NamingService;
 
 class Engines_Container_i: public virtual POA_Engines::Container,
@@ -78,6 +80,21 @@ public:
   char* getHostName();
   CORBA::Long getPID();
 
+// Execution of python functions in the main thread
+  pthread_t Engines_Container_i::MainThreadId() ;
+  void WaitPythonFunction() ;
+  void WaitActivatePythonExecution() ;
+  void ActivatePythonReturn() ;
+
+// Ask for execution of python functions in the main thread from SuperVisionEngine
+  void ActivatePythonExecution( char* InitPyRunMethod ,
+                                PyMethodDef * MethodPyRunMethod ) ;
+  bool ActivatePythonExecution( char* thePyString ) ;
+  PyObject * ActivatePythonExecution( PyObject * thePyRunMethod ,
+                                      PyObject * ArgsList ) ;
+  void ActivatePythonExecution() ;
+  void WaitReturnPythonExecution() ;
+
 protected:
 
   SALOME_NamingService *_NS ;
@@ -93,9 +110,24 @@ protected:
 
   //private: 
 
-  int   _argc ;
-  char** _argv ;
-  long _pid;
+  int             _argc ;
+  char         ** _argv ;
+  long            _pid ;
+
+  pthread_t       _MainThreadId ;
+  pthread_mutex_t _ExecutePythonMutex ;
+  pthread_cond_t  _ExecutePythonCond ;
+  bool            _ExecutePythonSync ;
+
+  char          * _InitPyRunMethod ;
+  PyMethodDef   * _MethodPyRunMethod  ;
+  char          * _PyString ;
+  PyObject      * _PyRunMethod ;
+  PyObject      * _ArgsList ;
+  pthread_cond_t  _ReturnPythonCond ;
+  bool            _ReturnPythonSync ;
+  bool            _ReturnValue ;
+  PyObject      * _Result ;
 
 };
 
