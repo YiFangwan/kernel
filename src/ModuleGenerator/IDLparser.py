@@ -73,11 +73,13 @@ def error (message):
 #--------------------------------------------------
 class Tree:
     
-    def __init__(self, name = '', content = ''):
+    def __init__(self, name = '', content = '', key = None):
         self.name = name
         self.content = content
+        self.key = key
         self.parent = None
         self.childs = []
+        self.comments = []
         
     def addChild(self, tree):
         if tree is not None: 
@@ -92,7 +94,7 @@ class Tree:
          if tree is not None:
             pos = 0
             for i in self.childs:
-                if i.name == tree.name:
+                if (i.name == tree.name) & ((i.key is None) | (i.key == tree.key)):
                     self.childs.pop(pos)
                     self.childs.insert(pos, tree)
                     return tree
@@ -151,8 +153,8 @@ class Tree:
         return l
         
     def getChild(self, name, content=None):
-
-        # content == None, don't compare content
+        # return child node with a given name
+        # if content == None, don't compare contents
         for i in self.childs:
             if (i.name == name):
                 if (content is None) | (i.content == content):
@@ -160,8 +162,7 @@ class Tree:
         return None
 
     def getNode(self, name, content='', depth=-1):
-
-        # recursive search
+        # recursive search of a node with a given name
         # content == None, don't compare content
         if (self.name == name):
             if (content is None) | (self.content == content):
@@ -170,7 +171,7 @@ class Tree:
         if (depth != 0):
             for i in self.childs:
                 n = i.getNode(name, content, depth-1)
-                if n:  return n #return a value 
+                if n:  return n 
             
         return None
 
@@ -185,132 +186,23 @@ class Tree:
 
     def merge(self, t):
         pass
-    
-#--------------------------------------------------
-# implements inParameter tree
-#--------------------------------------------------
-class inParameter(Tree):
-    
-    def __init__(self, name=None, type='', comment='unknown'):
-        Tree.__init__(self, 'inParameter')
-        if name is None:  return
-        
-        self.addNamedChild('inParameter-type', type)
-        self.addNamedChild('inParameter-name', name)
-        self.addNamedChild('inParameter-comment', comment)
-            
-    def merge(self, P):
 
-        T = P.getChild('inParameter-type')
-        self.replaceChild(T)
-    
-#--------------------------------------------------
-# implements outParameter tree
-#--------------------------------------------------
-class outParameter(Tree):
-    
-    def __init__(self, name=None, type='', comment = 'unknown'):
-        
-        Tree.__init__(self, 'outParameter')
-        if name is None:  return
-        
-        self.addNamedChild('outParameter-type', type)
-        self.addNamedChild('outParameter-name', name)
-        self.addNamedChild('outParameter-comment', comment)
-            
-    def merge(self, P):
+    def mergeChilds(self, t, list):
+        L_ext = t.getChild(list)
+        L_int = self.getChild(list)
 
-        T = P.getChild('outParameter-type')
-        self.replaceChild(T)
-    
-#--------------------------------------------------
-# implements service tree
-#--------------------------------------------------
-class Service(Tree):
-    
-    def __init__(self, name=None, comment = 'unknown'):
-        
-        Tree.__init__(self, 'component-service')
-        if name is None:  return
-        
-        self.addNamedChild('service-name', name)
-        self.addNamedChild('service-author',common_data["AUTHOR"])
-        self.addNamedChild('service-version',common_data["VERSION"])
-        self.addNamedChild('service-comment', comment)
-        self.addNamedChild('service-by-default', "0")
-        self.addNamedChild('type-of-node', "1")
-        self.addNamedChild('inParameter-list')
-        self.addNamedChild('outParameter-list')
-            
-    def createInParameter(self, name, type):
-        L = self.getChild('inParameter-list')
-        if L is None:
-            error ("Service.createInParameter() : 'inParameter-list' is not found"); return None;
-        p = inParameter(name, type)
-        L.addChild(p)
-        return p
-    
-    def createOutParameter(self, name, type):
-        L = self.getChild('outParameter-list')
-        if L is None:
-            error ("Service.createOutParameter() : 'outParameter-list' is not found"); return None;
-        p = outParameter(name, type)
-        L.addChild(p)
-        return p
-
-
-    def merge(self, S):
-        
-        L_ext = S.getChild('inParameter-list')
-        L_int = self.getChild('inParameter-list')
-
-        if L_ext is not None and L_int is not None:
-
-            L_merge = Tree('inParameter-list')
-        
-            for i_ext in L_ext.childs:
-                # i_ext = <inParameter>
-                n_ext = i_ext.getChild('inParameter-name')
-                if n_ext is None:  continue
-                present = 0
-            
-                for i_int in L_int.childs:
-                    # i_int = <inParameter>
-                    n_int = i_int.getChild('inParameter-name')
-                    
-                    if n_int is None:  continue
-                    
-                    if (n_int.content == n_ext.content):
-                        present = 1
-                        break;
-                
-                if present :
-                        i_int.merge(i_ext)
-                        L_merge.addChild(i_int)
-                else:
-                        L_merge.addChild(i_ext)
-                        
-            self.replaceChild(L_merge)
-            
-        else : error("Service.merge(): 'inParameter-list' is not found") #either L_ext or  L_int is None
-            
-        L_ext = S.getChild('outParameter-list')
-        L_int = self.getChild('outParameter-list')
-
-        if L_ext is None or L_int is None:
-            error ("Service.merge() : 'outParameter-list' is not found")
-            
-        L_merge = Tree('outParameter-list')
+        L_merge = Tree(list)
         
         for i_ext in L_ext.childs:
-            #i_ext = <outParameter>
+            k_ext = i_ext.key
+            if k_ext is None:  continue
             present = 0
-            n_ext = i_ext.getChild('outParameter-name')
-            if n_ext is None:   continue
+            
             for i_int in L_int.childs:
-                n_int = i_int.getChild('outParameter-name')
-                if n_int is None:  continue
-                if (n_int.content == n_ext.content):
+                k_int = i_int.key
+                if k_int is None:  continue
+                
+                if (k_int == k_ext):
                     present = 1
                     break;
                 
@@ -321,6 +213,136 @@ class Service(Tree):
                 L_merge.addChild(i_ext)
                 
         self.replaceChild(L_merge)
+            
+
+    
+#--------------------------------------------------
+# implements parameter tree
+#--------------------------------------------------
+class parameter(Tree):
+    
+    def __init__(self, name=None, mode = 'in', type='', comment='unknown'):
+        Tree.__init__(self, mode + 'Parameter', key=name)
+        self.mode = mode
+        if name is None:  return
+        
+        self.addNamedChild(mode + 'Parameter-name', name)
+        self.addNamedChild(mode + 'Parameter-type', type)
+        self.addNamedChild(mode + 'Parameter-comment', comment)
+        
+    def merge(self, P):
+
+        self.mode = P.mode
+        self.replaceChild(P.getChild(P.mode + 'Parameter-name'))
+        self.replaceChild(P.getChild(P.mode + 'Parameter-type'))
+        C = P.getChild(P.mode + 'Parameter-comment')
+        if C.content != 'unkonwn':
+            self.replaceChild(C)
+    
+#--------------------------------------------------
+# implements dataStreamParameter tree
+#--------------------------------------------------
+class dataStreamParameter(parameter):
+    
+    def __init__(self, name=None, mode='in', type='', dependency='', comment='unknown'):
+        parameter.__init__(self, name, mode, type, comment)
+        if name is None:  return
+        
+        self.addNamedChild(mode + 'Parameter-dependency', dependency)
+        self.mode = mode
+            
+    def merge(self, P):
+
+        parameter.merge(self, P)
+        self.replaceChild(P.getChild(mode + 'Parameter-dependency'))
+
+
+def parseComment(comment):
+
+    spaces = '[\t\n ]*'
+    word = spaces + '([a-zA-Z][a-zA-Z0-9_]*)' + spaces
+    
+    result = []
+    type = None
+    key = None
+    
+    ## match :  // followed by a 'DataStreamPorts' string,
+    ## the service name, and a list of ports
+    pattern = '// *DataStreamPorts{,1}' + word
+    m = re.match(pattern, comment)
+
+    ## if there is a match, parse remaining part of comment
+    if m:
+        ## service
+        type = 'DataStreamPorts'
+        key = m.group(1)
+        
+        sPorts = comment[m.end():]
+        pattern = word + '\('+word+','+word +','+word+'\)' \
+                  + spaces + ',{,1}' + spaces
+        while len(sPorts) > 0:
+            ## process next DataStreamPort
+            ## match a definition like xx(a,b,c) with a possible trailing ,
+            ## returns a tuple (xx, a, b, c) and
+            ## the remaining part of input string
+            m = re.match(pattern, sPorts)
+            if m is None:
+                raise LookupError, \
+                      'format error in DataStreamPort definition : '+sPorts
+            sPorts = sPorts[m.end():]
+            result.append(m.groups())
+            
+    return type, key, result;
+
+#--------------------------------------------------
+# implements service tree
+#--------------------------------------------------
+class Service(Tree):
+    
+    def __init__(self, name=None, comment = 'unknown'):
+        
+        Tree.__init__(self, 'component-service', key=name)
+        if name is None:  return
+        
+        self.addNamedChild('service-name', name)
+        self.addNamedChild('service-author',common_data["AUTHOR"])
+        self.addNamedChild('service-version',common_data["VERSION"])
+        self.addNamedChild('service-comment', comment)
+        self.addNamedChild('service-by-default', "0")
+        self.addNamedChild('inParameter-list')
+        self.addNamedChild('outParameter-list')
+        self.addNamedChild('DataStream-list')
+            
+    def createInParameter(self, name, type):
+        L = self.getChild('inParameter-list')
+        p = parameter(name, 'in', type)
+        L.replaceChild(p)
+        return p
+    
+    def createOutParameter(self, name, type):
+        L = self.getChild('outParameter-list')
+        p = parameter(name, 'out', type)
+        L.replaceChild(p)
+        return p
+
+    def createDataStreamParameter(self, p):
+        L = self.getChild('DataStream-list')
+        p = dataStreamParameter(p[0], p[2], p[1], p[3])
+        L.replaceChild(p)
+        return p
+            
+    def merge(self, S):
+
+        self.replaceChild(S.getChild('service-author'))
+        self.replaceChild(S.getChild('service-version'))
+        self.replaceChild(S.getChild('service-by-default'))
+        C = S.getChild('service-comment')
+        if C.content != 'unkonwn':
+            self.replaceChild(C)
+            
+        for L in ['inParameter-list', 'outParameter-list', 'DataStream-list']:
+           self.mergeChilds(S, L)
+            
 
 
 #--------------------------------------------------
@@ -330,7 +352,7 @@ class Interface(Tree):
     
     def __init__(self, name=None, comment='unknown'):
                
-        Tree.__init__(self)
+        Tree.__init__(self, key=name)
 
         if name is None:  return
         
@@ -349,54 +371,57 @@ class Interface(Tree):
         L.addChild(s)
         return s
 
+    def findService(self, key):
+        L = self.getChild('component-service-list')
+        for S in L.childs:
+            if S.key == key:
+                return S
+        return None
+    
     def merge(self, I):
 
-        L_ext = I.getChild('component-service-list')
-        L_int = self.getChild('component-service-list')
-      
-        if L_ext is None or L_int is None:
-           error("Interface.merge() : 'component-service-list' is not found!")
-           return
-       
-        L_merge = Tree('component-service-list')
-        
-        for i_ext in L_ext.childs:
-            
-            present = 0
-            n_ext = i_ext.getChild('service-name')
-            if n_ext is None: continue
-            
-            for i_int in L_int.childs:
-                n_int = i_int.getChild('service-name')
-                if n_int is None:  continue
-                if (n_int.content == n_ext.content):
-                    present = 1
-                    break;
-                
-            if present == 0:
-                i_int.merge(i_ext)
-                L_merge.addChild(i_int)
-            else:
-                L_merge.addChild(i_ext)
-                
-        self.replaceChild(L_merge)
+        C = S.getChild('component-interface-comment')
+        if C.content != 'unkonwn':
+            self.replaceChild(C)
+
+        self.mergeChilds(I, 'component-service-list')
+    
+    def processDataStreams(self):
+        for sComment in self.comments:
+
+            type, key, result = parseComment(sComment)
+
+            if type == 'DataStreamPorts':
+                Service = self.findService(key)
+                if Service is None:
+                    raise LookupError, \
+                          'service ' + key + \
+                          ' not found in interface : ' + self.key
+                for p in result:
+                ## process next DataStreamPort
+                    Service.createDataStreamParameter(p)
 
 
 #--------------------------------------------------
 # implements Component tree
 #--------------------------------------------------
 class Component(Tree):
-    def __init__(self):
-        Tree.__init__(self, 'component')
+    def __init__(self, name=None):
+        Tree.__init__(self, 'component', key=name)
+        if name is None:  return
                  
-        self.addNamedChild('component-name',       common_data["COMP_NAME"]) 
-        self.addNamedChild('component-username',   common_data["COMP_UNAME"])
+        self.addNamedChild('component-name',       name)
+
+        if common_data["COMP_UNAME"] != '':
+            self.addNamedChild('component-username',   common_data["COMP_UNAME"])
+        else:
+            self.addNamedChild('component-username',   name)
+            
         self.addNamedChild('component-type',       common_data["COMP_TYPE"])
         self.addNamedChild('component-author',     common_data["AUTHOR"])
         self.addNamedChild('component-version',    common_data["VERSION"])
         self.addNamedChild('component-comment',    'unknown')
         self.addNamedChild('component-multistudy', common_data["COMP_MULT"])
-        self.addNamedChild('component-impltype', common_data["COMP_IMPL"])
         self.addNamedChild('component-icone',      common_data["ICON"])
         self.addNamedChild('constraint')
         self.addNamedChild('component-interface-list')
@@ -414,7 +439,7 @@ class Component(Tree):
 
         for i in ['component-username', 'component-author',
                   'component-type', 'component-icone', 'component-version',
-                  'component-comment', 'component-multistudy', 'constraint']:
+                  'component-multistudy', 'constraint']:
             ext = C.getChild(i)
             int = self.getChild(i)
             if int is None:
@@ -422,33 +447,11 @@ class Component(Tree):
             elif ext is not None and len(ext.content):
                 int.content = ext.content
                 
-        L_ext = C.getChild('component-interface-list')
-        L_int = self.getChild('component-interface-list')
-        if L_ext is None or L_int is None:
-            error("Component.merge : No component-interface-list is found")
-            return
-        L_merge = Tree('component-interface-list')
-        
-        for i_ext in L_ext.childs:
-            present = 0
-            n_ext = i_ext.getChild('component-interface-name')
-
-            if n_ext is None:  continue
-            
-            for i_int in L_int.childs:
-                n_int = i_int.getChild('component-interface-name')
-                if n_int is None:  continue
-                if (n_int.content == n_ext.content):
-                    present = 1
-                    break;
+        Cc = C.getChild('component-comment')
+        if Cc.content != 'unkonwn':
+            self.replaceChild(Cc)
                 
-            if present :
-                i_int.merge(i_ext)
-                L_merge.addChild(i_int)
-            else:
-                L_merge.addChild(i_ext)
-                
-        self.replaceChild(L_merge)
+        self.mergeChilds(C, 'component-interface-list')
     
 #--------------------------------------------------
 # implements document tree
@@ -494,7 +497,6 @@ class Catalog(ContentHandler, Tree):
     
     def startElement(self, name, attrs):
         p = self.list[len(self.list)-1]
-
         if name == 'component':
             e = p.addChild(Component())
         elif name == 'component-interface-name':
@@ -502,9 +504,9 @@ class Catalog(ContentHandler, Tree):
         elif name == 'component-service':
             e = p.addChild(Service())
         elif name == 'inParameter':
-            e = p.addChild(inParameter())
+            e = p.addChild(parameter(mode='in'))
         elif name == 'outParameter':
-            e = p.addChild(outParameter())
+            e = p.addChild(parameter(mode='out'))
         else:
             e = p.addNamedChild(name)
         self.list.append(e)
@@ -514,9 +516,10 @@ class Catalog(ContentHandler, Tree):
         self.buffer = string.join(string.split(self.buffer), ' ')
         p = self.list[len(self.list)-1]
         p.content = self.buffer
+        if name == 'component':
+            p.key = p.getChild('component-name').content
         self.buffer = ''
         e = self.list.pop()
-
         
     def characters(self, ch):
         self.buffer += ch
@@ -530,23 +533,17 @@ class Catalog(ContentHandler, Tree):
         
         i_ext = comp
         present = 0
-        n_ext = i_ext.getChild('component-name')
-        if n_ext is None:
-            error("Catalog.mergeComponent : 'component-name' is not found")
-            return
+        n_ext = i_ext.key
         for i_int in L_int.childs:
-            n_int = i_int.getChild('component-name')
-            if n_int is None:  continue
-            
-            if (n_int.content == n_ext.content):
+            if (i_int.key == n_ext):
                 present = 1
                 break;
                 
         if present == 0:
-            print '   add component', n_ext.content
+            print '   add component', i_ext.getChild('component-name').content
             L_int.addChild(i_ext)
         else:
-            print '   replace component', n_ext.content
+            print '   replace component', i_ext.getChild('component-name').content
             i_int.merge(i_ext)
             
 
@@ -593,6 +590,7 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
             n.accept(self)
                 
     def visitInterface(self, node):
+            
         if node.mainFile():
 
             self.EngineType = 0
@@ -602,7 +600,7 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
                 if ((s[0] == "Engines") & (s[1] == "Component")):
                     self.EngineType = 1; break
                 
-            Comp = Component()
+            Comp = Component(node.identifier())
             
             self.currentInterface = Comp.createInterface(node.identifier())
         
@@ -610,18 +608,28 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
                 if isinstance(c, idlast.Operation):
                     c.accept(self)
 
-            if (self.EngineType):
+            for c in node.declarations():
+                if isinstance(c, idlast.Struct):
+                    c.accept(self)
+                
+            for i in node.comments():
+                self.currentInterface.comments.append(str(i))
+
+            self.currentInterface.processDataStreams()
+            
+            if (self.EngineType):    
                 global nb_components
                 nb_components = nb_components + 1
                 self.catalog.mergeComponent(Comp)
 
             self.EngineType = 0
             
+
     def visitOperation(self, node):
 
         self.currentService = self.currentInterface.createService \
                                        (node.identifier())
-        
+
         for c in node.parameters():
             c.accept(self)
             
@@ -629,6 +637,9 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
         if (self.currentType != "void"):
             self.currentService.createOutParameter \
                 ("return", self.currentType)
+            
+        for i in node.comments():
+            self.currentInterface.comments.append(str(i))
         
 
     def visitDeclaredType(self, type):
@@ -653,10 +664,8 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
 # parse idl and store xml file
 #--------------------------------------------------
 def run(tree, args):
-    print args
     
     CatalogFileName=getParamValue("catalog", "CatalogModulePersonnel.xml", args)
-    print CatalogFileName
     if re.compile(".*?.xml$").match(CatalogFileName, 1) is None:
         CatalogFileName = CatalogFileName + '.xml'
 
@@ -682,12 +691,14 @@ def run(tree, args):
     else:
         print "Creating ",CatalogFileName
         C = Catalog()
-    
+
     print "Reading idl file"
     
     visitor = ModuleCatalogVisitor(C)
     tree.accept(visitor)
 
+##    C.Dump()
+    
     if remove_comp :
         C.removeComponent(remove_comp)
     
@@ -716,3 +727,5 @@ if __name__ == "__main__":
     print
     print "Usage : omniidl -bIDLparser [-I<catalog files directory>]* -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,username=<component_username>][,multistudy=<component_multistudy>] <file.idl>"
     print
+
+
