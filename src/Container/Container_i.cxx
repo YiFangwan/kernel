@@ -641,6 +641,7 @@ void Engines_Container_i::WaitPythonFunction() {
 
     cout << pthread_self() << "Engines_Container_i::ActivatePythonReturn :" << endl ;
     ActivatePythonReturn() ;
+    k_setjmp = false ;
     cout << pthread_self() << "Engines_Container_i::ActivatedPythonReturn" << endl ;
   }
 }
