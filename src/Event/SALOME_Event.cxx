@@ -40,15 +40,16 @@
  *  Constructor
  */
 //===========================================================
-SALOME_Event::SALOME_Event( int salomeEventType, bool wait )
+SALOME_Event::SALOME_Event( int salomeEventType, bool wait, bool autoRelease )
 : myType( salomeEventType ), 
-  myWait( wait )
+  myWait( wait ),
+  myAutoRelease( autoRelease )
 {
   MESSAGE( "SALOME_Event::SALOME_Event(): myType = "<<myType<<", myWait = "<<myWait );
   if ( wait ) {
     // Prepare the semaphore 
-    mySemaphore = new QSemaphore( 1 );
-    mySemaphore->operator++( 1 );
+    mySemaphore = new QSemaphore( 2 );
+    mySemaphore->operator+=( 2 );
   }
 }
 
@@ -81,20 +82,18 @@ void SALOME_Event::process()
   if ( myWait ) {
     MESSAGE( "SALOME_Event::process(): available = " << mySemaphore->available() );
     if ( !mySemaphore->available() )
-      mySemaphore->operator++( 1 );
+      mySemaphore->operator+=( 1 );
 
     MESSAGE( "SALOME_Event::process() COMPLETED: myType = "<<myType<<",myWait = "<<myWait );
-
-    // processed() waits for this loop to complete
-    while ( mySemaphore->available() < mySemaphore->total() )
-      mySemaphore->operator--( 1 );
   }
+  if ( myAutoRelease )
+    release();
 }
 
 //===========================================================
 /*!
  *  SALOME_Event::processed
- *  Signals that this event has been processsed
+ *  Signals that this event has been processed
  */
 //===========================================================
 void SALOME_Event::processed()
@@ -102,15 +101,35 @@ void SALOME_Event::processed()
   MESSAGE( "SALOME_Event::processed(): myType = "<<myType<<",myWait = "<<myWait );
   if ( myWait ) {
     MESSAGE( "SALOME_Event::processed(): available = " << mySemaphore->available() );
-    if ( !mySemaphore->available() )
+    if ( !mySemaphore->available() ) {
       // process() takes control over mySemaphore after the next line is executed
-      mySemaphore->operator--( 1 );
+      mySemaphore->operator-=( 1 );
 
-    // Current thread will block here until process() completes
-    mySemaphore->operator+=( mySemaphore->total() );
+      MESSAGE( "SALOME_Event::processed(): semaphore DECREMENTED" );
+
+      // Current thread will block here until process() completes
+      mySemaphore->operator+=( mySemaphore->total() );
+    }
   }
   MESSAGE( "SALOME_Event::processed() COMPLETED: myType = "<<myType<<",myWait = "<<myWait );
 }
+
+//===========================================================
+/*!
+ *  SALOME_Event::release
+ *  Wakes up the desktop
+ */
+//===========================================================
+void SALOME_Event::release()
+{
+  MESSAGE( "SALOME_Event::release(): myType = "<<myType<<",myWait = "<<myWait );
+  if ( myWait ) {
+    MESSAGE( "SALOME_Event::release(): available = " << mySemaphore->available() );
+    mySemaphore->operator-=( mySemaphore->total() - mySemaphore->available() );
+  }
+  MESSAGE( "SALOME_Event::release() COMPLETED: myType = "<<myType<<",myWait = "<<myWait );
+}
+
 
 
 
