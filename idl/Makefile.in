@@ -25,9 +25,7 @@ IDL_FILES = \
   SALOME_MPIContainer.idl \
   SALOME_TestMPIComponent.idl \
   Logger.idl \
-  SALOME_GenericObj.idl \
-  ResourcesManager.idl \
-  ContainersManager.idl
+  SALOME_GenericObj.idl 
 
 PY_CLIENT_IDL = $(IDL_FILES)
 

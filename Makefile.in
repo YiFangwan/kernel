@@ -91,7 +91,6 @@ runIDLparser \
 VERSION \
 orbmodule.py \
 runSalome.py \
-startContainer.py \
 killSalome.py \
 runSalome \
 runNS.sh

@@ -454,7 +454,7 @@ def startSalome():
 	# Lancement Container Supervision local
 	#
 
-        ContainerPYServer().run()
+        ContainerSUPERVServer().run()
 	#
 	# Attente de la disponibilité du Container Supervision local dans le Naming Service
 	#
