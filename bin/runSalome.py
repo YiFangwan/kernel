@@ -536,7 +536,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
 
     import SALOME
-    #session=clt.waitNS("/Kernel/Session",SALOME.Session)
+    session=clt.waitNS("/Kernel/Session",SALOME.Session)
 
     from Utils_Identity import getShortHostName
     
