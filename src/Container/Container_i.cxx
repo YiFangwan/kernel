@@ -55,7 +55,9 @@ extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb, 
 					  PortableServer::POA_ptr poa,
 					  char *containerName ,
-                                          int argc , char* argv[] ) :
+                                          int argc , char* argv[],
+					  bool regist,
+					  bool activ ) :
  _numInstance(0)
 {
 
@@ -103,42 +105,25 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
-  MESSAGE("activate object");
-  _id = _poa->activate_object(this);
+  // Pour les containers paralleles: il ne faut pas activer le container generique, mais le container specialise
+  if(activ){
+    MESSAGE("activate object");
+    _id = _poa->activate_object(this);
+  }
 
-//   _NS = new SALOME_NamingService(_orb);
-  _NS = SINGLETON_<SALOME_NamingService>::Instance() ;
-  ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
-  _NS->init_orb( orb ) ;
+  // Pour les containers paralleles: il ne faut pas enregistrer le container generique, mais le container specialise
+  if(regist){
 
-  Engines::Container_ptr pCont 
-    = Engines::Container::_narrow(_this());
-  SCRUTE(_containerName);
-  _NS->Register(pCont, _containerName.c_str()); 
-}
+    //   _NS = new SALOME_NamingService(_orb);
+    _NS = SINGLETON_<SALOME_NamingService>::Instance() ;
+    ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
+    _NS->init_orb( orb ) ;
 
-// Constructeur pour composant parallele : ne pas faire appel au naming service
-Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb, 
-					  PortableServer::POA_ptr poa,
-					  char *containerName,
-					  int flag ) 
-  : _numInstance(0)
-{
-  string hostname = GetHostname();
-  SCRUTE(hostname);
-
-  _containerName = "/Containers/";
-  if (strlen(containerName)== 0)
-    {
-      _containerName += hostname;
-    }
-  else
-    {
-      _containerName += containerName;
-    }
-
-  _orb = CORBA::ORB::_duplicate(orb) ;
-  _poa = PortableServer::POA::_duplicate(poa) ;
+    Engines::Container_ptr pCont 
+      = Engines::Container::_narrow(_this());
+    SCRUTE(_containerName);
+    _NS->Register(pCont, _containerName.c_str()); 
+  }
 
 }
 

@@ -39,7 +39,7 @@ SUBDIRS = MSG2QM Logger Utils PatchQt NamingService Registry ModuleCatalog DataT
 	  SALOME_PYQT Loader
 
 ifeq (@WITHMPICH@,yes)
-  SUBDIRS+= MPIContainer
+  SUBDIRS+= MPIContainer MPILifeCycleCORBA TestMPIContainer
 endif
 
 @MODULE@

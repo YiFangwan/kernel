@@ -50,12 +50,9 @@ public:
   Engines_Container_i(CORBA::ORB_ptr orb, 
 		      PortableServer::POA_ptr poa,
 		      char * containerName ,
-                      int argc, char* argv[]);
-// Constructeur pour composant parallele : ne pas faire appel au naming service
-  Engines_Container_i(CORBA::ORB_ptr orb, 
-		      PortableServer::POA_ptr poa,
-		      char * containerName,
-		      int flag);
+                      int argc, char* argv[],
+		      bool regist = true,
+		      bool activ = true);
   virtual ~Engines_Container_i();
 
 
@@ -84,7 +81,7 @@ protected:
   map<string, void *> remove_map ;
   omni_mutex _numInstanceMutex ; // if several threads on the same object
 
-private: 
+  //private: 
 
   int   _argc ;
   char** _argv ;
