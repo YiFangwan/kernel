@@ -36,6 +36,8 @@
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 
+#include CORBA_CLIENT_HEADER( ContainersManager )
+
 class SALOME_NamingService;
 
 class SALOME_LifeCycleCORBA
@@ -45,24 +47,31 @@ public:
   SALOME_LifeCycleCORBA(SALOME_NamingService *ns);
   virtual ~SALOME_LifeCycleCORBA();
 
-  Engines::Container_var FindContainer(const char *containerName);
-  Engines::Component_var FindOrLoad_Component(const char *containerName,
-					      const char *componentName,
-					      const char *implementationPath);
-  Engines::Component_var FindOrLoad_Component(const char *containerName,
-					      const char *componentName);
+  Engines::Container_var FindContainer( const char *containerName ) ;
+  Engines::Container_var FindContainer( const Containers::MachineParameters & MyParams ) ;
+  Engines::Component_var FindOrLoad_Component( const char *containerName ,
+					       const char *componentName ,
+					       const char *implementationPath ) ;
+  Engines::Component_var FindOrLoad_Component( const Containers::MachineParameters & MyParams ,
+					       const char *componentName ,
+					       const char *implementationPath ) ;
+  Engines::Component_var FindOrLoad_Component( const char *containerName ,
+					       const char *componentName ) ;
+  Engines::Component_var FindOrLoad_Component( const Containers::MachineParameters & MyParams ,
+					       const char *componentName ) ;
 protected:
-  SALOME_NamingService *_NS;
-  Engines::Container_var _FactoryServer ;
+  Containers::Manager_var _MyContainersMgr ;
+  SALOME_NamingService  * _NamingService ;
+  Engines::Container_var  _FactoryServer ;
 
 private:
   std::string ContainerName( const char * aComputerContainer ,
-                        std::string * theComputer ,
-                        std::string * theContainer ) ;
-  std::string ComputerPath( const char * theComputer ) ;
-  Engines::Container_var FindOrStartContainer(const std::string aComputerContainer ,
-                                              const std::string theComputer ,
-                                              const std::string theContainer ) ;
+                             std::string * theComputer ,
+                             std::string * theContainer ) ;
+//  std::string ComputerPath( const char * theComputer ) ;
+//  Engines::Container_var FindOrStartContainer(const std::string aComputerContainer ,
+//                                              const std::string theComputer ,
+//                                              const std::string theContainer ) ;
 
 } ;
 
