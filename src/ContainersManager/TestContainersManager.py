@@ -316,7 +316,7 @@ while i < len( ListOfComponents ) :
     i = i + 1
 
 
-ListOfComponents = MyContainersMgr.FindComponents( DefaultParams , '' )
+ListOfComponents = MyContainersMgr.FindComponents( DefaultParams , 'SubComponent' )
 i = 0
 while i < len( ListOfComponents ) :
     print ListOfComponents[ i ].GetContainerRef()._get_name(),ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()

@@ -83,15 +83,6 @@ class Manager_i : public POA_Containers::Manager ,
     CORBA::Object_var                 _ComponentObject ;
     Engines::Component_var            _EnginesComponent ;
 
-    vector< string >                  _ListOfContainersNames ;
-    vector< Engines::Container_var >  _ListOfEnginesContainers ;
-    vector< string >                  _ListOfComponentsNames ;
-    vector< Engines::Component_var >  _ListOfEnginesComponents ;
-
-//    std::string ContainerName( const char * aComputerContainer ,
-//                               std::string * theComputer ,
-//                               std::string * theContainer ) ;
-
     Engines::Container_ptr StartContainer( const Containers::MachineParameters & myParams ) ;
 
     Engines::ListOfContainers * FindContainersLocked( Containers::MachineParameters & MyParams ) ;

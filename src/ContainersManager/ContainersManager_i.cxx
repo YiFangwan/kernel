@@ -109,27 +109,32 @@ void Manager_i::Init( CORBA::ORB_ptr orb ,
 void Manager_i::destroy() {
   MESSAGE( "Manager_i::destroy" ) ;
   int i ;
-  MESSAGE( "Manager_i::destroy " << _ListOfEnginesComponents.size() << " components" ) ;
-  for ( i = 0 ; i < _ListOfEnginesComponents.size() ; i++ ) {
+  Containers::MachineParameters * MyParams = Parameters() ;
+  MyParams->ContainerType = Engines::Undefined ;
+  Engines::ListOfComponents_var aListOfEnginesComponents = FindComponents( *MyParams , "" ) ;
+  Engines::ListOfContainers_var aListOfEnginesContainers = FindContainers( *MyParams ) ;
+  MESSAGE( "Manager_i::destroy " << aListOfEnginesComponents->length() << " components" ) ;
+  for ( i = 0 ; i < aListOfEnginesComponents->length() ; i++ ) {
+    string interfaceName = aListOfEnginesComponents[ i ]->interfaceName() ;
     try {
-//      _NamingService->Destroy_Name( _ListOfComponentsNames[ i ].c_str() ) ;
-      MESSAGE( "Manager_i::destroy try destroy Component " << _ListOfComponentsNames[ i ] ) ;
-      _ListOfEnginesComponents[ i ]->destroy() ;
-      MESSAGE( "Manager_i::destroy Component " << _ListOfComponentsNames[ i ] << " destroyed" ) ;
+      MESSAGE( "Manager_i::destroy trying to destroy Component " << interfaceName ) ;
+      aListOfEnginesComponents[ i ]->destroy() ;
+      MESSAGE( "Manager_i::destroy Component " << interfaceName << " destroyed" ) ;
     }
     catch ( ... ) {
-      MESSAGE( "Manager_i::destroy Component " << _ListOfComponentsNames[ i ] << " failed" ) ;
+      MESSAGE( "Manager_i::destroy Component " << interfaceName << " failed" ) ;
     }
   }
-  MESSAGE( "Manager_i::destroy " << _ListOfEnginesContainers.size() << " containers" ) ;
-  for ( i = 0 ; i < _ListOfEnginesContainers.size() ; i++ ) {
+  MESSAGE( "Manager_i::destroy " << aListOfEnginesContainers->length() << " containers" ) ;
+  for ( i = 0 ; i < aListOfEnginesContainers->length() ; i++ ) {
+    string aContainerName = aListOfEnginesContainers[ i ]->name() ;
     try {
-//      _NamingService->Destroy_Name( _ListOfContainersNames[ i ].c_str() ) ;
-      _ListOfEnginesContainers[ i ]->destroy() ;
-      MESSAGE( "Manager_i::destroy Container " << _ListOfContainersNames[ i ] ) ;
+      MESSAGE( "Manager_i::destroy trying to destroy Container " << aContainerName ) ;
+      aListOfEnginesContainers[ i ]->destroy() ;
+      MESSAGE( "Manager_i::destroy Container " << aContainerName << " destroyed" ) ;
     }
     catch ( ... ) {
-      MESSAGE( "Manager_i::destroy Container " << _ListOfContainersNames[ i ] << " failed" ) ;
+      MESSAGE( "Manager_i::destroy destroy of Container " << aContainerName << " failed" ) ;
     }
   }
   _Poa->deactivate_object(*_Id) ;
@@ -713,13 +718,6 @@ Engines::Container_ptr Manager_i::StartContainer( const Containers::MachineParam
              << MyParams.ContainerName ) ;
     _EnginesContainer = _EnginesContainer->start_impl( MyParams.ContainerName , MyParams.ContainerType ) ;
   }
-  if ( !CORBA::is_nil( _EnginesContainer ) ) {
-    int size = _ListOfEnginesContainers.size() ;
-    _ListOfEnginesContainers.resize( size + 1 ) ;
-    _ListOfContainersNames.resize( size + 1 ) ;
-    _ListOfEnginesContainers[ size ] = Engines::Container::_duplicate( _EnginesContainer ) ;
-    _ListOfContainersNames[ size ] = _EnginesContainer->name() ;
-  }
   return Engines::Container::_duplicate( _EnginesContainer ) ;
 }
 
@@ -911,24 +909,6 @@ Engines::Component_ptr Manager_i::FindOrLoad_ComponentPath( const Containers::Ma
       MESSAGE( "FindOrLoad_ComponentPath Component NOT launched ! " << aFullComponentName ) ;
     }
   }
-  if ( !CORBA::is_nil( _EnginesComponent ) ) {
-    MESSAGE( "Manager_i::FindOrLoad_ComponentPath MutexManager pthread_mutex_lock :" ) ;
-    if ( pthread_mutex_lock( &_MutexManager ) ) {
-      perror("Manager_i::FindOrLoad_ComponentPath MutexManager pthread_mutex_lock ") ;
-      exit( 0 ) ;
-    }
-    MESSAGE( "Manager_i::FindOrLoad_ComponentPath MutexManager pthread_mutex_locked" ) ;
-    int size = _ListOfEnginesComponents.size() ;
-    _ListOfEnginesComponents.resize( size + 1 ) ;
-    _ListOfComponentsNames.resize( size + 1 ) ;
-    _ListOfEnginesComponents[ size ] = Engines::Component::_duplicate( EnginesComponent ) ;
-    _ListOfComponentsNames[ size ] = aFullComponentName ;
-    if ( pthread_mutex_unlock( &_MutexManager ) ) {
-      perror("Manager_i::FindOrLoad_ComponentPath MutexManager pthread_mutex_unlock ") ;
-      exit( 0 ) ;
-    }
-    MESSAGE( "Manager_i::FindOrLoad_ComponentPath MutexManager pthread_mutex_unlocked" ) ;
-  }
   return Engines::Component::_duplicate( EnginesComponent ) ;
 }
 
@@ -1003,29 +983,6 @@ Engines::Component_ptr Manager_i::FindOrLoad_Component( const Containers::Machin
       EnginesComponent = Engines::Component::_nil() ;
       MESSAGE( "Component NOT launched ! " << aFullComponentName << " load_impl catched" ) ;
     }
-  }
-  if ( !CORBA::is_nil( EnginesComponent ) ) {
-    MESSAGE( "Manager_i::FindOrLoad_Component MutexManager pthread_mutex_lock :" ) ;
-    if ( pthread_mutex_lock( &_MutexManager ) ) {
-      perror("Manager_i::FindOrLoad_Component MutexManager pthread_mutex_lock ") ;
-      exit( 0 ) ;
-    }
-    MESSAGE( "Manager_i::FindOrLoad_Component MutexManager pthread_mutex_locked" ) ;
-    int size = _ListOfEnginesComponents.size() ;
-    _ListOfEnginesComponents.resize( size + 1 ) ;
-    _ListOfComponentsNames.resize( size + 1 ) ;
-    _ListOfEnginesComponents[ size ] = Engines::Component::_duplicate( EnginesComponent ) ;
-    _ListOfComponentsNames[ size ] = aFullComponentName ;
-    MESSAGE( "FindOrLoad_Component " << aFullComponentName << " added in listofcomponents" ) ;
-    int i ;
-    for ( i = 0 ; i < size + 1 ; i++ ) {
-      MESSAGE( "FindOrLoad_Component " << i << ". " << _ListOfComponentsNames[ i ] ) ;
-    }
-    if ( pthread_mutex_unlock( &_MutexManager ) ) {
-      perror("Manager_i::FindOrLoad_Component MutexManager pthread_mutex_unlock ") ;
-      exit( 0 ) ;
-    }
-    MESSAGE( "Manager_i::FindOrLoad_Component MutexManager pthread_mutex_unlocked" ) ;
   }
   return Engines::Component::_duplicate( EnginesComponent ) ;
 }
@@ -1137,6 +1094,9 @@ bool Manager_i::DestroyContainer( const char * aHostName ,
   int i ;
   for ( i = 0 ; i < aListOfComponents->length() ; i++ ) {
     try {
+      MESSAGE( "Manager_i::DestroyContainer trying to destroy component "
+               << aListOfComponents[ i ]->interfaceName() ) ;
+      aListOfComponents[ i ]->ping() ;
       aListOfComponents[ i ]->destroy() ;
       MESSAGE( "Manager_i::DestroyContainer component destroyed" ) ;
     }
@@ -1145,6 +1105,8 @@ bool Manager_i::DestroyContainer( const char * aHostName ,
     }
   }
   try {
+    MESSAGE( "Manager_i::DestroyContainer trying to destroy container " << aContainer->name() ) ;
+    aContainer->ping() ;
     aContainer->destroy() ;
     MESSAGE( "Manager_i::DestroyContainer " << aContainerName << " on " << aHostName
              << " destroyed" ) ;
