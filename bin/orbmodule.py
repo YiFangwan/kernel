@@ -13,9 +13,9 @@ class Server:
 
    def run(self):
        commande=self.XTERM+self.CMD
-       print commande
-       ier=os.system(commande)
-       if ier:print "Commande failed"
+       print commande,"NOT DONE"
+       #CCRTier=os.system(commande)
+       #CCRTif ier:print "Commande failed"
 
 # -----------------------------------------------------------------------------
 
@@ -26,7 +26,9 @@ class NamingServer(Server):
       USER='anonymous'
    LOGDIR="/tmp/logs/" + USER
    os.system("mkdir -m 777 -p " + LOGDIR)
-   CMD="runNS.sh > " + LOGDIR + "/salomeNS.log 2>&1"
+   #CCRTCMD="runNS.sh > " + LOGDIR + "/salomeNS.log 2>&1"
+   #CCRTCMD="runNS.sh > " + LOGDIR + "/salomeNS.log"
+   #print "NamingServer(Server)",CMD
 
 # -----------------------------------------------------------------------------
 
@@ -45,6 +47,7 @@ class client:
       obj         = self.orb.resolve_initial_references("NameService")
       try:
           self.rootContext = obj._narrow(CosNaming.NamingContext)
+          print "Naming Service exists but perhaps on an other host (Alpha-OSF(CCRT) !",
           return
       except CORBA.COMM_FAILURE:
           self.rootContext = None
@@ -70,7 +73,7 @@ class client:
       if self.rootContext is None:
           print "Failed to narrow the root naming context"
           sys.exit(1)
-      print " found in %s seconds " % ((ncount-1)*delta)
+      print "Naming Service found in %s seconds " % ((ncount-1)*delta)
 
    # --------------------------------------------------------------------------
 
