@@ -77,6 +77,8 @@ void SALOMEDS_TargetAttribute::Append(TDF_Label& theReferencedObject) {
   Backup();
   Handle(TDF_Reference) aReference;
   if (theReferencedObject.FindAttribute(TDF_Reference::GetID(),aReference)) {
+    TDF_ListIteratorOfAttributeList anIter(GetVariables());
+    for(;anIter.More();anIter.Next()) if(anIter.Value()->Label() == theReferencedObject) return; //BugID: KERNEL6040, if there is the reference in the list then nothing to do
     GetVariables().Append(aReference);
   } else {
     MESSAGE("SALOMEDS_TargetAttribute::Append: can't append referenced object");
