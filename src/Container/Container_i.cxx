@@ -546,12 +546,12 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
               siginfo->si_signo == SIGBUS ) {
 //      cout << "Engines_Container_i(SigIntHandler) Signal = " << signame.c_str()
 //           << " was cautch!" << endl ;
-      if ( k_setjmp ) {
+      if ( k_setjmp ) { // Python function in SuperVisionContainer
         ActSigIntHandler() ;
         longjmp( jmp_env , 1 ) ;
         k_setjmp = false ;
       }
-      else {
+      else { // C++ method in any Container
         throw std::runtime_error(signame);
       }
     }
@@ -608,7 +608,12 @@ void Engines_Container_i::WaitPythonFunction() {
     WaitActivatePythonExecution() ;
     cout << pthread_self() << "Engines_Container_i::WaitActivatedPythonExecution" << endl ;
 
-    if ( setjmp( jmp_env ) == 0 ) {
+    // setjmp() returns 0 if it was called for the 1st time.  Here we store the current
+    // position of stack in jmp_env.  IF an exception happens (SIGSEGV, etc.), then,
+    // using longjmp(), we will be HERE again.  But setjmp() will return NON-zero value
+    // in this case.  So it it's non-zero, then SIGxxx already happened and we must report
+    // error and continue running.
+    if ( setjmp( jmp_env ) == 0 ) { 
       k_setjmp = true ;
       if ( _InitPyRunMethod ) {
         cout << pthread_self() << "Engines_Container_i::WaitPythonFunction --> Py_InitModule"  << endl ;
