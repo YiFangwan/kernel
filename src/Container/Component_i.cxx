@@ -393,6 +393,21 @@ CORBA::Long Engines_Component_i::CpuUsed_impl() {
   return cpu ;
 }
 
+Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy, 
+						  CORBA::Boolean isPublished, 
+						  CORBA::Boolean& isValidScript)
+{
+  char* aScript = "def RebuildData(theStudy): pass";
+  char* aBuffer = new char[strlen(aScript)+1];
+  strcpy(aBuffer, aScript);
+  CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
+  int aBufferSize = strlen(aBuffer)+1;
+  Engines::TMPFile_var aStreamFile = new Engines::TMPFile(aBufferSize, aBufferSize, anOctetBuf, 1); 
+  isValidScript = true;
+  return aStreamFile._retn(); 
+}
+
+
 // Send message to event channel
 
 void Engines_Component_i::sendMessage(const char *event_type, const char *message) {

@@ -92,6 +92,8 @@ public:
   long CpuUsed() ;
   CORBA::Long CpuUsed_impl() ;
 
+  virtual Engines::TMPFile* DumpPython(CORBA::Object_ptr theStudy, CORBA::Boolean isPublished, CORBA::Boolean& isValidScript);
+
   static std::string GetDynLibraryName(const char *componentName);
   static std::string BuildComponentNameForNS(const char *ComponentName, const char *ContainerName, const char *hostname);
 protected:
