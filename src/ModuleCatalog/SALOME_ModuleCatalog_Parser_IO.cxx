@@ -29,6 +29,7 @@
 
 #include "SALOME_ModuleCatalog_Parser_IO.hxx"
 #include <string>
+#include "utilities.h"
 
 std::ostream & operator<< (std::ostream & f, const ParserParameter & P)
 {
@@ -90,7 +91,7 @@ std::ostream & operator<< (std::ostream & f,
   n = I.services.size();
   f << "    services : " << n << std::endl;
   for (j=0; j<n; j++) {
-    std::cerr << I.services[j].name << std::endl;
+    MESSAGE(I.services[j].name);
     f << I.services[j] << std::endl;
   }
 
