@@ -293,22 +293,33 @@ Engines::ListOfContainers * Manager_i::FindContainers( const Containers::Machine
 
 Engines::ListOfContainers * Manager_i::FindContainersLocked( Containers::MachineParameters & MyParams ) {
   _ListOfComputers = _ResourcesManager->GetComputers( MyParams ) ;
-  MESSAGE( "Manager_i::FindContainers " << MyParams.HostName << " " << MyParams.ContainerName << " "
-           << _ListOfComputers->length() << " computers found" ) ;
+  MESSAGE( "Manager_i::FindContainers " << MyParams.HostName << " "
+           << MyParams.ContainerName << " " << _ListOfComputers->length()
+           << " computers found" ) ;
   _ListOfContainers = new Engines::ListOfContainers() ;
   _ListOfContainers->length( 0 ) ;
+  bool NumberOfComputers = _ListOfComputers->length() ;
+  if ( NumberOfComputers == 0 ) {
+    NumberOfComputers = 1 ;
+  }
   int i ;
-  for ( i = 0 ; i < _ListOfComputers->length() ; i++ ) {
+  for ( i = 0 ; i < NumberOfComputers ; i++ ) {
     _FullHostName = string( "/Containers/" ) ;
-    _ResourcesComputer = _ListOfComputers[ i ] ;
-    _ComputerParameters = _ResourcesComputer->Parameters() ;
-    _FullHostName += _ComputerParameters->Alias ;
+    if ( _ListOfComputers->length() ) {
+      _ResourcesComputer = _ListOfComputers[ i ] ;
+      _ComputerParameters = _ResourcesComputer->Parameters() ;
+      _FullHostName += _ComputerParameters->Alias ;
+    }
+    else {
+      _FullHostName += MyParams.HostName ;
+    }
     if ( strlen( MyParams.ContainerName ) ) {
       _FullContainerName = _FullHostName + "/" + string( (char * ) MyParams.ContainerName ) ;
       _ContainerObject = _NamingService->Resolve( _FullContainerName.c_str() ) ;
-      MESSAGE( "Manager_i::FindContainers NamingService->Resolve( " << _FullContainerName << " )" ) ;
+      MESSAGE( "Manager_i::FindContainers NamingService->Resolve( "
+               << _FullContainerName << " )" ) ;
       if ( !CORBA::is_nil( _ContainerObject ) ) {
-	try {
+        try {
           _EnginesContainer = Engines::Container::_narrow( _ContainerObject ) ;
           _EnginesContainer->ping() ;
 	}
@@ -316,27 +327,31 @@ Engines::ListOfContainers * Manager_i::FindContainersLocked( Containers::Machine
           _ContainerObject = CORBA::Object::_nil() ;
           _EnginesContainer = Engines::Container::_nil() ;
           MESSAGE( "Manager_i::FindContainers " << _FullContainerName << " NOT responding" ) ;
-	}
+        }
       }
       if ( !CORBA::is_nil( _ContainerObject ) ) {
-	try {
+        try {
           _EnginesContainer = Engines::Container::_narrow( _ContainerObject ) ;
           if ( MyParams.ContainerType == Engines::Undefined ||
             _EnginesContainer->type() == MyParams.ContainerType ) {
             int size = _ListOfContainers->length() ;
             _ListOfContainers->length( size + 1 ) ;
             _ListOfContainers[ size ] = Engines::Container::_duplicate( _EnginesContainer ) ;
-            MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
+            MESSAGE( "Manager_i::FindContainers --> "
+                     << _EnginesContainer->machineName() << " "
                      << _EnginesContainer->name() << " " << _EnginesContainer->type() ) ;
           }
           else {
-            MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
-                     << _EnginesContainer->name() << " " << _EnginesContainer->type() << " # "
+            MESSAGE( "Manager_i::FindContainers --> "
+                     << _EnginesContainer->machineName() << " "
+                     << _EnginesContainer->name() << " "
+                     << _EnginesContainer->type() << " # "
                      << MyParams.ContainerType ) ;
   	  }
         }
         catch ( ... ) {
-          MESSAGE( "Manager_i::FindContainers " << _FullContainerName << " catched NOT responding " ) ;
+          MESSAGE( "Manager_i::FindContainers " << _FullContainerName
+                   << " catched NOT responding " ) ;
         }
       }
       else {
@@ -346,7 +361,8 @@ Engines::ListOfContainers * Manager_i::FindContainersLocked( Containers::Machine
     else {
       if ( _NamingService->Change_Directory( _FullHostName.c_str() ) ) {
         vector<string> theListOfContainers = _NamingService->list_directory() ;
-        MESSAGE( "Manager_i::FindContainers " << theListOfContainers.size() << " containers found." ) ;
+        MESSAGE( "Manager_i::FindContainers " << theListOfContainers.size()
+                 << " containers found." ) ;
         int j ;
         for ( j = 0 ; j < theListOfContainers.size() ; j++ ) {
           _FullContainerName = _FullHostName + "/" + theListOfContainers[ j ] ;
@@ -361,27 +377,32 @@ Engines::ListOfContainers * Manager_i::FindContainersLocked( Containers::Machine
                 int size = _ListOfContainers->length() ;
                 _ListOfContainers->length( size + 1 ) ;
                 _ListOfContainers[ size ] = Engines::Container::_duplicate( _EnginesContainer );
-                MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
-                         << _EnginesContainer->name() << " " << _EnginesContainer->type() ) ;
+                MESSAGE( "Manager_i::FindContainers --> "
+                         << _EnginesContainer->machineName() << " "
+                         << _EnginesContainer->name() << " "
+                         << _EnginesContainer->type() ) ;
               }
               else {
-                MESSAGE( "Manager_i::FindContainers --> " << _EnginesContainer->machineName() << " "
-                         << _EnginesContainer->name() << " " << _EnginesContainer->type() << " # "
+                MESSAGE( "Manager_i::FindContainers --> "
+                         << _EnginesContainer->machineName() << " "
+                         << _EnginesContainer->name() << " "
+                         << _EnginesContainer->type() << " # "
                          << MyParams.ContainerType ) ;
                 _EnginesContainer = Engines::Container::_nil() ;
   	      }
 	    }
             catch( ... ) {
-              MESSAGE( "Manager_i::FindContainers " << _FullContainerName << " catched NOT responding" ) ;
+              MESSAGE( "Manager_i::FindContainers " << _FullContainerName
+                       << " catched NOT responding" ) ;
               _EnginesContainer = Engines::Container::_nil() ;
 	    }
           }
           else {
-            MESSAGE( "Manager_i::FindContainers " << _FullContainerName << " unknown" ) ;
+            MESSAGE( "Manager_i::FindContainers " << _FullContainerName
+                     << " unknown" ) ;
           }
 	}
       }
-      
     }
   }
   return _ListOfContainers._retn() ;
@@ -393,9 +414,12 @@ Engines::Container_ptr Manager_i::FindOrStartContainer( const Containers::Machin
     MyParams.HostName = GetHostname().c_str() ;
   }
   Engines::Container_var aContainer = Engines::Container::_nil() ;
-  MESSAGE( "Manager_i::FindOrStartContainer " << MyParams.HostName << " " << MyParams.ContainerName
-           << " " << MyParams.ContainerType << " " << MyParams.Os << " " << MyParams.Memory << " "
-           << MyParams.CpuClock << " " << MyParams.NbProc << " " << MyParams.NbNode << " "
+  MESSAGE( "Manager_i::FindOrStartContainer " << MyParams.HostName << " "
+           << MyParams.ContainerName
+           << " " << MyParams.ContainerType << " " << MyParams.Os << " "
+           << MyParams.Memory << " "
+           << MyParams.CpuClock << " " << MyParams.NbProc << " "
+           << MyParams.NbNode << " "
            << MyParams.NsHostName << " " << MyParams.NsPort  ) ;
   MESSAGE( "Manager_i::FindOrStartContainer MutexManager pthread_mutex_lock :" ) ;
   if ( pthread_mutex_lock( &_MutexManager ) ) {
@@ -426,8 +450,10 @@ Engines::Container_ptr Manager_i::FindOrStartContainerLocked( Containers::Machin
   _ListOfComponents->length( 0 ) ;
   _ListOfContainers = FindContainersLocked( myParams ) ;
   _ComponentName = aComponentName ;
-  MESSAGE( "MutexManager FindOrStartContainerLocked " << _ListOfContainers->length() << " containers found"
-           << " CORBA::is_nil( _EnginesContainer ) " << CORBA::is_nil( _EnginesContainer ) ) ;
+  MESSAGE( "MutexManager FindOrStartContainerLocked "
+           << _ListOfContainers->length() << " containers found"
+           << " CORBA::is_nil( _EnginesContainer ) "
+           << CORBA::is_nil( _EnginesContainer ) ) ;
   if ( _ListOfContainers->length() ) {
     _EnginesContainer = Engines::Container::_nil() ;
     int i ;
@@ -440,34 +466,43 @@ Engines::Container_ptr Manager_i::FindOrStartContainerLocked( Containers::Machin
       aContainerName = strrchr( aContainerName , '/' ) + 1 ;
       _ContainerName = string( aContainerName ) ;
       _FullContainerName = _FullHostName + "/" + _ContainerName ;
-      MESSAGE( "Manager_i::FindOrStartContainerLocked Container " << i << " " << _FullContainerName
+      MESSAGE( "Manager_i::FindOrStartContainerLocked Container " << i << " "
+               << _FullContainerName
                << " searched Component '" << _ComponentName << "'" ) ;
       if ( strlen( _ComponentName.c_str() ) ) {
         _FullComponentName = _FullContainerName + "/" + _ComponentName ;
-        MESSAGE( "Manager_i::FindOrStartContainerLocked  Component " << _FullComponentName ) ;
+        MESSAGE( "Manager_i::FindOrStartContainerLocked  Component "
+                 << _FullComponentName ) ;
         _ComponentObject = _NamingService->Resolve( _FullComponentName.c_str() ) ;
         if ( !CORBA::is_nil( _ComponentObject ) ) {
           _EnginesContainer = _ListOfContainers[ i ] ;
-          MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesContainer->machineName() << " "
-                   << _EnginesContainer->name() << " Component " << _ComponentName ) ;
+          MESSAGE( "Manager_i::FindOrStartContainerLocked --> "
+                   << _EnginesContainer->machineName() << " "
+                   << _EnginesContainer->name() << " Component "
+                   << _ComponentName ) ;
           try {
             _EnginesComponent = Engines::Component::_duplicate( Engines::Component::_narrow( _ComponentObject ) ) ;
             _EnginesComponent->ping() ;
             int size = _ListOfComponents->length() ;
             _ListOfComponents->length( size + 1 ) ;
             _ListOfComponents[ size ] = Engines::Component::_duplicate( _EnginesComponent ) ;
-            MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesComponent->instanceName() << " "
+            MESSAGE( "Manager_i::FindOrStartContainerLocked --> "
+                     << _EnginesComponent->instanceName() << " "
                      << _EnginesComponent->interfaceName() ) ;
 	  }
           catch( ... ) {
             _EnginesComponent = Engines::Component::_nil() ;
-            MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << myParams.HostName << " "
-                     << myParams.ContainerName << " " << _ComponentName << " NOT responding" ) ;
+            MESSAGE( "Manager_i::FindOrStartContainerLocked --> "
+                     << myParams.HostName << " "
+                     << myParams.ContainerName << " " << _ComponentName
+                     << " NOT responding" ) ;
 	  }
         }
         else {
-          MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << myParams.HostName << " "
-                   << myParams.ContainerName << " " << _ComponentName << " NOT found" ) ;
+          MESSAGE( "Manager_i::FindOrStartContainerLocked --> "
+                   << myParams.HostName << " "
+                   << myParams.ContainerName << " " << _ComponentName
+                   << " NOT found" ) ;
 	}
       }
       else {
@@ -479,10 +514,12 @@ Engines::Container_ptr Manager_i::FindOrStartContainerLocked( Containers::Machin
           int j ;
           for ( j = 0 ; j < theListOfComponents.size() ; j++ ) {
             _FullComponentName = _FullContainerName + "/" + theListOfComponents[ j ] ;
-            MESSAGE( "Manager_i::FindOrStartContainerLocked " << j << " Component " << _FullComponentName ) ;
+            MESSAGE( "Manager_i::FindOrStartContainerLocked " << j
+                     << " Component " << _FullComponentName ) ;
             _ComponentObject = _NamingService->Resolve( _FullComponentName.c_str() ) ;
             if ( !CORBA::is_nil( _ComponentObject ) ) {
-              MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesContainer->machineName() << " "
+              MESSAGE( "Manager_i::FindOrStartContainerLocked --> "
+                       << _EnginesContainer->machineName() << " "
                        << _EnginesContainer->name() ) ;
               try {
                 _EnginesComponent = Engines::Component::_duplicate( Engines::Component::_narrow( _ComponentObject ) ) ;
@@ -490,7 +527,8 @@ Engines::Container_ptr Manager_i::FindOrStartContainerLocked( Containers::Machin
                 int size = _ListOfComponents->length() ;
                 _ListOfComponents->length( size + 1 ) ;
                 _ListOfComponents[ size ] = Engines::Component::_duplicate( _EnginesComponent ) ;
-                MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesComponent->instanceName()
+                MESSAGE( "Manager_i::FindOrStartContainerLocked --> "
+                         << _EnginesComponent->instanceName()
                          << " " << _EnginesComponent->interfaceName() ) ;
 	      }
               catch ( ... ) {
@@ -505,7 +543,8 @@ Engines::Container_ptr Manager_i::FindOrStartContainerLocked( Containers::Machin
   }
   else if ( !CORBA::is_nil( _EnginesContainer ) && strlen( _ComponentName.c_str() ) ) {
     _FullComponentName = _FullContainerName + "/" + _ComponentName ;
-    MESSAGE( "Manager_i::FindOrStartContainerLocked  Component " << _FullComponentName ) ;
+    MESSAGE( "Manager_i::FindOrStartContainerLocked  Component "
+             << _FullComponentName ) ;
     _ComponentObject = _NamingService->Resolve( _FullComponentName.c_str() ) ;
     if ( !CORBA::is_nil( _ComponentObject ) ) {
       try {
@@ -515,18 +554,22 @@ Engines::Container_ptr Manager_i::FindOrStartContainerLocked( Containers::Machin
                  << _FullComponentName ) ;
         _EnginesComponent = Engines::Component::_duplicate( Engines::Component::_narrow( _ComponentObject ) ) ;
         _EnginesComponent->ping() ;
-        MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << _EnginesComponent->instanceName() << " "
+        MESSAGE( "Manager_i::FindOrStartContainerLocked --> "
+                 << _EnginesComponent->instanceName() << " "
                  << _EnginesComponent->interfaceName() ) ;
       }
       catch ( ... ) {
-        MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << myParams.HostName << " "
-                 << myParams.ContainerName << " " << _ComponentName << " catched NOT responding" ) ;
+        MESSAGE( "Manager_i::FindOrStartContainerLocked --> "
+                 << myParams.HostName << " "
+                 << myParams.ContainerName << " " << _ComponentName
+                 << " catched NOT responding" ) ;
         _EnginesComponent = Engines::Component::_nil() ;
       }
     }
     else {
-      MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << myParams.HostName << " "
-               << myParams.ContainerName << " " << _ComponentName << " NOT found" ) ;
+      MESSAGE( "Manager_i::FindOrStartContainerLocked --> " << myParams.HostName
+               << " " << myParams.ContainerName << " " << _ComponentName
+               << " NOT found" ) ;
     }
   }
   if ( CORBA::is_nil( _EnginesContainer ) && _StartContainer ) {
@@ -562,11 +605,12 @@ Engines::Container_ptr Manager_i::StartContainer( const Containers::MachineParam
       }
     }
   }
-  MESSAGE( "Manager_i::StartContainer " << MyParams.HostName << " " << MyParams.ContainerName
-           << " " << MyParams.ContainerType << " " << MyParams.Os << " " << MyParams.Memory << " "
-           << MyParams.CpuClock << " " << MyParams.NbProc << " " << MyParams.NbNode << " "
-           << MyParams.NsHostName << " " << MyParams.NsPort << " " <<  _ListOfContainers->length()
-           << " computers" ) ;
+  MESSAGE( "Manager_i::StartContainer " << MyParams.HostName << " "
+           << MyParams.ContainerName << " " << MyParams.ContainerType << " "
+           << MyParams.Os << " " << MyParams.Memory << " " << MyParams.CpuClock
+           << " " << MyParams.NbProc << " " << MyParams.NbNode << " "
+           << MyParams.NsHostName << " " << MyParams.NsPort << " "
+           <<  _ListOfContainers->length() << " computers" ) ;
   _ResourcesComputer = _ResourcesManager->SearchComputer( MyParams.HostName ) ;
   if ( CORBA::is_nil( _EnginesContainer ) ) {
     Resources::ComputerEnvironment * aComputerEnvironment = NULL ;
@@ -675,6 +719,7 @@ Engines::Container_ptr Manager_i::StartContainer( const Containers::MachineParam
       astr << MyParams.NsPort ;
       rsh += astr.str().c_str() ;
     }
+#if 0
     rsh += " > /tmp/" ;
     rsh += MyParams.ContainerName ;
     if ( MyParams.ContainerType == Engines::Cpp || MyParams.ContainerType == Engines::Undefined ) {
@@ -688,6 +733,7 @@ Engines::Container_ptr Manager_i::StartContainer( const Containers::MachineParam
     if ( strcmp( HostName , GetHostname().c_str() ) ) {
       rsh += "'\"" ;
     }
+#endif
     rsh += " &" ;
     cout << endl << endl << endl << endl << "StartContainer " << rsh << endl ;
     int status = system( rsh.c_str() ) ;
@@ -703,8 +749,8 @@ Engines::Container_ptr Manager_i::StartContainer( const Containers::MachineParam
         sleep( 1 ) ;
         count-- ;
         if ( count != 21 ) {
-          MESSAGE( "StartContainer" << count << ". Waiting for " << MyParams.ContainerName << " on "
-                   << MyParams.HostName ) ;
+          MESSAGE( "StartContainer" << count << ". Waiting for "
+                   << MyParams.ContainerName << " on " << MyParams.HostName ) ;
 	}
         FindContainersLocked( MyParams ) ;
       }
@@ -751,7 +797,8 @@ Engines::Component_ptr Manager_i::FindComponentLocked( const Containers::Machine
   if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
     MyParams.HostName = GetHostname().c_str() ;
   }
-  MESSAGE( "FindComponentLocked HostName " << MyParams.HostName << " ContainerName " << MyParams.ContainerName
+  MESSAGE( "FindComponentLocked HostName " << MyParams.HostName
+           << " ContainerName " << MyParams.ContainerName
            << " ComponentName " << ComponentName ) ;
   FindOrStartContainerLocked( (Containers::MachineParameters & ) MyParams , ComponentName ) ;
   if ( CORBA::is_nil( _EnginesComponent ) ) {
@@ -802,7 +849,8 @@ Engines::ListOfComponents * Manager_i::FindComponents( const Containers::Machine
   if ( strcmp( MyParams.HostName ,"localhost" ) == 0 ) {
     MyParams.HostName = GetHostname().c_str() ;
   }
-  MESSAGE( "FindComponents HostName " << MyParams.HostName << " ContainerName " << MyParams.ContainerName
+  MESSAGE( "FindComponents HostName " << MyParams.HostName << " ContainerName "
+           << MyParams.ContainerName
            << " ComponentName " << ComponentName ) ;
   MESSAGE( "Manager_i::FindComponents MutexManager pthread_mutex_lock :" ) ;
   if ( pthread_mutex_lock( &_MutexManager ) ) {
@@ -830,7 +878,8 @@ Engines::ListOfComponents * Manager_i::FindComponentsLocked( const Containers::M
       MESSAGE( "FindComponentsLocked " << _ListOfComponents->length() << " components" ) ;
       int i ;
       for ( i = 0 ; i < _ListOfComponents->length() ; i++ ) {
-        MESSAGE( "FindComponentsLocked " << i << " instanceName " << _ListOfComponents[ i ]->instanceName()
+        MESSAGE( "FindComponentsLocked " << i << " instanceName "
+                 << _ListOfComponents[ i ]->instanceName()
                  << " interfaceName " << _ListOfComponents[ i ]->interfaceName() ) ;
         _ListOfComponents[ i ]->ping() ;
       }
@@ -838,12 +887,15 @@ Engines::ListOfComponents * Manager_i::FindComponentsLocked( const Containers::M
     else if ( !CORBA::is_nil( _EnginesComponent ) ) {
       _ListOfComponents->length( 1 ) ;
       _ListOfComponents[ 0 ] = Engines::Component::_duplicate( _EnginesComponent ) ;
-      MESSAGE( "FindComponentsLocked instanceName " << _EnginesComponent->instanceName() << " interfaceName "
-               << _EnginesComponent->interfaceName() << " " << _ListOfComponents->length() << " components" ) ;
+      MESSAGE( "FindComponentsLocked instanceName "
+               << _EnginesComponent->instanceName() << " interfaceName "
+               << _EnginesComponent->interfaceName() << " "
+               << _ListOfComponents->length() << " components" ) ;
       _ListOfComponents[ 0 ]->ping() ;
     }
     else {
-      MESSAGE( "FindComponentsLocked ComponentName " << ComponentName << " NOT found" ) ;
+      MESSAGE( "FindComponentsLocked ComponentName " << ComponentName
+               << " NOT found" ) ;
     }
     aListOfComponents = _ListOfComponents ;
   }
@@ -893,20 +945,24 @@ Engines::Component_ptr Manager_i::FindOrLoad_ComponentPath( const Containers::Ma
   }
   MESSAGE( "Manager_i::FindOrLoad_ComponentPath MutexManager pthread_mutex_unlocked" ) ;
   if ( !CORBA::is_nil( aContainer ) && CORBA::is_nil( EnginesComponent ) ) {
-    MESSAGE("FindOrLoad_ComponentPath Component not found ! trying to load " << aFullComponentName ) ;
+    MESSAGE("FindOrLoad_ComponentPath Component not found ! trying to load "
+            << aFullComponentName ) ;
     EnginesComponent = aContainer->load_impl( ComponentName, ImplementationPath ) ;
     if ( !CORBA::is_nil( EnginesComponent ) ) {
-      MESSAGE( "FindOrLoad_ComponentPath Component launched ! " << aFullComponentName ) ;
+      MESSAGE( "FindOrLoad_ComponentPath Component launched ! "
+               << aFullComponentName ) ;
       try {
 	EnginesComponent->ping() ; 
       }
       catch ( CORBA::COMM_FAILURE& ) {
-	INFOS("FindOrLoad_ComponentPath Caught CORBA::SystemException CommFailure. Engine " << aFullComponentName << "does not respond" ) ;
+	INFOS("FindOrLoad_ComponentPath Caught CORBA::SystemException CommFailure. Engine "
+              << aFullComponentName << "does not respond" ) ;
         EnginesComponent = Engines::Component::_nil() ;
       }
     }
     else {
-      MESSAGE( "FindOrLoad_ComponentPath Component NOT launched ! " << aFullComponentName ) ;
+      MESSAGE( "FindOrLoad_ComponentPath Component NOT launched ! "
+               << aFullComponentName ) ;
     }
   }
   return Engines::Component::_duplicate( EnginesComponent ) ;
@@ -961,22 +1017,25 @@ Engines::Component_ptr Manager_i::FindOrLoad_Component( const Containers::Machin
       ImplementationPath += ComponentName ;
       ImplementationPath += "Engine.so" ;
     }
-    MESSAGE("FindOrLoad_Component Component not found ! trying to load " << aFullComponentName
-            << " " << ImplementationPath ) ;
+    MESSAGE("FindOrLoad_Component Component not found ! trying to load "
+            << aFullComponentName << " " << ImplementationPath ) ;
     try {
       EnginesComponent = aContainer->load_impl( ComponentName, ImplementationPath.c_str() ) ;
       if ( !CORBA::is_nil( EnginesComponent ) ) {
-        MESSAGE( "FindOrLoad_Component Component launched ! " << _ComponentName << " on " << aFullComponentName ) ;
+        MESSAGE( "FindOrLoad_Component Component launched ! " << _ComponentName
+                 << " on " << aFullComponentName ) ;
         try {
 	  EnginesComponent->ping() ; 
         }
         catch ( CORBA::COMM_FAILURE& ) {
-	  INFOS("FindOrLoad_Component Caught CORBA::SystemException CommFailure. Engine " << aFullComponentName << "does not respond" ) ;
+	  INFOS("FindOrLoad_Component Caught CORBA::SystemException CommFailure. Engine "
+                << aFullComponentName << "does not respond" ) ;
           EnginesComponent = Engines::Component::_nil() ;
         }
       }
       else {
-        MESSAGE( "FindOrLoad_Component Component NOT launched ! " << aFullComponentName ) ;
+        MESSAGE( "FindOrLoad_Component Component NOT launched ! "
+                 << aFullComponentName ) ;
       }
     }
     catch (...) {

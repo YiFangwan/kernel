@@ -16,6 +16,7 @@ def killSalome():
    import string
    from omniORB import CORBA
    import CosNaming
+   import SALOME
    import Engines
    import Containers
    try :
