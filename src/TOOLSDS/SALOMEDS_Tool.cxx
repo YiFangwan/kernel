@@ -409,6 +409,102 @@ void SALOMEDS_Tool::GetAllChildren( SALOMEDS::Study_var               theStudy,
 
 
 
+//=======================================================================
+// name    : GetFlag
+// Purpose : Retrieve specified flaf from "AttributeFlags" attribute
+//=======================================================================
+bool SALOMEDS_Tool::GetFlag( const int               theFlag,
+                             SALOMEDSClient_Study*   theStudy,
+                             SALOMEDSClient_SObject* theObj )
+{
+  SALOMEDSClient_GenericAttribute* anAttr = NULL;
+  if ( theObj && theObj->FindAttribute( anAttr, "AttributeFlags" ) )
+  {
+    SALOMEDSClient_AttributeFlags* aFlags = dynamic_cast<SALOMEDSClient_AttributeFlags*>( anAttr );
+    bool ret = aFlags->Get( theFlag );
+    delete aFlags;
+    return ret;
+  }
+
+  return false;
+}
+
+//=======================================================================
+// name    : SetFlag
+// Purpose : Set/Unset specified flaf from "AttributeFlags" attribute
+//=======================================================================
+bool SALOMEDS_Tool::SetFlag( const int             theFlag,
+                             SALOMEDSClient_Study* theStudy,
+                             const std::string&    theEntry,
+                             const bool            theValue )
+{
+  SALOMEDSClient_SObject* anObj = theStudy->FindObjectID(theEntry.c_str());
+
+  if ( anObj )
+  {
+    SALOMEDSClient_GenericAttribute* aGAttr;
+    if ( anObj->FindAttribute( aGAttr, "AttributeFlags" ) )
+    {
+      SALOMEDSClient_AttributeFlags* anAttr = dynamic_cast<SALOMEDSClient_AttributeFlags*>( aGAttr );
+      anAttr->Set( theFlag, theValue );
+      delete anAttr;
+    }
+    else if ( theValue )
+    {
+      SALOMEDSClient_StudyBuilder* aBuilder = theStudy->NewBuilder();
+      SALOMEDSClient_AttributeFlags* anAttr = dynamic_cast<SALOMEDSClient_AttributeFlags*>(
+        aBuilder->FindOrCreateAttribute( anObj, "AttributeFlags" ) );
+      anAttr->Set( theFlag, theValue );
+      delete anAttr;
+      delete aBuilder;
+    }
+    return true;
+  }
+
+  return false;
+}
+
+//=======================================================================
+// name    : getAllChildren
+// Purpose : Get all entries of children of object.
+//           If theObj is null all entries of objects of study are returned
+//=======================================================================
+void SALOMEDS_Tool::GetAllChildren( SALOMEDSClient_Study*               theStudy,
+                                    SALOMEDSClient_SObject*             theObj,
+                                    std::list<std::string>& theList )
+{
+  if ( !theObj )
+  {
+    SALOMEDSClient_SComponentIterator* anIter = theStudy->NewComponentIterator();
+    for ( ; anIter->More(); anIter->Next() )
+    {
+      SALOMEDSClient_SObject* anObj = anIter->Value();
+      if ( anObj )
+      {
+        theList.push_back( anObj->GetID() );
+        GetAllChildren( theStudy, anObj, theList );
+	delete anObj;
+      }
+    }
+    delete anIter;
+  }
+  else
+  {
+    SALOMEDSClient_ChildIterator* anIter = theStudy->NewChildIterator( theObj );
+    for ( ; anIter->More(); anIter->Next() )
+    {
+      SALOMEDSClient_SObject* anObj = anIter->Value();
+      SALOMEDSClient_SObject* aRef;
+      if ( !anObj->ReferencedObject( aRef ) )
+      {
+        theList.push_back( anObj->GetID() );
+        GetAllChildren( theStudy, anObj, theList );
+	delete anObj;
+      }
+      else delete aRef;
+    }
+  }
+}
 
 
 
