@@ -367,6 +367,9 @@ during each working session.
     void RemovePostponed(in long theUndoLimit);
 
     void UndoPostponed(in long theWay);
+
+    boolean DumpStudy(in string thePath, in string theBaseName, in boolean isPublished);
+
   };
 
   //==========================================================================

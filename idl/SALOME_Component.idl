@@ -32,6 +32,13 @@ for management of %MED component in %SALOME application.
 */
 module Engines
 {
+
+/*! 
+  A byte stream which is used for binary data transfer between different components
+
+*/
+  typedef sequence<octet> TMPFile;  
+
 /*!
     General Key Value Structure to set or get properties, for component
 */
@@ -174,6 +181,12 @@ module Engines
    Returns the Cpu used (long does not run with python !...)
 */
     long CpuUsed_impl() ;
+    
+/*!
+  Returns a python script, which is being played back reproduces the data model of component
+*/    
+    TMPFile DumpPython(in Object theStudy, in boolean isPublished, out boolean isValidScript); 
+  
   } ;
 } ;
 
