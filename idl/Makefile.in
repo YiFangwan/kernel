@@ -19,6 +19,7 @@ IDL_FILES = \
   SALOMEDS.idl \
   SALOMEDS_Attributes.idl \
   SALOME_Session.idl \
+  SALOME_ContainerManager.idl \
   SALOME_Component.idl \
   SALOME_TestComponent.idl \
   SALOME_Registry.idl \
