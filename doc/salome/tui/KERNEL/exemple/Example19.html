@@ -215,10 +215,10 @@ for linelog in log:
 
 from batchmode_SuperV import *
 import os
-dir= os.getenv(&quot;SALOME_ROOT_DIR&quot;)
+dir= os.getenv(&quot;SUPERV_ROOT_DIR&quot;)
 if dir == None:
- &nbsp; &nbsp; &nbsp; &nbsp;raise RuntimeError, &quot;SALOME_ROOT_DIR is not defined&quot;
-xmlfile = dir +&quot;/../SALOME_ROOT/SuperVisionTest/resources/GraphEssai.xml&quot;
+ &nbsp; &nbsp; &nbsp; &nbsp;raise RuntimeError, &quot;SUPERV_ROOT_DIR is not defined&quot;
+xmlfile = dir +&quot;/examples/GraphEssai.xml&quot;
 print &quot;--------------\n&quot;+xmlfile+&quot;\n--------------\n&quot;
 
 myGraph = Graph ( xmlfile )
