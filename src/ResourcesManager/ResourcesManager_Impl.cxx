@@ -130,6 +130,13 @@ long Manager_Impl::SshAccess( const char * aComputerName ) {
   return 0 ;
 }
 
+char * Manager_Impl::UserName( const char * aComputerName ) {
+  if ( !CORBA::is_nil( SearchComputer( aComputerName ) ) ) {
+    return CORBA::string_dup( SearchComputer( aComputerName )->Parameters()->UserName ) ;
+  }
+  return CORBA::string_dup( "" ) ;
+}
+
 Resources::ListOfComputers * Manager_Impl::AllComputers() {
   MESSAGE("Manager_Impl::AllComputers()") ;
   Resources::ListOfComputers_var aListOfComputers = new Resources::ListOfComputers() ;

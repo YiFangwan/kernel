@@ -133,6 +133,9 @@ bool ResourcesManager_Handler::endElement( const QString& , const QString& ,
     if ( content[0] != '\n' ) {
       _ComputerParameters.UserName = CORBA::string_dup( content.c_str() ) ;
     }
+    else {
+      _ComputerParameters.UserName = CORBA::string_dup( "" ) ;
+    }
   }
   else if ( qName.compare(QString( "os" ) ) == 0 ) {
 #if TRACE

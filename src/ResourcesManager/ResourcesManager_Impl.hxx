@@ -78,9 +78,9 @@ class Manager_Impl : public POA_Resources::Manager ,
 
     virtual long ping() ;
 
-    virtual Resources::Computer_ptr TestComputer() ;
-
     virtual long SshAccess( const char * aComputerName ) ;
+
+    virtual long UserName( const char * aComputerName ) ;
 
     virtual Resources::ListOfComputers * AllComputers() ;
 
