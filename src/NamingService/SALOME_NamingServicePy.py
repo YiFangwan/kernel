@@ -195,5 +195,46 @@ class SALOME_NamingServicePy_i:
                 MESSAGE ( "Create_Directory : CORBA.COMM_FAILURE" )
 
  
+            
+    #-------------------------------------------------------------------------
+    def Destroy_Name(self, Path):
+        MESSAGE ( "SALOME_NamingServicePy_i::Destroy_Name " + Path )
+        path_list = list(Path)
+        if path_list[0]=='/':
+            self._current_context = self._root_context
+            #delete first '/' before split
+            Path=Path[1:]
+        MESSAGE ( "SALOME_NamingServicePy_i::Destroy_Name " + Path )
+        result_resolve_path = split(Path,'/')
+        context_name=[]
+        for i in range(len(result_resolve_path)-1):
+            MESSAGE ( "SALOME_NamingServicePy_i::Destroy_Name result_resolve_path" + str(i) + " " + result_resolve_path[i] )
+            context_name.append(CosNaming.NameComponent(result_resolve_path[i],"dir"))
+        try:
+            self._obj = self._current_context.resolve( context_name )
+            self._current_context = self._obj._narrow(CosNaming.NamingContext)
+            _context_name=[]
+            _context_name.append(CosNaming.NameComponent(result_resolve_path[len(result_resolve_path)-1],"object"))
+            MESSAGE ( "SALOME_NamingServicePy_i::Destroy_Name : unbind " )
+            self._current_context.unbind( _context_name );
+        except CosNaming.NamingContext.NotFound, ex:
+            MESSAGE ( "SALOME_NamingServicePy_i::Destroy_Name : CosNaming.NamingContext.NotFound" )
+            self._obj = None
+        except CosNaming.NamingContext.InvalidName, ex:
+            MESSAGE ( "SALOME_NamingServicePy_i::Destroy_Name : CosNaming.NamingContext.InvalidName" )
+            self._obj = None
+        except CosNaming.NamingContext.CannotProceed, ex:
+            MESSAGE ( "SALOME_NamingServicePy_i::Destroy_Name : CosNaming.NamingContext.CannotProceed" )
+            self._obj = None
+        except CORBA.COMM_FAILURE, ex:
+            MESSAGE ( "SALOME_NamingServicePy_i::Destroy_Name : CORBA.COMM_FAILURE" )
+            self._obj = None
+
+
+
+
+    
+
+ 
 
     
