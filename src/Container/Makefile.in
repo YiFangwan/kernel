@@ -51,10 +51,10 @@ BIN = SALOME_Container
 BIN_SRC =
 BIN_SERVER_IDL = SALOME_Component.idl
 
-CPPFLAGS+= $(PYTHON_INCLUDES) $(LAM_INCLUDES)
+CPPFLAGS+= $(PYTHON_INCLUDES) $(MPI_INCLUDE)
 
 LDFLAGS+= -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace
 
-LIBS += -Xlinker -export-dynamic $(PYTHON_LIBS) $(LAM_LIBS)
+LIBS += -Xlinker -export-dynamic $(PYTHON_LIBS) $(MPI_LIBS)
 
 @CONCLUDE@

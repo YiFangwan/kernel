@@ -25,10 +25,10 @@ BIN =
 BIN_SRC =
 BIN_SERVER_IDL = 
 
-CPPFLAGS+= $(PYTHON_INCLUDES)  $(LAM_INCLUDES) 
+CPPFLAGS+= $(PYTHON_INCLUDES)  $(MPI_INCLUDES) 
 
 LDFLAGS+= -lOpUtil -lSALOMELocalTrace
 
-LIBS += -Xlinker -export-dynamic $(PYTHON_LIBS) $(LAM_LIBS)
+LIBS += -Xlinker -export-dynamic $(PYTHON_LIBS) $(MPI_LIBS)
 
 @CONCLUDE@

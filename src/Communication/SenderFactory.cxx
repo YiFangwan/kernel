@@ -1,4 +1,5 @@
 #include "SenderFactory.hxx"
+#include "utilities.h"
 #include "SALOMEMultiComm.hxx"
 #include "SALOME_Comm_i.hxx"
 
@@ -39,6 +40,7 @@ SALOME::Sender_ptr SenderFactory::buildSender(SALOMEMultiComm &multiCommunicator
     default:
       {
 	multiCommunicator.setProtocol(SALOME::CORBA_);
+	MESSAGE("PROTOCOL CHANGED TO CORBA");
 	SALOME_CorbaDoubleSender * retc=new SALOME_CorbaDoubleSender(tab,lgr);
 	return retc->_this();
       }

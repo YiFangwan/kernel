@@ -135,19 +135,11 @@ ENABLE_PTHREADS
 
 dnl
 dnl ---------------------------------------------
-dnl testing MPICH
+dnl testing MPI
 dnl ---------------------------------------------
 dnl
 
-CHECK_MPICH
-
-dnl
-dnl ---------------------------------------------
-dnl testing LAM
-dnl ---------------------------------------------
-dnl
-
-CHECK_LAM
+CHECK_MPI
 
 dnl
 dnl ---------------------------------------------
@@ -308,7 +300,7 @@ echo ---------------------------------------------
 echo
 
 echo Configure
-variables="cc_ok boost_ok lex_yacc_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok med2_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok doxygen_ok graphviz_ok"
+variables="cc_ok boost_ok lex_yacc_ok mpi_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok med2_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok doxygen_ok graphviz_ok"
  
 for var in $variables
 do

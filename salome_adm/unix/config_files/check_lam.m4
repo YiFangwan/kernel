@@ -28,8 +28,8 @@ AC_ARG_WITH(lam,
 	    --with-lam=DIR root directory path of LAM installation,
 	    WITHLAM="yes",WITHLAM="no")
 
-LAM_INCLUDES=""
-LAM_LIBS=""
+MPI_INCLUDES=""
+MPI_LIBS=""
 if test "$WITHLAM" = yes; then
 
   echo
@@ -40,12 +40,12 @@ if test "$WITHLAM" = yes; then
   LAM_HOME=$withval
 
   if test "$LAM_HOME"; then
-    LAM_INCLUDES="-I$LAM_HOME/include"
-    LAM_LIBS="-L$LAM_HOME/lib"
+    MPI_INCLUDES="-I$LAM_HOME/include"
+    MPI_LIBS="-L$LAM_HOME/lib"
   fi
 
   CPPFLAGS_old="$CPPFLAGS"
-  CPPFLAGS="$LAM_INCLUDES $CPPFLAGS"
+  CPPFLAGS="$MPI_INCLUDES $CPPFLAGS"
   AC_CHECK_HEADER(mpi.h,WITHLAM="yes",WITHLAM="no")
   CPPFLAGS="$CPPFLAGS_old"
 
@@ -53,7 +53,7 @@ if test "$WITHLAM" = yes; then
     AC_CHECK_LIB(util,openpty,,WITHLAM="no")
     LIBS_old="$LIBS"
     LDFLAGS_old="$LDFLAGS"
-    LDFLAGS="$LAM_LIBS $LDFLAGS"
+    LDFLAGS="$MPI_LIBS $LDFLAGS"
     AC_CHECK_LIB(lam,lam_mp_init,,WITHLAM="no")
     AC_CHECK_LIB(mpi,MPI_Init,WITHLAM="yes",WITHLAM="no")
     AC_CHECK_LIB(mpi,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
@@ -62,20 +62,11 @@ if test "$WITHLAM" = yes; then
   fi
 
   if test "$WITHLAM" = "yes";then
-    lam_ok=yes
-    LAM_LIBS="$LAM_LIBS -lmpi -llam"
-  fi
-
-  if test "$WITHMPI2" = "yes";then
-    CPPFLAGS="-DHAVE_MPI2 $CPPFLAGS"
-    CORBA_IDLCXXFLAGS="-DHAVE_MPI2 $CORBA_IDLCXXFLAGS"
-    CORBA_IDLPYFLAGS="-DHAVE_MPI2 $CORBA_IDLPYFLAGS"
+     mpi_ok=yes
+     MPI_LIBS="$MPI_LIBS -lmpi -llam"
   fi
 
 fi
-AC_SUBST(LAM_INCLUDES)
-AC_SUBST(LAM_LIBS)
-AC_SUBST(WITHLAM)
-AC_SUBST(WITHMPI2)
+
 
 ])dnl

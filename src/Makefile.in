@@ -44,7 +44,7 @@ SUBDIRS = MSG2QM SALOMELocalTrace Logger SALOMELogger Utils PatchQt \
 	  Session SALOME_SWIG TOOLSGUI SALOME_PY \
           RegistryDisplay ModuleGenerator SALOME_PYQT Loader Communication
 
-ifeq (@WITHMPICH@,yes)
+ifeq (@mpi_ok@,yes)
   SUBDIRS+= MPIContainer
 endif
 

@@ -29,6 +29,7 @@ void *ReceiverFactory::getValue(SALOME::Sender_ptr sender,long &size)throw(Multi
   catch(MultiCommException&)
     {
       SALOME::Sender_ptr newSender=sender->buildOtherWithProtocol(SALOME::CORBA_);
+      MESSAGE("PROTOCOL CHANGED TO CORBA");
       sender->release();
       CORBA::release(sender);
       ret=getValueOneShot(newSender,size);
