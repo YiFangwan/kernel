@@ -108,9 +108,6 @@ public:
 
   void CheckLocked() throw (SALOMEDS::StudyBuilder::LockProtection);
 
-  virtual SALOMEDS::Callback_ptr SetOnAddSObject(SALOMEDS::Callback_ptr theCallback);
-  virtual SALOMEDS::Callback_ptr SetOnRemoveSObject(SALOMEDS::Callback_ptr theCallback);
-
   virtual void SetName(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
   virtual void SetComment(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);
   virtual void SetIOR(SALOMEDS::SObject_ptr theSO, const char* theValue) throw(SALOMEDS::StudyBuilder::LockProtection);

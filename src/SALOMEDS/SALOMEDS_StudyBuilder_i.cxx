@@ -477,30 +477,6 @@ void  SALOMEDS_StudyBuilder_i::UndoLimit(CORBA::Long n)
 }
 
 //============================================================================
-/*! Function : SetOnAddSObject
- *  Purpose  : 
- */
-//============================================================================
-SALOMEDS::Callback_ptr SALOMEDS_StudyBuilder_i::SetOnAddSObject(SALOMEDS::Callback_ptr)
-{
-  SALOMEDS::Locker lock;
-  MESSAGE("Not implemented on the CORBA level  !!!");
-  return SALOMEDS::Callback::_nil();
-}
-
-//============================================================================
-/*! Function : SetOnNewSObject
- *  Purpose  : 
- */
-//============================================================================
-SALOMEDS::Callback_ptr SALOMEDS_StudyBuilder_i::SetOnRemoveSObject(SALOMEDS::Callback_ptr)
-{
-  SALOMEDS::Locker lock;
-  MESSAGE("Not implemented on the CORBA level  !!!");
-  return SALOMEDS::Callback::_nil();
-}
-
-//============================================================================
 /*! Function : CheckLocked
  *  Purpose  : 
  */

@@ -20,7 +20,6 @@
 #include "SALOMEDS_StudyBuilder_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_UseCaseBuilder_i.hxx"
-#include "SALOMEDS_Callback_i.hxx"
 
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"

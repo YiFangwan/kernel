@@ -50,4 +50,5 @@ public:
   virtual CORBA::Short Tag();
   virtual CORBA::Short Depth();
 };
+
 #endif

@@ -98,7 +98,6 @@ during each working session.
   interface AttributeStudyProperties;
   interface UseCaseIterator;
   interface UseCaseBuilder;
-  interface Callback;
 
 /*! List of attributes of %SObjects
 */
@@ -609,22 +608,6 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 */
     boolean GetAvailableRedos();
 /*!
-    This method is called when adding an object into study.
-    It sets the callback for addition of the given %SObject.
-    \param theCallback New assigned callback.
-    \return The previous callback.
-*/
-    Callback SetOnAddSObject(in Callback theCallback);
-/*!
-    This method is called when adding an object into study.
-    It sets the callback for removal of the given %SObject.
-
-    \return The previous callback.
-    \param theCallback New assigned callback.
-*/
-    Callback SetOnRemoveSObject(in Callback theCallback);
-
-/*!
     Puts name attribute with the given string value to the given %SObject
 
     \param theSO Existing SObject to set name attribute.
@@ -1106,25 +1089,6 @@ Activates the %UseCaseIterator.
 */
     UseCaseIterator GetUseCaseIterator(in SObject theObject);
   };
-  //==========================================================================
-  //==========================================================================
-/*! \brief The callback interface
-
-  The %StudyBuilder can be created with the method <VAR>NewBuilder</VAR>. While invocation of this method a new object of the class <VAR>Callback</VAR> is created
-  and this object is assigned to the newly created Builder as callback which should be called when adding and removing of the ojects.
-*/
-  interface Callback
-  {
-/*!
-     Invokes the corresponding method <VAR>Append</VAR> of the %UseCaseBuilder.
-*/
-     void OnAddSObject(in SObject theObject);
-/*!
-     Invokes the corresponding method <VAR>Remove</VAR> of the %UseCaseBuilder.
-*/
-     void OnRemoveSObject(in SObject theObject);
-  };
-
   //==========================================================================
 /*! \brief %Driver interface
 
