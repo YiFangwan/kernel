@@ -48,7 +48,7 @@ LIB_SERVER_IDL = SALOME_Registry.idl SALOME_Component.idl
 
 # Executables targets
 BIN = SALOME_Container
-BIN_SRC = SALOME_Container_SignalsHandler.cxx
+#BIN_SRC = SALOME_Container_SignalsHandler.cxx
 BIN_SERVER_IDL = SALOME_Component.idl
 
 CPPFLAGS+= $(PYTHON_INCLUDES) $(MPI_INCLUDE) $(OCC_INCLUDES)
@@ -56,6 +56,7 @@ CXXFLAGS+=$(OCC_CXXFLAGS)
 
 LDFLAGS+= -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace
 
-LIBS += @LDEXPDYNFLAGS@ $(PYTHON_LIBS) $(MPI_LIBS) -lCASCatch
+#LIBS += @LDEXPDYNFLAGS@ $(PYTHON_LIBS) $(MPI_LIBS) -lCASCatch
+LIBS += @LDEXPDYNFLAGS@ $(PYTHON_LIBS) $(MPI_LIBS)
 
 @CONCLUDE@
