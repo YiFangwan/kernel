@@ -244,7 +244,7 @@ if father is None:
 	myBuilder.DefineComponentInstance(father,SuperVision)
 
 def addStudy(ior):
-    dataflow = SuperVision.getGraph(ior)
+    dataflow = SuperVision.getStreamGraph(ior)
     name=dataflow.Name()
     itr = myStudy.NewChildIterator(father)
     while itr.More():
@@ -280,7 +280,7 @@ print "Load dataflow from the file : "
 print xmlfile
 print
 
-myGraph = Graph ( xmlfile )
+myGraph = StreamGraph ( xmlfile )
 
 # This DataFlow is "valid" : no loop, correct links between Nodes etc...
 print "myGraph.IsValid() = ", myGraph.IsValid()
@@ -342,7 +342,7 @@ for node in nodes:
 print names
 
 # Graph creation 
-GraphInLines = Graph( 'GraphInLines' )
+GraphInLines = StreamGraph( 'GraphInLines' )
 GraphInLines.SetName( 'GraphInLines' )
 GraphInLines.SetAuthor( '' )
 GraphInLines.SetComment( '' )
