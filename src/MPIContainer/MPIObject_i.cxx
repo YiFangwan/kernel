@@ -24,10 +24,10 @@
 //  File   : MPIObject_i.cxx
 //  Module : SALOME
 
-using namespace std;
 #include "MPIObject_i.hxx"
 #include "utilities.h"
 #include <mpi.h>
+using namespace std;
 
 MPIObject_i::MPIObject_i()
 {

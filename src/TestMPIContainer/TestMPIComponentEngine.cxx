@@ -1,4 +1,3 @@
-using namespace std;
 //=============================================================================
 // File      : TestMPIComponentEngine.cxx
 // Created   : mer jui 4 12:28:26 CEST 2003
@@ -10,6 +9,7 @@ using namespace std;
 
 #include "utilities.h"
 #include "TestMPIComponentEngine.hxx"
+using namespace std;
 
 TestMPIComponentEngine::TestMPIComponentEngine(int nbproc, int numproc,
 					       CORBA::ORB_ptr orb,

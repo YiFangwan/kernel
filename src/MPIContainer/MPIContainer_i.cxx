@@ -24,7 +24,6 @@
 //  File   : MPIContainer_i.cxx
 //  Module : SALOME
 
-using namespace std;
 #include <iostream.h>
 #include <dlfcn.h>
 #include <stdio.h>
@@ -33,7 +32,7 @@ using namespace std;
 #include "Utils_SINGLETON.hxx"
 #include "OpUtil.hxx"
 #include "utilities.h"
-
+using namespace std;
 
 // L'appel au registry SALOME ne se fait que pour le process 0
 Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,

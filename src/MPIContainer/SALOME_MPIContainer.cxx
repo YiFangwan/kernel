@@ -1,10 +1,10 @@
-using namespace std;
 #include <iostream>
 #include "MPIContainer_i.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "utilities.h"
 #include <mpi.h>
+using namespace std;
 
 int main(int argc, char* argv[])
 {

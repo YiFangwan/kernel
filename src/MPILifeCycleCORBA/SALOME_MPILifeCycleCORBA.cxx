@@ -1,4 +1,3 @@
-using namespace std;
 //=============================================================================
 // File      : SALOME_MPILifeCycleCORBA.cxx
 // Created   : mar jui 03 14:55:50 CEST 2003
@@ -23,6 +22,7 @@ using namespace std;
 #include "SALOME_MPILifeCycleCORBA.hxx"
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
 #include "SALOME_NamingService.hxx"
+using namespace std;
 
 SALOME_MPILifeCycleCORBA::SALOME_MPILifeCycleCORBA() : 
   SALOME_LifeCycleCORBA()
