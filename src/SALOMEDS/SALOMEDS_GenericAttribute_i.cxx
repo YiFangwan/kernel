@@ -73,7 +73,7 @@ const char AttributesTypeNames[RegisteredAttributes][30] = {
   "AttributeStudyProperties",
   "AttributePythonObject",
   "AttributeUserID",
-  "ExternalFileDef", "FileType"
+  "AttributeExternalFileDef", "AttributeFileType"
 };
 
 const Standard_GUID AttributesGUIDs[RegisteredAttributes] = {
