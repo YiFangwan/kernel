@@ -159,7 +159,7 @@ else:
 for aKey in ("containers","embedded","key","modules","standalone"):
     if not args.has_key(aKey):
         args[aKey]=[]
-for aKey in ("gui","logger","file","xterm","portkill","killall"):
+for aKey in ("gui","logger","file","xterm","portkill","killall","interp"):
     if not args.has_key(aKey):
         args[aKey]=0
 if args["file"]:
@@ -240,7 +240,7 @@ except:
 
 opterror=0
 for opt in opts:
-    if not opt in ("h","g","l","f","x","m","e","s","c","p","k","t"):
+    if not opt in ("h","g","l","f","x","m","e","s","c","p","k","t","i"):
         print "command line error: -", opt
         opterror=1
 
@@ -251,24 +251,25 @@ if opts.has_key("h"):
     print """USAGE: runSalome.py [options]
     [command line options] :
     --help or -h                  : print this help
-    --gui or -g                   : lancement du GUI
+    --gui or -g                   : GUI launch
     --terminal -t                 : launching without gui (to deny --gui)
-    --logger or -l                : redirection des messages via CORBA
-    --file=filename or -l=filename: redirection des messages dans un fichier
-    --xterm or -x                 : les serveurs ouvrent une fenêtre xterm et les messages sont affichés dans cette fenêtre
-    --modules=module1,module2,... : où modulen est le nom d'un module Salome à charger dans le catalogue
+    --logger or -l                : trace collection via CORBA
+    --file=filename or -f=filename: trace collection in a file
+    --xterm or -x                 : each program in a separate xterm
+    --modules=module1,module2,... : list of salome modules to put into the module catalog
     or -m=module1,module2,...
     --embedded=registry,study,moduleCatalog,cppContainer
     or -e=registry,study,moduleCatalog,cppContainer
-                                  : serveurs CORBA embarqués (par defaut: registry,study,moduleCatalog,cppContainer)
-                                  : (logger,pyContainer,supervContainer ne peuvent pas être embarqués
+                                  : servers embedded in session server (default: registry,study,moduleCatalog,cppContainer)
+                                  : (logger,pyContainer,supervContainer can't be embedded)
     --standalone=registry,study,moduleCatalog,cppContainer,pyContainer,supervContainer
     or -s=registry,study,moduleCatalog,cppContainer,pyContainer,supervContainer
-                                  : executables serveurs CORBA indépendants (par défaut: pyContainer,supervContainer)
-    --containers=cpp,python,superv: (obsolete) lancement des containers cpp, python et de supervision
-    or -c=cpp,python,superv       : = on prend les defauts de -e et -s
+                                  : standalone CORBA servers (default: pyContainer,supervContainer)
+    --containers=cpp,python,superv: obsolete ( cpp, python and supervision container launch)
+    or -c=cpp,python,superv       : see --embedded, --standalone
     --portkill or -p              : kill the salome with current port
-    --killall or -k               : kill salome
+    --killall or -k               : kill all salome sessions
+    --interp=n or -i=n            : number of additional xterm to open, with session environment
     
     La variable d'environnement <modulen>_ROOT_DIR doit etre préalablement
     positionnée (modulen doit etre en majuscule).
@@ -287,6 +288,8 @@ for opt in opts:
         args['file'] = opts['f']
     elif opt == 'x':
         args['xterm'] = 1
+    elif opt == 'i':
+        args['interp'] = opts['i']
     elif opt == 'm':
         args['modules'] = opts['m']
     elif opt == 'e':

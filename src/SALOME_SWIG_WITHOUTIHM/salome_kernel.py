@@ -19,14 +19,21 @@
 #
 #
 #
-#  File   : salome.py
+#  File   : salome_kernel.py
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
 
-from salome_kernel import *
-from salome_study import *
-from salome_iapp import *
+from omniORB import CORBA
+from LifeCycleCORBA import *
+from SALOME_NamingServicePy import *
+from SALOME_utilities import *
 
-IN_SALOME_GUI=sg.hasDesktop()
+# initialise the ORB
+orb = CORBA.ORB_init([''], CORBA.ORB_ID)
 
+# create an LifeCycleCORBA instance
+lcc = LifeCycleCORBA(orb)
+
+#create an naming service instance
+naming_service = SALOME_NamingServicePy_i(orb)

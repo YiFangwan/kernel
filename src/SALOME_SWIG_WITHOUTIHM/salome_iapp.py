@@ -19,14 +19,38 @@
 #
 #
 #
-#  File   : salome.py
+#  File   : salome_iapp.py
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
 
-from salome_kernel import *
-from salome_study import *
-from salome_iapp import *
+from libSALOME_Swig import *
 
-IN_SALOME_GUI=sg.hasDesktop()
+    #--------------------------------------------------------------------------
+
+def ImportComponentGUI(ComponentName):
+    libName = "lib" + ComponentName + "_Swig"
+    command = "from " + libName + " import *"
+    exec ( command )
+    constructor = ComponentName + "_Swig()"
+    command = "gui = " + constructor
+    exec ( command )
+    return gui
+
+    #--------------------------------------------------------------------------
+
+def SalomeGUIgetAllSelected(self):
+    selNumber = self.SelectedCount()
+    listSelected = []
+    for i in range(selNumber):
+        listSelected.append(self.getSelected(i))
+    return listSelected
+
+class SalomeGUI(SALOMEGUI_Swig):
+    getAllSelected = SalomeGUIgetAllSelected
+    
+    #--------------------------------------------------------------------------
+
+# create an SALOMEGUI_Swig instance
+sg = SalomeGUI()
 
