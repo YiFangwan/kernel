@@ -52,6 +52,7 @@ public:
     QString getAuthor();
     QString getVersion();
     QString getCompName();
+    QString getCompUserName();
     QString getCompType();
     QString getCompMultiStd();
 
@@ -67,6 +68,7 @@ private:
     QLineEdit*     myVersionEdit;
     QLineEdit*     myAuthorEdit;
     QLineEdit*     myCompName;
+    QLineEdit*     myCompUserName;
     QLineEdit*     myCompType;
     QLineEdit*     myCompMultiStd;
     QPushButton*   myBrowseIdlBtn;

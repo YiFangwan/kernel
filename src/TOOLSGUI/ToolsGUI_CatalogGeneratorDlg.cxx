@@ -135,6 +135,10 @@ ToolsGUI_CatalogGeneratorDlg::ToolsGUI_CatalogGeneratorDlg( QWidget* parent, con
   myCompName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
   myCompName->setMinimumSize( myMinimumSize );
 
+  myCompUserName = new QLineEdit(supplGrp , "myCompUserName");
+  myCompUserName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
+  myCompUserName->setMinimumSize( MIN_EDIT_SIZE*0.3, 0 );
+
   myCompType = new QLineEdit(supplGrp , "myCompType");
   myCompType->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
   myCompType->setMinimumSize( myMinimumSize );
@@ -151,12 +155,14 @@ ToolsGUI_CatalogGeneratorDlg::ToolsGUI_CatalogGeneratorDlg( QWidget* parent, con
   supplGrpLayout->addWidget( myAuthorEdit, 0, 1 );
   supplGrpLayout->addWidget( new QLabel( tr( "TOOLS_COMP_NAME" ), supplGrp ), 0, 2);
   supplGrpLayout->addWidget(myCompName,0,3);
-  supplGrpLayout->addWidget( new QLabel( tr( "TOOLS_COMP_TYPE" ), supplGrp ), 0, 4);
-  supplGrpLayout->addWidget(myCompType,0,5);
+  supplGrpLayout->addWidget( new QLabel( tr( "TOOLS_COMP_USERNAME" ), supplGrp ), 0, 4);
+  supplGrpLayout->addWidget(myCompUserName,0,5);
   supplGrpLayout->addWidget( new QLabel( tr( "TOOLS_VERSION" ), supplGrp ), 1, 0);
   supplGrpLayout->addWidget( myVersionEdit, 1, 1);
   supplGrpLayout->addWidget( new QLabel( tr( "TOOLS_COMP_MULTISTD" ), supplGrp ), 1, 2);
   supplGrpLayout->addWidget(myCompMultiStd,1,3);
+  supplGrpLayout->addWidget( new QLabel( tr( "TOOLS_COMP_TYPE" ), supplGrp ), 1, 4);
+  supplGrpLayout->addWidget(myCompType,1,5);
   supplGrpLayout->addWidget( new QLabel( tr( "TOOLS_PNG_FILE" ), supplGrp ), 2, 0);
   supplGrpLayout->addMultiCellWidget( myPngEdit, 2,2,1,4 );
   supplGrpLayout->addWidget( myBrowsePngBtn, 2, 5 );
@@ -255,6 +261,15 @@ QString ToolsGUI_CatalogGeneratorDlg::getCompName()
 }
 
 //=================================================================================
+// function : getCompUserName()
+// purpose  : gets username of the component
+//=================================================================================
+QString ToolsGUI_CatalogGeneratorDlg::getCompUserName()
+{
+  return myCompUserName->text().stripWhiteSpace();
+}
+
+//=================================================================================
 // function : getCompType()
 // purpose  : gets type of the component
 //=================================================================================
@@ -335,6 +350,7 @@ void ToolsGUI_CatalogGeneratorDlg::onApply()
   QString Version = getVersion();
   QString PngFile = getPngFile();
   QString CompName = getCompName(); //gets component name 
+  QString CompUserName = getCompUserName(); //gets component username 
   QString CompType = getCompType(); //gets component type
   QString CompMultiStd = getCompMultiStd();
 
@@ -348,7 +364,7 @@ void ToolsGUI_CatalogGeneratorDlg::onApply()
     else {
       QString command = "";
       if ( getenv("KERNEL_ROOT_DIR")  )
-	command = QString( getenv( "KERNEL_ROOT_DIR" ) ) + "/bin/runIDLparser -Wbcatalog=" + XmlFile;
+	command = QString( getenv( "KERNEL_ROOT_DIR" ) ) + "/bin/salome/runIDLparser -Wbcatalog=" + XmlFile;
       else {
 	QAD_MessageBox::error1( this, 
 				tr("TOOLS_ERR_ERROR"), 
@@ -363,6 +379,7 @@ void ToolsGUI_CatalogGeneratorDlg::onApply()
 	command += QString(",icon=") + QString(aFile.ToCString());
       }
       if (!CompName.isEmpty()) command += ",name=" + CompName;
+      if (!CompUserName.isEmpty()) command += ",username=" + CompUserName;
       if (!CompType.isEmpty()) command += ",type=" + CompType;
       if (!CompMultiStd.isEmpty()) command += ",multistudy=" + CompMultiStd;
       command += " " + IdlFile;
