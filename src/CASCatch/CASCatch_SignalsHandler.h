@@ -17,44 +17,18 @@
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
 //  See http://www.salome-platform.org or email : webmaster.salome@opencascade.org
-//
-//
-//
-//  File   : Utils_CatchSignals.h
-//  Author : Oksana Tchebanova
-//  Module : KERNEL
-//  $Header:
 
-#ifndef _UTILS_CATCHSIGNALS_H_
-#define _UTILS_CATCHSIGNALS_H_
+#ifndef _CASCATCH_SIGNALSHANDLER_H_
+#define _CASCATCH_SIGNALSHANDLER_H_
 
-#include <stdio.h>
-#define SIG_MAX_NUM 11 
 
-typedef void (* SIG_PFV) (int);
+#include "Utils_SignalsHandler.h"
+#include <Standard_ErrorHandler.hxx>
 
-class Utils_CatchSignals {
-
+class CASCatch_SignalsHandler: private Utils_SignalsHandler{
  public:
-  Utils_CatchSignals();
-  void Destroy() ;
-  ~Utils_CatchSignals()
-    {
-      Destroy();
-    }
-
-  static  void SetCallBack(const int theAddressHiPart,const int theAddressLowPart) ;
-  static  void UnsetCallBack() ;
-  void Activate();
-  void Deactivate() ;
-  bool ReserveMemory();
-  void FreeReserved();
-
-private: 
-
-  SIG_PFV mySigStates[SIG_MAX_NUM];
-  int  myFloatOpWord;
-  bool myIsActivated;
+  CASCatch_SignalsHandler(bool theFloatingSignal = true);
 };
+
 
 #endif

@@ -1,4 +1,4 @@
-//  SALOME OCCViewer : build OCC Viewer into Salome desktop
+//  SALOME OBJECT : kernel of SALOME component
 //
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -21,51 +21,41 @@
 //
 //
 //
-//  File   : OCCViewer_Selector.cxx
-//  Author : Nicolas REJNERI
+//  File   : SALOME_GeometryFilter.h
+//  Author : Michael ZORIN
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
-/*!
-  \class OCCViewer_Selector OCCViewer_Selector.h
-  \brief Base class for object selection in Open CASCADE Viewer.
-*/
 
-#include "OCCViewer_Selector.h"
+#ifndef __SALOME_ShrinkFilter_h
+#define __SALOME_ShrinkFilter_h
 
-/*!
-    Constructor
-*/
-OCCViewer_Selector::OCCViewer_Selector() :
-  myNumSelected (0),
-  myEnableSelection( true ),
-  myEnableMultipleSelection( true )
+#include <vtkShrinkFilter.h>
+#include <vector>
+
+class SALOME_ShrinkFilter : public vtkShrinkFilter 
 {
-}
+public:
+  static SALOME_ShrinkFilter *New();
+  vtkTypeRevisionMacro(SALOME_ShrinkFilter, vtkShrinkFilter);
 
-/*!
-    Destructor
-*/
-OCCViewer_Selector::~OCCViewer_Selector()
-{
-}
+  void SetStoreMapping(int theStoreMapping);
+  int GetStoreMapping(){ return myStoreMapping;}
 
-/*!
-    Enables/disables selection
-*/
-void OCCViewer_Selector::enableSelection( bool bEnable )
-{
-  myEnableSelection = bEnable;
-}
+  virtual vtkIdType GetNodeObjId(int theVtkID);
+  virtual vtkIdType GetElemObjId(int theVtkID) { return theVtkID;}
 
-/*!
-    Enables/disables multiple selection i.e
-    selection of several objects at the same time.
-    If enabled, non-multiple selection is enabled as well.
-*/
-void OCCViewer_Selector::enableMultipleSelection( bool bEnable )
-{
-  myEnableMultipleSelection = bEnable;
-  if ( bEnable ) myEnableSelection = bEnable;
-}
+protected:
+  SALOME_ShrinkFilter();
+  ~SALOME_ShrinkFilter();
+  
+  void Execute();
+  void UnstructuredGridExecute();
+    
+private:
+  int myStoreMapping;   
+  typedef std::vector<vtkIdType> TVectorId;
+  TVectorId myVTK2ObjIds;
+};
+
+#endif
