@@ -114,7 +114,7 @@ void SALOME_Session_i::NSregister()
     {
       INFOS("Caught unknown exception from Naming Service");
     }
-  MESSAGE("NSregister end"); 
+  MESSAGE("Session registered in Naming Service"); 
 }
 
 //=============================================================================
