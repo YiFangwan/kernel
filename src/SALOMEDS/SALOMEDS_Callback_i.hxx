@@ -1,12 +1,8 @@
-//  SALOME SALOMEDS : data structure of SALOME and sources of Salome data server 
-//
-//  Copyright (C) 2003  CEA/DEN, EDF R&D
-//
-//
-//
-//  File   : SALOMEDS_Study_i.hxx
-//  Author : Yves FRICAUD
+//  File   : SALOMEDS_Callback_i.hxx
+//  Author : Sergey RUIN
 //  Module : SALOME
+
+//SRN: !!!!!!!!!!!!!!! DEPRICATED CLASS, DON'T USE IT, TO BE REMOVED
 
 #ifndef __SALOMEDS_CALLBACK_I_H__
 #define __SALOMEDS_CALLBACK_I_H__
