@@ -38,9 +38,16 @@ using namespace std;
 extern bool _Sleeping ;
 static Engines_Component_i * theEngines_Component ;
 
-Engines_Component_i::Engines_Component_i()
-{
-//  MESSAGE("Component constructor");
+Engines_Component_i::Engines_Component_i() :
+  _instanceName(""),
+  _interfaceName(""),
+  _myConnexionToRegistry(0),
+  _ThreadId(0) , _ThreadCpuUsed(0) , _Executed(false) , _graphName("") , _nodeName("") {
+  MESSAGE("Component constructor");
+  _orb = 0 ;
+  _poa = 0;
+  _contId = 0 ;
+  pthread_mutex_init( &_MutexThreadId , NULL ) ;
 }
 
 Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
@@ -166,8 +173,10 @@ void Engines_Component_i::beginService(const char *serviceName)
 {
   MESSAGE(pthread_self() << "Send BeginService notification for " << serviceName << endl
 	  << "Component instance : " << _instanceName << endl << endl);
-  if ( pthread_mutex_lock( &_MutexThreadId ) ) {
+  int sts ;
+  if ( (sts = pthread_mutex_lock( &_MutexThreadId ) ) ) {
     perror("pthread_mutex_lock _MutexThreadId ") ;
+    cout << "Component_i::beginService pthread_mutex_lock _MutexThreadId sts " << sts << endl ;
     exit( 0 ) ;
   }
 // Datas for CpuUsed, Kill, Suspend and Resume
@@ -186,8 +195,9 @@ void Engines_Component_i::beginService(const char *serviceName)
     MESSAGE("beginService('" << serviceName << "' cannot have CpuUsed/Kill/Suspend/Resume functionnalities. "
             << _serviceName << " is already running !" ) ;
   }
-  if ( pthread_mutex_unlock( &_MutexThreadId ) ) {
+  if ( (sts = pthread_mutex_unlock( &_MutexThreadId ) ) ) {
     perror("pthread_mutex_lock _MutexThreadId ") ;
+    cout << "Component_i::beginService pthread_mutex_unlock _MutexThreadId sts " << sts << endl ;
     exit( 0 ) ;
   }
 
@@ -308,8 +318,8 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum ) {
 }
 
 bool Engines_Component_i::Kill_impl() {
-  cout << "Engines_Component_i::Kill_impl() pthread_t "<< pthread_self()
-           << " _ThreadId " << _ThreadId << " errno " << errno << endl ;
+  cout << "Begin Engines_Component_i::Kill_impl() pthread_t "<< pthread_self()
+       << " _ThreadId " << _ThreadId << " errno " << errno << endl ;
   bool RetVal = false ;
   if ( _ThreadId > 0 ) {
     if ( pthread_self() != _ThreadId ) { // Do not kill myself ...
@@ -317,6 +327,8 @@ bool Engines_Component_i::Kill_impl() {
     }
     _ThreadId = 0 ;
   }
+  cout << "End Engines_Component_i::Kill_impl() pthread_t "<< pthread_self()
+       << " _ThreadId " << _ThreadId << " errno " << errno << endl ;
   return RetVal ;
 }
 
@@ -405,6 +417,8 @@ long Engines_Component_i::CpuUsed() {
 
 CORBA::Long Engines_Component_i::CpuUsed_impl() {
   long cpu = 0 ;
+  cout << "Begin Engines_Component_i::CpuUsed_impl() pthread_t "<< pthread_self()
+       << " _ThreadId " << _ThreadId << " errno " << errno << endl ;
   if ( _ThreadId || _Executed ) {
     if ( _ThreadId > 0 ) {
       if ( pthread_self() != _ThreadId ) {
@@ -438,6 +452,8 @@ CORBA::Long Engines_Component_i::CpuUsed_impl() {
 //    cout << pthread_self() << "Engines_Component_i::CpuUsed_impl _ThreadId " << _ThreadId << " "
 //         << _serviceName << " _StartUsed " << _StartUsed << endl ;
   }
+  cout << "End Engines_Component_i::CpuUsed_impl() pthread_t "<< pthread_self()
+       << " _ThreadId " << _ThreadId << " errno " << errno << endl ;
   return cpu ;
 }
 
