@@ -123,7 +123,11 @@ except:
   print usage
   sys.exit(1)
 
-user_modules=os.environ["SALOME_USER_COMPONENTS"]
+try:
+   user_modules=os.environ["SALOME_USER_COMPONENTS"]
+except:
+   user_modules=None
+
 if user_modules:
    liste_modules = liste_modules + user_modules.split(',')
 
