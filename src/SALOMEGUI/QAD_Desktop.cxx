@@ -450,13 +450,16 @@ bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
   }
   else if ( e->type() == QEvent::User + 1 ) { // SALOME_Event has type QEvent::User + 1
     SALOME_Event* aSE = (SALOME_Event*)e;
-    
+    MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 1 : o = " << o << ", e = " << e);
     // here we do the job...
     for ( int i = 0; i < 100000; i++ ) {
     }
 
+    MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 2" );
     if ( aSE->getWaitCondition() )
       aSE->getWaitCondition()->wakeAll();
+    MESSAGE( "QAD_Desktop::eventFilter - SALOME_Event handling - 3" );
+    return TRUE;
   }
   return QMainWindow::eventFilter( o, e );
 }
