@@ -27,7 +27,7 @@
 #  $Header$
 
 top_srcdir=@top_srcdir@
-top_builddir=../../..
+top_builddir=../..
 srcdir=@srcdir@
 VPATH=.:@srcdir@:@top_srcdir@/idl
 
@@ -45,7 +45,7 @@ LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl
 BIN = TestContainer TestLogger
 BIN_SRC = 
 
-LDFLAGS+= -lSalomeNotification -lSalomeNS -lSalomeContainer -lRegistry -lOpUtil -lSalomeLoggerServer
+LDFLAGS+= -lSalomeNotification -lSalomeNS -lSalomeContainer -lRegistry -lOpUtil -lSALOMELocalTrace
 
 
 @CONCLUDE@
