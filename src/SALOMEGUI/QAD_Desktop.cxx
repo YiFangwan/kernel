@@ -71,6 +71,7 @@ using namespace std;
 
 #include "SALOMEGUI_CloseDlg.h"
 #include "SALOMEGUI_ActivateComponentDlg.h"
+#include "SALOMEGUI_VisuMutex.hxx"
 
 // QT Includes
 #include <qlabel.h>
@@ -1673,6 +1674,11 @@ bool QAD_Desktop::loadComponentData( const QString& compName )
   }
 
   Engines::Component_var comp ;
+  if ( compName.compare("VISU") == 0 )
+    {
+      VISU::Mutex::callFromGUI = 1;
+    }
+
   if ( compName.compare("SUPERV") == 0 ) {
     comp = getEngine( "SuperVisionContainer", compName) ;
   }

@@ -33,6 +33,8 @@ using namespace std;
 #include "SALOME_NamingService.hxx"
 #include "SALOME_Session_QThread.hxx"
 
+#include "SALOMEGUI_VisuMutex.hxx"
+
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
 #include <qapplication.h>
@@ -57,6 +59,7 @@ SALOME_Session_i::SALOME_Session_i(int argc, char ** argv, CORBA::ORB_ptr orb, P
   _runningStudies= 0 ;
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
+  VISU::Mutex::callFromGUI = 0;
   MESSAGE("constructor end");
 }
 

@@ -7,13 +7,14 @@
 
 namespace VISU
 {
-  
+
   class Mutex
   {
     QMutex* myMutex;
     QApplication* myQApp;
     int isQAppLocked, isSessionLocked, myDelay;
   public:
+    static int callFromGUI;
     Mutex(QMutex* theMutex, QApplication* theQApp, int theDelay = 0);
     ~Mutex();
   };

@@ -9,8 +9,11 @@ namespace VISU
 {
   static int mySCnt = 0;
   static int myQCnt = 0;
+
   //static QMutex localMutex;
   //static QMutex localSMutex;
+
+  int VISU::Mutex::callFromGUI;
 
   Mutex::Mutex(QMutex* theMutex, QApplication* theQApp, int theDelay) :
     myQApp(theQApp), myDelay(theDelay), myMutex(theMutex)
