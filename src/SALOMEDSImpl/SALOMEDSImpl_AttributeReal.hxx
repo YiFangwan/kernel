@@ -29,8 +29,8 @@ Standard_EXPORT  Standard_EXPORT static const Standard_GUID& GetID() ;
 
 Standard_EXPORT  SALOMEDSImpl_AttributeReal():SALOMEDSImpl_GenericAttribute("AttributeReal") {}
 Standard_EXPORT  static Handle(SALOMEDSImpl_AttributeReal) Set (const TDF_Label& L, const Standard_Real Val);
-Standard_EXPORT  void Set(const Standard_Real theVal);
-Standard_EXPORT  Standard_Real Get() const { return myValue; }  
+Standard_EXPORT  void SetValue(const Standard_Real theVal);
+Standard_EXPORT  Standard_Real Value() const { return myValue; }  
 Standard_EXPORT  virtual TCollection_AsciiString Save() { return TCollection_AsciiString(myValue); }
 Standard_EXPORT  virtual void Load(const TCollection_AsciiString& theValue) { myValue = theValue.RealValue(); } 
 

@@ -33,7 +33,7 @@ SALOMEDSImpl_AttributeExternalFileDef::Set (const TDF_Label& L, const TCollectio
     L.AddAttribute(A);
   }
   
-  A->Set (S); 
+  A->SetValue (S); 
   return A;
 }
 
@@ -48,10 +48,10 @@ SALOMEDSImpl_AttributeExternalFileDef::SALOMEDSImpl_AttributeExternalFileDef()
 }
 
 //=======================================================================
-//function : Set
+//function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeExternalFileDef::Set (const TCollection_ExtendedString& S)
+void SALOMEDSImpl_AttributeExternalFileDef::SetValue (const TCollection_ExtendedString& S)
 {
   CheckLocked();
 
@@ -86,7 +86,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeExternalFileDef::NewEmpty () const
 //=======================================================================
 void SALOMEDSImpl_AttributeExternalFileDef::Restore(const Handle(TDF_Attribute)& with) 
 {
-  myString = Handle(SALOMEDSImpl_AttributeExternalFileDef)::DownCast (with)->Get ();
+  myString = Handle(SALOMEDSImpl_AttributeExternalFileDef)::DownCast (with)->Value ();
 }
 
 //=======================================================================
@@ -97,6 +97,6 @@ void SALOMEDSImpl_AttributeExternalFileDef::Paste (const Handle(TDF_Attribute)& 
 						   const Handle(TDF_RelocationTable)& RT) const
 {
   Handle(SALOMEDSImpl_AttributeExternalFileDef) anAttr = Handle(SALOMEDSImpl_AttributeExternalFileDef)::DownCast(into); 
-  anAttr->Set(myString);
+  anAttr->SetValue(myString);
 }
 

@@ -27,15 +27,15 @@ Handle(SALOMEDSImpl_AttributeInteger) SALOMEDSImpl_AttributeInteger::Set (const 
     L.AddAttribute(A);
   }
 
-  A->Set(Val); 
+  A->SetValue(Val); 
   return A;
 }
 
 //=======================================================================
-//function : Set
+//function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeInteger::Set(const Standard_Integer v)
+void SALOMEDSImpl_AttributeInteger::SetValue(const Standard_Integer v)
 {
   if(myValue == v) return;
 
@@ -65,7 +65,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeInteger::NewEmpty () const
 //=======================================================================
 void SALOMEDSImpl_AttributeInteger::Restore(const Handle(TDF_Attribute)& With)
 {
-  myValue = Handle(SALOMEDSImpl_AttributeInteger)::DownCast (With)->Get();
+  myValue = Handle(SALOMEDSImpl_AttributeInteger)::DownCast (With)->Value();
 }
 
 //=======================================================================
@@ -75,5 +75,5 @@ void SALOMEDSImpl_AttributeInteger::Restore(const Handle(TDF_Attribute)& With)
 void SALOMEDSImpl_AttributeInteger::Paste (const Handle(TDF_Attribute)& Into,
 					   const Handle(TDF_RelocationTable)& RT) const
 {
-  Handle(SALOMEDSImpl_AttributeInteger)::DownCast(Into)->Set(myValue);
+  Handle(SALOMEDSImpl_AttributeInteger)::DownCast(Into)->SetValue(myValue);
 }             

@@ -402,7 +402,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectByPath(const TCollect
     for ( ; anIterator.More(); anIterator.Next() ) {
       aLabel = anIterator.Value();
       if(aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), anAttr)) {
-	if(anAttr->Get() == aToken) {
+	if(anAttr->Value() == aToken) {
 	  aToken = aPath.Token("/", i+1); //Check if it was the last part of the path
 	  if(aToken.Length() == 0) {  //The searched label is found (no part of the path is left)
 	      return GetSObject(aLabel);
@@ -568,7 +568,7 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetObjectNames(const 
   for(; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
     Handle(SALOMEDSImpl_AttributeName) aName;
-    if (aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aName)) aResultSeq->Append(aName->Get());
+    if (aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aName)) aResultSeq->Append(aName->Value());
   }
 
   return aResultSeq;
@@ -605,7 +605,7 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetDirectoryNames(con
       if (anID->Value() == DIRECTORYID) {
 	Handle(SALOMEDSImpl_AttributeName) aName;
 	if (aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aName)) {
-	  aResultSeq->Append(aName->Get());
+	  aResultSeq->Append(aName->Value());
 	}
       }
     }
@@ -645,7 +645,7 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetFileNames(const TC
       if (anID->Value() == FILELOCALID) {
 	Handle(SALOMEDSImpl_AttributePersistentRef) aName;
 	if(aLabel.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID(), aName)) {
-	  TCollection_ExtendedString aFileName = aName->Get();
+	  TCollection_ExtendedString aFileName = aName->Value();
 	  if(aFileName.Length() > 0)
 	    aResultSeq->Append(aFileName.Split(strlen(FILEID)));
 	}
@@ -670,7 +670,7 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetComponentNames(con
   for(; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
     Handle(SALOMEDSImpl_AttributeName) aName;
-    if (aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aName)) aResultSeq->Append(aName->Get());
+    if (aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aName)) aResultSeq->Append(aName->Value());
   }
 
   return aResultSeq;
@@ -833,7 +833,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::_FindObject(const Handle(SALOME
       {
 	if (it.Value().FindAttribute(SALOMEDSImpl_AttributeName::GetID(), anAttr)) 
 	{
-          TCollection_AsciiString Val(anAttr->Get());
+          TCollection_AsciiString Val(anAttr->Value());
 	  if (Val == theObjectName)
 	    {
 	      RefSO = GetSObject(it.Value());
@@ -921,6 +921,17 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_Study::GetStudy(const TDF_Label& theLabe
   return NULL;
 }
 
+Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::SObject(const TDF_Label& theLabel)
+{
+  return GetStudy(theLabel)->GetSObject(theLabel);
+}
+
+Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_Study::SComponent(const TDF_Label& theLabel)
+{
+  return GetStudy(theLabel)->GetSComponent(theLabel);
+}
+
+
 void SALOMEDSImpl_Study::IORUpdated(const Handle(SALOMEDSImpl_AttributeIOR)& theAttribute) 
 {
   TCollection_AsciiString aString;
@@ -931,17 +942,11 @@ void SALOMEDSImpl_Study::IORUpdated(const Handle(SALOMEDSImpl_AttributeIOR)& the
 Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_Study::FindDependances(const Handle(SALOMEDSImpl_SObject)& anObject) 
 {
   _errorCode = "";
-  Handle(TColStd_HSequenceOfTransient) aSeq = new TColStd_HSequenceOfTransient;
+  Handle(TColStd_HSequenceOfTransient) aSeq;
   
   Handle(SALOMEDSImpl_AttributeTarget) aTarget;
   if (anObject->GetLabel().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(), aTarget)) {
-    TDF_LabelList aLabelList; 
-    aTarget->Get(aLabelList);
-    TDF_ListIteratorOfLabelList anIter(aLabelList);
-    for(; anIter.More();anIter.Next()) {
-      aSeq->Append(GetSObject(anIter.Value()));
-    }                                                   
-    return aSeq;
+    return aTarget->Get();
   }
   
   return aSeq;

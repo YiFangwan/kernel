@@ -26,15 +26,15 @@ Handle(SALOMEDSImpl_AttributeReal) SALOMEDSImpl_AttributeReal::Set (const TDF_La
     L.AddAttribute(A);
   }
 
-  A->Set(Val); 
+  A->SetValue(Val); 
   return A;
 }
 
 //=======================================================================
-//function : Set
+//function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeReal::Set(const Standard_Real v)
+void SALOMEDSImpl_AttributeReal::SetValue(const Standard_Real v)
 {
   CheckLocked();
 
@@ -68,7 +68,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeReal::NewEmpty () const
 //=======================================================================
 void SALOMEDSImpl_AttributeReal::Restore(const Handle(TDF_Attribute)& with) 
 {
-  myValue = Handle(SALOMEDSImpl_AttributeReal)::DownCast (with)->Get ();
+  myValue = Handle(SALOMEDSImpl_AttributeReal)::DownCast (with)->Value ();
 }
 
 //=======================================================================
@@ -78,5 +78,5 @@ void SALOMEDSImpl_AttributeReal::Restore(const Handle(TDF_Attribute)& with)
 void SALOMEDSImpl_AttributeReal::Paste (const Handle(TDF_Attribute)& into,
 					const Handle(TDF_RelocationTable)& RT) const
 {
-  Handle(SALOMEDSImpl_AttributeReal)::DownCast (into)->Set(myValue);
+  Handle(SALOMEDSImpl_AttributeReal)::DownCast (into)->SetValue(myValue);
 }

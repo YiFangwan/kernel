@@ -34,8 +34,8 @@ Standard_EXPORT static  Handle_SALOMEDSImpl_AttributePersistentRef Set(const TDF
 								       const TCollection_ExtendedString& string) ;
 Standard_EXPORT SALOMEDSImpl_AttributePersistentRef();
 Standard_EXPORT  const Standard_GUID& ID() const;
-Standard_EXPORT void Set(const TCollection_ExtendedString& value); 
-Standard_EXPORT TCollection_ExtendedString Get() const { return myString; }
+Standard_EXPORT void SetValue(const TCollection_ExtendedString& value); 
+Standard_EXPORT TCollection_ExtendedString Value() const { return myString; }
 Standard_EXPORT   void Restore(const Handle(TDF_Attribute)& with) ;
 Standard_EXPORT   Handle_TDF_Attribute NewEmpty() const;
 Standard_EXPORT   void Paste(const Handle(TDF_Attribute)& into,const Handle(TDF_RelocationTable)& RT) const;

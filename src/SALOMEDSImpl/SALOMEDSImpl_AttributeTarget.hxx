@@ -11,7 +11,9 @@
 #include <TDF_Label.hxx>       
 #include <TDF_AttributeList.hxx>
 #include <TCollection_ExtendedString.hxx>
+#include <TColStd_HSequenceOfTransient.hxx>
 #include "SALOMEDSImpl_GenericAttribute.hxx"
+#include "SALOMEDSImpl_SObject.hxx"
 
 class Standard_GUID;
 class Handle(TDF_Attribute);
@@ -31,9 +33,9 @@ public:
 Standard_EXPORT static const Standard_GUID& GetID() ;
 Standard_EXPORT static  Handle_SALOMEDSImpl_AttributeTarget Set(const TDF_Label& label) ;
 Standard_EXPORT SALOMEDSImpl_AttributeTarget();
-Standard_EXPORT void SALOMEDSImpl_AttributeTarget::Append(TDF_Label& theReferencedObject);
-Standard_EXPORT void SALOMEDSImpl_AttributeTarget::Get(TDF_LabelList& theReferencedObjects);
-Standard_EXPORT void SALOMEDSImpl_AttributeTarget::Remove(TDF_Label& theReferencedObject);
+Standard_EXPORT void SALOMEDSImpl_AttributeTarget::Add(const Handle(SALOMEDSImpl_SObject)& theSO);
+Standard_EXPORT Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_AttributeTarget::Get();
+Standard_EXPORT void SALOMEDSImpl_AttributeTarget::Remove(const Handle(SALOMEDSImpl_SObject)& theSO);
 Standard_EXPORT TCollection_ExtendedString GetRelation() { return myRelation; }
 Standard_EXPORT void SetRelation(const TCollection_ExtendedString& theRelation); 
 Standard_EXPORT TDF_AttributeList& GetVariables() { return myVariables; }

@@ -32,8 +32,8 @@ Standard_EXPORT static const Standard_GUID& GetID() ;
 
 Standard_EXPORT  SALOMEDSImpl_AttributeName():SALOMEDSImpl_GenericAttribute("AttributeName") {}
 Standard_EXPORT  static Handle(SALOMEDSImpl_AttributeName) Set (const TDF_Label& L, const TCollection_ExtendedString& Val);
-Standard_EXPORT  void Set(const TCollection_ExtendedString& theVal);
-Standard_EXPORT  TCollection_ExtendedString Get() const { return myString; }  
+Standard_EXPORT  void SetValue(const TCollection_ExtendedString& theVal);
+Standard_EXPORT  TCollection_ExtendedString Value() const { return myString; }  
 
 Standard_EXPORT  virtual TCollection_AsciiString Save() { return myString; }
 Standard_EXPORT  virtual void Load(const TCollection_AsciiString& theValue) { myString = theValue; } 

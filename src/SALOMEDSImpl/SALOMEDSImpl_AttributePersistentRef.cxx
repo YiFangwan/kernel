@@ -36,7 +36,7 @@ Handle(SALOMEDSImpl_AttributePersistentRef) SALOMEDSImpl_AttributePersistentRef:
     L.AddAttribute(A);
   }
   
-  A->Set (S); 
+  A->SetValue (S); 
   return A;
 }
 
@@ -59,10 +59,10 @@ const Standard_GUID& SALOMEDSImpl_AttributePersistentRef::ID () const { return G
 
 
 //=======================================================================
-//function : Set
+//function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributePersistentRef::Set (const TCollection_ExtendedString& S)
+void SALOMEDSImpl_AttributePersistentRef::SetValue (const TCollection_ExtendedString& S)
 {
   CheckLocked();
 
@@ -90,7 +90,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributePersistentRef::NewEmpty () const
 
 void SALOMEDSImpl_AttributePersistentRef::Restore(const Handle(TDF_Attribute)& with) 
 {
-  myString = Handle(SALOMEDSImpl_AttributePersistentRef)::DownCast (with)->Get ();
+  myString = Handle(SALOMEDSImpl_AttributePersistentRef)::DownCast (with)->Value ();
 }
 
 //=======================================================================
@@ -101,6 +101,6 @@ void SALOMEDSImpl_AttributePersistentRef::Restore(const Handle(TDF_Attribute)& w
 void SALOMEDSImpl_AttributePersistentRef::Paste (const Handle(TDF_Attribute)& into,
 						 const Handle(TDF_RelocationTable)& RT) const
 {
-  Handle(SALOMEDSImpl_AttributePersistentRef)::DownCast (into)->Set(myString);
+  Handle(SALOMEDSImpl_AttributePersistentRef)::DownCast (into)->SetValue(myString);
 }
 

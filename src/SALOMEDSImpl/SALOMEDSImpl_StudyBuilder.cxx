@@ -185,7 +185,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObject(const Handle(SALOMEDSImpl_SObject)&
   if (Lab.FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aReference)) {
     Handle(SALOMEDSImpl_AttributeTarget) aTarget;
     if (aReference->Get().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(),aTarget))
-      aTarget->Remove(Lab);
+      aTarget->Remove(SALOMEDSImpl_Study::SObject(Lab));
   }
 
   Handle(SALOMEDSImpl_AttributeIOR) anAttr; // postponed removing of CORBA objects
@@ -218,7 +218,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const Handle(SALOMEDSIm
   if (Lab.FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aReference)) {
     Handle(SALOMEDSImpl_AttributeTarget) aTarget;
     if (aReference->Get().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(),aTarget))
-      aTarget->Remove(Lab);
+      aTarget->Remove(SALOMEDSImpl_Study::SObject(Lab));
   }
   Handle(SALOMEDSImpl_AttributeIOR) anAttr; // postponed removing of CORBA objects
   if (Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), anAttr))
@@ -230,7 +230,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const Handle(SALOMEDSIm
     if (aLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID(), aReference)) {
       Handle(SALOMEDSImpl_AttributeTarget) aTarget;
       if (aReference->Get().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(),aTarget))
-	aTarget->Remove(aLabel);
+	aTarget->Remove(SALOMEDSImpl_Study::SObject(aLabel));
     }
     Handle(SALOMEDSImpl_AttributeIOR) anAttr; // postponed removing of CORBA objects
     if (aLabel.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), anAttr))
@@ -258,12 +258,12 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
     int aLocked = anSCO->GetStudy()->GetProperties()->IsLocked();
     if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(false);
     
-    TCollection_ExtendedString Res(Att->Get());
+    TCollection_ExtendedString Res(Att->Value());
 
     Handle(SALOMEDSImpl_AttributeComment) type;
     TCollection_ExtendedString DataType;
     if (Lab.FindAttribute(SALOMEDSImpl_AttributeComment::GetID(),type))
-      DataType = type->Get();
+      DataType = type->Value();
 
     // associate the driver to the SComponent
     if(aDriver == NULL) {
@@ -540,7 +540,7 @@ bool SALOMEDSImpl_StudyBuilder::Addreference(const Handle(SALOMEDSImpl_SObject)&
   TDF_Label RefLab = theReferencedObject->GetLabel();
   SALOMEDSImpl_AttributeReference::Set(Lab,RefLab);
 
-  SALOMEDSImpl_AttributeTarget::Set(RefLab)->Append(Lab);
+  SALOMEDSImpl_AttributeTarget::Set(RefLab)->Add(SALOMEDSImpl_Study::SObject(Lab));
 
   if(!_callbackOnRemove.IsNull() && Lab.IsDescendant(_doc->Main())) _callbackOnRemove->OnRemoveSObject(me);
   return true;
@@ -567,7 +567,8 @@ bool SALOMEDSImpl_StudyBuilder::RemoveReference(const Handle(SALOMEDSImpl_SObjec
   TDF_Label RefLab = theReferencedObject->GetLabel();
        
   Handle(SALOMEDSImpl_AttributeTarget) aTarget;
-  if(RefLab.FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(), aTarget)) aTarget->Remove(Lab);
+  if(RefLab.FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(), aTarget)) 
+    aTarget->Remove(SALOMEDSImpl_Study::SObject(Lab));
   return true;
 }
 
@@ -966,8 +967,8 @@ static void Translate_persistentID_to_IOR(TDF_Label& Lab, SALOMEDSImpl_Driver* d
       if (current.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID(), anID)) 
 	if (anID->Value() == FILELOCALID) continue;        //SRN: This attribute store a file name, skip it 
 
-      TCollection_AsciiString persist_ref(Att->Get());
-      Handle(SALOMEDSImpl_SObject) so = SALOMEDSImpl_Study::GetStudy(current)->GetSObject(current);
+      TCollection_AsciiString persist_ref(Att->Value());
+      Handle(SALOMEDSImpl_SObject) so = SALOMEDSImpl_Study::SObject(current);
       TCollection_AsciiString ior_string = driver->LocalPersistentIDToIOR(so, 
 									  persist_ref, 
 									  isMultiFile, 

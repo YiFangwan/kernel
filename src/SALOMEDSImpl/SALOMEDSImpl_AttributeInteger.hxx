@@ -29,8 +29,8 @@ Standard_EXPORT static const Standard_GUID& GetID() ;
 
 Standard_EXPORT  SALOMEDSImpl_AttributeInteger():SALOMEDSImpl_GenericAttribute("AttributeInteger") {} 
 Standard_EXPORT  static Handle(SALOMEDSImpl_AttributeInteger) Set (const TDF_Label& L, Standard_Integer Val); 
-Standard_EXPORT  void Set(const Standard_Integer theVal);
-Standard_EXPORT  Standard_Integer Get() const { return myValue; } 
+Standard_EXPORT  void SetValue(const Standard_Integer theVal);
+Standard_EXPORT  Standard_Integer Value() const { return myValue; } 
 Standard_EXPORT  virtual TCollection_AsciiString Save() { return TCollection_AsciiString(myValue); }
 Standard_EXPORT  virtual void Load(const TCollection_AsciiString& theValue) { myValue = theValue.IntegerValue(); } 
 

@@ -13,6 +13,26 @@ using namespace std;
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeTableOfReal, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeTableOfReal, SALOMEDSImpl_GenericAttribute )
 
+#define SEPARATOR '\1'
+
+static TCollection_ExtendedString getUnit(TCollection_ExtendedString theString)
+{
+  TCollection_ExtendedString aString(theString);
+  int aPos = aString.Search(SEPARATOR);
+  if(aPos <= 0 || aPos == aString.Length() ) return TCollection_ExtendedString();
+  return aString.Split(aPos);
+}
+
+static TCollection_ExtendedString getTitle(TCollection_ExtendedString theString)
+{
+  TCollection_ExtendedString aString(theString);
+  int aPos = aString.Search(SEPARATOR);
+  if(aPos < 1) return aString;
+  if(aPos == 1) return TCollection_ExtendedString();
+  aString.Split(aPos-1);
+  return aString;
+}
+
 const Standard_GUID& SALOMEDSImpl_AttributeTableOfReal::GetID() 
 {
   static Standard_GUID SALOMEDSImpl_AttributeTableOfRealID ("128371A1-8F52-11d6-A8A3-0001021E8C7F");
@@ -110,19 +130,73 @@ Handle(TColStd_HSequenceOfReal) SALOMEDSImpl_AttributeTableOfReal::GetRowData(co
   return aSeq;
 }
 
+
 void SALOMEDSImpl_AttributeTableOfReal::SetRowTitle(const Standard_Integer theRow,
-		 				    const TCollection_ExtendedString& theTitle) 
+						       const TCollection_ExtendedString& theTitle) 
 {
   CheckLocked();  
   Backup();
-  myRows->SetValue(theRow,theTitle);
+  TCollection_ExtendedString aTitle(theTitle), aUnit = GetRowUnit(theRow);
+  if(aUnit.Length()>0) {
+    aTitle += SEPARATOR;
+    aTitle += aUnit;
+  }
+  myRows->SetValue(theRow, aTitle);
 }
+
+void SALOMEDSImpl_AttributeTableOfReal::SetRowUnit(const Standard_Integer theRow,
+						      const TCollection_ExtendedString& theUnit) 
+{
+  CheckLocked();  
+  Backup();
+  TCollection_ExtendedString aTitle = GetRowTitle(theRow);
+  aTitle += SEPARATOR;
+  aTitle += theUnit;
+
+  myRows->SetValue(theRow, aTitle);
+}
+
+void SALOMEDSImpl_AttributeTableOfReal::SetRowUnits(const Handle(TColStd_HSequenceOfExtendedString)& theUnits)
+{
+  if (theUnits->Length() != GetNbRows()) Standard_Failure::Raise("Invalid number of rows");
+  int aLength = theUnits->Length(), i;
+  for(i = 1; i <= aLength; i++) SetRowUnit(i, theUnits->Value(i));
+}
+
+Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfReal::GetRowUnits()
+{
+  Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString;
+  int aLength = myRows->Length(), i;
+  for(i=1; i<=aLength; i++) aSeq->Append(getUnit(myRows->Value(i)));
+  return aSeq;
+}
+
+void SALOMEDSImpl_AttributeTableOfReal::SetRowTitles(const Handle(TColStd_HSequenceOfExtendedString)& theTitles)
+{
+  if (theTitles->Length() != GetNbRows()) Standard_Failure::Raise("Invalid number of rows");
+  int aLength = theTitles->Length(), i;
+  for(i = 1; i <= aLength; i++) SetRowTitle(i, theTitles->Value(i));
+}
+
+Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfReal::GetRowTitles()
+{
+  Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString;
+  int aLength = myRows->Length(), i;
+  for(i=1; i<=aLength; i++) aSeq->Append(getTitle(myRows->Value(i)));
+  return aSeq;
+}
+
 
 TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfReal::GetRowTitle(const Standard_Integer theRow) const 
 {
-  return myRows->Value(theRow);
+  return getTitle(myRows->Value(theRow));
 }
 
+
+TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfReal::GetRowUnit(const Standard_Integer theRow) const 
+{
+  return getUnit(myRows->Value(theRow));
+}
 
 void SALOMEDSImpl_AttributeTableOfReal::SetColumnData(const Standard_Integer theColumn,
 						      const Handle(TColStd_HSequenceOfReal)& theData) 
@@ -178,6 +252,20 @@ TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfReal::GetColumnTitle(con
   return myCols->Value(theColumn);
 }
 
+void SALOMEDSImpl_AttributeTableOfReal::SetColumnTitles(const Handle(TColStd_HSequenceOfExtendedString)& theTitles)
+{
+  if (theTitles->Length() != myNbColumns) Standard_Failure::Raise("Invalid number of columns");
+  int aLength = theTitles->Length(), i;
+  for(i = 1; i <= aLength; i++)  myCols->SetValue(i, theTitles->Value(i));
+}
+
+Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfReal::GetColumnTitles()
+{
+  Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString;
+  int aLength = myCols->Length(), i;
+  for(i=1; i<=aLength; i++) aSeq->Append(myCols->Value(i));
+  return aSeq;
+}
 
 Standard_Integer SALOMEDSImpl_AttributeTableOfReal::GetNbRows() const
 {
@@ -210,6 +298,8 @@ void SALOMEDSImpl_AttributeTableOfReal::PutValue(const Standard_Real theValue,
 Standard_Boolean SALOMEDSImpl_AttributeTableOfReal::HasValue(const Standard_Integer theRow,
 							 const Standard_Integer theColumn) 
 {
+  if(theRow > myNbRows || theRow < 1) return Standard_False;
+  if(theColumn > myNbColumns || theColumn < 1) return Standard_False;
   Standard_Integer anIndex = (theRow-1)*myNbColumns + theColumn;
   return myTable.IsBound(anIndex); 
 }
@@ -217,6 +307,9 @@ Standard_Boolean SALOMEDSImpl_AttributeTableOfReal::HasValue(const Standard_Inte
 Standard_Real SALOMEDSImpl_AttributeTableOfReal::GetValue(const Standard_Integer theRow,
 						      const Standard_Integer theColumn) 
 {
+  if(theRow > myNbRows || theRow < 1) Standard_Failure::Raise("Invalid cell index");
+  if(theColumn > myNbColumns || theColumn < 1) Standard_Failure::Raise("Invalid cell index");
+
   Standard_Integer anIndex = (theRow-1)*myNbColumns + theColumn;
   if(myTable.IsBound(anIndex)) return myTable.Find(anIndex);
   

@@ -36,7 +36,7 @@ Handle(SALOMEDSImpl_AttributeOpened) SALOMEDSImpl_AttributeOpened::Set (const TD
     L.AddAttribute(A);
   }
   
-  A->Set (value); 
+  A->SetOpened (value); 
   return A;
 }
 
@@ -52,10 +52,10 @@ SALOMEDSImpl_AttributeOpened::SALOMEDSImpl_AttributeOpened()
 }
 
 //=======================================================================
-//function : Set
+//function : SetOpened
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeOpened::Set(const Standard_Integer theValue)
+void SALOMEDSImpl_AttributeOpened::SetOpened(const Standard_Integer theValue)
 {
   Backup();
 
@@ -87,7 +87,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeOpened::NewEmpty () const
 
 void SALOMEDSImpl_AttributeOpened::Restore(const Handle(TDF_Attribute)& with) 
 {
-  myValue = Handle(SALOMEDSImpl_AttributeOpened)::DownCast (with)->Get ();
+  myValue = Handle(SALOMEDSImpl_AttributeOpened)::DownCast (with)->IsOpened ();
 }
 
 //=======================================================================
@@ -98,6 +98,6 @@ void SALOMEDSImpl_AttributeOpened::Restore(const Handle(TDF_Attribute)& with)
 void SALOMEDSImpl_AttributeOpened::Paste (const Handle(TDF_Attribute)& into,
 					  const Handle(TDF_RelocationTable)& RT) const
 {
-  Handle(SALOMEDSImpl_AttributeOpened)::DownCast (into)->Set (myValue);
+  Handle(SALOMEDSImpl_AttributeOpened)::DownCast (into)->SetOpened (myValue);
 }
 

@@ -39,7 +39,7 @@ TCollection_AsciiString SALOMEDSImpl_SComponent::ComponentDataType()
   TCollection_AsciiString res = "";
   Handle(SALOMEDSImpl_AttributeComment) type;
   if ( _lab.FindAttribute(SALOMEDSImpl_AttributeComment::GetID(),type) ) {
-    res = type->Get();
+    res = type->Value();
   }
 
   return res;

@@ -553,8 +553,8 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 		    if(!aCompSpecificSO.IsNull()) {
 		      Handle(SALOMEDSImpl_AttributeInteger) anInteger;
 		      if(aCompSpecificSO->GetLabel().FindAttribute(SALOMEDSImpl_AttributeInteger::GetID(), anInteger)) {
-			anInteger->Set(-1);
-			while(anInteger->Get() < 0) { sleep(2); if(++aTimeOut > AUTO_SAVE_TIME_OUT_IN_SECONDS) break; }
+			anInteger->SetValue(-1);
+			while(anInteger->Value() < 0) { sleep(2); if(++aTimeOut > AUTO_SAVE_TIME_OUT_IN_SECONDS) break; }
 		      }  // if(aCompSpecificSO->FindAttribute(anInteger, "AttributeInteger"))
 		    }  // if(!CORBA::is_nil(aCompSpecificSO)) 
 		  }  // if (strcmp(aRow[0], componentDataType) == 0)
@@ -740,7 +740,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveObject(const Handle(SALOMEDSImpl_SObjec
 	if (anEmpty) continue;
       }
 
-      Handle(SALOMEDSImpl_SObject) SO = SALOMEDSImpl_Study::GetStudy(itchild.Value())->GetSObject(itchild.Value());
+      Handle(SALOMEDSImpl_SObject) SO = SALOMEDSImpl_Study::SObject(itchild.Value());
 
       char* scoid = (char*) SO->GetID().ToCString();
       hdf_group_sobject = new HDFgroup(scoid, hdf_group_datatype);
@@ -837,7 +837,7 @@ bool SALOMEDSImpl_StudyManager::CopyLabel(const Handle(SALOMEDSImpl_Study)& theS
       Handle(SALOMEDSImpl_AttributeName) aNameAttribute;
       if (aReferenced.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aNameAttribute)) {
 	anEntry += " ";
-	anEntry += aNameAttribute->Get();
+	anEntry += aNameAttribute->Value();
       }
       SALOMEDSImpl_AttributeComment::Set(aAuxTargetLabel, TCollection_ExtendedString(anEntry));
       continue;
@@ -952,7 +952,7 @@ bool SALOMEDSImpl_StudyManager::CanPaste(const Handle(SALOMEDSImpl_SObject)& the
     _errorCode = "component has no IOR";
     return false;
   }
-  return theEngine->CanPaste(aCompName->Get(), anObjID->Get());
+  return theEngine->CanPaste(aCompName->Value(), anObjID->Value());
 }
 
 //============================================================================
@@ -991,10 +991,10 @@ TDF_Label SALOMEDSImpl_StudyManager::PasteLabel(const Handle(SALOMEDSImpl_Study)
     aAuxSourceLabel.FindAttribute(SALOMEDSImpl_AttributeInteger::GetID(), anObjID);
     Handle(SALOMEDSImpl_AttributeComment) aComponentName;
     theSource.Root().FindAttribute(SALOMEDSImpl_AttributeComment::GetID(), aComponentName);
-    TCollection_AsciiString aCompName = aComponentName->Get();
+    TCollection_AsciiString aCompName = aComponentName->Value();
 
-    if (theEngine->CanPaste(aCompName, anObjID->Get())) {
-      TCollection_ExtendedString aTMPStr = aNameAttribute->Get();
+    if (theEngine->CanPaste(aCompName, anObjID->Value())) {
+      TCollection_ExtendedString aTMPStr = aNameAttribute->Value();
       int aLen = aTMPStr.Length();
       unsigned char* aStream = NULL;
       if(aLen > 0) {
@@ -1011,11 +1011,11 @@ TDF_Label SALOMEDSImpl_StudyManager::PasteLabel(const Handle(SALOMEDSImpl_Study)
       if (isFirstElement) {
 	TCollection_AsciiString aDestEntry = theEngine->PasteInto(aStream,
 								  aLen,
-								  anObjID->Get(), 
+								  anObjID->Value(), 
 								  aPastedSO->GetFatherComponent());
 	TDF_Tool::Label(theDestinationStart.Data(), aDestEntry, aTargetLabel);
       } else 
-	theEngine->PasteInto(aStream, aLen, anObjID->Get(), aPastedSO);
+	theEngine->PasteInto(aStream, aLen, anObjID->Value(), aPastedSO);
 
       if(aStream != NULL) delete []aStream;
     }
@@ -1038,8 +1038,8 @@ TDF_Label SALOMEDSImpl_StudyManager::PasteLabel(const Handle(SALOMEDSImpl_Study)
   // check auxiliary label for Comment => reference or name attribute of the referenced object
   Handle(SALOMEDSImpl_AttributeComment) aCommentAttribute;
   if (aAuxSourceLabel.FindAttribute(SALOMEDSImpl_AttributeComment::GetID(), aCommentAttribute)) {
-    char * anEntry = new char[aCommentAttribute->Get().Length() + 1];
-    strcpy(anEntry, TCollection_AsciiString(aCommentAttribute->Get()).ToCString());
+    char * anEntry = new char[aCommentAttribute->Value().Length() + 1];
+    strcpy(anEntry, TCollection_AsciiString(aCommentAttribute->Value()).ToCString());
     char* aNameStart = strchr(anEntry, ' ');
     if (aNameStart) {
       *aNameStart = '\0';
@@ -1049,7 +1049,8 @@ TDF_Label SALOMEDSImpl_StudyManager::PasteLabel(const Handle(SALOMEDSImpl_Study)
       TDF_Label aRefLabel;
       TDF_Tool::Label(aTargetLabel.Data(), anEntry, aRefLabel);
       SALOMEDSImpl_AttributeReference::Set(aTargetLabel, aRefLabel);
-      SALOMEDSImpl_AttributeTarget::Set(aRefLabel)->Append(aTargetLabel); // target attributes structure support
+      // target attributes structure support
+      SALOMEDSImpl_AttributeTarget::Set(aRefLabel)->Add(SALOMEDSImpl_Study::SObject(aTargetLabel)); 
     } else {
       if (aNameStart) SALOMEDSImpl_AttributeName::Set(aTargetLabel, aNameStart);
       else SALOMEDSImpl_AttributeName::Set(aTargetLabel, TCollection_ExtendedString("Reference to:")+anEntry);
@@ -1088,7 +1089,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyManager::Paste(const Handle(SALOM
     _errorCode = "No study ID was found"; 
     return NULL;
   }
-  int aCStudyID = aStudyIDAttribute->Get();
+  int aCStudyID = aStudyIDAttribute->Value();
 
   // CAF document of current study usage
   Handle(TDocStd_Document) aDocument = GetDocumentOfStudy(aStudy);
@@ -1117,7 +1118,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyManager::Paste(const Handle(SALOM
     PasteLabel(aStudy, theEngine, anIterator.Value(), aStartLabel, aCStudyID, false);
   }
 
-  return SALOMEDSImpl_Study::GetStudy(aStartLabel)->GetSObject(aStartLabel);
+  return SALOMEDSImpl_Study::SObject(aStartLabel);
 }
 
 //#######################################################################################################
@@ -1238,7 +1239,7 @@ static void Translate_IOR_to_persistentID (const Handle(SALOMEDSImpl_SObject)& s
   TCollection_AsciiString ior_string,  persistent_string, curid;
 
   for (; itchild.More(); itchild.Next()) {
-    Handle(SALOMEDSImpl_SObject) current = SALOMEDSImpl_Study::GetStudy(itchild.Value())->GetSObject(itchild.Value());
+    Handle(SALOMEDSImpl_SObject) current = SALOMEDSImpl_Study::SObject(itchild.Value());
     Handle(SALOMEDSImpl_AttributeIOR) IOR;
     if (current->GetLabel().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), IOR)) {
       ior_string = IOR->Value();

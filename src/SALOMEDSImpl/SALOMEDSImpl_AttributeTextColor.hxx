@@ -31,7 +31,7 @@ Standard_EXPORT static const Standard_GUID& GetID() ;
 Standard_EXPORT SALOMEDSImpl_AttributeTextColor();
 Standard_EXPORT  const Standard_GUID& ID() const;
 Standard_EXPORT  void SetTextColor(const Standard_Real R, const Standard_Real G, const Standard_Real B); 
-Standard_EXPORT  Handle(TColStd_HArray1OfReal) GetTextColor();  
+Standard_EXPORT  Handle(TColStd_HArray1OfReal) TextColor();  
 Standard_EXPORT  void ChangeArray(const Handle(TColStd_HArray1OfReal)& newArray);
 Standard_EXPORT   void Restore(const Handle(TDF_Attribute)& with) ;
 Standard_EXPORT   Handle_TDF_Attribute NewEmpty() const;

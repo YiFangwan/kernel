@@ -74,6 +74,6 @@ void SALOMEDSImpl_UseCaseIterator::Next()
 Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseIterator::Value()
 {
   TDF_Label L = _it.Value()->Label();
-  return SALOMEDSImpl_Study::GetStudy(L)->GetSObject(L);
+  return SALOMEDSImpl_Study::SObject(L);
 }
 

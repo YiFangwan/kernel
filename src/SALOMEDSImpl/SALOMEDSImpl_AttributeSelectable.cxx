@@ -36,7 +36,7 @@ Handle(SALOMEDSImpl_AttributeSelectable) SALOMEDSImpl_AttributeSelectable::Set (
     L.AddAttribute(A);
   }
   
-  A->Set (value); 
+  A->SetSelectable (value); 
   return A;
 }
 
@@ -52,10 +52,10 @@ SALOMEDSImpl_AttributeSelectable::SALOMEDSImpl_AttributeSelectable()
 }
 
 //=======================================================================
-//function : Set
+//function : SetSelectable
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeSelectable::Set(const Standard_Integer theValue)
+void SALOMEDSImpl_AttributeSelectable::SetSelectable(const Standard_Integer theValue)
 {
   Backup();
 
@@ -87,7 +87,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeSelectable::NewEmpty () const
 
 void SALOMEDSImpl_AttributeSelectable::Restore(const Handle(TDF_Attribute)& with) 
 {
-  myValue = Handle(SALOMEDSImpl_AttributeSelectable)::DownCast (with)->Get ();
+  myValue = Handle(SALOMEDSImpl_AttributeSelectable)::DownCast (with)->IsSelectable ();
 }
 
 //=======================================================================
@@ -98,6 +98,6 @@ void SALOMEDSImpl_AttributeSelectable::Restore(const Handle(TDF_Attribute)& with
 void SALOMEDSImpl_AttributeSelectable::Paste (const Handle(TDF_Attribute)& into,
                                               const Handle(TDF_RelocationTable)& RT) const
 {
-  Handle(SALOMEDSImpl_AttributeSelectable)::DownCast (into)->Set (myValue);
+  Handle(SALOMEDSImpl_AttributeSelectable)::DownCast (into)->SetSelectable (myValue);
 }
 

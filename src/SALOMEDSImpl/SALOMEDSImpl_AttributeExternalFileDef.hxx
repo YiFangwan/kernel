@@ -26,8 +26,8 @@ Standard_EXPORT static const Standard_GUID& GetID() ;
 Standard_EXPORT static  Handle_SALOMEDSImpl_AttributeExternalFileDef Set(const TDF_Label& label,
 									 const TCollection_ExtendedString& Name);
 Standard_EXPORT SALOMEDSImpl_AttributeExternalFileDef();
-Standard_EXPORT void Set(const TCollection_ExtendedString& value); 
-Standard_EXPORT TCollection_ExtendedString Get() const { return myString; }
+Standard_EXPORT void SetValue(const TCollection_ExtendedString& value); 
+Standard_EXPORT TCollection_ExtendedString Value() const { return myString; }
 Standard_EXPORT  const Standard_GUID& ID() const;
 Standard_EXPORT   void Restore(const Handle(TDF_Attribute)& with) ;
 Standard_EXPORT   Handle_TDF_Attribute NewEmpty() const;

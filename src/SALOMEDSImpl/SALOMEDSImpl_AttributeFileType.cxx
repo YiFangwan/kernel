@@ -37,7 +37,7 @@ Handle(SALOMEDSImpl_AttributeFileType) SALOMEDSImpl_AttributeFileType::Set (cons
     L.AddAttribute(A);
   }
   
-  A->Set (S); 
+  A->SetValue (S); 
   return A;
 }
 
@@ -52,10 +52,10 @@ SALOMEDSImpl_AttributeFileType::SALOMEDSImpl_AttributeFileType()
 }
 
 //=======================================================================
-//function : Set
+//function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeFileType::Set (const TCollection_ExtendedString& S)
+void SALOMEDSImpl_AttributeFileType::SetValue (const TCollection_ExtendedString& S)
 {
   CheckLocked();
 
@@ -91,7 +91,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeFileType::NewEmpty () const
 
 void SALOMEDSImpl_AttributeFileType::Restore(const Handle(TDF_Attribute)& with) 
 {
-  myString = Handle(SALOMEDSImpl_AttributeFileType)::DownCast (with)->Get ();
+  myString = Handle(SALOMEDSImpl_AttributeFileType)::DownCast (with)->Value ();
 }
 
 //=======================================================================
@@ -102,6 +102,6 @@ void SALOMEDSImpl_AttributeFileType::Restore(const Handle(TDF_Attribute)& with)
 void SALOMEDSImpl_AttributeFileType::Paste (const Handle(TDF_Attribute)& into,
 					    const Handle(TDF_RelocationTable)& RT) const
 {
-  Handle(SALOMEDSImpl_AttributeFileType)::DownCast (into)->Set (myString);
+  Handle(SALOMEDSImpl_AttributeFileType)::DownCast (into)->SetValue (myString);
 }
 

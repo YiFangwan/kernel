@@ -79,6 +79,8 @@ private:
 public:
 
   static Handle(SALOMEDSImpl_Study) GetStudy(const TDF_Label& theLabel);
+  static Handle(SALOMEDSImpl_SObject) SObject(const TDF_Label& theLabel);
+  static Handle(SALOMEDSImpl_SComponent) SComponent(const TDF_Label& theLabel);
   static void IORUpdated(const Handle(SALOMEDSImpl_AttributeIOR)& theAttribute);
 
   //! standard constructor

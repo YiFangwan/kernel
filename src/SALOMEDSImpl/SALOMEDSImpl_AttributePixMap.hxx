@@ -36,8 +36,9 @@ Standard_EXPORT static  Handle_SALOMEDSImpl_AttributePixMap Set(const TDF_Label&
 								const TCollection_ExtendedString& string) ;
 Standard_EXPORT SALOMEDSImpl_AttributePixMap();
 Standard_EXPORT  const Standard_GUID& ID() const;
-Standard_EXPORT void Set(const TCollection_ExtendedString& value); 
-Standard_EXPORT TCollection_ExtendedString Get() const { return myString; } 
+Standard_EXPORT void SetPixMap(const TCollection_ExtendedString& value); 
+Standard_EXPORT TCollection_ExtendedString GetPixMap() const { return myString; }
+Standard_EXPORT Standard_Boolean HasPixMap() const { return (myString != "None"); } 
 Standard_EXPORT   void Restore(const Handle(TDF_Attribute)& with) ;
 Standard_EXPORT   Handle_TDF_Attribute NewEmpty() const;
 Standard_EXPORT   void Paste(const Handle(TDF_Attribute)& into,const Handle(TDF_RelocationTable)& RT) const;

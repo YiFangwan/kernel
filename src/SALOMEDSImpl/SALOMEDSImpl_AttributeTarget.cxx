@@ -5,6 +5,7 @@
 using namespace std;
 #include "SALOMEDSImpl_AttributeTarget.hxx"
 #include "SALOMEDSImpl_AttributeReference.hxx"
+#include "SALOMEDSImpl_Study.hxx"
 #include <TDF_RelocationTable.hxx>
 #include <TDF_ListIteratorOfAttributeList.hxx>
 #include <Standard_GUID.hxx>
@@ -60,16 +61,17 @@ void SALOMEDSImpl_AttributeTarget::SetRelation(const TCollection_ExtendedString&
 }
 
 //=======================================================================
-//function : Append
+//function : Add
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeTarget::Append(TDF_Label& theReferencedObject) 
+void SALOMEDSImpl_AttributeTarget::Add(const Handle(SALOMEDSImpl_SObject)& theSO) 
 {
   Backup();
+  TDF_Label aRefLabel = theSO->GetLabel();
   Handle(SALOMEDSImpl_AttributeReference) aReference;
-  if (theReferencedObject.FindAttribute(SALOMEDSImpl_AttributeReference::GetID(),aReference)) {
+  if (aRefLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID(),aReference)) {
     TDF_ListIteratorOfAttributeList anIter(GetVariables());
-    for(;anIter.More();anIter.Next()) if(anIter.Value()->Label() == theReferencedObject) return; //BugID: PAL6192    
+    for(;anIter.More();anIter.Next()) if(anIter.Value()->Label() == aRefLabel) return; //BugID: PAL6192    
     GetVariables().Append(aReference);
   } 
 }
@@ -78,25 +80,29 @@ void SALOMEDSImpl_AttributeTarget::Append(TDF_Label& theReferencedObject)
 //function : Get
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeTarget::Get(TDF_LabelList& theReferencedObjects) 
+Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_AttributeTarget::Get() 
 {
-  theReferencedObjects.Clear();
+  Handle(TColStd_HSequenceOfTransient) aSeq = new TColStd_HSequenceOfTransient;
+  
   TDF_ListIteratorOfAttributeList anIter(GetVariables());
   for(;anIter.More();anIter.Next()) {
-    theReferencedObjects.Append(anIter.Value()->Label());
+    const TDF_Label& aLabel = anIter.Value()->Label();
+   aSeq->Append( SALOMEDSImpl_Study::SObject(aLabel));
   }
+  return aSeq;
 }
 
 //=======================================================================
 //function : Remove
 //purpose  : 
 //=======================================================================
-void SALOMEDSImpl_AttributeTarget::Remove(TDF_Label& theReferencedObject) 
+void SALOMEDSImpl_AttributeTarget::Remove(const Handle(SALOMEDSImpl_SObject)& theSO) 
 {
   Backup();
+  TDF_Label aRefLabel = theSO->GetLabel();
   TDF_ListIteratorOfAttributeList anIter(GetVariables());
   for(;anIter.More();anIter.Next()) {
-    if (anIter.Value()->Label() == theReferencedObject) {
+    if (anIter.Value()->Label() == aRefLabel) {
       GetVariables().Remove(anIter);
       return;
     }

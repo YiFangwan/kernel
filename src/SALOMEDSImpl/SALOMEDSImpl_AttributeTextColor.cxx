@@ -47,10 +47,10 @@ void SALOMEDSImpl_AttributeTextColor::SetTextColor(const Standard_Real R, const 
 }
 
 //=======================================================================
-//function : GetTextColor
+//function : TextColor
 //purpose  :
 //=======================================================================
-Handle(TColStd_HArray1OfReal) SALOMEDSImpl_AttributeTextColor::GetTextColor()
+Handle(TColStd_HArray1OfReal) SALOMEDSImpl_AttributeTextColor::TextColor()
 {
   return myValue; 
 }
@@ -92,7 +92,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeTextColor::NewEmpty () const
 
 void SALOMEDSImpl_AttributeTextColor::Restore(const Handle(TDF_Attribute)& with) 
 {
-  Handle(TColStd_HArray1OfReal) s = Handle(SALOMEDSImpl_AttributeTextColor)::DownCast (with)->GetTextColor ();
+  Handle(TColStd_HArray1OfReal) s = Handle(SALOMEDSImpl_AttributeTextColor)::DownCast (with)->TextColor ();
   ChangeArray(s);
   return;
 }

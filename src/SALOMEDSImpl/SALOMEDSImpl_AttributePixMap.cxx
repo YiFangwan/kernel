@@ -37,7 +37,7 @@ Handle(SALOMEDSImpl_AttributePixMap) SALOMEDSImpl_AttributePixMap::Set (const TD
     L.AddAttribute(A);
   }
   
-  A->Set (S); 
+  A->SetPixMap (S); 
   return A;
 }
 
@@ -53,10 +53,10 @@ SALOMEDSImpl_AttributePixMap::SALOMEDSImpl_AttributePixMap()
 }
 
 //=======================================================================
-//function : Set
+//function : SetPixMap
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributePixMap::Set (const TCollection_ExtendedString& S)
+void SALOMEDSImpl_AttributePixMap::SetPixMap (const TCollection_ExtendedString& S)
 {
   CheckLocked();
 
@@ -92,7 +92,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributePixMap::NewEmpty () const
 
 void SALOMEDSImpl_AttributePixMap::Restore(const Handle(TDF_Attribute)& with) 
 {
-  myString = Handle(SALOMEDSImpl_AttributePixMap)::DownCast (with)->Get ();
+  myString = Handle(SALOMEDSImpl_AttributePixMap)::DownCast (with)->GetPixMap ();
 }
 
 //=======================================================================
@@ -103,6 +103,6 @@ void SALOMEDSImpl_AttributePixMap::Restore(const Handle(TDF_Attribute)& with)
 void SALOMEDSImpl_AttributePixMap::Paste (const Handle(TDF_Attribute)& into,
 		           const Handle(TDF_RelocationTable)& RT) const
 {
-  Handle(SALOMEDSImpl_AttributePixMap)::DownCast (into)->Set (myString);
+  Handle(SALOMEDSImpl_AttributePixMap)::DownCast (into)->SetPixMap (myString);
 }
 

@@ -14,6 +14,26 @@ IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeTableOfString, SALOMEDSImpl_Ge
 
 typedef NCollection_DataMap<Standard_Integer, TCollection_ExtendedString>::Iterator DataMapIterator;
 
+#define SEPARATOR '\1'
+
+static TCollection_ExtendedString getUnit(TCollection_ExtendedString theString)
+{
+  TCollection_ExtendedString aString(theString);
+  int aPos = aString.Search(SEPARATOR);
+  if(aPos <= 0 || aPos == aString.Length() ) return TCollection_ExtendedString();
+  return aString.Split(aPos);
+}
+
+static TCollection_ExtendedString getTitle(TCollection_ExtendedString theString)
+{
+  TCollection_ExtendedString aString(theString);
+  int aPos = aString.Search(SEPARATOR);
+  if(aPos < 1) return aString;
+  if(aPos == 1) return TCollection_ExtendedString();
+  aString.Split(aPos-1);
+  return aString;
+}
+
 const Standard_GUID& SALOMEDSImpl_AttributeTableOfString::GetID() 
 {
   static Standard_GUID SALOMEDSImpl_AttributeTableOfStringID ("128371A4-8F52-11d6-A8A3-0001021E8C7F");
@@ -65,16 +85,71 @@ void SALOMEDSImpl_AttributeTableOfString::SetNbColumns(const Standard_Integer th
   }
 }
 
-void SALOMEDSImpl_AttributeTableOfString::SetTitle(const TCollection_ExtendedString& theTitle) 
+void SALOMEDSImpl_AttributeTableOfString::SetRowTitle(const Standard_Integer theRow,
+						      const TCollection_ExtendedString& theTitle) 
 {
   CheckLocked();  
   Backup();
-  myTitle = theTitle;
+  TCollection_ExtendedString aTitle(theTitle), aUnit = GetRowUnit(theRow);
+  if(aUnit.Length()>0) {
+    aTitle += SEPARATOR;
+    aTitle += aUnit;
+  }
+  myRows->SetValue(theRow, aTitle);
 }
 
-TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfString::GetTitle() const 
+void SALOMEDSImpl_AttributeTableOfString::SetRowUnit(const Standard_Integer theRow,
+						      const TCollection_ExtendedString& theUnit) 
 {
-  return myTitle;
+  CheckLocked();  
+  Backup();
+  TCollection_ExtendedString aTitle = GetRowTitle(theRow);
+  aTitle += SEPARATOR;
+  aTitle += theUnit;
+
+  myRows->SetValue(theRow, aTitle);
+}
+
+void SALOMEDSImpl_AttributeTableOfString::SetRowUnits(const Handle(TColStd_HSequenceOfExtendedString)& theUnits)
+{
+  if (theUnits->Length() != GetNbRows()) Standard_Failure::Raise("Invalid number of rows");
+  int aLength = theUnits->Length(), i;
+  for(i = 1; i <= aLength; i++) SetRowUnit(i, theUnits->Value(i));
+}
+
+Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfString::GetRowUnits()
+{
+  Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString;
+  int aLength = myRows->Length(), i;
+  for(i=1; i<=aLength; i++) aSeq->Append(getUnit(myRows->Value(i)));
+  return aSeq;
+}
+
+void SALOMEDSImpl_AttributeTableOfString::SetRowTitles(const Handle(TColStd_HSequenceOfExtendedString)& theTitles)
+{
+  if (theTitles->Length() != GetNbRows()) Standard_Failure::Raise("Invalid number of rows");
+  int aLength = theTitles->Length(), i;
+  for(i = 1; i <= aLength; i++) SetRowTitle(i, theTitles->Value(i));
+}
+
+Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfString::GetRowTitles()
+{
+  Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString;
+  int aLength = myRows->Length(), i;
+  for(i=1; i<=aLength; i++) aSeq->Append(getTitle(myRows->Value(i)));
+  return aSeq;
+}
+
+
+TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfString::GetRowTitle(const Standard_Integer theRow) const 
+{
+  return getTitle(myRows->Value(theRow));
+}
+
+
+TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfString::GetRowUnit(const Standard_Integer theRow) const 
+{
+  return getUnit(myRows->Value(theRow));
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetRowData(const Standard_Integer theRow,
@@ -97,6 +172,18 @@ void SALOMEDSImpl_AttributeTableOfString::SetRowData(const Standard_Integer theR
   if(theRow > myNbRows) myNbRows = theRow;
 }
 
+void SALOMEDSImpl_AttributeTableOfString::SetTitle(const TCollection_ExtendedString& theTitle) 
+{
+  CheckLocked();  
+  Backup();
+  myTitle = theTitle;
+}
+
+TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfString::GetTitle() const 
+{
+  return myTitle;
+}
+
 Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfString::GetRowData(const Standard_Integer theRow)
 {
   Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString();
@@ -110,20 +197,6 @@ Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfString::G
   
   return aSeq;
 }
-
-void SALOMEDSImpl_AttributeTableOfString::SetRowTitle(const Standard_Integer theRow,
-						      const TCollection_ExtendedString& theTitle) 						      
-{
-  CheckLocked();  
-  Backup();
-  myRows->SetValue(theRow,theTitle);
-}
-
-TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfString::GetRowTitle(const Standard_Integer theRow) const 
-{
-  return myRows->Value(theRow);
-}
-
 
 void SALOMEDSImpl_AttributeTableOfString::SetColumnData(const Standard_Integer theColumn,
 						        const Handle(TColStd_HSequenceOfExtendedString)& theData) 
@@ -180,6 +253,22 @@ TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfString::GetColumnTitle(c
 }
 
 
+void SALOMEDSImpl_AttributeTableOfString::SetColumnTitles(const Handle(TColStd_HSequenceOfExtendedString)& theTitles)
+{
+  if (theTitles->Length() != myNbColumns) Standard_Failure::Raise("Invalid number of columns");
+  int aLength = theTitles->Length(), i;
+  for(i = 1; i <= aLength; i++)  myCols->SetValue(i, theTitles->Value(i));
+}
+
+Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfString::GetColumnTitles()
+{
+  Handle(TColStd_HSequenceOfExtendedString) aSeq = new TColStd_HSequenceOfExtendedString;
+  int aLength = myCols->Length(), i;
+  for(i=1; i<=aLength; i++) aSeq->Append(myCols->Value(i));
+  return aSeq;
+}
+
+
 Standard_Integer SALOMEDSImpl_AttributeTableOfString::GetNbRows() const
 {
   return myNbRows;
@@ -209,15 +298,21 @@ void SALOMEDSImpl_AttributeTableOfString::PutValue(const TCollection_ExtendedStr
 }
 
 Standard_Boolean SALOMEDSImpl_AttributeTableOfString::HasValue(const Standard_Integer theRow,
-							   const Standard_Integer theColumn) 
+							       const Standard_Integer theColumn) 
 {
+  if(theRow > myNbRows || theRow < 1) return Standard_False;
+  if(theColumn > myNbColumns || theColumn < 1) return Standard_False;
+
   Standard_Integer anIndex = (theRow-1)*myNbColumns + theColumn;
   return myTable.IsBound(anIndex); 
 }
 
 TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfString::GetValue(const Standard_Integer theRow,
-						                     const Standard_Integer theColumn) 
+									 const Standard_Integer theColumn) 
 {
+  if(theRow > myNbRows || theRow < 1) Standard_Failure::Raise("Invalid cell index");
+  if(theColumn > myNbColumns || theColumn < 1) Standard_Failure::Raise("Invalid cell index");
+
   Standard_Integer anIndex = (theRow-1)*myNbColumns + theColumn;
   if(myTable.IsBound(anIndex)) return myTable.Find(anIndex);
   

@@ -26,14 +26,14 @@ Standard_Integer myValue;
 
 public:
 
-Standard_EXPORT virtual TCollection_AsciiString Save() { return (Get() == 0)?(char*)"0":(char*)"1"; }
+Standard_EXPORT virtual TCollection_AsciiString Save() { return (myValue == 0)?(char*)"0":(char*)"1"; }
 Standard_EXPORT virtual void Load(const TCollection_AsciiString& theValue) { (theValue == "0")?myValue=0:myValue=1; } 
 
 Standard_EXPORT static const Standard_GUID& GetID() ;
 Standard_EXPORT static  Handle_SALOMEDSImpl_AttributeExpandable Set(const TDF_Label& label,const Standard_Integer value) ;
 Standard_EXPORT SALOMEDSImpl_AttributeExpandable();
-Standard_EXPORT void Set(const Standard_Integer value); 
-Standard_EXPORT int Get() const { return myValue; }
+Standard_EXPORT void SetExpandable(const Standard_Integer value); 
+Standard_EXPORT int IsExpandable() const { return myValue; }
 Standard_EXPORT  const Standard_GUID& ID() const;
 Standard_EXPORT   void Restore(const Handle(TDF_Attribute)& with) ;
 Standard_EXPORT   Handle_TDF_Attribute NewEmpty() const;

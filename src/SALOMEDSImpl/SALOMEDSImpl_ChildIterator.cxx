@@ -17,7 +17,7 @@ SALOMEDSImpl_ChildIterator::SALOMEDSImpl_ChildIterator(const Handle(SALOMEDSImpl
 
 SALOMEDSImpl_ChildIterator::SALOMEDSImpl_ChildIterator(const TDF_Label& theLabel)
 {
-  _so  = SALOMEDSImpl_Study::GetStudy(theLabel)->GetSObject(theLabel);
+  _so  = SALOMEDSImpl_Study::SObject(theLabel);
   _it = TDF_ChildIterator(theLabel);
 }
 
@@ -53,7 +53,7 @@ void SALOMEDSImpl_ChildIterator::Next()
 
 Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_ChildIterator::Value()
 {
-  return SALOMEDSImpl_Study::GetStudy(_it.Value())->GetSObject(_it.Value());
+  return SALOMEDSImpl_Study::SObject(_it.Value());
 }
 
 TDF_Label SALOMEDSImpl_ChildIterator::Label()

@@ -41,12 +41,12 @@ const Standard_GUID& SALOMEDSImpl_AttributeTextHighlightColor::ID () const { ret
 
 
 //=======================================================================
-//function : SetTextColor
+//function : SetTextHighlightColor
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeTextHighlightColor::SetTextColor(const Standard_Real R, 
-							    const Standard_Real G, 
-							    const Standard_Real B)
+void SALOMEDSImpl_AttributeTextHighlightColor::SetTextHighlightColor(const Standard_Real R, 
+							             const Standard_Real G, 
+							             const Standard_Real B)
 {
    CheckLocked();
    if(myValue.IsNull()) return;  
@@ -58,10 +58,10 @@ void SALOMEDSImpl_AttributeTextHighlightColor::SetTextColor(const Standard_Real 
 }
 	    
 //=======================================================================
-//function : GetTextColor
+//function : TextHighlightColor
 //purpose  :
 //=======================================================================
-Handle(TColStd_HArray1OfReal) SALOMEDSImpl_AttributeTextHighlightColor::GetTextColor()
+Handle(TColStd_HArray1OfReal) SALOMEDSImpl_AttributeTextHighlightColor::TextHighlightColor()
 {
    return myValue;
 }      
@@ -95,7 +95,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeTextHighlightColor::NewEmpty () cons
 
 void SALOMEDSImpl_AttributeTextHighlightColor::Restore(const Handle(TDF_Attribute)& with) 
 {
-  Handle(TColStd_HArray1OfReal) s = Handle(SALOMEDSImpl_AttributeTextHighlightColor)::DownCast (with)->GetTextColor ();
+  Handle(TColStd_HArray1OfReal) s = Handle(SALOMEDSImpl_AttributeTextHighlightColor)::DownCast (with)->TextHighlightColor ();
   ChangeArray(s);
   return;
 }

@@ -31,8 +31,8 @@ Standard_EXPORT  virtual void Load(const TCollection_AsciiString& theValue) { (t
 Standard_EXPORT static const Standard_GUID& GetID() ;
 Standard_EXPORT static  Handle_SALOMEDSImpl_AttributeDrawable Set(const TDF_Label& label,const Standard_Integer value) ;
 
-Standard_EXPORT void Set(const Standard_Integer theValue); 
-Standard_EXPORT Standard_Integer Get() const { return myValue; }
+Standard_EXPORT void SetDrawable(const Standard_Integer theValue); 
+Standard_EXPORT Standard_Integer IsDrawable() const { return myValue; }
 Standard_EXPORT SALOMEDSImpl_AttributeDrawable();
 Standard_EXPORT  const Standard_GUID& ID() const;
 Standard_EXPORT   void Restore(const Handle(TDF_Attribute)& with) ;

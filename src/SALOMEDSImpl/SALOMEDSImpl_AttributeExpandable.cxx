@@ -33,7 +33,7 @@ Handle(SALOMEDSImpl_AttributeExpandable) SALOMEDSImpl_AttributeExpandable::Set (
     L.AddAttribute(A);
   }
   
-  A->Set(value); 
+  A->SetExpandable(value); 
   return A;
 }
 
@@ -49,10 +49,10 @@ SALOMEDSImpl_AttributeExpandable::SALOMEDSImpl_AttributeExpandable()
 }
 
 //=======================================================================
-//function : Set
+//function : SetExpandable
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeExpandable::Set(const Standard_Integer theValue)
+void SALOMEDSImpl_AttributeExpandable::SetExpandable(const Standard_Integer theValue)
 {
   CheckLocked();
 
@@ -86,7 +86,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeExpandable::NewEmpty () const
 
 void SALOMEDSImpl_AttributeExpandable::Restore(const Handle(TDF_Attribute)& with) 
 {
-  myValue = Handle(SALOMEDSImpl_AttributeExpandable)::DownCast (with)->Get ();
+  myValue = Handle(SALOMEDSImpl_AttributeExpandable)::DownCast (with)->IsExpandable ();
 }
 
 //=======================================================================
@@ -97,6 +97,6 @@ void SALOMEDSImpl_AttributeExpandable::Restore(const Handle(TDF_Attribute)& with
 void SALOMEDSImpl_AttributeExpandable::Paste (const Handle(TDF_Attribute)& into,
                                     const Handle(TDF_RelocationTable)& RT) const
 {
-  Handle(SALOMEDSImpl_AttributeExpandable)::DownCast (into)->Set (myValue);
+  Handle(SALOMEDSImpl_AttributeExpandable)::DownCast (into)->SetExpandable (myValue);
 }
 

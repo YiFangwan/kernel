@@ -27,15 +27,15 @@ Handle(SALOMEDSImpl_AttributeName) SALOMEDSImpl_AttributeName::Set (const TDF_La
     L.AddAttribute(A);
   }
 
-  A->Set(Val);   
+  A->SetValue(Val);   
   return A;
 }
 
 //=======================================================================
-//function : Set
+//function : SetValue
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeName::Set (const TCollection_ExtendedString& S)
+void SALOMEDSImpl_AttributeName::SetValue (const TCollection_ExtendedString& S)
 {
   CheckLocked();
 
@@ -68,7 +68,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeName::NewEmpty () const
 //=======================================================================
 void SALOMEDSImpl_AttributeName::Restore(const Handle(TDF_Attribute)& with) 
 {
-  myString = Handle(SALOMEDSImpl_AttributeName)::DownCast (with)->Get ();
+  myString = Handle(SALOMEDSImpl_AttributeName)::DownCast (with)->Value ();
 }
 
 //=======================================================================
@@ -79,5 +79,5 @@ void SALOMEDSImpl_AttributeName::Restore(const Handle(TDF_Attribute)& with)
 void SALOMEDSImpl_AttributeName::Paste (const Handle(TDF_Attribute)& into,
 					   const Handle(TDF_RelocationTable)& RT) const
 {
-  Handle(SALOMEDSImpl_AttributeName)::DownCast (into)->Set(myString);
+  Handle(SALOMEDSImpl_AttributeName)::DownCast (into)->SetValue(myString);
 }

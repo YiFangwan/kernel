@@ -44,7 +44,7 @@ int main (int argc, char * argv[])
   cout << "Just another way to create an attribute: official one :) " << endl;
   Handle(TDF_Attribute) aTDFAttr =  aBuilder->FindOrCreateAttribute(aSO, "AttributeName");  
   Handle(SALOMEDSImpl_AttributeName) aRN = Handle(SALOMEDSImpl_AttributeName)::DownCast(aTDFAttr);
-  aRN->Set("name_attribute");
+  aRN->SetValue("name_attribute");
   cout << " The type = " << aRN->Type() << endl;
   ga = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(aRN);
   cout << "Attribute has type: " << ga->Type() << " and value: " << ga->Save() << endl;   

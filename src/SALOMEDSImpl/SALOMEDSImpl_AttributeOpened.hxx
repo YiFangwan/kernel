@@ -31,8 +31,8 @@ Standard_EXPORT virtual void Load(const TCollection_AsciiString& theValue) { (th
 Standard_EXPORT static const Standard_GUID& GetID() ;
 Standard_EXPORT static  Handle_SALOMEDSImpl_AttributeOpened Set(const TDF_Label& label,const Standard_Integer value) ;
 Standard_EXPORT SALOMEDSImpl_AttributeOpened();
-Standard_EXPORT void Set(const Standard_Integer value); 
-Standard_EXPORT int Get() const { return myValue; }  
+Standard_EXPORT void SetOpened(const Standard_Integer value); 
+Standard_EXPORT int IsOpened() const { return myValue; }  
 Standard_EXPORT  const Standard_GUID& ID() const;
 Standard_EXPORT   void Restore(const Handle(TDF_Attribute)& with) ;
 Standard_EXPORT   Handle_TDF_Attribute NewEmpty() const;

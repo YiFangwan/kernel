@@ -61,6 +61,6 @@ void SALOMEDSImpl_SComponentIterator::Next()
 //============================================================================
 Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_SComponentIterator::Value()
 {
-  return SALOMEDSImpl_Study::GetStudy(_it.Value())->GetSComponent (_it.Value());
+  return SALOMEDSImpl_Study::SComponent(_it.Value());
 }
 

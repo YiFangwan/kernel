@@ -165,7 +165,7 @@ TCollection_AsciiString SALOMEDSImpl_SObject::GetName()
   TCollection_AsciiString aStr = "";
   Handle(SALOMEDSImpl_AttributeName) aName;
   if (_lab.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aName)) {
-    aStr = aName->Get();
+    aStr = aName->Value();
   }
   return aStr;
 }
@@ -180,7 +180,7 @@ TCollection_AsciiString SALOMEDSImpl_SObject::GetComment()
   TCollection_AsciiString aStr = "";
   Handle(SALOMEDSImpl_AttributeComment) aComment;
   if (_lab.FindAttribute(SALOMEDSImpl_AttributeComment::GetID(), aComment)) {
-    aStr = aComment->Get();
+    aStr = aComment->Value();
   }
   return aStr;
 }

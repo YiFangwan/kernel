@@ -265,7 +265,7 @@ bool SALOMEDSImpl_UseCaseBuilder::SetName(const TCollection_AsciiString& theName
   if (!_root->FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aNameAttrib))
     aNameAttrib = SALOMEDSImpl_AttributeName::Set(_root->Label(), theName);
   else    
-    aNameAttrib->Set(theName);
+    aNameAttrib->SetValue(theName);
     
   return true;
 }
@@ -287,7 +287,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseBuilder::GetCurrentObject()
   TDF_Label aCurrent = aRef->Get();  
   if(aCurrent.IsNull()) return NULL;
 
-  return SALOMEDSImpl_Study::GetStudy(aCurrent)->GetSObject(aCurrent);
+  return SALOMEDSImpl_Study::SObject(aCurrent);
 }
 
 //============================================================================
@@ -302,7 +302,7 @@ TCollection_AsciiString SALOMEDSImpl_UseCaseBuilder::GetName()
 
   Handle(SALOMEDSImpl_AttributeName) aName;
   if (!_root->FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aName)) return aString;
-  aString = TCollection_AsciiString(aName->Get());
+  aString = TCollection_AsciiString(aName->Value());
   return aString;
 }
 
@@ -350,14 +350,14 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseBuilder::AddUseCase(const TColl
   }
 
   //Create a new use case
-  anInteger->Set(anInteger->Get()+1);
-  TDF_Label aChild = aLabel.FindChild(anInteger->Get());
+  anInteger->SetValue(anInteger->Value()+1);
+  TDF_Label aChild = aLabel.FindChild(anInteger->Value());
   aNode = SALOMEDSImpl_AttributeTreeNode::Set(aChild, aBasicGUID);
   aNode->Remove();
   aFatherNode->Append(aNode);
   SALOMEDSImpl_AttributeName::Set(aChild, theName);
 
-  return SALOMEDSImpl_Study::GetStudy(aChild)->GetSObject(aChild);
+  return SALOMEDSImpl_Study::SObject(aChild);
 }
 
 //============================================================================
@@ -385,5 +385,5 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseBuilder::GetSObject(const TColl
 {
    TDF_Label aLabel;    
    TDF_Tool::Label(_doc->GetData(), theEntry, aLabel);
-   return SALOMEDSImpl_Study::GetStudy(aLabel)->GetSObject(aLabel);    
+   return SALOMEDSImpl_Study::SObject(aLabel);    
 }

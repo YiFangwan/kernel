@@ -33,7 +33,7 @@ Handle(SALOMEDSImpl_AttributeDrawable) SALOMEDSImpl_AttributeDrawable::Set (cons
     L.AddAttribute(A);
   }
   
-  A->Set (value); 
+  A->SetDrawable (value); 
   return A;
 }
 
@@ -49,10 +49,10 @@ SALOMEDSImpl_AttributeDrawable::SALOMEDSImpl_AttributeDrawable()
 }
 
 //=======================================================================
-//function : Set
+//function : SetDrawable
 //purpose  :
 //=======================================================================
-void SALOMEDSImpl_AttributeDrawable::Set(const Standard_Integer theValue)
+void SALOMEDSImpl_AttributeDrawable::SetDrawable(const Standard_Integer theValue)
 {
   CheckLocked();
 
@@ -87,7 +87,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_AttributeDrawable::NewEmpty () const
 
 void SALOMEDSImpl_AttributeDrawable::Restore(const Handle(TDF_Attribute)& with) 
 {
-  myValue = Handle(SALOMEDSImpl_AttributeDrawable)::DownCast (with)->Get ();
+  myValue = Handle(SALOMEDSImpl_AttributeDrawable)::DownCast (with)->IsDrawable ();
 }
 
 //=======================================================================
@@ -98,6 +98,6 @@ void SALOMEDSImpl_AttributeDrawable::Restore(const Handle(TDF_Attribute)& with)
 void SALOMEDSImpl_AttributeDrawable::Paste (const Handle(TDF_Attribute)& into,
                                     const Handle(TDF_RelocationTable)& RT) const
 {
-  Handle(SALOMEDSImpl_AttributeDrawable)::DownCast (into)->Set (myValue);
+  Handle(SALOMEDSImpl_AttributeDrawable)::DownCast (into)->SetDrawable (myValue);
 }
 

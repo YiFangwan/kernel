@@ -17,6 +17,12 @@ char* SALOMEDSImpl_GenericAttribute::Impl_GetType(const Handle(TDF_Attribute)& t
   return ga->Type().ToCString();
 }
 
+char* SALOMEDSImpl_GenericAttribute::Impl_GetClassType(const Handle(TDF_Attribute)& theAttr)
+{
+  Handle(SALOMEDSImpl_GenericAttribute) ga = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(theAttr);
+  return ga->GetClassType().ToCString();
+} 
+
 void SALOMEDSImpl_GenericAttribute::Impl_CheckLocked(const Handle(TDF_Attribute)& theAttr)
 {
   Handle(SALOMEDSImpl_GenericAttribute) ga = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(theAttr);
@@ -46,5 +52,5 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_GenericAttribute::GetSObject()
 {
   TDF_Label aLabel = Label();
   if(aLabel.IsNull()) return NULL;
-  return SALOMEDSImpl_Study::GetStudy(aLabel)->GetSObject(aLabel);
+  return SALOMEDSImpl_Study::SObject(aLabel);
 }
