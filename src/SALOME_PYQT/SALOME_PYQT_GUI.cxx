@@ -16,7 +16,8 @@
 #include "SALOMEGUI_QtCatchCorbaException.hxx"
 #include "utilities.h"
 
-#include <sipSalomePyQtDeclSalomePyQt.h>
+//#include <sipSalomePyQtDeclSalomePyQt.h>
+#include <sipAPISalomePyQt.h>
 #include <sipqtQWorkspace.h>
 #include <sipqtQPopupMenu.h>
 

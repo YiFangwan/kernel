@@ -82,7 +82,7 @@ Session_ServerThread::Session_ServerThread(int argc,
 					   PortableServer::POA_ptr poa,
 					   QMutex *GUIMutex)
 {
-  //MESSAGE("Session_ServerThread Constructor " << argv[0]);
+  MESSAGE("Session_ServerThread Constructor " << argv[0]);
   _argc = argc;
   _argv = argv;
   _orb = CORBA::ORB::_duplicate(orb);
@@ -101,7 +101,7 @@ Session_ServerThread::Session_ServerThread(int argc,
 
 Session_ServerThread::~Session_ServerThread()
 {
-  //MESSAGE("~Session_ServerThread "<< _argv[0]);
+  MESSAGE("~Session_ServerThread "<< _argv[0]);
 }
 
 //=============================================================================

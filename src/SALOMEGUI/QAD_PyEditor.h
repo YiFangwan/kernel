@@ -29,6 +29,7 @@
 #ifndef QAD_PyEditor_H
 #define QAD_PyEditor_H
 
+#include "QAD_PyInterp.h"
 #include <qtextedit.h>
 #include <qevent.h>
 

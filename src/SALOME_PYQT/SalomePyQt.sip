@@ -4,7 +4,7 @@
 
 class SALOME_Selection : QObject
 {
-%HeaderCode
+%TypeHeaderCode
 #include <SALOME_Selection.h>
 %End
 
@@ -29,7 +29,7 @@ enum MenuName {
 
 class SalomePyQt
 {
-%HeaderCode
+%TypeHeaderCode
 #include <SalomePyQt.hxx>
 %End
 

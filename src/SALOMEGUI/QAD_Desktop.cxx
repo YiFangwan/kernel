@@ -38,12 +38,12 @@
 
 
 #include "QAD.h"
+#include "QAD_PyEditor.h"
 #include "QAD_Help.h"
 #include "QAD_Tools.h"
 #include "QAD_Desktop.h"
 #include "QAD_LeftFrame.h"
 #include "QAD_RightFrame.h"
-#include "QAD_PyEditor.h"
 #include "QAD_Operation.h"
 #include "QAD_XmlHandler.h"
 #include "QAD_MessageBox.h"

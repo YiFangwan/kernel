@@ -31,6 +31,7 @@
   \brief Study for QAD-based application.
 */
 
+#include "QAD_PyInterp.h"
 #include "QAD.h"
 #include "QAD_Tools.h"
 #include "QAD_Desktop.h"
@@ -42,7 +43,6 @@
 #include "QAD_ObjectBrowser.h"
 #include "QAD_PyInterp.h"
 #include "QAD_Config.h"
-#include "QAD_PyInterp.h"
  
 #include "utilities.h"
 

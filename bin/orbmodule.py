@@ -47,7 +47,7 @@ class client:
       try:
           self.rootContext = obj._narrow(CosNaming.NamingContext)
           return
-      except CORBA.COMM_FAILURE:
+      except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           self.rootContext = None
           print "Lancement du Naming Service",
           
@@ -62,7 +62,7 @@ class client:
               obj = self.orb.resolve_initial_references("NameService")
               self.rootContext = obj._narrow(CosNaming.NamingContext)
               break
-          except (CORBA.COMM_FAILURE,CORBA.OBJECT_NOT_EXIST):
+          except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
               self.rootContext = None
               sys.stdout.write('+')
               sys.stdout.flush()
@@ -112,7 +112,7 @@ class client:
           obj = None
       except CosNaming.NamingContext.CannotProceed, ex:
           obj = None
-      except CORBA.COMM_FAILURE, ex:
+      except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           obj = None
       return obj
 
@@ -155,7 +155,7 @@ class client:
           obj = None
       except CosNaming.NamingContext.CannotProceed, ex:
           obj = None
-      except CORBA.COMM_FAILURE, ex:
+      except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
           obj = None
       return obj
    

@@ -55,7 +55,12 @@
 #include <qcombobox.h>
 #include <qstatusbar.h>
 #include <qpopupmenu.h>
+#if QT_VERSION == 0x030005
 #include "qworkspaceP.h"
+#else
+#include <qworkspace.h>
+#define QWorkspaceP QWorkspace
+#endif
 #include <qmainwindow.h>
 #include <qfiledialog.h>
 #include <qtoolbutton.h>

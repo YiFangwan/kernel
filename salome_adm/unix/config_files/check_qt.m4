@@ -90,14 +90,31 @@ then
 
   AC_MSG_CHECKING(include of qt headers)
 
-  if  test "x$qt_ok" = "xno"
+  if  test "x$qt_ok" = "xyes"
   then
-    AC_MSG_RESULT(qt headers not found, or too old qt version, in $QTDIR/include)
-    AC_MSG_RESULT(QTDIR environment variable may be wrong)
-  else
     AC_MSG_RESULT(yes)
     QT_INCLUDES="-I${QT_ROOT}/include -DQT_THREAD_SUPPORT"
     QT_MT_INCLUDES="-I${QT_ROOT}/include -DQT_THREAD_SUPPORT"
+  else
+    CPPFLAGS_old=$CPPFLAGS
+    CPPFLAGS="$CPPFLAGS -I$QTDIR/include/qt3"
+
+    AC_LANG_CPLUSPLUS
+    AC_CHECK_HEADER(qapp.h,qt_ok=yes ,qt_ok=no)
+
+    CPPFLAGS=$CPPFLAGS_old
+
+    AC_MSG_CHECKING(include of qt headers)
+
+    if  test "x$qt_ok" = "xno"
+    then
+      AC_MSG_RESULT(qt headers not found, or too old qt version, in $QTDIR/include)
+      AC_MSG_RESULT(QTDIR environment variable may be wrong)
+    else
+      AC_MSG_RESULT(yes)
+      QT_INCLUDES="-I${QT_ROOT}/include/qt3 -DQT_THREAD_SUPPORT"
+      QT_MT_INCLUDES="-I${QT_ROOT}/include/qt3 -DQT_THREAD_SUPPORT"
+    fi
   fi
 fi
 
@@ -108,7 +125,7 @@ then
   LIBS="$LIBS -L$QTDIR/lib -lqt-mt $OGL_LIBS"
 
   CXXFLAGS_old=$CXXFLAGS
-  CXXFLAGS="$CXXFLAGS -I$QTDIR/include"
+  CXXFLAGS="$CXXFLAGS $QT_MT_INCLUDES"
 
   AC_CACHE_VAL(salome_cv_lib_qt,[
     AC_TRY_LINK(

@@ -38,6 +38,8 @@ else
            SIP_VERS=new ;;
          3.10*)
            SIP_VERS=new2 ;;
+         4.1*)
+           SIP_VERS=new3 ;;
          *)
            AC_MSG_RESULT(sip version $version not supported)
            SIP_VERS=no ;;
@@ -81,6 +83,17 @@ else
         AC_CHECK_FILE($PYTHON_PREFIX/include/python$PYTHON_VERSION/sip.h,sip_ok=$sip_ok,sip_ok=no)
 	SIP_INCLUDES="${PYTHON_INCLUDES}"
         AC_CHECK_FILE($PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages/libsip.so,sip_ok=$sip_ok,sip_ok=no)
+	SIP_LIBS="-L${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/site-packages -lsip"
+    fi
+
+    if test "x$SIP_VERS" = "xnew3"
+        then
+        dnl new3 install : includes and libs are in python install 
+        AC_MSG_RESULT(new3 install detected)
+	sip_ok=yes
+        AC_CHECK_FILE($PYTHON_PREFIX/include/python$PYTHON_VERSION/sip.h,sip_ok=$sip_ok,sip_ok=no)
+	SIP_INCLUDES="${PYTHON_INCLUDES}"
+        AC_CHECK_FILE($PYTHON_PREFIX/lib/python$PYTHON_VERSION/site-packages/sip.so,sip_ok=$sip_ok,sip_ok=no)
 	SIP_LIBS="-L${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/site-packages -lsip"
     fi
 fi

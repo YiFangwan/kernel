@@ -20,7 +20,8 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 # SIP C++ Python
 # SIP defined in make_commence.in
-SIP_FLAGS    = -t WS_X11 -t Qt_3_0_5 -s ".cc" -c $(CURDIR) -I $(PYQT_SIPS)
+#SIP_FLAGS    = -t WS_X11 -t Qt_3_0_5 -s ".cc" -c $(CURDIR) -I $(PYQT_SIPS)
+SIP_FLAGS    =  -t WS_X11 -t Qt_3_3_0 -s ".cc" -c $(CURDIR) -I $(PYQT_SIPS)
 
 
 # SIP input file(s)
@@ -30,13 +31,13 @@ SIP_FILES = SalomePyQt.sip
 # SIP-generated C++ source files (corresponding line should be added for each wrapped class 
 # contained by SalomePyQt module)
 
-SIP_SRC=$(CURDIR)/SalomePyQtcmodule.cc \
+SIP_SRC=$(CURDIR)/sipSalomePyQtcmodule.cc \
 	$(CURDIR)/sipSalomePyQtSalomePyQt.cc \
 	$(CURDIR)/sipSalomePyQtSALOME_Selection.cc
 
-ifeq ($(SIP_VERS),new2)
-MOC_SRC = SalomePyQtcmodule_moc.cxx
-MOC_H = SalomePyQtcmodule.h
+ifeq ($(SIP_VERS),new3)
+MOC_SRC = sipSalomePyQtcmodule_moc.cxx
+MOC_H = sipSalomePyQtcmodule.h
 else
 MOC_SRC = sipSalomePyQtProxySalomePyQt_moc.cxx
 MOC_H = sipSalomePyQtProxySalomePyQt.h
@@ -51,13 +52,15 @@ LIB_MOC = SALOME_PYQT_GUI.h
 
 #LIB_MOC += sipSalomePyQtProxySalomePyQt.h
 
-EXPORT_SHAREDPYSCRIPTS = SalomePyQt.py
+#EXPORT_SHAREDPYSCRIPTS = SalomePyQt.py
 
 LIB_CLIENT_IDL = SALOME_Exception.idl SALOME_ContainerManager.idl
 
 CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(SIP_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES)
-LIBS+= $(PYTHON_LIBS) $(SIP_LIBS) $(PYQT_LIBS) $(VTK_LIBS) $(OGL_LIBS)
-LDFLAGS+= -lSalomeGUI -lqtcmodule
+LIBS+= $(PYTHON_LIBS) $(VTK_LIBS) $(OGL_LIBS)
+# $(SIP_LIBS) $(PYQT_LIBS)
+LDFLAGS+= -lSalomeGUI
+# -lqtcmodule
 
 
 # Custom build step: generate C++ wrapping according to $(SIP_FILES)

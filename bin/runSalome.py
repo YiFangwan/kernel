@@ -222,7 +222,7 @@ def kill_salome(args):
 	
 # -----------------------------------------------------------------------------
 #
-# Définition des classes d'objets pour le lancement des Server CORBA
+# Definition des classes d'objets pour le lancement des Server CORBA
 #
 
 class Server:
@@ -473,7 +473,7 @@ def startSalome(args, modules_list, modules_root_dir):
 
     #
     # Lancement Registry Server,
-    # attente de la disponibilité du Registry dans le Naming Service
+    # attente de la disponibilite du Registry dans le Naming Service
     #
 
     if 'registry' not in args['embedded']:
@@ -483,7 +483,7 @@ def startSalome(args, modules_list, modules_root_dir):
 
     #
     # Lancement Catalog Server,
-    # attente de la disponibilité du Catalog Server dans le Naming Service
+    # attente de la disponibilite du Catalog Server dans le Naming Service
     #
     
 
@@ -496,7 +496,7 @@ def startSalome(args, modules_list, modules_root_dir):
 
     #
     # Lancement SalomeDS Server,
-    # attente de la disponibilité du SalomeDS dans le Naming Service
+    # attente de la disponibilite du SalomeDS dans le Naming Service
     #
 
     os.environ["CSF_PluginDefaults"] \
@@ -532,11 +532,11 @@ def startSalome(args, modules_list, modules_root_dir):
     #macomm2=['ddd']
     #pid = os.spawnvp(os.P_NOWAIT, macomm2[0], macomm2)
     #
-    # Attente de la disponibilité du Session Server dans le Naming Service
+    # Attente de la disponibilite du Session Server dans le Naming Service
     #
 
     import SALOME
-    session=clt.waitNS("/Kernel/Session",SALOME.Session)
+    #session=clt.waitNS("/Kernel/Session",SALOME.Session)
 
     from Utils_Identity import getShortHostName
     
@@ -550,7 +550,7 @@ def startSalome(args, modules_list, modules_root_dir):
     
     #
     # Lancement Container C++ local,
-    # attente de la disponibilité du Container C++ local dans le Naming Service
+    # attente de la disponibilite du Container C++ local dans le Naming Service
     #
 
     if 'cppContainer' in args['standalone']:
@@ -560,7 +560,7 @@ def startSalome(args, modules_list, modules_root_dir):
 
     #
     # Lancement Container Python local,
-    # attente de la disponibilité du Container Python local
+    # attente de la disponibilite du Container Python local
     # dans le Naming Service
     #
 
@@ -571,7 +571,7 @@ def startSalome(args, modules_list, modules_root_dir):
 
     #
     # Lancement Container Supervision local,
-    # attente de la disponibilité du Container Supervision local
+    # attente de la disponibilite du Container Supervision local
     # dans le Naming Service
     #
 

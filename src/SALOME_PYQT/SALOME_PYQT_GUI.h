@@ -10,6 +10,7 @@
 #ifndef _SALOME_PYQT_GUI_HXX_
 #define _SALOME_PYQT_GUI_HXX_
 
+#include "PyInterp_base.h"
 #include "QAD_Desktop.h"
 #include "PyInterp_PyQt.h"
 #include "SALOMEGUI.h"
