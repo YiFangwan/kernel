@@ -1,3 +1,4 @@
+
 //  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
 //
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -21,24 +22,33 @@
 //
 //
 //
-//  File   : PathPrefix.hxx
-//  Author : Estelle Deville
+//  File   : SALOME_ModuleCatalog_Parser_IO.hxx
+//  Author : Marc Tajchman
 //  Module : SALOME
 //  $Header$
-//  
 
-#ifndef PATH_PREFIX_H
-#define PATH_PREFIX_H
+#ifndef SALOME_CATALOG_PARSER_IO_H
+#define SALOME_CATALOG_PARSER_IO_H
 
-#include <string>
-#include <vector>
+#include "SALOME_ModuleCatalog_Parser.hxx"
+#include <iostream>
 
-struct PathPrefix
-{
-  string path ;
-  vector<string> listOfComputer ;
-} ;
+std::ostream & operator<< (std::ostream & f, 
+			   const ParserParameter & P);
+std::ostream & operator<< (std::ostream & f, 
+			   const ParserDataStreamParameter & P);
 
-typedef vector<PathPrefix> ListOfPathPrefix ;
-	
-#endif // PATH_PREFIX_H
+std::ostream & operator<< (std::ostream & f, 
+			   const ParserService & S);
+
+std::ostream & operator<< (std::ostream & f, 
+			   const ParserInterface & I);
+
+std::ostream & operator<< (std::ostream & f, 
+			   const ParserComponent & C);
+
+std::ostream & operator<< (std::ostream & f, 
+			   const ParserComponentType & T);
+
+#endif
+
