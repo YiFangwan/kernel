@@ -26,7 +26,7 @@ LIB_SRC = TestMPIComponentEngine.cxx
 LIB_CLIENT_IDL = Logger.idl SALOME_MPIObject.idl SALOME_TestMPIComponent.idl
 
 # Executables targets
-BIN = TestMPIContainer TestBidon
+BIN = TestMPIContainer
 BIN_SRC = 
 BIN_CLIENT_IDL = Logger.idl SALOME_MPIObject.idl SALOME_MPIContainer.idl SALOME_TestMPIComponent.idl
 BIN_SERVER_IDL = 
