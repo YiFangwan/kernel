@@ -57,11 +57,11 @@
 #include <vtkVertex.h>
 #include <vtkRendererCollection.h>
 #include <vtkPolyDataWriter.h>
-using namespace std;
-
 
 // QT Includes
 #include <qkeycode.h>
+
+using namespace std;
 
 VTKViewer_RenderWindowInteractor* VTKViewer_RenderWindowInteractor::New() {
   vtkObject *ret = vtkObjectFactory::CreateInstance("VTKViewer_RenderWindowInteractor") ;
@@ -156,17 +156,24 @@ void VTKViewer_RenderWindowInteractor::Initialize() {
   Edge_Actor = vtkActor::New(); 
   Edge_Actor->PickableOff();
   Edge_Actor->GetProperty()->SetColor(1,0,0);
-  Edge_Actor->GetProperty()->SetRepresentationToSurface();
   Edge_Actor->GetProperty()->SetLineWidth(5);
+  Edge_Actor->GetProperty()->SetRepresentationToWireframe();
 
   Point_Actor = vtkActor::New(); 
   Point_Actor->PickableOff();
   Point_Actor->GetProperty()->SetColor(1,1,0);
-  Point_Actor->GetProperty()->SetRepresentationToSurface();
   Point_Actor->GetProperty()->SetPointSize(5);
+  Point_Actor->GetProperty()->SetRepresentationToPoints();
 
   return ;
 }
+
+
+void VTKViewer_RenderWindowInteractor::SetInteractorStyle(vtkInteractorObserver *theInteractor){
+  myInteractorStyle = dynamic_cast<VTKViewer_InteractorStyleSALOME*>(theInteractor);
+  vtkRenderWindowInteractor::SetInteractorStyle(theInteractor);
+}
+
 
 void VTKViewer_RenderWindowInteractor::SetSelectionMode(int mode)
 {
@@ -759,55 +766,38 @@ bool VTKViewer_RenderWindowInteractor::highlight( const Handle(SALOME_Interactiv
 						  bool hilight, 
 						  bool update)
 {
-  VTKViewer_InteractorStyleSALOME* aStyle = VTKViewer_InteractorStyleSALOME::SafeDownCast(this->InteractorStyle);
-  if (!aStyle) return false;
-
-  vtkRenderer* aren;
-  for (this->RenderWindow->GetRenderers()->InitTraversal(); 
-       (aren = this->RenderWindow->GetRenderers()->GetNextItem()); ) {
-    vtkActorCollection* theActors = aren->GetActors();
-    theActors->InitTraversal();
-    vtkActor *ac = theActors->GetNextActor();
-    while(!(ac==NULL)) {
-      if ( ac->IsA("SALOME_Actor") ) {
-	SALOME_Actor* anActor = SALOME_Actor::SafeDownCast( ac );
-	if ( anActor->hasIO() ) {
-	  if ( IObject->isSame( anActor->getIO() ) ) {
-	    if ( anActor->GetMapper() == NULL ) {
-	      return false;
-	    }
-	    //highlight or unhilight actors
-	    if ( anActor->hasHighlight() ) {
-	      anActor->highlight(hilight);
-	    } else {
-	      if ( anActor->GetVisibility() == 1 ) {
-		if (hilight) {
-		  vtkActor2D *actor2D;
-		  vtkProp3D *prop3D;
-		  if ( (prop3D=vtkProp3D::SafeDownCast(anActor)) != NULL ) {
-		    aStyle->HighlightProp3D(prop3D);
-		  } else if ( (actor2D=vtkActor2D::SafeDownCast(anActor)) != NULL ) {
-		    aStyle->HighlightActor2D(actor2D);
-		  }
-		  //this->InteractorStyle->HighlightProp(anActor);
-		} else {
-		  aStyle->HighlightProp3D(NULL);
-		  aStyle->HighlightActor2D(NULL);
-		  //this->InteractorStyle->HighlightProp(NULL);
-		}
+  VTKViewer_InteractorStyleSALOME* aStyle = 
+    VTKViewer_InteractorStyleSALOME::SafeDownCast(this->InteractorStyle);
+  if(!aStyle) return false;
+  vtkRendererCollection* aRenColl = this->RenderWindow->GetRenderers();
+  aRenColl->InitTraversal();
+  while(vtkRenderer* aRen = this->RenderWindow->GetRenderers()->GetNextItem()){
+      vtkActorCollection* theActors = aRen->GetActors();
+      theActors->InitTraversal();
+      while(vtkActor *anAct = theActors->GetNextActor()) {
+	if(SALOME_Actor* anActor = SALOME_Actor::SafeDownCast(anAct)){
+	  if(anActor->hasIO()){
+	    if(IObject->isSame(anActor->getIO())){
+	      if(anActor->GetMapper() == NULL)
+		return false;
+	      //highlight or unhilight actors
+	      if(anActor->hasHighlight())
+		anActor->highlight(hilight);
+	      else{
+		if(anActor->GetVisibility() == 1 && hilight)
+		  aStyle->HighlightProp(anActor);
+		else if(!hilight)
+		  aStyle->HighlightProp(NULL);
 	      }
 	    }
 	  }
 	}
       }
-      ac = theActors->GetNextActor();
     }
-  }
-  if (update) {
+  if(update){
     Render();
     emit RenderWindowModified();
   }
-
   return false;
 }
 
@@ -830,36 +820,32 @@ void VTKViewer_RenderWindowInteractor::Update() {
 }
 
 
-bool VTKViewer_RenderWindowInteractor::unHighlightAll()
-{
-  vtkRenderer* aren;
-  for (this->RenderWindow->GetRenderers()->InitTraversal(); 
-       (aren = this->RenderWindow->GetRenderers()->GetNextItem()); ) {
-    vtkActorCollection* theActors = aren->GetActors();
+bool VTKViewer_RenderWindowInteractor::unHighlightAll(){
+  VTKViewer_InteractorStyleSALOME* aStyle = 
+    VTKViewer_InteractorStyleSALOME::SafeDownCast(this->InteractorStyle);
+  if(aStyle) aStyle->HighlightProp(NULL);
+  vtkRendererCollection* aRenColl = this->RenderWindow->GetRenderers();
+  aRenColl->InitTraversal();
+  while(vtkRenderer* aRen = this->RenderWindow->GetRenderers()->GetNextItem()){
+    vtkActorCollection* theActors = aRen->GetActors();
     theActors->InitTraversal();
-
-    if ( theActors->IsItemPresent(Point_Actor) != 0 ) 
-      aren->RemoveActor( Point_Actor );
-    if ( theActors->IsItemPresent( Edge_Actor ) != 0 ) 
-      aren->RemoveActor( Edge_Actor ); 
-    if ( theActors->IsItemPresent( Cell_Actor ) != 0 ) 
-      aren->RemoveActor( Cell_Actor );
-
-    vtkActor *ac = theActors->GetNextActor();
-
-    while(!(ac==NULL)) {
-      if ( ac->IsA("SALOME_Actor") ) {
-	SALOME_Actor* anActor = SALOME_Actor::SafeDownCast( ac );
-	if ( anActor->hasIO() ) {
+    if(theActors->IsItemPresent(Point_Actor)) 
+      aRen->RemoveActor(Point_Actor);
+    if(theActors->IsItemPresent(Edge_Actor)) 
+      aRen->RemoveActor(Edge_Actor); 
+    if(theActors->IsItemPresent(Cell_Actor)) 
+      aRen->RemoveActor(Cell_Actor);
+    vtkActor *anActor = theActors->GetNextActor();
+    while(vtkActor *anAct = theActors->GetNextActor()) {
+      if(SALOME_Actor* anActor = SALOME_Actor::SafeDownCast(anAct)){
+	if(anActor->hasIO()){
 	  //highlight or unhilight actors
-	  if ( anActor->hasHighlight() )
+	  if(anActor->hasHighlight())
 	    anActor->highlight(false);
 	}
       }
-      ac = theActors->GetNextActor();
     }
   }
-
   emit RenderWindowModified() ;
   return false;
 }
@@ -912,12 +898,12 @@ QColor VTKViewer_RenderWindowInteractor::GetColor(const Handle(SALOME_Interactiv
 	      // GEOM actor
 	      float r,g,b;
 	      anActor->GetColor(r,g,b);
-	      return QColor(r*255,g*255,b*255);
+	      return QColor(int(r*255),int(g*255),int(b*255));
 	    }
 	    else {
 	      float color[3];
 	      anActor->GetProperty()->GetColor(color);   
-	      return QColor(color[0]*255,color[1]*255,color[2]*255);
+	      return QColor(int(color[0]*255),int(color[1]*255),int(color[2]*255));
 	    }
 	  }
 	}
@@ -1063,7 +1049,12 @@ static void CellCreateMapper(vtkPolyData *theSourcePolyData, vtkPolyDataMapper* 
     int aPartId = ite.Key();
     if(0 > aPartId || aPartId >= aNbOfParts) break;
     theSourcePolyData->GetCellPoints(aPartId,ptIds);
-    aPolyData->InsertNextCell(theSourcePolyData->GetCellType(aPartId),ptIds);
+    vtkCell* aCell = theSourcePolyData->GetCell(aPartId);
+    aPolyData->InsertNextCell(aCell->GetCellType(),ptIds);
+    for (int i = 0, iEnd = aCell->GetNumberOfEdges(); i < iEnd; i++){
+      vtkCell* anEdgeCell = aCell->GetEdge(i);
+      aPolyData->InsertNextCell(VTK_LINE,anEdgeCell->GetPointIds());
+    }
   }
   ptIds->Delete();
   theMapper->SetInput(aPolyData);  

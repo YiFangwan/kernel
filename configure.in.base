@@ -113,6 +113,9 @@ cc_ok=yes
 dnl Library libdl :
 AC_CHECK_LIB(dl,dlopen)
 
+dnl Library librt : for alpha/osf
+AC_CHECK_LIB(rt,nanosleep)
+
 dnl add library libm :
 AC_CHECK_LIB(m,ceil)
 

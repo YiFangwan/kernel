@@ -32,103 +32,38 @@
 */
 
 #include "SALOME_Actor.h"
+#include "SALOME_Transform.h"
+#include "SALOME_TransformFilter.h"
+#include "SALOME_PassThroughFilter.h"
+#include "SALOME_GeometryFilter.h"
  
 // SALOME Includes
 #include "utilities.h"
-using namespace std;
 
 // VTK Includes
 #include <vtkObjectFactory.h>
 #include <vtkDataSetMapper.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkGeometryFilter.h>
 #include <vtkTransformPolyDataFilter.h>
 
-void SALOME_Actor::Render(vtkRenderer *ren, vtkMapper *Mapper )
-{
-  if (this->Mapper == NULL) {
-    MESSAGE ("No mapper for actor.")
-    return;
-  }
-  
-  vtkMapper *bestMapper;
-  bestMapper = this->Mapper;
+// For test
+#include <vtkMapperCollection.h>
+#include "vtkTimerLog.h"
 
-  /* render the property */
-  if (!this->Property) {
-    // force creation of a property
-    this->GetProperty();
-  }
+using namespace std;
 
-  this->Property->Render(this, ren);
-  if (this->BackfaceProperty) {
-    this->BackfaceProperty->BackfaceRender(this, ren);
-    this->Device->SetBackfaceProperty(this->BackfaceProperty);
-  }
-  this->Device->SetProperty(this->Property);
-  
-  
-  /* render the texture */
-  if (this->Texture) {
-    this->Texture->Render(ren);
-  }
-  
-  
-  // Store information on time it takes to render.
-  // We might want to estimate time from the number of polygons in mapper.
-  this->Device->Render(ren,bestMapper);
-  this->EstimatedRenderTime = bestMapper->GetTimeToDraw();
-}
+int SALOME_POINT_SIZE = 3;
 
-int SALOME_Actor::RenderOpaqueGeometry(vtkViewport *vp)
-{
-  int renderedSomething = 0; 
-  vtkRenderer      *ren = (vtkRenderer *)vp;
 
-  if ( ! this->Mapper ) {
-    return 0;
-  }
-
-  // make sure we have a property
-  if (!this->Property) {
-    // force creation of a property
-    this->GetProperty();
-  }
-
-  // is this actor opaque ?
-  if (this->GetIsOpaque()) {
-    this->Property->Render(this, ren);
-    
-    // render the backface property
-    if (this->BackfaceProperty) {
-      this->BackfaceProperty->BackfaceRender(this, ren);
-    }
-    
-    // render the texture 
-    if (this->Texture) {
-      this->Texture->Render(ren);
-    }
-    this->Render(ren,this->Mapper);
-    
-    renderedSomething = 1;
-  }
-  
-  return renderedSomething; 
-}
-
-void SALOME_Actor::ReleaseGraphicsResources(vtkWindow *renWin)
-{
-  vtkActor::ReleaseGraphicsResources(renWin);
-  this->Mapper->ReleaseGraphicsResources(renWin);
-}
+vtkStandardNewMacro(SALOME_Actor);
 
 void SALOME_Actor::AddToRender(vtkRenderer* theRenderer){
   theRenderer->AddActor(this);
 }
-
 void SALOME_Actor::RemoveFromRender(vtkRenderer* theRenderer){
   theRenderer->RemoveActor(this);
 }
+
 
 vtkPolyData* SALOME_Actor::GetPolyDataInput(){
   return myPassFilter[3]->GetPolyDataOutput();
@@ -137,16 +72,12 @@ vtkPolyData* SALOME_Actor::GetPolyDataInput(){
 void SALOME_Actor::SetMapper(vtkMapper* theMapper){
   if(theMapper){
     myPassFilter[0]->SetInput(theMapper->GetInput());
-    myPassFilter[0]->Update();
     myPassFilter[1]->SetInput(myPassFilter[0]->GetPolyDataOutput());
-    myPassFilter[1]->Update();
     myTransformFilter->SetInput(myPassFilter[1]->GetPolyDataOutput());
     myPassFilter[2]->SetInput(myTransformFilter->GetOutput());
-    myPassFilter[2]->Update();
     myPassFilter[3]->SetInput(myPassFilter[2]->GetPolyDataOutput());
-    myPassFilter[3]->Update();
     if(vtkDataSetMapper* aMapper = dynamic_cast<vtkDataSetMapper*>(theMapper))
-      aMapper->SetInput(myPassFilter[3]->GetOutput());
+      aMapper->SetInput(myPassFilter[3]->GetPolyDataOutput());
     else if(vtkPolyDataMapper* aMapper = dynamic_cast<vtkPolyDataMapper*>(theMapper))
       aMapper->SetInput(myPassFilter[3]->GetPolyDataOutput());
   }
@@ -155,11 +86,56 @@ void SALOME_Actor::SetMapper(vtkMapper* theMapper){
 
 void SALOME_Actor::SetTransform(SALOME_Transform* theTransform){
   myTransformFilter->SetTransform(theTransform);
-  myTransformFilter->Modified();
 }
+
+
+unsigned long int SALOME_Actor::GetMTime(){
+  unsigned long mTime = this->Superclass::GetMTime();
+  unsigned long time = myTransformFilter->GetMTime();
+  mTime = ( time > mTime ? time : mTime );
+  return mTime;
+}
+
+
+void SALOME_Actor::SetRepresentation(int theMode) { 
+  switch(myRepresentation){
+  case 0 : 
+  case 2 : 
+    myProperty->DeepCopy(GetProperty());
+  }    
+  switch(theMode){
+  case 0 : 
+  case 2 : 
+    GetProperty()->DeepCopy(myProperty);
+    break;
+  default:
+    GetProperty()->SetAmbient(1.0);
+    GetProperty()->SetDiffuse(0.0);
+    GetProperty()->SetSpecular(0.0);
+  }
+  switch(theMode){
+  case 3 : 
+    myPassFilter[0]->SetInside(true);
+    GetProperty()->SetRepresentation(1);
+    break;
+  case 0 : 
+    GetProperty()->SetPointSize(SALOME_POINT_SIZE);  
+  default :
+    GetProperty()->SetRepresentation(theMode);
+    myPassFilter[0]->SetInside(false);
+  }
+  myRepresentation = theMode;
+}
+int SALOME_Actor::GetRepresentation(){ 
+  return myRepresentation;
+}
+
 
 SALOME_Actor::SALOME_Actor(){
   PreviewProperty = NULL;
+  ispreselected = Standard_False;
+  myProperty = vtkProperty::New();
+  myRepresentation = 2;
   myTransformFilter = SALOME_TransformFilter::New();
   myPassFilter.push_back(SALOME_PassThroughFilter::New());
   myPassFilter.push_back(SALOME_PassThroughFilter::New());
@@ -168,8 +144,12 @@ SALOME_Actor::SALOME_Actor(){
 }
 
 SALOME_Actor::~SALOME_Actor(){
+  myTransformFilter->Delete();
   SetPreviewProperty(NULL);
   for(int i = 0, iEnd = myPassFilter.size(); i < iEnd; i++)
-    if(myPassFilter[i] != NULL) 
+    if(myPassFilter[i] != NULL){
+      myPassFilter[i]->UnRegisterAllOutputs(); 
       myPassFilter[i]->Delete();
+    }
+  myProperty->Delete();
 }

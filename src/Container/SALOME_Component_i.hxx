@@ -79,10 +79,13 @@ public:
   void Names( const char * graphName , const char * nodeName ) ;
   char * graphName() ;
   char * nodeName() ;
+  bool Killer( pthread_t ThreadId , int signum );
   bool Kill_impl();
   bool Stop_impl();
   bool Suspend_impl();
   bool Resume_impl();
+  void SetCurCpu() ;
+  long CpuUsed() ;
   CORBA::Long CpuUsed_impl() ;
 
 protected:
@@ -102,6 +105,8 @@ protected:
 private:
   pthread_t _ThreadId ;
   long      _StartUsed ;
+  long      _ThreadCpuUsed ;
+  bool      _Executed ;
 };
 
 #endif

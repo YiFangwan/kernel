@@ -28,8 +28,10 @@
 
 #include "VTKViewer_InteractorStyleSALOME.h"
 #include "VTKViewer_RenderWindow.h"
+#include "VTKViewer_Utilities.h"
+#include "VTKViewer_Trihedron.h"
 
-#include <qapplication.h>
+#include "QAD_Config.h"
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
 
@@ -50,33 +52,27 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkDataSetCollection.h>
 #include <vtkImageData.h>
-using namespace std;
+#include <vtkFollower.h>
 
-
+#include <qapplication.h>
 //VRV: porting on Qt 3.0.5
 #if QT_VERSION >= 0x030005
 #include <qpainter.h>
 #endif
 //VRV: porting on Qt 3.0.5
 
-//----------------------------------------------------------------------------
-VTKViewer_InteractorStyleSALOME *VTKViewer_InteractorStyleSALOME::New() 
-{
-  // First try to create the object from the vtkObjectFactory
-  vtkObject* ret = vtkObjectFactory::CreateInstance("VTKViewer_InteractorStyleSALOME");
-  if(ret)
-    {
-      return (VTKViewer_InteractorStyleSALOME*)ret;
-    }
-  // If the factory was unable to create the object, then create it here.
-  return new VTKViewer_InteractorStyleSALOME;
-}
+using namespace std;
 
+extern int SetVisibility(vtkActorCollection* theCollection, int theParam);
+extern int GetVisibility(vtkActorCollection* theCollection);
 
 //----------------------------------------------------------------------------
+vtkStandardNewMacro(VTKViewer_InteractorStyleSALOME);
+//----------------------------------------------------------------------------
+
 VTKViewer_InteractorStyleSALOME::VTKViewer_InteractorStyleSALOME() 
 {
-  m_Triedron = 0;
+  m_Trihedron = 0;
   this->MotionFactor = 10.0;
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
   this->RadianToDegree = 180.0 / vtkMath::Pi();
@@ -90,9 +86,8 @@ VTKViewer_InteractorStyleSALOME::~VTKViewer_InteractorStyleSALOME()
 }
 
 //----------------------------------------------------------------------------
-void VTKViewer_InteractorStyleSALOME::setTriedron( vtkActorCollection* triedron )
-{
-  m_Triedron = triedron;
+void VTKViewer_InteractorStyleSALOME::setTriedron(VTKViewer_Trihedron* theTrihedron){
+  m_Trihedron = theTrihedron;
 }
 
 //----------------------------------------------------------------------------
@@ -118,15 +113,8 @@ void VTKViewer_InteractorStyleSALOME::RotateXY(int dx, int dy)
   cam->Azimuth(rxf);
   cam->Elevation(ryf);
   cam->OrthogonalizeViewUp();
-  this->CurrentRenderer->ResetCameraClippingRange();
-  vtkRenderWindowInteractor *rwi = this->Interactor;
-  /* VSV Light follows camera: if (this->CurrentLight)
-    {
-      // get the first light
-      this->CurrentLight->SetPosition(cam->GetPosition());
-      this->CurrentLight->SetFocalPoint(cam->GetFocalPoint());
-      }	*/
-  rwi->Render();
+  ::ResetCameraClippingRange(this->CurrentRenderer); 
+  this->Interactor->Render();
 }
 
 //----------------------------------------------------------------------------
@@ -145,29 +133,27 @@ void VTKViewer_InteractorStyleSALOME::PanXY(int x, int y, int oldX, int oldY)
 }
 
 //----------------------------------------------------------------------------
+void VTKViewer_InteractorStyleSALOME::ControlLblSize(double aOldScale, double aNewScale) {
+  return;
+}
+
+//----------------------------------------------------------------------------
 void VTKViewer_InteractorStyleSALOME::DollyXY(int dx, int dy)
 {
-  vtkCamera *cam;
+  if (this->CurrentRenderer == NULL) return;
+
   double dxf = this->MotionFactor * (double)(dx) / (double)(this->CurrentRenderer->GetCenter()[1]);
   double dyf = this->MotionFactor * (double)(dy) / (double)(this->CurrentRenderer->GetCenter()[1]);
 
   double zoomFactor = pow((double)1.1, dxf + dyf);
   
-  if (this->CurrentRenderer == NULL)
-    {
-      return;
-    }
-  
-  cam = this->CurrentRenderer->GetActiveCamera();
-    if (cam->GetParallelProjection())
-    {
-      cam->SetParallelScale(cam->GetParallelScale()/zoomFactor);
-    }
-  else
-    {
-      cam->Dolly(zoomFactor);
-      this->CurrentRenderer->ResetCameraClippingRange();
-    }
+  vtkCamera *aCam = this->CurrentRenderer->GetActiveCamera();
+  if (aCam->GetParallelProjection())
+    aCam->SetParallelScale(aCam->GetParallelScale()/zoomFactor);
+  else{
+    aCam->Dolly(zoomFactor);
+    ::ResetCameraClippingRange(this->CurrentRenderer);
+  }
   
   /* VSV Light follows camera: if (this->CurrentLight)
     {      
@@ -525,6 +511,27 @@ void VTKViewer_InteractorStyleSALOME::startFitArea()
   qApp->installEventFilter(this);
 }
 
+
+void  VTKViewer_InteractorStyleSALOME::ViewFitAll() {
+  int aTriedronWasVisible = false;
+  if(m_Trihedron){
+    aTriedronWasVisible = 
+      m_Trihedron->GetVisibility() == VTKViewer_Trihedron::eOn;
+    if(aTriedronWasVisible) m_Trihedron->VisibilityOff();
+  }
+
+  if(m_Trihedron->GetVisibleActorCount(CurrentRenderer)){
+    m_Trihedron->VisibilityOff();
+    ::ResetCamera(CurrentRenderer);
+  }else{
+    m_Trihedron->SetVisibility(VTKViewer_Trihedron::eOnlyLineOn);
+    ::ResetCamera(CurrentRenderer,true);
+  }
+  if(aTriedronWasVisible) m_Trihedron->VisibilityOn();
+  else m_Trihedron->VisibilityOff();
+}
+
+
 // starts Global Panning operation (e.g. through menu command)
 void VTKViewer_InteractorStyleSALOME::startGlobalPan()
 {
@@ -540,29 +547,21 @@ void VTKViewer_InteractorStyleSALOME::startGlobalPan()
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   myScale = cam->GetParallelScale();
 
+  ViewFitAll();
   // make fit all
-  Standard_Boolean TriedronWasVisible = false;
-  if ( m_Triedron ) {
-    m_Triedron->InitTraversal();
-    vtkActor *ac = m_Triedron->GetNextActor();
-    while(!(ac==NULL)) {
-      if(ac->GetVisibility()) {
-	TriedronWasVisible = true;
-	ac->VisibilityOff();
-      }
-      ac = m_Triedron->GetNextActor();
-    }
-  }
-  this->CurrentRenderer->ResetCamera();
-  this->CurrentRenderer->ResetCameraClippingRange();
-  if( m_Triedron && TriedronWasVisible ) {
-    m_Triedron->InitTraversal();
-    vtkActor *ac = m_Triedron->GetNextActor();
-    while(!(ac==NULL)) {
-      ac->VisibilityOn();
-      ac = m_Triedron->GetNextActor();
-    }
-  }
+//   int TriedronWasVisible = false;
+//   if(m_Trihedron){
+//     TriedronWasVisible = 
+//       m_Trihedron->GetVisibility() == VTKViewer_Trihedron::eOn;
+//     if(TriedronWasVisible) m_Trihedron->VisibilityOff();
+//   }
+
+//   ::ResetCamera(this->CurrentRenderer);
+  
+//   if(m_Trihedron)
+//     if(TriedronWasVisible) 
+//       m_Trihedron->VisibilityOn();
+
   //VTKViewer_RenderWindow* aRW = dynamic_cast<VTKViewer_RenderWindow*>(this->Interactor->GetRenderWindow());
   if (myGUIWindow) myGUIWindow->update();
   
@@ -585,10 +584,7 @@ void VTKViewer_InteractorStyleSALOME::fitRect(const int left,
                                        const int right, 
                                        const int bottom)
 {
-  if (this->CurrentRenderer == NULL) {
-    return;
-  }
-  vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
+  if (this->CurrentRenderer == NULL) return;
  
   // move camera
   int x = (left + right)/2;
@@ -598,17 +594,17 @@ void VTKViewer_InteractorStyleSALOME::fitRect(const int left,
   int oldY = aSize[1]/2;
   TranslateView(oldX, oldY, x, y);
 
-      
   // zoom camera
   double dxf = (double)(aSize[0]) / (double)(abs(right - left));
   double dyf = (double)(aSize[1]) / (double)(abs(bottom - top));
   double zoomFactor = (dxf + dyf)/2 ;
 
-  if (cam->GetParallelProjection()) {
-    cam->SetParallelScale(cam->GetParallelScale()/zoomFactor);
-  } else {
-    cam->Dolly(zoomFactor);
-    this->CurrentRenderer->ResetCameraClippingRange();
+  vtkCamera *aCam = this->CurrentRenderer->GetActiveCamera();
+  if(aCam->GetParallelProjection())
+    aCam->SetParallelScale(aCam->GetParallelScale()/zoomFactor);
+  else{
+    aCam->Dolly(zoomFactor);
+    ::ResetCameraClippingRange(this->CurrentRenderer);
   }
   
   //vtkRenderWindowInteractor *rwi = this->Interactor;
@@ -693,6 +689,8 @@ void VTKViewer_InteractorStyleSALOME::setCursor(const int operation)
 void VTKViewer_InteractorStyleSALOME::onStartOperation()
 {
   if (!myGUIWindow) return;
+  // VSV: LOD actor activisation
+  //  this->Interactor->GetRenderWindow()->SetDesiredUpdateRate(this->Interactor->GetDesiredUpdateRate());
   switch (State) {
     case VTK_INTERACTOR_STYLE_CAMERA_SELECT:
     case VTK_INTERACTOR_STYLE_CAMERA_FIT:
@@ -717,14 +715,16 @@ void VTKViewer_InteractorStyleSALOME::onFinishOperation()
 {
   if (!myGUIWindow) return;
 
+
   QAD_Study* aActiveStudy = QAD_Application::getDesktop()->getActiveStudy();
   SALOME_Selection* aSel    = SALOME_Selection::Selection( aActiveStudy->getSelection() );
   vtkRenderWindowInteractor *rwi = this->Interactor;
 
+  // VSV: LOD actor activisation
+  //  rwi->GetRenderWindow()->SetDesiredUpdateRate(rwi->GetStillUpdateRate());
+
   int aSelectionMode = aSel->SelectionMode();
   bool aSelActiveCompOnly = aSel->IsSelectActiveCompOnly();
-  SALOMEDS::SComponent_var aActiveComponent = SALOMEDS::SComponent::_narrow(
-     aActiveStudy->getStudyDocument()->FindObject(QAD_Application::getDesktop()->getActiveComponent()));
 
   switch (State) {
     case VTK_INTERACTOR_STYLE_CAMERA_SELECT:
@@ -757,6 +757,11 @@ void VTKViewer_InteractorStyleSALOME::onFinishOperation()
           vtkActorCollection* listactors = NULL;
           this->FindPokedRenderer(x, y);
 	  rwi->StartPickCallback();
+
+// 	  vtkPicker* aPicker = vtkPicker::SafeDownCast(rwi->GetPicker());
+// 	  if (aPicker)
+// 	    aPicker->SetTolerance(0.01);
+	  
           rwi->GetPicker()->Pick(x, y, 0.0, this->CurrentRenderer);
     
           if ( rwi->GetPicker()->IsA("vtkCellPicker") ) {
@@ -948,6 +953,10 @@ void VTKViewer_InteractorStyleSALOME::onFinishOperation()
           }
         } else {
           //processing rectangle selection
+	  SALOMEDS::SComponent_var aActiveComponent = SALOMEDS::SComponent::
+	    _narrow(aActiveStudy->getStudyDocument()->
+		    FindObject(QAD_Application::getDesktop()->getActiveComponent()));
+	  if(aSelActiveCompOnly && aActiveComponent->_is_nil()) return;
 	  rwi->StartPickCallback();
 
 	  if (!myShiftState) {
@@ -1045,9 +1054,10 @@ void VTKViewer_InteractorStyleSALOME::onFinishOperation()
 		    if(SActor->hasIO()) {
 		      Handle(SALOME_InteractiveObject) IO = SActor->getIO();
 		      if(IO.IsNull()) continue;
-		      if(aSelActiveCompOnly)
+		      if(aSelActiveCompOnly) {
 			if(strcmp(aActiveComponent->ComponentDataType(),IO->getComponentDataType()) != 0)
 			  continue;
+		      }
 		      if(vtkDataSet* aDataSet = SActor->GetMapper()->GetInput()){
 			for(int i = 0, iEnd = aDataSet->GetNumberOfCells(); i < iEnd; i++){
 			  if(vtkCell* aCell = aDataSet->GetCell(i)){
@@ -1146,6 +1156,8 @@ void VTKViewer_InteractorStyleSALOME::onFinishOperation()
     }
     break;
   }
+  if (myGUIWindow) myGUIWindow->update();
+
 }
 
 // called during viewer operation when user moves mouse (!put necessary processing here!)
@@ -1310,7 +1322,7 @@ void VTKViewer_InteractorStyleSALOME::Place(const int theX, const int theY)
   // restore zoom scale
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   cam->SetParallelScale(myScale);
-  this->CurrentRenderer->ResetCameraClippingRange();
+  ::ResetCameraClippingRange(this->CurrentRenderer);
 
   /* VSV Light follows camera: if (this->CurrentLight) {
     this->CurrentLight->SetPosition(cam->GetPosition());
@@ -1318,6 +1330,7 @@ void VTKViewer_InteractorStyleSALOME::Place(const int theX, const int theY)
     }*/
   //VTKViewer_RenderWindow* aRW = dynamic_cast<VTKViewer_RenderWindow*>(this->Interactor->GetRenderWindow());
   if (myGUIWindow) myGUIWindow->update();
+
 }
 
 

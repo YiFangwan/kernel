@@ -24,11 +24,8 @@
 //  $Header$
 
 #include "SALOME_Component.idl"
-/*! \defgroup Kernel SALOME KERNEL module
-*/
 
-/*!  \ingroup Kernel 
-   
+/*!   
   This package contains interfaces used for management of the session in %SALOME application.
 */
 module SALOME
@@ -38,7 +35,9 @@ module SALOME
    This enumeration contains values defining the state of the session
   
 */ 
-  enum SessionState {asleep, running} ;
+  enum SessionState {asleep, /*! Session is inactive */
+		     running /*! Session is running */
+  } ;
 
 /*! \brief %Session State and Statistics
 
@@ -83,7 +82,10 @@ module SALOME
    Launches GUI in the session
 */
     void GetInterface(); 
-    //***//    VISU::VISU_Gen GetVisuGen();
+
+/*! 
+   Returns the Visu component
+*/
     Engines::Component GetVisuComponent();
 
 /*! 

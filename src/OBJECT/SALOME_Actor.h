@@ -30,40 +30,45 @@
 #define SALOME_ACTOR_H
 
 // SALOME Includes
-#include "SALOME_Transform.h"
+#include "VTKViewer_Common.h"
 #include "SALOME_InteractiveObject.hxx"
 #ifndef _Handle_SALOME_InteractiveObject_HeaderFile
 #include "Handle_SALOME_InteractiveObject.hxx"
 #endif
-
 #include <vector>
-#include "VTKViewer_Common.h"
 
-class SALOME_Actor : public vtkLODActor 
-{
+class SALOME_Transform;
+class SALOME_TransformFilter;
+class SALOME_PassThroughFilter;
+
+extern int SALOME_POINT_SIZE;
+
+class SALOME_Actor : public vtkLODActor{
  protected:
   //constructor should be protected due to first implementation of this class
   //it was abstract class
   SALOME_Actor();
   ~SALOME_Actor();
  public:
-  vtkTypeMacro(SALOME_Actor,vtkActor);
+  static SALOME_Actor* New();
+
+  vtkTypeMacro(SALOME_Actor,vtkLODActor);
 
   // Description:
   // This causes the actor to be rendered. It, in turn, will render the actor`s
   // property and then mapper.
-  virtual void Render(vtkRenderer *, vtkMapper *);
+  //virtual void Render(vtkRenderer *, vtkMapper *);
 
   // Description:
   // This method is used internally by the rendering process.
   // We overide the superclass method to properly set the estimated render time.
-  virtual int RenderOpaqueGeometry(vtkViewport *viewport);
+  //virtual int RenderOpaqueGeometry(vtkViewport *viewport);
 
   // Description:
   // Release any graphics resources that are being consumed by this actor.
   // The parameter window could be used to determine which graphic
   // resources to release.
-  virtual void ReleaseGraphicsResources(vtkWindow *);
+  //virtual void ReleaseGraphicsResources(vtkWindow *);
 
   virtual Standard_Boolean hasIO() { return !myIO.IsNull(); }
   virtual Handle_SALOME_InteractiveObject getIO() { return myIO; } 
@@ -102,6 +107,15 @@ class SALOME_Actor : public vtkLODActor
   virtual void SetMapper(vtkMapper* theMapper); 
   virtual void SetTransform(SALOME_Transform* theTransform); 
 
+  virtual unsigned long int GetMTime();
+
+  virtual void SetRepresentation(int theMode);
+  virtual int GetRepresentation();
+
+  // Infinitive means actor without size (point for example
+  // which is not taken into account in calculation of boundaries of the scene
+  virtual bool IsInfinitive() { return false; }
+    
  protected:
   vtkProperty         *PreviewProperty;
   Standard_Boolean    ispreselected;
@@ -116,5 +130,8 @@ class SALOME_Actor : public vtkLODActor
   SALOME_Transform *myTransform;
   std::vector<SALOME_PassThroughFilter*> myPassFilter;
   SALOME_TransformFilter *myTransformFilter;
+  vtkProperty *myProperty;
+  int myRepresentation;
 };
+
 #endif // SALOME_ACTOR_H

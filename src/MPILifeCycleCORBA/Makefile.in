@@ -32,7 +32,7 @@ BIN = TestMPILifeCycleCORBA
 BIN_SRC =
 BIN_CLIENT_IDL = Logger.idl SALOME_MPIObject.idl SALOME_MPIContainer.idl SALOME_TestMPIComponent.idl
 
-LDFLAGS += -lSalomeNS -lSalomeLifeCycleCORBA -lOpUtil -lSalomeLoggerServer
+LDFLAGS += -lSalomeNS -lSalomeLifeCycleCORBA -lOpUtil -lSALOMELocalTrace
 
 @CONCLUDE@
 

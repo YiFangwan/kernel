@@ -41,7 +41,6 @@ AC_SUBST(CAS_LDPATH)
 CAS_CPPFLAGS=""
 CAS_CXXFLAGS=""
 CAS_LDFLAGS=""
-
 occ_ok=no
 
 dnl libraries directory location

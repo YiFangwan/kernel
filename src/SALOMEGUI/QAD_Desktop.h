@@ -34,7 +34,7 @@
 #include "QAD_Application.h"
 #include "QAD_OperatorMenus.h"
 #include "QAD_Menus.h"
-#include "QAD_HelpWindow.h"
+//NRI#include "QAD_HelpWindow.h"
 #include "QAD_Action.h"
 
 #include "SALOME_NamingService.hxx"
@@ -79,8 +79,9 @@ protected:
 	  DefaultViewerOCCId, DefaultViewerVTKId, DefaultGraphSupervisorId, DefaultPlot2dId,
 	  //VRV: T2.5 - add default viewer
 	  PrefViewerTrihedronId, PrefConsoleFontId, PrefObjectBrowserEntryId, 
-	  PrefObjectBrowserIAPPId, PrefObjectBrowserValueId, PrefObjectBrowserCHRONO_SORTId, 
-	  PrefDirsId, PrefMultiFileSave, PrefASCIISave, PrefSaveId,
+	  PrefObjectBrowserIAPPId, PrefObjectBrowserValueId, PrefObjectBrowserCHRONO_SORTId,PrefObjectBrowserShowUseCaseId, 
+	  PrefObjectBrowserNoAutoSizeColumnsId,  
+	  PrefDirsId, PrefMultiFileSave, PrefASCIISave, PrefUndoLevelId, PrefExternalBrowserId, PrefSaveId,
 	  //NRI : SAL2214
 	  WindowNew3dId, ViewOCCId, ViewVTKId, ViewPlot2dId,
 	  //NRI : SAL2214
@@ -144,14 +145,15 @@ public:
     QWorkspaceP*      getMainFrame() const;
     QString	      getNewStudyName();
     QAD_Study*        findStudy( SALOMEDS::Study_ptr theStudy );
-
+    static int        getUndoLevel();
     /* help actions */
     virtual void      helpAbout();    
-    virtual void      helpSearch();
+/*    virtual void      helpSearch();
     virtual void      helpContents();
     virtual void      helpContext(const QString& path, const QString& dir = QString::null);
-
+*/
     bool	      loadComponent(QString);
+    QString           changeXmlInputSourceData(QString theData, QString theComponent);
     void	      activateComponent(const QString& theName, bool isLoadData = true);
     void              createStudy();
 
@@ -171,7 +173,7 @@ public:
     QString getComponentName(const char *componentUserName);
     QString getComponentUserName(const char *componentName);
     
-    QAD_HelpWindow*   getHelpWindow();
+    //NRI    QAD_HelpWindow*   getHelpWindow();
 
     void	      onMouseMove(QMouseEvent*);
     bool	      onMousePress(QMouseEvent*);
@@ -236,12 +238,16 @@ protected slots:
     void	      onObjectBrowser();
     void              onMultiFileSave();
     void              onASCIISave();
+    void              onUndoLevel();
+    void	      onExternalBrowser();	
 
     void	      onActivateApp(QAD_Application* app);
     void	      onDeactivateApp(QAD_Application* app);
 
     void	      onHelpContents();
-    void	      onHelpSearch();
+    void	      onHelpContentsGUI();
+    void	      onHelpContentsTUI();
+/*    void	      onHelpSearch(); */
     void	      onHelpAbout();
 
     void	      onNewWindow3d();
@@ -257,7 +263,7 @@ protected slots:
     void	      onComboActiveComponent( const QString & , bool isLoadData);
     void              onCascade(); 
 
-    void              onHelpWindowClosed();
+/* NRI   void              onHelpWindowClosed(); */
 
 protected:
     QMenuBar*	      myMainMenu;	    /* the main menu bar */
@@ -305,7 +311,7 @@ protected:
     QList<QAD_Menus>   myMenusList;
     QAD_Menus*	       myActiveMenus;
 
-    QAD_HelpWindow*    myHelpWindow;
+    //NRI QAD_HelpWindow*    myHelpWindow;
 
     QList<QToolButton> myComponentButton;
 

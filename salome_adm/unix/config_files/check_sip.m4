@@ -57,6 +57,7 @@ else
 	   SIP_INCLUDES="${PYTHON_INCLUDES} -I${SIPDIR}/include/python${PYTHON_VERSION}"
 	   SIP_LIBS="-L${SIPDIR}/lib/python${PYTHON_VERSION}/site-packages -lsip"
 	else
+	   sip_ok=yes
 	   SIP_ROOT="$SIPDIR"
 	   SIP_INCLUDES="-I${SIPDIR}"
 	   SIP_LIBS="-L${SIPDIR} -lsip"

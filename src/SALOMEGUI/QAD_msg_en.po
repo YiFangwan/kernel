@@ -175,6 +175,14 @@ msgstr "&About ..."
 msgid "QAD_Desktop::MEN_DESK_HELP_CONTENTS"
 msgstr "&Contents"
 
+#: QAD_Desktop.cxx:265
+msgid "QAD_Desktop::MEN_DESK_HELP_GUICONTENTS"
+msgstr "&GUI Reference"
+
+#: QAD_Desktop.cxx:265
+msgid "QAD_Desktop::MEN_DESK_HELP_TUICONTENTS"
+msgstr "&TUI Reference"
+
 #: QAD_Desktop.cxx:273
 msgid "QAD_Desktop::MEN_DESK_HELP_SEARCH"
 msgstr "&Search ..."
@@ -202,6 +210,10 @@ msgstr "Viewer background"
 #: QAD_Config.cxx:376
 msgid "MEN_DESK_PREF_VIEWER_TRIHEDRON"
 msgstr "Trihedron size"
+
+#: QAD_Desktop.cxx:747
+msgid "MEN_DESK_PREF_EXTERNAL_BROWSER"
+msgstr "External browser"
 
 msgid "MEN_DESK_PREF_DEFAULT_VIEWER"
 msgstr "Default viewer"
@@ -246,6 +258,12 @@ msgstr "Interface Applicative"
 
 msgid "MEN_DESK_PREF_OBJECTBROWSER_CHRONO_SORT"
 msgstr "Chronological sort of objects" 
+
+msgid "MEN_DESK_PREF_OBJECTBROWSER_SHOW_USECASE"
+msgstr "Show UseCase Browser" 
+
+msgid "MEN_DESK_PREF_OBJECTBROWSER_NO_AUTOSIZE"
+msgstr "No autosize columns" 
 
 
 msgid "QAD_Desktop::MEN_DESK_SELECTION_MODE"
@@ -363,6 +381,14 @@ msgstr "Shows \'About\' dialog"
 #: QAD_Desktop.cxx:266
 msgid "QAD_Desktop::PRP_DESK_HELP_CONTENTS"
 msgstr "Shows the whole help contents"
+
+#: QAD_Desktop.cxx:266
+msgid "QAD_Desktop::PRP_DESK_HELP_GUICONTENTS"
+msgstr "Shows the GUI help contents"
+
+#: QAD_Desktop.cxx:266
+msgid "QAD_Desktop::PRP_DESK_HELP_TUICONTENTS"
+msgstr "Shows the TUI help contents"
 
 #: QAD_Desktop.cxx:274
 msgid "QAD_Desktop::PRP_DESK_HELP_SEARCH"
@@ -543,10 +569,6 @@ msgstr "The study %1 is not saved.\nDo you want to save it ?"
 #: *.cxx:709
 msgid "WRN_WARNING"
 msgstr "Warning"
-
-#: QAD_Desktop.cxx:1072
-msgid "QAD_Desktop::WRN_LOAD_COMPONENT"
-msgstr "Creates or opens before a study"
 
 msgid "WRN_STUDY_LOCKED"
 msgstr "This study is locked and therefore cannot be modified"
@@ -750,6 +772,9 @@ msgstr "ASCII Save"
 
 msgid "TOT_APP_EDIT_COPY"
 msgstr "Copy"
+
+msgid "MEN_DESK_PREF_UNDO_LEVEL"
+msgstr "Undo Level"
 
 msgid "MEN_APP_EDIT_COPY"
 msgstr "&Copy"

@@ -34,6 +34,8 @@
 # include "Utils_SINGLETON.hxx"
 
 #define	 INCLUDE_MENUITEM_DEF
+#define  DEFAULT_BROWSER "mozilla"
+
 
 #include "QAD.h"
 #include "QAD_Help.h"
@@ -50,21 +52,24 @@
 #include "QAD_ObjectBrowser.h"
 #include "QAD_Resource.h"
 #include "QAD_FileDlg.h"
-#include "QAD_HelpWindow.h"
+//NRI #include "QAD_HelpWindow.h"
 #include "QAD_DirListDlg.h"
 #include "QAD_WaitCursor.h"
 #include "SALOMEGUI_OpenWith.h"
 #include "SALOMEGUI_StudyPropertiesDlg.h"
 #include "SALOMEGUI_TrihedronSizeDlg.h"
+#include "SALOMEGUI_ExternalBrowserDlg.h"
 #include "SALOMEGUI_LoadStudiesDlg.h"
 #include "SALOME_Selection.h"
 #include "SALOME_InteractiveObject.hxx"
 #include "SALOME_ListIteratorOfListIO.hxx"
 #include "SALOMEGUI_AboutDlg.h"
 #include "SALOMEGUI_ViewChoiceDlg.h"
+#include "SALOMEGUI_SetValueDlg.h"
 #include "utilities.h"
 
 #include "SALOMEGUI_CloseDlg.h"
+#include "SALOMEGUI_ActivateComponentDlg.h"
 
 // QT Includes
 #include <qlabel.h>
@@ -86,6 +91,7 @@
 #include <qfontdialog.h>
 #include <qlineedit.h>
 #include <qdatetime.h>
+#include <qthread.h>
 
 #if QT_VERSION > 300
   #include <qlistbox.h>
@@ -108,6 +114,18 @@ extern "C"
 QAD_ResourceMgr* QAD_Desktop::resourceMgr = 0;
 QPalette*	 QAD_Desktop::palette = 0;
 
+static QString createString( int theItemId, int thePosId ) 
+{
+  QString aRetString = QString("item-id=");
+  QString aString;
+  QString aItemId = aString.setNum(theItemId);
+  QString aPosId = aString.setNum(thePosId);
+  aRetString = aRetString + '"'; aRetString = aRetString + aItemId; aRetString = aRetString + '"'; 
+  aRetString = aRetString + " pos-id="; aRetString = aRetString + '"';
+  aRetString = aRetString + aPosId; 
+  aRetString = aRetString + '"'; aRetString = aRetString + ">";
+  return aRetString;
+}
 
 /*!
     Creates the resource manager [ static ]
@@ -174,7 +192,7 @@ myStatusBar(0),
 myActiveApp(0),
 myActiveStudy(0),
 myCntUntitled(0),
-myHelpWindow(0),
+//NRImyHelpWindow(0),
 myDefaultTitle( tr("DESK_DEFAULTTITLE") ),
 myQueryClose( true )
 {
@@ -342,8 +360,8 @@ QAD_Desktop::~QAD_Desktop ()
   myToolBarAction.clear();
   myApps.clear();
   delete resourceMgr;
-  if (myHelpWindow)
-    myHelpWindow->close();
+//NRI   if (myHelpWindow)
+//     myHelpWindow->close();
   resourceMgr = 0;
   QAD_Application::desktop = 0;
 }
@@ -364,9 +382,17 @@ const int IdSelectAll = 1004;
 */
 bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
 {
-  if ( e->type() == QEvent::ContextMenu ) {
-    QContextMenuEvent* ce = (QContextMenuEvent*)e;
-    if ( o->inherits("QRenameEdit") ) {
+  if (e->type() == 2000   ) {
+    QMessageBox::information (this, tr ( "Help Information" ), tr ( "Can't run choosen browser.\nRunning default browser (Mozilla). "));
+    return TRUE;
+  }
+  else if (e->type() == 2001 ) {
+    QMessageBox::critical(this, tr ( "Help Error" ), tr ( "Can't run the default browser.") );
+    return TRUE;
+  }
+    else if ( e->type() == QEvent::ContextMenu ) {
+      QContextMenuEvent* ce = (QContextMenuEvent*)e;
+      if ( o->inherits("QRenameEdit") ) {
       return TRUE;
     }
     else if ( o->inherits("QLineEdit") ) {
@@ -715,6 +741,8 @@ void QAD_Desktop::createActions()
     QAD_ASSERT(connect( myQAG, SIGNAL(selected(QActionP * )), this, SLOT(onDefaultViewer(QActionP *) )));
     //VRV: T2.5 - add default viewer
 
+    myPrefPopup.insertSeparator();
+
     QActionP* viewerTrihedronAction = new QActionP( "", tr("MEN_DESK_PREF_VIEWER_TRIHEDRON"), 0, this );
     QAD_ASSERT(connect( viewerTrihedronAction, SIGNAL(activated()), this, SLOT(onViewerTrihedron() )));
     viewerTrihedronAction->addTo( &myPrefPopup );
@@ -743,8 +771,21 @@ void QAD_Desktop::createActions()
     ASCIISaveAction->addTo( &myPrefPopup );
     myStdActions.insert( PrefASCIISave, ASCIISaveAction );
 
+    /* Undo level */
+    QActionP* UndoLevelAction = new QActionP( "", tr("MEN_DESK_PREF_UNDO_LEVEL"), 0, this );
+    QAD_ASSERT(connect( UndoLevelAction, SIGNAL(activated()), this, SLOT(onUndoLevel() )));
+    UndoLevelAction->addTo( &myPrefPopup );
+    myStdActions.insert( PrefUndoLevelId, UndoLevelAction );
+
     myPrefPopup.insertSeparator();
     
+    /* External Browser */
+    QActionP* externalBrowserAction = new QActionP( "", tr("MEN_DESK_PREF_EXTERNAL_BROWSER"), 0, this );
+    QAD_ASSERT(connect( externalBrowserAction, SIGNAL(activated()), this, SLOT(onExternalBrowser() )));
+    externalBrowserAction->addTo( &myPrefPopup );
+    myStdActions.insert( PrefExternalBrowserId, externalBrowserAction );
+        
+    myPrefPopup.insertSeparator();
     /* BrowserPopup */
     myPrefPopup.insertItem( tr("MEN_DESK_PREF_OBJECTBROWSER"), &myObjBrowserPopup );
     
@@ -791,7 +832,7 @@ void QAD_Desktop::createActions()
     QActionP* objectBrowserCHRONO_SORTAction = new QActionP( "", tr("MEN_DESK_PREF_OBJECTBROWSER_CHRONO_SORT"), 0, this, 0, true );
     QAD_ASSERT(connect( objectBrowserCHRONO_SORTAction, SIGNAL(activated()), this, SLOT(onObjectBrowser() )));
     objectBrowserCHRONO_SORTAction->setToggleAction(true);
-    QString showSORT = QAD_CONFIG->getSetting("ObjectBrowser:CHRONO_SORT");
+    QString showSORT = QAD_CONFIG->getSetting("ObjectBrowser:ChronologicalSort");
     
     if ( showSORT.compare( aTrueQString ) == 0 )
       objectBrowserCHRONO_SORTAction->setOn(true) ;
@@ -801,6 +842,34 @@ void QAD_Desktop::createActions()
     objectBrowserCHRONO_SORTAction->addTo( &myObjBrowserPopup );
     myStdActions.insert( PrefObjectBrowserCHRONO_SORTId, objectBrowserCHRONO_SORTAction ) ;
     
+    /* Show or don't Show UseCase browser */
+    QActionP* objectBrowserShowUseCaseAction = new QActionP( "", tr("MEN_DESK_PREF_OBJECTBROWSER_SHOW_USECASE"), 0, this, 0, true );
+    QAD_ASSERT(connect( objectBrowserShowUseCaseAction, SIGNAL(activated()), this, SLOT(onObjectBrowser() )));
+    objectBrowserShowUseCaseAction->setToggleAction(true);
+    QString showUseCase = QAD_CONFIG->getSetting("ObjectBrowser:ShowUseCaseBrowser");
+    
+    if ( showUseCase.compare( aTrueQString ) == 0 )
+      objectBrowserShowUseCaseAction->setOn(true) ;
+    else
+      objectBrowserShowUseCaseAction->setOn(false) ;
+    
+    objectBrowserShowUseCaseAction->addTo( &myObjBrowserPopup );
+    myStdActions.insert( PrefObjectBrowserShowUseCaseId, objectBrowserShowUseCaseAction ) ;
+
+    /* Resize or don't resize columns automatically */
+    QActionP* objectBrowserNoAutoSizeAction = new QActionP( "", tr("MEN_DESK_PREF_OBJECTBROWSER_NO_AUTOSIZE"), 0, this, 0, true );
+    QAD_ASSERT(connect( objectBrowserNoAutoSizeAction, SIGNAL(activated()), this, SLOT(onObjectBrowser() )));
+    objectBrowserNoAutoSizeAction->setToggleAction(true);
+    QString noAutoSize = QAD_CONFIG->getSetting("ObjectBrowser:NoAutoSizeColumns");
+    
+    if ( noAutoSize.compare( aTrueQString ) == 0 )
+      objectBrowserNoAutoSizeAction->setOn(true) ;
+    else
+      objectBrowserNoAutoSizeAction->setOn(false) ;
+    
+    objectBrowserNoAutoSizeAction->addTo( &myObjBrowserPopup );
+    myStdActions.insert( PrefObjectBrowserNoAutoSizeColumnsId, objectBrowserNoAutoSizeAction ) ;
+
     myPrefPopup.insertSeparator();
 
     QActionP* dirAction = new QActionP( "", tr("MEN_DESK_PREF_DIRICTORIES"), ALT+Key_D, this );
@@ -871,6 +940,26 @@ void QAD_Desktop::createActions()
 			this, SLOT( onHelpContents() )));
     helpContentsAction->addTo( &myHelpPopup );
     myStdActions.insert( HelpContentsId , helpContentsAction );
+				
+    id = myHelpPopup.insertSeparator();
+						   
+    /* GUI contents */
+    // NRI : Temporary commented
+
+//     QActionP* helpContentsActionGUI = new QActionP( "", tr("MEN_DESK_HELP_GUICONTENTS"), 0, this );
+//     helpContentsActionGUI->setStatusTip ( tr("PRP_DESK_HELP_GUICONTENTS") );
+//     QAD_ASSERT(connect( helpContentsActionGUI, SIGNAL(activated()),
+// 			this, SLOT( onHelpContentsGUI() )));
+//     helpContentsActionGUI->addTo( &myHelpPopup );
+//     myStdActions.insert( HelpContentsId , helpContentsActionGUI );
+
+    /* TUI contents */
+    QActionP* helpContentsActionTUI = new QActionP( "", tr("MEN_DESK_HELP_TUICONTENTS"), 0, this );
+    helpContentsActionTUI->setStatusTip ( tr("PRP_DESK_HELP_TUICONTENTS") );
+    QAD_ASSERT(connect( helpContentsActionTUI, SIGNAL(activated()),
+			this, SLOT( onHelpContentsTUI() )));
+    helpContentsActionTUI->addTo( &myHelpPopup );
+    myStdActions.insert( HelpContentsId , helpContentsActionTUI );						   
 
     /* search */
 //    QActionP* helpSearchAction = new QActionP( "", tr("MEN_DESK_HELP_SEARCH"), 0, this );
@@ -1001,6 +1090,7 @@ void QAD_Desktop::updateCaption( UpdateCommand cmd )
     else
     {	/* default icon and title */
 	setIcon( myDefaultIcon );
+	qApp->processEvents();
 	setCaption( myDefaultTitle );
     }
 }
@@ -1129,6 +1219,18 @@ QAD_Study* QAD_Desktop::findStudy( SALOMEDS::Study_ptr theStudy )
 }
 
 /*!
+  Gets value of max undo level for SALOMEDS::Study's from preferences
+*/
+int QAD_Desktop::getUndoLevel()
+{
+  static int MAX_UNDO = 10;
+  int anUndoLevel = MAX_UNDO;
+  QString aLevel = QAD_CONFIG->getSetting("Desktop:UndoLevel");
+  if(!aLevel.isEmpty()) anUndoLevel = aLevel.toInt();
+  return anUndoLevel;
+}
+
+/*!
     Returns current active application
 */
 QAD_Application* QAD_Desktop::getActiveApp() const
@@ -1181,48 +1283,48 @@ QString QAD_Desktop::getComponentUserName(const char *componentName)
   return "";
 }
 
-/*!
-  gets application Help Window (and creates if necessary)
-*/
-QAD_HelpWindow* QAD_Desktop::getHelpWindow()
-{
-  if (!myHelpWindow) {
-    myHelpWindow = new QAD_HelpWindow();  
+// /*!
+//   gets application Help Window (and creates if necessary)
+// */
+// QAD_HelpWindow* QAD_Desktop::getHelpWindow()
+// {
+//   if (!myHelpWindow) {
+//     myHelpWindow = new QAD_HelpWindow();  
     
-    QMap<QString,QString>::Iterator it;
-    for( it = mapComponentName.begin(); it != mapComponentName.end(); ++it ) {
-      QCString dir;
-      QString root;
+//     QMap<QString,QString>::Iterator it;
+//     for( it = mapComponentName.begin(); it != mapComponentName.end(); ++it ) {
+//       QCString dir;
+//       QString root;
       
-      // look for index.html and set homeDir
-      // 1. $(MODULE_ROOT_DIR)/doc/index.html
-      // 2. $(MODULE_ROOT_DIR)/doc/html/index.html
-      // 3. $(MODULE_ROOT_DIR)/doc/html/html/index.html
+//       // look for index.html and set homeDir
+//       // 1. $(MODULE_ROOT_DIR)/doc/index.html
+//       // 2. $(MODULE_ROOT_DIR)/doc/html/index.html
+//       // 3. $(MODULE_ROOT_DIR)/doc/html/html/index.html
 
-      if (dir = getenv( QString( it.data() + "_ROOT_DIR")) ) {
-	root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + "doc" );
-	if ( QFileInfo( root + "index.html" ).exists() ) {
-	  helpContext( root + "index.html", "" );
-	}
-	else {
-	  root = QAD_Tools::addSlash( root + "html" );
-	  if ( QFileInfo( root + "index.html" ).exists() ) {
-	    helpContext( root + "index.html", "" );
-	  }
-	  else {
-	    root = QAD_Tools::addSlash( root + "html" );
-	    if ( QFileInfo( root + "index.html" ).exists() ) {
-	      helpContext( root + "index.html", "" );
-	    }
-	  }
-	}
-      }
-    }
+//       if (dir = getenv( QString( it.data() + "_ROOT_DIR")) ) {
+// 	root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + "doc" );
+// 	if ( QFileInfo( root + "index.html" ).exists() ) {
+// 	  helpContext( root + "index.html", "" );
+// 	}
+// 	else {
+// 	  root = QAD_Tools::addSlash( root + "html" );
+// 	  if ( QFileInfo( root + "index.html" ).exists() ) {
+// 	    helpContext( root + "index.html", "" );
+// 	  }
+// 	  else {
+// 	    root = QAD_Tools::addSlash( root + "html" );
+// 	    if ( QFileInfo( root + "index.html" ).exists() ) {
+// 	      helpContext( root + "index.html", "" );
+// 	    }
+// 	  }
+// 	}
+//       }
+//     }
     
-    connect(myHelpWindow, SIGNAL(helpWindowClosed()), this, SLOT(onHelpWindowClosed()));
-  }
-  return myHelpWindow;
-}
+//     connect(myHelpWindow, SIGNAL(helpWindowClosed()), this, SLOT(onHelpWindowClosed()));
+//   }
+//   return myHelpWindow;
+// }
 
 /*!
     Called when desktop is closing
@@ -1395,8 +1497,8 @@ void QAD_Desktop::onLoadStudy()
 	  //don't ask user to remove study permanently
 	  if (app->getStudyByName ( name ) != NULL)
 	    onCloseStudy ( app->getStudyByName ( name ), false );
-	  else if (app->getStudyByName ( QAD_Tools::getFileNameFromPath( name, false )) != NULL)
-	    onCloseStudy ( app->getStudyByName ( QAD_Tools::getFileNameFromPath( name, false )), false );
+	  else if (app->getStudyByName ( QAD_Tools::getFileNameFromPath( name, true )) != NULL)
+	    onCloseStudy ( app->getStudyByName ( QAD_Tools::getFileNameFromPath( name, true )), false );
 	}
       appFound = true;
       
@@ -1484,8 +1586,7 @@ void QAD_Desktop::onOpenStudy()
     SALOMEDS::ListOfOpenStudies_var List = myStudyMgr->GetOpenStudies();
     for (unsigned int ind = 0; ind < List->length();ind++) {
       QString NameExistingStudy(List[ind]);
-      QString NameOpeningStudy = QAD_Tools::getFileNameFromPath( name, false );
-     
+      QString NameOpeningStudy = QAD_Tools::getFileNameFromPath( name, true );
       if ( NameExistingStudy.compare( NameOpeningStudy ) == 0 ) {
 	if ( QAD_MessageBox::warn2 ( this, tr("WRN_WARNING"),
 				     tr("QUE_DOC_ALREADYEXIST").arg( name ),
@@ -1530,8 +1631,8 @@ void QAD_Desktop::onOpenStudy()
 		//don't ask user to remove study permanently
 		if (app->getStudyByName ( name ) != NULL)
 		  onCloseStudy ( app->getStudyByName ( name ), false );
-		else if (app->getStudyByName ( QAD_Tools::getFileNameFromPath( name, false )) != NULL)
-		  onCloseStudy ( app->getStudyByName ( QAD_Tools::getFileNameFromPath( name, false )), false );
+		else if (app->getStudyByName ( QAD_Tools::getFileNameFromPath( name, true )) != NULL)
+		  onCloseStudy ( app->getStudyByName ( QAD_Tools::getFileNameFromPath( name, true )), false );
 	    }
 	    appFound = true;
 
@@ -1593,10 +1694,10 @@ bool QAD_Desktop::loadComponentData( const QString& compName )
       if (!CORBA::is_nil(driver)) {
 	SALOMEDS::StudyBuilder_var  B = aStudy->NewBuilder();
 	if (!CORBA::is_nil(B)) {
-	  QAD_Operation* op = new QAD_Operation( myActiveStudy );
-	  op->start();
+//	  QAD_Operation* op = new QAD_Operation( myActiveStudy );
+//	  op->start();
 	  B->LoadWith(SCO,driver);
-	  op->finish();
+//	  op->finish();
 	} else {
 	  return false;
 	}
@@ -1807,13 +1908,13 @@ void QAD_Desktop::onCascade()
       it.current()->resize((int)(0.8*w), (int)(0.8*h));
 }
 
-/*!
-  called when help window closed
-*/
-void QAD_Desktop::onHelpWindowClosed()
-{
-  myHelpWindow = 0;
-}
+// /*!
+//   called when help window closed
+// */
+// void QAD_Desktop::onHelpWindowClosed()
+// {
+//   myHelpWindow = 0;
+// }
 
 /*!
     Called when 'view status bar' option
@@ -1984,27 +2085,152 @@ void QAD_Desktop::onNewWindow3d()
   //NRI : SAL2214
 }
 
+// Helps to execute command
+class RunBrowser: public QThread {
+public:
+  
+  RunBrowser(QString theApp, QString theParams, QString theHelpFile, QString theContext=NULL): 
+    myApp(theApp), myParams(theParams), myHelpFile("file:" + theHelpFile + theContext), myStatus(0) {};
+ 
+  virtual void run()
+  {
+    QString aCommand;
+    
+    if ( !myApp.isEmpty())
+      {
+	aCommand.sprintf("%s %s %s",myApp.latin1(),myParams.latin1(),myHelpFile.latin1());
+	myStatus = system(aCommand);
+	if(myStatus != 0)
+	  {
+	    QCustomEvent* ce2000 = new QCustomEvent (2000);
+	    postEvent (qApp, ce2000);
+	  }
+      }
+    
+    if( myStatus != 0 || myApp.isEmpty())
+      {
+	myParams = "";
+	aCommand.sprintf("%s %s %s", QString(DEFAULT_BROWSER).latin1(),myParams.latin1(), myHelpFile.latin1());	
+	myStatus = system(aCommand);
+	if(myStatus != 0)
+	  {
+	    QCustomEvent* ce2001 = new QCustomEvent (2001);
+	    postEvent (qApp, ce2001);
+	  }
+      }
+  }
+
+private:
+  QString myApp;
+  QString myParams;
+  QString myHelpFile;
+  int myStatus;
+  
+};
+
 /*!
     Called on 'help\contents'
 */
 void QAD_Desktop::onHelpContents()
-{
-  if (myActiveApp)
-    myActiveApp->helpContents();
-  else
-    helpContents();
+{  if (myActiveComp == "")
+    myActiveComp = getComponentUserName( "KERNEL" ); //NRI "Salome";
+
+  QCString dir;
+  QString root;
+  QString homeDir;
+  if (dir = getenv( getComponentName( myActiveComp ) + "_ROOT_DIR")) {
+    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + QAD_Tools::addSlash("doc") + "html" );
+    if ( QFileInfo( root + "index.html" ).exists() ) {
+      homeDir = root;
+    } else {
+      QMessageBox::warning( this, tr("WRN_WARNING"), 
+			    QString( "%1index.html doesn't exist." ).arg(root), tr ("BUT_OK") );
+      return;
+    }
+  }
+
+  QString helpFile = QFileInfo( homeDir + "index.html" ).absFilePath();   
+  QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
+  QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+   
+  RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
+  rs->start();
 }
 
 /*!
-    Called on 'help\search'
+    Called on 'help\GUI Reference'
 */
-void QAD_Desktop::onHelpSearch()
+void QAD_Desktop::onHelpContentsGUI()
 {
-  if (myActiveApp)
-    myActiveApp->helpSearch();
-  else
-    helpSearch();
+//   QCString dir;
+//   QString root;
+//   QString homeDir;
+  
+//   if ( (dir = getenv("KERNEL_ROOT_DIR")) ) {
+//     root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + "doc" );
+//     root = QAD_Tools::addSlash( root + "guihtml" );
+//     root = QAD_Tools::addSlash( root + "guihtml" );
+//     if ( QFileInfo( root + "salomedoc.html" ).exists() ) {
+//       homeDir = root;
+//     }
+//   }
+//   if ( root.isEmpty() ) {
+//     if ( QFileInfo( "/usr/local/doc/guihtml/salomedoc.html" ).exists() ) {
+//       homeDir = "/usr/local/doc/guihtml/";
+//     }
+//   }
+//   if ( root.isEmpty() ) 
+//     root = "./doc/";
+//   QString helpFile = QFileInfo( homeDir + "salomedoc.html" ).absFilePath(); 
+//   QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
+//   QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+   
+//   RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
+//   rs->start();
+    
 }
+
+/*!
+    Called on 'help\TUI Reference'
+*/
+void QAD_Desktop::onHelpContentsTUI()
+{
+  if (myActiveComp == "")
+    myActiveComp = getComponentUserName( "KERNEL" ); //NRI "Salome";
+
+  QCString dir;
+  QString root;
+  QString homeDir;
+  if (dir = getenv( getComponentName( myActiveComp ) + "_ROOT_DIR")) {
+    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + QAD_Tools::addSlash("doc") + "html" );
+    if ( QFileInfo( root + "index.html" ).exists() ) {
+      homeDir = root;
+    } else {
+      QMessageBox::warning( this, tr("WRN_WARNING"), 
+			    QString( "%1index.html doesn't exist." ).arg(root), tr ("BUT_OK") );
+      return;
+    }
+  }
+
+  QString helpFile = QFileInfo( homeDir + "index.html" ).absFilePath(); 
+  
+  QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
+  QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+   
+  RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
+  rs->start();
+}
+
+// /*!
+//     Called on 'help\search'
+// */
+// void QAD_Desktop::onHelpSearch()
+// {
+//   if (myActiveApp)
+//     myActiveApp->helpSearch();
+//   else
+//     helpSearch();
+// }
 
 /*!
     Called on 'help\about'
@@ -2366,6 +2592,14 @@ bool QAD_Desktop::loadComponent(QString Component)
   QXmlSimpleReader reader;
   reader.setContentHandler( myXmlHandler );
   reader.setErrorHandler( myXmlHandler );
+
+  bool IsMaxActStudy = myActiveStudy->getActiveStudyFrame()->isMaximized();
+  if (IsMaxActStudy) {
+    QString aSourceData = source.data();
+    aSourceData = changeXmlInputSourceData( aSourceData, Component );
+    source.setData(aSourceData);
+  }
+
   bool ok = reader.parse( source );
   file.close();
   if ( !ok ) {
@@ -2535,6 +2769,119 @@ bool QAD_Desktop::loadComponent(QString Component)
   return true;
 }
 
+QString QAD_Desktop::changeXmlInputSourceData(QString theData, QString theComponent) 
+{
+  if ( theComponent=="Supervision" ) {
+    //Supervision main menu item
+    int aItemId = 300;
+    int aPosId = 3;
+    QString aStrOld = createString( aItemId, aPosId );
+    QString aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+  }
+  
+  if ( theComponent == "Visu" ) {
+    //Visualization main menu item
+    int aItemId = 401;
+    int aPosId = 3;
+    QString aStrOld = createString( aItemId, aPosId );
+    QString aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+
+    //Selection main menu item
+    aItemId = 41;
+    aPosId = 4;
+    aStrOld = createString( aItemId, aPosId );
+    aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+        
+    //Representation main menu item
+    aItemId = 42;
+    aPosId = 5;
+    aStrOld = createString( aItemId, aPosId );
+    aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+  }
+
+  if ( theComponent == "SMESH" ) {
+    //Hypotheses main menu item
+    int aItemId = 50;
+    int aPosId = 3;
+    QString aStrOld = createString( aItemId, aPosId );
+    QString aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+
+    //Mesh main menu item
+    aItemId = 70;
+    aPosId = 4;
+    aStrOld = createString( aItemId, aPosId );
+    aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+
+    //Controls main menu item
+    aItemId = 60;
+    aPosId = 5;
+    aStrOld = createString( aItemId, aPosId );
+    aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+
+    //Modification main menu item
+    aItemId = 40;
+    aPosId = 6;
+    aStrOld = createString( aItemId, aPosId );
+    aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+
+    //Numbering main menu item
+    aItemId = 80;
+    aPosId = 7;
+    aStrOld = createString( aItemId, aPosId );
+    aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+  }
+  
+  if ( theComponent == "Geometry" ) {
+    //New Entity main menu item
+    int aItemId = 70;
+    int aPosId = 3;
+    QString aStrOld = createString( aItemId, aPosId );
+    QString aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+
+    //Operations main menu item
+    aItemId = 40;
+    aPosId = 4;
+    aStrOld = createString( aItemId, aPosId );
+    aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+
+    //Repair main menu item
+    aItemId = 50;
+    aPosId = 5;
+    aStrOld = createString( aItemId, aPosId );
+    aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+
+    //Measures main menu item
+    aItemId = 60;
+    aPosId = 6;
+    aStrOld = createString( aItemId, aPosId );
+    aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+  }
+
+  if ( theComponent == "Med" ) {
+    //MED main menu item
+    int aItemId = 90;
+    int aPosId = 3;
+    QString aStrOld = createString( aItemId, aPosId );
+    QString aStrNew = createString( aItemId, aPosId+1 );
+    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+  }
+  
+  return theData;
+}
+
 typedef bool OneDim(int, QAD_Desktop*);
 typedef void (*PTR_FACTORY_FUNCTION)( CORBA::ORB_var &orb, QWidget *parent, const char *name ) ;
 
@@ -2572,45 +2919,6 @@ void QAD_Desktop::onDispatchTools(int id)
   bool libToolsGUI = true;
   if( QAD_XmlHandler::_bibmap[ id ].isEmpty() ) 
   { 
-
-    if ( dir = getenv("SALOME_SITE_DIR"))  {
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
-#ifdef WNT
-      dir = dir + "libToolsGUI.dll" ;
-#else
-      dir = dir + "libToolsGUI.so" ;
-#endif
-      MESSAGE ( " GUI library = " << dir );
-      fileInfo.setFile(dir) ;
-      if (fileInfo.exists()) {
-	ToolsLib = fileInfo.fileName() ;
-	found = true;
-      }
-    }
-    
-    if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
-#ifdef WNT
-      dir = dir + "libToolsGUI.dll" ;
-#else
-      dir = dir + "libToolsGUI.so" ;
-#endif
-      MESSAGE ( " GUI library = " << dir );
-      fileInfo.setFile(dir) ;
-      if (fileInfo.exists()) {
-	ToolsLib = fileInfo.fileName() ;
-	found = true;
-      }
-    }
-    
     if ( (dir = getenv("KERNEL_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
@@ -2633,36 +2941,6 @@ void QAD_Desktop::onDispatchTools(int id)
   else {
     libToolsGUI = false;
     SCRUTE( QAD_XmlHandler::_bibmap[ id ] ) ;
-    if ( dir = getenv("SALOME_SITE_DIR"))  {
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + QAD_XmlHandler::_bibmap[ id ].latin1() ;
-      MESSAGE ( " GUI library = " << dir );
-      fileInfo.setFile(dir) ;
-      if (fileInfo.exists()) {
-	ToolsLib = fileInfo.fileName() ;
-	found = true;
-      }
-    }
-    
-    if ( (dir = getenv("SALOME_ROOT_DIR")) && !found ) {
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "lib" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + "salome" ;
-      dir = QAD_Tools::addSlash(dir) ;
-      dir = dir + QAD_XmlHandler::_bibmap[ id ].latin1() ;
-      MESSAGE ( " GUI library = " << dir );
-      fileInfo.setFile(dir) ;
-      if (fileInfo.exists()) {
-	ToolsLib = fileInfo.fileName() ;
-	found = true;
-      }
-    }
-    
     if ( (dir = getenv("KERNEL_ROOT_DIR")) && !found ) {
       dir = QAD_Tools::addSlash(dir) ;
       dir = dir + "lib" ;
@@ -2796,20 +3074,41 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
 	  aButton->setOn(true);
       }
     }
-  } else {
-    QMessageBox::critical( 0,
-			   tr( "ERR_ERROR" ),
-			   tr( "WRN_LOAD_COMPONENT" ) );
-    myCombo->setCurrentItem (0);	
-    for ( QToolButton* aButton=myComponentButton.first(); aButton; aButton=myComponentButton.next() ) {
-      aButton->setOn(false);
-    }
-  }
+  } else if (component.compare(QString("Salome"))!= 0) {
+  
+      SALOMEGUI_ActivateComponentDlg aDlg( this );
+      int res = aDlg.exec();
+      
+      switch ( res )
+	{
+	case 1:
+	  onNewStudy();
+	  onComboActiveComponent(component,true);            	  
+	  break;
+	case 2:
+          onOpenStudy();	
+	  onComboActiveComponent(component,true);
+	  break;
+	case 3:
+	  onLoadStudy();
+	  onComboActiveComponent(component,true);;
+	  break;
+	case 0:
+	default:
+	  putInfo( tr("INF_CANCELLED") );
+	  myCombo->setCurrentItem (0);	
+	  for ( QToolButton* aButton=myComponentButton.first(); aButton; aButton=myComponentButton.next() ) {
+          aButton->setOn(false);
+          // return;
+	  }
+	}
+      }
 }
 
 /*!
  */
 void QAD_Desktop::activateComponent(const QString& theName, bool isLoadData){
+  
   int nbItem = myCombo->count();
   int Index = 0;
 
@@ -3102,10 +3401,30 @@ void QAD_Desktop::onObjectBrowser()
   bool showCHRONO_SORT ;
   if ( myStdActions.at( PrefObjectBrowserCHRONO_SORTId )->isOn() ) {
     showCHRONO_SORT = true;
-    QAD_CONFIG->addSetting( "ObjectBrowser:CHRONO_SORT", "true");
+    QAD_CONFIG->addSetting( "ObjectBrowser:ChronologicalSort", "true");
   } else {
     showCHRONO_SORT = false;
-    QAD_CONFIG->addSetting( "ObjectBrowser:CHRONO_SORT", "false");
+    QAD_CONFIG->addSetting( "ObjectBrowser:ChronologicalSort", "false");
+  }
+
+  /* To show or not to show UseCase browser */
+  bool showUseCase;
+  if ( myStdActions.at( PrefObjectBrowserShowUseCaseId )->isOn() ) {
+    showUseCase = true;
+    QAD_CONFIG->addSetting( "ObjectBrowser:ShowUseCaseBrowser", "true");
+  } else {
+    showUseCase = false;
+    QAD_CONFIG->addSetting( "ObjectBrowser:ShowUseCaseBrowser", "false");
+  }
+
+  /* Resize or don't resize columns automatically */
+  bool autoSize;
+  if ( myStdActions.at( PrefObjectBrowserNoAutoSizeColumnsId )->isOn() ) {
+    autoSize = false;
+    QAD_CONFIG->addSetting( "ObjectBrowser:NoAutoSizeColumns", "true");
+  } else {
+    autoSize = true;
+    QAD_CONFIG->addSetting( "ObjectBrowser:NoAutoSizeColumns", "false");
   }
 
   if ( myActiveApp ) {
@@ -3118,6 +3437,8 @@ void QAD_Desktop::onObjectBrowser()
 	sf->getLeftFrame()->getObjectBrowser()->setShowValueColumn( showValue );
 	sf->getLeftFrame()->getObjectBrowser()->setEnableChronoSort( showCHRONO_SORT );
 //	sf->getLeftFrame()->getObjectBrowser()->setShowIAPP( showIAPP ); // this is done by below updateObjBrowser() call
+	sf->getLeftFrame()->getObjectBrowser()->showUseCaseBrowser( showUseCase );
+	sf->getLeftFrame()->getObjectBrowser()->autoSizeColumns( autoSize );
       }
       study->updateObjBrowser(true);
     }
@@ -3144,12 +3465,39 @@ void QAD_Desktop::onViewerTrihedron()
       for ( QAD_Study* study = studies.first(); study; study = studies.next() )  {
 	int nbSf = study->getStudyFramesCount();
 	for ( int i = 0; i < nbSf; i++ ) {
-	  study->getStudyFrame(i)->getRightFrame()->getViewFrame()->SetTrihedronSize((int)dim);
+	  study->getStudyFrame(i)->getRightFrame()->getViewFrame()->onAdjustTrihedron();
 	}
       }
     }
   }
 }
+
+void QAD_Desktop::onExternalBrowser()
+{
+ 
+  QString theApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
+  QString theParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+   
+  SALOMEGUI_ExternalBrowserDlg *Dlg = new SALOMEGUI_ExternalBrowserDlg(this);
+  
+  if (!theApp.isEmpty())
+    {
+      QString theParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+      Dlg->setSettings(theApp, theParams);
+    }
+  int r = Dlg->exec();
+  QString theAppFromDialog = Dlg->getApp();
+  QString theParamsFromDialog = Dlg->getParams();
+  delete Dlg;
+  
+  if (r == QDialog::Accepted) 
+    {
+      QAD_CONFIG->addSetting("ExternalBrowser:Application", theAppFromDialog );
+      QAD_CONFIG->addSetting("ExternalBrowser:Parameters", theParamsFromDialog );
+    }
+  
+}
+
 
 void QAD_Desktop::onDirList() 
 {
@@ -3366,52 +3714,58 @@ void QAD_Desktop::helpAbout()
   delete About;
 }
 
-/* Help Search */
-void QAD_Desktop::helpSearch()
-{
-}
+// /* Help Search */
+// void QAD_Desktop::helpSearch()
+// {
+// }
 
-/* Help Contents */
-void QAD_Desktop::helpContents()
-{
-  if (myActiveComp == "")
-    myActiveComp = getComponentUserName( "KERNEL" ); //NRI "Salome";
+// /* Help Contents */
+// void QAD_Desktop::helpContents()
+// {
+//   if (myActiveComp == "")
+//     myActiveComp = getComponentUserName( "KERNEL" ); //NRI "Salome";
 
-  QCString dir;
-  QString root;
-  if (dir = getenv( getComponentName( myActiveComp ) + "_ROOT_DIR")) {
-    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + "doc" );
-    if ( QFileInfo( root + "index.html" ).exists() ) {
-      helpContext( root + "index.html", "" );
-    }
-    else {
-      root = QAD_Tools::addSlash( root + "html" );
-      if ( QFileInfo( root + "index.html" ).exists() ) {
-	helpContext( root + "index.html", "" );
-      }
-      else {
-	root = QAD_Tools::addSlash( root + "html" );
-	if ( QFileInfo( root + "index.html" ).exists() ) {
-	  helpContext( root + "index.html", "" );
-	}
-      }
-    }
-  }
+//   QCString dir;
+//   QString root;
+//   if (dir = getenv( getComponentName( myActiveComp ) + "_ROOT_DIR")) {
+//     root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + "doc" );
+//     if ( QFileInfo( root + "index.html" ).exists() ) {
+//       helpContext( root + "index.html", "" );
+//     }
+//     else {
+//       root = QAD_Tools::addSlash( root + "html" );
+//       if ( QFileInfo( root + "index.html" ).exists() ) {
+// 	helpContext( root + "index.html", "" );
+//       }
+//       else {
+// 	root = QAD_Tools::addSlash( root + "html" );
+// 	if ( QFileInfo( root + "index.html" ).exists() ) {
+// 	  helpContext( root + "index.html", "" );
+// 	}
+//       }
+//     }
+//   }
   
-  //NRI getHelpWindow()->contents();
-  getHelpWindow()->show();
-  getHelpWindow()->raise();
-  getHelpWindow()->setActiveWindow();
-}
+// //   //NRI getHelpWindow()->contents();
+// //   getHelpWindow()->show();
+// //   getHelpWindow()->raise();
+// //   getHelpWindow()->setActiveWindow();
+// }
 
 /* Help Context */
-void QAD_Desktop::helpContext(const QString& source, const QString& context)
-{
-  getHelpWindow()->context(source, context);
-  getHelpWindow()->show();
-  getHelpWindow()->raise();
-  getHelpWindow()->setActiveWindow();
-}
+//void QAD_Desktop::helpContext(const QString& source, const QString& context)
+//{
+//  //getHelpWindow()->context(source, context);   //implemented in QAD_HelpWindow::context( const QString& _source, const QString& _context)
+//  //getHelpWindow()->show();                     //from QMainWindow class
+//  //getHelpWindow()->raise();                    //from QMainWindow class
+//  //getHelpWindow()->setActiveWindow();          //from QMainWindow class
+
+//  QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
+//  QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+   
+//  RunBrowser* rs = new RunBrowser(anApp, aParams, source, context);
+//  rs->start();
+//}
 
 /* Preferences/MultiFile Save */
 void QAD_Desktop::onMultiFileSave()
@@ -3429,6 +3783,39 @@ void QAD_Desktop::onASCIISave()
     QAD_CONFIG->addSetting( "Desktop:ASCIISave", "true");
   else
     QAD_CONFIG->addSetting( "Desktop:ASCIISave", "false");
+}
+
+/* Preferences / Undo Level */
+void QAD_Desktop::onUndoLevel()
+{
+  static int MAX_UNDO_LEVEL = 1000;
+  bool isAccepted = false;
+  static QString aLabel = QString("Level value (%1 ... %2) : ").
+    arg(1).arg(MAX_UNDO_LEVEL);
+  int anUndoLevel = 
+    SALOMEGUI_SetValueDlg::getInteger("Undo Level",aLabel,
+				      1,MAX_UNDO_LEVEL,getUndoLevel(),
+				      &isAccepted);
+  if(!isAccepted) return;
+  QAD_CONFIG->addSetting("Desktop:UndoLevel", anUndoLevel);
+  if(!myActiveApp) return;
+  QList<QAD_Study>& studies = myActiveApp->getStudies();
+  int aWasWarning = 0;
+  for(QAD_Study* study = studies.first(); study; study = studies.next()){
+    SALOMEDS::Study_var aStudyDoc = study->getStudyDocument();
+    SALOMEDS::StudyBuilder_var aStudyBuilder = aStudyDoc->NewBuilder();
+    if (!aStudyDoc->GetProperties()->IsLocked()) {
+      aStudyBuilder->UndoLimit(anUndoLevel);
+    } else  {
+      if (!aWasWarning) {
+	QAD_MessageBox::warn1 ((QWidget*)QAD_Application::getDesktop(),
+			       QObject::tr("WRN_WARNING"), 
+			       QObject::tr("WRN_STUDY_LOCKED"),
+			       QObject::tr("BUT_OK"));
+	aWasWarning = 1;
+      }
+    }
+  }
 }
 
 /*********************************************************************
