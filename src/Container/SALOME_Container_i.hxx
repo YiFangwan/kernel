@@ -40,6 +40,8 @@
 #include <map>
 #include <string>
 
+using namespace std;
+
 class SALOME_NamingService;
 
 class Engines_Container_i: public POA_Engines::Container,
@@ -70,6 +72,8 @@ public:
   char* machineName();
   void ping();
   bool Kill_impl() ;
+  char* getHostName();
+  long getPID();
 
 protected:
 
@@ -88,6 +92,7 @@ private:
 
   int   _argc ;
   char** _argv ;
+  long _pid;
 
 };
 

@@ -43,6 +43,8 @@ extern "C"
 #include "HDFfile.hxx"
 #include <string>
 
+using namespace std;
+
 class HDFConvert 
 {
 private:

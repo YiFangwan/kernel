@@ -95,8 +95,8 @@ Engines::Component_ptr MPIContainer_i::load_impl(const char* nameToRegister,
   MESSAGE("[" << _numproc << "] absolute_impl_name=" << absolute_impl_name);
   void * handle = dlopen(absolute_impl_name.c_str(), RTLD_LAZY);
   if(!handle){
-    INFOS("[" << _numproc << "] Can't load shared library : " << absolute_impl_name);
-    INFOS("[" << _numproc << "] error dlopen: " << dlerror());
+    MESSAGE("[" << _numproc << "] Can't load shared library : " << absolute_impl_name);
+    MESSAGE("[" << _numproc << "] error dlopen: " << dlerror());
     return Engines::Component::_nil() ;
   }
 

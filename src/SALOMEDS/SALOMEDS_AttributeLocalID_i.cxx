@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_AttributeLocalID_i.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 using namespace std;
 #include "SALOMEDS_AttributeLocalID_i.hxx"
@@ -37,4 +37,16 @@ CORBA::Long SALOMEDS_AttributeLocalID_i::Value() {
 void SALOMEDS_AttributeLocalID_i::SetValue(CORBA::Long value) {
   CheckLocked();
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(value);
+}
+
+char* SALOMEDS_AttributeLocalID_i::Store() {
+  char* IntVal = new char[25];
+  sprintf(IntVal, "%d", Value());
+  return IntVal;
+}
+
+void SALOMEDS_AttributeLocalID_i::Restore(const char* value) {
+  char *err = NULL;
+  CORBA::Long l =  atol(value);
+  SetValue(l);
 }

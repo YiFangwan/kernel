@@ -1,7 +1,7 @@
 //  File   : SALOMEGUI_ExternalBrowserDlg.cxx
 //  Author : Nichael ZORIN
 //  Module : SALOME
-//  $Header: /dn05/salome/CVS/SALOME_ROOT/SALOME/src/SALOMEGUI/SALOMEGUI_ExternalBrowserDlg.cxx
+//  $Header$
 
 using namespace std;
 #include "SALOMEGUI_ExternalBrowserDlg.h"

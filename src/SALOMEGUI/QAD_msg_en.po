@@ -176,8 +176,8 @@ msgid "QAD_Desktop::MEN_DESK_HELP_CONTENTS"
 msgstr "&Contents"
 
 #: QAD_Desktop.cxx:265
-msgid "QAD_Desktop::MEN_DESK_HELP_GUICONTENTS"
-msgstr "&GUI Reference"
+msgid "QAD_Desktop::MEN_DESK_HELP_MODULECONTENTS"
+msgstr "&Module Help"
 
 #: QAD_Desktop.cxx:265
 msgid "QAD_Desktop::MEN_DESK_HELP_TUICONTENTS"

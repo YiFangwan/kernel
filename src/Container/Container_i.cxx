@@ -58,6 +58,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
                                           int argc , char* argv[] ) :
  _numInstance(0)
 {
+  _pid = (long)getpid();
 
   ActSigIntHandler() ;
 
@@ -124,6 +125,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 					  int flag ) 
   : _numInstance(0)
 {
+  _pid = (long)getpid();
   string hostname = GetHostname();
   SCRUTE(hostname);
 
@@ -184,12 +186,12 @@ Engines::Container_ptr Engines_Container_i::start_impl(
     cont += machineName() ;
     cont += "/" ;
     cont += ContainerName;
-    INFOS(machineName() << " start_impl unknown container " << cont.c_str()
+    MESSAGE(machineName() << " start_impl unknown container " << cont.c_str()
           << " try to Resolve" );
     obj = _NS->Resolve( cont.c_str() );
     nilvar = CORBA::is_nil( obj ) ;
     if ( nilvar ) {
-      INFOS(machineName() << " start_impl unknown container "
+      MESSAGE(machineName() << " start_impl unknown container "
             << ContainerName);
     }
   }
@@ -201,7 +203,7 @@ Engines::Container_ptr Engines_Container_i::start_impl(
   }
   if ( !nilvar ) {
     _numInstanceMutex.unlock() ;
-    MESSAGE("start_impl container found without runSession") ;
+    MESSAGE("start_impl container found without new launch") ;
     return Engines::Container::_narrow(obj);
   }
   int i = 0 ;
@@ -209,12 +211,8 @@ Engines::Container_ptr Engines_Container_i::start_impl(
     MESSAGE("           argv" << i << " " << _argv[ i ]) ;
     i++ ;
   }
-//  string shstr( "rsh -n " ) ;
-//  shstr += machineName() ;
-//  shstr += " " ;
-//  shstr += _argv[ 0 ] ;
-//  string shstr( _argv[ 0 ] ) ;
-  string shstr( "./runSession SALOME_Container " ) ;
+  string shstr = string(getenv("KERNEL_ROOT_DIR")) + "/bin/salome/SALOME_Container ";
+//   string shstr( "./runSession SALOME_Container " ) ;
   shstr += ContainerName ;
   if ( _argc == 4 ) {
     shstr += " " ;
@@ -228,38 +226,37 @@ Engines::Container_ptr Engines_Container_i::start_impl(
   MESSAGE("system(" << shstr << ")") ;
   int status = system( shstr.c_str() ) ;
   if (status == -1) {
-    INFOS("Engines_Container_i::start_impl runSession(SALOME_Container) failed (system command status -1)") ;
+    MESSAGE("Engines_Container_i::start_impl SALOME_Container failed (system command status -1)") ;
   }
   else if (status == 217) {
-    INFOS("Engines_Container_i::start_impl runSession(SALOME_Container) failed (system command status 217)") ;
+    MESSAGE("Engines_Container_i::start_impl SALOME_Container failed (system command status 217)") ;
   }
-  INFOS(machineName() << " Engines_Container_i::start_impl runSession(SALOME_Container) done");
-#if 0
-  pid_t pid = fork() ;
-  if ( pid == 0 ) {
-    string anExe( _argv[ 0 ] ) ;
-    anExe += "runSession" ;
-    char * args[ 6 ] ;
-    args[ 0 ] = "runSession" ;
-    args[ 1 ] = "SALOME_Container" ;
-    args[ 2 ] = strdup( ContainerName ) ;
-    args[ 3 ] = strdup( _argv[ 2 ] ) ;
-    args[ 4 ] = strdup( _argv[ 3 ] ) ;
-    args[ 5 ] = NULL ;
-    MESSAGE("execl(" << anExe.c_str() << " , " << args[ 0 ] << " , "
-                     << args[ 1 ] << " , " << args[ 2 ] << " , " << args[ 3 ]
-                     << " , " << args[ 4 ] << ")") ;
-    int status = execv( anExe.c_str() , args ) ;
-    if (status == -1) {
-      INFOS("Engines_Container_i::start_impl execl failed (system command status -1)") ;
-      perror( "Engines_Container_i::start_impl execl error ") ;
-    }
-    else {
-      INFOS(machineName() << " Engines_Container_i::start_impl execl done");
-    }
-    exit(0) ;
-  }
-#endif
+  MESSAGE(machineName() << " Engines_Container_i::start_impl SALOME_Container launch done");
+
+//   pid_t pid = fork() ;
+//   if ( pid == 0 ) {
+//     string anExe( _argv[ 0 ] ) ;
+//     anExe += "runSession" ;
+//     char * args[ 6 ] ;
+//     args[ 0 ] = "runSession" ;
+//     args[ 1 ] = "SALOME_Container" ;
+//     args[ 2 ] = strdup( ContainerName ) ;
+//     args[ 3 ] = strdup( _argv[ 2 ] ) ;
+//     args[ 4 ] = strdup( _argv[ 3 ] ) ;
+//     args[ 5 ] = NULL ;
+//     MESSAGE("execl(" << anExe.c_str() << " , " << args[ 0 ] << " , "
+//                      << args[ 1 ] << " , " << args[ 2 ] << " , " << args[ 3 ]
+//                      << " , " << args[ 4 ] << ")") ;
+//     int status = execv( anExe.c_str() , args ) ;
+//     if (status == -1) {
+//       INFOS("Engines_Container_i::start_impl execl failed (system command status -1)") ;
+//       perror( "Engines_Container_i::start_impl execl error ") ;
+//     }
+//     else {
+//       INFOS(machineName() << " Engines_Container_i::start_impl execl done");
+//     }
+//     exit(0) ;
+//   }
 
   obj = Engines::Container::_nil() ;
   try {
@@ -274,14 +271,14 @@ Engines::Container_ptr Engines_Container_i::start_impl(
       obj = _NS->Resolve(cont.c_str());
       nilvar = CORBA::is_nil( obj ) ;
       if ( nilvar ) {
-        INFOS(count << ". " << machineName()
+        MESSAGE(count << ". " << machineName()
               << " start_impl unknown container " << cont.c_str());
         count -= 1 ;
       }
     }
     _numInstanceMutex.unlock() ;
     if ( !nilvar ) {
-      MESSAGE("start_impl container found after runSession(SALOME_Container)") ;
+      MESSAGE("start_impl container found after new launch of SALOME_Container") ;
     }
     return Engines::Container::_narrow(obj);
   }
@@ -292,7 +289,7 @@ Engines::Container_ptr Engines_Container_i::start_impl(
     INFOS(machineName() << "Caught unknown exception.");
   }
   _numInstanceMutex.unlock() ;
-  MESSAGE("start_impl container not found after runSession(SALOME_Container)") ;
+  MESSAGE("start_impl container not found after new launch of SALOME_Container") ;
   return Engines::Container::_nil() ;
 }
 
@@ -365,7 +362,7 @@ Engines::Component_ptr Engines_Container_i::load_impl( const char* nameToRegiste
     }
   }
   catch (...) {
-    MESSAGE( "Container_i::load_impl catched" ) ;
+    INFOS( "Container_i::load_impl catched" ) ;
   }
 
 //Jr  _numInstanceMutex.lock() ; // lock on the add on handle_map (necessary ?)
@@ -423,7 +420,7 @@ void ActSigIntHandler() {
     exit(0) ;
   }
   else {
-    INFOS(pthread_self() << "SigIntHandler activated") ;
+    MESSAGE(pthread_self() << "SigIntHandler activated") ;
   }
 }
 
@@ -437,7 +434,6 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
           << "              si_pid   " << siginfo->si_pid) ;
   if ( _Sleeping ) {
     _Sleeping = false ;
-    INFOS("SigIntHandler END sleeping.")
     MESSAGE("SigIntHandler END sleeping.") ;
     return ;
   }
@@ -448,16 +444,26 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
     }
     else {
       _Sleeping = true ;
-      INFOS("SigIntHandler BEGIN sleeping.")
       MESSAGE("SigIntHandler BEGIN sleeping.") ;
       int count = 0 ;
       while( _Sleeping ) {
         sleep( 1 ) ;
         count += 1 ;
       }
-      INFOS("SigIntHandler LEAVE sleeping after " << count << " s.")
       MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
     }
     return ;
   }
+}
+
+// Get the PID of the Container
+
+long Engines_Container_i::getPID() {
+    return(_pid);
+}
+
+// Get the hostName of the Container
+
+char* Engines_Container_i::getHostName() {
+    return((char*)(GetHostname().c_str()));
 }

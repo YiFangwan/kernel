@@ -36,7 +36,7 @@ using namespace std;
 
 int main (int argc, char * argv[])
 {
-  INFOS("It's OK");
+  MESSAGE("It's OK");
   return 0;
 }
 

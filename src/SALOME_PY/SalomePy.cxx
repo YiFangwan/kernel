@@ -125,7 +125,7 @@ void initlibSalomePy()
       if ((viewId >=0) && (viewId <nbStudyFrames))
 	renderer = ((VTKViewer_ViewFrame*)myStudy->getStudyFrame(viewId)->getRightFrame()->getViewFrame())->getRenderer();
     }
-  if (renderer == NULL) INFOS("No VTK Renderer available !");
+  if (renderer == NULL) MESSAGE("No VTK Renderer available !");
   //san:T3.13 - move getRenderer() implementation here
 
   MESSAGE("---");

@@ -40,3 +40,11 @@ void SALOMEDS_AttributeDrawable_i::SetDrawable(CORBA::Boolean value) {
   if (value != 0) val = 1;
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(val);
 }
+
+char* SALOMEDS_AttributeDrawable_i::Store() {
+  return strdup(IsDrawable()?"1":"0");
+}
+
+void SALOMEDS_AttributeDrawable_i::Restore(const char* value) {
+  SetDrawable(value[0] == '1');
+}

@@ -90,7 +90,7 @@ static void initInterp(int StudyID)
   module=PyImport_ImportModule((char*)_moduleName.c_str());
   if(module == NULL)
     {
-      INFOS ( " Problem... " );
+      MESSAGE ( " Problem... " );
       PyErr_Print();
       interp->quit();
       return;

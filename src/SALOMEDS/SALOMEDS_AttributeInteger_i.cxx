@@ -39,3 +39,15 @@ void SALOMEDS_AttributeInteger_i::SetValue(CORBA::Long value) {
   CheckLocked();
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(value);
 }
+
+char* SALOMEDS_AttributeInteger_i::Store() {
+  char* IntVal = new char[25];
+  sprintf(IntVal, "%d", Value());
+  return IntVal;
+}
+
+void SALOMEDS_AttributeInteger_i::Restore(const char* value) {
+  char *err = NULL;
+  CORBA::Long l =  atol(value);
+  SetValue(l);
+}

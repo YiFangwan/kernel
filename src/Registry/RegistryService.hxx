@@ -34,6 +34,7 @@
 
 # include <map>
 
+using namespace std;
 
 class RegistryService : public POA_Registry::Components  //, public PortableServer::RefCountServantBase
 {

@@ -37,8 +37,8 @@
 
 /* ---  INFOS is always defined (without _DEBUG_): to be used for warnings, with release version --- */
 
-#define INFOS(msg)    {SLog.putMessage(SLog<<__FILE__<<" ["<<__LINE__<<"] : "<<msg<<endl);}
-#define PYSCRIPT(msg) {SLog.putMessage(SLog<<"---PYSCRIPT--- "<<msg<<endl);}
+#define INFOS(msg)    {SLog.putMessage(SLog<<__FILE__<<" ["<<__LINE__<<"] : "<<msg<<endl<<ends);}
+#define PYSCRIPT(msg) {SLog.putMessage(SLog<<"---PYSCRIPT--- "<<msg<<endl<<ends);}
 
 /* --- To print date and time of compilation of current source --- */
 
@@ -63,7 +63,7 @@
 					   SLog<<__FILE__<<" ["<< __LINE__<<"] : "\
 					   << "COMPILED with " << COMPILER \
 					   << ", " << __DATE__ \
-					   << " at " << __TIME__ <<endl); }
+					   << " at " << __TIME__ <<endl<<ends); }
 
 #ifdef _DEBUG_
 

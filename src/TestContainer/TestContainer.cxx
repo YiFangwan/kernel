@@ -98,7 +98,7 @@ int main (int argc, char * argv[])
 	    }
 	  catch( CORBA::COMM_FAILURE& )
 	    {
-	      MESSAGE( "Test Container: CORBA::COMM_FAILURE: Unable to contact the Naming Service" )
+	      INFOS( "Test Container: CORBA::COMM_FAILURE: Unable to contact the Naming Service" )
 		}
 	  if(!CORBA::is_nil(inc))
 	    {
@@ -115,11 +115,11 @@ int main (int argc, char * argv[])
 			  }
 			catch(CosNaming::NamingContext::NotFound)
 			  {
-			    MESSAGE( "Test Container: Logger Server wasn't found" );
+			    INFOS( "Test Container: Logger Server wasn't found" );
 			  }
 			catch(...)
 			  {
-			    MESSAGE( "Test Container: Unknown exception" );
+			    INFOS( "Test Container: Unknown exception" );
 			  }
 			if (!CORBA::is_nil(object))
 			  {
@@ -147,14 +147,14 @@ int main (int argc, char * argv[])
     
       for (int iter = 0; iter < 3 ; iter++)
 	{
-	  INFOS("----------------------------------------------------" << iter);   
-          string dirn = getenv("SALOME_ROOT_DIR");
+	  MESSAGE("----------------------------------------------------" << iter);   
+          string dirn = getenv("KERNEL_ROOT_DIR");
           dirn += "/lib/salome/libSalomeTestComponentEngine.so";
           obj = iGenFact->load_impl("SalomeTestComponent",dirn.c_str());
 	  m1 = Engines::TestComponent::_narrow(obj);
-	  INFOS("recup m1");
+	  MESSAGE("recup m1");
 	  SCRUTE(m1->instanceName());
-	  INFOS("Coucou " << m1->Coucou(1L));
+	  MESSAGE("Coucou " << m1->Coucou(1L));
 	  iGenFact->remove_impl(m1) ;
 	  //iGenFact->finalize_removal() ; // unpredictable results ...
           sleep(5);

@@ -97,7 +97,8 @@ SALOMEGUI_NameDlg::~SALOMEGUI_NameDlg()
 void SALOMEGUI_NameDlg::setName( const QString& name )
 {
   myLineEdit->setText( name );
-  myLineEdit->selectAll();
+  myLineEdit->end(false);
+  myLineEdit->home(true);
 }
 
 /*!
@@ -106,6 +107,13 @@ void SALOMEGUI_NameDlg::setName( const QString& name )
 QString SALOMEGUI_NameDlg::name()
 {
   return myLineEdit->text();
+}
+
+void SALOMEGUI_NameDlg::accept()
+{
+  if ( name().stripWhiteSpace().isEmpty() )
+    return;
+  QDialog::accept();
 }
 
 /*!

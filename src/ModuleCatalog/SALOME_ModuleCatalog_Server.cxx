@@ -88,7 +88,7 @@ int main(int argc,char **argv)
 	    }
 	  catch( CORBA::COMM_FAILURE& )
 	    {
-	      MESSAGE( "Module Catalog Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
+	      INFOS( "Module Catalog Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
 	    }
 	  if (!CORBA::is_nil(theObj))
 	    {
@@ -109,11 +109,11 @@ int main(int argc,char **argv)
 			    object = inc->resolve(name);}
 			  catch(CosNaming::NamingContext::NotFound)
 			    {
-			      MESSAGE( "Logger Server wasn't found" );
+			      INFOS( "Logger Server wasn't found" );
 			    }
 			  catch(...)
 			    {
-			      MESSAGE( "Module Catalog Server: Unknown exception" ) ;
+			      INFOS( "Module Catalog Server: Unknown exception" ) ;
 			    }
 			  if (!CORBA::is_nil(object))
 			    {

@@ -29,6 +29,9 @@
 using namespace std;
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
 
+#include "Utils_ExceptHandlers.hxx"
+UNEXPECT_CATCH(MC_NotFound, SALOME_ModuleCatalog::NotFound);
+
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalog_AcomponentImpl
 // Purpose  : Constructor
@@ -45,7 +48,8 @@ SALOME_ModuleCatalog_AcomponentImpl::SALOME_ModuleCatalog_AcomponentImpl(
 		   CORBA::Boolean componentmultistudy,
 		   const char* icone,
 		   SALOME_ModuleCatalog::ListOfDefInterface list_interfaces,
-		   ListOfPathPrefix pathes)
+		   ListOfPathPrefix pathes,
+		   CORBA::Boolean implementationtype)
 {
   MESSAGE("Component creation")
   // Affect component name
@@ -65,6 +69,9 @@ SALOME_ModuleCatalog_AcomponentImpl::SALOME_ModuleCatalog_AcomponentImpl(
  
  // Affect component multistudy
  _componentmultistudy = componentmultistudy;
+ 
+ // Affect component implementation
+ _implementationtype = implementationtype;
 
  // Affect icone
  _icone =new char[strlen(icone)+1];
@@ -125,6 +132,7 @@ SALOME_ModuleCatalog::DefinitionInterface*
 SALOME_ModuleCatalog_AcomponentImpl::GetInterface(const char* interfacename)
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
+  Unexpect aCatch( MC_NotFound );
   SALOME_ModuleCatalog::DefinitionInterface_var _interface = new SALOME_ModuleCatalog::DefinitionInterface;
   SALOME_ModuleCatalog::Service_var _service = new SALOME_ModuleCatalog::Service;
   // Variables initialisation
@@ -184,6 +192,7 @@ SALOME_ModuleCatalog::ListOfServices*
 SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
+  Unexpect aCatch( MC_NotFound );
   SALOME_ModuleCatalog::ListOfServices_var _list = new SALOME_ModuleCatalog::ListOfServices;
 
   // Variables initialisation
@@ -235,6 +244,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename,
 						const char* servicename) 
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
+  Unexpect aCatch( MC_NotFound );
   SALOME_ModuleCatalog::Service_var _service = new SALOME_ModuleCatalog::Service;
   // Varaibles initialisation
   bool _find = false ;
@@ -287,6 +297,7 @@ SALOME_ModuleCatalog::Service*
 SALOME_ModuleCatalog_AcomponentImpl::GetDefaultService(const char* interfacename) 
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
+  Unexpect aCatch( MC_NotFound );
   SALOME_ModuleCatalog::Service_var _service = new SALOME_ModuleCatalog::Service;
 
   // Variables initialisation
@@ -339,6 +350,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetPathPrefix(const char* machinename)
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
   MESSAGE("Begin of GetPathPrefix")
+  Unexpect aCatch( MC_NotFound );
   // Variables initialisation
   char* _path = NULL;
   bool _find = false ;
@@ -414,6 +426,15 @@ CORBA::Boolean SALOME_ModuleCatalog_AcomponentImpl::multistudy()
 }
 
 //----------------------------------------------------------------------
+// Function : implementation type
+// Purpose  : define if a component is implemeted in C++ or Python
+//----------------------------------------------------------------------
+CORBA::Boolean SALOME_ModuleCatalog_AcomponentImpl::implementation_type()
+{
+  return _implementationtype ;
+}
+
+//----------------------------------------------------------------------
 // Function : component_type
 // Purpose  : define the type of the component
 //----------------------------------------------------------------------
@@ -445,6 +466,8 @@ SALOME_ModuleCatalog_AcomponentImpl::_duplicate_service(SALOME_ModuleCatalog::Se
   _service->ServiceName = CORBA::string_dup(service.ServiceName);
   // service by default
   _service->Servicebydefault = service.Servicebydefault;
+  // type of node
+  _service->TypeOfNode = service.TypeOfNode;
 
   // in Parameters service
   unsigned int _length_in_param = service.ServiceinParameter.length();

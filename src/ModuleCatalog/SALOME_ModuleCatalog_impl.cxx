@@ -399,6 +399,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
   CORBA::Boolean _componentmultistudy = false ; // default initialisation
   ListOfPathPrefix _pathes ;
   _pathes.resize(0);
+  CORBA::Boolean _implementationtype = true ; // default initialisation
   
 
   bool find = false ;
@@ -464,6 +465,8 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
 	  // get pathes prefix
 	  _pathes = duplicate_pathes(_personal_path_list);
 
+	  // get implementation type
+	  _implementationtype = _personal_module_list[ind].Parsercomponentimpltype;
 	}
     }
   
@@ -477,7 +480,8 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
 						_componentmultistudy,
 						_icone,
 						_list_interfaces,
-						_pathes);
+						_pathes,
+						_implementationtype);
       
       compo = aComponentImpl->_this();
     }
@@ -528,6 +532,9 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
 	      // get component multistudy
 	      _componentmultistudy = _general_module_list[ind].Parsercomponentmultistudy ;
 
+	      // get implementation type
+	      _implementationtype = _general_module_list[ind].Parsercomponentimpltype ;
+
 	      // get component icone
 	      _icone = CORBA::string_dup(_general_module_list[ind].Parsercomponenticone.c_str());
 
@@ -552,7 +559,8 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
 						    _componentmultistudy,
 						    _icone,
 						    _list_interfaces,
-						    _pathes);
+						    _pathes,
+						    _implementationtype);
       
 	  compo = aComponentImpl->_this();
 	}
@@ -622,6 +630,10 @@ SALOME_ModuleCatalogImpl::duplicate_interfaces(ListOfDefinitionInterface list_in
 	  // duplicate service by default
 	  _list_interfaces[ind].interfaceservicelist[ind1].Servicebydefault =
 	    list_interface[ind].Parserinterfaceservicelist[ind1].ParserServicebydefault;
+
+	  // duplicate type of node
+	  _list_interfaces[ind].interfaceservicelist[ind1].TypeOfNode =
+	    list_interface[ind].Parserinterfaceservicelist[ind1].ParserTypeOfNode;
 
 	  // duplicate in Parameters
 	  unsigned int _length_in_param = list_interface[ind].Parserinterfaceservicelist[ind1].ParserServiceinParameter.size();
@@ -740,7 +752,7 @@ SALOME_ModuleCatalogImpl::_parseArguments(int argc, char **argv,
 
       if (strcmp(argv[ind],"-help") == 0)
 	{
-	  INFOS( "Usage: " << argv[0] << " -common 'path to general catalog' -personal 'path to personal catalog' -ORBInitRef NameService=corbaname::localhost");
+	  MESSAGE( "Usage: " << argv[0] << " -common 'path to general catalog' -personal 'path to personal catalog' -ORBInitRef NameService=corbaname::localhost");
 	    _return_value = false ;
 	}
       if (strcmp(argv[ind],"-common") == 0)

@@ -27,6 +27,8 @@
 /* Exception */
 #include <iostream>
 
+using namespace std;
+
 class HDFexception
 {
 public :

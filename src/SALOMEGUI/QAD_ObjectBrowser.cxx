@@ -717,9 +717,12 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
 	      QString msg;
 	      QAD_ResourceMgr* resMgr = QAD_Desktop::createResourceManager();
 	      if ( resMgr ) {
-		if(resMgr->loadResources( QString(aFatherName->Value()) + "GUI", msg )) {
-		  QPixmap icon ( resMgr->loadPixmap( QString(aFatherName->Value()) + "GUI",
-						     tr(aPixmap->GetPixMap()) /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ));
+		//if(resMgr->loadResources( QString(aFatherName->Value()) + "GUI", msg )) {
+		if( resMgr->loadResources( QAD_Application::getDesktop()->getComponentName( QString( aFatherName->Value() ) ), msg ) ) {
+		  QPixmap icon ( resMgr->loadPixmap( QAD_Application::getDesktop()->getComponentName( QString( aFatherName->Value() ) ),
+						    tr( aPixmap->GetPixMap() )  /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ) );
+		  //QPixmap icon ( resMgr->loadPixmap( QString(aFatherName->Value()) + "GUI",
+		  //tr(aPixmap->GetPixMap()) /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ));
 		  Item->setPixmap( 0, icon );
 		}
 	      }

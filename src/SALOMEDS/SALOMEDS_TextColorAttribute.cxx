@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_TextColorAttribute.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 using namespace std;
 #include "SALOMEDS_TextColorAttribute.ixx"

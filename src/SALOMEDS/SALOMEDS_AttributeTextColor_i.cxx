@@ -55,3 +55,20 @@ void SALOMEDS_AttributeTextColor_i::SetTextColor(const SALOMEDS::Color& value) {
   anArray->SetValue(3, value.B);
   Handle(SALOMEDS_TextColorAttribute)::DownCast(_myAttr)->ChangeArray(anArray);
 }
+
+char* SALOMEDS_AttributeTextColor_i::Store() {
+  SALOMEDS::Color aColor = TextColor();
+  char *Val = new char[75];
+  sprintf(Val, "%f %f %f", (float)aColor.R, (float)aColor.G, (float)aColor.B);
+  return Val;
+}
+
+void SALOMEDS_AttributeTextColor_i::Restore(const char* value) {
+  SALOMEDS::Color aColor;
+  float r, g, b;
+  sscanf(value, "%f %f %f", &r, &g, &b);
+  aColor.R = r;
+  aColor.G = g;
+  aColor.B = b;
+  SetTextColor(aColor);
+}

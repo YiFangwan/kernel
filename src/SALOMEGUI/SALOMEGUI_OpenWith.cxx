@@ -92,6 +92,7 @@ SALOMEGUI_OpenWith::SALOMEGUI_OpenWith(QWidget* parent,  const char* name)
   connect( buttonOk,      SIGNAL( clicked() ),          this, SLOT( accept() ) );
   connect( buttonCancel,  SIGNAL( clicked() ),          this, SLOT( reject() ) );
   connect( ListComponent, SIGNAL( selectionChanged() ), this, SLOT( onSelectionChanged() ));
+  connect( ListComponent, SIGNAL( doubleClicked( QListBoxItem* ) ), this, SLOT( onDoubleClickEvent( QListBoxItem* ) ));
 
   updateButtonState();
 }
@@ -134,4 +135,10 @@ void SALOMEGUI_OpenWith:: updateButtonState()
 {
   buttonOk->setEnabled( ListComponent->currentItem() >=0 && 
 		        ListComponent->currentItem() < ListComponent->count() ) ;
+}
+
+void SALOMEGUI_OpenWith::onDoubleClickEvent( QListBoxItem* item )
+{
+  if ( item )
+    accept();
 }

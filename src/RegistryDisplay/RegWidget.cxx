@@ -621,8 +621,8 @@ QString findFile( QString filename )
 	return fileInfo.filePath();
     }
   }
-  // Try ${SALOME_ROOT_DIR}/share/salome/resources directory
-  cenv = getenv( "SALOME_ROOT_DIR" );
+  // Try ${KERNEL_ROOT_DIR}/share/salome/resources directory
+  cenv = getenv( "KERNEL_ROOT_DIR" );
   if ( cenv ) {
     dir.sprintf( "%s", cenv );
     if ( !dir.isEmpty() ) {

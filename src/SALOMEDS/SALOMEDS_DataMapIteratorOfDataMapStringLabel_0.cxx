@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_DataMapIteratorOfDataMapStringLabel_0.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 using namespace std;
 #include "SALOMEDS_DataMapIteratorOfDataMapStringLabel.hxx"

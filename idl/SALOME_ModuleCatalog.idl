@@ -74,6 +74,7 @@ This struct contains fields completely defining each service.
     ListOfServicesParameter ServiceinParameter; /*!< List of input parameters of the services.*/
     ListOfServicesParameter ServiceoutParameter; /*!< List of output parameters of the services.*/
     boolean                 Servicebydefault; /*!<True if the service is taken with its defult fields.*/
+    boolean                 TypeOfNode; /*!<True is the service is a factory node. Otherwise, it's a compute node.*/
   } ;
 /*! 
 List of services of the interface.
@@ -229,7 +230,13 @@ Defines the type of the component
 Sets/gets the icone of the component (for IAPP)
 */
     readonly attribute string component_icone;
+
+/*! 
+Sets/gets the implementation type of the component : C++ or Python (for IAPP)
+*/
+    readonly attribute boolean implementation_type;
   } ;
+
 /*! \brief %Module catalog interface
 
 This interface is used for creation of the module catalog in %SALOME application.

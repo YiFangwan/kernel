@@ -29,9 +29,10 @@
 #if !defined( __Utils_SALOME_Exception_hxx__ )
 #define __Utils_SALOME_Exception_hxx__
 
-using namespace std;
 # include <exception>
 # include <iostream>
+
+using namespace std;
 
 # define LOCALIZED(message) #message , __FILE__ , __LINE__
 

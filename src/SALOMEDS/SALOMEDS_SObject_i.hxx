@@ -80,12 +80,16 @@ public:
   virtual void  Name(const char*);
   virtual SALOMEDS::ListOfAttributes* GetAllAttributes();
 
+  virtual CORBA::Object_ptr GetObject();
+
+  virtual char* GetName();
+  virtual char* GetComment();
+  virtual char* GetIOR();
 
   virtual CORBA::Short Tag();
 
   static char* AttributeIDToType(Standard_GUID);
   
   static Standard_GUID           ReturnGUIDForAttribute(const char* aTypeOfAttribute);
-
 };
 #endif

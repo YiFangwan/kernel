@@ -39,3 +39,11 @@ void SALOMEDS_AttributeSelectable_i::SetSelectable(CORBA::Boolean value) {
   if (value != 0) val = 1;
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(val);
 }
+
+char* SALOMEDS_AttributeSelectable_i::Store() {
+  return strdup(IsSelectable()?"1":"0");
+}
+
+void SALOMEDS_AttributeSelectable_i::Restore(const char* value) {
+  SetSelectable(value[0] == '1');
+}

@@ -57,6 +57,7 @@ struct ParserService
   ListOfParserServicesParameter ParserServiceinParameter;
   ListOfParserServicesParameter ParserServiceoutParameter;
   bool                          ParserServicebydefault;
+  bool                          ParserTypeOfNode;
 } ;
 
 typedef vector<ParserService> ListOfParserServices ;
@@ -78,6 +79,7 @@ struct ParserComponent
   string Parsercomponenticone;
   ListOfDefinitionInterface ParserListInterface;
   string Parserconstraint ;
+  bool Parsercomponentimpltype ;
 };
 
 typedef vector<ParserComponent> ListOfParserComponent ;

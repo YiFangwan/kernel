@@ -216,7 +216,7 @@ void QAD_PyEditor::mouseReleaseEvent ( QMouseEvent * e )
 */
   void QAD_PyEditor::dropEvent (QDropEvent *e)
 {
-  INFOS("dropEvent : not handled");
+  MESSAGE("dropEvent : not handled");
 }
 
 /*!

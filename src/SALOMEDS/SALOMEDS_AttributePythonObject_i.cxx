@@ -30,3 +30,16 @@ char* SALOMEDS_AttributePythonObject_i::GetObject() {
 CORBA::Boolean SALOMEDS_AttributePythonObject_i::IsScript() {
   return Handle(SALOMEDS_PythonObjectAttribute)::DownCast(_myAttr)->IsScript();
 }
+
+char* SALOMEDS_AttributePythonObject_i::Store() {
+  CORBA::String_var aString = GetObject();
+  char* aResult = new char[strlen(aString) + 2];
+  aResult[0] = IsScript()?'s':'n';
+  strcpy(aResult+1, aString);
+  return aResult;
+}
+
+void SALOMEDS_AttributePythonObject_i::Restore(const char* value) {
+  char* aString = strdup(value);
+  SetObject(aString + 1, aString[0]=='s');
+}

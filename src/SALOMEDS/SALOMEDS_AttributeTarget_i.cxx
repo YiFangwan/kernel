@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_AttributeTarget_i.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 using namespace std;
 #include "SALOMEDS_AttributeTarget_i.hxx"

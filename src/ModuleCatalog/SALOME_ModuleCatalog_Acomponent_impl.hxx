@@ -46,7 +46,8 @@ public:
 				      CORBA::Boolean componentmultistudy,
 				      const char* icone,
 				      SALOME_ModuleCatalog::ListOfDefInterface list_interfaces,
-				      ListOfPathPrefix pathes);
+				      ListOfPathPrefix pathes,
+				      CORBA::Boolean implementationtype);
 
   //! standard destructor
   virtual ~SALOME_ModuleCatalog_AcomponentImpl();
@@ -141,6 +142,12 @@ public:
   */
   virtual char* component_icone();
 
+  //! method to define if a component is implemented in C++ or Python
+  /*!
+    \return true if it's C++ component 
+  */
+  virtual CORBA::Boolean implementation_type();
+
 private :
   char* _component_name ;
   char* _component_user_name ;
@@ -148,6 +155,7 @@ private :
   char* _icone;
   SALOME_ModuleCatalog::ComponentType _componenttype;
   CORBA::Boolean _componentmultistudy;
+  CORBA::Boolean _implementationtype;
   SALOME_ModuleCatalog::ListOfDefInterface _list_interfaces;
   ListOfPathPrefix _pathes ;
   

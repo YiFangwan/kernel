@@ -36,7 +36,8 @@ common_data={"AUTHOR"     : "",
              "COMP_TYPE"  : "",
              "COMP_NAME"  : "",
              "COMP_UNAME" : "",
-             "COMP_MULT"  : ""
+             "COMP_MULT"  : "",
+             "COMP_IMPL"  : ""
              }
 
 nb_components = 0
@@ -237,6 +238,7 @@ class Service(Tree):
         self.addNamedChild('service-version',common_data["VERSION"])
         self.addNamedChild('service-comment', comment)
         self.addNamedChild('service-by-default', "0")
+        self.addNamedChild('type-of-node', "1")
         self.addNamedChild('inParameter-list')
         self.addNamedChild('outParameter-list')
             
@@ -394,6 +396,7 @@ class Component(Tree):
         self.addNamedChild('component-version',    common_data["VERSION"])
         self.addNamedChild('component-comment',    'unknown')
         self.addNamedChild('component-multistudy', common_data["COMP_MULT"])
+        self.addNamedChild('component-impltype', common_data["COMP_IMPL"])
         self.addNamedChild('component-icone',      common_data["ICON"])
         self.addNamedChild('constraint')
         self.addNamedChild('component-interface-list')
@@ -665,6 +668,7 @@ def run(tree, args):
     common_data["COMP_UNAME"] = getParamValue("username",   "",                args)
     common_data["COMP_TYPE"]  = getParamValue("type",       "OTHER",           args)
     common_data["COMP_MULT"]  = getParamValue("multistudy", "1",               args)
+    common_data["COMP_IMPL"]  = getParamValue("impltype",   "1",               args)
 
     print common_data
     

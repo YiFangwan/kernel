@@ -374,7 +374,7 @@ bool SALOMEGUI_Swig::IsInCurrentView(const char *Entry)
       if ((viewId >=0) && (viewId <nbStudyFrames))
 	myRenderer = myStudy->getStudyFrame(viewId)->getRightFrame()->getViewFrame()->getRenderer();
     }
-  if (myRenderer == NULL) INFOS("No VTK Renderer available !");
+  if (myRenderer == NULL) MESSAGE("No VTK Renderer available !");
   return myRenderer;
 }
 */

@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_OpenedAttribute.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header:  
+//  $Header$
 
 using namespace std;
 #include "SALOMEDS_OpenedAttribute.ixx"

@@ -39,6 +39,7 @@
 
 #include "SALOME_NamingService.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
+#include "SALOME_Selection.h"
 
 // IDL Headers 
 #include <SALOMEconfig.h>
@@ -71,7 +72,7 @@ class QAD_EXPORT QAD_Desktop : public QMainWindow
 protected:
   //NRI - unused - :  enum ComponentType {GEOM, MESH, SOLVER, DATA, VISU, OTHER} ;
 
-  enum {  FileNewId = 0, FileOpenId, FileLoadId, FileCloseId, FileSaveId, FileSaveAsId, FilePropsId, FileExitId,
+  enum {  FileNewId = -1000, FileOpenId, FileLoadId, FileCloseId, FileSaveId, FileSaveAsId, FilePropsId, FileExitId,
 	  ViewStatusBarId,
 	  SelectionPointId, SelectionEdgeId, SelectionCellId, SelectionActorId,
 	  PrefViewerOCCId, PrefViewerVTKId, PrefGraphSupervisorId, PrefViewerPlot2dId,
@@ -86,7 +87,8 @@ protected:
 	  WindowNew3dId, ViewOCCId, ViewVTKId, ViewPlot2dId,
 	  //NRI : SAL2214
 	  WindowCascadeId, WindowTileId, 
-	  HelpContentsId, HelpSearchId, HelpWhatsThisId, HelpAboutId };
+	  HelpContentsId, HelpContentsModuleId,
+	  HelpSearchId, HelpWhatsThisId, HelpAboutId };
   enum UpdateCommand { ActivateApp, DeactivateApp };
 
     /* Desktop can be created only by application */
@@ -114,16 +116,13 @@ public:
     void     definePopup(QString & theContext,
 			 QString & theParent, 
 			 QString & theObject );
-
-    void     createPopup(QPopupMenu* popupFather, QPopupMenu* popup,
-			 QString text, int popupID, bool separator = false);
     void     createPopup(QPopupMenu* popup, const QString & theContext,
 			 const QString & theParent, const QString & theObject );
     void     customPopup(QPopupMenu* popup, const QString & theContext,
 			 const QString & theParent, const QString & theObject);
 
     /* selection mode */
-    void SetSelectionMode(int mode, bool activeCompOnly = false);
+    void SetSelectionMode(Selection_Mode mode, bool activeCompOnly = false);
 
     /* desktop */
     void	      showDesktop();
@@ -155,6 +154,7 @@ public:
     bool	      loadComponent(QString);
     QString           changeXmlInputSourceData(QString theData, QString theComponent);
     void	      activateComponent(const QString& theName, bool isLoadData = true);
+    void              deactivateComponent();
     void              createStudy();
 
     void              setSettings();
@@ -220,6 +220,11 @@ protected slots:
     virtual void      onWindowPopupAboutToShow();
     void	      onWindowsPopupActivated( int id );
     void	      onWindowsPopupStatusText( int id );
+    void              onHelpModulePopupStatusText(int id);
+    
+    void              onFilePopupStatusText( int id );
+    void              onEditPopupStatusText( int id );
+    void              onViewPopupStatusText( int id );
 
     void	      onSelectionMode();
 
@@ -245,8 +250,8 @@ protected slots:
     void	      onDeactivateApp(QAD_Application* app);
 
     void	      onHelpContents();
-    void	      onHelpContentsGUI();
-    void	      onHelpContentsTUI();
+    void	      onHelpContentsModule();
+    /*    void	      onHelpContentsTUI(); */
 /*    void	      onHelpSearch(); */
     void	      onHelpAbout();
 
@@ -285,11 +290,13 @@ protected:
   //NRI : SAL2214
     QPopupMenu	      myNewViewPopup;
   //NRI : SAL2214
+    QPopupMenu	      myHelpContentsModulePopup;
+
     QPopupMenu	      myToolsPopup;
     QPopupMenu	      myPrefPopup;
     QPopupMenu	      mySelectionModePopup;
     QPopupMenu	      myWindowPopup;	    /* not customized by an application */
-
+    
     ActionMap         myStdActions;	    /* default actions */
     QToolBar*	      myStdToolBar;	    /* standard toolbar */
     QStatusBar*	      myStatusBar;	    /* the only status bar */

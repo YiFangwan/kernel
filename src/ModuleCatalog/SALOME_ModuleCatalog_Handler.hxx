@@ -115,11 +115,13 @@ private:
   const char* test_component_type ;
   const char* test_component_multistudy ;
   const char* test_component_icone ;
+  const char* test_component_impltype ;
 
   const char* test_interface_name;
 
   const char* test_service_name;
   const char* test_defaultservice;
+  const char* test_typeofnode;
 
   const char* test_inParameter_type;
   const char* test_inParameter_name;

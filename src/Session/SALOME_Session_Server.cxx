@@ -103,7 +103,7 @@ int main(int argc, char **argv)
 	  }
 	catch( CORBA::COMM_FAILURE& )
 	  {
-	    MESSAGE( "Session Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
+	    INFOS( "Session Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
 	  }
 	if(!CORBA::is_nil(inc))
 	  {
@@ -119,11 +119,11 @@ int main(int argc, char **argv)
 			object = inc->resolve(name);
 		      }
 		    catch(CosNaming::NamingContext::NotFound)
-		      { MESSAGE( "Session Server: Logger Server wasn't found" );
+		      { INFOS( "Session Server: Logger Server wasn't found" );
 		      }
 		    catch(...)
 		      {
-			MESSAGE( "Session Server: Unknown exception" ); 
+			INFOS( "Session Server: Unknown exception" ); 
 		      }
 		    if (!CORBA::is_nil(object))
 		      {

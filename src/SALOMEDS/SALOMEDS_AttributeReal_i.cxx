@@ -38,3 +38,15 @@ void SALOMEDS_AttributeReal_i::SetValue(CORBA::Double value) {
   CheckLocked();
   Handle(TDataStd_Real)::DownCast(_myAttr)->Set(value);
 }
+
+char* SALOMEDS_AttributeReal_i::Store() {
+  char* RealVal = new char[25];
+  sprintf(RealVal, "%f", Value());
+  return RealVal;
+}
+
+void SALOMEDS_AttributeReal_i::Restore(const char* value) {
+  char *err = NULL;
+  CORBA::Double r =  strtod(value, &err);
+  if (err != value) SetValue(r);
+}

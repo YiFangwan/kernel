@@ -34,7 +34,6 @@
 
 #include "SALOME_Transform.h"
 #include "SALOME_TransformFilter.h"
-#include "SALOME_PassThroughFilter.h"
 #include "SALOME_GeometryFilter.h"
 
 #include "QAD_Settings.h"
@@ -168,10 +167,10 @@ void VTKViewer_ViewFrame::onAdjustTrihedron(){
     float aSize = m_Triedron->GetSize();
     float aNewSize = aLength*aSizeInPercents/100.0;
     // if the new trihedron size have sufficient difference, then apply the value
-    if(fabs(aNewSize-aSize) > aSize*EPS_SIZE || fabs(aNewSize-aSize) > aNewSize*EPS_SIZE)
+    if(fabs(aNewSize-aSize) > aSize*EPS_SIZE || fabs(aNewSize-aSize) > aNewSize*EPS_SIZE){
       m_Triedron->SetSize(aNewSize);
+    }
   }
-  m_Triedron->Render(m_Renderer);
   ::ResetCameraClippingRange(m_Renderer);
 }
 
@@ -350,7 +349,7 @@ QColor VTKViewer_ViewFrame::backgroundColor() const
 }
 
 
-void VTKViewer_ViewFrame::SetSelectionMode( int mode )
+void VTKViewer_ViewFrame::SetSelectionMode( Selection_Mode mode )
 {
   m_RWInteractor->SetSelectionMode( mode );
 }
@@ -371,31 +370,33 @@ void VTKViewer_ViewFrame::highlight( const Handle(SALOME_InteractiveObject)& IOb
 {
   QAD_Study* ActiveStudy = QAD_Application::getDesktop()->getActiveStudy();
   SALOME_Selection* Sel = SALOME_Selection::Selection( ActiveStudy->getSelection() );
-  if ( Sel->SelectionMode() == 4 )
-    m_RWInteractor->highlight(IObject, highlight, update);
-  else if ( Sel->SelectionMode() == 3 ) {
-    m_RWInteractor->highlight(IObject, highlight, update);
-    if ( Sel->HasIndex( IObject ) ) {
-      TColStd_MapOfInteger MapIndex;
-      Sel->GetIndex( IObject, MapIndex );
-      m_RWInteractor->highlightCell(IObject, highlight, MapIndex, update);
-    }
-  } 
-  else if ( Sel->SelectionMode() == 2 ) {
-    m_RWInteractor->highlight(IObject, highlight, update);
-    if ( Sel->HasIndex( IObject ) ) {
-      TColStd_MapOfInteger MapIndex;
-      Sel->GetIndex( IObject, MapIndex );
-      m_RWInteractor->highlightEdge(IObject, highlight, MapIndex, update);
-    }
-  }
-  else if ( Sel->SelectionMode() == 1 ) {
-    m_RWInteractor->highlight(IObject, highlight, update);
+  m_RWInteractor->highlight(IObject, highlight, update);
+
+  switch (Sel->SelectionMode()) {
+  case NodeSelection:
     if ( Sel->HasIndex( IObject ) ) {
       TColStd_MapOfInteger MapIndex;
       Sel->GetIndex( IObject, MapIndex );
       m_RWInteractor->highlightPoint(IObject, highlight, MapIndex, update);
     }
+    break;
+  case EdgeOfCellSelection:
+    if ( Sel->HasIndex( IObject ) ) {
+      TColStd_MapOfInteger MapIndex;
+      Sel->GetIndex( IObject, MapIndex );
+      m_RWInteractor->highlightEdge(IObject, highlight, MapIndex, update);
+    }
+    break;
+  case CellSelection:
+  case EdgeSelection:
+  case FaceSelection:
+  case VolumeSelection:
+    if ( Sel->HasIndex( IObject ) ) {
+      TColStd_MapOfInteger MapIndex;
+      Sel->GetIndex( IObject, MapIndex );
+      m_RWInteractor->highlightCell(IObject, highlight, MapIndex, update);
+    }
+    break;
   }
 }
 
@@ -621,5 +622,3 @@ void VTKViewer_ViewFrame::RemoveActor( SALOME_Actor* theActor, bool update /*=fa
   theActor->RemoveFromRender(m_Renderer);
   if(update) Repaint();
 }
-
-

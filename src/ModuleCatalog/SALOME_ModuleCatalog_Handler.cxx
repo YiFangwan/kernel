@@ -48,11 +48,14 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
   test_component_type = "component-type" ;
   test_component_multistudy="component-multistudy";
   test_component_icone="component-icone" ;
+  test_component_impltype="component-impltype";
 
   test_interface_name = "component-interface-name" ;
   
   test_service_name = "service-name";
   test_defaultservice = "service-by-default";
+
+  test_typeofnode = "type-of-node";
 
   test_inParameter_type="inParameter-type";
   test_inParameter_name="inParameter-name";
@@ -189,6 +192,10 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
   if((qName.compare(QString(test_component_multistudy))==0)) 
     _amodule.Parsercomponentmultistudy = atoi(content.c_str()) ;
 
+   // tag test_component_impltype
+  if((qName.compare(QString(test_component_impltype))==0)) 
+    _amodule.Parsercomponentimpltype = atoi(content.c_str()) ;
+
   // tag test_component_icone
   if((qName.compare(QString(test_component_icone))==0)) 
     _amodule.Parsercomponenticone = content ;
@@ -208,6 +215,10 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    //tag test_defaultservice
    if((qName.compare(QString(test_defaultservice))==0))
      _aService.ParserServicebydefault = atoi(content.c_str()) ;
+
+   //tag test_typeofnode
+   if((qName.compare(QString(test_typeofnode))==0))
+     _aService.ParserTypeOfNode = atoi(content.c_str()) ;
 
    // Parameter in
 
@@ -268,6 +279,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 
        // Empty temporary structures
        _aService.ParserServiceName = "";
+       _aService.ParserTypeOfNode = 1;
        _aService.ParserServiceinParameter.resize(0);
        _aService.ParserServiceoutParameter.resize(0);
      }

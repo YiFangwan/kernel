@@ -24,7 +24,7 @@
 //  File   : SALOMEDS_AttributeName_i.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 using namespace std;
 #include "SALOMEDS_AttributeUserID_i.hxx"
@@ -42,4 +42,11 @@ void SALOMEDS_AttributeUserID_i::SetValue(const char* value) {
   CheckLocked();
   CORBA::String_var Str = CORBA::string_dup(value);
   Handle(TDataStd_UAttribute)::DownCast(_myAttr)->SetID(Standard_GUID(Standard_CString(Str)));
+}
+
+char* SALOMEDS_AttributeUserID_i::Store() {
+  return "";
+}
+
+void SALOMEDS_AttributeUserID_i::Restore(const char* value) {
 }

@@ -47,3 +47,11 @@ void SALOMEDS_AttributePixMap_i::SetPixMap(const char* value) {
   CORBA::String_var Str = CORBA::string_dup(value);
   Handle(TDataStd_Comment)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
 }
+
+char* SALOMEDS_AttributePixMap_i::Store() {
+  return GetPixMap();
+}
+
+void SALOMEDS_AttributePixMap_i::Restore(const char* value) {
+  SetPixMap(value);
+}

@@ -99,7 +99,7 @@ string SALOME_LifeCycleCORBA::ComputerPath(
     path = Catalog->GetPathPrefix( theComputer );
   }
   catch (SALOME_ModuleCatalog::NotFound&) {
-    MESSAGE("GetPathPrefix(" << theComputer << ") not found!");
+    INFOS("GetPathPrefix(" << theComputer << ") not found!");
     path = "" ;
   }
   SCRUTE( path ) ;
@@ -209,10 +209,10 @@ Engines::Container_var SALOME_LifeCycleCORBA::FindOrStartContainer(
       SCRUTE( rsh );
       int status = system( rsh.c_str() ) ;
       if (status == -1) {
-        INFOS("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed (system command status -1)") ;
+        MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed (system command status -1)") ;
       }
       else if (status == 217) {
-        INFOS("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed (system command status 217)") ;
+        MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed (system command status 217)") ;
       }
       else {
         int count = 21 ;
@@ -224,7 +224,7 @@ Engines::Container_var SALOME_LifeCycleCORBA::FindOrStartContainer(
           aFactoryServer = FindContainer( FactoryServer.c_str() ) ;
 	}
         if ( CORBA::is_nil( aFactoryServer ) ) {
-          INFOS("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed") ;
+          MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed") ;
 	}
         else if ( strcmp( theComputer.c_str() , GetHostname().c_str() ) ) {
           _FactoryServer = aFactoryServer ;
@@ -367,14 +367,14 @@ Engines::Component_var SALOME_LifeCycleCORBA::FindOrLoad_Component
 	    }
 	  catch (SALOME_ModuleCatalog::NotFound&)
 	    {
-	      MESSAGE("GetPathPrefix(" << machine << ") not found!"
+	      INFOS("GetPathPrefix(" << machine << ") not found!"
 		      << "trying localhost");
 	      try {
                 path = compoInfo->GetPathPrefix("localhost") ;
                 path += "/" ;
 	      }
 	      catch (SALOME_ModuleCatalog::NotFound&) {
-	        MESSAGE("GetPathPrefix(localhost) not found!") ;
+	        INFOS("GetPathPrefix(localhost) not found!") ;
                 path = "" ;
 	      }
 	    }

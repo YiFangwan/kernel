@@ -24,7 +24,7 @@
 //  File   : Handle_SALOMEDS_DataMapNodeOfDataMapStringLabel_0.cxx
 //  Author : Yves FRICAUD
 //  Module : SALOME
-//  $Header: 
+//  $Header$
 
 using namespace std;
 #include "SALOMEDS_DataMapNodeOfDataMapStringLabel.hxx"

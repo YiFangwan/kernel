@@ -61,7 +61,7 @@ using namespace std;
 #include "SALOMEGUI_TrihedronSizeDlg.h"
 #include "SALOMEGUI_ExternalBrowserDlg.h"
 #include "SALOMEGUI_LoadStudiesDlg.h"
-#include "SALOME_Selection.h"
+//#include "SALOME_Selection.h"
 #include "SALOME_InteractiveObject.hxx"
 #include "SALOME_ListIteratorOfListIO.hxx"
 #include "SALOMEGUI_AboutDlg.h"
@@ -93,6 +93,8 @@ using namespace std;
 #include <qlineedit.h>
 #include <qdatetime.h>
 #include <qthread.h>
+
+#include <qstringlist.h>
 
 #if QT_VERSION > 300
   #include <qlistbox.h>
@@ -313,10 +315,8 @@ myQueryClose( true )
 	  tr("INF_RESOURCES");
 	//QMessageBox::warning( this, tr("WRN_WARNING"), errMsg, tr ("BUT_OK") );
       }
-
-    if ( !QString(list_composants[ind].modulename).isEmpty() )
-      myCombo->insertItem( strdup(list_composants[ind].moduleusername) );
-
+    if ( ( resDir || moduleusername == "Salome" ) && !modulename.isEmpty() ) // VSR: Force "Salome" component to appear in the combo box
+      myCombo->insertItem( moduleusername );
   }
 
   myCombo->adjustSize();
@@ -352,6 +352,7 @@ QAD_Desktop::~QAD_Desktop ()
   //NRI : SAL2214
   myNewViewPopup.clear();
   //NRI : SAL2214
+  myHelpContentsModulePopup.clear();
   myToolsPopup.clear();
   myPrefPopup.clear();
   myStdActions.clear();
@@ -583,8 +584,15 @@ void QAD_Desktop::createActions()
     exitAction->addTo( &myFilePopup );
     myStdActions.insert ( FileExitId, exitAction );
  
+    QAD_ASSERT( connect( &myFilePopup, SIGNAL(highlighted( int )), 
+			 this, SLOT(onFilePopupStatusText( int )) ));
+    
+
     /* 'Edit' actions : provided by application only */
     myEditPos = 0;
+
+    QAD_ASSERT( connect( &myEditPopup, SIGNAL(highlighted( int )), 
+			 this, SLOT(onEditPopupStatusText( int )) ));
 
     /* 'View' actions */
     /* toolbars popup menu */
@@ -626,6 +634,9 @@ void QAD_Desktop::createActions()
     SelectionActorAction->setOn(true);
 
     myViewPos = myViewPopup.count();
+
+    QAD_ASSERT( connect( &myViewPopup, SIGNAL(highlighted( int )), 
+			 this, SLOT(onViewPopupStatusText( int )) ));
 
     /* Parse xml file */
     QAD_ResourceMgr* resMgr = QAD_Desktop::createResourceManager();
@@ -934,17 +945,46 @@ void QAD_Desktop::createActions()
     /* 'Help' actions
      */
     /* contents */
-    QActionP* helpContentsAction = new QActionP( "", tr("MEN_DESK_HELP_CONTENTS"), Key_F1, this );
-    helpContentsAction->setStatusTip ( tr("PRP_DESK_HELP_CONTENTS") );
-    QAD_ASSERT(connect( helpContentsAction, SIGNAL(activated()),
-			this, SLOT( onHelpContents() )));
-    helpContentsAction->addTo( &myHelpPopup );
-    myStdActions.insert( HelpContentsId , helpContentsAction );
+    // MZN : Commented
+    // QActionP* helpContentsAction = new QActionP( "", tr("MEN_DESK_HELP_CONTENTS"), Key_F1, this );
+    // helpContentsAction->setStatusTip ( tr("PRP_DESK_HELP_CONTENTS") );
+//     QAD_ASSERT(connect( helpContentsAction, SIGNAL(activated()),
+// 			this, SLOT( onHelpContents() )));
+//     helpContentsAction->addTo( &myHelpPopup );
+//     myStdActions.insert( HelpContentsId , helpContentsAction );
 				
-    id = myHelpPopup.insertSeparator();
+//     id = myHelpPopup.insertSeparator();
 						   
     /* GUI contents */
-    // NRI : Temporary commented
+    myHelpPopup.insertItem( tr("MEN_DESK_HELP_MODULECONTENTS"), &myHelpContentsModulePopup, HelpContentsModuleId);
+    bool toEnable = false;
+    
+    CORBA::Object_var objVarN = myNameService->Resolve("/Kernel/ModulCatalog");
+    myCatalogue  = SALOME_ModuleCatalog::ModuleCatalog::_narrow(objVarN);
+    
+    SALOME_ModuleCatalog::ListOfIAPP_Affich_var list_composants =
+      myCatalogue->GetComponentIconeList();
+      
+    for (unsigned int ind = 0; ind < list_composants->length(); ind++) {
+      QString aModuleName = strdup(list_composants[ind].modulename) ;
+      QString dir;
+      if (dir = getenv( aModuleName + "_ROOT_DIR")) {
+	dir = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + "doc/salome/" );
+	QString aFileName = aModuleName + "_index.html"; 
+	if ( QFileInfo( dir + aFileName ).exists() ) {
+	  QString aModuleUserName = strdup(list_composants[ind].moduleusername) ;
+	  if ( aModuleUserName == "Salome" )  aModuleUserName = "Kernel" ;
+	  QActionP* moduleHelpAction = new QActionP( "", aModuleUserName + " Help" , 0, this, aModuleName);
+	  QAD_ASSERT(connect( moduleHelpAction, SIGNAL(activated()), this, SLOT(onHelpContentsModule() )));
+	  moduleHelpAction->addTo( &myHelpContentsModulePopup );
+	  if (!toEnable) toEnable = true;
+	}
+      }
+    }
+    
+    myHelpContentsModulePopup.setEnabled(toEnable);
+              
+   // NRI : Temporary commented
 
 //     QActionP* helpContentsActionGUI = new QActionP( "", tr("MEN_DESK_HELP_GUICONTENTS"), 0, this );
 //     helpContentsActionGUI->setStatusTip ( tr("PRP_DESK_HELP_GUICONTENTS") );
@@ -953,13 +993,22 @@ void QAD_Desktop::createActions()
 //     helpContentsActionGUI->addTo( &myHelpPopup );
 //     myStdActions.insert( HelpContentsId , helpContentsActionGUI );
 
+    
     /* TUI contents */
+    /*
     QActionP* helpContentsActionTUI = new QActionP( "", tr("MEN_DESK_HELP_TUICONTENTS"), 0, this );
     helpContentsActionTUI->setStatusTip ( tr("PRP_DESK_HELP_TUICONTENTS") );
     QAD_ASSERT(connect( helpContentsActionTUI, SIGNAL(activated()),
 			this, SLOT( onHelpContentsTUI() )));
     helpContentsActionTUI->addTo( &myHelpPopup );
     myStdActions.insert( HelpContentsId , helpContentsActionTUI );						   
+    */
+
+
+    // Provide status tip for Module help menu item
+    QAD_ASSERT( connect( &myHelpPopup, SIGNAL(highlighted( int )), this,
+			 SLOT(onHelpModulePopupStatusText( int )) ));
+       
 
     /* search */
 //    QActionP* helpSearchAction = new QActionP( "", tr("MEN_DESK_HELP_SEARCH"), 0, this );
@@ -1800,15 +1849,7 @@ bool QAD_Desktop::onSaveAsStudy( QAD_Study* study )
 */
 bool QAD_Desktop::onCloseStudy()
 {
-  bool close = this->onCloseStudy ( myActiveStudy, true );
-  if ( close && !myXmlHandler->myIdList.IsEmpty() ) {
-    clearMenus();
-    myActiveComp = "";
-    myCombo->setCurrentItem (0);
-    for ( QToolButton* aButton=myComponentButton.first(); aButton; aButton=myComponentButton.next() ) {
-      aButton->setOn(false);
-    }
-  }
+  bool close = this->onCloseStudy ( getActiveStudy(), true );
   return close;
 }
 
@@ -1859,6 +1900,7 @@ bool QAD_Desktop::onCloseStudy( QAD_Study* study, bool ask )
   /* close active component */
   if (!myXmlHandler->myIdList.IsEmpty())
     {
+      deactivateComponent();
       clearMenus();
       myActiveComp="";
       myCombo->setCurrentItem (0);
@@ -1962,10 +2004,10 @@ void QAD_Desktop::onSelectionMode()
 {
   const QActionP* obj = (QActionP*) sender();
   
-  int SelectionMode = 4;
+  Selection_Mode SelectionMode = ActorSelection;
 
   if ( obj == myStdActions.at(SelectionActorId) ) {
-    SelectionMode = 4;
+    SelectionMode = ActorSelection;
     if ( obj->isOn() ) {
       myStdActions.at(SelectionCellId)->setOn(false);
       myStdActions.at(SelectionEdgeId)->setOn(false);
@@ -1974,7 +2016,7 @@ void QAD_Desktop::onSelectionMode()
       myStdActions.at(SelectionActorId)->setOn(true);
 
   } else if ( obj == myStdActions.at(SelectionCellId) ) {
-    SelectionMode = 3; 
+    SelectionMode = CellSelection; 
     if ( obj->isOn() ) {
       myStdActions.at(SelectionActorId)->setOn(false);
       myStdActions.at(SelectionEdgeId)->setOn(false);
@@ -1983,7 +2025,7 @@ void QAD_Desktop::onSelectionMode()
       myStdActions.at(SelectionActorId)->setOn(true);
       
   } else if ( obj == myStdActions.at(SelectionEdgeId) ) {
-    SelectionMode = 2;    
+    SelectionMode = EdgeOfCellSelection;    
     if ( obj->isOn() ) {
       myStdActions.at(SelectionActorId)->setOn(false);
       myStdActions.at(SelectionCellId)->setOn(false);
@@ -1992,7 +2034,7 @@ void QAD_Desktop::onSelectionMode()
       myStdActions.at(SelectionActorId)->setOn(true);
       
   } else if ( obj == myStdActions.at(SelectionPointId) ) {
-    SelectionMode = 1;
+    SelectionMode = NodeSelection;
     if ( obj->isOn() ) {
       myStdActions.at(SelectionEdgeId)->setOn(false);
       myStdActions.at(SelectionCellId)->setOn(false);
@@ -2011,10 +2053,10 @@ void QAD_Desktop::onSelectionMode()
 /*!
     Called on 'View\Selection Mode'
 */
-void QAD_Desktop::SetSelectionMode(int mode, bool activeCompOnly)
+void QAD_Desktop::SetSelectionMode(Selection_Mode mode, bool activeCompOnly)
 {
   switch (mode) {
-  case 1:
+  case NodeSelection:
     {
       myStdActions.at(SelectionEdgeId)->setOn(false);
       myStdActions.at(SelectionCellId)->setOn(false);
@@ -2022,7 +2064,7 @@ void QAD_Desktop::SetSelectionMode(int mode, bool activeCompOnly)
       myStdActions.at(SelectionPointId)->setOn(true);
       break;
     }
-  case 2:
+  case EdgeOfCellSelection:
     {
       myStdActions.at(SelectionActorId)->setOn(false);
       myStdActions.at(SelectionCellId)->setOn(false);
@@ -2030,15 +2072,18 @@ void QAD_Desktop::SetSelectionMode(int mode, bool activeCompOnly)
       myStdActions.at(SelectionEdgeId)->setOn(true);
       break;
     }
-  case 3:
-    {
+  case CellSelection:
+  case EdgeSelection:
+  case FaceSelection:
+  case VolumeSelection:
+   {
       myStdActions.at(SelectionActorId)->setOn(false);
       myStdActions.at(SelectionEdgeId)->setOn(false);
       myStdActions.at(SelectionPointId)->setOn(false);
       myStdActions.at(SelectionCellId)->setOn(true);
       break;
     }
-  case 4:
+  case ActorSelection:
     {
       myStdActions.at(SelectionCellId)->setOn(false);
       myStdActions.at(SelectionEdgeId)->setOn(false);
@@ -2128,6 +2173,16 @@ private:
   
 };
 
+// Provide status tip for GUI help menu item
+
+void QAD_Desktop::onHelpModulePopupStatusText(int id)
+{
+  int Id = myHelpPopup.idAt( 0 ); // HelpContentsModuleId
+  //  MESSAGE ( "myHelpContentsModulePopup : " << id << "-" << Id)
+  if (id == Id)
+    putInfo("Shows the help contents of each module");
+}
+
 /*!
     Called on 'help\contents'
 */
@@ -2158,41 +2213,42 @@ void QAD_Desktop::onHelpContents()
 }
 
 /*!
-    Called on 'help\GUI Reference'
+    Called on 'Module Help Reference'
 */
-void QAD_Desktop::onHelpContentsGUI()
-{
-//   QCString dir;
-//   QString root;
-//   QString homeDir;
+void QAD_Desktop::onHelpContentsModule()
+{ 
+  const QActionP* obj = (QActionP*) sender();
   
-//   if ( (dir = getenv("KERNEL_ROOT_DIR")) ) {
-//     root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + "doc" );
-//     root = QAD_Tools::addSlash( root + "guihtml" );
-//     root = QAD_Tools::addSlash( root + "guihtml" );
-//     if ( QFileInfo( root + "salomedoc.html" ).exists() ) {
-//       homeDir = root;
-//     }
-//   }
-//   if ( root.isEmpty() ) {
-//     if ( QFileInfo( "/usr/local/doc/guihtml/salomedoc.html" ).exists() ) {
-//       homeDir = "/usr/local/doc/guihtml/";
-//     }
-//   }
-//   if ( root.isEmpty() ) 
-//     root = "./doc/";
-//   QString helpFile = QFileInfo( homeDir + "salomedoc.html" ).absFilePath(); 
-//   QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
-//   QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
+  QString aComponentName = obj->name();
+  QString aFileName = aComponentName + "_index.html";
+
+  QCString dir;
+  QString root;
+  QString homeDir;
+  if (dir = getenv( aComponentName + "_ROOT_DIR")) {
+    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) +  QAD_Tools::addSlash("doc") +  QAD_Tools::addSlash("salome") );
+    if ( QFileInfo( root + aFileName ).exists() ) {
+      homeDir = root;
+    } else {
+      QMessageBox::warning( this, tr("WRN_WARNING"), 
+			    QString( "%1"+ aFileName + " doesn't exist." ).arg(root), tr ("BUT_OK") );
+      return;
+    }
+  }
+
+  QString helpFile = QFileInfo( homeDir + aFileName ).absFilePath();   
+  QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
+  QString aParams = QAD_CONFIG->getSetting("ExternalBrowser:Parameters");
    
-//   RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
-//   rs->start();
-    
+  RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
+  rs->start();
 }
 
 /*!
     Called on 'help\TUI Reference'
 */
+
+/* Commented
 void QAD_Desktop::onHelpContentsTUI()
 {
   if (myActiveComp == "")
@@ -2202,16 +2258,18 @@ void QAD_Desktop::onHelpContentsTUI()
   QString root;
   QString homeDir;
   if (dir = getenv( getComponentName( myActiveComp ) + "_ROOT_DIR")) {
-    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("share")  + QAD_Tools::addSlash("salome")  + QAD_Tools::addSlash("doc") + "html" );
+    root = QAD_Tools::addSlash( QAD_Tools::addSlash(dir) + QAD_Tools::addSlash("doc") + "html" );
     if ( QFileInfo( root + "index.html" ).exists() ) {
       homeDir = root;
-    } else {
+    } else if (QFileInfo( root + "html/index.html" ).exists())
+      homeDir = root + QAD_Tools::addSlash("html");
+    else {
       QMessageBox::warning( this, tr("WRN_WARNING"), 
 			    QString( "%1index.html doesn't exist." ).arg(root), tr ("BUT_OK") );
       return;
     }
   }
-
+  
   QString helpFile = QFileInfo( homeDir + "index.html" ).absFilePath(); 
   
   QString anApp = QAD_CONFIG->getSetting("ExternalBrowser:Application");
@@ -2220,6 +2278,8 @@ void QAD_Desktop::onHelpContentsTUI()
   RunBrowser* rs = new RunBrowser(anApp, aParams, helpFile);
   rs->start();
 }
+*/
+
 
 // /*!
 //     Called on 'help\search'
@@ -2359,10 +2419,10 @@ void QAD_Desktop::onWindowPopupAboutToShow()
 */
 void QAD_Desktop::onWindowsPopupStatusText( int id )
 {
-    int cascadeId = myWindowPopup.idAt( 0 );
-    int tileId = myWindowPopup.idAt( 1 );
+    int cascadeId = myWindowPopup.idAt( 1 );
+    int tileId = myWindowPopup.idAt( 2 );
     if ( id == cascadeId || id == tileId )
-	return;
+      return;
     putInfo( tr("PRP_DESK_WINDOW_ACTIVATE") );
 }
 
@@ -2478,7 +2538,9 @@ void QAD_Desktop::onOpenWith()
 	} else if ( list_type_composants->length() > 1 ) {
 	  SALOMEGUI_OpenWith* aDlg = new SALOMEGUI_OpenWith( this );
 	  for (unsigned int ind = 0; ind < list_type_composants->length();ind++) {
-	    aDlg->addComponent( strdup(list_type_composants[ind]) );
+	    QString compusername = getComponentUserName( strdup(list_type_composants[ind]) );
+	    if ( !compusername.isEmpty() )
+	      aDlg->addComponent( compusername );
 	  }
 	  
 	  int retVal = aDlg->exec();
@@ -2771,7 +2833,8 @@ bool QAD_Desktop::loadComponent(QString Component)
 
 QString QAD_Desktop::changeXmlInputSourceData(QString theData, QString theComponent) 
 {
-  if ( theComponent=="Supervision" ) {
+  //  MESSAGE ( " changeXmlInputSourceData : " << theComponent.latin1() )
+  if ( theComponent=="SUPERV" ) {
     //Supervision main menu item
     int aItemId = 300;
     int aPosId = 3;
@@ -2780,7 +2843,7 @@ QString QAD_Desktop::changeXmlInputSourceData(QString theData, QString theCompon
     theData = theData.replace( QRegExp(aStrOld), aStrNew );
   }
   
-  if ( theComponent == "Visu" ) {
+  if ( theComponent == "VISU" ) {
     //Visualization main menu item
     int aItemId = 401;
     int aPosId = 3;
@@ -2833,44 +2896,44 @@ QString QAD_Desktop::changeXmlInputSourceData(QString theData, QString theCompon
     theData = theData.replace( QRegExp(aStrOld), aStrNew );
 
     //Numbering main menu item
-    aItemId = 80;
-    aPosId = 7;
-    aStrOld = createString( aItemId, aPosId );
-    aStrNew = createString( aItemId, aPosId+1 );
-    theData = theData.replace( QRegExp(aStrOld), aStrNew );
+//     aItemId = 80;
+//     aPosId = 7;
+//     aStrOld = createString( aItemId, aPosId );
+//     aStrNew = createString( aItemId, aPosId+1 );
+//     theData = theData.replace( QRegExp(aStrOld), aStrNew );
   }
   
-  if ( theComponent == "Geometry" ) {
+  if ( theComponent == "GEOM" ) {
     //New Entity main menu item
-    int aItemId = 70;
+    int aItemId = 40;
     int aPosId = 3;
     QString aStrOld = createString( aItemId, aPosId );
     QString aStrNew = createString( aItemId, aPosId+1 );
     theData = theData.replace( QRegExp(aStrOld), aStrNew );
 
     //Operations main menu item
-    aItemId = 40;
+    aItemId = 50;
     aPosId = 4;
     aStrOld = createString( aItemId, aPosId );
     aStrNew = createString( aItemId, aPosId+1 );
     theData = theData.replace( QRegExp(aStrOld), aStrNew );
 
     //Repair main menu item
-    aItemId = 50;
+    aItemId = 60;
     aPosId = 5;
     aStrOld = createString( aItemId, aPosId );
     aStrNew = createString( aItemId, aPosId+1 );
     theData = theData.replace( QRegExp(aStrOld), aStrNew );
 
     //Measures main menu item
-    aItemId = 60;
+    aItemId = 70;
     aPosId = 6;
     aStrOld = createString( aItemId, aPosId );
     aStrNew = createString( aItemId, aPosId+1 );
     theData = theData.replace( QRegExp(aStrOld), aStrNew );
   }
 
-  if ( theComponent == "Med" ) {
+  if ( theComponent == "MED" ) {
     //MED main menu item
     int aItemId = 90;
     int aPosId = 3;
@@ -3012,6 +3075,9 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
 {
   if (myActiveStudy != 0) {
     if (myActiveComp.compare(component)!=0) {
+      // deactivate previous component
+      deactivateComponent();
+
       if (!myXmlHandler->myIdList.IsEmpty()) clearMenus();
       if ( myCombo->currentText() != component )
 	myCombo->setCurrentText( component );
@@ -3075,8 +3141,13 @@ void QAD_Desktop::onComboActiveComponent( const QString & component, bool isLoad
       }
     }
   } else if (component.compare(QString("Salome"))!= 0) {
-  
-      SALOMEGUI_ActivateComponentDlg aDlg( this );
+
+      QPixmap pm;
+      for ( QToolButton* aButton=myComponentButton.first(); aButton; aButton=myComponentButton.next() ) {
+	if ( aButton->textLabel().compare( component ) == 0 )
+	  pm = aButton->iconSet().pixmap();
+      }
+      SALOMEGUI_ActivateComponentDlg aDlg( this, component, pm );
       int res = aDlg.exec();
       
       switch ( res )
@@ -3239,39 +3310,52 @@ void QAD_Desktop::definePopup(QString & theContext,
   }
 }
 
+
 /*!
-    Create popup
+    Copy popup menu [ static ]
 */
-void QAD_Desktop::createPopup(QPopupMenu* popupFather, QPopupMenu* popup,
-			      QString text, int popupID, bool separator)
+static void makePopup( QPopupMenu* popup, QPopupMenu* fromPopup, QAD_Desktop* receiver ) 
 {
-  QMenuItem* item = popup->findItem(popupID);
-  if (item) {
-    QPopupMenu* popupChild = item->popup();
-    if ( popupChild ) {
-      QPopupMenu* newPopup = new QPopupMenu;
-      int count = popupChild->count();
-      // add items at the top of <popupFather>
-      for (int i = count - 1; i >= 0; i--) {
-	int j = popupChild->idAt(i);
-	QString text = popupChild->text(j);
-	createPopup( newPopup, popupChild, text, j);
+  // safe check
+  if ( !popup || !fromPopup ) 
+    return;
+  // iterator through all popup items
+  for ( int i = fromPopup->count()-1; i >= 0; i-- ) {
+    int cmdId = fromPopup->idAt( i );
+    QMenuItem* item = fromPopup->findItem( cmdId );
+    if ( item ) {
+      // if item is a separator
+      if ( item->isSeparator() ) {
+	popup->insertSeparator( 0 );
       }
-      popupFather->insertItem(popup->text(popupID),
-			      newPopup, popupID, 0);
-    } else {
-      if ( !text.isNull() ) {
-	popupFather->insertItem(popup->text(popupID),
-				this,
-				SLOT( onDispatch(int) ), 0, popupID, 0);// try adding item at the top
-      } /*else if ( separator ) 
-	popupFather->insertTearOffHandle(-1, 0);*/
-      else
-	popupFather->insertSeparator(0);
+      else {
+	QIconSet* iconSet = item->iconSet();
+	QKeySequence accel = fromPopup->accel( cmdId );
+
+	QPopupMenu* popupChild = item->popup();
+	// if item is a popup
+	if ( popupChild && popupChild != fromPopup ) {
+	  QPopupMenu* newPopup = new QPopupMenu( popup );
+	  if ( iconSet ) 
+	    popup->insertItem( *iconSet, item->text(), newPopup, cmdId, 0 );
+	  else
+	    popup->insertItem( item->text(), newPopup, cmdId, 0 );
+	  makePopup( newPopup, popupChild, receiver );
+	}
+	// if item is a command
+	else {
+	  if ( iconSet ) 
+	    popup->insertItem( *iconSet, item->text(), cmdId, 0 );
+	  else
+	    popup->insertItem( item->text(), cmdId, 0 );
+	  popup->connectItem( cmdId, receiver, SLOT( onDispatch( int ) ) );
+	}
+	popup->setAccel( accel, cmdId );
+      }
     }
   }
 }
-
+    
 /*!
     Create popup
 */
@@ -3280,34 +3364,8 @@ void QAD_Desktop::createPopup(QPopupMenu* popup, const QString & theContext,
 {
   if ( !myActiveComp.isEmpty() && 
        getOperatorMenus()->createPopupMenu(theContext,theParent,theObject) != NULL ) {
-    QPopupMenu* aPopup = getOperatorMenus()->createPopupMenu(theContext,theParent,theObject)->getPopup();
-    int count = aPopup->count();
-
-    //for (int i = 0; i < count; i++) {
-    for (int i = count - 1; i >= 0; i--) {
-      int id = aPopup->idAt(i);
-      QString text = aPopup->text(id);
-      //QString mes("Inserting popup menu item loaded from XML: ");
-      //mes += text;
-      //MESSAGE ( mes.latin1() )
-      if (i==0)
-	popup->insertItem(aPopup->text(id),
-			  this,
-			  SLOT( onDispatch(int) ), 0, id, 0);// try adding item at the top
-      else
-	createPopup( popup, aPopup, text, id);
-    }
-  } //else {
-    //QString mes("Popup does not exist for given (Context = ");
-    //mes += theContext;
-    //mes += ", Parent = ";
-    //mes += theParent;
-    //mes += ", Object = ";
-    //mes += theObject;
-    //MESSAGE (mes.latin1())
-      //popup->clear();
-  //}
-
+    makePopup( popup, getOperatorMenus()->createPopupMenu(theContext,theParent,theObject)->getPopup(), this );
+  }
   // IAPP Popup 
   // Should be moved to SALOMEGUI_Application::onCreatePopup()...
   if ( myActiveComp.isEmpty() ) {
@@ -3327,10 +3385,11 @@ void QAD_Desktop::createPopup(QPopupMenu* popup, const QString & theContext,
       }
     } 
   }
- 
+
 }
 
 typedef bool activeStudyChanged(QAD_Desktop*);
+typedef void deactivate();
 
 void QAD_Desktop::onActiveStudyChanged()
 {
@@ -3339,6 +3398,17 @@ void QAD_Desktop::onActiveStudyChanged()
     if ( osdF != NULL ) {
       activeStudyChanged (*f1) = (bool (*) (QAD_Desktop*)) osdF;
       (*f1)(this);
+    }  
+  }
+}
+
+void QAD_Desktop::deactivateComponent()
+{
+  if (!myActiveComp.isEmpty())	{
+    OSD_Function osdF = mySharedLibrary.DlSymb("deactivate");
+    if ( osdF != NULL ) {
+      deactivate (*f1) = (void (*)()) osdF;
+      (*f1)();
     }  
   }
 }
@@ -3577,6 +3647,7 @@ void QAD_Desktop::onViewerOCC()
   QColor c = QColorDialog::getColor( color, QAD_Application::getDesktop() );
 
   if (c.isValid()) {
+    /* VSR : PAL5420 ---------------------------------------------------
     if ( myActiveApp ) {
       QList<QAD_Study>& studies = myActiveApp->getStudies();
       for ( QAD_Study* study = studies.first(); study; study = studies.next() )  {
@@ -3589,6 +3660,7 @@ void QAD_Desktop::onViewerOCC()
 	}
       }
     }
+    VSR : PAL5420 --------------------------------------------------- */
     QAD_CONFIG->addSetting( "OCCViewer:BackgroundColorRed",   c.red() );
     QAD_CONFIG->addSetting( "OCCViewer:BackgroundColorGreen", c.green() );
     QAD_CONFIG->addSetting( "OCCViewer:BackgroundColorBlue",  c.blue() );
@@ -3612,6 +3684,7 @@ void QAD_Desktop::onGraphSupervisor()
   QColor c = QColorDialog::getColor( color, QAD_Application::getDesktop() );
 
   if (c.isValid()) {
+    /* VSR : PAL5420 ---------------------------------------------------
     if ( myActiveApp ) {
       QList<QAD_Study>& studies = myActiveApp->getStudies();
       for ( QAD_Study* study = studies.first(); study; study = studies.next() )  {
@@ -3624,7 +3697,7 @@ void QAD_Desktop::onGraphSupervisor()
 	}
       }
     }
-    
+    VSR : PAL5420 --------------------------------------------------- */
     QAD_CONFIG->addSetting( "SUPERVGraph:BackgroundColorRed",   c.red() );
     QAD_CONFIG->addSetting( "SUPERVGraph:BackgroundColorGreen", c.green() );
     QAD_CONFIG->addSetting( "SUPERVGraph:BackgroundColorBlue",  c.blue() );
@@ -3648,6 +3721,7 @@ void QAD_Desktop::onViewerVTK()
   QColor c = QColorDialog::getColor( color, QAD_Application::getDesktop() );
 
   if (c.isValid()) {
+    /* VSR : PAL5420 ---------------------------------------------------
     if ( myActiveApp ) {
       QList<QAD_Study>& studies = myActiveApp->getStudies();
       for ( QAD_Study* study = studies.first(); study; study = studies.next() )  {
@@ -3660,7 +3734,7 @@ void QAD_Desktop::onViewerVTK()
 	}
       }
     }
-    
+    VSR : PAL5420 --------------------------------------------------- */
     QAD_CONFIG->addSetting( "VTKViewer:BackgroundColorRed",   c.red() );
     QAD_CONFIG->addSetting( "VTKViewer:BackgroundColorGreen", c.green() );
     QAD_CONFIG->addSetting( "VTKViewer:BackgroundColorBlue",  c.blue() );
@@ -3680,12 +3754,13 @@ void QAD_Desktop::onPlot2d()
     color = QColor( bgRed, bgGreen, bgBlue );
   }
   else {
-    color = QColor(0, 0, 0);  
+    color = QColor(255, 255, 255);  
   }
 
   color = QColorDialog::getColor( color, QAD_Application::getDesktop() );
 
   if ( color.isValid() ) {
+    /* VSR : PAL5420 ---------------------------------------------------
     if ( myActiveApp ) {
       QList<QAD_Study>& studies = myActiveApp->getStudies();
       for ( QAD_Study* study = studies.first(); study; study = studies.next() )  {
@@ -3698,6 +3773,7 @@ void QAD_Desktop::onPlot2d()
 	}
       }
     }
+    VSR : PAL5420 --------------------------------------------------- */
     QStringList bgData; 
     bgData.append( QString::number( color.red() ) );
     bgData.append( QString::number( color.green() ) );
@@ -3814,6 +3890,85 @@ void QAD_Desktop::onUndoLevel()
 			       QObject::tr("BUT_OK"));
 	aWasWarning = 1;
       }
+    }
+  }
+}
+
+/* Update status bar for File menu items */
+void QAD_Desktop::onFilePopupStatusText( int id )
+{
+  QString component = getActiveComponent();
+  
+  if (component != "") {
+    //one of the modules is active now
+    int importId = myFilePopup.idAt(8);
+    int exportId = myFilePopup.idAt(9);
+   
+    if (component == getComponentUserName("SMESH") || component == getComponentUserName("GEOM")) {
+      if (id == importId)
+	putInfo( tr("PRP_DESK_FILE_IMPORT") );
+      if (id == exportId)
+	putInfo( tr("PRP_DESK_FILE_EXPORT") );
+    }
+    if (component == getComponentUserName("VISU")) {
+      if (id == importId)
+	putInfo( tr("PRP_DESK_FILE_IMPORTMED") );
+      if (id == exportId)
+	putInfo( tr("PRP_DESK_FILE_IMPORTTABLE") );
+    }
+    if (component == getComponentUserName("SUPERV")) {
+      if (id == importId)
+	putInfo( tr("PRP_DESK_FILE_IMPORTDF") );
+      if (id == exportId)
+	putInfo( tr("PRP_DESK_FILE_EXPORTDF") );
+    }
+  }
+}
+
+/* Update status bar for Edit menu items */
+void QAD_Desktop::onEditPopupStatusText( int id )
+{
+  QString component = getActiveComponent();
+  
+  if (component != "") {
+    //one of the modules is active now
+   
+    if (component == getComponentUserName("SMESH") || component == getComponentUserName("GEOM") ) {
+      int deleteId = myEditPopup.idAt(5);
+      if (id == deleteId)
+	putInfo( tr("PRP_DESK_EDIT_DELETE") );
+    }
+    if (component == getComponentUserName("SUPERV") ) {
+      int newDFId = myEditPopup.idAt(5);
+      int modifyDFId = myEditPopup.idAt(6);
+      if (id == newDFId)
+	putInfo( tr("PRP_DESK_EDIT_NEWDF") );
+      if (id == modifyDFId)
+	putInfo( tr("PRP_DESK_EDIT_MODIFYDF") );
+    }
+  }
+}
+
+/* Update status bar for View menu items */
+void QAD_Desktop::onViewPopupStatusText( int id )
+{
+  QString component = getActiveComponent();
+  
+  if (component != "") {
+    //one of the modules is active now
+    int DispModeId = myViewPopup.idAt(2);
+    
+    if (component == getComponentUserName("GEOM")) {
+      if (id == DispModeId)
+	putInfo( tr("PRP_DESK_VIEW_DISPLAYMODE") );
+    }
+    if (component == getComponentUserName("SMESH")) {
+      int updateId = myViewPopup.idAt(4);
+
+      if (id == DispModeId)
+	putInfo( tr("PRP_DESK_VIEW_DISPLAYMODE") );
+      if (id == updateId)
+	putInfo( tr("PRP_DESK_VIEW_UPDATE") );
     }
   }
 }

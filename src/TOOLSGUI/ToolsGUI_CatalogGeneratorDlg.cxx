@@ -123,8 +123,6 @@ ToolsGUI_CatalogGeneratorDlg::ToolsGUI_CatalogGeneratorDlg( QWidget* parent, con
   myVersionEdit->setMinimumSize( myMinimumSize );
   QStringList aList = QStringList::split(QRegExp("\\s+"),tr( "INF_VERSION" ));
   myVersionEdit->setText(aList.last());
-  QDoubleValidator *validator = new QDoubleValidator(myVersionEdit);
-  myVersionEdit->setValidator(validator);
 
   myPngEdit = new QLineEdit(supplGrp , "myCompIcon" );
   myPngEdit->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );

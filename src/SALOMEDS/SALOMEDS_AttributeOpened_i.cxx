@@ -39,3 +39,11 @@ void SALOMEDS_AttributeOpened_i::SetOpened(CORBA::Boolean value) {
   if (value != 0) val = 1;
   Handle(TDataStd_Integer)::DownCast(_myAttr)->Set(val);
 }
+
+char* SALOMEDS_AttributeOpened_i::Store() {
+  return strdup(IsOpened()?"1":"0");
+}
+
+void SALOMEDS_AttributeOpened_i::Restore(const char* value) {
+  SetOpened(value[0] == '1');
+}

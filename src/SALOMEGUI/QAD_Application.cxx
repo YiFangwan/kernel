@@ -1243,11 +1243,13 @@ void QAD_Application::onStudyActivated(QAD_Study* study)
   
   myActiveStudy = study;
 
-  /* notification */
-  onActiveStudyChanged( oldActiveStudy, myActiveStudy );
-  
+  // VSR : call app activate before informing modules that active study is changed ===>
   /* application activated */
   emit appActivated( this );
+
+  /* notification */
+  onActiveStudyChanged( oldActiveStudy, myActiveStudy );
+  // VSR : call app activate before informing modules that active study is changed <===
 }
 
 /*!
@@ -1257,8 +1259,8 @@ void QAD_Application::onStudyDeactivated(QAD_Study* study)
 {
   //  MESSAGE ("QAD_Application::onStudyDeactivated init. "); 
   QAD_ASSERT_DEBUG_ONLY ( myActiveStudy == study );
-  myActiveStudy->onStudyDeactivated();
-  myActiveStudy = 0;
+  if ( study )
+    study->onStudyDeactivated();
   //  MESSAGE ("QAD_Application::onStudyDeactivated done. "); 
 }
 

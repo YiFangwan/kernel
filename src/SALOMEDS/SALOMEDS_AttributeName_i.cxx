@@ -42,3 +42,11 @@ void SALOMEDS_AttributeName_i::SetValue(const char* value) {
   CORBA::String_var Str = CORBA::string_dup(value);
   Handle(TDataStd_Name)::DownCast(_myAttr)->Set(TCollection_ExtendedString(Str));
 }
+
+char* SALOMEDS_AttributeName_i::Store() {
+  return Value();
+}
+
+void SALOMEDS_AttributeName_i::Restore(const char* value) {
+  SetValue(value);
+}

@@ -249,7 +249,7 @@ QColor SUPERVGraph_ViewFrame::backgroundColor() const
 }
 
 
-void SUPERVGraph_ViewFrame::SetSelectionMode( int mode )
+void SUPERVGraph_ViewFrame::SetSelectionMode( Selection_Mode mode )
 {
   MESSAGE ( "SUPERVGraph_ViewFrame::SetSelectionMode" )
 }

@@ -50,7 +50,7 @@ static QString findFile( QString filename );
 static QString addSlash( const QString& path );
 
 InquireServersGUI::InquireServersGUI()
-     : QVBox(0, "SFA splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder )
+     : QVBox(0, "SFA splash", Qt::WDestructiveClose | Qt::WStyle_Customize | Qt::WStyle_NoBorder | WType_TopLevel | WStyle_StaysOnTop | WX11BypassWM  )
 {
   myGUI = false;
   myThread = new InquireServersQThread(this);
