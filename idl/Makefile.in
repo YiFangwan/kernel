@@ -24,7 +24,8 @@ IDL_FILES = \
   TypeData.idl \
   MPIObject.idl \
   MPIContainer.idl \
-  Logger.idl
+  Logger.idl \
+  SALOME_GenericObj.idl
 
 PY_CLIENT_IDL = $(IDL_FILES)
 
@@ -55,7 +56,7 @@ install: install-pyidl install-idl
 # create directory $(idldir) and copy idl files into it
 install-idl: $(IDL_FILES)
 	$(INSTALL) -d  $(idldir)
-	$(INSTALL_DATA) $^ $(idldir)
+	cp -p $^ $(idldir)
 
 
 install-pyidl: $(IDL_FILES)
