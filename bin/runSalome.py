@@ -104,6 +104,7 @@ try:
          killSalome()
 	 process_id={}
          os.remove(filedict)
+         time.sleep(1.0)
 	
 except getopt.error, msg:
   print usage

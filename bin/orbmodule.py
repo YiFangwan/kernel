@@ -7,25 +7,25 @@ import CosNaming
 
 # -----------------------------------------------------------------------------
 
-class Server:
-   XTERM="/usr/bin/X11/xterm -iconic -e "
-   CMD=""
+#CCRTclass Server:
+   #CCRTXTERM="/usr/bin/X11/xterm -iconic -e "
+   #CCRTCMD=""
 
-   def run(self):
-       commande=self.XTERM+self.CMD
-       print commande,"NOT DONE"
+   #CCRTdef run(self):
+       #CCRTcommande=self.XTERM+self.CMD
+       #CCRTprint commande,"NOT DONE"
        #CCRTier=os.system(commande)
        #CCRTif ier:print "Commande failed"
 
 # -----------------------------------------------------------------------------
 
-class NamingServer(Server):
-   XTERM=""
-   USER=os.getenv('USER')
-   if USER is None:
-      USER='anonymous'
-   LOGDIR="/tmp/logs/" + USER
-   os.system("mkdir -m 777 -p " + LOGDIR)
+#CCRTclass NamingServer(Server):
+   #CCRTXTERM=""
+   #CCRTUSER=os.getenv('USER')
+   #CCRTif USER is None:
+      #CCRTUSER='anonymous'
+   #CCRTLOGDIR="/tmp/logs/" + USER
+   #CCRTos.system("mkdir -m 777 -p " + LOGDIR)
    #CCRTCMD="runNS.sh > " + LOGDIR + "/salomeNS.log 2>&1"
 
 # -----------------------------------------------------------------------------
@@ -42,16 +42,16 @@ class client:
 
    def initNS(self):
       # Obtain a reference to the root naming context
-      obj         = self.orb.resolve_initial_references("NameService")
-      try:
-          self.rootContext = obj._narrow(CosNaming.NamingContext)
-          return
-      except CORBA.COMM_FAILURE:
-          self.rootContext = None
-          print "Lancement du Naming Service",
+      #CCRTobj         = self.orb.resolve_initial_references("NameService")
+      #CCRTtry:
+          #CCRTself.rootContext = obj._narrow(CosNaming.NamingContext)
+          #CCRTreturn
+      #CCRTexcept CORBA.COMM_FAILURE:
+          #CCRTself.rootContext = None
+          #CCRTprint "Lancement du Naming Service",
           
       # On lance le Naming Server (doit etre dans le PATH)
-      NamingServer().run()
+      #CCRTNamingServer().run()
       print "Searching Naming Service ",
       ncount=0
       delta=0.1
@@ -68,7 +68,7 @@ class client:
               time.sleep(delta)
 
       if self.rootContext is None:
-          print "Failed to narrow the root naming context"
+          print "Failed to narrow the root naming context",ncount
           sys.exit(1)
       print " found in %s seconds " % ((ncount-1)*delta)
 
