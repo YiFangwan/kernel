@@ -62,7 +62,7 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
   }
   else {
     _local_impl = NULL;
-    _corba_impl = SALOMEDS::Study::_duplicate(theStudy);
+    _corba_impl = theStudy;
   }
 
   init_orb();

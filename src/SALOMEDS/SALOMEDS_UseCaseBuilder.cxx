@@ -23,7 +23,7 @@ SALOMEDS_UseCaseBuilder::SALOMEDS_UseCaseBuilder(SALOMEDS::UseCaseBuilder_ptr th
 {
   _isLocal = false;
   _local_impl = NULL;
-  _corba_impl = SALOMEDS::UseCaseBuilder::_duplicate(theBuilder);
+  _corba_impl = theBuilder;
 }
 
 SALOMEDS_UseCaseBuilder::~SALOMEDS_UseCaseBuilder()

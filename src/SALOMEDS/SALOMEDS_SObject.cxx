@@ -39,7 +39,7 @@ SALOMEDS_SObject::SALOMEDS_SObject(SALOMEDS::SObject_ptr theSObject)
   }
   else {
     _local_impl = NULL;
-    _corba_impl = SALOMEDS::SObject::_duplicate(theSObject);
+    _corba_impl = theSObject;
   }
 }
 
@@ -73,13 +73,15 @@ SALOMEDSClient_SObject* SALOMEDS_SObject::GetFather()
   return new SALOMEDS_SObject(_corba_impl->GetFather());
 }
 
-bool SALOMEDS_SObject::FindAttribute(SALOMEDSClient_GenericAttribute* anAttribute, const char* aTypeOfAttribute)
+bool SALOMEDS_SObject::FindAttribute(SALOMEDSClient_GenericAttribute*& anAttribute, const char* aTypeOfAttribute)
 {
   bool ret = false;
   TCollection_AsciiString aType((char*)aTypeOfAttribute);
   if(_isLocal) {
     Handle(SALOMEDSImpl_GenericAttribute) anAttr;
     ret = _local_impl->FindAttribute(anAttr, aType);
+    cout << "############## ret = " << ret << " type requested " << aType << endl;
+    if(!anAttr.IsNull()) cout << "############## recieved " << anAttr->Type() << endl;
     if(ret) anAttribute = SALOMEDS_GenericAttribute::CreateAttribute(anAttr);
   }
   else {
@@ -91,7 +93,7 @@ bool SALOMEDS_SObject::FindAttribute(SALOMEDSClient_GenericAttribute* anAttribut
   return ret;
 }
 
-bool SALOMEDS_SObject::ReferencedObject(SALOMEDSClient_SObject* theObject)
+bool SALOMEDS_SObject::ReferencedObject(SALOMEDSClient_SObject*& theObject)
 {
   bool ret = false;
   if(_isLocal) {
@@ -109,7 +111,7 @@ bool SALOMEDS_SObject::ReferencedObject(SALOMEDSClient_SObject* theObject)
 }
 
 
-bool SALOMEDS_SObject::FindSubObject(int theTag, SALOMEDSClient_SObject* theObject)
+bool SALOMEDS_SObject::FindSubObject(int theTag, SALOMEDSClient_SObject*& theObject)
 {
   bool ret = false;
   if(_isLocal) {
@@ -211,4 +213,17 @@ int SALOMEDS_SObject::Depth()
 {
   if(_isLocal) return _local_impl->Depth();
   return _corba_impl->Depth();  
+}
+
+CORBA::Object_ptr SALOMEDS_SObject::GetObject()
+{
+  CORBA::Object_var obj;
+  if(_isLocal) {
+    TCollection_AsciiString anIOR = GetIOR();
+    SALOMEDS_Study* aStudy = dynamic_cast<SALOMEDS_Study*>(GetStudy());
+    obj = CORBA::Object::_duplicate(aStudy->ConvertIORToObject(anIOR.ToCString()));
+    delete aStudy;
+  }
+  else obj = CORBA::Object::_duplicate(_corba_impl->GetObject());
+  return obj._retn();
 }

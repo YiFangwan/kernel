@@ -18,7 +18,7 @@ SALOMEDS_ChildIterator::SALOMEDS_ChildIterator(SALOMEDS::ChildIterator_ptr theIt
 {
   _isLocal = false;
   _local_impl = NULL;
-  _corba_impl = SALOMEDS::ChildIterator::_duplicate(theIterator);
+  _corba_impl = theIterator;
 }
 
 void SALOMEDS_ChildIterator::Init()

@@ -42,7 +42,7 @@ SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(SALOMEDS::GenericAttribute_
   }
   else {
     _local_impl = NULL;
-    _corba_impl = SALOMEDS::GenericAttribute::_duplicate(theGA);
+    _corba_impl = theGA;
   }
 }
 

@@ -34,7 +34,7 @@ SALOMEDS_StudyBuilder::SALOMEDS_StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuild
 {
   _isLocal = false;
   _local_impl = NULL;
-  _corba_impl = SALOMEDS::StudyBuilder::_duplicate(theBuilder);
+  _corba_impl = theBuilder;
   init_orb();
 }
 

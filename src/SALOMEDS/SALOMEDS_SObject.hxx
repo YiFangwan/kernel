@@ -36,9 +36,9 @@ public:
   virtual char* GetID();
   virtual SALOMEDSClient_SComponent* GetFatherComponent();
   virtual SALOMEDSClient_SObject*    GetFather();
-  virtual bool FindAttribute(SALOMEDSClient_GenericAttribute* anAttribute, const char* aTypeOfAttribute);
-  virtual bool ReferencedObject(SALOMEDSClient_SObject* theObject);
-  virtual bool FindSubObject(int theTag, SALOMEDSClient_SObject* theObject);
+  virtual bool FindAttribute(SALOMEDSClient_GenericAttribute*& anAttribute, const char* aTypeOfAttribute);
+  virtual bool ReferencedObject(SALOMEDSClient_SObject*& theObject);
+  virtual bool FindSubObject(int theTag, SALOMEDSClient_SObject*& theObject);
   virtual SALOMEDSClient_Study* GetStudy();
   virtual char* Name();
   virtual void  Name(const char* theName);
@@ -49,6 +49,7 @@ public:
   virtual int   Tag();
   virtual int   Depth();
 
+  CORBA::Object_ptr GetObject();
   SALOMEDS::SObject_ptr        GetCORBAImpl() { return SALOMEDS::SObject::_duplicate(_corba_impl); }
   Handle(SALOMEDSImpl_SObject) GetLocalImpl() { return _local_impl; }
 };

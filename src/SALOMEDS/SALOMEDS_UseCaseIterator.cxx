@@ -18,7 +18,7 @@ SALOMEDS_UseCaseIterator::SALOMEDS_UseCaseIterator(SALOMEDS::UseCaseIterator_ptr
 {
   _isLocal = false;
   _local_impl = NULL;
-  _corba_impl = SALOMEDS::UseCaseIterator::_duplicate(theIterator);
+  _corba_impl = theIterator;
 }
 
 SALOMEDS_UseCaseIterator::~SALOMEDS_UseCaseIterator()

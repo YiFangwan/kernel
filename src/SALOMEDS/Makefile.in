@@ -15,9 +15,13 @@ EXPORT_HEADERS= \
 	SALOMEDS_StudyManager_i.hxx \
 	SALOMEDS_Driver_i.hxx \
 	SALOMEDS_StudyManager.hxx \
+	SALOMEDS_Study_i.hxx \
 	SALOMEDS_Study.hxx \
+	SALOMEDS_SObject_i.hxx \
 	SALOMEDS_SObject.hxx \
+	SALOMEDS_SComponent_i.hxx \
 	SALOMEDS_SComponent.hxx \
+	SALOMEDS_GenericAttribute_i.hxx \
 	SALOMEDS_GenericAttribute.hxx
 
 # Libraries targets

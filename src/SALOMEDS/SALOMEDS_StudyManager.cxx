@@ -37,7 +37,7 @@ SALOMEDS_StudyManager::SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManag
   }
   else {
     _local_impl = NULL;
-    _corba_impl = SALOMEDS::StudyManager::_duplicate(theManager);
+    _corba_impl = theManager;
   }
 }
 
