@@ -300,7 +300,8 @@ def startSalome():
   # Lancement Session Loader
   #
 
-  SessionLoader().run()
+  if with_gui:
+     SessionLoader().run()
 
   #
   # Initialisation ORB et Naming Service
@@ -374,11 +375,12 @@ def startSalome():
 
   import SALOME
   session=clt.waitNS("/Kernel/Session",SALOME.Session)
-  
+
+
   theComputer = os.getenv("HOSTNAME")
   computerSplitName = theComputer.split('.')
   theComputer = computerSplitName[0]
-
+  
   #
   # Lancement Container C++ local
   #
@@ -404,11 +406,12 @@ def startSalome():
 	
 	  clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
 
-  #
-  # Lancement Container Supervision local
-  #
-
   if with_container_superv:
+
+	#
+	# Lancement Container Supervision local
+	#
+
 	ContainerSUPERVServer().run()
 
 	#
@@ -425,7 +428,7 @@ def startSalome():
   #session.GetInterface()
 
   end_time = os.times()
-
+  print
   print "Start SALOME, elpased time : %5.1f seconds"% (end_time[4] - init_time[4])
 
   return clt

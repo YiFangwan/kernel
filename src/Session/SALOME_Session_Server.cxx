@@ -28,8 +28,8 @@
 
 # include "Utils_ORB_INIT.hxx"
 # include "Utils_SINGLETON.hxx"
-
 #include "SALOME_Container_i.hxx"
+# include "SALOME_NamingService.hxx"
 #include <iostream>
 #include <unistd.h>
 using namespace std;
@@ -66,18 +66,94 @@ int main(int argc, char **argv)
   PySys_SetArgv( argc , argv ) ;
   Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
 
-
   try
     {
     // Initialise the ORB.
     ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
     ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
     CORBA::ORB_var &orb = init( argc , argv ) ;
+    ASSERT(!CORBA::is_nil(orb));
 
     // Obtain a reference to the root POA.
     CORBA::Object_var obj =orb->resolve_initial_references("RootPOA") ;
     PortableServer::POA_var root_poa = PortableServer::POA::_narrow(obj) ;
+    ASSERT(!CORBA::is_nil(root_poa));
 
+    // -------------------------------------------------------------------------------
+    // ---- naming service & Logger
+
+    CosNaming::NamingContext_var myNS;
+    SALOME_Logger::Logger_var log;
+    SALOME_NamingService &naming = *SINGLETON_<SALOME_NamingService>::Instance() ;
+
+    {   
+      int SESSION=0;
+      const char * Env = getenv("USE_LOGGER"); 
+      int EnvL =0;
+      if ((Env!=NULL) && (strlen(Env)))
+	EnvL=1;
+    
+      CosNaming::Name name;
+      name.length(1);
+      name[0].id=CORBA::string_dup("Logger");    
+      
+      long TIMESleep = 250000000;
+      int NumberOfTries = 40;
+      timespec ts_req;
+      ts_req.tv_nsec=TIMESleep;
+      ts_req.tv_sec=0;
+      timespec ts_rem;
+      ts_rem.tv_nsec=0;
+      ts_rem.tv_sec=0;
+    
+      for (int i = 1; i<=NumberOfTries; i++)
+	{
+	  if (i!=1) 
+	    int a=nanosleep(&ts_req,&ts_rem);
+	  try
+	    { 
+	      CORBA::Object_var theObj = orb->resolve_initial_references("NameService");
+	      if (!CORBA::is_nil(theObj))
+		myNS = CosNaming::NamingContext::_narrow(theObj);
+	    }
+	  catch( CORBA::COMM_FAILURE& )
+	    {
+	      MESSAGE( "Session Server: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
+	    }
+	  if(!CORBA::is_nil(myNS))
+	    {
+	      MESSAGE( "Session Server: Naming Service was found" );
+	      if(EnvL==1) // use Logger
+		{
+		  for(int j=1; j<=NumberOfTries; j++)
+		    {
+		      if (j!=1) 
+			int a=nanosleep(&ts_req, &ts_rem);
+		      try
+			{
+			  CORBA::Object_var object = myNS->resolve(name); // find Logger
+			  if (!CORBA::is_nil(object))
+			    log = SALOME_Logger::Logger::_narrow(object);
+			  if (!CORBA::is_nil(log))
+			    {
+			      MESSAGE( "Session Server: Logger Server was found" );
+			      log->ping();
+			      SESSION=1;
+			      break;
+			    }
+			}
+		      catch(CosNaming::NamingContext::NotFound)
+			{ MESSAGE( "Session Server: Logger Server wasn't found" ); }
+		      catch(...)
+			{ MESSAGE( "Session Server: Unknown exception" ); }
+		    }
+		}
+	    }
+	  if ((SESSION==1)||((EnvL==0)&&(!CORBA::is_nil(myNS)))) // Naming service found, & Logger if needed
+	    break;
+	}
+    }
+   
     // -------------------------------------------------------------------------------
     // ---- container
 
@@ -127,12 +203,8 @@ int main(int argc, char **argv)
     pmanfac->activate() ;
     MESSAGE("pmanfac->activate()")
 
-
     // -------------------------------------------------------------------------------
     // servant : session
-
-    //SALOME_Session_i * mySALOME_Session = new SALOME_Session_i(argc, argv, orb, factory_poa) ;
-    //PortableServer::ObjectId_var mySALOME_Sessionid = factory_poa->activate_object(mySALOME_Session) ;
 
     SALOME_Session_i * mySALOME_Session = new SALOME_Session_i(argc, argv, orb, root_poa) ;
     PortableServer::ObjectId_var mySALOME_Sessionid = root_poa->activate_object(mySALOME_Session) ;
