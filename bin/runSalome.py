@@ -176,7 +176,7 @@ def set_env(args, modules_list, modules_root_dir):
 
 from killSalome import killAllPorts
 
-def killLocalPort(args):
+def killLocalPort():
     """
     kill servers from a previous SALOME exection, if needed,
     on the CORBA port given in args of runSalome
