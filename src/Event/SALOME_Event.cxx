@@ -46,16 +46,11 @@ static int MYDEBUG = 0;
  *  Constructor
  */
 //===========================================================
-SALOME_Event::SALOME_Event(): 
-  myWait( true ),
-  myAutoRelease( false )
-{
-  if(MYDEBUG) MESSAGE( "SALOME_Event::SALOME_Event(): this = "<<this<<", myWait = "<<myWait );
-  if ( myWait ) {
-    // Prepare the semaphore 
-    mySemaphore = new QSemaphore( 2 );
-    mySemaphore->operator+=( 2 );
-  }
+SALOME_Event::SALOME_Event(){
+  if(MYDEBUG) MESSAGE( "SALOME_Event::SALOME_Event(): this = "<<this );
+  // Prepare the semaphore 
+  mySemaphore = new QSemaphore( 2 );
+  *mySemaphore += 2;
 }
 
 //===========================================================
@@ -64,14 +59,11 @@ SALOME_Event::SALOME_Event():
  *  Destructor
  */
 //===========================================================
-SALOME_Event::~SALOME_Event()
-{
-  if(MYDEBUG) MESSAGE( "SALOME_Event::~SALOME_Event(): this = "<<this<<", myWait = "<<myWait );
-  if ( myWait ) {
-    if ( mySemaphore->available() < mySemaphore->total() )
-      mySemaphore->operator-=( mySemaphore->total() - mySemaphore->available() );
-    delete mySemaphore;
-  }
+SALOME_Event::~SALOME_Event(){
+  if(MYDEBUG) MESSAGE( "SALOME_Event::~SALOME_Event(): this = "<<this );
+  if ( mySemaphore->available() < mySemaphore->total() )
+    *mySemaphore -= mySemaphore->total() - mySemaphore->available();
+  delete mySemaphore;
 }
 
 //===========================================================
@@ -82,17 +74,10 @@ SALOME_Event::~SALOME_Event()
 //===========================================================
 void SALOME_Event::process()
 {
-  if(MYDEBUG) MESSAGE( "SALOME_Event::process(): this = "<<this<<", myWait = "<<myWait );
   QThread::postEvent( qApp, new QCustomEvent( SALOME_EVENT, (void*)this ) );
-  if ( myWait ) {
-    if(MYDEBUG) MESSAGE( "SALOME_Event::process(): available = " << mySemaphore->available() );
-    if ( !mySemaphore->available() )
-      mySemaphore->operator+=( 1 );
-
-    if(MYDEBUG) MESSAGE( "SALOME_Event::process() COMPLETED: this = "<<this<<", myWait = "<<myWait );
-  }
-  if ( myAutoRelease )
-    release();
+  if(MYDEBUG) MESSAGE( "SALOME_Event::process(): this = "<<this<<", *mySemaphore += 1 " );
+  *mySemaphore += 1;
+  if(MYDEBUG) MESSAGE( "SALOME_Event::process(): this = "<<this<<" - COMPLETED" );
 }
 
 //===========================================================
@@ -103,38 +88,7 @@ void SALOME_Event::process()
 //===========================================================
 void SALOME_Event::processed()
 {
-  if(MYDEBUG) MESSAGE( "SALOME_Event::processed(): this = "<<this<<", myWait = "<<myWait );
-  if ( myWait ) {
-    if(MYDEBUG) MESSAGE( "SALOME_Event::processed(): available = " << mySemaphore->available() );
-    if ( !mySemaphore->available() ) {
-      // process() takes control over mySemaphore after the next line is executed
-      mySemaphore->operator-=( 1 );
-
-      if(MYDEBUG) MESSAGE( "SALOME_Event::processed(): semaphore DECREMENTED" );
-
-      // Current thread will block here until process() completes
-      mySemaphore->operator+=( mySemaphore->total() );
-    }
-  }
-  if(MYDEBUG) MESSAGE( "SALOME_Event::processed() COMPLETED: this = "<<this<<", myWait = "<<myWait );
+  if(MYDEBUG) MESSAGE( "SALOME_Event::processed(): this = "<<this );
+  // process() takes control over mySemaphore after the next line is executed
+  *mySemaphore -= 1;
 }
-
-//===========================================================
-/*!
- *  SALOME_Event::release
- *  Wakes up the desktop
- */
-//===========================================================
-void SALOME_Event::release()
-{
-  if(MYDEBUG) MESSAGE( "SALOME_Event::release(): this = "<<this<<", myWait = "<<myWait );
-  if ( myWait ) {
-    if(MYDEBUG) MESSAGE( "SALOME_Event::release(): available = " << mySemaphore->available() );
-    mySemaphore->operator-=( mySemaphore->total() - mySemaphore->available() );
-  }
-  if(MYDEBUG) MESSAGE( "SALOME_Event::release() COMPLETED: this = "<<this<<", myWait = "<<myWait );
-}
-
-
-
-

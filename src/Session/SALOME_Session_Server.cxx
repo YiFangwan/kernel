@@ -33,6 +33,7 @@
 #include <unistd.h>
 using namespace std;
 
+#include <pthread.h>
 #include <qthread.h> 
 #include <qapplication.h>
 #include <qlabel.h>
@@ -86,10 +87,26 @@ using namespace std;
  *   - get session state
  */
 
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+#else
+static int MYDEBUG = 0;
+#endif
+
+static pthread_t myThread;
+
+extern bool IsSessionThread(){
+  bool aResult = myThread == pthread_self();
+  if(MYDEBUG) INFOS("IsSessionThread() - "<<aResult);
+  return aResult;
+}
+
 int main(int argc, char **argv)
 {
   try
     {
+      myThread = pthread_self();
+
       ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
       ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
       int orbArgc = 1;

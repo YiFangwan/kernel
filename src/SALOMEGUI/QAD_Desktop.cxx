@@ -453,11 +453,8 @@ bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
   }
   else if ( e->type() == SALOME_EVENT ) { 
     SALOME_Event* aSE = (SALOME_Event*)((QCustomEvent*)e)->data();
-    processEvent( aSE );
-    // Signal the calling thread that the event has been processed
-    aSE->processed();
+    processEvent(aSE);
     ((QCustomEvent*)e)->setData( 0 );
-    delete aSE;
     return TRUE;
   }
   return QMainWindow::eventFilter( o, e );
@@ -468,9 +465,11 @@ bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
 */
 void QAD_Desktop::processEvent( SALOME_Event* theEvent )
 {
-  if ( !theEvent )
-    return;
-  theEvent->Execute();
+  if( theEvent ){
+    theEvent->Execute();
+    // Signal the calling thread that the event has been processed
+    theEvent->processed();
+  }
 }
 
 /*!

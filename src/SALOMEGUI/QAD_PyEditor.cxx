@@ -409,7 +409,6 @@ void QAD_PyEditor::keyPressEvent( QKeyEvent *e )
 	      _isInHistory = true;
 	      _currentCommand = text(endLine).remove(0,SIZEPR);
 	      _currentCommand.truncate( _currentCommand.length() - 1 );
-	      SCRUTE(_currentCommand);
 	    }
 	  QString previousCommand = myInterp->getPrevious();
 	  if (previousCommand.compare(BEGIN_HISTORY_PY) != 0)

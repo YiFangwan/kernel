@@ -30,7 +30,6 @@
 
 #include "SALOME_Session_i.hxx"
 #include "SALOME_NamingService.hxx"
-#include "SALOME_Session_QThread.hxx"
 
 #include "QAD_Application.h"
 #include "QAD_Desktop.h"
