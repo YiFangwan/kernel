@@ -34,6 +34,7 @@ common_data={"AUTHOR"     : "",
              "ICON"       : "",
              "VERSION"    : "",
              "COMP_TYPE"  : "",
+             "COMP_NAME"  : "",
              "COMP_UNAME" : "",
              "COMP_MULT"  : ""
              }
@@ -383,26 +384,17 @@ class Interface(Tree):
 # implements Component tree
 #--------------------------------------------------
 class Component(Tree):
-    def __init__(self, name=None):
+    def __init__(self):
         Tree.__init__(self, 'component')
-
-        if name is None: return
                  
-        self.addNamedChild('component-name', name)
-        
-        if (nb_components > 1) or \
-               (common_data["COMP_UNAME"] == '') or \
-               (common_data["COMP_UNAME"] is None):
-            self.addNamedChild('component-username', name)
-        else:
-            self.addNamedChild('component-username', common_data["COMP_UNAME"])
-            
-        self.addNamedChild('component-type',common_data["COMP_TYPE"])
-        self.addNamedChild('component-author',common_data["AUTHOR"])
-        self.addNamedChild('component-version',common_data["VERSION"])
-        self.addNamedChild('component-comment', 'unknown')
+        self.addNamedChild('component-name',       common_data["COMP_NAME"]) 
+        self.addNamedChild('component-username',   common_data["COMP_UNAME"])
+        self.addNamedChild('component-type',       common_data["COMP_TYPE"])
+        self.addNamedChild('component-author',     common_data["AUTHOR"])
+        self.addNamedChild('component-version',    common_data["VERSION"])
+        self.addNamedChild('component-comment',    'unknown')
         self.addNamedChild('component-multistudy', common_data["COMP_MULT"])
-        self.addNamedChild('component-icone',common_data["ICON"])
+        self.addNamedChild('component-icone',      common_data["ICON"])
         self.addNamedChild('constraint')
         self.addNamedChild('component-interface-list')
             
@@ -417,7 +409,8 @@ class Component(Tree):
 
     def merge(self, C):
 
-        for i in ['component-username', 'component-author', 'component-type', 'component-icone', 'component-version',
+        for i in ['component-username', 'component-author',
+                  'component-type', 'component-icone', 'component-version',
                   'component-comment', 'component-multistudy', 'constraint']:
             ext = C.getChild(i)
             int = self.getChild(i)
@@ -606,7 +599,7 @@ class ModuleCatalogVisitor (idlvisitor.AstVisitor):
                 if ((s[0] == "Engines") & (s[1] == "Component")):
                     self.EngineType = 1; break
                 
-            Comp = Component(node.identifier())
+            Comp = Component()
             
             self.currentInterface = Comp.createInterface(node.identifier())
         
@@ -668,6 +661,7 @@ def run(tree, args):
     common_data["ICON"]       = getParamValue("icon",       "",                args)
     common_data["AUTHOR"]     = getParamValue("author",     os.getenv("USER"), args)
     common_data["VERSION"]    = getParamValue("version",    "1",               args)
+    common_data["COMP_NAME"]  = getParamValue("name",       "",                args)
     common_data["COMP_UNAME"] = getParamValue("username",   "",                args)
     common_data["COMP_TYPE"]  = getParamValue("type",       "OTHER",           args)
     common_data["COMP_MULT"]  = getParamValue("multistudy", "1",               args)
@@ -694,14 +688,12 @@ def run(tree, args):
         C.removeComponent(remove_comp)
     
     if (os.path.exists(CatalogFileName)):
-        print "Updating", CatalogFileName, ' (', nb_components, \
-              'new or replaced component(s))'
+        print "Updating", CatalogFileName
         CatalogFileName_old = CatalogFileName + '_old'
         os.rename(CatalogFileName, CatalogFileName_old)
     else:
         CatalogFileName_old = ""
-        print "Writing", CatalogFileName, ' (', nb_components, \
-              'new component(s))'
+        print "Writing", CatalogFileName
         
     CatalogFileName_new = CatalogFileName + '_new'
     f=open(CatalogFileName_new, 'w')
@@ -718,5 +710,5 @@ def run(tree, args):
 
 if __name__ == "__main__":
     print
-    print "Usage : omniidl -bIDLparser -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,username=<component_username>][,multistudy=<component_multistudy>] <file.idl>"
+    print "Usage : omniidl -bIDLparser [-I<catalog files directory>]* -Wbcatalog=<my_catalog.xml>[,icon=<pngfile>][,version=<num>][,author=<name>][,name=<component_name>][,username=<component_username>][,multistudy=<component_multistudy>] <file.idl>"
     print
