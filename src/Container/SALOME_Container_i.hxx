@@ -72,6 +72,8 @@ public:
 
   // Kill current container
   bool Kill_impl() ;
+  char* getHostName();
+  long getPID();
 
 protected:
 
@@ -90,6 +92,7 @@ protected:
 
   int   _argc ;
   char** _argv ;
+  long _pid;
 
 };
 
