@@ -34,7 +34,7 @@ static int MYPYDEBUG = 0;
 #endif
 
 
-static QMutex myMutex(false);
+static QMutex myMutex(true);
 
 
 PyLockWrapper::PyLockWrapper(PyThreadState* theThreadState): 
