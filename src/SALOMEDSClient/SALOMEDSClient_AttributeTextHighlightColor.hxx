@@ -7,12 +7,13 @@
 
 #include <vector>
 #include "SALOMEDSClient_GenericAttribute.hxx" 
+#include "SALOMEDSClient_definitions.hxx"
 
 class SALOMEDSClient_AttributeTextHighlightColor: public virtual SALOMEDSClient_GenericAttribute
 {
 public:
-  virtual std::vector<double> TextHighlightColor() = 0;
-  virtual void SetTextHighlightColor(const std::vector<double>& value) = 0;
+  virtual STextColor TextHighlightColor() = 0;
+  virtual void SetTextHighlightColor(STextColor value) = 0;
 };
 
 

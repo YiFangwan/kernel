@@ -10,7 +10,8 @@ VPATH=.:@srcdir@:@top_srcdir@/idl:$(top_srcdir)/idl
 
 @COMMENCE@ 
 
-EXPORT_HEADERS= SALOMEDSClient_AttributeComment.hxx \
+EXPORT_HEADERS= SALOMEDSClient_definitions.hxx \
+                SALOMEDSClient_AttributeComment.hxx \
 	        SALOMEDSClient_AttributeDrawable.hxx \
                 SALOMEDSClient_AttributeExpandable.hxx \
                 SALOMEDSClient_AttributeExternalFileDef.hxx \
@@ -47,7 +48,8 @@ EXPORT_HEADERS= SALOMEDSClient_AttributeComment.hxx \
                 SALOMEDSClient_StudyBuilder.hxx \
                 SALOMEDSClient_StudyManager.hxx \
                 SALOMEDSClient_UseCaseBuilder.hxx \
-                SALOMEDSClient_UseCaseIterator.hxx
+                SALOMEDSClient_UseCaseIterator.hxx \
+		SALOMEDSClient.hxx
 
 @CONCLUDE@
 
