@@ -37,7 +37,10 @@ def salome_init():
     
     if salome_initial:
         salome_initial=0
-        orb, lcc, naming_service, cm = salome_kernel_init()
         sg = salome_iapp_init()
+        if not sg.hasDesktop():
+            print "import salome_shared_modules once"
+            import salome_shared_modules
+        orb, lcc, naming_service, cm = salome_kernel_init()
         myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init()
 

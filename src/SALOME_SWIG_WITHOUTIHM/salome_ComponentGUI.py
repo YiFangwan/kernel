@@ -19,56 +19,38 @@
 #
 #
 #
-#  File   : salome_iapp.py
+#  File   : salome.py
 #  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
 
-from libSALOME_Swig import *
-import salome_ComponentGUI
+
+# to replace some function from <MODULE>_SWIG, outside GUI
+
+# --- From GeometryGUI_SWIG
 
     #--------------------------------------------------------------------------
 
-IN_SALOME_GUI=0
-
-def ImportComponentGUI(ComponentName):
-    if IN_SALOME_GUI:
-        libName = "lib" + ComponentName + "_Swig"
-        command = "from " + libName + " import *"
-        exec ( command )
-        constructor = ComponentName + "_Swig()"
-        command = "gui = " + constructor
-        exec ( command )
-        return gui
-    else:
-        print "Warning: ImportComponentGUI(",ComponentName,") outside GUI !"
-        print "calls to GUI methods may crash..."
-        return salome_ComponentGUI
+def getIndexTopology(aSubId, aMainId):
+    return 0
 
     #--------------------------------------------------------------------------
 
-def SalomeGUIgetAllSelected(self):
-    selNumber = self.SelectedCount()
-    listSelected = []
-    for i in range(selNumber):
-        listSelected.append(self.getSelected(i))
-    return listSelected
+def getShapeTypeString(aSubId):
+    return "SubShape"
 
-class SalomeGUI(SALOMEGUI_Swig):
-    getAllSelected = SalomeGUIgetAllSelected
-    
     #--------------------------------------------------------------------------
 
-salome_iapp_initial = 1
+# --- From SMESHGUI_SWIG
 
-def salome_iapp_init():
-    global salome_iapp_initial
-    global sg,IN_SALOME_GUI
+    #--------------------------------------------------------------------------
 
-    if salome_iapp_initial:
-        salome_iapp_initial=0
-        
-        # create an SALOMEGUI_Swig instance
-        sg = SalomeGUI()
-        IN_SALOME_GUI=sg.hasDesktop()
-    return sg
+def Init(studyId):
+    return
+
+    #--------------------------------------------------------------------------
+
+def SetName(objId, name):
+    return
+
+    #--------------------------------------------------------------------------

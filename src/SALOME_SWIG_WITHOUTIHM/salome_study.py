@@ -139,7 +139,7 @@ def createNewStudy():
     theStudyId = theStudy._get_StudyId()
     print aStudyName, theStudyId
     return theStudyId
-            
+
     #--------------------------------------------------------------------------
 
 salome_study_initial = 1
