@@ -399,7 +399,6 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
     if (aLocked) anSCO->GetStudy()->GetProperties()->SetLocked(true);
   } else {
     _errorCode = "No persistent file";   
-    return false;
   }
 
   return true;
