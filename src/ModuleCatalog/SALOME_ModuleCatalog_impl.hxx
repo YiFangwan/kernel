@@ -58,6 +58,12 @@ public:
  */
   virtual char* GetPathPrefix(const char* machinename);
 
+  //! method to read a XML file and import new components into the component list
+ /*! If the XML file doesn't exist or is not readable, the Notfound exception is thrown
+   \param  const char* xmlFileName 
+ */
+  virtual void ImportXmlFile(const char* xmlFileName);
+
   //! method to get a component list
   /*!
     \return a component list 

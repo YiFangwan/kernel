@@ -528,11 +528,26 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
   reader.setErrorHandler( handler );
   reader.parse( source );
   xmlFile.close();
-  unsigned int ind;
-  for ( ind = 0; ind < _moduleList.size(); ind++)
-    modulelist.push_back(_moduleList[ind]) ;
+
+  unsigned int ind, j;
+  for ( ind = 0; ind < _moduleList.size(); ind++) {
+    for (j=0; j<modulelist.size(); j++)
+      if (modulelist[j].parserComponentName ==
+	  _moduleList[ind].parserComponentName) {
+	modulelist[ind] = _moduleList[ind];
+      }
+    if (j == modulelist.size())
+      modulelist.push_back(_moduleList[ind]) ;
+  }
+
   for ( ind = 0; ind < _pathList.size(); ind++)
     pathList.push_back(_pathList[ind]) ;
+}
+
+void 
+SALOME_ModuleCatalogImpl::ImportXmlCatalogFile(const char* file)
+{
+  _parse_xml_file(file, _personal_module_list, _personal_path_list);
 }
 
 //----------------------------------------------------------------------

@@ -477,6 +477,7 @@ SALOME_ModuleCatalog_AcomponentImpl::_duplicate_service(SALOME_ModuleCatalog::Se
   SALOME_ModuleCatalog::Service_var _service = new SALOME_ModuleCatalog::Service;
 
   // service name
+  MESSAGE("service name : " << service.ServiceName);
   _service->ServiceName = CORBA::string_dup(service.ServiceName);
   // service by default
   _service->Servicebydefault = service.Servicebydefault;

@@ -22,7 +22,7 @@
 //
 //
 //
-//  File   : SALOME_ModuleCatalog_Handler.cxx
+//  File   : SALOME_ModuleCatalog_Parser_IO.cxx
 //  Author : Estelle Deville
 //  Module : SALOME
 //  $Header$

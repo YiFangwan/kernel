@@ -71,13 +71,13 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
   test_inDataStreamParameter_name="inParameter-name";
   test_inDataStreamParameter_dependency="inParameter-dependency";
   test_inDataStreamParameter="inParameter";
-  test_inDataStreamParameter_list="inDataStreamParameter-list";
+  test_inDataStreamParameter_list="DataStream-list";
 
   test_outDataStreamParameter_type="outParameter-type";
   test_outDataStreamParameter_name="outParameter-name";
   test_outDataStreamParameter_dependency="outParameter-dependency";
   test_outDataStreamParameter="outParameter";
-  test_outDataStreamParameter_list="outDataStreamParameter-list";
+  test_outDataStreamParameter_list="DataStream-list";
 
   test_service= "component-service";
   test_service_list="component-service-list";
@@ -293,10 +293,12 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 
    //tag test_inParameter_name
    if ((qName.compare(test_inParameter_name)==0)) {
+     SCRUTE(parent);
+     SCRUTE(grandparent);
      if (grandparent.compare(test_inDataStreamParameter_list) == 0)
        _inDataStreamParam.parserParamName = content ;
      else 
-        _inParam.parserParamName = content ;
+       _inParam.parserParamName = content ;
      return true;
    }
 
@@ -309,9 +311,9 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    //tag test_inParameter
   if ((qName.compare(test_inParameter)==0))
     {
-      SCRUTE(parent);
       if (parent.compare(test_inParameter_list)==0) {
 	
+	MESSAGE("add inParameter : " << _inParam.parserParamName);
 	_inParamList.push_back(_inParam) ; 
 	
 	// Empty temporary structures
@@ -319,8 +321,8 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 	_inParam.parserParamName = "";
       }
       else if ((qName.compare(test_inDataStreamParameter)==0)) {
-	SCRUTE(parent);
 	
+	MESSAGE("add inDataStreamParameter : " << _inDataStreamParam.parserParamName);
 	_inDataStreamParamList.push_back(_inDataStreamParam) ; 
 	
 	// Empty temporary structures
@@ -334,6 +336,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    //tag test_inParameter_list
    if((qName.compare(test_inParameter_list)==0))
      {
+       SCRUTE(_inParamList.size());
        _aService.parserServiceInParameter = _inParamList;
        _inParamList.resize(0);
        return true;
@@ -342,12 +345,22 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    //tag test_inDataStreamParameter_list
    if((qName.compare(test_inDataStreamParameter_list)==0))
      {
+       SCRUTE(_inDataStreamParamList.size());
        _aService.parserServiceInDataStreamParameter = _inDataStreamParamList;
        _inDataStreamParamList.resize(0);
+     }
+   //tag test_outDataStreamParameter_list
+   if((qName.compare(test_outDataStreamParameter_list)==0))
+     {
+       SCRUTE(_outDataStreamParamList.size());
+       _aService.parserServiceOutDataStreamParameter = _outDataStreamParamList;
+       _outDataStreamParamList.resize(0);
        return true;
      }
 
+
    // Parameter out
+   SCRUTE(qName);
 
    // tag test_outParameter_type
    if ((qName.compare(test_outParameter_type)==0)) {
@@ -378,6 +391,8 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 	 
    //tag test_outDataStreamParameter_name
    if ((qName.compare(test_outDataStreamParameter_name)==0)) {
+     SCRUTE(grandparent);
+     SCRUTE(test_outDataStreamParameter_list);
      if (grandparent.compare(test_outDataStreamParameter_list) == 0)
        _outDataStreamParam.parserParamName = content ;
      else 
@@ -394,9 +409,9 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    //tag test_outParameter
   if ((qName.compare(test_outParameter)==0))
     {
-      SCRUTE(parent);
       if (parent.compare(test_outParameter_list)==0) {
 	
+	MESSAGE("add outParameter : " << _outParam.parserParamName);
 	_outParamList.push_back(_outParam) ; 
 	
 	// Empty temporary structures
@@ -404,8 +419,8 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 	_outParam.parserParamName = "";
       }
       else if ((qName.compare(test_outDataStreamParameter)==0)) {
-	SCRUTE(parent);
 	
+	MESSAGE("add outDataStreamParameter : " << _outDataStreamParam.parserParamName);
 	_outDataStreamParamList.push_back(_outDataStreamParam) ; 
 	
 	// Empty temporary structures
@@ -419,20 +434,12 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    //tag test_outParameter_list
    if((qName.compare(test_outParameter_list)==0))
      {
+       SCRUTE(_outParamList.size());
        _aService.parserServiceOutParameter = _outParamList;
        _outParamList.resize(0);
        return true;
      }
   
-   //tag test_outDataStreamParameter_list
-   if((qName.compare(test_outDataStreamParameter_list)==0))
-     {
-       _aService.parserServiceOutDataStreamParameter = _outDataStreamParamList;
-       _outDataStreamParamList.resize(0);
-       return true;
-     }
-
-
    // tag   test_service
    if((qName.compare(test_service)==0))
      {
@@ -505,6 +512,7 @@ bool SALOME_ModuleCatalog_Handler::characters(const QString& chars)
 bool SALOME_ModuleCatalog_Handler::endDocument()
 {
   ofstream f("/tmp/logs/tajchman/xxx.log", std::ofstream::app);
+  f << "---------------------------------------------------------" << std::endl;
   BEGIN_OF("endDocument");
   //_pathlist
   for (unsigned int ind = 0; ind < _pathList.size(); ind++)
