@@ -116,12 +116,12 @@ class LifeCycleCORBA:
 
     #-------------------------------------------------------------------------
 
-    def ComputerPath(self, ComputerName ):
-        try:
-            path = self._catalog.GetPathPrefix( ComputerName )
-        except SALOME_ModuleCatalog.NotFound, ex:
-            path = ""
-        return path
+    #def ComputerPath(self, ComputerName ):
+        #try:
+            #path = self._catalog.GetPathPrefix( ComputerName )
+        #except SALOME_ModuleCatalog.NotFound, ex:
+            #path = ""
+        #return path
 
     #-------------------------------------------------------------------------
 
