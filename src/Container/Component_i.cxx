@@ -27,6 +27,7 @@
 //  $Header$
 
 #include "SALOME_Component_i.hxx"
+#include "SALOME_NamingService.hxx"
 #include "RegistryConnexion.hxx"
 #include "OpUtil.hxx"
 #include <stdio.h>
@@ -58,6 +59,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _contId = contId ;
   CORBA::Object_var o = _poa->id_to_reference(*contId); // container ior...
   const CORBA::String_var ior = _orb->object_to_string(o);
+  MESSAGE("Component constructor RegistryConnexion ior "<< ior << "  _instanceName "
+          << _instanceName.c_str() );
   _myConnexionToRegistry = new RegistryConnexion(0, 0, ior, "theSession", _instanceName.c_str());
 
   _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
@@ -91,6 +94,31 @@ Engines_Component_i::~Engines_Component_i()
 //   _myConnexionToRegistry = 0 ;
 }
 
+void Engines_Component_i::destroy()
+{
+  MESSAGE("Engines_Component_i::destroy()");
+
+  delete _notifSupplier;
+  _notifSupplier = 0;
+
+  delete _myConnexionToRegistry;
+  _myConnexionToRegistry = 0 ;
+
+  string aRegisteredName = GetContainerRef()->name() + string("/") + _interfaceName ;
+  SALOME_NamingService * _NamingService = new SALOME_NamingService( _orb ) ;
+  MESSAGE("Engines_Component_i::destroy NamingService->Destroy_Name " << aRegisteredName ) ;
+  _NamingService->Destroy_Name( aRegisteredName.c_str() ) ;
+
+  delete _NamingService ;
+
+  _poa->deactivate_object( *_id ) ;
+  CORBA::release( _poa ) ;
+  delete( _id ) ;
+  _thisObj->_remove_ref();
+
+  MESSAGE("Engines_Component_i::destroyed") ;
+}
+
 char* Engines_Component_i::instanceName() {
    return CORBA::string_dup(_instanceName.c_str()) ;
 }
@@ -103,22 +131,6 @@ void Engines_Component_i::ping()
 {
   MESSAGE("Engines_Component_i::ping() pid "<< getpid() << " threadid "
           << pthread_self());
-}
-
-void Engines_Component_i::destroy()
-{
-  MESSAGE("Engines_Component_i::destroy()");
-
-  delete _notifSupplier;
-  _notifSupplier = 0;
-
-  delete _myConnexionToRegistry;
-  _myConnexionToRegistry = 0 ;
-  _poa->deactivate_object(*_id) ;
-  CORBA::release(_poa) ;
-  delete(_id) ;
-  _thisObj->_remove_ref();
-  MESSAGE("Engines_Component_i::destroyed") ;
 }
 
 Engines::Container_ptr Engines_Component_i::GetContainerRef()
