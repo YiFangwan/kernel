@@ -405,6 +405,7 @@ during each working session.
     Defines the instance to the %SComponent.
 */
     void       DefineComponentInstance (in SComponent aComponent,in Object ComponentIOR) raises(LockProtection);
+        
 /*! \brief Deletion of a %SComponent
 
   Removes a %SComponent.
@@ -764,6 +765,20 @@ Gets the list of open studies
     an object into a study, which is protected for modifications.
 */
     SObject Paste(in SObject theObject) raises (SALOMEDS::StudyBuilder::LockProtection);
+
+/*! \brief Object conversion.
+
+    Converts an object into IOR.
+    \return    IOR
+*/
+    string ConvertObjectToIOR(in Object theObject);
+/*! \brief Object conversion.
+	    
+    Converts IOR into an object.
+    \return    An object
+*/
+    Object ConvertIORToObject(in string theIOR); 
+
   };
 
 
