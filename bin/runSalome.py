@@ -94,8 +94,8 @@ for module in list_modules:
       
 #os.environ["SALOMEPATH"]=":".join(modules_root_dir.values())
 os.environ["SALOMEPATH"]=":".join(modules_root_dir_list)
-if "SUPERV" in modules_list and not 'superv' in args['containers']:
-    args['containers'].append("superv")
+if "SUPERV" in modules_list and not 'superv' in args['standalone']:
+    args['standalone'].append("superv")
     pass
 
 

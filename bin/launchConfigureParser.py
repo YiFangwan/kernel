@@ -114,7 +114,7 @@ if not appname:
     sys.exit(1);
 elif not filename or not os.path.exists(filename):
     filename = os.environ["HOME"]+"/."+appname+"/"+appname+".launch"
-    print "Launch configuration file is not exist. Create default:",filename
+    print "Launch configuration file does not exist. Create default:",filename
     os.system("mkdir -p "+os.environ["HOME"]+"/."+appname)
     os.system("cp -f "+os.environ["KERNEL_ROOT_DIR"]+"/bin/"+appname+"/"+appname+".launch "+filename)
     pass
@@ -134,8 +134,14 @@ else:
     args = {}
     pass
 
+# --- args completion
+for aKey in ("containers","embedded","key","modules","standalone"):
+    if not args.has_key(aKey):
+        args[aKey]=[]
+for aKey in ("gui","logger","xterm","portkill","killall"):
+    if not args.has_key(aKey):
+        args[aKey]=0
 args["appname"] = appname
-args["containers"] = []
 
 ### searching for my port
 
