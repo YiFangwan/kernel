@@ -179,7 +179,7 @@ from killSalome import killAllPorts
 def killLocalPort():
     """
     kill servers from a previous SALOME exection, if needed,
-    on the same CORBA port
+    on the CORBA port given in args of runSalome
     """
     
     from killSalomeWithPort import killMyPort
@@ -191,7 +191,21 @@ def killLocalPort():
         pass
     pass
     
+def givenPortKill(port):
+    """
+    kill servers from a previous SALOME exection, if needed,
+    on the same CORBA port
+    """
     
+    from killSalomeWithPort import killMyPort
+    my_port=port
+    try:
+        killMyPort(my_port)
+    except:
+        print "problem in LocalPortKill(), killMyPort("<<port<<")"
+        pass
+    pass
+
 def kill_salome(args):
     """
     Kill servers from previous SALOME executions, if needed;
@@ -202,7 +216,7 @@ def kill_salome(args):
     if args['killall']:
         killAllPorts()
     elif args['portkill']:
-        killLocalPort()
+        givenPortKill(str(args['port']))
 	
 # -----------------------------------------------------------------------------
 #
@@ -591,8 +605,10 @@ def useSalome(args, modules_list, modules_root_dir):
     To kill SALOME processes from a console (kill all sessions from all ports):
       python killSalome.py 
     To kill SALOME from the present interpreter, if it is not closed :
-      killLocalPort()  --> kill this session
-      killAllPorts()   --> kill all sessions
+      killLocalPort()      --> kill this session
+                               (use CORBA port from args of runSalome)
+      givenPortKill(port)  --> kill a specific session with given CORBA port 
+      killAllPorts()       --> kill all sessions
     
     runSalome, with --killall option, starts with killing
     the processes resulting from the previous execution.
