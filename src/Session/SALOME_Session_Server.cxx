@@ -222,7 +222,7 @@ int main(int argc, char **argv)
 	  MESSAGE (confMsg );
 	  QAD_CONFIG->createConfigFile(true);
 	}
-      orb->shutdown(0);
+      //orb->shutdown(0);
       myServerLauncher->KillAll();
       aCatch.Deactivate();
     }
