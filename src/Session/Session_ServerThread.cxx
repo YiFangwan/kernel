@@ -172,9 +172,9 @@ void Session_ServerThread::run()
 {
   MESSAGE("Session_ServerThread::run "<< _argv[0]); 
 
-//   _GUIMutex->lock(); // lock released by calling thread when ready: wait(mutex)
-//   MESSAGE("Server thread " << _argv[0] << " free to go...");
-//   _GUIMutex->unlock();
+   _GUIMutex->lock(); // lock released by calling thread when ready: wait(mutex)
+   MESSAGE("Server thread " << _argv[0] << " free to go...");
+   _GUIMutex->unlock();
 
   for (int i=0; i<_argc; i++) SCRUTE(_argv[i]);
   for (int i=0; i<NB_SRV_TYP; i++)

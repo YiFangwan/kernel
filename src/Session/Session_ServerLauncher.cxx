@@ -171,6 +171,8 @@ void Session_ServerLauncher::CheckArgs()
 
 void Session_ServerLauncher::ActivateAll()
 {
+  _GUIMutex->lock();             // to block server threads until wait(mutex)
+
   list<ServArg>::iterator itServ;
   for (itServ = _argServToLaunch.begin(); itServ !=_argServToLaunch.end(); itServ++)
     {
@@ -189,11 +191,12 @@ void Session_ServerLauncher::ActivateAll()
 	= new Session_ServerThread(argc, argv, _orb,_root_poa,_GUIMutex,&_ServerLaunch);
       _serverThreads.push_back(aServerThread);
 
-      //_GUIMutex->lock();             // to block server threads until wait(mutex)
       aServerThread->start();
       MESSAGE("waiting wakeAll()");
-      _ServerLaunch.wait(); // to be reseased by serverThread when ready
-      //_ServerLaunch.wait(_GUIMutex); // to be reseased by serverThread when ready
+      _ServerLaunch.wait(_GUIMutex); // to be reseased by serverThread when ready:
+      // atomic operation lock - unlock on mutex
+      // unlock mutex: serverThread runs, calls  _ServerLaunch->wakeAll()
+      // this thread wakes up, and lock mutex
     }
 
   // Always launch Session Server
@@ -205,8 +208,12 @@ void Session_ServerLauncher::ActivateAll()
     = new Session_ServerThread(argc, argv, _orb,_root_poa,_GUIMutex,&_ServerLaunch);
   _serverThreads.push_back(aServerThread);
 
-  //_GUIMutex->lock();             // to block server threads until wait(mutex)
   aServerThread->start();
-  _ServerLaunch.wait(); // to be reseased by serverThread when ready
+  _ServerLaunch.wait(_GUIMutex); // to be reseased by serverThread when ready
+  // atomic operation lock - unlock on mutex
+  // unlock mutex: serverThread runs, calls  _ServerLaunch->wakeAll()
+  // this thread wakes up, and lock mutex
+
+  _GUIMutex->unlock();           // release mutex for Qt main Thread
 }
 
