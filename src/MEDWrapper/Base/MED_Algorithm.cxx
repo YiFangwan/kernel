@@ -39,35 +39,51 @@ static int MYVALUEDEBUG = 0;
 
 namespace MED{
   //---------------------------------------------------------------
-  TCellGroup 
-  GetCellsByEntity(TWrapper& theWrapper, 
+  TElemGroup 
+  GetElemsByEntity(TWrapper& theWrapper, 
 		   const PMeshInfo& theMeshInfo,
 		   const MED::TEntityInfo& theEntityInfo)
   {
-    MSG(MYDEBUG,"GetCellsByEntity(...)");
-    TCellGroup aGroup;
+    MSG(MYDEBUG,"GetElemsByEntity(...)");
+    TElemGroup aGroup;
     MED::TEntityInfo::const_iterator anIter = theEntityInfo.begin();
     for(; anIter != theEntityInfo.end(); anIter++){
       const EEntiteMaillage& anEntity = anIter->first;
       if(anEntity == eNOEUD) continue;
       const MED::TGeom& aGeom = anIter->second;
-      TCellSet& aCellSet = aGroup[anEntity];
+      TElemSet& aElemSet = aGroup[anEntity];
       MED::TGeom::const_iterator anGeomIter = aGeom.begin();
       for(; anGeomIter != aGeom.end(); anGeomIter++){
 	const EGeometrieElement& aGeo = anGeomIter->first;
-	PCellInfo aCellInfo = theWrapper.GetPCellInfo(theMeshInfo,anEntity,aGeo);
-	aCellSet.insert(aCellInfo);
-	if(MYDEBUG){
-	  TInt aNbElem = aCellInfo->GetNbElem();
-	  INITMSG(MYDEBUG,"aGeo = "<<aGeo<<"; aNbElem = "<<aNbElem<<": ");
-	  for(TInt iElem = 0; iElem < aNbElem; iElem++){
-	    TInt iConnEnd = aCellInfo->GetConnDim();
-	    for(TInt iConn = 0; iConn < iConnEnd; iConn++){
-	      ADDMSG(MYVALUEDEBUG,aCellInfo->GetConn(iElem,iConn)<<",");
+	switch(aGeo){
+	case ePOLYGONE:
+	  {
+	    PPolygoneInfo aPolygoneInfo = theWrapper.GetPPolygoneInfo(theMeshInfo,anEntity,aGeo);
+	    aElemSet.insert(aPolygoneInfo);
+	    TElemNum aConn  = aPolygoneInfo->GetConnectivite();
+	    TElemNum aIndex = aPolygoneInfo->GetIndex();
+	    TInt aNbIndex = aIndex.size();
+	    TInt aIndex0 = aIndex[0];
+	    INITMSG(MYDEBUG,"aGeo = "<<aGeo<<"; aNbElem = "<<aNbIndex-1<<": ");
+	    for(TInt iElem = 1; iElem < aNbIndex; iElem++){
+	      for (TInt i = aIndex0; i < aIndex[iElem];i++)
+		ADDMSG(MYVALUEDEBUG,aConn[i-1]<<",");
+	      ADDMSG(MYDEBUG," ");
+	      aIndex0 = aIndex[iElem];
 	    }
-	    ADDMSG(MYVALUEDEBUG," ");
+	    ADDMSG(MYDEBUG,endl);
+	    ADDMSG(MYDEBUG,"           Indexes :");
+	    for(TInt iElem = 0; iElem < aIndex.size(); iElem++){
+	      ADDMSG(MYVALUEDEBUG,aIndex[iElem]<<",");
+	    }
+	    ADDMSG(MYDEBUG,endl);
+	    break;
 	  }
-	  ADDMSG(MYDEBUG,"\n");
+	default:
+	  {
+	    PCellInfo aCellInfo = theWrapper.GetPCellInfo(theMeshInfo,anEntity,aGeo);
+	    aElemSet.insert(aCellInfo);
+	  }
 	}
       }
     }
@@ -82,24 +98,14 @@ namespace MED{
 	      const PMeshInfo& theMeshInfo)
   {
     MSG(MYDEBUG,"GetFamilies(...)");
+    TErr anErr;
     TFamilyGroup aGroup;
     TInt aNbFam = theWrapper.GetNbFamilies(*theMeshInfo);
     INITMSG(MYDEBUG,"GetNbFamilies() = "<<aNbFam<<"\n");
     for(TInt iFam = 1; iFam <= aNbFam; iFam++){
-      PFamilyInfo aFamilyInfo = theWrapper.GetPFamilyInfo(theMeshInfo,iFam);
-      aGroup.insert(aFamilyInfo);
-      if(MYDEBUG){
-	string aName = aFamilyInfo->GetName();
-	TInt aNbAttr = aFamilyInfo->GetNbAttr();
-	TInt aNbGroup = aFamilyInfo->GetNbGroup();
-	INITMSG(MYDEBUG,
-		"aFamilyName = '"<<aName<<"'; andId = "<<aFamilyInfo->GetId()<<
-		"; aNbAttr = "<<aNbAttr<<"; aNbGroup = "<<aNbGroup<<"\n");
-	for(TInt iGroup = 0; iGroup < aNbGroup; iGroup++){
-	  aName = aFamilyInfo->GetGroupName(iGroup);
-	  INITMSG(MYDEBUG,"aGroupName = '"<<aName<<"'\n");
-	}
-      }
+      PFamilyInfo aFamilyInfo = theWrapper.GetPFamilyInfo(theMeshInfo,iFam,&anErr);
+      if(anErr >= 0)
+	aGroup.insert(aFamilyInfo);
     }
     ADDMSG(MYDEBUG,"\n");
     return aGroup;
@@ -119,6 +125,8 @@ namespace MED{
 	aGroup[aFamilyInfo->GetGroupName(iGroup)].insert(aFamilyInfo);
       } 
     }
+
+#ifdef _DEBUG_
     if(MYDEBUG){
       TGroupInfo::const_iterator anIter = aGroup.begin();
       for(; anIter != aGroup.end(); anIter++){
@@ -133,6 +141,8 @@ namespace MED{
       }
       ADDMSG(MYDEBUG,"\n");
     }
+#endif
+
     return aGroup;
   }
 
@@ -149,9 +159,8 @@ namespace MED{
     INITMSG(MYDEBUG,"GetNbFields() = "<<aNbFields<<"\n");
     for(TInt iField = 1; iField <= aNbFields; iField++){
       PFieldInfo aFieldInfo = theWrapper.GetPFieldInfo(theMeshInfo,iField);
-      TInt aNbComp = aFieldInfo->GetNbComp();
-      string aName = aFieldInfo->GetName();
-      INITMSG(MYDEBUG,"aFieldName = '"<<aName<<"'; aNbComp = "<<aNbComp<<"; ");
+      INITMSG(MYDEBUG,"aFieldName = '"<<aFieldInfo->GetName()<<
+	      "'; aNbComp = "<<aFieldInfo->GetNbComp()<<"; ");
       MED::TGeom aGeom;
       EEntiteMaillage anEntity = EEntiteMaillage(-1);
       TInt aNbTimeStamps = theWrapper.GetNbTimeStamps(aFieldInfo,theEntityInfo,anEntity,aGeom);
@@ -189,7 +198,7 @@ namespace MED{
   TFamilyByEntity
   GetFamiliesByEntity(TWrapper& theWrapper, 
 		      const PNodeInfo& theNodeInfo,
-		      const TCellGroup& theCellGroup,
+		      const TElemGroup& theElemGroup,
 		      const TFamilyGroup& theFamilyGroup)
   {
     MSG(MYDEBUG,"GetFamiliesByEntity(...)");
@@ -217,18 +226,18 @@ namespace MED{
 	}
       }
       
-      if(!theCellGroup.empty()){
-	TCellGroup::const_iterator anIter = theCellGroup.begin();
-	for(; anIter != theCellGroup.end(); anIter++){
+      if(!theElemGroup.empty()){
+	TElemGroup::const_iterator anIter = theElemGroup.begin();
+	for(; anIter != theElemGroup.end(); anIter++){
 	  const EEntiteMaillage& anEntity = anIter->first;
 	  TFamilyIdSet& aFamilyIdSet = aFamilyIdByEntity[anEntity];
-	  const TCellSet& aCellSet = anIter->second;
-	  TCellSet::const_iterator anCellIter = aCellSet.begin();
-	  for(; anCellIter != aCellSet.end(); anCellIter++){
-	    const PCellInfo& aCellInfo = *anCellIter;
-	    if(TInt aNbElem = aCellInfo->GetNbElem()){
+	  const TElemSet& aElemSet = anIter->second;
+	  TElemSet::const_iterator anElemIter = aElemSet.begin();
+	  for(; anElemIter != aElemSet.end(); anElemIter++){
+	    const PElemInfo& aElemInfo = *anElemIter;
+	    if(TInt aNbElem = aElemInfo->GetNbElem()){
 	      for(TInt i = 0; i < aNbElem; i++){
-		aFamilyIdSet.insert(aCellInfo->GetFamNum(i));
+		aFamilyIdSet.insert(aElemInfo->GetFamNum(i));
 	      }
 	    }
 	  }

@@ -39,7 +39,7 @@ namespace MED{
   const TInt LNOM = 80;
 
   //---------------------------------------------------------------
-  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
   struct TTNameInfo: virtual TNameInfo
   {
     TTNameInfo(const std::string& theValue = "")
@@ -59,10 +59,10 @@ namespace MED{
 
 
   //---------------------------------------------------------------
-  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>
-  struct TTMeshInfo: TMeshInfo, TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
+  struct TTMeshInfo: TMeshInfo, TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
   {
-    typedef TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM> TNameInfoBase;
+    typedef TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TNameInfoBase;
 
     TTMeshInfo(const PMeshInfo& theInfo):
       TNameInfoBase(theInfo->GetName())
@@ -98,10 +98,10 @@ namespace MED{
 
 
   //---------------------------------------------------------------
-  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>
-  struct TTFamilyInfo: TFamilyInfo, TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
+  struct TTFamilyInfo: TFamilyInfo, TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
   {
-    typedef TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM> TNameInfoBase;
+    typedef TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TNameInfoBase;
 
     TTFamilyInfo(const PMeshInfo& theMeshInfo, const PFamilyInfo& theInfo):
       TNameInfoBase(theInfo->GetName())
@@ -206,7 +206,7 @@ namespace MED{
 
 
   //---------------------------------------------------------------
-  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
   struct TTElemInfo: virtual TElemInfo
   {
     TTElemInfo(const PMeshInfo& theMeshInfo, const PElemInfo& theInfo)
@@ -301,10 +301,10 @@ namespace MED{
 
 
   //---------------------------------------------------------------
-  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>
-  struct TTNodeInfo: TNodeInfo, TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
+  struct TTNodeInfo: TNodeInfo, TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
   {
-    typedef TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM> TElemInfoBase;
+    typedef TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TElemInfoBase;
 
     TTNodeInfo(const PMeshInfo& theMeshInfo, const PNodeInfo& theInfo):
       TElemInfoBase(theMeshInfo,theInfo)
@@ -398,12 +398,140 @@ namespace MED{
     }
   };
 
+  //---------------------------------------------------------------
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
+  struct TTPolygoneInfo: TPolygoneInfo, TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
+  {
+    typedef TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TElemInfoBase;
+
+    TTPolygoneInfo(const PMeshInfo& theMeshInfo, const PPolygoneInfo& theInfo):
+      TElemInfoBase(theMeshInfo,theInfo)
+    {
+      myTEntity = theInfo->GetEntity();
+      myTGeom = theInfo->GetGeom();
+      myTConn  = theInfo->GetConn();
+      myConnDim = theInfo->GetConnDim();
+      myConn = theInfo->GetConnectivite();
+      myIndex = theInfo->GetIndex();
+    }
+
+    TTPolygoneInfo(const PMeshInfo& theMeshInfo, 
+		   TInt theNbElem,
+		   TInt theNbConn,
+		   EEntiteMaillage theTEntity, 
+		   EGeometrieElement theTGeom,
+		   EConnectivite theTConn = eNOD,
+		   EBooleen theIsElemNum = eVRAI,
+		   EBooleen theIsElemNames = eVRAI):
+      TElemInfoBase(theMeshInfo,
+		    theNbElem,
+		    theIsElemNum,
+		    theIsElemNames)
+    {
+      myTEntity = theTEntity;
+      myTGeom = theTGeom;
+      myTConn  = theTConn;
+      myConnDim = theNbConn;
+      myConn.resize(myConnDim);
+      myIndex.resize(theNbElem+1);
+    }
+    
+    TTPolygoneInfo(const PMeshInfo& theMeshInfo, 
+		   EEntiteMaillage theTEntity, 
+		   EGeometrieElement theTGeom,
+		   EConnectivite theTConn,
+		   const TIntVector& theConnectivities,
+		   const TIntVector& theIndexes,
+		   const TIntVector& theFamilyNums,
+		   const TIntVector& theElemNums,
+		   const TStringVector& theElemNames = TStringVector()):
+      TElemInfoBase(theMeshInfo,
+		    theFamilyNums,
+		    theElemNums,
+		    theElemNames)
+    {
+      myTEntity = theTEntity;
+      myTGeom = theTGeom;
+      myTConn  = theTConn;
+      myConnDim = theConnectivities.size();
+      myConn = theConnectivities;
+      myIndex = theIndexes;
+    }
+  };
+  //---------------------------------------------------------------
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
+  struct TTPolyedreInfo: TPolyedreInfo, TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
+  {
+    typedef TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TElemInfoBase;
+
+    TTPolyedreInfo(const PMeshInfo& theMeshInfo, const PPolyedreInfo& theInfo):
+      TElemInfoBase(theMeshInfo,theInfo)
+    {
+      myTEntity = theInfo->GetEntity();
+      myTGeom = theInfo->GetGeom();
+      myTConn  = theInfo->GetConn();
+      myNbConn = theInfo->GetNbConn();
+      myNbFacesIndex = theInfo->GetNbFacesIndex();
+      myConn = theInfo->GetConnectivite();
+      myFacesIndex = theInfo->GetFacesIndex();
+      myIndex = theInfo->GetIndex();
+    }
+
+    TTPolyedreInfo(const PMeshInfo& theMeshInfo, 
+		   TInt theNbElem,
+		   TInt theNbConn,
+		   TInt theNbFacesIndex,
+		   EEntiteMaillage theTEntity, 
+		   EGeometrieElement theTGeom,
+		   EConnectivite theTConn = eNOD,
+		   EBooleen theIsElemNum = eVRAI,
+		   EBooleen theIsElemNames = eVRAI):
+      TElemInfoBase(theMeshInfo,
+		    theNbElem,
+		    theIsElemNum,
+		    theIsElemNames)
+    {
+      myTEntity = theTEntity;
+      myTGeom = theTGeom;
+      myTConn  = theTConn;
+      myNbConn = theNbConn;
+      myNbFacesIndex = theNbFacesIndex;
+      myConn.resize(myNbConn);
+      myFacesIndex.resize(myNbFacesIndex);
+      myIndex.resize(theNbElem+1);
+    }
+    
+    TTPolyedreInfo(const PMeshInfo& theMeshInfo, 
+		   EEntiteMaillage theTEntity, 
+		   EGeometrieElement theTGeom,
+		   EConnectivite theTConn,
+		   const TIntVector& theConnectivities,
+		   const TIntVector& theFacesIndexes,
+		   const TIntVector& theIndexes,
+		   const TIntVector& theFamilyNums,
+		   const TIntVector& theElemNums,
+		   const TStringVector& theElemNames = TStringVector()):
+      TElemInfoBase(theMeshInfo,
+		    theFamilyNums,
+		    theElemNums,
+		    theElemNames)
+    {
+      myTEntity = theTEntity;
+      myTGeom = theTGeom;
+      myTConn  = theTConn;
+      myNbConn = theConnectivities.size();
+      myNbFacesIndex = theFacesIndexes.size();
+      myConn = theConnectivities;
+      myFacesIndex = theFacesIndexes;
+      myIndex = theIndexes;
+    }
+  };
 
   //---------------------------------------------------------------
-  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>
-  struct TTCellInfo: TCellInfo, TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
+  struct TTCellInfo: TCellInfo, TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
   {
-    typedef TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM> TElemInfoBase;
+    typedef TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TElemInfoBase;
 
     TTCellInfo(const PMeshInfo& theMeshInfo, const PCellInfo& theInfo):
       TElemInfoBase(theMeshInfo,theInfo)
@@ -411,11 +539,11 @@ namespace MED{
       myTEntity = theInfo->GetEntity();
       myTGeom = theInfo->GetGeom();
       myTConn  = theInfo->GetConn();
-      myConnDim = theInfo->GetConnDim();
       
-      myConn.resize(myNbElem*myConnDim);
+      TInt aConnDim = GetNbConnectivities(myTGeom);
+      myConn.resize(myNbElem*GetNbConn<nV>(myTGeom,myMeshInfo->myDim));
       for(TInt anElemId = 0; anElemId < myNbElem; anElemId++){
-	for(TInt anConnId = 0; anConnId < myConnDim; anConnId++){
+	for(TInt anConnId = 0; anConnId < aConnDim; anConnId++){
 	  SetConn(anElemId,anConnId,theInfo->GetConn(anElemId,anConnId));
 	}
       }
@@ -436,8 +564,7 @@ namespace MED{
       myTEntity = theTEntity;
       myTGeom = theTGeom;
       myTConn  = theTConn;
-      myConnDim = GetNbConn(myTEntity,myTGeom,theMeshInfo->myDim);
-      myConn.resize(theNbElem*myConnDim);
+      myConn.resize(theNbElem*GetNbConn<nV>(theTGeom,theMeshInfo->myDim));
     }
     
     TTCellInfo(const PMeshInfo& theMeshInfo, 
@@ -448,28 +575,38 @@ namespace MED{
 	       const TIntVector& theFamilyNums,
 	       const TIntVector& theElemNums,
 	       const TStringVector& theElemNames = TStringVector()):
-      TTElemInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>(theMeshInfo,
-						theFamilyNums,
-						theElemNums,
-						theElemNames)
+      TElemInfoBase(theMeshInfo,
+		    theFamilyNums,
+		    theElemNums,
+		    theElemNames)
     {
       myTEntity = theTEntity;
       myTGeom = theTGeom;
       myTConn  = theTConn;
-      myConnDim = GetNbConn(myTEntity,myTGeom,theMeshInfo->myDim);
-      myConn.resize(theConnectivities.size());
-      for(TInt anId = 0, anEnd = myConn.size(); anId < anEnd; anId++){
-	myConn[anId] = theConnectivities[anId];
+
+      TInt aConnDim = GetNbConnectivities(myTGeom);
+      myNbElem = theConnectivities.size() / aConnDim;
+      myConn.resize(myNbElem*GetNbConn<nV>(myTGeom,myMeshInfo->myDim));
+      for(TInt anElemId = 0; anElemId < myNbElem; anElemId++){
+	for(TInt anConnId = 0; anConnId < aConnDim; anConnId++){
+	  SetConn(anElemId,anConnId,theConnectivities[anElemId*aConnDim+anConnId]);
+	}
       }
+
     }
+
+    virtual TInt GetConnDim() const { 
+      return GetNbConn<nV>(myTGeom,myMeshInfo->myDim);
+    }
+
   };
 
 
   //---------------------------------------------------------------
-  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>
-  struct TTFieldInfo: TFieldInfo, TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM>
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
+  struct TTFieldInfo: TFieldInfo, TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV>
   {
-    typedef TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM> TNameInfoBase;
+    typedef TTNameInfo<nPNOM,nDESC,nIDENT,nNOM,nLNOM,nV> TNameInfoBase;
 
     TTFieldInfo(const PMeshInfo& theMeshInfo, const PFieldInfo& theInfo):
       TNameInfoBase(theInfo->GetName())
@@ -532,7 +669,7 @@ namespace MED{
 
 
   //---------------------------------------------------------------
-  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
   struct TTTimeStampInfo: TTimeStampInfo
   {
     TTTimeStampInfo(const PFieldInfo& theFieldInfo, const PTimeStampInfo& theInfo)
@@ -600,7 +737,7 @@ namespace MED{
 
 
   //---------------------------------------------------------------
-  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM>
+  template<TInt nPNOM, TInt nDESC, TInt nIDENT, TInt nNOM, TInt nLNOM, EVersion nV>
   struct TTTimeStampVal: TTimeStampVal
   {
     TTTimeStampVal(const PTimeStampInfo& theTimeStampInfo, const PTimeStampVal& theInfo)

@@ -61,11 +61,11 @@ void CheckMed(const std::string& theFileName)
       
       TEntityInfo aEntityInfo = aMed->GetEntityInfo(aMeshInfo);
       
-      TCellGroup aCellGroup = GetCellsByEntity(aMed,aMeshInfo,aEntityInfo);
+      TElemGroup aElemGroup = GetElemsByEntity(aMed,aMeshInfo,aEntityInfo);
       
       TFamilyGroup aFamilyGroup = GetFamilies(aMed,aMeshInfo);
       
-      TFamilyByEntity aFamilyByEntity = GetFamiliesByEntity(aMed,aNodeInfo,aCellGroup,aFamilyGroup);
+      TFamilyByEntity aFamilyByEntity = GetFamiliesByEntity(aMed,aNodeInfo,aElemGroup,aFamilyGroup);
       
       TGroupInfo aGroupInfo = GetFamiliesByGroup(aFamilyGroup);
       
@@ -166,6 +166,9 @@ void CopyMed(const PWrapper& theMed,
       TInt aNbGroup = aFamilyInfo->GetNbGroup();
       TInt aNbAttr = aFamilyInfo->GetNbAttr();
       TInt anId = aFamilyInfo->GetId();
+      if(anId == 0)
+	continue;
+
       aName = aFamilyInfo->GetName();
       INITMSG(MYDEBUG,"aName = '"<<aName<<"'; anId = "<<anId<<
 	      "; aNbAttr = "<<aNbAttr<<"; aNbGroup = "<<aNbGroup<<"\n");
@@ -193,17 +196,6 @@ void CopyMed(const PWrapper& theMed,
       INITMSG(MYDEBUG,"anEntity = "<<anEntity<<"\n");
       if(anEntity == eNOEUD){
 	PNodeInfo aNodeInfo = theMed->GetPNodeInfo(aMeshInfo);
-	TInt aNbNodes = aNodeInfo->GetNbElem();
-	INITMSG(MYDEBUG,"GetNodeInfo - aNbNodes = "<<aNbNodes<<": ");
-	TNodeCoord& aCoord = aNodeInfo->myCoord;
-	for(TInt iNode = 0; iNode < aNbNodes; iNode++){
-	  for(TInt iDim = 0, anId = iNode*aDim; iDim < aDim; iDim++, anId++){
-	    ADDMSG(MYVALUEDEBUG,aCoord[anId]<<",");
-	    aCoord[anId] += theIncr;
-	  }
-	  ADDMSG(MYVALUEDEBUG," ");
-	}
-	ADDMSG(MYDEBUG,endl);
 	PNodeInfo aNodeInfo2 = theMed->CrNodeInfo(aMeshInfo2,aNodeInfo);
 	if(MYWRITEDEBUG) theMed2->SetNodeInfo(aNodeInfo2);
 	continue;
@@ -214,17 +206,63 @@ void CopyMed(const PWrapper& theMed,
 	const EGeometrieElement& aGeom = anTGeomIter->first;
 	const TInt& aNbElem = anTGeomIter->second;
 	INITMSG(MYDEBUG,"aGeom = "<<aGeom<<"; aNbElem = "<<aNbElem<<": ");
-	PCellInfo aCellInfo = theMed->GetPCellInfo(aMeshInfo,anEntity,aGeom);
-	TInt aConnDim = aCellInfo->GetConnDim();
-	for(TInt iElem = 0; iElem < aNbElem; iElem++){
-	  for(TInt iConn = 0; iConn < aConnDim; iConn++){
-	    ADDMSG(MYVALUEDEBUG,aCellInfo->GetConn(iElem,iConn)<<",");
+	switch(aGeom){
+	case ePOLYGONE:
+	  {
+	    PPolygoneInfo aPolygoneInfo = theMed->GetPPolygoneInfo(aMeshInfo,anEntity,aGeom);
+	    TElemNum aConn  = aPolygoneInfo->GetConnectivite();
+	    TElemNum aIndex = aPolygoneInfo->GetIndex();
+	    TInt aNbIndex = aIndex.size();
+	    TInt aIndex0 = aIndex[0];
+	    for(TInt iElem = 1; iElem < aNbIndex; iElem++){
+	      for (TInt i = aIndex0; i < aIndex[iElem];i++)
+		ADDMSG(MYVALUEDEBUG,aConn[i-1]<<",");
+	      ADDMSG(MYDEBUG," ");
+	      aIndex0 = aIndex[iElem];
+	    }
+	    ADDMSG(MYDEBUG,endl);
+	    INITMSG(MYDEBUG,"Indexes :");
+	    for(TInt iElem = 0; iElem < aIndex.size(); iElem++){
+	      ADDMSG(MYVALUEDEBUG,aIndex[iElem]<<",");
+	    }
+	    ADDMSG(MYDEBUG,endl);
+	    PPolygoneInfo aPolygoneInfo2 = theMed->CrPolygoneInfo(aMeshInfo2,aPolygoneInfo);
+	    if(MYWRITEDEBUG) theMed2->SetPolygoneInfo(aPolygoneInfo2);
+	    break;
 	  }
-	  ADDMSG(MYVALUEDEBUG," ");
+	case ePOLYEDRE:
+	  {
+	    PPolyedreInfo aPolyedreInfo = theMed->GetPPolyedreInfo(aMeshInfo,anEntity,aGeom);
+	    TElemNum aConn        = aPolyedreInfo->GetConnectivite();
+	    TElemNum aFacesIndex  = aPolyedreInfo->GetFacesIndex();
+	    TElemNum aIndex       = aPolyedreInfo->GetIndex();
+	    
+	    TInt aNbIndex      = aIndex.size();
+	    
+	    for (int aNp = 0; aNp < aNbIndex-1;aNp++){
+	      if (aPolyedreInfo->IsElemNames())
+		ADDMSG(MYDEBUG,aPolyedreInfo->GetElemName(aNp)<<endl);
+	      else 
+		ADDMSG(MYDEBUG,"POLYEDRE "<<aNp+1<<endl);
+
+	      for (int aNf = aIndex[aNp]-1;aNf < aIndex[aNp+1]-1;aNf++){
+		ADDMSG(MYDEBUG,"Face "<<aNf-aIndex[aNp]+2<<": [");
+		for (int aNc = aFacesIndex[aNf]-1; aNc < aFacesIndex[aNf+1]-1;aNc++){
+		  ADDMSG(MYDEBUG," "<<aConn[aNc]);
+		}
+		ADDMSG(MYDEBUG," ]"<<endl;);
+	      }
+	    }
+
+	    PPolyedreInfo aPolyedreInfo2 = theMed->CrPolyedreInfo(aMeshInfo2,aPolyedreInfo);
+	    if(MYWRITEDEBUG) theMed2->SetPolyedreInfo(aPolyedreInfo2);
+	    break;
+	  }
+	default:
+	  PCellInfo aCellInfo = theMed->GetPCellInfo(aMeshInfo,anEntity,aGeom);
+	  PCellInfo aCellInfo2 = theMed2->CrCellInfo(aMeshInfo2,aCellInfo);
+	  if(MYWRITEDEBUG) theMed2->SetCellInfo(aCellInfo2);
 	}
-	ADDMSG(MYDEBUG,endl);
-	PCellInfo aCellInfo2 = theMed->CrCellInfo(aMeshInfo2,aCellInfo);
-	if(MYWRITEDEBUG) theMed2->SetCellInfo(aCellInfo2);
       }
     }
     
@@ -238,7 +276,7 @@ void CopyMed(const std::string& theFileName,
 	     MED::EVersion theVersion,
 	     int theNbCopy)
 {
-  MSG(MYDEBUG,"CopyMed - theFileName = '"<<theFileName<<"'; theFileName2 = '"<<theFileName2<<"'");
+  MSG(MYDEBUG,"CopyMed - theFileName = '"<<theFileName<<"'; theFileName2 = '"<<theFileName2<<"', theVersion = "<<theVersion);
 
   PWrapper aMed = CrWrapper(theFileName);
 
@@ -251,7 +289,7 @@ void CopyMed(const std::string& theFileName,
 
 void ReadMed(const char* theFileName, 
 	     const char* theFileName2,
-	     MED::EVersion theVersion = eV2_1,
+	     MED::EVersion theVersion = eV2_2,
 	     int theNbCopy = 1)
 {
   MSG(MYDEBUG,"theFileName = '"<<theFileName<<"'; "<<
@@ -277,7 +315,7 @@ int main(int argc, char** argv){
   }catch(std::exception& exc){
     MSG(MYDEBUG,"Follow exception was accured :\n"<<exc.what());
   }catch(...){
-    MSG(MYDEBUG,"Unknown exception was accured in VISU_Convertor_impl");
+    MSG(MYDEBUG,"Unknown exception was accured");
   } 
   return 1;
 }

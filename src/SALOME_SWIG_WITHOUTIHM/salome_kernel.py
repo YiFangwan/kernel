@@ -28,12 +28,28 @@ from omniORB import CORBA
 from LifeCycleCORBA import *
 from SALOME_NamingServicePy import *
 from SALOME_utilities import *
+import Engines
 
-# initialise the ORB
-orb = CORBA.ORB_init([''], CORBA.ORB_ID)
+salome_kernel_initial=1
 
-# create an LifeCycleCORBA instance
-lcc = LifeCycleCORBA(orb)
+def salome_kernel_init():
+    global salome_kernel_initial
+    global orb, lcc, naming_service, cm
+    
+    if salome_kernel_initial:
+        salome_kernel_initial = 0
+        
+        # initialise the ORB
+        orb = CORBA.ORB_init([''], CORBA.ORB_ID)
 
-#create an naming service instance
-naming_service = SALOME_NamingServicePy_i(orb)
+        # create an LifeCycleCORBA instance
+        lcc = LifeCycleCORBA(orb)
+
+        #create an naming service instance
+        naming_service = SALOME_NamingServicePy_i(orb)
+
+        # get Container Manager
+        obj = naming_service.Resolve('/ContainerManager')
+        cm = obj._narrow(Engines.ContainerManager)
+
+    return orb, lcc, naming_service, cm

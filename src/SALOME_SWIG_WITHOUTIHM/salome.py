@@ -28,5 +28,16 @@ from salome_kernel import *
 from salome_study import *
 from salome_iapp import *
 
-IN_SALOME_GUI=sg.hasDesktop()
+salome_initial=1
+def salome_init():
+    global salome_initial
+    global orb, lcc, naming_service, cm
+    global sg
+    global myStudyManager, myStudyId, myStudy, myStudyName
+    
+    if salome_initial:
+        salome_initial=0
+        orb, lcc, naming_service, cm = salome_kernel_init()
+        sg = salome_iapp_init()
+        myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init()
 

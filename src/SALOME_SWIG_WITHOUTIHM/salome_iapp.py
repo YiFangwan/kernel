@@ -51,6 +51,16 @@ class SalomeGUI(SALOMEGUI_Swig):
     
     #--------------------------------------------------------------------------
 
-# create an SALOMEGUI_Swig instance
-sg = SalomeGUI()
+salome_iapp_initial = 1
 
+def salome_iapp_init():
+    global salome_iapp_initial
+    global sg,IN_SALOME_GUI
+
+    if salome_iapp_initial:
+        salome_iapp_initial=0
+        
+        # create an SALOMEGUI_Swig instance
+        sg = SalomeGUI()
+        IN_SALOME_GUI=sg.hasDesktop()
+    return sg

@@ -24,9 +24,9 @@
 #  Module : SALOME
 #  $Header$
 
-from salome_iapp import sg
-from salome_kernel import *
+import salome_kernel
 import SALOMEDS
+import salome_iapp
 
 #--------------------------------------------------------------------------
 
@@ -106,7 +106,9 @@ salome_study_ID = -1
 
 def getActiveStudy():
     global salome_study_ID
+    
     print "getActiveStudy"
+    sg = salome_iapp.salome_iapp_init()
     if salome_study_ID == -1:
         if sg.hasDesktop():
             print "---in gui"
@@ -132,6 +134,7 @@ def createNewStudy():
             nameAlreadyInUse=0
         else:
             i = i+1
+
     theStudy = myStudyManager.NewStudy(aStudyName)
     theStudyId = theStudy._get_StudyId()
     print aStudyName, theStudyId
@@ -139,17 +142,29 @@ def createNewStudy():
             
     #--------------------------------------------------------------------------
 
-# get Study Manager reference
-print "looking for studyManager ..."
-obj = naming_service.Resolve('myStudyManager')
-myStudyManager = obj._narrow(SALOMEDS.StudyManager)
-print "studyManager found"
+salome_study_initial = 1
 
-# get active study Id, ref and name
-myStudyId = getActiveStudy()
-print "myStudyId",myStudyId
-myStudy = myStudyManager.GetStudyByID(myStudyId)
-myStudyName = myStudy._get_Name()
+def salome_study_init():
+    global salome_study_initial
+    global myStudyManager, myStudyId, myStudy, myStudyName
+    global orb, lcc, naming_service, cm
+    
+    if salome_study_initial:
+        salome_study_initial = 0
+        
+        orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
+        
+        # get Study Manager reference
+        print "looking for studyManager ..."
+        obj = naming_service.Resolve('myStudyManager')
+        myStudyManager = obj._narrow(SALOMEDS.StudyManager)
+        print "studyManager found"
 
+        # get active study Id, ref and name
+        myStudyId = getActiveStudy()
+        print "myStudyId",myStudyId
+        myStudy = myStudyManager.GetStudyByID(myStudyId)
+        myStudyName = myStudy._get_Name()
 
+    return myStudyManager, myStudyId, myStudy, myStudyName
 
