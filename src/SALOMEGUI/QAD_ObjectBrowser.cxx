@@ -519,7 +519,7 @@ void QAD_ObjectBrowser::onCreatePopup()
       }
 
       bool canExpand = false;
-      for ( QListViewItemIterator it( getListView() ); it.current() && !canExpand; ++it )
+      for ( QListViewItemIterator it( currentPage() == myListView ? myListView : myUseCaseView ); it.current() && !canExpand; ++it )
 	canExpand = canExpand || ( it.current()->isSelected() && hasCollapsed( it.current() ) );
 
       if ( canExpand ) {
@@ -582,7 +582,7 @@ void QAD_ObjectBrowser::onCreatePopup()
 */
 void QAD_ObjectBrowser::onExpandAll()
 {
-  for ( QListViewItemIterator it( getListView() ); it.current(); ++it )
+  for ( QListViewItemIterator it( currentPage() == myListView ? myListView : myUseCaseView ); it.current(); ++it )
     if ( it.current()->isSelected() )
       expand( it.current() );  
 }
