@@ -48,6 +48,10 @@ echo Build  root directory : $ROOT_BUILDDIR
 echo
 echo
 
+dnl Modification B. Secher portage sur osf
+AC_PATH_PROG(SHELL,sh,,)
+AC_SUBST(SHELL)
+
 if test -z "$AR"; then
    AC_CHECK_PROGS(AR,ar xar,:,$PATH)
 fi
@@ -86,7 +90,7 @@ dnl Fix up the INSTALL macro if it s a relative path. We want the
 dnl full-path to the binary instead.
 case "$INSTALL" in
    *install-sh*)
-      INSTALL='\${top_srcdir}'/salome_adm/unix/config_files/install-sh
+      INSTALL="${ROOT_SRCDIR}/salome_adm/unix/config_files/install-sh -c"
       ;;
 esac
 
@@ -100,8 +104,10 @@ cc_ok=no
 dnl inutil car libtool
 dnl AC_PROG_CC
 AC_PROG_CXX
+AC_CXX_WARNINGS
+AC_CXX_TEMPLATE_DEPTH
 AC_DEPEND_FLAG
-# AC_CC_WARNINGS([ansi])
+#AC_CC_WARNINGS([ansi])
 cc_ok=yes
 
 dnl Library libdl :
@@ -111,11 +117,26 @@ dnl add library libm :
 AC_CHECK_LIB(m,ceil)
 
 dnl 
+dnl Check if we use std iostream by default or if we must add
+dnl a compiler directive for that
+dnl
+
+AC_CXX_USE_STD_IOSTREAM
+
+dnl 
 dnl Well we use sstream which is not in gcc pre-2.95.3
 dnl We must test if it exists. If not, add it in include !
 dnl
 
 AC_CXX_HAVE_SSTREAM
+
+dnl
+dnl ---------------------------------------------
+dnl testing linker
+dnl ---------------------------------------------
+dnl
+
+AC_LINKER_OPTIONS
 
 dnl
 dnl ---------------------------------------------
@@ -285,6 +306,8 @@ echo
 
 echo Configure
 variables="cc_ok mpich_ok lex_yacc_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok med2_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok doxygen_ok graphviz_ok"
+
+AC_SUBST(pyqt_ok)
  
 for var in $variables
 do

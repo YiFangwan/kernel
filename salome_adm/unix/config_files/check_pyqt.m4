@@ -22,7 +22,6 @@ if test "x$pyqt_ok" = xyes ; then
    AC_SUBST(PYQT_INCLUDES)
    AC_SUBST(PYQT_LIBS)
    AC_SUBST(PYQT_SIPS)
-   AC_MSG_RESULT(yes)
 else
 
   pyqt_ok=yes
@@ -74,12 +73,10 @@ fi
 
 AC_CHECK_FILES("$PYQTDIR/qt.py","$PYQTDIR/qt/qt.py",pyqt_ok=yes,pyqt_ok=no)
 if test "x$pyqt_ok" = xno ; then
-   AC_MSG_RESULT(no)
    AC_MSG_WARN(pyqt not found)
 else
    AC_CHECK_FILE("$PYQTDIR/libqtcmodule.so",pyqt_ok=yes,pyqt_ok=no)
    if test "x$pyqt_ok" = xno ; then
-      AC_MSG_RESULT(no)
       AC_MSG_WARN(pyqt not found)
    else
       PYQT_ROOT=$PYQTDIR
@@ -87,7 +84,6 @@ else
    fi
    AC_CHECK_FILE("$PYQT_SIPS/copying.sip",pyqt_ok=yes,pyqt_ok=no)
    if test "x$pyqt_ok" = xno ; then
-      AC_MSG_RESULT(no)
       AC_MSG_WARN(pyqt not found)
    else
       PYQT_INCLUDES="-I$PYQT_SIPS"
@@ -97,7 +93,6 @@ else
    AC_SUBST(PYQT_INCLUDES)
    AC_SUBST(PYQT_LIBS)
 
-   AC_MSG_RESULT(yes)
 fi
 
 PYQT_ROOT=$PYQTDIR
@@ -109,10 +104,6 @@ AC_SUBST(PYQT_INCLUDES)
 AC_SUBST(PYUIC)
 AC_SUBST(PYQT_SIPS)
 AC_SUBST(PYQT_LIBS)
-
-
-
-AC_MSG_RESULT(for pyqt: $pyqt_ok)
 
 fi
 ])dnl

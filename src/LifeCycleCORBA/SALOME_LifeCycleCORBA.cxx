@@ -26,11 +26,11 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <iomanip>
+using namespace std;
 
 #include "OpUtil.hxx"
 #include "utilities.h"

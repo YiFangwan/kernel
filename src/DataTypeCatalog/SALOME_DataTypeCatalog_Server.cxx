@@ -26,11 +26,11 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
-#include <iostream.h>
+#include <iostream>
 #include "SALOME_NamingService.hxx"
 #include "SALOME_DataTypeCatalog_impl.hxx"
 #include "utilities.h"
+using namespace std;
 
 int main(int argc,char **argv)
 {

@@ -24,12 +24,12 @@
 //  File   : SALOME_ModuleCatalog_Server.cxx
 //  Module : SALOME
 
-using namespace std;
 /* $Header$ */
-#include <iostream.h>
+#include <iostream>
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ModuleCatalog_impl.hxx"
 #include "utilities.h"
+using namespace std;
 
 //#define CHECKTIME
 #ifdef CHECKTIME

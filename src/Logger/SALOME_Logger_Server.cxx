@@ -8,8 +8,9 @@
 //  Author : Vasily Rusyaev
 //  Module : SALOME
 
-using namespace std;
 #include <iostream>
+using namespace std;
+
 #include "SALOME_Logger_Server.hxx"
 
 omni_mutex Logger::myLock;

@@ -83,7 +83,7 @@ public:
   bool Stop_impl();
   bool Suspend_impl();
   bool Resume_impl();
-  long CpuUsed_impl() ;
+  CORBA::Long CpuUsed_impl() ;
 
 protected:
   string _instanceName ;

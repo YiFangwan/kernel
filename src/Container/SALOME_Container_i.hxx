@@ -76,14 +76,14 @@ public:
 protected:
 
   SALOME_NamingService *_NS ;
-  string _library_path;
-  string _containerName;
+  std::string _library_path;
+  std::string _containerName;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id ;
   int _numInstance ;
-  map<string, void *> handle_map ;
-  map<string, void *> remove_map ;
+  std::map<std::string, void *> handle_map ;
+  std::map<std::string, void *> remove_map ;
   omni_mutex _numInstanceMutex ; // if several threads on the same object
 
   //private: 

@@ -26,7 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include "SALOME_Container_i.hxx"
@@ -38,6 +37,7 @@ using namespace std;
 #include <unistd.h>
 
 #include "utilities.h"
+using namespace std;
 
 bool _Sleeping = false ;
 

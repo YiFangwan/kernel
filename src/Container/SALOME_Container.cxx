@@ -26,8 +26,6 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
-using namespace std;
 #include <stdio.h>
 
 # include "Utils_ORB_INIT.hxx"
@@ -37,6 +35,7 @@ using namespace std;
 #include <iostream>
 #include <string>
 #include "utilities.h"
+using namespace std;
 
 //#define CHECKTIME
 #ifdef CHECKTIME
