@@ -97,7 +97,8 @@ EXPORT_HEADERS = \
                   SALOMEGUI_NameDlg.h \
                   SALOMEGUI_SetValueDlg.h \
                   SALOMEGUI_SetupCurveDlg.h \
-                  SALOMEGUI_CloseDlg.h
+                  SALOMEGUI_CloseDlg.h \
+		  SALOME_Event.hxx
 
 
 # .po files to transform in .qm

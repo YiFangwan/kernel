@@ -71,6 +71,8 @@
 #include "SALOMEGUI_CloseDlg.h"
 #include "SALOMEGUI_ActivateComponentDlg.h"
 
+#include "SALOME_Event.hxx"
+
 // QT Includes
 #include <qlabel.h>
 #include <qlayout.h>
@@ -92,6 +94,7 @@
 #include <qlineedit.h>
 #include <qdatetime.h>
 #include <qthread.h>
+#include <qwaitcondition.h>
 
 #if QT_VERSION > 300
   #include <qlistbox.h>
@@ -444,6 +447,16 @@ bool QAD_Desktop::eventFilter( QObject* o, QEvent* e )
 	}
       }
     }
+  }
+  else if ( e->type() == QEvent::User + 1 ) { // SALOME_Event has type QEvent::User + 1
+    SALOME_Event* aSE = (SALOME_Event*)e;
+    
+    // here we do the job...
+    for ( int i = 0; i < 100000; i++ ) {
+    }
+
+    if ( aSE->getWaitCondition() )
+      aSE->getWaitCondition()->wakeAll();
   }
   return QMainWindow::eventFilter( o, e );
 }
