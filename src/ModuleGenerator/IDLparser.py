@@ -278,13 +278,13 @@ def parseComment(comment):
         key = m.group(1)
         
         sPorts = comment[m.end():]
-        pattern = word + '\('+word+','+word +','+word+'\),{,1}' + spaces
+        pattern = word + '\('+word+','+word +','+word+'\)' \
+                  + spaces + ',{,1}' + spaces
         while len(sPorts) > 0:
             ## process next DataStreamPort
             ## match a definition like xx(a,b,c) with a possible trailing ,
             ## returns a tuple (xx, a, b, c) and
             ## the remaining part of input string
-
             m = re.match(pattern, sPorts)
             if m is None:
                 raise LookupError, \
@@ -327,7 +327,6 @@ class Service(Tree):
 
     def createDataStreamParameter(self, p):
         L = self.getChild('DataStream-list')
-        print p
         p = dataStreamParameter(p[0], p[2], p[1], p[3])
         L.replaceChild(p)
         return p
@@ -698,7 +697,7 @@ def run(tree, args):
     visitor = ModuleCatalogVisitor(C)
     tree.accept(visitor)
 
-    C.Dump()
+##    C.Dump()
     
     if remove_comp :
         C.removeComponent(remove_comp)
