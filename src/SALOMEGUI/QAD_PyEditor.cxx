@@ -138,6 +138,9 @@ protected:
 	anId = QAD_PyEditor::PYTHON_INCOMPLETE;
       myListener->myError = myInterp->getverr().c_str();
       myListener->myOutput = myInterp->getvout().c_str();
+    }else{
+      myListener->myError = "";
+      myListener->myOutput = "";
     }
     QThread::postEvent(myListener, new QCustomEvent(anId));
     QThread::postEvent(myListener, new QCustomEvent(QAD_PyEditor::UNSET_CURSOR));
