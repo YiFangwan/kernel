@@ -26,10 +26,10 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
 #include "SALOMEDS_AttributeFlags_i.hxx"
 #include "SALOMEDS_SObject_i.hxx"
 
+using namespace std;
 
 /*
   Class       : SALOMEDS_AttributeFlags_i

@@ -49,8 +49,11 @@ class Identity:
     def __init__(self,name):
         self._name = name
         self._pid =  os.getpid()
-        self._machine = socket.gethostname()
-        self._adip	=  socket.gethostbyname(self._machine) # IP adress
+        #self._machine = socket.gethostname()
+        HostName = os.getenv( "HOST" )
+        myMachine = string.split( HostName , '.' )
+        self._machine = myMachine[0]
+        self._adip	=  socket.gethostbyname( myMachine[0] ) # IP adress
         self._uid	= os.getuid() 
         list = pwd.getpwuid(self._uid)
         self._pwname	= list[0] # user name
