@@ -1069,6 +1069,7 @@ void QAD_ObjectBrowser::UpdateUCItem( SALOMEDS::SObject_var UCObject, QAD_Object
 
   SALOMEDS::UseCaseBuilder_var               UCBuilder = myStudy->GetUseCaseBuilder();
   SALOMEDS::SObject_var                      SOCurrent = UCBuilder->GetCurrentObject();
+  bool                                       isUseCase = UCBuilder->IsUseCase( UCObject );
 
   QAD_ObjectBrowserItem* UCSubItem = 0;
   if ( myUseCaseMap.contains( UCEntry ) && myUseCaseMap[ UCEntry ].count() > 0 )
@@ -1120,7 +1121,7 @@ void QAD_ObjectBrowser::UpdateUCItem( SALOMEDS::SObject_var UCObject, QAD_Object
       aName = SALOMEDS::AttributeName::_narrow( anAttr );
       aString = aName->Value();
       if ( !UCSubItem ) {
-	UCSubItem = AddItem( UCItem, aString.in(), UCEntry, ior, 0, "", valueString );
+	UCSubItem = AddItem( UCItem, aString.in(), UCEntry, ior, isUseCase ? 1 : 0, "", valueString );
 	myUseCaseMap[ UCEntry ].append( UCSubItem );
       }
       else {
