@@ -75,9 +75,6 @@ Engines::Component_ptr SALOME_Session_i::GetVisuComponent()
   OSD_SharedLibrary  visuSharedLibrary("libVISUEngine.so");
   if(visuSharedLibrary.DlOpen(OSD_RTLD_LAZY))
     if(OSD_Function osdFun = visuSharedLibrary.DlSymb("GetVisuGen")) {
-      //qApp->lock();
-      QAD_Application::getDesktop()->getComponentGUI( QAD_Application::getDesktop()->getComponentUserName( "VISU"  ) );
-      //qApp->unlock();
       return ((VisuGen (*)) osdFun)(_orb,_poa,_NS,_GUIMutex);
     }
   return Engines::Component::_nil();
