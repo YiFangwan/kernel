@@ -128,23 +128,30 @@ void PyInterp_base::initialize()
   _history.clear();       // start a new list of user's commands 
   _ith = _history.begin();
 
-  PyReleaseLock aReleaseLock;
   if(!_gtstate){
+    PyReleaseLock aReleaseLock;
     Py_Initialize(); // Initialize the interpreter
     PyEval_InitThreads(); // Initialize and acquire the global interpreter lock
     PySys_SetArgv(_argc,_argv); // initialize sys.argv
     _gtstate = PyThreadState_Get();
+    
+    /*
+     * salome_shared_modules should be imported only once
+     */
+    salome_shared_modules_module = PyImport_ImportModule("salome_shared_modules");
+    if(!salome_shared_modules_module)
+      {
+	INFOS("PyInterp_base::initialize() - salome_shared_modules_module == NULL");
+	PyErr_Print();
+	PyErr_Clear();
+      }
   }
+  // Here the global lock is released
   if(MYPYDEBUG) MESSAGE("PyInterp_base::initialize() - this = "<<this<<"; _gtstate = "<<_gtstate);
 
-  salome_shared_modules_module = PyImport_ImportModule("salome_shared_modules");
-  if(!salome_shared_modules_module){
-    INFOS("PyInterp_base::initialize() - salome_shared_modules_module == NULL");
-    PyErr_Print();
-    PyErr_Clear();
-  }
+  // The lock will be acquired in initState. Make provision to release it on exit
+  PyReleaseLock aReleaseLock;
 
-  //PyLockWrapper aLock(_tstate);
   initState();
   initContext();
 

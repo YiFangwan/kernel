@@ -20,7 +20,7 @@ using namespace std;
  * calls initialize method defined in base class, which calls virtual methods
  * initstate & initcontext redefined here
  */
-PyInterp_PyQt::PyInterp_PyQt()
+PyInterp_PyQt::PyInterp_PyQt(): PyInterp_base()
 {
   initialize();
 }

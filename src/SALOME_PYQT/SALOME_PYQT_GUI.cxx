@@ -83,13 +83,17 @@ void SALOME_PYQT_GUI::importModule()
 
 void SALOME_PYQT_GUI::initInterp(int StudyID)
 {
-  MESSAGE("initInterp");
+  MESSAGE("SALOME_PYQT_GUI::initInterp");
   if(mapInterp.find(StudyID) != mapInterp.end()){
-    MESSAGE ( " StudyID is found " << StudyID );
+    MESSAGE ( "SALOME_PYQT_GUI::initInterp StudyID is found " << StudyID );
     interp = mapInterp[StudyID];
     return;
   }else{
-    MESSAGE ( " StudyID is not found " << StudyID );
+    MESSAGE ( "SALOME_PYQT_GUI::initInterp StudyID is not found " << StudyID );
+    /*
+     * The creation of Python interpretor must be protected par a C++ Lock because of C threads
+     */
+    ThreadLock aPyLock = GetPyThreadLock("SALOME_PYQT_GUI::initInterp");
     interp=new PyInterp_PyQt();
     mapInterp[StudyID] = interp;
   }
@@ -106,7 +110,7 @@ void SALOME_PYQT_GUI::initInterp(int StudyID)
  */
 //=============================================================================
 SALOME_PYQT_GUI::SALOME_PYQT_GUI( const QString& theName, QObject* theParent ) :
-    SALOMEGUI( theName, theParent )
+    SALOMEGUI( theName, theParent ),_module(0)
 {
     MESSAGE("SALOME_PYQT_GUI::SALOME_PYQT_GUI");
 }
@@ -310,9 +314,9 @@ void SALOME_PYQT_GUI::DefinePopup( QString & theContext,
 
 bool SALOME_PYQT_GUI::ActiveStudyChanged( QAD_Desktop* parent )
 {
-  MESSAGE("SALOME_PYQT_GUI::ActiveStudyChanged");
   
   int StudyID = parent->getActiveApp()->getActiveStudy()->getStudyId();
+  MESSAGE("SALOME_PYQT_GUI::ActiveStudyChanged"<<StudyID<<" - " <<this);
   initInterp(StudyID);
   
   PyLockWrapper aLock = interp->GetLockWrapper();
