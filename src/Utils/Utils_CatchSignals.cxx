@@ -105,15 +105,23 @@ static void Handler(const int theSig )
     myReserve = NULL;
   }
   char aMessage[1000];
+
+#if defined __GNUC__
+  #if __GNUC__ == 2
+    #define __GNUC_2__
+  #endif
+#endif
+#if defined __GNUC_2__
+  const char* message = "La fonction strsignal n'est pas supportée par gcc2.95.4";
+  sprintf (aMessage, "%d signal cautch : %s", theSig, message);
+#else
   sprintf (aMessage, "%d signal cautch : %s", theSig, strsignal(theSig));
- 
-#ifdef _DEBUG_	
+#endif
+
+
   MESSAGE("Utils_CatchSignal  Handler :: " << aMessage );
-#endif
   if(theCallBack == NULL) {
-#ifdef _DEBUG_	
     MESSAGE("Utils_CatchSignal  Handler : throw std::runtime_error()");
-#endif
     throw (std::runtime_error(aMessage));
   }
   else ((void (*)())theCallBack)();  
@@ -129,10 +137,8 @@ static SIG_PFV TryHandlerReset( int theSigNum )
   if (signal(theSigNum, (SIG_PFV) &Handler) == SIG_IGN)
     {
       signal(theSigNum, SIG_IGN);  
-#ifdef _DEBUG_
       MESSAGE("signal "<<theSigNum <<" is kept as ignored");
-#endif
-     return SIG_IGN;
+      return SIG_IGN;
     } 
   else return signal(theSigNum, (SIG_PFV) &Handler);
 }
