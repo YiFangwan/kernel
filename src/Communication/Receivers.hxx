@@ -90,10 +90,13 @@ private:
 #endif
 
 #ifdef HAVE_SOCKET
+
+class XDR;
+
 /*!
   Receiver for transfert with sockets.
  */
-template<class T>
+template<class T,int (*myFunc)(XDR*,T*)>
 class SocketReceiver : public Receiver
 {
 private:

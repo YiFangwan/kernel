@@ -1,3 +1,4 @@
+#include <rpc/xdr.h>
 #include "SALOME_Comm_i.hxx"
 #include "poa.h"
 #include "omnithread.h"
@@ -308,12 +309,13 @@ SALOME::SocketSender::param * SALOME_SocketSender_i::getParam()
 
 void SALOME_SocketSender_i::send()
 {
-  _argsForThr=new (void *)[5];
+  _argsForThr=new void *[6];
   _argsForThr[0]=&_serverSockfd;
   _argsForThr[1]=&_clientSockfd;
   _argsForThr[2]=&_lgrTabToSend;
   _argsForThr[3]=(void *)_tabToSend;
   _argsForThr[4]=&_errorFlag;
+  _argsForThr[5]=&_type;
 
   _newThr=new omni_thread(SALOME_SocketSender_i::myThread,_argsForThr);
   _newThr->start();
@@ -328,23 +330,64 @@ void* SALOME_SocketSender_i::myThread(void *args)
   long *lgrTabToSend=(long *)argsTab[2];
   void *tabToSend=argsTab[3];
   bool *errorFlag=(bool*)argsTab[4];
+  SALOME::TypeOfDataTransmitted *type=(SALOME::TypeOfDataTransmitted *)argsTab[5];
+  
+  XDR xp; /* pointeur sur le decodeur XDR */
+  
+  switch(*type)
+    { 
+    case SALOME::DOUBLE_:
+      xdrmem_create(&xp,(char*)tabToSend,(*lgrTabToSend)*sizeof(double),XDR_ENCODE );
+      xdr_vector( &xp, (char*)tabToSend, *lgrTabToSend, sizeof(double), (xdrproc_t)xdr_double );
 
-  *errorFlag = false;
-  while( n < *lgrTabToSend*sizeof(double) ){
-    m = write(*clientSockfd, (char*)tabToSend+n, *lgrTabToSend*sizeof(double)-n);
-    if( m < 0 ){
-      if( *clientSockfd >= 0 ){
-	::close(*clientSockfd);
-	*clientSockfd = -1;
+      *errorFlag = false;
+      while( n < *lgrTabToSend*sizeof(double) ){
+	m = write(*clientSockfd, (char*)tabToSend+n, *lgrTabToSend*sizeof(double)-n);
+	if( m < 0 ){
+	  if( *clientSockfd >= 0 ){
+	    ::close(*clientSockfd);
+	    *clientSockfd = -1;
+	  }
+	  if( *serverSockfd >= 0 ){
+	    ::close(*serverSockfd);
+	    *serverSockfd = -1;
+	  }
+	  *errorFlag = true;
+	}
+	n += m;
       }
-      if( *serverSockfd >= 0 ){
-	::close(*serverSockfd);
-	*serverSockfd = -1;
+      xdr_destroy( &xp );
+
+      xdrmem_create(&xp,(char*)tabToSend,(*lgrTabToSend)*sizeof(double),XDR_DECODE );
+      xdr_vector( &xp, (char*)tabToSend, *lgrTabToSend, sizeof(double), (xdrproc_t)xdr_double );
+      xdr_destroy( &xp );
+      break;
+    case SALOME::INT_:
+      xdrmem_create(&xp,(char*)tabToSend,(*lgrTabToSend)*sizeof(int),XDR_ENCODE );
+      xdr_vector( &xp, (char*)tabToSend, *lgrTabToSend, sizeof(int), (xdrproc_t)xdr_int );
+
+      *errorFlag = false;
+      while( n < *lgrTabToSend*sizeof(int) ){
+	m = write(*clientSockfd, (char*)tabToSend+n, *lgrTabToSend*sizeof(int)-n);
+	if( m < 0 ){
+	  if( *clientSockfd >= 0 ){
+	    ::close(*clientSockfd);
+	    *clientSockfd = -1;
+	  }
+	  if( *serverSockfd >= 0 ){
+	    ::close(*serverSockfd);
+	    *serverSockfd = -1;
+	  }
+	  *errorFlag = true;
+	}
+	n += m;
       }
-      *errorFlag = true;
+      xdr_destroy( &xp );
+
+      xdrmem_create(&xp,(char*)tabToSend,(*lgrTabToSend)*sizeof(int),XDR_DECODE );
+      xdr_vector( &xp, (char*)tabToSend, *lgrTabToSend, sizeof(int), (xdrproc_t)xdr_int );
+      xdr_destroy( &xp );
     }
-    n += m;
-  }
 }
 
 void SALOME_SocketSender_i::initCom() throw(SALOME::SALOME_Exception)

@@ -218,16 +218,17 @@ void *MPIReceiver<T,T2>::getValue(long &size)
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <unistd.h>
+#include <rpc/xdr.h>
 
-template<class T>
-SocketReceiver<T>::SocketReceiver(SALOME::SocketSender_ptr mySender) : _mySender(mySender)
+template<class T,int (*myFunc)(XDR*,T*)>
+SocketReceiver<T,myFunc>::SocketReceiver(SALOME::SocketSender_ptr mySender) : _mySender(mySender)
 {
   _clientSockfd = -1;
   _senderDestruc=true;
 }
 
-template<class T>
-SocketReceiver<T>::~SocketReceiver()
+template<class T,int (*myFunc)(XDR*,T*)>
+SocketReceiver<T,myFunc>::~SocketReceiver()
 {
   if(_senderDestruc)
     {
@@ -236,17 +237,18 @@ SocketReceiver<T>::~SocketReceiver()
     }
 }
 
-template<class T>
-void *SocketReceiver<T>::getValue(long &size)
+template<class T,int (*myFunc)(XDR*,T*)>
+void *SocketReceiver<T,myFunc>::getValue(long &size)
 {
   return Receiver::getValue(size,_mySender);
 }
 
-template<class T>
-void* SocketReceiver<T>::getDistValue(long &size)
+template<class T,int (*myFunc)(XDR*,T*)>
+void* SocketReceiver<T,myFunc>::getDistValue(long &size)
 {
   int n=0, m;
   T *v;
+  XDR xp; /* pointeur sur le decodeur XDR */
 
   try{
     initCom();
@@ -260,6 +262,7 @@ void* SocketReceiver<T>::getDistValue(long &size)
   
     _mySender->send();
 
+    xdrmem_create(&xp,(char*)v,size*sizeof(T),XDR_DECODE );
     while( n < size*sizeof(T) ){
       m = read(_clientSockfd, (char*)v+n, size*sizeof(T)-n);
       if( m < 0 ){
@@ -272,6 +275,8 @@ void* SocketReceiver<T>::getDistValue(long &size)
       }
       n += m;
     }
+    xdr_vector( &xp, (char*)v, size, sizeof(T), (xdrproc_t)myFunc);
+    xdr_destroy( &xp );
     
     _mySender->endOfCom();
     closeCom();
@@ -290,8 +295,8 @@ void* SocketReceiver<T>::getDistValue(long &size)
   return v;
 }
 
-template<class T>
-void SocketReceiver<T>::initCom()
+template<class T,int (*myFunc)(XDR*,T*)>
+void SocketReceiver<T,myFunc>::initCom()
 {
   try{
     _mySender->initCom();
@@ -319,8 +324,8 @@ void SocketReceiver<T>::initCom()
 
 }
 
-template<class T>
-void SocketReceiver<T>::connectCom(const char *dest_address, int port)
+template<class T,int (*myFunc)(XDR*,T*)>
+void SocketReceiver<T,myFunc>::connectCom(const char *dest_address, int port)
 {
   struct sockaddr_in serv_addr;
   struct hostent * server;
@@ -371,8 +376,8 @@ void SocketReceiver<T>::connectCom(const char *dest_address, int port)
 }
 
 
-template<class T>
-void SocketReceiver<T>::closeCom()
+template<class T,int (*myFunc)(XDR*,T*)>
+void SocketReceiver<T,myFunc>::closeCom()
 {
   _mySender->closeCom();
   if( _clientSockfd >= 0 ){

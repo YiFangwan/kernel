@@ -17,6 +17,10 @@
 #define CorbaIWithCopyReceiver CorbaWCWithCopyReceiver
 #endif
 
+#ifdef HAVE_SOCKET
+#include <rpc/xdr.h>
+#endif
+
 /*!
   This method performs the transfert with the remote sender given. If it fails with this sender it tries with an another protocol (CORBA by default).
  */
@@ -81,7 +85,7 @@ void *ReceiverFactory::getValueOneShot(SALOME::Sender_ptr sender,long &size)thro
       else if(!CORBA::is_nil(sock_ptr))
 	{
 	  CORBA::release(sender);
-	  SocketReceiver<double> rec(sock_ptr);
+	  SocketReceiver<double,xdr_double> rec(sock_ptr);
 	  return rec.getValue(size);
 	}
 #endif
@@ -117,7 +121,7 @@ void *ReceiverFactory::getValueOneShot(SALOME::Sender_ptr sender,long &size)thro
       else if(!CORBA::is_nil(sock_ptr))
 	{
 	  CORBA::release(sender);
-	  SocketReceiver<int> rec(sock_ptr);
+	  SocketReceiver<int,xdr_int> rec(sock_ptr);
 	  return rec.getValue(size);
 	}
 #endif
