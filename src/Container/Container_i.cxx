@@ -142,6 +142,8 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
     exit( 0 ) ;
   }
   _ExecutePythonSync = false ;
+
+  pthread_mutex_init( &_ReturnPythonMutex , NULL ) ;
   if ( pthread_cond_init( &_ReturnPythonCond , NULL ) ) {
     perror("pthread_cond_init( &_ReturnPythonCond , NULL )") ;
     exit( 0 ) ;
@@ -670,6 +672,10 @@ void Engines_Container_i::WaitActivatePythonExecution() {
 // Called by the main thread at Return from the python function ==> activation of
 // a SuperVisionExecutor thread
 void Engines_Container_i::ActivatePythonReturn() {
+  if ( pthread_mutex_lock( &_ReturnPythonMutex ) ) {
+    perror("ActivatePythonReturn pthread_mutex_lock ") ;
+    exit( 0 ) ;
+  }
   if ( _ReturnPythonSync ) {
     cout << pthread_self() << "pthread_cond ActivatePythonReturn pthread_cond_signal :" << endl ;
     if ( pthread_cond_signal( &_ReturnPythonCond ) ) {
@@ -681,7 +687,7 @@ void Engines_Container_i::ActivatePythonReturn() {
     cout << pthread_self() << "pthread_cond NO ActivatePythonReturn pthread_cond_signal" << endl ;
     _ReturnPythonSync = true ;  
   }
-  if ( pthread_mutex_unlock( &_ExecutePythonMutex ) ) {
+  if ( pthread_mutex_unlock( &_ReturnPythonMutex ) ) {
     perror("ActivatePythonReturn pthread_mutex_unlock ") ;
     exit( 0 ) ;
   }
@@ -691,10 +697,6 @@ void Engines_Container_i::ActivatePythonReturn() {
 // execute Py_InitModule( InitPyRunMethod , PyMethodDef )
 void Engines_Container_i::ActivatePythonExecution( char* InitPyRunMethod ,
                                                    PyMethodDef * MethodPyRunMethod ) {
-  if ( pthread_mutex_lock( &_ExecutePythonMutex ) ) {
-    perror("ActivatePythonExecution pthread_mutex_lock ") ;
-    exit( 0 ) ;
-  }
   _InitPyRunMethod = InitPyRunMethod ;
   _MethodPyRunMethod = MethodPyRunMethod ;
   _PyString = NULL ;
@@ -707,10 +709,6 @@ void Engines_Container_i::ActivatePythonExecution( char* InitPyRunMethod ,
 // Called by a SuperVisionExecutor  thread ===> activate the main thread that have to
 // execute PyRun_SimpleString( thePyString )
 bool Engines_Container_i::ActivatePythonExecution( char* thePyString ) {
-  if ( pthread_mutex_lock( &_ExecutePythonMutex ) ) {
-    perror("ActivatePythonExecution pthread_mutex_lock ") ;
-    exit( 0 ) ;
-  }
   _InitPyRunMethod = NULL ;
   _MethodPyRunMethod = NULL ;
   _PyString = thePyString ;
@@ -725,10 +723,6 @@ bool Engines_Container_i::ActivatePythonExecution( char* thePyString ) {
 // execute PyEval_CallObject( thePyRunMethod , ArgsList )
 PyObject * Engines_Container_i::ActivatePythonExecution( PyObject * thePyRunMethod ,
                                                          PyObject * ArgsList ) {
-  if ( pthread_mutex_lock( &_ExecutePythonMutex ) ) {
-    perror("ActivatePythonExecution pthread_mutex_lock ") ;
-    exit( 0 ) ;
-  }
   _InitPyRunMethod = NULL ;
   _MethodPyRunMethod = NULL ;
   _PyString = NULL ;
@@ -741,10 +735,14 @@ PyObject * Engines_Container_i::ActivatePythonExecution( PyObject * thePyRunMeth
 
 // Called by a SuperVisionExecutor  thread ===> activation of the main thread
 void Engines_Container_i::ActivatePythonExecution() {
+  if ( pthread_mutex_lock( &_ExecutePythonMutex ) ) {
+    perror("ActivatePythonExecution pthread_mutex_lock ") ;
+    exit( 0 ) ;
+  }
   if ( _ExecutePythonSync ) {
     cout << pthread_self() << "pthread_cond ActivatePythonExecution pthread_cond_signal :" << endl ;
     if ( pthread_cond_signal( &_ExecutePythonCond ) ) {
-      perror("ActivatePythonExecution pthread_cond_broadcast ") ;
+      perror("ActivatePythonExecution pthread_cond_signal ") ;
     }
     cout << pthread_self() << "pthread_cond ActivatePythonExecution pthread_cond_signaled" << endl ;
   }
@@ -760,14 +758,14 @@ void Engines_Container_i::ActivatePythonExecution() {
 
 // Called by a SuperVisionExecutor  thread ===> wait for the end of python execution
 void Engines_Container_i::WaitReturnPythonExecution() {
-  if ( pthread_mutex_lock( &_ExecutePythonMutex ) ) {
+  if ( pthread_mutex_lock( &_ReturnPythonMutex ) ) {
     perror("WaitReturnPythonExecution pthread_mutex_lock ") ;
     exit( 0 ) ;
   }
   if ( !_ReturnPythonSync ) {
     cout << pthread_self() << "pthread_cond WaitReturnPythonExecution pthread_cond_wait :" << endl ;
     _ReturnPythonSync = true ;
-    if ( pthread_cond_wait( &_ReturnPythonCond , &_ExecutePythonMutex ) ) {
+    if ( pthread_cond_wait( &_ReturnPythonCond , &_ReturnPythonMutex ) ) {
       perror("WaitReturnPythonExecution pthread_cond_wait ") ;
     }
     cout << pthread_self() << "pthread_cond WaitReturnPythonExecution pthread_cond_waited" << endl ;
@@ -776,7 +774,7 @@ void Engines_Container_i::WaitReturnPythonExecution() {
     cout << pthread_self() << "pthread_cond NO WaitReturnPythonExecution pthread_cond_wait" << endl ;
   }
   _ReturnPythonSync = false ;  
-  if ( pthread_mutex_unlock( &_ExecutePythonMutex ) ) {
+  if ( pthread_mutex_unlock( &_ReturnPythonMutex ) ) {
     perror("WaitReturnPythonExecution pthread_mutex_unlock ") ;
     exit( 0 ) ;
   }

@@ -118,15 +118,16 @@ protected:
   pthread_mutex_t _ExecutePythonMutex ;
   pthread_cond_t  _ExecutePythonCond ;
   bool            _ExecutePythonSync ;
+  pthread_mutex_t _ReturnPythonMutex ;
+  pthread_cond_t  _ReturnPythonCond ;
+  bool            _ReturnPythonSync ;
+  bool            _ReturnValue ;
 
   char          * _InitPyRunMethod ;
   PyMethodDef   * _MethodPyRunMethod  ;
   char          * _PyString ;
   PyObject      * _PyRunMethod ;
   PyObject      * _ArgsList ;
-  pthread_cond_t  _ReturnPythonCond ;
-  bool            _ReturnPythonSync ;
-  bool            _ReturnValue ;
   PyObject      * _Result ;
 
 };
