@@ -93,7 +93,7 @@ class QAD_EXPORT QAD_Desktop : public QMainWindow
   Q_OBJECT
 
 protected:
-  enum ComponentType {GEOM, MESH, SOLVER, DATA, VISU, OTHER} ;
+  //NRI - unused - :  enum ComponentType {GEOM, MESH, SOLVER, DATA, VISU, OTHER} ;
 
   enum {  FileNewId = 0, FileOpenId, FileLoadId, FileCloseId, FileSaveId, FileSaveAsId, FilePropsId, FileExitId,
 	  ViewStatusBarId,
@@ -192,6 +192,9 @@ public:
     Engines::Component_var getEngine(const char *containerName,
 				     const char *componentName);
 
+    QString getComponentName(const char *componentUserName);
+    QString getComponentUserName(const char *componentName);
+    
     QAD_HelpWindow*   getHelpWindow();
 
     void	      onMouseMove(QMouseEvent*);
@@ -326,6 +329,8 @@ protected:
     QAD_HelpWindow*    myHelpWindow;
 
     QList<QToolButton> myComponentButton;
+
+    QMap<QString,QString> mapComponentName;
 
 private:
     static QAD_ResourceMgr*		    resourceMgr;
