@@ -23,6 +23,7 @@
 //
 //  File   : ToolsGUI_CatalogGeneratorDlg.cxx
 //  Author : Nicolas REJNERI
+//  Modified : Marc TAJCHMAN
 //  Module : SALOME
 //  $Header$
 
@@ -107,16 +108,18 @@ ToolsGUI_CatalogGeneratorDlg::ToolsGUI_CatalogGeneratorDlg( QWidget* parent, con
   supplGrpLayout->setSpacing( SPACING_SIZE );
   supplGrpLayout->setMargin( MARGIN_SIZE  );
 
+  QSize myMinimumSize(int(MIN_EDIT_SIZE*0.3), 0);
+
   myAuthorEdit = new QLineEdit( supplGrp , "myAuthorEdit" );
   myAuthorEdit->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
-  myAuthorEdit->setMinimumSize( MIN_EDIT_SIZE*0.3, 0 );
+  myAuthorEdit->setMinimumSize( myMinimumSize );
 
   OSD_Process aProcess;
   myAuthorEdit->setText(aProcess.UserName().ToCString());
 
   myVersionEdit = new QLineEdit(supplGrp , "myVersion" );
   myVersionEdit->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
-  myVersionEdit->setMinimumSize( MIN_EDIT_SIZE*0.3, 0 );
+  myVersionEdit->setMinimumSize( myMinimumSize );
   QStringList aList = QStringList::split(QRegExp("\\s+"),tr( "INF_VERSION" ));
   myVersionEdit->setText(aList.last());
   QDoubleValidator *validator = new QDoubleValidator(myVersionEdit);
@@ -130,16 +133,16 @@ ToolsGUI_CatalogGeneratorDlg::ToolsGUI_CatalogGeneratorDlg( QWidget* parent, con
 
   myCompName = new QLineEdit(supplGrp , "myCompName");
   myCompName->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
-  myCompName->setMinimumSize( MIN_EDIT_SIZE*0.3, 0 );
+  myCompName->setMinimumSize( myMinimumSize );
 
   myCompType = new QLineEdit(supplGrp , "myCompType");
   myCompType->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
-  myCompType->setMinimumSize( MIN_EDIT_SIZE*0.3, 0 );
+  myCompType->setMinimumSize( myMinimumSize );
   myCompType->setText("OTHER");
 
   myCompMultiStd = new QLineEdit(supplGrp , "myCompMultiStd");
   myCompMultiStd->setSizePolicy( QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Fixed ) );
-  myCompMultiStd->setMinimumSize( MIN_EDIT_SIZE*0.3, 0 );
+  myCompMultiStd->setMinimumSize( myMinimumSize );
   myCompMultiStd->setText("1");
   QIntValidator *ivalidator = new QIntValidator(myVersionEdit);
   myCompMultiStd->setValidator(ivalidator);
