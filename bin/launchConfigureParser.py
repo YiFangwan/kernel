@@ -135,6 +135,7 @@ else:
     pass
 
 args["appname"] = appname
+args["containers"] = []
 
 ### searching for my port
 
