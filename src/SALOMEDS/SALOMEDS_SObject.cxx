@@ -39,7 +39,7 @@ SALOMEDS_SObject::SALOMEDS_SObject(SALOMEDS::SObject_ptr theSObject)
   }
   else {
     _local_impl = NULL;
-    _corba_impl = theSObject;
+    _corba_impl = SALOMEDS::SObject::_duplicate(theSObject);
   }
 }
 
@@ -52,6 +52,7 @@ SALOMEDS_SObject::SALOMEDS_SObject(const Handle(SALOMEDSImpl_SObject)& theSObjec
 
 SALOMEDS_SObject::~SALOMEDS_SObject()
 {
+  if(!_isLocal) CORBA::release(_corba_impl);
 }
 
 char* SALOMEDS_SObject::GetID()

@@ -34,12 +34,13 @@ SALOMEDS_StudyBuilder::SALOMEDS_StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuild
 {
   _isLocal = false;
   _local_impl = NULL;
-  _corba_impl = theBuilder;
+  _corba_impl = SALOMEDS::StudyBuilder::_duplicate(theBuilder);
   init_orb();
 }
 
 SALOMEDS_StudyBuilder::~SALOMEDS_StudyBuilder() 
 {
+  if(!_isLocal) CORBA::release(_corba_impl);
 }
 
 SALOMEDSClient_SComponent* SALOMEDS_StudyBuilder::NewComponent(const char* ComponentDataType)

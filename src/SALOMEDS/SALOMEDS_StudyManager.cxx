@@ -37,12 +37,13 @@ SALOMEDS_StudyManager::SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManag
   }
   else {
     _local_impl = NULL;
-    _corba_impl = theManager;
+    _corba_impl = SALOMEDS::StudyManager::_duplicate(theManager);
   }
 }
 
 SALOMEDS_StudyManager::~SALOMEDS_StudyManager()
 {
+  if(!_isLocal) CORBA::release(_corba_impl);
 }
 
 SALOMEDSClient_Study* SALOMEDS_StudyManager::NewStudy(const char* study_name)

@@ -23,6 +23,8 @@ char* SALOMEDS_AttributeName::Value()
   TCollection_AsciiString aValue;
   if(_isLocal) aValue = Handle(SALOMEDSImpl_AttributeName)::DownCast(_local_impl)->Value();
   else aValue = SALOMEDS::AttributeName::_narrow(_corba_impl)->Value();
+
+  cout << "########################## Attribute Name = " << aValue << endl;
   return aValue.ToCString();
 }
  

@@ -62,7 +62,7 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
   }
   else {
     _local_impl = NULL;
-    _corba_impl = theStudy;
+    _corba_impl = SALOMEDS::Study::_duplicate(theStudy);
   }
 
   init_orb();
@@ -70,6 +70,7 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
 
 SALOMEDS_Study::~SALOMEDS_Study()
 {
+  if(!_isLocal) CORBA::release(_corba_impl);
 }
 
 char* SALOMEDS_Study::GetPersistentReference()
