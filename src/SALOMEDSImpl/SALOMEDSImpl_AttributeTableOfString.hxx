@@ -27,10 +27,12 @@ DEFINE_STANDARD_HANDLE( SALOMEDSImpl_AttributeTableOfString, SALOMEDSImpl_Generi
 #include <TColStd_SequenceOfTransient.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <TColStd_HSequenceOfExtendedString.hxx>
-#include <SALOMEDSImpl_DataMapOfIntegerString.hxx>
+#include <NCollection_DataMap.hxx>
 #include <TColStd_HSequenceOfInteger.hxx>
 #include <TCollection_AsciiString.hxx>
 #include <strstream>
+
+typedef NCollection_DataMap <Standard_Integer, TCollection_ExtendedString> DataMapOfIntegerString;
 
 class SALOMEDSImpl_AttributeTableOfString : public SALOMEDSImpl_GenericAttribute 
 {
@@ -73,7 +75,7 @@ Standard_EXPORT ~SALOMEDSImpl_AttributeTableOfString() {}
 
 private: 
 
-SALOMEDSImpl_DataMapOfIntegerString myTable;
+DataMapOfIntegerString myTable;
 TCollection_ExtendedString myTitle;
 Handle_TColStd_HSequenceOfExtendedString myRows;
 Handle_TColStd_HSequenceOfExtendedString myCols;

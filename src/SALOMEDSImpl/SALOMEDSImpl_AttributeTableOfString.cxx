@@ -5,13 +5,14 @@
 using namespace std;
 #include <SALOMEDSImpl_AttributeTableOfString.hxx>
 #include <Standard_Failure.hxx>
-#include <SALOMEDSImpl_DataMapIteratorOfDataMapOfIntegerString.hxx>
 #include <Standard_GUID.hxx>
 #include <stdio.h>
 #include <TColStd_HSequenceOfExtendedString.hxx>  
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeTableOfString, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeTableOfString, SALOMEDSImpl_GenericAttribute )
+
+typedef NCollection_DataMap<Standard_Integer, TCollection_ExtendedString>::Iterator DataMapIterator;
 
 const Standard_GUID& SALOMEDSImpl_AttributeTableOfString::GetID() 
 {
@@ -43,11 +44,11 @@ void SALOMEDSImpl_AttributeTableOfString::SetNbColumns(const Standard_Integer th
   CheckLocked();  
   Backup();
   
-  SALOMEDSImpl_DataMapOfIntegerString aMap;
+  DataMapOfIntegerString aMap;
   aMap = myTable;
   myTable.Clear();
 
-  SALOMEDSImpl_DataMapIteratorOfDataMapOfIntegerString anIterator(aMap);
+  DataMapIterator anIterator(aMap);
   for(; anIterator.More(); anIterator.Next()) {
     int aRow = (int)(anIterator.Key()/myNbColumns) + 1;
     int aCol = (int)(anIterator.Key() - myNbColumns*(aRow-1));
@@ -339,7 +340,7 @@ void SALOMEDSImpl_AttributeTableOfString::ConvertToString(ostrstream& theStream)
   //Store the table values
   l = myTable.Extent();
   theStream << l << "\n";
-  SALOMEDSImpl_DataMapIteratorOfDataMapOfIntegerString anIterator(myTable);
+  DataMapIterator anIterator(myTable);
   for(; anIterator.More(); anIterator.Next()) {
     if (anIterator.Value().Length()) { // check empty string in the value table
       theStream << anIterator.Key() << "\n";

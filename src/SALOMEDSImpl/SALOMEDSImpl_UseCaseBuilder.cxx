@@ -6,6 +6,7 @@ using namespace std;
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
+#include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_Attributes.hxx"
 
 #include <TDF_Label.hxx>
@@ -286,7 +287,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseBuilder::GetCurrentObject()
   TDF_Label aCurrent = aRef->Get();  
   if(aCurrent.IsNull()) return NULL;
 
-  return new SALOMEDSImpl_SObject(aCurrent);
+  return SALOMEDSImpl_Study::GetStudy(aCurrent)->GetSObject(aCurrent);
 }
 
 //============================================================================
@@ -356,7 +357,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseBuilder::AddUseCase(const TColl
   aFatherNode->Append(aNode);
   SALOMEDSImpl_AttributeName::Set(aChild, theName);
 
-  return new SALOMEDSImpl_SObject(aChild);
+  return SALOMEDSImpl_Study::GetStudy(aChild)->GetSObject(aChild);
 }
 
 //============================================================================
@@ -384,5 +385,5 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseBuilder::GetSObject(const TColl
 {
    TDF_Label aLabel;    
    TDF_Tool::Label(_doc->GetData(), theEntry, aLabel);
-   return new SALOMEDSImpl_SObject(aLabel);    
+   return SALOMEDSImpl_Study::GetStudy(aLabel)->GetSObject(aLabel);    
 }

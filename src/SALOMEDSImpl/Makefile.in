@@ -53,11 +53,7 @@ EXPORT_HEADERS= \
 	SALOMEDSImpl_Study.hxx \
 	SALOMEDSImpl_StudyManager.hxx \
 	SALOMEDSImpl_OCAFApplication.hxx \
-	SALOMEDSImpl_DataMapStringLabel.hxx \
-	SALOMEDSImpl_DataMapOfIntegerString.hxx \
 	SALOMEDSImpl_ChildNodeIterator.hxx \
-	Handle_SALOMEDSImpl_DataMapNodeOfDataMapStringLabel.hxx \
-	Handle_SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString.hxx
 
 LIB_CLIENT_IDL =
 LIB_SERVER_IDL =
@@ -108,12 +104,6 @@ LIB_SRC =	  SALOMEDSImpl_Tool.cxx \
 		  SALOMEDSImpl_AttributeComment.cxx \
 		  SALOMEDSImpl_AttributeReference.cxx \
 		  SALOMEDSImpl_ChildNodeIterator.cxx \
-		  SALOMEDSImpl_DataMapOfIntegerString_0.cxx \
-		  SALOMEDSImpl_DataMapIteratorOfDataMapOfIntegerString_0.cxx \
-		  SALOMEDSImpl_DataMapNodeOfDataMapOfIntegerString_0.cxx \
-	          SALOMEDSImpl_DataMapIteratorOfDataMapStringLabel_0.cxx \
-	          SALOMEDSImpl_DataMapNodeOfDataMapStringLabel_0.cxx \
-	          SALOMEDSImpl_DataMapStringLabel_0.cxx \
 		  SALOMEDSImpl_UseCaseBuilder.cxx \
 		  SALOMEDSImpl_UseCaseIterator.cxx \
 		  SALOMEDSImpl_SComponentIterator.cxx \

@@ -35,7 +35,7 @@ protected:
 public:
   
   SALOMEDSImpl_SObject(const TDF_Label& theLabel);
-  ~SALOMEDSImpl_SObject() {};
+  ~SALOMEDSImpl_SObject();
   
   virtual TCollection_AsciiString GetID();
   virtual Handle(SALOMEDSImpl_SComponent) GetFatherComponent();

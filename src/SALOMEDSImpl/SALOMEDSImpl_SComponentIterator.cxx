@@ -4,7 +4,7 @@
 
 using namespace std;
 #include "SALOMEDSImpl_SComponentIterator.hxx"
-
+#include "SALOMEDSImpl_Study.hxx"
 
 //============================================================================
 /*! Function : constructor
@@ -61,6 +61,6 @@ void SALOMEDSImpl_SComponentIterator::Next()
 //============================================================================
 Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_SComponentIterator::Value()
 {
-  return new SALOMEDSImpl_SComponent (_it.Value());
+  return SALOMEDSImpl_Study::GetStudy(_it.Value())->GetSComponent (_it.Value());
 }
 

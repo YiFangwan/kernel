@@ -25,12 +25,12 @@ DEFINE_STANDARD_HANDLE( SALOMEDSImpl_Study, MMgt_TShared )
 #include <TColStd_SequenceOfAsciiString.hxx>
 #include <TColStd_HSequenceOfAsciiString.hxx>
 #include <TColStd_HSequenceOfTransient.hxx>
+#include <NCollection_DataMap.hxx>
 
 //SALOMEDSImpl headers
 #include "SALOMEDSImpl_SComponentIterator.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"
-#include "SALOMEDSImpl_DataMapStringLabel.hxx"
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
@@ -39,6 +39,9 @@ DEFINE_STANDARD_HANDLE( SALOMEDSImpl_Study, MMgt_TShared )
 
 class SALOMEDSImpl_StudyManager;
 class SALOMEDSImpl_GenericAttribute;
+
+typedef NCollection_DataMap <TCollection_AsciiString, Handle_Standard_Transient> DataMapOfAsciiStringTransient;
+typedef NCollection_DataMap <TCollection_AsciiString, TDF_Label> DataMapAsciiStringLabel;
 
 class SALOMEDSImpl_Study : public MMgt_TShared 
 {
@@ -55,11 +58,14 @@ private:
   Handle(SALOMEDSImpl_StudyBuilder)   _builder;
   Handle(SALOMEDSImpl_UseCaseBuilder) _useCaseBuilder;
 
+  DataMapOfAsciiStringTransient _mapOfSO;
+  DataMapOfAsciiStringTransient _mapOfSCO;
+
   // data structures for postponed destroying of object functionality
   TColStd_SequenceOfAsciiString myPostponedIORs; // ordered set of IORs
   TColStd_SequenceOfInteger myNbPostponed; // number of IOR in the each transaction
   int myNbUndos; // number of current Undos, made by user
-  SALOMEDSImpl_DataMapStringLabel myIORLabels;
+  DataMapAsciiStringLabel myIORLabels;
  
 
   Handle(SALOMEDSImpl_SObject)    _FindObject(const Handle(SALOMEDSImpl_SObject)& SO,
@@ -209,7 +215,9 @@ public:
   virtual bool IsError() { return _errorCode != ""; }
 
   virtual Handle(SALOMEDSImpl_SComponent) GetSComponent(const TCollection_AsciiString& theEntry);
+  virtual Handle(SALOMEDSImpl_SComponent) GetSComponent(const TDF_Label& theLabel);
   virtual Handle(SALOMEDSImpl_SObject) GetSObject(const TCollection_AsciiString& theEntry);
+  virtual Handle(SALOMEDSImpl_SObject) GetSObject(const TDF_Label& theEntryLabel);
   virtual Handle(TDF_Attribute) GetAttribute(const TCollection_AsciiString& theEntry, 
 					     const TCollection_AsciiString& theType);
 

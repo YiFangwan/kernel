@@ -5,6 +5,7 @@
 using namespace std;
 #include "SALOMEDSImpl_UseCaseIterator.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
+#include "SALOMEDSImpl_Study.hxx"
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_UseCaseIterator, MMgt_TShared )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_UseCaseIterator, MMgt_TShared )
@@ -73,6 +74,6 @@ void SALOMEDSImpl_UseCaseIterator::Next()
 Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_UseCaseIterator::Value()
 {
   TDF_Label L = _it.Value()->Label();
-  return new SALOMEDSImpl_SObject(L);
+  return SALOMEDSImpl_Study::GetStudy(L)->GetSObject(L);
 }
 

@@ -28,7 +28,15 @@ SALOMEDSImpl_SObject::SALOMEDSImpl_SObject(const TDF_Label& theLabel)
   _type = "";
   _name = "";
 }
-    
+
+//============================================================================
+/*! Function : Desctructor
+ *  Purpose  : 
+ */
+//============================================================================    
+SALOMEDSImpl_SObject::~SALOMEDSImpl_SObject() 
+{}
+
 //============================================================================
 /*! Function : GetID
  *  Purpose  : 
@@ -55,7 +63,7 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_SObject::GetFatherComponent()
   
   if(LF.IsRoot()) return NULL;
   
-  return new SALOMEDSImpl_SComponent(LF);
+  return GetStudy()->GetSComponent(LF);
 }
   
 //============================================================================
@@ -65,7 +73,7 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_SObject::GetFatherComponent()
 //============================================================================
 Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_SObject::GetFather()
 {
-  return new SALOMEDSImpl_SObject(_lab.Father());
+  return GetStudy()->GetSObject(_lab.Father());    
 }
 
 
@@ -127,7 +135,7 @@ bool SALOMEDSImpl_SObject::ReferencedObject(Handle(SALOMEDSImpl_SObject)& theObj
   if (!_lab.FindAttribute(SALOMEDSImpl_AttributeReference::GetID(),Ref))
     return false;
   
-  theObject =  new SALOMEDSImpl_SObject(Ref->Get());
+  theObject =  GetStudy()->GetSObject(Ref->Get());
   return true;
 }
 
@@ -141,7 +149,7 @@ bool SALOMEDSImpl_SObject::FindSubObject(int theTag, Handle(SALOMEDSImpl_SObject
   TDF_Label L = _lab.FindChild(theTag, false);
   if (L.IsNull()) return false;
   
-  theObject = new SALOMEDSImpl_SObject(L);
+  theObject = GetStudy()->GetSObject(L);
   return true;
     
 }  

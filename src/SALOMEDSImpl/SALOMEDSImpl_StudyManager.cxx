@@ -740,7 +740,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveObject(const Handle(SALOMEDSImpl_SObjec
 	if (anEmpty) continue;
       }
 
-      Handle(SALOMEDSImpl_SObject) SO = new SALOMEDSImpl_SObject(itchild.Value());
+      Handle(SALOMEDSImpl_SObject) SO = SALOMEDSImpl_Study::GetStudy(itchild.Value())->GetSObject(itchild.Value());
 
       char* scoid = (char*) SO->GetID().ToCString();
       hdf_group_sobject = new HDFgroup(scoid, hdf_group_datatype);
@@ -790,14 +790,11 @@ bool SALOMEDSImpl_StudyManager::CanCopy(const Handle(SALOMEDSImpl_SObject)& theO
 					SALOMEDSImpl_Driver* theEngine) 
 {
   _errorCode = "";
-
   Handle(SALOMEDSImpl_SComponent) aComponent = theObject->GetFatherComponent();
   if (aComponent.IsNull()) return false;
   if (aComponent->GetLabel() == theObject->GetLabel()) return false;
-
   TCollection_AsciiString IOREngine;
   if (!aComponent->ComponentIOR(IOREngine)) return false;
-
   if (theEngine == NULL) return false;
   return theEngine->CanCopy(theObject);
 }
@@ -1120,7 +1117,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyManager::Paste(const Handle(SALOM
     PasteLabel(aStudy, theEngine, anIterator.Value(), aStartLabel, aCStudyID, false);
   }
 
-  return new SALOMEDSImpl_SObject (aStartLabel);
+  return SALOMEDSImpl_Study::GetStudy(aStartLabel)->GetSObject(aStartLabel);
 }
 
 //#######################################################################################################
@@ -1241,7 +1238,7 @@ static void Translate_IOR_to_persistentID (const Handle(SALOMEDSImpl_SObject)& s
   TCollection_AsciiString ior_string,  persistent_string, curid;
 
   for (; itchild.More(); itchild.Next()) {
-    Handle(SALOMEDSImpl_SObject) current = new SALOMEDSImpl_SObject(itchild.Value());
+    Handle(SALOMEDSImpl_SObject) current = SALOMEDSImpl_Study::GetStudy(itchild.Value())->GetSObject(itchild.Value());
     Handle(SALOMEDSImpl_AttributeIOR) IOR;
     if (current->GetLabel().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), IOR)) {
       ior_string = IOR->Value();

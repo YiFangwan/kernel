@@ -73,7 +73,7 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_StudyBuilder::NewComponent(const TC
 
   SALOMEDSImpl_AttributeComment::Set(NL, DataType);
 
-  Handle(SALOMEDSImpl_SComponent) so = new SALOMEDSImpl_SComponent (NL);
+  Handle(SALOMEDSImpl_SComponent) so =  Handle(SALOMEDSImpl_Study)::DownCast(_study)->GetSComponent (NL);
 
   if(!_callbackOnAdd.IsNull()) _callbackOnAdd->OnAddSObject(so);
 
@@ -134,7 +134,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyBuilder::NewObject(const Handle(S
   imax++;
   TDF_Label NewLab = Lab.FindChild(imax);
   
-  Handle(SALOMEDSImpl_SObject) so = new SALOMEDSImpl_SObject(NewLab);
+  Handle(SALOMEDSImpl_SObject) so = Handle(SALOMEDSImpl_Study)::DownCast(_study)->GetSObject(NewLab);
   if(!_callbackOnAdd.IsNull()) _callbackOnAdd->OnAddSObject(so);
 
   return so;
@@ -156,7 +156,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_StudyBuilder::NewObjectToTag(const Han
   //Create or find label
   TDF_Label NewLab = Lab.FindChild(theTag, 1);
 
-  Handle(SALOMEDSImpl_SObject) so = new SALOMEDSImpl_SObject (NewLab);
+  Handle(SALOMEDSImpl_SObject) so = Handle(SALOMEDSImpl_Study)::DownCast(_study)->GetSObject(NewLab);
 
   if(!_callbackOnAdd.IsNull()) _callbackOnAdd->OnAddSObject(so);
 
@@ -967,7 +967,7 @@ static void Translate_persistentID_to_IOR(TDF_Label& Lab, SALOMEDSImpl_Driver* d
 	if (anID->Value() == FILELOCALID) continue;        //SRN: This attribute store a file name, skip it 
 
       TCollection_AsciiString persist_ref(Att->Get());
-      Handle(SALOMEDSImpl_SObject) so = new SALOMEDSImpl_SObject(current);
+      Handle(SALOMEDSImpl_SObject) so = SALOMEDSImpl_Study::GetStudy(current)->GetSObject(current);
       TCollection_AsciiString ior_string = driver->LocalPersistentIDToIOR(so, 
 									  persist_ref, 
 									  isMultiFile, 

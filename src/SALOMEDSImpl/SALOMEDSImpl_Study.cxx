@@ -17,7 +17,6 @@ using namespace std;
 #include <CDM_Application.hxx>
 #include <TDF_ChildIDIterator.hxx>
 
-#include "SALOMEDSImpl_DataMapIteratorOfDataMapStringLabel.hxx"
 #include "SALOMEDSImpl_ChildNodeIterator.hxx"
 #include "SALOMEDSImpl_Attributes.hxx"
 #include "SALOMEDSImpl_UseCaseIterator.hxx"
@@ -239,7 +238,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectID(const TCollection_
     _errorCode = "No label was found by ID";
     return NULL;
   }
-  return new SALOMEDSImpl_SObject(Lab); 
+  return GetSObject(Lab); 
 
 }
 
@@ -260,7 +259,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::CreateObjectID(const TCollectio
     _errorCode = "Can not create a label";
     return NULL;
   }
-  return new SALOMEDSImpl_SObject(Lab);
+  return GetSObject(Lab);
 
 }
 
@@ -291,7 +290,7 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_Study::FindObjectByName(const 
   TDF_ChildIterator it = NewChildIterator(compo);
   for ( ; it.More();it.Next() ) {
     
-    Handle(SALOMEDSImpl_SObject) CSO = new SALOMEDSImpl_SObject(it.Value());
+    Handle(SALOMEDSImpl_SObject) CSO = GetSObject(it.Value());
     if ( CSO->GetName() == anObjectName ) {
 	/* add to list */
 	listSO->Append(CSO) ;
@@ -321,7 +320,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectIOR(const TCollection
 
   // firstly searching in the datamap for optimization
   if (myIORLabels.IsBound(anObjectIOR)) {
-    Handle(SALOMEDSImpl_SObject) aResult = new SALOMEDSImpl_SObject(myIORLabels.Find(anObjectIOR));
+    Handle(SALOMEDSImpl_SObject) aResult = GetSObject(myIORLabels.Find(anObjectIOR));
     // 11 oct 2002: forbidden attributes must be checked here
     if (!aResult->GetLabel().IsAttribute(SALOMEDSImpl_AttributeIOR::GetID())) {
       myIORLabels.UnBind(anObjectIOR);
@@ -373,7 +372,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectByPath(const TCollect
   bool isRelative = false;
 
   if(aLength == 0) {  //Empty path - return the current context
-    return new SALOMEDSImpl_SObject (_current);
+    return GetSObject(_current);
   }
 
   if(aPath.Value(1) != '/')  //Relative path 
@@ -389,7 +388,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectByPath(const TCollect
   }
   else {
     if(aPath.Length() == 1 && aPath.Value(1) == '/') {    //Root
-      return new SALOMEDSImpl_SObject (_doc->Main());
+      return GetSObject(_doc->Main());
     }
     anIterator.Initialize(_doc->Main(), Standard_False);
   }
@@ -405,7 +404,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectByPath(const TCollect
 	if(anAttr->Get() == aToken) {
 	  aToken = aPath.Token("/", i+1); //Check if it was the last part of the path
 	  if(aToken.Length() == 0) {  //The searched label is found (no part of the path is left)
-	      return new SALOMEDSImpl_SObject (aLabel);
+	      return GetSObject(aLabel);
 	  }
 
 	  anIterator.Initialize(aLabel, Standard_False);
@@ -537,7 +536,7 @@ TCollection_AsciiString SALOMEDSImpl_Study::GetContext()
     _errorCode = "InvaidContext";
     return "";
   }
-  Handle(SALOMEDSImpl_SObject) so = new SALOMEDSImpl_SObject (_current);
+  Handle(SALOMEDSImpl_SObject) so = GetSObject(_current);
   return GetObjectPath(so);  
 }
 
@@ -836,11 +835,11 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::_FindObject(const Handle(SALOME
           TCollection_AsciiString Val(anAttr->Get());
 	  if (Val == theObjectName)
 	    {
-	      RefSO = new SALOMEDSImpl_SObject(it.Value());
+	      RefSO = GetSObject(it.Value());
 	      _find = true;
 	    }
 	}
-	if (!_find) RefSO = _FindObject(new SALOMEDSImpl_SObject(it.Value()), theObjectName, _find);
+	if (!_find) RefSO = _FindObject(GetSObject(it.Value()), theObjectName, _find);
       }
   }
   return RefSO;
@@ -872,11 +871,11 @@ SALOMEDSImpl_Study::_FindObjectIOR(const Handle(SALOMEDSImpl_SObject)& SO,
           TCollection_AsciiString Val(anAttr->Value());  
 	  if (Val == theObjectIOR)
 	    {
-	      RefSO = new SALOMEDSImpl_SObject(it.Value());
+	      RefSO = GetSObject(it.Value());
 	      _find = true;
 	    }
 	}
-	aSO = new SALOMEDSImpl_SObject(it.Value());
+	aSO = GetSObject(it.Value());
 	if (!_find) RefSO =  _FindObjectIOR(aSO, theObjectIOR, _find);
       }
   }
@@ -939,7 +938,7 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_Study::FindDependances(const H
     aTarget->Get(aLabelList);
     TDF_ListIteratorOfLabelList anIter(aLabelList);
     for(; anIter.More();anIter.Next()) {
-      aSeq->Append(new SALOMEDSImpl_SObject(anIter.Value()));
+      aSeq->Append(GetSObject(anIter.Value()));
     }                                                   
     return aSeq;
   }
@@ -1019,6 +1018,8 @@ void SALOMEDSImpl_Study::Close()
   Handle(TDocStd_Application) anApp = Handle(TDocStd_Application)::DownCast(_doc->Application());
   if(!anApp.IsNull()) anApp->Close(_doc);
   _doc.Nullify();
+  _mapOfSO.Clear();
+  _mapOfSCO.Clear();
 }
 
 //============================================================================
@@ -1135,9 +1136,29 @@ void SALOMEDSImpl_Study::UndoPostponed(const int theWay)
 //============================================================================
 Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_Study::GetSComponent(const TCollection_AsciiString& theEntry)
 {
-  TDF_Label aLabel;
-  TDF_Tool::Label(_doc->GetData(), theEntry, aLabel);
-  return new SALOMEDSImpl_SComponent(aLabel);
+  Handle(SALOMEDSImpl_SComponent) aSCO;
+  if(_mapOfSCO.IsBound(theEntry)) 
+    aSCO = Handle(SALOMEDSImpl_SComponent)::DownCast(_mapOfSCO.Find(theEntry));
+  else {
+    TDF_Label aLabel;
+    TDF_Tool::Label(_doc->GetData(), theEntry, aLabel);
+    aSCO = new SALOMEDSImpl_SComponent(aLabel);
+    _mapOfSCO.Bind(theEntry, aSCO);
+  }
+
+  return aSCO;
+}
+
+//============================================================================
+/*! Function : GetSComponent
+ *  Purpose  : 
+ */
+//============================================================================
+Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_Study::GetSComponent(const TDF_Label& theLabel)
+{
+  TCollection_AsciiString anEntry;
+  TDF_Tool::Entry(theLabel, anEntry);
+  return GetSComponent(anEntry);
 }
 
 //============================================================================
@@ -1147,10 +1168,29 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_Study::GetSComponent(const TCollect
 //============================================================================
 Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::GetSObject(const TCollection_AsciiString& theEntry)
 {
-  
-  TDF_Label aLabel;
-  TDF_Tool::Label(_doc->GetData(), theEntry, aLabel);
-  return new SALOMEDSImpl_SObject(aLabel);
+  Handle(SALOMEDSImpl_SObject) aSO;
+  if(_mapOfSO.IsBound(theEntry)) 
+    aSO = Handle(SALOMEDSImpl_SObject)::DownCast(_mapOfSO.Find(theEntry));
+  else {
+    TDF_Label aLabel;
+    TDF_Tool::Label(_doc->GetData(), theEntry, aLabel);
+    aSO = new SALOMEDSImpl_SObject(aLabel);
+    _mapOfSO.Bind(theEntry, aSO);
+  }
+
+  return aSO;
+}
+
+//============================================================================
+/*! Function : GetSObject
+ *  Purpose  : 
+ */
+//============================================================================
+Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::GetSObject(const TDF_Label& theLabel)
+{
+  TCollection_AsciiString anEntry;
+  TDF_Tool::Entry(theLabel, anEntry);
+  return GetSObject(anEntry);
 }
 
 //============================================================================
@@ -1161,9 +1201,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::GetSObject(const TCollection_As
 Handle(TDF_Attribute) SALOMEDSImpl_Study::GetAttribute(const TCollection_AsciiString& theEntry, 
 						       const TCollection_AsciiString& theType)
 {
-  TDF_Label aLabel;
-  TDF_Tool::Label(_doc->GetData(), theEntry, aLabel);
-  Handle(SALOMEDSImpl_SObject) aSO = new SALOMEDSImpl_SObject(aLabel);
+  Handle(SALOMEDSImpl_SObject) aSO = GetSObject(theEntry);
   Handle(TDF_Attribute) anAttr;
   aSO->FindAttribute(anAttr, theType);
   return anAttr;

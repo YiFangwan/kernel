@@ -26,8 +26,7 @@ SALOMEDSImpl_SComponent::SALOMEDSImpl_SComponent(const TDF_Label& theLabel)
  */
 //============================================================================
 SALOMEDSImpl_SComponent::~SALOMEDSImpl_SComponent()
-{
-}
+{}
   
   
 //============================================================================
