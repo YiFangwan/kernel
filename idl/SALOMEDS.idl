@@ -369,6 +369,14 @@ during each working session.
 
     boolean DumpStudy(in string thePath, in string theBaseName, in boolean isPublished);
 
+/*!
+    Private method, returns an implementation of this Study.
+   \param theHostname is a hostname of the caller
+   \param thePID is a process ID of the caller
+   \param isLocal is set True if the Study is launched locally with the caller
+*/
+    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
+
   };
 
   //==========================================================================
@@ -779,6 +787,15 @@ Gets the list of open studies
 */
     Object ConvertIORToObject(in string theIOR); 
 
+/*!
+    Private method, returns an implementation of this StudyManager.
+   \param theHostname is a hostname of the caller
+   \param thePID is a process ID of the caller
+   \param isLocal is set True if the StudyManager is launched locally with the caller
+*/
+    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal); 
+
+
   };
 
 
@@ -886,6 +903,14 @@ Gets the list of open studies
     Returns empty string if there is no IOR attribute.
 */
     string GetIOR();
+
+/*!
+    Private method, returns an implementation of this SObject.
+   \param theHostname is a hostname of the caller
+   \param thePID is a process ID of the caller
+   \param isLocal is set True if the SObject is launched locally with the caller
+*/
+    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
   };
 
 
@@ -912,7 +937,17 @@ Gets the list of open studies
 
     string Type();
 
+    string GetClassType(); 	
+	
     SObject GetSObject();
+
+/*!
+    Private method, returns an implementation of this GenericAttribute.
+   \param theHostname is a hostname of the caller
+   \param thePID is a process ID of the caller
+   \param isLocal is set True if the GenericAttribute is launched locally with the caller
+*/
+    long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
   };
 
 
