@@ -51,7 +51,7 @@ LIB_SRC = \
 		  SALOME_ModuleCatalog_impl.cxx \
 		  SALOME_ModuleCatalog_Acomponent_impl.cxx
 
-CXXFLAGS+=-ftemplate-depth-25
+CXXFLAGS+=-ftemplate-depth-32
 
 # Executables targets
 # trouble we have client and serveur and build don't known about this with rule
