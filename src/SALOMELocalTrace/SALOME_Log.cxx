@@ -47,6 +47,7 @@ SALOME_Log::~SALOME_Log()
 
 SALOME_Log* SALOME_Log::Instance()
 {
+//CCRT  cout << "SALOME_Log::Instance() _singleton " << _singleton << endl ;
   if (_singleton == 0) _singleton = new SALOME_Log();
   return _singleton;
 }
