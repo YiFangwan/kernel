@@ -39,69 +39,70 @@ struct ParserPathPrefix
   std::vector<std::string> listOfComputer ;
 };
 
-typedef std::vector<ParserPathPrefix> ListOfParserPathPrefix ;
+typedef std::vector<ParserPathPrefix> ParserPathPrefixes ;
 
 enum ParserComponentType {GEOM, MESH, Med, SOLVER, DATA, VISU, SUPERV, OTHER} ;
 
-struct ParserServParam
+struct ParserParameter
 {
-  std::string parserParamType;
-  std::string parserParamName;
+  std::string type;
+  std::string name;
 } ;
 
 
-struct ParserServDataStreamParam 
+struct ParserDataStreamParameter
 {
-  std::string parserParamType;
-  std::string parserParamName;
-  std::string parserParamDependency;
+  std::string type;
+  std::string name;
+  std::string dependency;
 } ;
 
-typedef std::vector<ParserServParam> ListOfParserServicesParameter;
-typedef std::vector<ParserServDataStreamParam> ListOfParserServicesDataStreamParameter;
+typedef std::vector<ParserParameter> ParserParameters;
+typedef std::vector<ParserDataStreamParameter> ParserDataStreamParameters;
 
 struct ParserService
 {
-  std::string                        parserServiceName;
-  ListOfParserServicesParameter parserServiceInParameter;
-  ListOfParserServicesParameter parserServiceOutParameter;
-  ListOfParserServicesDataStreamParameter parserServiceInDataStreamParameter;
-  ListOfParserServicesDataStreamParameter parserServiceOutDataStreamParameter;
-  bool                          parserServiceByDefault;
+  std::string                name;
+  ParserParameters           inParameters;
+  ParserParameters           outParameters;
+  ParserDataStreamParameters inDataStreamParameters;
+  ParserDataStreamParameters outDataStreamParameters;
+  bool                       byDefault;
 } ;
 
-typedef std::vector<ParserService> ListOfParserServices ;
+typedef std::vector<ParserService> ParserServices ;
 
-struct ParserDefInterface
+struct ParserInterface
 {
-  std::string               parserInterfaceName ;
-  ListOfParserServices parserInterfaceServiceList ;
+  std::string    name ;
+  ParserServices services ;
 } ;
 
-typedef std::vector<ParserDefInterface> ListOfDefinitionInterface;
+typedef std::vector<ParserInterface> ParserInterfaces;
 
 struct ParserComponent
 {
-  std::string parserComponentName;
-  std::string parserComponentUsername;
-  ParserComponentType parserComponentType;
-  bool parserComponentMultistudy ;
-  std::string parserComponentIcon;
-  ListOfDefinitionInterface parserListInterface;
-  std::string parserConstraint ;
+  std::string         name;
+  std::string         username;
+  ParserComponentType type;
+  bool                multistudy;
+  std::string         icon;
+  std::string         constraint;
+  ParserInterfaces    interfaces;
+  ParserPathPrefixes  prefixes;
 };
 
-typedef std::vector<ParserComponent> ListOfParserComponent ;
+typedef std::vector<ParserComponent> ParserComponents ;
 
 #ifdef WRITE_CATA_COMPONENT
-// contains all the paths and the computers defined in the catalog
-ListOfParserPathPrefix _pathList;
+// contains all the paths and the computers defined in the catalog 
+       ParserPathPrefixes  _pathList;
   
 // contains all the modules defined in the catalog
-ListOfParserComponent _moduleList; 
+       ParserComponents    _moduleList; 
 #else
-extern ListOfParserPathPrefix _pathList;
-extern ListOfParserComponent _moduleList; 
+extern ParserPathPrefixes _pathList;
+extern ParserComponents   _moduleList; 
 #endif
 
 

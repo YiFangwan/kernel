@@ -1,6 +1,3 @@
-
-//  SALOME ModuleCatalog : implementation of ModuleCatalog server which parsers xml description of modules
-//
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
@@ -22,33 +19,36 @@
 //
 //
 //
-//  File   : SALOME_ModuleCatalog_Parser_IO.hxx
-//  Author : Marc Tajchman
-//  Module : SALOME
-//  $Header$
+//  File   : SALOME_TestModuleCatalog.idl
+//  Author : 
 
-#ifndef SALOME_CATALOG_PARSER_IO_H
-#define SALOME_CATALOG_PARSER_IO_H
+#ifndef _TestModuleCatalog_IDL
+#define _TestModuleCatalog_IDL
 
-#include "SALOME_ModuleCatalog_Parser.hxx"
-#include <iostream>
+#include "SALOME_Component.idl"
 
-std::ostream & operator<< (std::ostream & f, 
-			   const ParserParameter & P);
-std::ostream & operator<< (std::ostream & f, 
-			   const ParserDataStreamParameter & P);
+module SuperVisionTest {
 
-std::ostream & operator<< (std::ostream & f, 
-			   const ParserService & S);
+  interface Adder ;
 
-std::ostream & operator<< (std::ostream & f, 
-			   const ParserInterface & I);
+  interface AddComponent : Engines::Component {
 
-std::ostream & operator<< (std::ostream & f, 
-			   const ParserComponent & C);
+// DataStreamPorts Addition istream(INTEGER, in, T), ostream(STRING, out, I)
+// DataStreamPorts Addition Ostream(FLOAT, out, T)
+    Adder Addition() ;
+    double Add( in double x , in double y , out double z ) ;
+    long Sigma( in long n ) ;
+    double LastResult() ;
+  };
 
-std::ostream & operator<< (std::ostream & f, 
-			   const ParserComponentType & T);
+  interface Adder : Engines::Component {
+    double Add( in double x , in double y , out double z ) ;
+    double AddAndCompare( in double x , in double y , in Adder anOtherAdder,
+                          out double z ) ;
+    void SetLastResult( in double z ) ;
+    void LastResult( out double z ) ;
+  };
+
+} ;
 
 #endif
-

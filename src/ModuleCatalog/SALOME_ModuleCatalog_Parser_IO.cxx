@@ -30,19 +30,19 @@
 #include "SALOME_ModuleCatalog_Parser_IO.hxx"
 #include <string>
 
-std::ostream & operator<< (std::ostream & f, const ParserServParam & P)
+std::ostream & operator<< (std::ostream & f, const ParserParameter & P)
 {
-  f << "          name :       " << P.parserParamName << std::endl;
-  f << "          type :       " << P.parserParamType << std::endl;
+  f << "          name :       " << P.name << std::endl;
+  f << "          type :       " << P.type << std::endl;
   return f;
 }
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserServDataStreamParam & P)
+			   const ParserDataStreamParameter & P)
 {
-  f << "          name :       " << P.parserParamName << std::endl;
-  f << "          type :       " << P.parserParamType << std::endl;
-  f << "          dependency : " << P.parserParamDependency << std::endl;
+  f << "          name :       " << P.name << std::endl;
+  f << "          type :       " << P.type << std::endl;
+  f << "          dependency : " << P.dependency << std::endl;
   return f;
 }
 
@@ -50,48 +50,48 @@ std::ostream & operator<< (std::ostream & f,
 			   const ParserService & S)
 {
   int i, n;
-  f << "      name :       " << S.parserServiceName << std::endl;
-  f << "      default :    " << (S.parserServiceByDefault ? "yes" : "no") 
+  f << "      name :       " << S.name << std::endl;
+  f << "      default :    " << (S.byDefault ? "yes" : "no") 
     << std::endl;
 
-  n = S.parserServiceInParameter.size();
+  n = S.inParameters.size();
   f << "      in parameters : " << n << std::endl;
   for (i=0; i<n; i++)
-    f << S.parserServiceInParameter[i] << std::endl;
+    f << S.inParameters[i] << std::endl;
   if (n == 0) f << std::endl;
 
-  n = S.parserServiceInDataStreamParameter.size();
+  n = S.inDataStreamParameters.size();
   f << "      in DataStream parameters : " << n << std::endl;
   for (i=0; i<n; i++)
-    f << S.parserServiceInDataStreamParameter[i] << std::endl;
+    f << S.inDataStreamParameters[i] << std::endl;
   if (n == 0) f << std::endl;
 
-  n = S.parserServiceOutParameter.size();
+  n = S.outParameters.size();
   f << "      out parameters : " << n << std::endl;
   for (i=0; i<n; i++)
-    f << S.parserServiceOutParameter[i] << std::endl;
+    f << S.outParameters[i] << std::endl;
   if (n == 0) f << std::endl;
 
-  n = S.parserServiceOutDataStreamParameter.size();
+  n = S.outDataStreamParameters.size();
   f << "      out DataStream parameters : " << n << std::endl;
   for (i=0; i<n; i++)
-    f << S.parserServiceOutDataStreamParameter[i] << std::endl;
+    f << S.outDataStreamParameters[i] << std::endl;
   if (n == 0) f << std::endl;
 
   return f;
 }
 
 std::ostream & operator<< (std::ostream & f, 
-			   const ParserDefInterface & I)
+			   const ParserInterface & I)
 {
   int j, n;
-  f << "    name :       " << I.parserInterfaceName << std::endl;
+  f << "    name :       " << I.name << std::endl;
 
-  n = I.parserInterfaceServiceList.size();
+  n = I.services.size();
   f << "    services : " << n << std::endl;
   for (j=0; j<n; j++) {
-    std::cerr << I.parserInterfaceServiceList[j].parserServiceName << std::endl;
-    f << I.parserInterfaceServiceList[j] << std::endl;
+    std::cerr << I.services[j].name << std::endl;
+    f << I.services[j] << std::endl;
   }
 
   return f;
@@ -120,18 +120,18 @@ std::ostream & operator<< (std::ostream & f,
 {
   int j, n;
   f << std::endl
-    << "    name :       " << C.parserComponentName << std::endl;
-  f << "    user name :  " << C.parserComponentUsername << std::endl;
-  f << "    type :       " << C.parserComponentType << std::endl;
-  f << "    multistudy : " << (C.parserComponentMultistudy ? "yes" : "no")
+    << "    name :       " << C.name << std::endl;
+  f << "    user name :  " << C.username << std::endl;
+  f << "    type :       " << C.type << std::endl;
+  f << "    multistudy : " << (C.multistudy ? "yes" : "no")
     << std::endl;
-  f << "    icon :       " << C.parserComponentIcon << std::endl;
-  f << "    constraint : " << C.parserConstraint << std::endl;
+  f << "    icon :       " << C.icon << std::endl;
+  f << "    constraint : " << C.constraint << std::endl;
 
-  n = C.parserListInterface.size();
+  n = C.interfaces.size();
   f << "    interfaces : " << n << std::endl;
   for (j=0; j<n; j++)
-    f << C.parserListInterface[j] << std::endl;
+    f << C.interfaces[j] << std::endl;
   if (n == 0) f << std::endl;
 
   return f;

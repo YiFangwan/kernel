@@ -34,6 +34,7 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 @COMMENCE@
 
+EXPORT_PYSCRIPTS = SALOME_TestModuleCatalog.py
 EXPORT_HEADERS = \
 		SALOME_ModuleCatalog_impl.hxx \
 		SALOME_ModuleCatalog_Acomponent_impl.hxx \

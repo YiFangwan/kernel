@@ -176,13 +176,13 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 
   // tag test_component_name
   if((qName.compare(test_component_name)==0)) {
-    _aModule.parserComponentName = content ;
+    _aModule.name = content ;
     return true;
   }
 
   // tag test_component_username
   if((qName.compare(test_component_username)==0)) {
-    _aModule.parserComponentUsername = content ;
+    _aModule.username = content ;
     return true;
   }
 
@@ -192,51 +192,51 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
        if ((content.compare("MESH") == 0) ||
 	   (content.compare("Mesh") == 0) ||
 	   (content.compare("mesh") == 0))
-	 _aModule.parserComponentType = MESH ;
+	 _aModule.type = MESH ;
        else if((content.compare("MED") == 0) ||
 	       (content.compare("Med") == 0) ||
 	       (content.compare("med") == 0))
-	 _aModule.parserComponentType = Med ;
+	 _aModule.type = Med ;
        else if((content.compare("GEOM") == 0) ||
 	       (content.compare("Geom") == 0) ||
 	       (content.compare("geom") == 0))
-	 _aModule.parserComponentType = GEOM ;
+	 _aModule.type = GEOM ;
        else if((content.compare("SOLVER") == 0) ||
 	       (content.compare("Solver") == 0) ||
 	       (content.compare("solver") == 0))
-	 _aModule.parserComponentType = SOLVER ;
+	 _aModule.type = SOLVER ;
        else if((content.compare("SUPERV") == 0) ||
 	       (content.compare("Superv") == 0) ||
 	       (content.compare("Supervision") == 0) ||
 	       (content.compare("superv") == 0))
-	 _aModule.parserComponentType = SUPERV ;
+	 _aModule.type = SUPERV ;
        else if((content.compare("DATA") == 0) ||
 	       (content.compare("Data") == 0) ||
 	       (content.compare("data") == 0))
-	 _aModule.parserComponentType = DATA ; 
+	 _aModule.type = DATA ; 
        else if((content.compare("VISU") == 0) ||
 	       (content.compare("Visu") == 0) ||
 	       (content.compare("visu") == 0))
-	 _aModule.parserComponentType = VISU ; 
+	 _aModule.type = VISU ; 
        else if((content.compare("OTHER") == 0) ||
 	       (content.compare("Other") == 0) ||
 	       (content.compare("other") == 0))                
-	 _aModule.parserComponentType = OTHER ;
+	 _aModule.type = OTHER ;
        else
 	 // If it'not in all theses cases, the type is affected to OTHER
-	 _aModule.parserComponentType = OTHER ;
+	 _aModule.type = OTHER ;
        return true;
      }
 
    // tag test_component_multistudy
    if((qName.compare(test_component_multistudy)==0)) {
-    _aModule.parserComponentMultistudy = atoi(content.c_str()) ;
+    _aModule.multistudy = atoi(content.c_str()) ;
     return true;
    }
 
   // tag test_component_icon
    if((qName.compare(test_component_icon)==0)) {
-     _aModule.parserComponentIcon = content ;
+     _aModule.icon = content ;
      return true;
    }
 
@@ -244,7 +244,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 
    // tag test_interface_name
    if ((qName.compare(test_interface_name)==0)) {
-       _aInterface.parserInterfaceName = content ;
+       _aInterface.name = content ;
        return true;
    }
 
@@ -252,13 +252,13 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 
    // tag test_service_name
    if ((qName.compare(test_service_name)==0)) {
-     _aService.parserServiceName = content ;
+     _aService.name = content ;
      return true;
    }
 
    //tag test_defaultservice
    if ((qName.compare(test_defaultservice)==0)) {
-     _aService.parserServiceByDefault = atoi(content.c_str()) ;
+     _aService.byDefault = atoi(content.c_str()) ;
      return true;
    }
 
@@ -267,27 +267,27 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    // tag test_inDataStreamParameter_type
    if ((qName.compare(test_inDataStreamParameter_type)==0)) {
      if (grandparent.compare(test_inDataStreamParameter_list) == 0)
-       _inDataStreamParam.parserParamType = content ;
+       _inDataStreamParam.type = content ;
      else 
-        _inParam.parserParamType = content ;
+        _inParam.type = content ;
      return true;
    }
 	 
    // tag test_inParameter_type
    if ((qName.compare(test_inParameter_type)==0)) {
      if (grandparent.compare(test_inDataStreamParameter_list) == 0)
-       _inDataStreamParam.parserParamType = content ;
+       _inDataStreamParam.type = content ;
      else 
-        _inParam.parserParamType = content ;
+        _inParam.type = content ;
      return true;
    }
 	 
    //tag test_inDataStreamParameter_name
    if ((qName.compare(test_inDataStreamParameter_name)==0)) {
      if (grandparent.compare(test_inDataStreamParameter_list) == 0)
-       _inDataStreamParam.parserParamName = content ;
+       _inDataStreamParam.name = content ;
      else 
-        _inParam.parserParamName = content ;
+        _inParam.name = content ;
      return true;
    }
 
@@ -296,15 +296,15 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
      SCRUTE(parent);
      SCRUTE(grandparent);
      if (grandparent.compare(test_inDataStreamParameter_list) == 0)
-       _inDataStreamParam.parserParamName = content ;
+       _inDataStreamParam.name = content ;
      else 
-       _inParam.parserParamName = content ;
+       _inParam.name = content ;
      return true;
    }
 
    //tag test_inDataStreamParameter_dependency
    if ((qName.compare(test_inDataStreamParameter_dependency)==0)) {
-       _inDataStreamParam.parserParamDependency = content ;
+       _inDataStreamParam.dependency = content ;
      return true;
    }
 
@@ -313,22 +313,22 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
     {
       if (parent.compare(test_inParameter_list)==0) {
 	
-	MESSAGE("add inParameter : " << _inParam.parserParamName);
+	MESSAGE("add inParameter : " << _inParam.name);
 	_inParamList.push_back(_inParam) ; 
 	
 	// Empty temporary structures
-	_inParam.parserParamType = "";
-	_inParam.parserParamName = "";
+	_inParam.type = "";
+	_inParam.name = "";
       }
       else if ((qName.compare(test_inDataStreamParameter)==0)) {
 	
-	MESSAGE("add inDataStreamParameter : " << _inDataStreamParam.parserParamName);
+	MESSAGE("add inDataStreamParameter : " << _inDataStreamParam.name);
 	_inDataStreamParamList.push_back(_inDataStreamParam) ; 
 	
 	// Empty temporary structures
-	_inDataStreamParam.parserParamType = "";
-	_inDataStreamParam.parserParamName = "";
-	_inDataStreamParam.parserParamDependency = "";
+	_inDataStreamParam.type = "";
+	_inDataStreamParam.name = "";
+	_inDataStreamParam.dependency = "";
       }
       return true;
     }
@@ -337,7 +337,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    if((qName.compare(test_inParameter_list)==0))
      {
        SCRUTE(_inParamList.size());
-       _aService.parserServiceInParameter = _inParamList;
+       _aService.inParameters = _inParamList;
        _inParamList.resize(0);
        return true;
      }
@@ -346,14 +346,14 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    if((qName.compare(test_inDataStreamParameter_list)==0))
      {
        SCRUTE(_inDataStreamParamList.size());
-       _aService.parserServiceInDataStreamParameter = _inDataStreamParamList;
+       _aService.inDataStreamParameters = _inDataStreamParamList;
        _inDataStreamParamList.resize(0);
      }
    //tag test_outDataStreamParameter_list
    if((qName.compare(test_outDataStreamParameter_list)==0))
      {
        SCRUTE(_outDataStreamParamList.size());
-       _aService.parserServiceOutDataStreamParameter = _outDataStreamParamList;
+       _aService.outDataStreamParameters = _outDataStreamParamList;
        _outDataStreamParamList.resize(0);
        return true;
      }
@@ -365,27 +365,27 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    // tag test_outParameter_type
    if ((qName.compare(test_outParameter_type)==0)) {
      if (grandparent.compare(test_outDataStreamParameter_list) == 0)
-       _outDataStreamParam.parserParamType = content ;
+       _outDataStreamParam.type = content ;
      else 
-        _outParam.parserParamType = content ;
+        _outParam.type = content ;
      return true;
    }
 	 
    // tag test_outDataStreamParameter_type
    if ((qName.compare(test_outDataStreamParameter_type)==0)) {
      if (grandparent.compare(test_outDataStreamParameter_list) == 0)
-       _outDataStreamParam.parserParamType = content ;
+       _outDataStreamParam.type = content ;
      else 
-        _outParam.parserParamType = content ;
+        _outParam.type = content ;
      return true;
    }
 	 
    //tag test_outParameter_name
    if ((qName.compare(test_outParameter_name)==0)) {
      if (grandparent.compare(test_outDataStreamParameter_list) == 0)
-       _outDataStreamParam.parserParamName = content ;
+       _outDataStreamParam.name = content ;
      else 
-        _outParam.parserParamName = content ;
+        _outParam.name = content ;
      return true;
    }
 	 
@@ -394,15 +394,15 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
      SCRUTE(grandparent);
      SCRUTE(test_outDataStreamParameter_list);
      if (grandparent.compare(test_outDataStreamParameter_list) == 0)
-       _outDataStreamParam.parserParamName = content ;
+       _outDataStreamParam.name = content ;
      else 
-        _outParam.parserParamName = content ;
+        _outParam.name = content ;
      return true;
    }
 	 
    //tag test_outParameter_dependency
    if ((qName.compare(test_outDataStreamParameter_dependency)==0)) {
-     _outDataStreamParam.parserParamDependency = content ;
+     _outDataStreamParam.dependency = content ;
      return true;
    }
 
@@ -411,22 +411,22 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
     {
       if (parent.compare(test_outParameter_list)==0) {
 	
-	MESSAGE("add outParameter : " << _outParam.parserParamName);
+	MESSAGE("add outParameter : " << _outParam.name);
 	_outParamList.push_back(_outParam) ; 
 	
 	// Empty temporary structures
-	_outParam.parserParamType = "";
-	_outParam.parserParamName = "";
+	_outParam.type = "";
+	_outParam.name = "";
       }
       else if ((qName.compare(test_outDataStreamParameter)==0)) {
 	
-	MESSAGE("add outDataStreamParameter : " << _outDataStreamParam.parserParamName);
+	MESSAGE("add outDataStreamParameter : " << _outDataStreamParam.name);
 	_outDataStreamParamList.push_back(_outDataStreamParam) ; 
 	
 	// Empty temporary structures
-	_outDataStreamParam.parserParamType = "";
-	_outDataStreamParam.parserParamName = "";
-	_outDataStreamParam.parserParamDependency = "";
+	_outDataStreamParam.type = "";
+	_outDataStreamParam.name = "";
+	_outDataStreamParam.dependency = "";
       }
       return true;
     }
@@ -435,7 +435,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
    if((qName.compare(test_outParameter_list)==0))
      {
        SCRUTE(_outParamList.size());
-       _aService.parserServiceOutParameter = _outParamList;
+       _aService.outParameters = _outParamList;
        _outParamList.resize(0);
        return true;
      }
@@ -446,36 +446,36 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
        _serviceList.push_back(_aService);
 
        // Empty temporary structures
-       _aService.parserServiceName = "";
-       _aService.parserServiceInParameter.resize(0);
-       _aService.parserServiceOutParameter.resize(0);
-       _aService.parserServiceInDataStreamParameter.resize(0);
-       _aService.parserServiceOutDataStreamParameter.resize(0);
+       _aService.name = "";
+       _aService.inParameters.resize(0);
+       _aService.outParameters.resize(0);
+       _aService.inDataStreamParameters.resize(0);
+       _aService.outDataStreamParameters.resize(0);
      }
 
    // tag   test_service_list
    if((qName.compare(test_service_list)==0))
      {
-       _aInterface.parserInterfaceServiceList = _serviceList ;
+       _aInterface.services = _serviceList ;
 
        // Empty temporary structures
        _serviceList.resize(0); 
        _interfaceList.push_back(_aInterface);  
-       _aInterface.parserInterfaceName ="";    
-       _aInterface.parserInterfaceServiceList.resize(0);
+       _aInterface.name ="";    
+       _aInterface.services.resize(0);
 
      }
 
    //tag test_interface_list
    if((qName.compare(test_interface_list)==0))
      {
-       _aModule.parserListInterface = _interfaceList ;
+       _aModule.interfaces = _interfaceList ;
        _interfaceList.resize(0);
      }
 
    //tag test_constraint
    if((qName.compare(test_constraint)==0))
-     _aModule.parserConstraint = content ;
+     _aModule.constraint = content ;
 
    // tag test_component
    if((qName.compare(test_component)==0))
@@ -483,10 +483,10 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
        _moduleList.push_back(_aModule) ;
        
        // Empty temporary structures
-       _aModule.parserComponentName = "";
-       _aModule.parserConstraint = "";
-       _aModule.parserComponentIcon="";       
-       _aModule.parserListInterface.resize(0);
+       _aModule.name = "";
+       _aModule.constraint = "";
+       _aModule.icon="";       
+       _aModule.interfaces.resize(0);
      }
     
   return true;
@@ -511,7 +511,7 @@ bool SALOME_ModuleCatalog_Handler::characters(const QString& chars)
 #include <fstream>
 bool SALOME_ModuleCatalog_Handler::endDocument()
 {
-  ofstream f("/tmp/logs/tajchman/xxx.log", std::ofstream::app);
+  ofstream f("/tmp/logs/xxx.log", std::ofstream::app);
   f << "---------------------------------------------------------" << std::endl;
   BEGIN_OF("endDocument");
   //_pathlist

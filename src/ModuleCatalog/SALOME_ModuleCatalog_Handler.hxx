@@ -34,6 +34,7 @@
 #include <qxml.h>
 #include <string>
 #include <stack>
+#include <map>
 
 class SALOME_ModuleCatalog_Handler : public QXmlDefaultHandler 
 {
@@ -155,18 +156,23 @@ private:
   ParserComponent _aModule;
 
 
-  ListOfDefinitionInterface _interfaceList;
-  ParserDefInterface _aInterface;
-  ListOfParserServices _serviceList;
-  ParserService _aService;
-  ParserServParam _inParam;
-  ParserServParam _outParam;
-  ParserServDataStreamParam _inDataStreamParam;
-  ParserServDataStreamParam _outDataStreamParam;
-  ListOfParserServicesParameter _inParamList;
-  ListOfParserServicesParameter _outParamList;
-  ListOfParserServicesDataStreamParameter _inDataStreamParamList;
-  ListOfParserServicesDataStreamParameter _outDataStreamParamList;
+  ParserInterfaces _interfaceList;
+  ParserInterface  _aInterface;
+
+  ParserServices   _serviceList;
+  ParserService    _aService;
+
+  ParserParameters _inParamList;
+  ParserParameter  _inParam;
+
+  ParserParameters _outParamList;
+  ParserParameter  _outParam;
+
+  ParserDataStreamParameters _inDataStreamParamList;
+  ParserDataStreamParameter  _inDataStreamParam;
+
+  ParserDataStreamParameters _outDataStreamParamList;
+  ParserDataStreamParameter  _outDataStreamParam;
 
   std::stack<QString> _xml_pile;
 };

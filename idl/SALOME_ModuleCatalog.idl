@@ -124,6 +124,21 @@ List of interface definitions.
 List of names of interfaces.
 */
   typedef sequence<string> ListOfInterfaces ;
+
+/*!
+Description of a component
+*/
+  struct Component
+  {
+    ComponentType      type;
+    string             name;
+    string             username;
+    boolean            multistudy;
+    string             icon;
+    string             constraint;
+    ListOfDefInterface interfaces;
+  };
+
 /*! 
 List of names of components.
 */
@@ -225,28 +240,28 @@ List of pair GUI elements (component name, component icone)
     string GetPathPrefix(in string machinename) raises(NotFound);
 
 /*! 
-    Sets/gets the constraint affected to the component 
+    Get the constraint affected to the component 
     (to be resolved by LifeCycle for the computer choice)
 */
     readonly attribute string constraint ;
 
 /*! 
-Sets/gets the name of the component
+Get the name of the component
 */
     readonly attribute string componentname;
 
 /*!
-Sets/gets the user name of the component
+G the user name of the component
 */
     readonly attribute string componentusername;
 
 /*! 
-Defines whether the component is multistudy or not
+Ask whether the component is multistudy or not
 */
     readonly attribute boolean multistudy;
 
 /*! 
-Defines the type of the component
+Ask the type of the component
 */
     readonly attribute ComponentType component_type ;
 
@@ -293,6 +308,11 @@ Gets a list of names of components of a particular type, which belong to this ca
 Gets one component of the catalog.
 */
     Acomponent GetComponent(in string componentname) raises(NotFound);
+
+/*! 
+Gets the description of a component of the catalog.
+*/
+    Component GetComponentInfo(in string componentName) raises(NotFound);
 
 /*!
 Reads a xml file and imports new components from this file.
