@@ -301,5 +301,3 @@ New components replace existing components with the same name.
     void ImportXmlCatalogFile(in string filename) raises(NotFound);
   } ;
 };
-  } ;
-};
