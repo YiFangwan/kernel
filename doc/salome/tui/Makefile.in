@@ -17,6 +17,7 @@ doxygen=@DOXYGEN@
 @COMMENCE@
 
 docs:
+	cp -f $(srcdir)/pythfilter.py ./
 	cp -fr $(srcdir)/KERNEL ./INPUT; \
 	cd INPUT; \
 	sed 's|../../../share/salome|$(root_srcdir)|' ./doxyfile > ./doxyfile1; \
