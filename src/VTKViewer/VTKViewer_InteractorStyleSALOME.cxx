@@ -62,6 +62,7 @@
 #include <qpainter.h>
 #endif
 //VRV: porting on Qt 3.0.5
+#include <algorithm>
 
 #include "utilities.h"
 
