@@ -719,7 +719,6 @@ Engines::Container_ptr Manager_i::StartContainer( const Containers::MachineParam
       astr << MyParams.NsPort ;
       rsh += astr.str().c_str() ;
     }
-#if 0
     rsh += " > /tmp/" ;
     rsh += MyParams.ContainerName ;
     if ( MyParams.ContainerType == Engines::Cpp || MyParams.ContainerType == Engines::Undefined ) {
@@ -733,7 +732,6 @@ Engines::Container_ptr Manager_i::StartContainer( const Containers::MachineParam
     if ( strcmp( HostName , GetHostname().c_str() ) ) {
       rsh += "'\"" ;
     }
-#endif
     rsh += " &" ;
     cout << endl << endl << endl << endl << "StartContainer " << rsh << endl ;
     int status = system( rsh.c_str() ) ;
