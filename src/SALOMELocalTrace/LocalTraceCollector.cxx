@@ -32,8 +32,6 @@
 using namespace std;
 
 #include "LocalTraceCollector.hxx"
-#include "LocalTrace_WaitForServerReadiness.hxx"
-//#include "SALOME_Log.hxx"
 
 // Class attributes initialisation, for class method LocalTraceCollector::run
 
