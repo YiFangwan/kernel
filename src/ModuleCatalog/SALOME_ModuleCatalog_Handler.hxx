@@ -129,6 +129,16 @@ private:
   const char* test_outParameter_name;
   const char* test_outParameter;
   const char* test_outParameter_list;
+  const char* test_inDataStreamParameter_dependency;
+  const char* test_inDataStreamParameter_type;
+  const char* test_inDataStreamParameter_name;
+  const char* test_inDataStreamParameter;
+  const char* test_inDataStreamParameter_list;
+  const char* test_outDataStreamParameter_dependency;
+  const char* test_outDataStreamParameter_type;
+  const char* test_outDataStreamParameter_name;
+  const char* test_outDataStreamParameter;
+  const char* test_outDataStreamParameter_list;
 
   const char* test_service;
   const char* test_service_list;
@@ -137,19 +147,23 @@ private:
   
   const char* test_component;
 
-  ParserPathPrefix _path_prefix;
+  ParserPathPrefix _pathPrefix;
 
-  ParserComponent _amodule;
+  ParserComponent _aModule;
 
 
-  ListOfDefinitionInterface _interfacelist;
+  ListOfDefinitionInterface _interfaceList;
   ParserDefInterface _aInterface;
-  ListOfParserServices _servicelist;
+  ListOfParserServices _serviceList;
   ParserService _aService;
-  ParserServParam _inparam;
-  ParserServParam _outparam;
-  ListOfParserServicesParameter _inparamlist;
-  ListOfParserServicesParameter _outparamlist;
+  ParserServParam _inParam;
+  ParserServParam _outParam;
+  ParserServDataStreamParam _inDataStreamParam;
+  ParserServDataStreamParam _outDataStreamParam;
+  ListOfParserServicesParameter _inParamList;
+  ListOfParserServicesParameter _outParamList;
+  ListOfParserServicesDataStreamParameter _inDataStreamParamList;
+  ListOfParserServicesDataStreamParameter _outDataStreamParamList;
 };
 
 #endif // SALOME_CATALOG_HANDLER_H

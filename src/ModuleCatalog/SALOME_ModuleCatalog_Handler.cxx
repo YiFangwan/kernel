@@ -64,6 +64,18 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler()
   test_outParameter="outParameter";
   test_outParameter_list="outParameter-list";
 
+  test_inDataStreamParameter_type="inDataStreamParameter-type";
+  test_inDataStreamParameter_dependency="inDataStreamParameter-dependency";
+  test_inDataStreamParameter_name="inDataStreamParameter-name";
+  test_inDataStreamParameter="inDataStreamParameter";
+  test_inDataStreamParameter_list="inDataStreamParameter-list";
+
+  test_outDataStreamParameter_type="outDataStreamParameter-dependency";
+  test_outDataStreamParameter_type="outDataStreamParameter-type";
+  test_outDataStreamParameter_name="outDataStreamParameter-name";
+  test_outDataStreamParameter="outDataStreamParameter";
+  test_outDataStreamParameter_list="outDataStreamParameter-list";
+
   test_service= "component-service";
   test_service_list="component-service-list";
   test_interface_list="component-interface-list";
@@ -90,13 +102,15 @@ bool SALOME_ModuleCatalog_Handler::startDocument()
 {
   MESSAGE("Begin parse document")
   // Empty the private elements
-  _pathlist.resize(0);
-  _path_prefix.ListOfComputer.resize(0);
-  _servicelist.resize(0);
-  _interfacelist.resize(0);
-  _modulelist.resize(0);
-  _inparamlist.resize(0);
-  _outparamlist.resize(0);
+  _pathList.resize(0);
+  _pathPrefix.listOfComputer.resize(0);
+  _serviceList.resize(0);
+  _interfaceList.resize(0);
+  _moduleList.resize(0);
+  _inDataStreamParamList.resize(0);
+  _outDataStreamParamList.resize(0);
+  _inParamList.resize(0);
+  _outParamList.resize(0);
   return true;
 }
 
@@ -109,6 +123,7 @@ bool SALOME_ModuleCatalog_Handler::startElement(const QString&,
 						const QString& qName, 
 						const QXmlAttributes& atts)
 {
+  SCRUTE(qName);
   return true;
 } 
 
@@ -124,188 +139,244 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 
   // tag test_path_prefix_name
   if((qName.compare(QString(test_path_prefix_name))==0))
-    _path_prefix.path = content;
+    _pathPrefix.path = content;
   // tag test_computer_name
   if((qName.compare(QString(test_computer_name))==0)) 
-    _path_prefix.ListOfComputer.push_back(content);
+    _pathPrefix.listOfComputer.push_back(content);
    
   // tag test_path_prefix
   if((qName.compare(QString(test_path_prefix))==0))
     {
-      _pathlist.push_back(_path_prefix);
-      _path_prefix.ListOfComputer.resize(0);
+      _pathList.push_back(_pathPrefix);
+      _pathPrefix.listOfComputer.resize(0);
     }
 
   // Component identification
 
   // tag test_component_name
   if((qName.compare(QString(test_component_name))==0)) 
-    _amodule.Parsercomponentname = content ;
+    _aModule.parserComponentName = content ;
   // tag test_component_username
   if((qName.compare(QString(test_component_username))==0)) 
-    _amodule.Parsercomponentusername = content ;
+    _aModule.parserComponentUsername = content ;
   // tag test_component_type
    if((qName.compare(QString(test_component_type))==0)) 
      {
        if ((content.compare("MESH") == 0) ||
 	   (content.compare("Mesh") == 0) ||
 	   (content.compare("mesh") == 0))
-	 _amodule.Parsercomponenttype = MESH ;
+	 _aModule.parserComponentType = MESH ;
        else if((content.compare("MED") == 0) ||
 	       (content.compare("Med") == 0) ||
 	       (content.compare("med") == 0))
-	 _amodule.Parsercomponenttype = Med ;
+	 _aModule.parserComponentType = Med ;
        else if((content.compare("GEOM") == 0) ||
 	       (content.compare("Geom") == 0) ||
 	       (content.compare("geom") == 0))
-	 _amodule.Parsercomponenttype = GEOM ;
+	 _aModule.parserComponentType = GEOM ;
        else if((content.compare("SOLVER") == 0) ||
 	       (content.compare("Solver") == 0) ||
 	       (content.compare("solver") == 0))
-	 _amodule.Parsercomponenttype = SOLVER ;
+	 _aModule.parserComponentType = SOLVER ;
        else if((content.compare("SUPERV") == 0) ||
 	       (content.compare("Superv") == 0) ||
 	       (content.compare("Supervision") == 0) ||
 	       (content.compare("superv") == 0))
-	 _amodule.Parsercomponenttype = SUPERV ;
+	 _aModule.parserComponentType = SUPERV ;
        else if((content.compare("DATA") == 0) ||
 	       (content.compare("Data") == 0) ||
 	       (content.compare("data") == 0))
-	 _amodule.Parsercomponenttype = DATA ; 
+	 _aModule.parserComponentType = DATA ; 
        else if((content.compare("VISU") == 0) ||
 	       (content.compare("Visu") == 0) ||
 	       (content.compare("visu") == 0))
-	 _amodule.Parsercomponenttype = VISU ; 
+	 _aModule.parserComponentType = VISU ; 
        else if((content.compare("OTHER") == 0) ||
 	       (content.compare("Other") == 0) ||
 	       (content.compare("other") == 0))                
-	 _amodule.Parsercomponenttype = OTHER ;
+	 _aModule.parserComponentType = OTHER ;
        else
 	 // If it'not in all theses cases, the type is affected to OTHER
-	 _amodule.Parsercomponenttype = OTHER ;
+	 _aModule.parserComponentType = OTHER ;
      }
 
    // tag test_component_multistudy
   if((qName.compare(QString(test_component_multistudy))==0)) 
-    _amodule.Parsercomponentmultistudy = atoi(content.c_str()) ;
+    _aModule.parserComponentMultistudy = atoi(content.c_str()) ;
 
   // tag test_component_icone
   if((qName.compare(QString(test_component_icone))==0)) 
-    _amodule.Parsercomponenticone = content ;
+    _aModule.parserComponentIcon = content ;
 
    // interface identification
 
    // tag test_interface_name
    if((qName.compare(QString(test_interface_name))==0)) 
-       _aInterface.Parserinterfacename = content ;
+       _aInterface.parserInterfaceName = content ;
 
    // Service identification
 
    // tag test_service_name
    if((qName.compare(QString(test_service_name))==0))
-     _aService.ParserServiceName = content ;
+     _aService.parserServiceName = content ;
      
    //tag test_defaultservice
    if((qName.compare(QString(test_defaultservice))==0))
-     _aService.ParserServicebydefault = atoi(content.c_str()) ;
+     _aService.parserServiceByDefault = atoi(content.c_str()) ;
 
    // Parameter in
 
    // tag test_inParameter_type
    if((qName.compare(QString(test_inParameter_type))==0))
-     _inparam.ParserParamtype = content ;
+     _inParam.parserParamType = content ;
    //tag test_inParameter_name
    if((qName.compare(QString(test_inParameter_name))==0))
-     _inparam.ParserParamname = content ; 
+     _inParam.parserParamName = content ; 
 
    //tag test_inParameter
   if((qName.compare(QString(test_inParameter))==0))
     {
-      _inparamlist.push_back(_inparam) ; 
+      _inParamList.push_back(_inParam) ; 
 
       // Empty temporary structures
-      _inparam.ParserParamtype = "";
-      _inparam.ParserParamname = "";
+      _inParam.parserParamType = "";
+      _inParam.parserParamName = "";
     }
   
    //tag test_inParameter_list
    if((qName.compare(QString(test_inParameter_list))==0))
      {
-       _aService.ParserServiceinParameter = _inparamlist;
-       _inparamlist.resize(0);
+       _aService.parserServiceInParameter = _inParamList;
+       _inParamList.resize(0);
      }
 
    // Parameter out
 
    // tag test_outParameter_type
    if((qName.compare(QString(test_outParameter_type))==0))
-     _outparam.ParserParamtype = content ;
+     _outParam.parserParamType = content ;
    //tag test_outParameter_name
    if((qName.compare(QString(test_outParameter_name))==0))
-     _outparam.ParserParamname = content ; 
+     _outParam.parserParamName = content ; 
    
    //tag test_outParameter
   if((qName.compare(QString(test_outParameter))==0))
     {
-      _outparamlist.push_back(_outparam) ; 
+      _outParamList.push_back(_outParam) ; 
      
       // Empty temporary structures
-      _outparam.ParserParamtype = "";
-      _outparam.ParserParamname = "";
+      _outParam.parserParamType = "";
+      _outParam.parserParamName = "";
     }
    //tag test_outParameter_list
    if((qName.compare(QString(test_outParameter_list))==0)) 
      {
-       _aService.ParserServiceoutParameter=_outparamlist;
-       _outparamlist.resize(0);
+       _aService.parserServiceOutParameter=_outParamList;
+       _outParamList.resize(0);
+     }
+     
+
+
+   // DataStreamParameter in
+
+   // tag test_inDataStreamParameter_type
+   if((qName.compare(QString(test_inDataStreamParameter_type))==0))
+     _inDataStreamParam.parserParamType = content ;
+   //tag test_inDataStreamParameter_name
+   if((qName.compare(QString(test_inDataStreamParameter_name))==0))
+     _inDataStreamParam.parserParamName = content ; 
+
+   //tag test_inDataStreamParameter
+  if((qName.compare(QString(test_inDataStreamParameter))==0))
+    {
+      _inDataStreamParamList.push_back(_inDataStreamParam) ; 
+
+      // Empty temporary structures
+      _inDataStreamParam.parserParamType = "";
+      _inDataStreamParam.parserParamName = "";
+    }
+  
+   //tag test_inDataStreamParameter_list
+   if((qName.compare(QString(test_inDataStreamParameter_list))==0))
+     {
+       _aService.parserServiceInDataStreamParameter = _inDataStreamParamList;
+       _inDataStreamParamList.resize(0);
+     }
+
+   // DataStreamParameter out
+
+   // tag test_outDataStreamParameter_type
+   if((qName.compare(QString(test_outDataStreamParameter_type))==0))
+     _outDataStreamParam.parserParamType = content ;
+   //tag test_outDataStreamParameter_name
+   if((qName.compare(QString(test_outDataStreamParameter_name))==0))
+     _outDataStreamParam.parserParamName = content ; 
+   
+   //tag test_outDataStreamParameter
+  if((qName.compare(QString(test_outDataStreamParameter))==0))
+    {
+      _outDataStreamParamList.push_back(_outDataStreamParam) ; 
+     
+      // Empty temporary structures
+      _outDataStreamParam.parserParamType = "";
+      _outDataStreamParam.parserParamName = "";
+    }
+   //tag test_outDataStreamParameter_list
+   if((qName.compare(QString(test_outDataStreamParameter_list))==0)) 
+     {
+       _aService.parserServiceOutDataStreamParameter=_outDataStreamParamList;
+       _outDataStreamParamList.resize(0);
      }
      
 
    // tag   test_service
    if((qName.compare(QString(test_service))==0))
      {
-       _servicelist.push_back(_aService);
+       _serviceList.push_back(_aService);
 
        // Empty temporary structures
-       _aService.ParserServiceName = "";
-       _aService.ParserServiceinParameter.resize(0);
-       _aService.ParserServiceoutParameter.resize(0);
+       _aService.parserServiceName = "";
+       _aService.parserServiceInParameter.resize(0);
+       _aService.parserServiceOutParameter.resize(0);
+       _aService.parserServiceInDataStreamParameter.resize(0);
+       _aService.parserServiceOutDataStreamParameter.resize(0);
      }
 
    // tag   test_service_list
    if((qName.compare(QString(test_service_list))==0))
      {
-       _aInterface.Parserinterfaceservicelist = _servicelist ;
+       _aInterface.parserInterfaceServiceList = _serviceList ;
 
        // Empty temporary structures
-       _servicelist.resize(0); 
-       _interfacelist.push_back(_aInterface);  
-       _aInterface.Parserinterfacename ="";    
-       _aInterface.Parserinterfaceservicelist.resize(0);
+       _serviceList.resize(0); 
+       _interfaceList.push_back(_aInterface);  
+       _aInterface.parserInterfaceName ="";    
+       _aInterface.parserInterfaceServiceList.resize(0);
 
      }
 
    //tag test_interface_list
    if((qName.compare(QString(test_interface_list))==0))
      {
-       _amodule.ParserListInterface = _interfacelist ;
-       _interfacelist.resize(0);
+       _aModule.parserListInterface = _interfaceList ;
+       SCRUTE(_aModule.parserListInterface[0].parserInterfaceServiceList[0].parserServiceInDataStreamParameter.size());
+       _interfaceList.resize(0);
      }
 
    //tag test_constraint
    if((qName.compare(QString(test_constraint))==0))
-     _amodule.Parserconstraint = content ;
+     _aModule.parserConstraint = content ;
 
    // tag test_component
    if((qName.compare(QString(test_component))==0))
      {
-       _modulelist.push_back(_amodule) ;
+       _moduleList.push_back(_aModule) ;
        
        // Empty temporary structures
-       _amodule.Parsercomponentname = "";
-       _amodule.Parserconstraint = "";
-       _amodule.Parsercomponenticone="";       
-       _amodule.ParserListInterface.resize(0);
+       _aModule.parserComponentName = "";
+       _aModule.parserConstraint = "";
+       _aModule.parserComponentIcon="";       
+       _aModule.parserListInterface.resize(0);
      }
     
   return true;
@@ -329,42 +400,24 @@ bool SALOME_ModuleCatalog_Handler::characters(const QString& chars)
 //----------------------------------------------------------------------  
 bool SALOME_ModuleCatalog_Handler::endDocument()
 {
+  BEGIN_OF("endDocument");
   //_pathlist
-  for (unsigned int ind = 0; ind < _pathlist.size(); ind++)
+  for (unsigned int ind = 0; ind < _pathList.size(); ind++)
     {
-      MESSAGE("Path :"<<_pathlist[ind].path)
-      for (unsigned int i = 0; i < _pathlist[ind].ListOfComputer.size(); i++)
-	  MESSAGE("Computer name :" << _pathlist[ind].ListOfComputer[i])
+      MESSAGE("Path :"<<_pathList[ind].path)
+      for (unsigned int i = 0; i < _pathList[ind].listOfComputer.size(); i++)
+	  MESSAGE("Computer name :" << _pathList[ind].listOfComputer[i])
     }
 
-   // _modulelist
-  for (unsigned int ind = 0; ind < _modulelist.size(); ind++)
+   // _moduleList
+  SCRUTE(_moduleList.size());
+  for (unsigned int ind = 0; ind < _moduleList.size(); ind++)
     {
-      MESSAGE("Component name : " << _modulelist[ind].Parsercomponentname);
-      //      MESSAGE("Component type : " <<_modulelist[ind].Parsercomponenttype);
-//       MESSAGE("Component constraint : " << _modulelist[ind].Parserconstraint);
-//       MESSAGE("Component icone : " << _modulelist[ind].Parsercomponenticone);
-//       for (unsigned int i = 0; i < _modulelist[ind].ParserListInterface.size(); i++)
-// 	{
-// 	  MESSAGE("Component interface name : " << _modulelist[ind].ParserListInterface[i].Parserinterfacename);
-// 	  for (unsigned int j=0; j< _modulelist[ind].ParserListInterface[i].Parserinterfaceservicelist.size(); j++)
-// 	    {
-// 	      MESSAGE("Service name : " << _modulelist[ind].ParserListInterface[i].Parserinterfaceservicelist[j].ParserServiceName);
-// 	      MESSAGE("Service default : " << _modulelist[ind].ParserListInterface[i].Parserinterfaceservicelist[j].ParserServicebydefault);
-// 	      for (unsigned int k=0; k< _modulelist[ind].ParserListInterface[i].Parserinterfaceservicelist[j].ParserServiceinParameter.size() ; k++)
-// 		{
-// 		  MESSAGE("Service Parameter in name : " <<_modulelist[ind].ParserListInterface[i].Parserinterfaceservicelist[j].ParserServiceinParameter[k].ParserParamname);
-// 		  MESSAGE("Service Parameter in type : " << _modulelist[ind].ParserListInterface[i].Parserinterfaceservicelist[j].ParserServiceinParameter[k].ParserParamtype);
-// 		}
-// 	      for (unsigned int k=0; k< _modulelist[ind].ParserListInterface[i].Parserinterfaceservicelist[j].ParserServiceoutParameter.size() ; k++)
-// 		{
-// 		  MESSAGE("Service Parameter out name : " << _modulelist[ind].ParserListInterface[i].Parserinterfaceservicelist[j].ParserServiceoutParameter[k].ParserParamname);
-// 		  MESSAGE("Service Parameter out type : " << _modulelist[ind].ParserListInterface[i].Parserinterfaceservicelist[j].ParserServiceoutParameter[k].ParserParamtype);
-// 		}
-// 	    }  
-       }
-//     }
-  //MESSAGE("Document parsed");
+      DebugParserComponent( _moduleList[ind]);
+    }
+
+  MESSAGE("Document parsed");
+  END_OF("endDocument");
   return true;
 }
  

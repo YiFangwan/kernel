@@ -157,7 +157,7 @@ private :
     \param service SALOME_ModuleCatalog::Service arguments
     \return the service
   */
-  virtual SALOME_ModuleCatalog::Service_var _duplicate_service(SALOME_ModuleCatalog::Service service);
+  virtual SALOME_ModuleCatalog::Service_var _duplicate_service(SALOME_ModuleCatalog::Service & service);
 };
 
 #endif // ACOMPONENT_IMPL_H

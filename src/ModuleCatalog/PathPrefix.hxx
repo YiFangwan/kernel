@@ -35,7 +35,7 @@
 struct PathPrefix
 {
   string path ;
-  vector<string> ListOfComputer ;
+  vector<string> listOfComputer ;
 } ;
 
 typedef vector<PathPrefix> ListOfPathPrefix ;

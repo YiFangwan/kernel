@@ -29,6 +29,7 @@
 #include "SALOME_ModuleCatalog_impl.hxx"
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
 #include <fstream>
+#include <map>
 
 #include <qstringlist.h>
 #include <qfileinfo.h>
@@ -130,9 +131,9 @@ SALOME_ModuleCatalogImpl::GetPathPrefix(const char* machinename) {
   // looking for the wanted computer
   for (unsigned int ind = 0 ; ind < _personal_path_list.size() ; ind++)
     {
-      for (unsigned int ind1 = 0 ; ind1 < _personal_path_list[ind].ListOfComputer.size() ; ind1++)    
+      for (unsigned int ind1 = 0 ; ind1 < _personal_path_list[ind].listOfComputer.size() ; ind1++)    
 	{
-	  if (strcmp(machinename, _personal_path_list[ind].ListOfComputer[ind1].c_str()) == 0)
+	  if (strcmp(machinename, _personal_path_list[ind].listOfComputer[ind1].c_str()) == 0)
 	    {
 	      _find = true ;
 	      // Wanted computer
@@ -148,9 +149,9 @@ SALOME_ModuleCatalogImpl::GetPathPrefix(const char* machinename) {
     {
     for (unsigned int ind = 0 ; ind < _general_path_list.size() ; ind++)
       {
-        for (unsigned int ind1 = 0 ; ind1 < _general_path_list[ind].ListOfComputer.size() ; ind1++)    
+        for (unsigned int ind1 = 0 ; ind1 < _general_path_list[ind].listOfComputer.size() ; ind1++)    
 	  {
-	    if (strcmp(machinename, _general_path_list[ind].ListOfComputer[ind1].c_str()) == 0)
+	    if (strcmp(machinename, _general_path_list[ind].listOfComputer[ind1].c_str()) == 0)
 	      {
 	        _find = true ;
 	        // Wanted computer
@@ -185,7 +186,7 @@ SALOME_ModuleCatalogImpl::GetComponentList()
   // All the components defined in the personal catalog are taken
   for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
     {
-       _list_components[ind]=(_personal_module_list[ind].Parsercomponentname).c_str();
+       _list_components[ind]=(_personal_module_list[ind].parserComponentName).c_str();
        SCRUTE(_list_components[ind]) ;
     }
 
@@ -201,21 +202,21 @@ SALOME_ModuleCatalogImpl::GetComponentList()
 	{
 	  // searching if the component is already defined in 
 	  // the personal catalog
-	  if ((_general_module_list[ind].Parsercomponentname.compare(_personal_module_list[ind1].Parsercomponentname)) == 0)
+	  if ((_general_module_list[ind].parserComponentName.compare(_personal_module_list[ind1].parserComponentName)) == 0)
 	    _find = true;
 	}
       if (!_find)
 	{
-	  MESSAGE("A new component " << _general_module_list[ind].Parsercomponentname << " has to be to added in the list");
+	  MESSAGE("A new component " << _general_module_list[ind].parserComponentName << " has to be to added in the list");
           _list_components->length(indice+1);
 	  // The component is not already defined => has to be taken
-	  _list_components[indice]=(_general_module_list[ind].Parsercomponentname).c_str();   
+	  _list_components[indice]=(_general_module_list[ind].parserComponentName).c_str();   
 	  SCRUTE(_list_components[indice]) ;
 
 	  indice++;
 	}
       else 
-	MESSAGE("The component " <<_general_module_list[ind].Parsercomponentname << " was already defined in the personal catalog") ;
+	MESSAGE("The component " <<_general_module_list[ind].parserComponentName << " was already defined in the personal catalog") ;
      }
 
   MESSAGE ( "End of GetComponentList" )
@@ -243,9 +244,9 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
   // All the components defined in the personal catalog are taken
   for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
     {
-       _list_components_icone[ind].modulename=(_personal_module_list[ind].Parsercomponentname).c_str();
-       _list_components_icone[ind].moduleusername=(_personal_module_list[ind].Parsercomponentusername).c_str();
-       _list_components_icone[ind].moduleicone=(_personal_module_list[ind].Parsercomponenticone).c_str();
+       _list_components_icone[ind].modulename=(_personal_module_list[ind].parserComponentName).c_str();
+       _list_components_icone[ind].moduleusername=(_personal_module_list[ind].parserComponentUsername).c_str();
+       _list_components_icone[ind].moduleicone=(_personal_module_list[ind].parserComponentIcon).c_str();
        //SCRUTE(_list_components_icone[ind].modulename); 
        //SCRUTE(_list_components_icone[ind].moduleicone);
     }
@@ -262,24 +263,24 @@ SALOME_ModuleCatalogImpl::GetComponentIconeList()
 	{
 	  // searching if the component is aleready defined in 
 	  // the personal catalog
-	  if ((_general_module_list[ind].Parsercomponentname.compare(_personal_module_list[ind1].Parsercomponentname)) == 0)
+	  if ((_general_module_list[ind].parserComponentName.compare(_personal_module_list[ind1].parserComponentName)) == 0)
 	    _find = true;
 	}
       if (!_find)
 	{
-	  //	  MESSAGE("A new component " << _general_module_list[ind].Parsercomponentname << " has to be to added in the list");
+	  //	  MESSAGE("A new component " << _general_module_list[ind].parserComponentName << " has to be to added in the list");
           _list_components_icone->length(indice+1);
 	  // The component is not already defined => has to be taken
-	  _list_components_icone[indice].modulename=(_general_module_list[ind].Parsercomponentname).c_str();  
-	  _list_components_icone[indice].moduleusername=(_general_module_list[ind].Parsercomponentusername).c_str();  
-	  _list_components_icone[indice].moduleicone=(_general_module_list[ind].Parsercomponenticone).c_str(); 
+	  _list_components_icone[indice].modulename=(_general_module_list[ind].parserComponentName).c_str();  
+	  _list_components_icone[indice].moduleusername=(_general_module_list[ind].parserComponentUsername).c_str();  
+	  _list_components_icone[indice].moduleicone=(_general_module_list[ind].parserComponentIcon).c_str(); 
 	  //SCRUTE(_list_components_icone[indice].modulename) ;
 	  //SCRUTE(_list_components_icone[indice].moduleicone);
 
 	  indice++;
 	}
       // else 
-	//MESSAGE("The component " <<_general_module_list[ind].Parsercomponentname << " was already defined in the personal catalog"); 
+	//MESSAGE("The component " <<_general_module_list[ind].parserComponentName << " was already defined in the personal catalog"); 
      }
 
   return _list_components_icone._retn() ;
@@ -333,10 +334,10 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
   // All the components in the personal catalog are taken
   for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
     {
-      if  (_personal_module_list[ind].Parsercomponenttype == _temp_component_type)
+      if  (_personal_module_list[ind].parserComponentType == _temp_component_type)
 	{
 	  _list_typed_component->length(_j + 1); 
-	  _list_typed_component[_j] = (_modulelist[ind].Parsercomponentname).c_str();
+	  _list_typed_component[_j] = (_moduleList[ind].parserComponentName).c_str();
 	  //SCRUTE(_list_typed_component[_j])
 	  _j++;
 	}
@@ -351,27 +352,27 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
     {
       _find = false;
 
-      if(_general_module_list[ind].Parsercomponenttype == _temp_component_type)
+      if(_general_module_list[ind].parserComponentType == _temp_component_type)
 	{
 	  for (unsigned int ind1=0; ind1 < _personal_module_list.size();ind1++)
 	    {
 	      // searching if the component is aleready defined in 
 	      // the personal catalog
-	      if ((_general_module_list[ind].Parsercomponentname.compare(_personal_module_list[ind1].Parsercomponentname)) == 0)
+	      if ((_general_module_list[ind].parserComponentName.compare(_personal_module_list[ind1].parserComponentName)) == 0)
 		_find = true;
 	    }
 	  if (!_find)
 	    {
-	      //MESSAGE("A new component " << _general_module_list[ind].Parsercomponentname << " has to be to added in the list");
+	      //MESSAGE("A new component " << _general_module_list[ind].parserComponentName << " has to be to added in the list");
               _list_typed_component->length(indice+1);
 	      // The component is not already defined => has to be taken
-	      _list_typed_component[indice]=(_general_module_list[ind].Parsercomponentname).c_str();   
+	      _list_typed_component[indice]=(_general_module_list[ind].parserComponentName).c_str();   
 	      //SCRUTE(_list_typed_component[indice]) ;
 
 	      indice++;
 	    }
 	  //else 
-	    //MESSAGE("The component " <<_general_module_list[ind].Parsercomponentname << " was already defined in the personal catalog") ;
+	    //MESSAGE("The component " <<_general_module_list[ind].parserComponentName << " was already defined in the personal catalog") ;
         }
     }
 
@@ -395,14 +396,11 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
   char* _constraint = NULL;
   char* _icone = NULL;
   char* _componentusername = NULL;
-  SALOME_ModuleCatalog::ComponentType _componenttype = SALOME_ModuleCatalog::OTHER; // default initialisation
+  SALOME_ModuleCatalog::ComponentType _componentType = SALOME_ModuleCatalog::OTHER; // default initialisation
   CORBA::Boolean _componentmultistudy = false ; // default initialisation
   ListOfPathPrefix _pathes ;
   _pathes.resize(0);
   
-
-  bool find = false ;
-
   // Looking for component named "componentname" in the personal catalog
   // If found, get name, interfaces and constraint
   // If not found, looking for component named "componentname" in
@@ -410,163 +408,104 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
   // If found, get name, interfaces and constraint
   // If not found, NULL pointer is returned
 
+  ParserComponent *p = NULL;
+  ListOfParserPathPrefix *pp = NULL;
+
   for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
     {
-     if (strcmp((_personal_module_list[ind].Parsercomponentname).c_str(),componentname) == 0)
+     if (strcmp((_personal_module_list[ind].parserComponentName).c_str(),componentname) == 0)
         {
-          //MESSAGE("Component named " << componentname << " found in the personal catalog");
-	    find = true;
+          MESSAGE("Component named " << componentname << " found in the personal catalog");
+	  p = &(_personal_module_list[ind]);
+	  pp = &_personal_path_list;
+	}
+    }
 
-	  // get constraint
-	  _constraint = new char[strlen(_personal_module_list[ind].Parserconstraint.c_str()) + 1];
-	  _constraint = CORBA::string_dup(_personal_module_list[ind].Parserconstraint.c_str());
-
-	  // get component type
-	  switch(_personal_module_list[ind].Parsercomponenttype){
-	  case GEOM:
-	    _componenttype = SALOME_ModuleCatalog::GEOM;
-	    break;
-	  case MESH:
-	    _componenttype = SALOME_ModuleCatalog::MESH;
-	    break;
-	  case Med:
-	    _componenttype = SALOME_ModuleCatalog::Med;
-	    break;
-	  case SOLVER:
-	    _componenttype = SALOME_ModuleCatalog::SOLVER;
-	    break;
-	  case DATA:
-	    _componenttype = SALOME_ModuleCatalog::DATA;
-	    break;
-	  case VISU:
-	    _componenttype = SALOME_ModuleCatalog::VISU;
-	    break;
-	  case SUPERV:
-	    _componenttype = SALOME_ModuleCatalog::SUPERV;
-	    break;
-	  case OTHER:
-	    _componenttype = SALOME_ModuleCatalog::OTHER;
-	    break;
+  if (!p)
+    for (unsigned int ind=0; ind < _general_module_list.size();ind++)
+      {
+	if (strcmp((_general_module_list[ind].parserComponentName).c_str(),componentname) == 0)
+	  {
+	    MESSAGE("Component named " << componentname << " found in the general catalog");
+	    p = &(_general_module_list[ind]);
+	    pp = &_general_path_list;
 	  }
-	  
-	  // get component multistudy
-	  _componentmultistudy = _personal_module_list[ind].Parsercomponentmultistudy ;
+      }
 
-	  // get component icone
-	  _icone = CORBA::string_dup(_personal_module_list[ind].Parsercomponenticone.c_str());
+  if (p) {
+    
+    DebugParserComponent(*p);
 
-	  // get component user name
-	  _componentusername = CORBA::string_dup(_personal_module_list[ind].Parsercomponentusername.c_str());
-
-	  // get component interfaces
-	  _list_interfaces = duplicate_interfaces(_personal_module_list[ind].ParserListInterface);
-
-	  // get pathes prefix
-	  _pathes = duplicate_pathes(_personal_path_list);
-
-	}
+    // get constraint
+    _constraint = CORBA::string_dup(p->parserConstraint.c_str());
+    
+    // get component type
+    switch(p->parserComponentType) {
+    case GEOM:
+      _componentType = SALOME_ModuleCatalog::GEOM;
+      break;
+    case MESH:
+      _componentType = SALOME_ModuleCatalog::MESH;
+      break;
+    case Med:
+      _componentType = SALOME_ModuleCatalog::Med;
+      break;
+    case SOLVER:
+      _componentType = SALOME_ModuleCatalog::SOLVER;
+      break;
+    case DATA:
+      _componentType = SALOME_ModuleCatalog::DATA;
+      break;
+    case VISU:
+      _componentType = SALOME_ModuleCatalog::VISU;
+      break;
+    case SUPERV:
+      _componentType = SALOME_ModuleCatalog::SUPERV;
+      break;
+    case OTHER:
+      _componentType = SALOME_ModuleCatalog::OTHER;
+      break;
     }
-  
-  if (find)
-    {
-      SALOME_ModuleCatalog_AcomponentImpl* aComponentImpl = 
-	new SALOME_ModuleCatalog_AcomponentImpl(componentname,
-						_componentusername,
-						_constraint,
-						_componenttype,
-						_componentmultistudy,
-						_icone,
-						_list_interfaces,
-						_pathes);
-      
-      compo = aComponentImpl->_this();
-    }
+    
+    // get component multistudy
+    _componentmultistudy = p->parserComponentMultistudy ;
+    
+    // get component icone
+    _icone = CORBA::string_dup(p->parserComponentIcon.c_str());
+    
+    // get component user name
+    _componentusername = CORBA::string_dup(p->parserComponentUsername.c_str());
+    
+    // get component interfaces
+    _list_interfaces = duplicate_interfaces(p->parserListInterface);
+    
+    // get pathes prefix
+    _pathes = duplicate_pathes(*pp);
+    
+    SALOME_ModuleCatalog_AcomponentImpl* aComponentImpl = 
+      new SALOME_ModuleCatalog_AcomponentImpl(componentname,
+					      _componentusername,
+					      _constraint,
+					      _componentType,
+					      _componentmultistudy,
+					      _icone,
+					      _list_interfaces,
+					      _pathes);
+    
+    compo = aComponentImpl->_this();
+  }
   else
-    // Not found in the personal catalog => searching in the general catalog
+    // Not found in the personal catalog and in the general catalog
+    // return NULL object
     {
-      for (unsigned int ind=0; ind < _general_module_list.size();ind++)
-	{
-	  if (strcmp((_general_module_list[ind].Parsercomponentname).c_str(),componentname) == 0)
-	    {
-	      //MESSAGE("Component named " << componentname << " found in the general catalog");
-	      find = true;
-
-	      // get constraint
-	      _constraint = new char[strlen(_general_module_list[ind].Parserconstraint.c_str()) + 1];
-	      _constraint = CORBA::string_dup(_general_module_list[ind].Parserconstraint.c_str());
-
-
-	      // get component type
-	      switch(_general_module_list[ind].Parsercomponenttype){
-	      case GEOM:
-		_componenttype = SALOME_ModuleCatalog::GEOM;
-		break;
-	      case MESH:
-		_componenttype = SALOME_ModuleCatalog::MESH;
-		break;
-	      case Med:
-		_componenttype = SALOME_ModuleCatalog::Med;
-		break;
-	      case SOLVER:
-		_componenttype = SALOME_ModuleCatalog::SOLVER;
-		break;
-	      case DATA:
-		_componenttype = SALOME_ModuleCatalog::DATA;
-		break;
-	      case VISU:
-		_componenttype = SALOME_ModuleCatalog::VISU;
-		break;
-	      case SUPERV:
-		_componenttype = SALOME_ModuleCatalog::SUPERV;
-		break;
-	      case OTHER:
-		_componenttype = SALOME_ModuleCatalog::OTHER;
-		break;
-	      }
-
-
-	      // get component multistudy
-	      _componentmultistudy = _general_module_list[ind].Parsercomponentmultistudy ;
-
-	      // get component icone
-	      _icone = CORBA::string_dup(_general_module_list[ind].Parsercomponenticone.c_str());
-
-	      // get component user name
-	      _componentusername = CORBA::string_dup(_general_module_list[ind].Parsercomponentusername.c_str());
-
-	      // get component interfaces
-	      _list_interfaces = duplicate_interfaces(_general_module_list[ind].ParserListInterface);
-
-	      // get pathes prefix
-	      _pathes = duplicate_pathes(_general_path_list);
-	    }
-	}
-  
-      if (find)
-	{
-	  SALOME_ModuleCatalog_AcomponentImpl* aComponentImpl = 
-	    new SALOME_ModuleCatalog_AcomponentImpl(componentname,
-						    _componentusername,
-						    _constraint,
-						    _componenttype,
-						    _componentmultistudy,
-						    _icone,
-						    _list_interfaces,
-						    _pathes);
-      
-	  compo = aComponentImpl->_this();
-	}
-      else
-	// Not found in the personal catalog and in the general catalog
-	// return NULL object
-	{
-	  MESSAGE("Component with name  " << componentname << " not found in catalog");
-          compo = NULL;
-	}
+      MESSAGE("Component with name  " << componentname << " not found in catalog");
+      compo = NULL;
     }
+
   return compo;
 }
 
+ 
 //----------------------------------------------------------------------
 // Function : _parse_xml_file
 // Purpose  : parse one module catalog 
@@ -574,8 +513,11 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* componentname)
 void 
 SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file, 
 					  ListOfParserComponent& modulelist, 
-					  ListOfParserPathPrefix& pathlist)
+					  ListOfParserPathPrefix& pathList)
 {
+  BEGIN_OF("_parse_xml_file");
+  SCRUTE(file);
+
   SALOME_ModuleCatalog_Handler* handler = new SALOME_ModuleCatalog_Handler();
   QFile xmlFile(file);
 
@@ -587,10 +529,10 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
   reader.parse( source );
   xmlFile.close();
   unsigned int ind;
-  for ( ind = 0; ind < _modulelist.size(); ind++)
-    modulelist.push_back(_modulelist[ind]) ;
-  for ( ind = 0; ind < _pathlist.size(); ind++)
-    pathlist.push_back(_pathlist[ind]) ;
+  for ( ind = 0; ind < _moduleList.size(); ind++)
+    modulelist.push_back(_moduleList[ind]) ;
+  for ( ind = 0; ind < _pathList.size(); ind++)
+    pathList.push_back(_pathList[ind]) ;
 }
 
 //----------------------------------------------------------------------
@@ -600,51 +542,130 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
 SALOME_ModuleCatalog::ListOfDefInterface
 SALOME_ModuleCatalogImpl::duplicate_interfaces(ListOfDefinitionInterface list_interface)
 {
+
+  // Choices for DataStream port types (en dur ... pas terrible) (MT)
+  std::map < string, SALOME_ModuleCatalog::DataStreamType > DataStreamTypeConvert;
+  DataStreamTypeConvert["UNKNOWN"] = SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
+  DataStreamTypeConvert["INTEGER"] = SALOME_ModuleCatalog::DATASTREAM_INTEGER;
+  DataStreamTypeConvert["FLOAT"]   = SALOME_ModuleCatalog::DATASTREAM_FLOAT;
+  DataStreamTypeConvert["DOUBLE"]  = SALOME_ModuleCatalog::DATASTREAM_DOUBLE;
+  DataStreamTypeConvert["STRING"]  = SALOME_ModuleCatalog::DATASTREAM_STRING;
+  DataStreamTypeConvert["BOOLEAN"] = SALOME_ModuleCatalog::DATASTREAM_BOOLEAN;
+  std::map < string, SALOME_ModuleCatalog::DataStreamType >::iterator it_type;
+
+  // Choices for DataStream ports dependencies (en dur ... pas terrible) (MT)
+  std::map<string,SALOME_ModuleCatalog::DataStreamDependency> DataStreamDepConvert;
+  DataStreamDepConvert["UNDEFINED"] = SALOME_ModuleCatalog::DATASTREAM_UNDEFINED;
+  DataStreamDepConvert["T"]         = SALOME_ModuleCatalog::DATASTREAM_TEMPORAL;
+  DataStreamDepConvert["I"]         = SALOME_ModuleCatalog::DATASTREAM_ITERATIVE;
+  std::map < string, SALOME_ModuleCatalog::DataStreamDependency >::iterator it_dep;
+
+
   SALOME_ModuleCatalog::ListOfDefInterface _list_interfaces;
   unsigned int _length_interfaces = list_interface.size();
   _list_interfaces.length(_length_interfaces);
   
   for (unsigned int ind = 0; ind < _length_interfaces; ind++)
     {
+      SALOME_ModuleCatalog::DefinitionInterface & I_corba =  _list_interfaces[ind];
+      ParserDefInterface & I_parser = list_interface[ind];
+
       //duplicate interface name
-      _list_interfaces[ind].interfacename = CORBA::string_dup(list_interface[ind].Parserinterfacename.c_str());
+      I_corba.interfacename = CORBA::string_dup(I_parser.parserInterfaceName.c_str());
 
       // duplicate service list
-      unsigned int _length_services = list_interface[ind].Parserinterfaceservicelist.size();
-      _list_interfaces[ind].interfaceservicelist.length(_length_services);
+      unsigned int _length_services = I_parser.parserInterfaceServiceList.size();
+      SCRUTE(_length_services);
+      I_corba.interfaceservicelist.length(_length_services);
 
       for (unsigned int ind1 = 0; ind1 < _length_services ; ind1 ++)
 	{
+	  // input structure form XML parser
+	  const ParserService & S_parser          = I_parser.parserInterfaceServiceList[ind1];
+	  // output structure to CORBA
+	  SALOME_ModuleCatalog::Service & S_corba = I_corba.interfaceservicelist[ind1];
+
 	  // duplicate service name
-	  _list_interfaces[ind].interfaceservicelist[ind1].ServiceName =
-	    CORBA::string_dup(list_interface[ind].Parserinterfaceservicelist[ind1].ParserServiceName.c_str());
+	  S_corba.ServiceName 
+	    = CORBA::string_dup(S_parser.parserServiceName.c_str());
 
 	  // duplicate service by default
-	  _list_interfaces[ind].interfaceservicelist[ind1].Servicebydefault =
-	    list_interface[ind].Parserinterfaceservicelist[ind1].ParserServicebydefault;
+	  S_corba.Servicebydefault 
+	    = S_parser.parserServiceByDefault;
 
 	  // duplicate in Parameters
-	  unsigned int _length_in_param = list_interface[ind].Parserinterfaceservicelist[ind1].ParserServiceinParameter.size();
-	  _list_interfaces[ind].interfaceservicelist[ind1].ServiceinParameter.length(_length_in_param);
+	  unsigned int _length_in_param = S_parser.parserServiceInParameter.size();
+	  S_corba.ServiceinParameter.length(_length_in_param);
 	  for (unsigned int ind2 = 0; ind2 < _length_in_param ; ind2 ++)
 	    {
+	     SALOME_ModuleCatalog::ServicesParameter & P_corba = S_corba.ServiceinParameter[ind2];
+	     const ParserServParam & P_parser = S_parser.parserServiceInParameter[ind2];
 	      // duplicate parameter type
-	      _list_interfaces[ind].interfaceservicelist[ind1].ServiceinParameter[ind2].Parametertype = CORBA::string_dup(list_interface[ind].Parserinterfaceservicelist[ind1].ParserServiceinParameter[ind2].ParserParamtype.c_str());
+	     P_corba.Parametertype = CORBA::string_dup(P_parser.parserParamType.c_str());
 	      
 	      // duplicate parameter name
-	      _list_interfaces[ind].interfaceservicelist[ind1].ServiceinParameter[ind2].Parametername = CORBA::string_dup(list_interface[ind].Parserinterfaceservicelist[ind1].ParserServiceinParameter[ind2].ParserParamname.c_str());
+	     P_corba.Parametername = CORBA::string_dup(P_parser.parserParamName.c_str());
 	    }
 
 	  // duplicate out Parameters
-	  unsigned int _length_out_param = list_interface[ind].Parserinterfaceservicelist[ind1].ParserServiceoutParameter.size();
-	  _list_interfaces[ind].interfaceservicelist[ind1].ServiceoutParameter.length(_length_out_param);
+	  unsigned int _length_out_param = S_parser.parserServiceOutParameter.size();
+	  S_corba.ServiceoutParameter.length(_length_out_param);
 	  for (unsigned int ind2 = 0; ind2 < _length_out_param ; ind2 ++)
 	    {
+	     SALOME_ModuleCatalog::ServicesParameter & P_corba
+	       = S_corba.ServiceoutParameter[ind2];
+	     const ParserServParam & P_parser
+	       = S_parser.parserServiceOutParameter[ind2];
+
 	      // duplicate parameter type
-	      _list_interfaces[ind].interfaceservicelist[ind1].ServiceoutParameter[ind2].Parametertype = CORBA::string_dup(list_interface[ind].Parserinterfaceservicelist[ind1].ParserServiceoutParameter[ind2].ParserParamtype.c_str());
+	     P_corba.Parametertype = CORBA::string_dup(P_parser.parserParamType.c_str());
 	      
 	      // duplicate parameter name
-	      _list_interfaces[ind].interfaceservicelist[ind1].ServiceoutParameter[ind2].Parametername = CORBA::string_dup(list_interface[ind].Parserinterfaceservicelist[ind1].ParserServiceoutParameter[ind2].ParserParamname.c_str());
+	     P_corba.Parametername = CORBA::string_dup(P_parser.parserParamName.c_str());
+	    }
+      
+	  // duplicate in DataStreamParameters
+	  unsigned int _length_in_datastream_param 
+	    = S_parser.parserServiceInDataStreamParameter.size();
+	  S_corba.ServiceinDataStreamParameter.length(_length_in_datastream_param);
+	  for (unsigned int ind2 = 0; ind2 < _length_in_datastream_param ; ind2 ++)
+	    {
+	     SALOME_ModuleCatalog::ServicesDataStreamParameter & P_corba 
+	       = S_corba.ServiceinDataStreamParameter[ind2];
+	     const ParserServDataStreamParam & P_parser
+	       = S_parser.parserServiceInDataStreamParameter[ind2];
+
+	      // duplicate parameter type
+	     it_type = DataStreamTypeConvert.find(P_parser.parserParamType);
+	     S_corba.ServiceinDataStreamParameter[ind2].Parametertype
+	       = (it_type == DataStreamTypeConvert.end()) 
+	       ? it_type->second : SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
+	      
+	      // duplicate parameter name
+	     S_corba.ServiceinDataStreamParameter[ind2].Parametername 
+	       = CORBA::string_dup(P_parser.parserParamName.c_str());
+	    }
+
+	  // duplicate out DataStreamParameters
+	  unsigned int _length_out_datastream_param 
+	    = S_parser.parserServiceOutDataStreamParameter.size();
+	 S_corba.ServiceoutDataStreamParameter.length(_length_out_datastream_param);
+
+	  for (unsigned int ind2 = 0; ind2 < _length_out_datastream_param ; ind2 ++)
+	    {
+	     SALOME_ModuleCatalog::ServicesDataStreamParameter & P_corba 
+	       = S_corba.ServiceoutDataStreamParameter[ind2];
+	     const ParserServDataStreamParam & P_parser
+	       = S_parser.parserServiceOutDataStreamParameter[ind2];
+
+	      // duplicate parameter type
+	     it_type = DataStreamTypeConvert.find(P_parser.parserParamType);
+	     S_corba.ServiceoutDataStreamParameter[ind2].Parametertype
+	       = (it_type == DataStreamTypeConvert.end()) 
+	       ? it_type->second : SALOME_ModuleCatalog::DATASTREAM_UNKNOWN;
+	      
+	      // duplicate parameter name
+	     P_corba.Parametername = CORBA::string_dup(P_parser.parserParamName.c_str());
 	    }
       
 	}
@@ -672,13 +693,13 @@ SALOME_ModuleCatalogImpl::duplicate_pathes(ListOfParserPathPrefix pathes)
       _pathes[ind].path = CORBA::string_dup(pathes[ind].path.c_str()) ;
       //MESSAGE("Prefix : " << _pathes[ind].path);
 
-      _length_comput = pathes[ind].ListOfComputer.size() ;
-      _pathes[ind].ListOfComputer.resize(_length_comput);
+      _length_comput = pathes[ind].listOfComputer.size() ;
+      _pathes[ind].listOfComputer.resize(_length_comput);
       for (unsigned int ind1 = 0; ind1 <_length_comput  ; ind1++)
 	{
 	  // duplicate computer name
-	  _pathes[ind].ListOfComputer[ind1] = CORBA::string_dup(pathes[ind].ListOfComputer[ind1].c_str());
-	  //MESSAGE("Computer associated to the prefix : " <<_pathes[ind].ListOfComputer[ind1]);  
+	  _pathes[ind].listOfComputer[ind1] = CORBA::string_dup(pathes[ind].listOfComputer[ind1].c_str());
+	  //MESSAGE("Computer associated to the prefix : " <<_pathes[ind].listOfComputer[ind1]);  
 	}
     } 
   return _pathes ;
@@ -692,18 +713,18 @@ SALOME_ModuleCatalogImpl::duplicate_pathes(ListOfParserPathPrefix pathes)
 //            particular computer
 //----------------------------------------------------------------------
 bool
-SALOME_ModuleCatalogImpl::_verify_path_prefix(ListOfParserPathPrefix pathlist)
+SALOME_ModuleCatalogImpl::_verify_path_prefix(ListOfParserPathPrefix pathList)
 {
   bool _return_value = true;
   vector<string> _machine_list;
   _machine_list.resize(0);
 
   // Fill a list of all computers indicated in the path list
-  for (unsigned int ind = 0; ind < pathlist.size(); ind++)
+  for (unsigned int ind = 0; ind < pathList.size(); ind++)
     { 
-      for (unsigned int ind1 = 0 ; ind1 < pathlist[ind].ListOfComputer.size(); ind1++)
+      for (unsigned int ind1 = 0 ; ind1 < pathList[ind].listOfComputer.size(); ind1++)
 	{
-	  _machine_list.push_back(pathlist[ind].ListOfComputer[ind1]);
+	  _machine_list.push_back(pathList[ind].listOfComputer[ind1]);
 	}
     }
 

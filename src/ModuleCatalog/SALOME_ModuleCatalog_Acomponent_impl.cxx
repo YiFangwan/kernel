@@ -47,7 +47,14 @@ SALOME_ModuleCatalog_AcomponentImpl::SALOME_ModuleCatalog_AcomponentImpl(
 		   SALOME_ModuleCatalog::ListOfDefInterface list_interfaces,
 		   ListOfPathPrefix pathes)
 {
-  MESSAGE("Component creation")
+  BEGIN_OF("SALOME_ModuleCatalog_AcomponentImpl");
+  SCRUTE(name);
+  SCRUTE(username);
+  SCRUTE(constraint);
+  SCRUTE(componenttype);
+  SCRUTE(componentmultistudy);
+  SCRUTE(icone);
+
   // Affect component name
   _component_name = new char[strlen(name)+1];
  strcpy(_component_name, name);
@@ -71,12 +78,13 @@ SALOME_ModuleCatalog_AcomponentImpl::SALOME_ModuleCatalog_AcomponentImpl(
  strcpy(_icone, icone);
 
  //Affect interfaces
- _list_interfaces.length(list_interfaces.length());
  _list_interfaces = list_interfaces;
 
  // affect path prefixes
- _pathes.resize(pathes.size());
+ // _pathes.resize(pathes.size());
  _pathes = pathes ;
+
+  END_OF("SALOME_ModuleCatalog_AcomponentImpl");
 }
 
 //----------------------------------------------------------------------
@@ -85,11 +93,14 @@ SALOME_ModuleCatalog_AcomponentImpl::SALOME_ModuleCatalog_AcomponentImpl(
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog_AcomponentImpl::~SALOME_ModuleCatalog_AcomponentImpl()
 {
-  MESSAGE("Component destruction")
+  BEGIN_OF("~SALOME_ModuleCatalog_AcomponentImpl");
+
   // empty memory
   delete [] _component_name;
   delete [] _component_user_name;
   delete [] _constraint;
+
+  END_OF("~SALOME_ModuleCatalog_AcomponentImpl");
 }
 
 //----------------------------------------------------------------------
@@ -99,6 +110,8 @@ SALOME_ModuleCatalog_AcomponentImpl::~SALOME_ModuleCatalog_AcomponentImpl()
 SALOME_ModuleCatalog::ListOfInterfaces* 
 SALOME_ModuleCatalog_AcomponentImpl::GetInterfaceList() 
 {
+  BEGIN_OF("GetInterfaceList");
+
   SALOME_ModuleCatalog::ListOfInterfaces_var _list = new SALOME_ModuleCatalog::ListOfInterfaces;
 
   // All the interfaces are defined in _list_interfaces affected at the
@@ -114,6 +127,7 @@ SALOME_ModuleCatalog_AcomponentImpl::GetInterfaceList()
       MESSAGE("The component " << _component_name << " contains " << _list[ind] << " as interface") 
     }
   
+  END_OF("GetInterfaceList");
   return _list._retn();
 }
 
@@ -125,6 +139,9 @@ SALOME_ModuleCatalog::DefinitionInterface*
 SALOME_ModuleCatalog_AcomponentImpl::GetInterface(const char* interfacename)
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
+  BEGIN_OF("GetInterface");
+  SCRUTE(interfacename);
+
   SALOME_ModuleCatalog::DefinitionInterface_var _interface = new SALOME_ModuleCatalog::DefinitionInterface;
   SALOME_ModuleCatalog::Service_var _service = new SALOME_ModuleCatalog::Service;
   // Variables initialisation
@@ -159,17 +176,16 @@ SALOME_ModuleCatalog_AcomponentImpl::GetInterface(const char* interfacename)
   if (!_find)
     {
       // The interface was not found, the exception should be thrown
-      char * message = new char[100];
-      strcpy(message, "The interface ");
-      strcat(message,interfacename);
-      strcat(message, " of the component ");
-      strcat(message,_component_name); 
-      strcat(message, " was not found") ;
-      MESSAGE("The interface " << interfacename << " of the component " << _component_name << " was not found")
-	throw SALOME_ModuleCatalog::NotFound(message);
-      delete [] message;
+      string message = "The interface";
+      message += interfacename;
+      message += " of the component ";
+      message += _component_name;
+      message += " was not found"; 
+      MESSAGE(message)
+	throw SALOME_ModuleCatalog::NotFound(message.c_str());
     }
 
+  END_OF("GetInterfaceList");
   return _interface._retn();
 }
 
@@ -184,6 +200,9 @@ SALOME_ModuleCatalog::ListOfServices*
 SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
+  BEGIN_OF("GetServiceList");
+  SCRUTE(interfacename);
+
   SALOME_ModuleCatalog::ListOfServices_var _list = new SALOME_ModuleCatalog::ListOfServices;
 
   // Variables initialisation
@@ -211,17 +230,16 @@ SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
  if (!_find)
     {
       // The interface was not found, the exception should be thrown
-      char * message = new char[100];
-      strcpy(message, "The interface ");
-      strcat(message,interfacename);
-      strcat(message, " of the component ");
-      strcat(message,_component_name); 
-      strcat(message, " was not found") ;
-      MESSAGE("The interface " << interfacename << " of the component " << _component_name << " was not found")
-	throw SALOME_ModuleCatalog::NotFound(message);
-      delete [] message;
+      string message = "The interface";
+      message += interfacename;
+      message += " of the component ";
+      message += _component_name;
+      message += " was not found"; 
+      MESSAGE(message)
+	throw SALOME_ModuleCatalog::NotFound(message.c_str());
     }
 
+  END_OF("GetServiceList");
   return _list._retn();
 }
 
@@ -235,19 +253,30 @@ SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename,
 						const char* servicename) 
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
+  BEGIN_OF("GetService");
+  SCRUTE(interfacename);
+  SCRUTE(servicename);
+
   SALOME_ModuleCatalog::Service_var _service = new SALOME_ModuleCatalog::Service;
   // Varaibles initialisation
   bool _find = false ;
   
+  MESSAGE("");
   // looking for the specified interface
   for (unsigned int ind = 0; ind < _list_interfaces.length(); ind++)
     {
+      SCRUTE(ind);
+      SCRUTE(_list_interfaces[ind].interfacename);
+
       if (strcmp(interfacename, _list_interfaces[ind].interfacename) == 0)
 	{
 	  // wanted interface
 	  // looking for the specified service
 	  for (unsigned int ind1 = 0; ind1 <  _list_interfaces[ind].interfaceservicelist.length() ; ind1++)
 	    {
+	      SCRUTE(ind1);
+	      SCRUTE(_list_interfaces[ind].interfaceservicelist[ind1].ServiceName);
+
 	      if (strcmp(servicename, _list_interfaces[ind].interfaceservicelist[ind1].ServiceName) == 0)
 	      {
 		// Wanted Service
@@ -260,22 +289,22 @@ SALOME_ModuleCatalog_AcomponentImpl::GetService(const char* interfacename,
 	}
     }
   
+  SCRUTE(_find);
   if (!_find)
     {
-      // The service was not found, the exception should be thrown
-      char * message = new char[100];
-      strcpy(message, "The service ");
-      strcat(message, servicename);
-      strcat(message," of the interface ");
-      strcat(message,interfacename);
-      strcat(message, " of the component ");
-      strcat(message,_component_name); 
-      strcat(message, " was not found") ;
-      MESSAGE("The service " << servicename << " of the interface " << interfacename << " of the component " << _component_name << " was not found")
-	throw SALOME_ModuleCatalog::NotFound(message);
-      delete [] message;
+      // The interface was not found, the exception should be thrown
+      string message = "The service";
+      message += servicename;
+      message += " of the interface ";
+      message += interfacename;
+      message += " of the component ";
+      message += _component_name;
+      message += " was not found"; 
+      MESSAGE(message)
+	throw SALOME_ModuleCatalog::NotFound(message.c_str());
     }
 
+  END_OF("GetService");
   return _service._retn();
 }
 
@@ -287,6 +316,9 @@ SALOME_ModuleCatalog::Service*
 SALOME_ModuleCatalog_AcomponentImpl::GetDefaultService(const char* interfacename) 
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
+  BEGIN_OF("GetDefaultService");
+  SCRUTE(interfacename);
+
   SALOME_ModuleCatalog::Service_var _service = new SALOME_ModuleCatalog::Service;
 
   // Variables initialisation
@@ -316,17 +348,16 @@ SALOME_ModuleCatalog_AcomponentImpl::GetDefaultService(const char* interfacename
   if (!_find)
     {
       // The service was not found, the exception should be thrown
-      char * message = new char[100];
-      strcpy(message, "The default service of the interface ");
-      strcat(message,interfacename);
-      strcat(message, " of the component ");
-      strcat(message,_component_name); 
-      strcat(message, " was not found") ;
-      MESSAGE("The default service of the interface " << interfacename << " of the component " << _component_name << " was not found")
-	throw SALOME_ModuleCatalog::NotFound(message);
-      delete [] message;
+      string message = "The default service of the interface ";
+      message += interfacename;
+      message += " of the component ";
+      message += _component_name;
+      message += " was not found";
+      MESSAGE(message)
+	throw SALOME_ModuleCatalog::NotFound(message.c_str());
     }
 
+  END_OF("GetDefaultService");
   return _service._retn();
 }
 
@@ -338,7 +369,9 @@ char*
 SALOME_ModuleCatalog_AcomponentImpl::GetPathPrefix(const char* machinename) 
                                      throw(SALOME_ModuleCatalog::NotFound)
 {
-  MESSAGE("Begin of GetPathPrefix")
+  BEGIN_OF("GetPathPrefix");
+  SCRUTE(machinename);
+
   // Variables initialisation
   char* _path = NULL;
   bool _find = false ;
@@ -347,9 +380,9 @@ SALOME_ModuleCatalog_AcomponentImpl::GetPathPrefix(const char* machinename)
   // looking for the wanted computer
   for (unsigned int ind = 0 ; ind < _pathes.size() ; ind++)
     {
-      for (unsigned int ind1 = 0 ; ind1 < _pathes[ind].ListOfComputer.size() ; ind1++)    
+      for (unsigned int ind1 = 0 ; ind1 < _pathes[ind].listOfComputer.size() ; ind1++)    
 	{
-	  if (strcmp(machinename, _pathes[ind].ListOfComputer[ind1].c_str()) == 0)
+	  if (strcmp(machinename, _pathes[ind].listOfComputer[ind1].c_str()) == 0)
 	    {
 	      _find = true ;
 	      // Wanted computer
@@ -364,16 +397,15 @@ SALOME_ModuleCatalog_AcomponentImpl::GetPathPrefix(const char* machinename)
   if (!_find)
     {
       // The computer was not found, the exception should be thrown
-      char * message = new char[100];
-      strcpy(message, "The computer ");
-      strcat(message,machinename); 
-      strcat(message, " was not found in the catalog associated to the component ") ;
-      strcat(message,_component_name);      
-      MESSAGE("The computer " << machinename << " was not found in the catalog associated to the component " << _component_name)
-	throw SALOME_ModuleCatalog::NotFound(message);
-      delete [] message;
+      string message = "The computer ";
+      message += machinename;
+      message += " was not found in the catalog associated to the component ";
+      message += _component_name;
+      MESSAGE(message)
+	throw SALOME_ModuleCatalog::NotFound(message.c_str());
     }
 
+  END_OF("GetPathPrefix");
   return _path;
 }
 
@@ -437,8 +469,11 @@ char* SALOME_ModuleCatalog_AcomponentImpl::component_icone()
 // Purpose  : duplicate a service
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog::Service_var 
-SALOME_ModuleCatalog_AcomponentImpl::_duplicate_service(SALOME_ModuleCatalog::Service service)
+SALOME_ModuleCatalog_AcomponentImpl::_duplicate_service(SALOME_ModuleCatalog::Service & service)
 {
+  BEGIN_OF("_duplicate_service");
+
+  unsigned int _length;
   SALOME_ModuleCatalog::Service_var _service = new SALOME_ModuleCatalog::Service;
 
   // service name
@@ -446,27 +481,73 @@ SALOME_ModuleCatalog_AcomponentImpl::_duplicate_service(SALOME_ModuleCatalog::Se
   // service by default
   _service->Servicebydefault = service.Servicebydefault;
 
+  MESSAGE("");
   // in Parameters service
-  unsigned int _length_in_param = service.ServiceinParameter.length();
-  for(unsigned int ind = 0; ind < _length_in_param; ind++)
+  _length = service.ServiceinParameter.length();
+  SCRUTE(_length);
+  for(unsigned int ind = 0; ind < _length; ind++)
     {
-      _service->ServiceinParameter.length(_length_in_param);
+      SCRUTE(service.ServiceinParameter[ind].Parametername);
+      _service->ServiceinParameter.length(_length);
       // in Parameter type
-      _service->ServiceinParameter[ind].Parametertype = CORBA::string_dup(service.ServiceinParameter[ind].Parametertype);
+      _service->ServiceinParameter[ind].Parametertype 
+	= CORBA::string_dup(service.ServiceinParameter[ind].Parametertype);
       // in Parameter name
-       _service->ServiceinParameter[ind].Parametername = CORBA::string_dup(service.ServiceinParameter[ind].Parametername);
+       _service->ServiceinParameter[ind].Parametername 
+	 = CORBA::string_dup(service.ServiceinParameter[ind].Parametername);
     }
 
    // out Parameters service
-  unsigned int _length_out_param = service.ServiceoutParameter.length();
-  for(unsigned int ind = 0; ind < _length_out_param; ind++)
+  _length = service.ServiceoutParameter.length();
+  SCRUTE(_length);
+  for(unsigned int ind = 0; ind < _length; ind++)
     {
-      _service->ServiceoutParameter.length(_length_out_param);
+      SCRUTE(service.ServiceoutParameter[ind].Parametername);
+      _service->ServiceoutParameter.length(_length);
       // out Parameter type
-      _service->ServiceoutParameter[ind].Parametertype = CORBA::string_dup(service.ServiceoutParameter[ind].Parametertype);
+      _service->ServiceoutParameter[ind].Parametertype 
+	= CORBA::string_dup(service.ServiceoutParameter[ind].Parametertype);
       // out Parameter name
-       _service->ServiceoutParameter[ind].Parametername = CORBA::string_dup(service.ServiceoutParameter[ind].Parametername);
+       _service->ServiceoutParameter[ind].Parametername 
+	 = CORBA::string_dup(service.ServiceoutParameter[ind].Parametername);
     }    
 
+  // in DataStreamParameters service
+  _length = service.ServiceinDataStreamParameter.length();
+  SCRUTE(_length);
+  for(unsigned int ind = 0; ind < _length; ind++)
+    {
+      SCRUTE(service.ServiceinDataStreamParameter[ind].Parametername);
+      _service->ServiceinDataStreamParameter.length(_length);
+      // in DataStreamParameter type
+      _service->ServiceinDataStreamParameter[ind].Parametertype 
+	= service.ServiceinDataStreamParameter[ind].Parametertype;
+      // in DataStreamParameter dependency
+      _service->ServiceinDataStreamParameter[ind].Parameterdependency
+	= service.ServiceinDataStreamParameter[ind].Parameterdependency;
+      // in DataStreamParameter name
+      _service->ServiceinDataStreamParameter[ind].Parametername 
+	= CORBA::string_dup(service.ServiceinDataStreamParameter[ind].Parametername);
+    }
+
+   // out DataStreamParameters service
+  _length = service.ServiceoutDataStreamParameter.length();
+  SCRUTE(_length);
+  for(unsigned int ind = 0; ind < _length; ind++)
+    {
+     SCRUTE(service.ServiceoutDataStreamParameter[ind].Parametername);
+      _service->ServiceoutDataStreamParameter.length(_length);
+      // out DataStreamParameter type
+      _service->ServiceoutDataStreamParameter[ind].Parametertype 
+	= service.ServiceoutDataStreamParameter[ind].Parametertype;
+      // in DataStreamParameter dependency
+      _service->ServiceoutDataStreamParameter[ind].Parameterdependency
+	= service.ServiceoutDataStreamParameter[ind].Parameterdependency;
+      // out DataStreamParameter name
+      _service->ServiceoutDataStreamParameter[ind].Parametername 
+	= CORBA::string_dup(service.ServiceoutDataStreamParameter[ind].Parametername);
+    }    
+
+  END_OF("_duplicate_service");
   return _service;
 }
