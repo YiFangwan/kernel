@@ -32,18 +32,24 @@
 #include <qtextedit.h>
 #include <qevent.h>
 
+class QMutex;
+
 class QAD_PyInterp;
-class PythonThread;
+class TInitEditorThread;
+class TExecCommandThread;
 
 class QAD_PyEditor : public QTextEdit
 {
   Q_OBJECT
 
 public:
-  enum { PYTHON_OK = QEvent::User + 5000, PYTHON_ERROR, PYTHON_INCOMPLETE };
+  enum { PYTHON_OK = QEvent::User + 5000, PYTHON_ERROR, PYTHON_INCOMPLETE, 
+	 INITIALIZE, SET_WAIT_CURSOR, UNSET_CURSOR };
 
 public:
-  QAD_PyEditor(QAD_PyInterp* interp, QWidget *parent=0, const char *name=0);
+  QAD_PyEditor(QAD_PyInterp*& theInterp, QMutex* theMutex,
+	       QWidget *theParent = 0, const char* theName = "");
+  virtual void Init(); 
   ~QAD_PyEditor();
   
   virtual void setText(QString s); 
@@ -60,13 +66,17 @@ public slots:
   void handleReturn();
   
 private:
-  QAD_PyInterp * _interp;
   QString        _buf;
   QString        _currentCommand;
   QString        _currentPrompt;
   bool           _isInHistory;
 
-  PythonThread*  _thread;
+  QAD_PyInterp*& myInterp;
+  QMutex* myStudyMutex;
+  QMutex* myInitEditorMutex;
+  QMutex* myExecCommandMutex;
+  TInitEditorThread* myInitEditorThread;
+  TExecCommandThread* myExecCommandThread;
 };
 
 #endif

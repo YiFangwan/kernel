@@ -18,10 +18,22 @@
 
 #include <Python.h>
 
+class QSemaphore;
+class QMutex;
+
 extern "C" PyObject * PyEval_EvalCode(PyObject *co, PyObject *g, PyObject *l);
 
 #define TOP_HISTORY_PY "--- top of history ---"
 #define BEGIN_HISTORY_PY "--- begin of history ---"
+
+
+class SemaphoreLock{
+  QSemaphore* mySemaphore;
+  std::string myComment;
+ public:
+  SemaphoreLock(QSemaphore* theSemaphore, const char* theComment = "");
+  ~SemaphoreLock();
+};
 
 
 class PyLockWrapper{
@@ -31,6 +43,20 @@ class PyLockWrapper{
   PyLockWrapper(PyThreadState* theThreadState);
   ~PyLockWrapper();
 };
+
+
+class ThreadLock{
+  QMutex* myMutex;
+  std::string myComment;
+ public:
+  ThreadLock(QMutex* theMutex, const char* theComment = "");
+  ~ThreadLock();
+};
+
+
+bool IsPyLocked();
+
+ThreadLock GetPyThreadLock(const char* theComment = "");
 
 
 class PyInterp_base{

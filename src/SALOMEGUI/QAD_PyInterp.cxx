@@ -26,10 +26,18 @@
 //  Module : SALOME
 //  $Header$
 
-using namespace std;
-using namespace std;
 #include "QAD_PyInterp.h"
 #include "utilities.h"
+
+using namespace std;
+
+
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+#else
+static int MYDEBUG = 0;
+#endif
+
 
 /*!
  * constructor : multi Python interpreter, one per SALOME study.
@@ -64,36 +72,35 @@ QAD_PyInterp::~QAD_PyInterp()
 
 void QAD_PyInterp::initState()
 {
-  MESSAGE("QAD_PyInterp::initState");
   _tstate = Py_NewInterpreter(); // create an interpreter and save current state
   PySys_SetArgv(PyInterp_base::_argc,PyInterp_base::_argv); // initialize sys.argv
+  if(MYDEBUG) MESSAGE("QAD_PyInterp::initState - this = "<<this<<"; _tstate = "<<_tstate);
 
-  if(!builtinmodule) 
-    return;
   /*
    * If builtinmodule has been initialized all the sub interpreters
    * will have the same __builtin__ module
    */
-  PyObject *m = PyImport_GetModuleDict();
-  PyDict_SetItemString(m, "__builtin__", builtinmodule);
-  SCRUTE(builtinmodule->ob_refcnt); // builtinmodule reference counter
-  _tstate->interp->builtins = PyModule_GetDict(builtinmodule);
-  Py_INCREF(_tstate->interp->builtins);
+  if(builtinmodule){ 
+    PyObject *m = PyImport_GetModuleDict();
+    PyDict_SetItemString(m, "__builtin__", builtinmodule);
+    SCRUTE(builtinmodule->ob_refcnt); // builtinmodule reference counter
+    _tstate->interp->builtins = PyModule_GetDict(builtinmodule);
+    Py_INCREF(_tstate->interp->builtins);
+  }
 }
 
 
 void QAD_PyInterp::initContext()
 {
-  MESSAGE("QAD_PyInterp::initContext");
   PyObject *m = PyImport_AddModule("__main__");  // interpreter main module (module context)
   if(!m){
-    MESSAGE("problem...");
+    if(MYDEBUG) MESSAGE("problem...");
     PyErr_Print();
     ASSERT(0);
     return;
   }  
   _g = PyModule_GetDict(m);          // get interpreter dictionnary context
-  SCRUTE(_g);
+  if(MYDEBUG) MESSAGE("QAD_PyInterp::initContext - this = "<<this<<"; _g = "<<_g);
 
   if(builtinmodule){
     PyDict_SetItemString(_g, "__builtins__", builtinmodule); // assign singleton __builtin__ module

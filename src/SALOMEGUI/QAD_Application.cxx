@@ -823,6 +823,8 @@ QAD_Study* QAD_Application::newStudy()
 	newStudy = new QAD_Study( this, aStudy, StudyName);
       }
 
+    newStudy->Init();
+
     if ( newStudy->getResult() ) {
       addStudy( newStudy );
       

@@ -22,7 +22,6 @@ using namespace std;
  */
 QAD_PyInterp_mono::QAD_PyInterp_mono(): PyInterp_base()
 {
-  initialize();
 }
 
 QAD_PyInterp_mono::~QAD_PyInterp_mono()
