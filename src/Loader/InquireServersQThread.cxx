@@ -231,7 +231,7 @@ InquireServersQThread::InquireServersQThread( InquireServersGUI* r )
       myMessages[5] = str + "SALOME_Container FactoryServer" + "...";
       myServersCount++;
     }
-    if (strcmp(_argv[i],"PYTHON")==0) {
+    if (strcmp(_argv[i],"PY")==0) {
       myMessages[6] = str + "SALOME_ContainerPy.py FactoryServerPy" + "...";
       myServersCount++;
     }

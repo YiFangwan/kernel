@@ -89,14 +89,12 @@ using namespace std;
 
 int main(int argc, char **argv)
 {
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance();
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  int orbArgc = 1;
+  CORBA::ORB_var &orb = init( orbArgc , argv ) ;
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
   try
     {
-      ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-      ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
-      int orbArgc = 1;
-      CORBA::ORB_var &orb = init( orbArgc , argv ) ;
-
       CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
       PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
 

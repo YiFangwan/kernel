@@ -36,12 +36,12 @@ using namespace std;
 
 int main(int argc,char **argv)
 {
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance();
+  // initialize the ORB
+  CORBA::ORB_ptr orb = CORBA::ORB_init (argc, argv);
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
   try 
     {
       CosNaming::NamingContext_var _rootContext, catalogContext;
-      // initialize the ORB
-      CORBA::ORB_ptr orb = CORBA::ORB_init (argc, argv);
       // initialize POA
       //
       long TIMESleep = 250000000;

@@ -52,7 +52,9 @@ using namespace std;
 
 int main( int argc , char **argv )
 {
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance();
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  CORBA::ORB_var &orb = init( argc , argv ) ;
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
   BEGIN_OF( argv[0] )
     INFOS_COMPILATION 
     SCRUTE(argc) 
@@ -75,9 +77,6 @@ int main( int argc , char **argv )
   ASSERT(ptrSessionName) ;
   ASSERT(strlen( ptrSessionName )>0) ;
   const char *registryName = "Registry" ;
-  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  CORBA::ORB_var &orb = init( argc , argv ) ;
-  //
   long TIMESleep = 250000000;
   int NumberOfTries = 40;
   int a;

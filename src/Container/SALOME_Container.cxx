@@ -52,7 +52,10 @@ static PyMethodDef MethodPyVoidMethod[] =
 
 int main(int argc, char* argv[])
 {
-  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance();
+  // Initialise the ORB.
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  CORBA::ORB_var &orb = init( argc , argv ) ;
+  LocalTraceCollector *myThreadTrace = LocalTraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0])
 
@@ -63,11 +66,6 @@ int main(int argc, char* argv[])
   try
     {
     
-      // Initialise the ORB.
-      ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-      ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
-      CORBA::ORB_var &orb = init( argc , argv ) ;
- 
       // Obtain a reference to the root POA.
       // obtain the root poa manager
       //
