@@ -109,15 +109,31 @@ Engines::Component_ptr SALOME_LifeCycleCORBA::FindOrLoad_Component
                                   (const char *containerName,
 				   const char *componentName)
 {
-  cout << "FindOrLoad_Component C++" << endl;
-  Engines::MachineList_var listOfMachine=new Engines::MachineList;
-  listOfMachine->length(1);
-  listOfMachine[0]=CORBA::string_dup(GetHostname().c_str());
-  Engines::Component_ptr ret=FindComponent(containerName,componentName,listOfMachine.in());
-  if(CORBA::is_nil(ret))
-    return LoadComponent(containerName,componentName,listOfMachine);
-  else
-    return ret;
+  char *stContainer=strdup(containerName);
+  string st2Container(stContainer);
+  int rg=st2Container.find("/");
+  if(rg<0) {
+    //containerName doesn't contain "/" => Local container
+    free(stContainer);
+    Engines::MachineList_var listOfMachine=new Engines::MachineList;
+    listOfMachine->length(1);
+    listOfMachine[0]=CORBA::string_dup(GetHostname().c_str());
+    Engines::Component_ptr ret=FindComponent(containerName,componentName,listOfMachine.in());
+    if(CORBA::is_nil(ret))
+      return LoadComponent(containerName,componentName,listOfMachine);
+    else
+      return ret;
+  }
+  else {
+    //containerName contains "/" => Remote container
+    stContainer[rg]='\0';
+    Engines::MachineParameters_var params=new Engines::MachineParameters;
+    params->container_name=CORBA::string_dup(stContainer+rg+1);
+    params->hostname=CORBA::string_dup(stContainer);
+    params->OS=CORBA::string_dup("LINUX");
+    free(stContainer);
+    return FindOrLoad_Component(params,componentName);
+  }
 }
 
 Engines::Component_ptr SALOME_LifeCycleCORBA::FindOrLoad_Component(const Engines::MachineParameters& params,
