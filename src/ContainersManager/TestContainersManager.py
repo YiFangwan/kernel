@@ -225,8 +225,40 @@ AddComponent._get_instanceName()
 AddComponent._get_interfaceName()
 
 ListOfAddComponent = MyContainersMgr.FindComponents( DefaultParams , 'AddComponent' )
+i = 0
+while i < len( ListOfAddComponent ) :
+    print ListOfAddComponent[ i ]._get_instanceName(),ListOfAddComponent[ i ]._get_interfaceName()
+    i = i + 1
+
+MyContainersMgr.FindOrLoad_Component( DefaultParams , "AddComponent" )
+ListOfAddComponent = MyContainersMgr.FindComponents( DefaultParams , 'AddComponent' )
+i = 0
+while i < len( ListOfAddComponent ) :
+    print ListOfAddComponent[ i ]._get_instanceName(),ListOfAddComponent[ i ]._get_interfaceName()
+    i = i + 1
 
 FactoryServeSubComponent = MyContainersMgr.FindOrLoad_Component( DefaultParams , "SubComponent" )
+ListOfComponents = MyContainersMgr.FindComponents( DefaultParams , '' )
+i = 0
+while i < len( ListOfComponents ) :
+    print ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
+    i = i + 1
+
+DefaultParams.ContainerName = 'SuperVisionContainer'
+SuperVisionContainerAddComponent = MyContainersMgr.FindOrLoad_Component( DefaultParams , "AddComponent" )
+DefaultParams.ContainerName = ''
+ListOfAddComponent = MyContainersMgr.FindComponents( DefaultParams , 'AddComponent' )
+i = 0
+while i < len( ListOfAddComponent ) :
+    print ListOfAddComponent[ i ]._get_instanceName(),ListOfAddComponent[ i ]._get_interfaceName()
+    i = i + 1
+
+
+ListOfComponents = MyContainersMgr.FindComponents( DefaultParams , '' )
+i = 0
+while i < len( ListOfComponents ) :
+    print ListOfComponents[ i ]._get_instanceName(),ListOfComponents[ i ]._get_interfaceName()
+    i = i + 1
 
 from LifeCycleCORBA import *
 orb = CORBA.ORB_init([''], CORBA.ORB_ID)
