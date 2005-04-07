@@ -46,7 +46,7 @@ public:
 
   virtual Handle(SALOMEDSImpl_Study) GetStudy() ;
   virtual TCollection_AsciiString Name() { return _name; }
-  virtual void Name(TCollection_AsciiString& theName) { _name = theName; }
+  virtual void Name(const TCollection_AsciiString& theName) { _name = theName; }
   virtual Handle(TColStd_HSequenceOfTransient) GetAllAttributes();
 
   virtual TCollection_AsciiString GetName();
