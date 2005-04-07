@@ -16,6 +16,8 @@ class SALOMEDSClient_GenericAttribute;
 class SALOMEDSClient_SObject
 {
 public:
+  virtual ~SALOMEDSClient_SObject() {}
+
   virtual std::string GetID()  = 0;
   virtual SALOMEDSClient_SComponent* GetFatherComponent() = 0;
   virtual SALOMEDSClient_SObject*    GetFather() = 0;

@@ -10,6 +10,8 @@
 class SALOMEDSClient_SComponentIterator
 {
 public:
+  virtual ~SALOMEDSClient_SComponentIterator() {}
+
   virtual void Init() = 0;
   virtual bool More() = 0;
   virtual void Next() = 0;

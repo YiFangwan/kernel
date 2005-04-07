@@ -12,6 +12,7 @@
 class SALOMEDSClient_UseCaseBuilder
 {
 public:
+  virtual ~SALOMEDSClient_UseCaseBuilder() {}
   
   virtual bool Append(SALOMEDSClient_SObject* theObject) = 0;
   virtual bool Remove(SALOMEDSClient_SObject* theObject) = 0;

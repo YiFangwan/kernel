@@ -11,6 +11,7 @@
 class SALOMEDSClient_SComponent: public virtual SALOMEDSClient_SObject
 {
 public:
+  virtual ~SALOMEDSClient_SComponent() {}
   
   virtual std::string ComponentDataType() = 0;
   virtual bool ComponentIOR(std::string& theID) = 0;    

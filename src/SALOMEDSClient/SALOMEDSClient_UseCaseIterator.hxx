@@ -11,6 +11,8 @@ class SALOMEDSClient_UseCaseIterator
 {
 
 public:
+  virtual ~SALOMEDSClient_UseCaseIterator() {}
+
   virtual void Init(bool) = 0;
   virtual bool More() = 0;
   virtual void Next() = 0;

@@ -20,6 +20,7 @@ class SALOMEDSClient_Study
 {
 
 public:
+  virtual ~SALOMEDSClient_Study() {}
 
   virtual std::string GetPersistentReference() = 0;
   virtual std::string GetTransientReference() = 0;

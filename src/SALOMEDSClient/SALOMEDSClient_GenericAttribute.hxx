@@ -12,6 +12,7 @@
 class SALOMEDSClient_GenericAttribute
 {
 public:
+  virtual ~SALOMEDSClient_GenericAttribute() {}
   
   virtual void CheckLocked() = 0;
   virtual std::string Type() = 0;

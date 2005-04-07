@@ -10,6 +10,8 @@
 class SALOMEDSClient_ChildIterator
 {
 public:
+  virtual ~SALOMEDSClient_ChildIterator() {}
+
   virtual void Init() = 0;
   virtual void InitEx(bool) = 0;
   virtual bool More() = 0;

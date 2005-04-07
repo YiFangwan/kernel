@@ -13,6 +13,8 @@
 class SALOMEDSClient_StudyBuilder
 {
 public:
+  virtual ~SALOMEDSClient_StudyBuilder() {}
+
   virtual SALOMEDSClient_SComponent* NewComponent(const std::string& ComponentDataType) = 0;
   virtual void DefineComponentInstance (SALOMEDSClient_SComponent*, const std::string& ComponentIOR) = 0;
   virtual void RemoveComponent(SALOMEDSClient_SComponent* theSCO) = 0;

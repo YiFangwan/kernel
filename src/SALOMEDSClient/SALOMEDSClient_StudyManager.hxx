@@ -13,6 +13,7 @@
 class SALOMEDSClient_StudyManager
 {
 public:
+  virtual ~SALOMEDSClient_StudyManager() {}
 
   virtual SALOMEDSClient_Study* NewStudy(const std::string& study_name) = 0;
   virtual SALOMEDSClient_Study* Open(const std::string& theStudyUrl) = 0;
