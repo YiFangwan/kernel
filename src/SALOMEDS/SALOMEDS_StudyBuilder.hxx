@@ -30,26 +30,26 @@ public:
   SALOMEDS_StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuilder);
   ~SALOMEDS_StudyBuilder();
 
-  virtual SALOMEDSClient_SComponent* NewComponent(const char* ComponentDataType);
-  virtual void DefineComponentInstance (SALOMEDSClient_SComponent*, const char* ComponentIOR);
+  virtual SALOMEDSClient_SComponent* NewComponent(const std::string& ComponentDataType);
+  virtual void DefineComponentInstance (SALOMEDSClient_SComponent*, const std::string& ComponentIOR);
   virtual void RemoveComponent(SALOMEDSClient_SComponent* theSCO);
   virtual SALOMEDSClient_SObject* NewObject(SALOMEDSClient_SObject* theFatherObject);
   virtual SALOMEDSClient_SObject* NewObjectToTag(SALOMEDSClient_SObject* theFatherObject, int theTag);
-  virtual void AddDirectory(const char* thePath);
-  virtual void LoadWith(SALOMEDSClient_SComponent* theSCO, const char* theIOR);
+  virtual void AddDirectory(const std::string& thePath);
+  virtual void LoadWith(SALOMEDSClient_SComponent* theSCO, const std::string& theIOR);
   virtual void Load(SALOMEDSClient_SObject* theSCO);
   virtual void RemoveObject(SALOMEDSClient_SObject* theSO);
   virtual void RemoveObjectWithChildren(SALOMEDSClient_SObject* theSO);
   virtual SALOMEDSClient_GenericAttribute* FindOrCreateAttribute(SALOMEDSClient_SObject* theSO, 
-								 const char* aTypeOfAttribute);
+								 const std::string& aTypeOfAttribute);
   virtual bool FindAttribute(SALOMEDSClient_SObject* theSO, 
                              SALOMEDSClient_GenericAttribute* theAttribute, 
-			     const char* aTypeOfAttribute);
-  virtual void RemoveAttribute(SALOMEDSClient_SObject* theSO, const char* aTypeOfAttribute);
+			     const std::string& aTypeOfAttribute);
+  virtual void RemoveAttribute(SALOMEDSClient_SObject* theSO, const std::string& aTypeOfAttribute);
   virtual void Addreference(SALOMEDSClient_SObject* me, SALOMEDSClient_SObject* thereferencedObject);
   virtual void RemoveReference(SALOMEDSClient_SObject* me);
-  virtual void SetGUID(SALOMEDSClient_SObject* theSO, const char* theGUID);
-  virtual bool IsGUID(SALOMEDSClient_SObject* theSO, const char* theGUID);
+  virtual void SetGUID(SALOMEDSClient_SObject* theSO, const std::string& theGUID);
+  virtual bool IsGUID(SALOMEDSClient_SObject* theSO, const std::string& theGUID);
   virtual void NewCommand();
   virtual void CommitCommand();
   virtual bool HasOpenCommand();
@@ -60,9 +60,9 @@ public:
   virtual bool GetAvailableRedos();
   virtual int UndoLimit();
   virtual void UndoLimit(int theLimit);
-  virtual void SetName(SALOMEDSClient_SObject* theSO, const char* theValue);
-  virtual void SetComment(SALOMEDSClient_SObject* theSO, const char* theValue);
-  virtual void SetIOR(SALOMEDSClient_SObject* theSO, const char* theValue);
+  virtual void SetName(SALOMEDSClient_SObject* theSO, const std::string& theValue);
+  virtual void SetComment(SALOMEDSClient_SObject* theSO, const std::string& theValue);
+  virtual void SetIOR(SALOMEDSClient_SObject* theSO, const std::string& theValue);
 
 private:
   void CheckLocked();

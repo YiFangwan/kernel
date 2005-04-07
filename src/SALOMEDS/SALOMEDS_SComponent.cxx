@@ -5,6 +5,8 @@
 using namespace std; 
 
 #include "SALOMEDS_SComponent.hxx"
+#include <string> 
+#include <TCollection_AsciiString.hxx> 
 
 SALOMEDS_SComponent::SALOMEDS_SComponent(SALOMEDS::SComponent_ptr theSComponent)
 :SALOMEDS_SObject(theSComponent) 
@@ -17,18 +19,18 @@ SALOMEDS_SComponent::SALOMEDS_SComponent(const Handle(SALOMEDSImpl_SComponent)& 
 SALOMEDS_SComponent::~SALOMEDS_SComponent()
 {}
 
-char* SALOMEDS_SComponent::ComponentDataType()
+std::string SALOMEDS_SComponent::ComponentDataType()
 {
-  TCollection_AsciiString aType;
+  std::string aType;
   if(_isLocal) {
-    aType = (Handle(SALOMEDSImpl_SComponent)::DownCast(GetLocalImpl()))->ComponentDataType();
+    aType = (Handle(SALOMEDSImpl_SComponent)::DownCast(GetLocalImpl()))->ComponentDataType().ToCString();
   }
   else aType = (SALOMEDS::SComponent::_narrow(GetCORBAImpl()))->ComponentDataType();
 
-  return aType.ToCString();
+  return aType;
 }
 
-bool SALOMEDS_SComponent::ComponentIOR(char* theID)
+bool SALOMEDS_SComponent::ComponentIOR(std::string& theID)
 {
   bool ret;
   if(_isLocal) { 
@@ -37,7 +39,10 @@ bool SALOMEDS_SComponent::ComponentIOR(char* theID)
     theID = anIOR.ToCString();
   }
   else {
-    ret = (SALOMEDS::SComponent::_narrow(GetCORBAImpl()))->ComponentIOR(theID);
+    CORBA::String_var anIOR;
+    ret = (SALOMEDS::SComponent::_narrow(GetCORBAImpl()))->ComponentIOR(anIOR.out());
+    theID = std::string(anIOR.in());
+    		
   }
 
   return ret;

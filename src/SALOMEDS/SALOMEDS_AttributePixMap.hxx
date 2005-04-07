@@ -22,8 +22,8 @@ public:
   ~SALOMEDS_AttributePixMap();
 
   virtual bool HasPixMap();
-  virtual char* GetPixMap();
-  virtual void SetPixMap(const char* value); 
+  virtual std::string GetPixMap();
+  virtual void SetPixMap(const std::string& value); 
 
 };
 

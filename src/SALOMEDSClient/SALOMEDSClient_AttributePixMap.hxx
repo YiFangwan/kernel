@@ -6,14 +6,15 @@
 #define SALOMEDSClient_AttributePixMap_HeaderFile
 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
+#include <string> 
 
 class SALOMEDSClient_AttributePixMap: public virtual SALOMEDSClient_GenericAttribute
 {
 public:
 
   virtual bool HasPixMap() = 0;
-  virtual char* GetPixMap() = 0;
-  virtual void SetPixMap(const char* value) = 0;
+  virtual std::string GetPixMap() = 0;
+  virtual void SetPixMap(const std::string& value) = 0;
 
 };
 

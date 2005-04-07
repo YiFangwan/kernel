@@ -7,13 +7,14 @@
 #define SALOMEDSClient_AttributeName_HeaderFile
 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
+#include <string>
 
 class SALOMEDSClient_AttributeName: public virtual SALOMEDSClient_GenericAttribute
 {
 public:
 
-  virtual char* Value() = 0;
-  virtual void SetValue(const char* value) = 0;
+  virtual std::string Value() = 0;
+  virtual void SetValue(const std::string& value) = 0;
 
 };
 

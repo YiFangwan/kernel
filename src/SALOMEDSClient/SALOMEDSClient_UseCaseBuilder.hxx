@@ -7,6 +7,7 @@
 
 #include "SALOMEDSClient_UseCaseIterator.hxx"
 #include "SALOMEDSClient_SObject.hxx"
+#include <string> 
 
 class SALOMEDSClient_UseCaseBuilder
 {
@@ -20,10 +21,10 @@ public:
   virtual bool SetRootCurrent() = 0;
   virtual bool  HasChildren(SALOMEDSClient_SObject* theObject) = 0;
   virtual bool  IsUseCase(SALOMEDSClient_SObject* theObject) = 0;
-  virtual bool SetName(const char* theName) = 0;
+  virtual bool SetName(const std::string& theName) = 0;
   virtual SALOMEDSClient_SObject* GetCurrentObject() = 0;
-  virtual char* GetName() = 0;
-  virtual SALOMEDSClient_SObject* AddUseCase(const char* theName) = 0;
+  virtual std::string GetName() = 0;
+  virtual SALOMEDSClient_SObject* AddUseCase(const std::string& theName) = 0;
   virtual SALOMEDSClient_UseCaseIterator* GetUseCaseIterator(SALOMEDSClient_SObject* anObject) = 0;
 
 };

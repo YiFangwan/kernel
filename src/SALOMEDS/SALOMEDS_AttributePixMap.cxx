@@ -4,7 +4,8 @@
 
 #include "SALOMEDS_AttributePixMap.hxx"
 
-#include <TCollection_AsciiString.hxx>
+#include <string>
+#include <TCollection_AsciiString.hxx> 
 #include <TCollection_ExtendedString.hxx>
 
 SALOMEDS_AttributePixMap::SALOMEDS_AttributePixMap(const Handle(SALOMEDSImpl_AttributePixMap)& theAttr)
@@ -25,18 +26,18 @@ bool SALOMEDS_AttributePixMap::HasPixMap()
   else ret = SALOMEDS::AttributePixMap::_narrow(_corba_impl)->HasPixMap();
 }
 
-char* SALOMEDS_AttributePixMap::GetPixMap()
+std::string SALOMEDS_AttributePixMap::GetPixMap()
 {
-  TCollection_AsciiString aValue;
-  if(_isLocal) aValue = Handle(SALOMEDSImpl_AttributePixMap)::DownCast(_local_impl)->GetPixMap();
+  std::string aValue;
+  if(_isLocal) 
+    aValue = TCollection_AsciiString(Handle(SALOMEDSImpl_AttributePixMap)::DownCast(_local_impl)->GetPixMap()).ToCString();
   else aValue = SALOMEDS::AttributePixMap::_narrow(_corba_impl)->GetPixMap();
-  return aValue.ToCString();
+  return aValue;
 }
  
-void SALOMEDS_AttributePixMap::SetPixMap(const char* value)
+void SALOMEDS_AttributePixMap::SetPixMap(const std::string& value)
 {
   CheckLocked();
-  TCollection_AsciiString aValue((char*)value);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributePixMap)::DownCast(_local_impl)->SetPixMap(aValue);
-  else SALOMEDS::AttributePixMap::_narrow(_corba_impl)->SetPixMap(aValue.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributePixMap)::DownCast(_local_impl)->SetPixMap((char*)value.c_str());
+  else SALOMEDS::AttributePixMap::_narrow(_corba_impl)->SetPixMap(value.c_str());
 }

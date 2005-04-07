@@ -4,7 +4,8 @@
 
 #include "SALOMEDS_AttributeUserID.hxx"
 
-#include <TCollection_AsciiString.hxx>
+#include <string>
+#include <TCollection_AsciiString.hxx> 
 #include <TCollection_ExtendedString.hxx>
 #include <Standard_GUID.hxx>
 
@@ -19,22 +20,21 @@ SALOMEDS_AttributeUserID::SALOMEDS_AttributeUserID(SALOMEDS::AttributeUserID_ptr
 SALOMEDS_AttributeUserID::~SALOMEDS_AttributeUserID()
 {}
 
-char* SALOMEDS_AttributeUserID::Value()
+std::string SALOMEDS_AttributeUserID::Value()
 {
-  TCollection_AsciiString aValue;
+  std::string aValue;
   if(_isLocal) {
     char guid[40];
     Handle(SALOMEDSImpl_AttributeUserID)::DownCast(_local_impl)->Value().ToCString(guid);
-    aValue = TCollection_AsciiString(guid);
+    aValue = std::string(guid);
   }
   else aValue = SALOMEDS::AttributeUserID::_narrow(_corba_impl)->Value();
-  return aValue.ToCString();
+  return aValue;
 }
  
-void SALOMEDS_AttributeUserID::SetValue(const char* value)
+void SALOMEDS_AttributeUserID::SetValue(const std::string& value)
 {
   CheckLocked();
-  TCollection_AsciiString aValue((char*)value);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeUserID)::DownCast(_local_impl)->SetValue(Standard_GUID(aValue.ToCString()));
-  else SALOMEDS::AttributeUserID::_narrow(_corba_impl)->SetValue(aValue.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributeUserID)::DownCast(_local_impl)->SetValue(Standard_GUID((char*)value.c_str()));
+  else SALOMEDS::AttributeUserID::_narrow(_corba_impl)->SetValue(value.c_str());
 }

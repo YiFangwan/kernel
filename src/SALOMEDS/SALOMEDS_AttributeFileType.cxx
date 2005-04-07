@@ -4,7 +4,8 @@
 
 #include "SALOMEDS_AttributeFileType.hxx"
 
-#include <TCollection_AsciiString.hxx>
+#include <string>
+#include <TCollection_AsciiString.hxx> 
 #include <TCollection_ExtendedString.hxx>
 
 SALOMEDS_AttributeFileType::SALOMEDS_AttributeFileType(const Handle(SALOMEDSImpl_AttributeFileType)& theAttr)
@@ -18,18 +19,18 @@ SALOMEDS_AttributeFileType::SALOMEDS_AttributeFileType(SALOMEDS::AttributeFileTy
 SALOMEDS_AttributeFileType::~SALOMEDS_AttributeFileType()
 {}
 
-char* SALOMEDS_AttributeFileType::Value()
+std::string SALOMEDS_AttributeFileType::Value()
 {
-  TCollection_AsciiString aValue;
-  if(_isLocal) aValue = Handle(SALOMEDSImpl_AttributeFileType)::DownCast(_local_impl)->Value();
+  std::string aValue;
+  if(_isLocal) 
+    aValue = TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeFileType)::DownCast(_local_impl)->Value()).ToCString();
   else aValue = SALOMEDS::AttributeFileType::_narrow(_corba_impl)->Value();
-  return aValue.ToCString();
+  return aValue;
 }
  
-void SALOMEDS_AttributeFileType::SetValue(const char* value)
+void SALOMEDS_AttributeFileType::SetValue(const std::string& value)
 {
   CheckLocked();
-  TCollection_AsciiString aValue((char*)value);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeFileType)::DownCast(_local_impl)->SetValue(aValue);
-  else SALOMEDS::AttributeFileType::_narrow(_corba_impl)->SetValue(aValue.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributeFileType)::DownCast(_local_impl)->SetValue((char*)value.c_str());
+  else SALOMEDS::AttributeFileType::_narrow(_corba_impl)->SetValue(value.c_str());
 }

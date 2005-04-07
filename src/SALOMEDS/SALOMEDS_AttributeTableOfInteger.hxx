@@ -23,16 +23,16 @@ public:
   SALOMEDS_AttributeTableOfInteger(SALOMEDS::AttributeTableOfInteger_ptr theAttr);
   ~SALOMEDS_AttributeTableOfInteger();
 
-  virtual void SetTitle(const char* theTitle);
-  virtual char* GetTitle();
-  virtual void SetRowTitle(int theIndex, const char* theTitle);
+  virtual void SetTitle(const std::string& theTitle);
+  virtual std::string GetTitle();
+  virtual void SetRowTitle(int theIndex, const std::string& theTitle);
   virtual void SetRowTitles(const std::vector<std::string>& theTitles);
   virtual std::vector<std::string> GetRowTitles();
-  virtual void SetColumnTitle(int theIndex, const char* theTitle);
+  virtual void SetColumnTitle(int theIndex, const std::string& theTitle);
   virtual void SetColumnTitles(const std::vector<std::string>& theTitles);
   virtual std::vector<std::string> GetColumnTitles();
 
-  virtual void SetRowUnit(int theIndex, const char* theUnit);
+  virtual void SetRowUnit(int theIndex, const std::string& theUnit);
   virtual void SetRowUnits(const std::vector<std::string>& theUnits);
   virtual std::vector<std::string> GetRowUnits();
 

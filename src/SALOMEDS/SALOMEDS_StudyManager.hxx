@@ -30,15 +30,15 @@ public:
   SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManager);
   ~SALOMEDS_StudyManager();
 
-  virtual SALOMEDSClient_Study* NewStudy(const char* study_name);
-  virtual SALOMEDSClient_Study* Open(const char* theStudyUrl);
+  virtual SALOMEDSClient_Study* NewStudy(const std::string& study_name);
+  virtual SALOMEDSClient_Study* Open(const std::string& theStudyUrl);
   virtual void Close( SALOMEDSClient_Study* theStudy);
   virtual void Save( SALOMEDSClient_Study* theStudy, bool theMultiFile);
   virtual void SaveASCII( SALOMEDSClient_Study* theStudy, bool theMultiFile);
-  virtual void SaveAs(const char* theUrl,  SALOMEDSClient_Study* theStudy, bool theMultiFile);
-  virtual void SaveAsASCII(const char* theUrl,  SALOMEDSClient_Study* theStudy, bool theMultiFile);
+  virtual void SaveAs(const std::string& theUrl,  SALOMEDSClient_Study* theStudy, bool theMultiFile);
+  virtual void SaveAsASCII(const std::string& theUrl,  SALOMEDSClient_Study* theStudy, bool theMultiFile);
   virtual std::vector<std::string> GetOpenStudies();
-  virtual SALOMEDSClient_Study* GetStudyByName(const char* theStudyName) ;
+  virtual SALOMEDSClient_Study* GetStudyByName(const std::string& theStudyName) ;
   virtual SALOMEDSClient_Study* GetStudyByID(int theStudyID) ;
   virtual bool CanCopy(SALOMEDSClient_SObject* theSO);
   virtual bool Copy(SALOMEDSClient_SObject* theSO);

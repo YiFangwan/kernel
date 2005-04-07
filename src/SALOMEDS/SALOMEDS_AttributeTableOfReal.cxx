@@ -24,28 +24,28 @@ SALOMEDS_AttributeTableOfReal::~SALOMEDS_AttributeTableOfReal()
 {}
 
 
-void SALOMEDS_AttributeTableOfReal::SetTitle(const char* theTitle)
+void SALOMEDS_AttributeTableOfReal::SetTitle(const std::string& theTitle)
 {
   CheckLocked();
-  TCollection_AsciiString aStr((char*)theTitle);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfReal)::DownCast(_local_impl)->SetTitle(aStr);
-  else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetTitle(aStr.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfReal)::DownCast(_local_impl)->SetTitle((char*)theTitle.c_str());
+  else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetTitle(theTitle.c_str());
 }
 
-char* SALOMEDS_AttributeTableOfReal::GetTitle()
+std::string SALOMEDS_AttributeTableOfReal::GetTitle()
 {
-  TCollection_AsciiString aStr;
-  if(_isLocal) aStr = Handle(SALOMEDSImpl_AttributeTableOfReal)::DownCast(_local_impl)->GetTitle();
+  std::string aStr;
+  if(_isLocal) 
+    aStr = TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeTableOfReal)::DownCast(_local_impl)->GetTitle()).ToCString();
   else aStr = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetTitle();
-  return aStr.ToCString();
+  return aStr;
 }
 
-void SALOMEDS_AttributeTableOfReal::SetRowTitle(int theIndex, const char* theTitle)
+void SALOMEDS_AttributeTableOfReal::SetRowTitle(int theIndex, const std::string& theTitle)
 {
   CheckLocked();
-  TCollection_AsciiString aTitle((char*)theTitle);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfReal)::DownCast(_local_impl)->SetRowTitle(theIndex, aTitle);
-  else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowTitle(theIndex, aTitle.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfReal)::DownCast(_local_impl)->SetRowTitle(theIndex, 
+											     (char*)theTitle.c_str());
+  else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowTitle(theIndex, theTitle.c_str());
 }
 
 void SALOMEDS_AttributeTableOfReal::SetRowTitles(const std::vector<std::string>& theTitles)
@@ -60,7 +60,7 @@ void SALOMEDS_AttributeTableOfReal::SetRowTitles(const std::vector<std::string>&
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for(i = 0; i < aLength; i++) aSeq[i] = TCollection_AsciiString((char*)theTitles[i].c_str()).ToCString();
+    for(i = 0; i < aLength; i++) aSeq[i] = (char*)theTitles[i].c_str();
     SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowTitles(aSeq);
   }
   
@@ -79,17 +79,17 @@ std::vector<std::string> SALOMEDS_AttributeTableOfReal::GetRowTitles()
   else {
     SALOMEDS::StringSeq_var aSeq = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetRowTitles();
     aLength = aSeq->length();
-    for(i = 0; i<aLength; i++) aVector.push_back(TCollection_AsciiString((char*)aSeq[i].in()).ToCString());
+    for(i = 0; i<aLength; i++) aVector.push_back((char*)aSeq[i].in());
   }
   return aVector;
 }
 
-void SALOMEDS_AttributeTableOfReal::SetColumnTitle(int theIndex, const char* theTitle)
+void SALOMEDS_AttributeTableOfReal::SetColumnTitle(int theIndex, const std::string& theTitle)
 {
   CheckLocked();
-  TCollection_AsciiString aStr((char*)theTitle);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfReal)::DownCast(_local_impl)->SetColumnTitle(theIndex, aStr);
-  else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetColumnTitle(theIndex, aStr.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfReal)::DownCast(_local_impl)->SetColumnTitle(theIndex, 
+												(char*)theTitle.c_str());
+  else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetColumnTitle(theIndex, theTitle.c_str());
 }
 
 void SALOMEDS_AttributeTableOfReal::SetColumnTitles(const std::vector<std::string>& theTitles)
@@ -104,7 +104,7 @@ void SALOMEDS_AttributeTableOfReal::SetColumnTitles(const std::vector<std::strin
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for(i = 0; i < aLength; i++) aSeq[i] = TCollection_AsciiString((char*)theTitles[i].c_str()).ToCString();
+    for(i = 0; i < aLength; i++) aSeq[i] = (char*)theTitles[i].c_str();
     SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetColumnTitles(aSeq);
   }
 }
@@ -122,17 +122,17 @@ std::vector<std::string> SALOMEDS_AttributeTableOfReal::GetColumnTitles()
   else {
     SALOMEDS::StringSeq_var aSeq = SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->GetColumnTitles();
     aLength = aSeq->length();
-    for(i = 0; i<aLength; i++) aVector.push_back(TCollection_AsciiString((char*)aSeq[i].in()).ToCString());
+    for(i = 0; i<aLength; i++) aVector.push_back((char*)aSeq[i].in());
   }
   return aVector;
 }
 
-void SALOMEDS_AttributeTableOfReal::SetRowUnit(int theIndex, const char* theUnit)
+void SALOMEDS_AttributeTableOfReal::SetRowUnit(int theIndex, const std::string& theUnit)
 {
   CheckLocked();
-  TCollection_AsciiString aUnit((char*)theUnit);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfReal)::DownCast(_local_impl)->SetRowUnit(theIndex, aUnit);
-  else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowUnit(theIndex, aUnit.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfReal)::DownCast(_local_impl)->SetRowUnit(theIndex, 
+											    (char*)theUnit.c_str());
+  else SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowUnit(theIndex, theUnit.c_str());
 }
 
 void SALOMEDS_AttributeTableOfReal::SetRowUnits(const std::vector<std::string>& theUnits)
@@ -147,7 +147,7 @@ void SALOMEDS_AttributeTableOfReal::SetRowUnits(const std::vector<std::string>& 
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for(i = 0; i < aLength; i++) aSeq[i] = TCollection_AsciiString((char*)theUnits[i].c_str()).ToCString();
+    for(i = 0; i < aLength; i++) aSeq[i] = (char*)theUnits[i].c_str();
     SALOMEDS::AttributeTableOfReal::_narrow(_corba_impl)->SetRowUnits(aSeq);
   }
 }

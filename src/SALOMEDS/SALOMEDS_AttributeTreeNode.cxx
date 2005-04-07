@@ -4,6 +4,7 @@
 
 #include "SALOMEDS_AttributeTreeNode.hxx"
 
+#include <string>
 #include <TCollection_AsciiString.hxx>
 #include <TCollection_ExtendedString.hxx>
 #include <Standard_GUID.hxx>
@@ -200,19 +201,19 @@ SALOMEDSClient_AttributeTreeNode* SALOMEDS_AttributeTreeNode::GetFirst()
   return aTN;
 }
 
-void SALOMEDS_AttributeTreeNode::SetTreeID(const char* value)
+void SALOMEDS_AttributeTreeNode::SetTreeID(const std::string& value)
 {
   if(_isLocal) {
     Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_local_impl);
-    aNode->SetTreeID(Standard_GUID((char*)value));
+    aNode->SetTreeID(Standard_GUID((char*)value.c_str()));
   }
   else {
     SALOMEDS::AttributeTreeNode_var aNode = SALOMEDS::AttributeTreeNode::_narrow(_corba_impl);
-    aNode->SetTreeID(value);
+    aNode->SetTreeID(value.c_str());
   }
 }
 
-char* SALOMEDS_AttributeTreeNode::GetTreeID()
+std::string SALOMEDS_AttributeTreeNode::GetTreeID()
 {
   TCollection_AsciiString aGUID;
   if(_isLocal) {
@@ -226,7 +227,7 @@ char* SALOMEDS_AttributeTreeNode::GetTreeID()
     aGUID = TCollection_AsciiString(aNode->GetTreeID());
   }
 
-  return aGUID.ToCString();
+  return std::string(aGUID.ToCString());
 }
 
 void SALOMEDS_AttributeTreeNode::Append(SALOMEDSClient_AttributeTreeNode* value)
@@ -369,12 +370,12 @@ bool SALOMEDS_AttributeTreeNode::IsChild(SALOMEDSClient_AttributeTreeNode* value
   return ret;  
 }
 
-char* SALOMEDS_AttributeTreeNode::Label()
+std::string SALOMEDS_AttributeTreeNode::Label()
 {
   TCollection_AsciiString aLabel;
   if(_isLocal) TDF_Tool::Entry(_local_impl->Label(), aLabel);
   else aLabel = SALOMEDS::AttributeTreeNode::_narrow(_corba_impl)->Label();
-  return aLabel.ToCString();
+  return std::string(aLabel.ToCString());
 }
 
 

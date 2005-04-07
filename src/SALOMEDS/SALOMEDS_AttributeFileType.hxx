@@ -21,8 +21,8 @@ public:
   SALOMEDS_AttributeFileType(SALOMEDS::AttributeFileType_ptr theAttr);
   ~SALOMEDS_AttributeFileType();
 
-  virtual char* Value();
-  virtual void SetValue(const char* value);
+  virtual std::string Value();
+  virtual void SetValue(const std::string& value);
 };
 
 #endif

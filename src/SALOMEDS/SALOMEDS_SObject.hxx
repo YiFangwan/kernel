@@ -33,19 +33,19 @@ public:
   SALOMEDS_SObject(const Handle(SALOMEDSImpl_SObject)& theSObject);       
   virtual ~SALOMEDS_SObject();
 
-  virtual char* GetID();
+  virtual std::string GetID();
   virtual SALOMEDSClient_SComponent* GetFatherComponent();
   virtual SALOMEDSClient_SObject*    GetFather();
-  virtual bool FindAttribute(SALOMEDSClient_GenericAttribute*& anAttribute, const char* aTypeOfAttribute);
+  virtual bool FindAttribute(SALOMEDSClient_GenericAttribute*& anAttribute, const std::string& aTypeOfAttribute);
   virtual bool ReferencedObject(SALOMEDSClient_SObject*& theObject);
   virtual bool FindSubObject(int theTag, SALOMEDSClient_SObject*& theObject);
   virtual SALOMEDSClient_Study* GetStudy();
-  virtual char* Name();
-  virtual void  Name(const char* theName);
+  virtual std::string Name();
+  virtual void  Name(const std::string& theName);
   virtual vector<SALOMEDSClient_GenericAttribute*> GetAllAttributes();
-  virtual char* GetName();
-  virtual char* GetComment();
-  virtual char* GetIOR();
+  virtual std::string GetName();
+  virtual std::string GetComment();
+  virtual std::string GetIOR();
   virtual int   Tag();
   virtual int   Depth();
 

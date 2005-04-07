@@ -4,7 +4,8 @@
 
 using namespace std;  
 
-#include <TCollection_AsciiString.hxx>
+#include <string>
+#include <TCollection_AsciiString.hxx> 
 #include <TColStd_HSequenceOfTransient.hxx>
 
 #include "SALOMEDS_SObject.hxx"
@@ -55,12 +56,12 @@ SALOMEDS_SObject::~SALOMEDS_SObject()
   if(!_isLocal) CORBA::release(_corba_impl);
 }
 
-char* SALOMEDS_SObject::GetID()
+std::string SALOMEDS_SObject::GetID()
 {
-  TCollection_AsciiString aValue;
-  if(_isLocal) aValue = _local_impl->GetID();
+  std::string aValue;
+  if(_isLocal) aValue = _local_impl->GetID().ToCString();
   else aValue = _corba_impl->GetID();  
-  return aValue.ToCString();
+  return aValue;
 }
 
 SALOMEDSClient_SComponent* SALOMEDS_SObject::GetFatherComponent()
@@ -76,18 +77,17 @@ SALOMEDSClient_SObject* SALOMEDS_SObject::GetFather()
   return new SALOMEDS_SObject(_corba_impl->GetFather());
 }
 
-bool SALOMEDS_SObject::FindAttribute(SALOMEDSClient_GenericAttribute*& anAttribute, const char* aTypeOfAttribute)
+bool SALOMEDS_SObject::FindAttribute(SALOMEDSClient_GenericAttribute*& anAttribute, const std::string& aTypeOfAttribute)
 {
   bool ret = false;
-  TCollection_AsciiString aType((char*)aTypeOfAttribute);
   if(_isLocal) {
     Handle(SALOMEDSImpl_GenericAttribute) anAttr;
-    ret = _local_impl->FindAttribute(anAttr, aType);
+    ret = _local_impl->FindAttribute(anAttr, (char*)aTypeOfAttribute.c_str());
     if(ret) anAttribute = SALOMEDS_GenericAttribute::CreateAttribute(anAttr);
   }
   else {
     SALOMEDS::GenericAttribute_var anAttr;
-    ret = _corba_impl->FindAttribute(anAttr.out(), aType.ToCString());
+    ret = _corba_impl->FindAttribute(anAttr.out(), aTypeOfAttribute.c_str());
     if(ret) anAttribute = SALOMEDS_GenericAttribute::CreateAttribute(anAttr);
   }
 
@@ -135,20 +135,19 @@ SALOMEDSClient_Study* SALOMEDS_SObject::GetStudy()
   return new SALOMEDS_Study(_corba_impl->GetStudy());
 }
 
-char* SALOMEDS_SObject::Name()
+std::string SALOMEDS_SObject::Name()
 {
-  TCollection_AsciiString aName;
-  if(_isLocal) aName = _local_impl->Name();
+  std::string aName;
+  if(_isLocal) aName = _local_impl->Name().ToCString();
   else aName = _corba_impl->Name();
 
-  return aName.ToCString();
+  return aName;
 }
 
-void  SALOMEDS_SObject::Name(const char* theName)
+void  SALOMEDS_SObject::Name(const std::string& theName)
 {
-  TCollection_AsciiString aName((char*)theName);
-  if(_isLocal) _local_impl->Name(aName);
-  else _corba_impl->Name(aName.ToCString());
+  if(_isLocal) _local_impl->Name((char*)theName.c_str());
+  else _corba_impl->Name(theName.c_str());
 }
 
 vector<SALOMEDSClient_GenericAttribute*> SALOMEDS_SObject::GetAllAttributes()
@@ -177,31 +176,31 @@ vector<SALOMEDSClient_GenericAttribute*> SALOMEDS_SObject::GetAllAttributes()
   return aVector;
 }
 
-char* SALOMEDS_SObject::GetName()
+std::string SALOMEDS_SObject::GetName()
 {
-  TCollection_AsciiString aName;
-  if(_isLocal) aName = _local_impl->GetName();
+  std::string aName;
+  if(_isLocal) aName = _local_impl->GetName().ToCString();
   else aName = _corba_impl->GetName();
 
-  return aName.ToCString();
+  return aName;
 }
 
-char* SALOMEDS_SObject::GetComment()
+std::string SALOMEDS_SObject::GetComment()
 {
-  TCollection_AsciiString aComment;
-  if(_isLocal) aComment = _local_impl->GetComment();
+  std::string aComment;
+  if(_isLocal) aComment = _local_impl->GetComment().ToCString();
   else aComment = _corba_impl->GetComment();
 
-  return aComment.ToCString();
+  return aComment;
 }
 
-char* SALOMEDS_SObject::GetIOR()
+std::string SALOMEDS_SObject::GetIOR()
 {
-  TCollection_AsciiString anIOR;
-  if(_isLocal) anIOR = _local_impl->GetIOR();
+  std::string anIOR;
+  if(_isLocal) anIOR = _local_impl->GetIOR().ToCString();
   else anIOR = _corba_impl->GetIOR();
 
-  return anIOR.ToCString();
+  return anIOR;
 }
 
 int SALOMEDS_SObject::Tag()
@@ -220,9 +219,9 @@ CORBA::Object_ptr SALOMEDS_SObject::GetObject()
 {
   CORBA::Object_var obj;
   if(_isLocal) {
-    TCollection_AsciiString anIOR = GetIOR();
+    std::string anIOR = GetIOR();
     SALOMEDS_Study* aStudy = dynamic_cast<SALOMEDS_Study*>(GetStudy());
-    obj = CORBA::Object::_duplicate(aStudy->ConvertIORToObject(anIOR.ToCString()));
+    obj = CORBA::Object::_duplicate(aStudy->ConvertIORToObject(anIOR));
     delete aStudy;
   }
   else obj = CORBA::Object::_duplicate(_corba_impl->GetObject());

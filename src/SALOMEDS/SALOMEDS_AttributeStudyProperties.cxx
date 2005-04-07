@@ -4,7 +4,8 @@
 
 #include "SALOMEDS_AttributeStudyProperties.hxx"
 
-#include <TCollection_AsciiString.hxx>
+#include <string>
+#include <TCollection_AsciiString.hxx> 
 #include <TCollection_ExtendedString.hxx>
 #include <TColStd_HSequenceOfExtendedString.hxx>
 #include <TColStd_HSequenceOfInteger.hxx>
@@ -22,19 +23,21 @@ SALOMEDS_AttributeStudyProperties::~SALOMEDS_AttributeStudyProperties()
 {
 }
   
-void SALOMEDS_AttributeStudyProperties::SetUserName(const char* theName)
+void SALOMEDS_AttributeStudyProperties::SetUserName(const std::string& theName)
 {
-  TCollection_AsciiString aName((char*)theName);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->SetUserName(aName);
-  else SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetUserName(aName.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->SetUserName((char*)theName.c_str());
+  else SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetUserName(theName.c_str());
 }
 
-char* SALOMEDS_AttributeStudyProperties::GetUserName()
+std::string SALOMEDS_AttributeStudyProperties::GetUserName()
 {
-  TCollection_AsciiString aName;
-  if(_isLocal) aName = Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->GetCreatorName();
+  std::string aName;
+  if(_isLocal) {
+    TCollection_AsciiString N = Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->GetCreatorName();
+    aName = N.ToCString();
+  }
   else aName = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetUserName();
-  return aName.ToCString();
+  return aName;
 }
 
 void SALOMEDS_AttributeStudyProperties::SetCreationDate(int theMinute, int theHour, int theDay, int theMonth, int theYear)
@@ -78,30 +81,29 @@ bool SALOMEDS_AttributeStudyProperties::GetCreationDate(int& theMinute,
   return ret;
 }
  
-void SALOMEDS_AttributeStudyProperties::SetCreationMode(const char* theMode)
+void SALOMEDS_AttributeStudyProperties::SetCreationMode(const std::string& theMode)
 {
-  TCollection_AsciiString aMode((char*)theMode); 
   if(_isLocal) {
-    if(aMode == "from scratch")
+    if(theMode == "from scratch")
       Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->SetCreationMode(1);
-    else if(aMode == "copy from")
+    else if(theMode == "copy from")
       Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->SetCreationMode(2);
     else //Not defined
       Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->SetCreationMode(0);
   }
-  else SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetCreationMode(aMode.ToCString());
+  else SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetCreationMode(theMode.c_str());
 }
  
-char* SALOMEDS_AttributeStudyProperties::GetCreationMode()
+std::string SALOMEDS_AttributeStudyProperties::GetCreationMode()
 {
-  TCollection_AsciiString aMode;
+  std::string aMode;
   if(_isLocal) {
     int mode  = Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->GetCreationMode();
     if(mode == 1) aMode = "from scratch";
     if(mode == 2) aMode = "copy from";
   }
   else aMode = SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->GetCreationMode();
-  return aMode.ToCString();  
+  return aMode;  
 }
 
 void SALOMEDS_AttributeStudyProperties::SetModified(int theModified)
@@ -140,23 +142,22 @@ bool SALOMEDS_AttributeStudyProperties::IsLocked()
   return ret;
 }
  
-void SALOMEDS_AttributeStudyProperties::SetModification(const char* theName,
+void SALOMEDS_AttributeStudyProperties::SetModification(const std::string& theName,
 							int theMinute,
 							int theHour,
 							int theDay,
 							int theMonth,
 							int theYear)
 {
-  TCollection_AsciiString aName((char*)theName);
   if(_isLocal) {
-    Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->SetUserName(aName);
+    Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->SetUserName((char*)theName.c_str());
     Handle(SALOMEDSImpl_AttributeStudyProperties)::DownCast(_local_impl)->SetModificationDate(theMinute, 
 											      theHour, 
 											      theDay, 
 											      theMonth, 
 											      theYear);
   }
-  else SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetModification(aName.ToCString(), 
+  else SALOMEDS::AttributeStudyProperties::_narrow(_corba_impl)->SetModification(theName.c_str(), 
 										 theMinute, 
 										 theHour, 
 										 theDay, 

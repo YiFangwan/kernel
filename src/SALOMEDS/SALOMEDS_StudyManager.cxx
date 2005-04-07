@@ -20,7 +20,8 @@ using namespace std;
 #include <unistd.h>
 #endif
 
-#include <TCollection_AsciiString.hxx>
+#include <string>
+#include <TCollection_AsciiString.hxx> 
 #include <TColStd_HSequenceOfTransient.hxx>
 
 #include "OpUtil.hxx"
@@ -54,18 +55,17 @@ SALOMEDS_StudyManager::~SALOMEDS_StudyManager()
   if(!_isLocal) CORBA::release(_corba_impl);
 }
 
-SALOMEDSClient_Study* SALOMEDS_StudyManager::NewStudy(const char* study_name)
+SALOMEDSClient_Study* SALOMEDS_StudyManager::NewStudy(const std::string& study_name)
 {
   SALOMEDS_Study* aStudy;
-  TCollection_AsciiString aName((char*)study_name);
 
   if(_isLocal) {
-    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->NewStudy(aName);
+    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->NewStudy((char*)study_name.c_str());
     if(aStudy_impl.IsNull()) return NULL;
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
   else {
-    SALOMEDS::Study_var aStudy_impl = _corba_impl->NewStudy(aName.ToCString());
+    SALOMEDS::Study_var aStudy_impl = _corba_impl->NewStudy((char*)study_name.c_str());
     if(CORBA::is_nil(aStudy_impl)) return NULL; 
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
@@ -73,18 +73,17 @@ SALOMEDSClient_Study* SALOMEDS_StudyManager::NewStudy(const char* study_name)
   return aStudy;
 }
 
-SALOMEDSClient_Study* SALOMEDS_StudyManager::Open(const char* theStudyUrl)
+SALOMEDSClient_Study* SALOMEDS_StudyManager::Open(const std::string& theStudyUrl)
 {
   SALOMEDS_Study* aStudy;
-  TCollection_AsciiString aName((char*)theStudyUrl);
 
   if(_isLocal) {
-    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->Open(aName);
+    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->Open((char*)theStudyUrl.c_str());
     if(aStudy_impl.IsNull()) return NULL;
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
   else {
-    SALOMEDS::Study_var aStudy_impl = _corba_impl->Open(aName.ToCString());
+    SALOMEDS::Study_var aStudy_impl = _corba_impl->Open((char*)theStudyUrl.c_str());
     if(CORBA::is_nil(aStudy_impl)) return NULL; 
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
@@ -113,20 +112,18 @@ void SALOMEDS_StudyManager::SaveASCII( SALOMEDSClient_Study* theStudy, bool theM
   _corba_impl->SaveASCII(aStudy, theMultiFile);
 }
  
-void SALOMEDS_StudyManager::SaveAs(const char* theUrl,  SALOMEDSClient_Study* theStudy, bool theMultiFile)
+void SALOMEDS_StudyManager::SaveAs(const std::string& theUrl,  SALOMEDSClient_Study* theStudy, bool theMultiFile)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case 
-  TCollection_AsciiString anURL((char*)theUrl);
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
-  _corba_impl->SaveAs(anURL.ToCString(), aStudy, theMultiFile);
+  _corba_impl->SaveAs((char*)theUrl.c_str(), aStudy, theMultiFile);
 }
  
-void SALOMEDS_StudyManager::SaveAsASCII(const char* theUrl,  SALOMEDSClient_Study* theStudy, bool theMultiFile)
+void SALOMEDS_StudyManager::SaveAsASCII(const std::string& theUrl,  SALOMEDSClient_Study* theStudy, bool theMultiFile)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case 
-  TCollection_AsciiString anURL((char*)theUrl);
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
-  _corba_impl->SaveAsASCII(anURL.ToCString(), aStudy, theMultiFile);
+  _corba_impl->SaveAsASCII((char*)theUrl.c_str(), aStudy, theMultiFile);
 }
 
 std::vector<std::string> SALOMEDS_StudyManager::GetOpenStudies()
@@ -149,17 +146,16 @@ std::vector<std::string> SALOMEDS_StudyManager::GetOpenStudies()
   return aVector;
 }
  
-SALOMEDSClient_Study* SALOMEDS_StudyManager::GetStudyByName(const char* theStudyName) 
+SALOMEDSClient_Study* SALOMEDS_StudyManager::GetStudyByName(const std::string& theStudyName) 
 {
   SALOMEDS_Study* aStudy = NULL;
-  TCollection_AsciiString aName((char*)theStudyName);
   if(_isLocal) {
-    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->GetStudyByName(aName);
+    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->GetStudyByName((char*)theStudyName.c_str());
     if(aStudy_impl.IsNull()) return NULL;
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }
   else  {
-    SALOMEDS::Study_var aStudy_impl = _corba_impl->GetStudyByName(aName.ToCString());
+    SALOMEDS::Study_var aStudy_impl = _corba_impl->GetStudyByName((char*)theStudyName.c_str());
     if(CORBA::is_nil(aStudy_impl)) return NULL; 
     aStudy = new SALOMEDS_Study(aStudy_impl);
   }

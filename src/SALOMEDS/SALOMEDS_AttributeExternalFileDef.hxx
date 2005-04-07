@@ -21,8 +21,8 @@ public:
   SALOMEDS_AttributeExternalFileDef(SALOMEDS::AttributeExternalFileDef_ptr theAttr);
   ~SALOMEDS_AttributeExternalFileDef();
 
-  virtual char* Value();
-  virtual void SetValue(const char* value);
+  virtual std::string Value();
+  virtual void SetValue(const std::string& value);
 };
 
 #endif

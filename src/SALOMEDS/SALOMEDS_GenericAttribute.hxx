@@ -28,8 +28,8 @@ public:
   virtual ~SALOMEDS_GenericAttribute();
 
   void CheckLocked();
-  char* Type();
-  char* GetClassType();
+  std::string Type();
+  std::string GetClassType();
   SALOMEDSClient_SObject* GetSObject();
   
   static SALOMEDS_GenericAttribute* CreateAttribute(const Handle(SALOMEDSImpl_GenericAttribute)& theGA);

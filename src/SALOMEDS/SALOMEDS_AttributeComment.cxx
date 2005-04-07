@@ -4,7 +4,8 @@
 
 #include "SALOMEDS_AttributeComment.hxx"
 
-#include <TCollection_AsciiString.hxx>
+#include <string>
+#include <TCollection_AsciiString.hxx> 
 #include <TCollection_ExtendedString.hxx>
 
 SALOMEDS_AttributeComment::SALOMEDS_AttributeComment(const Handle(SALOMEDSImpl_AttributeComment)& theAttr)
@@ -18,18 +19,18 @@ SALOMEDS_AttributeComment::SALOMEDS_AttributeComment(SALOMEDS::AttributeComment_
 SALOMEDS_AttributeComment::~SALOMEDS_AttributeComment()
 {}
 
-char* SALOMEDS_AttributeComment::Value()
+std::string SALOMEDS_AttributeComment::Value()
 {
-  TCollection_AsciiString aValue;
-  if(_isLocal) aValue = Handle(SALOMEDSImpl_AttributeComment)::DownCast(_local_impl)->Value();
+  std::string aValue;
+  if(_isLocal) 
+    aValue = TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeComment)::DownCast(_local_impl)->Value()).ToCString();
   else aValue = SALOMEDS::AttributeComment::_narrow(_corba_impl)->Value();
-  return aValue.ToCString();
+  return aValue;
 }
  
-void SALOMEDS_AttributeComment::SetValue(const char* value)
+void SALOMEDS_AttributeComment::SetValue(const std::string& value)
 {
   CheckLocked();
-  TCollection_AsciiString aValue((char*)value);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeComment)::DownCast(_local_impl)->SetValue(aValue);
-  else SALOMEDS::AttributeComment::_narrow(_corba_impl)->SetValue(aValue.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributeComment)::DownCast(_local_impl)->SetValue((char*)value.c_str());
+  else SALOMEDS::AttributeComment::_narrow(_corba_impl)->SetValue(value.c_str());
 }

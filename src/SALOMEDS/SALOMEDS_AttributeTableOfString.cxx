@@ -4,7 +4,8 @@
 
 #include "SALOMEDS_AttributeTableOfString.hxx"
 
-#include <TCollection_AsciiString.hxx>
+#include <string>
+#include <TCollection_AsciiString.hxx> 
 #include <TCollection_ExtendedString.hxx>
 #include <TColStd_HSequenceOfInteger.hxx>
 #include <TColStd_HSequenceOfReal.hxx>
@@ -23,28 +24,28 @@ SALOMEDS_AttributeTableOfString::~SALOMEDS_AttributeTableOfString()
 {}
 
 
-void SALOMEDS_AttributeTableOfString::SetTitle(const char* theTitle)
+void SALOMEDS_AttributeTableOfString::SetTitle(const std::string& theTitle)
 {
   CheckLocked();
-  TCollection_AsciiString aStr((char*)theTitle);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->SetTitle(aStr);
-  else SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetTitle(aStr.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->SetTitle((char*)theTitle.c_str());
+  else SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetTitle(theTitle.c_str());
 }
 
-char* SALOMEDS_AttributeTableOfString::GetTitle()
+std::string SALOMEDS_AttributeTableOfString::GetTitle()
 {
-  TCollection_AsciiString aStr;
-  if(_isLocal) aStr = Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->GetTitle();
+  std::string aStr;
+  if(_isLocal) 
+    aStr = TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->GetTitle()).ToCString();
   else aStr = SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->GetTitle();
-  return aStr.ToCString();
+  return aStr;
 }
 
-void SALOMEDS_AttributeTableOfString::SetRowTitle(int theIndex, const char* theTitle)
+void SALOMEDS_AttributeTableOfString::SetRowTitle(int theIndex, const std::string& theTitle)
 {
   CheckLocked();
-  TCollection_AsciiString aTitle((char*)theTitle);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->SetRowTitle(theIndex, aTitle);
-  else SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetRowTitle(theIndex, aTitle.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->SetRowTitle(theIndex, 
+											       (char*)theTitle.c_str());
+  else SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetRowTitle(theIndex, theTitle.c_str());
 }
 
 void SALOMEDS_AttributeTableOfString::SetRowTitles(const std::vector<std::string>& theTitles)
@@ -59,7 +60,7 @@ void SALOMEDS_AttributeTableOfString::SetRowTitles(const std::vector<std::string
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for(i = 0; i < aLength; i++) aSeq[i] = TCollection_AsciiString((char*)theTitles[i].c_str()).ToCString();
+    for(i = 0; i < aLength; i++) aSeq[i] = (char*)theTitles[i].c_str();
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetRowTitles(aSeq);
   }
   
@@ -78,17 +79,17 @@ std::vector<std::string> SALOMEDS_AttributeTableOfString::GetRowTitles()
   else {
     SALOMEDS::StringSeq_var aSeq = SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->GetRowTitles();
     aLength = aSeq->length();
-    for(i = 0; i<aLength; i++) aVector.push_back(TCollection_AsciiString((char*)aSeq[i].in()).ToCString());
+    for(i = 0; i<aLength; i++) aVector.push_back((char*)aSeq[i].in());
   }
   return aVector;
 }
 
-void SALOMEDS_AttributeTableOfString::SetColumnTitle(int theIndex, const char* theTitle)
+void SALOMEDS_AttributeTableOfString::SetColumnTitle(int theIndex, const std::string& theTitle)
 {
   CheckLocked();
-  TCollection_AsciiString aStr((char*)theTitle);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->SetColumnTitle(theIndex, aStr);
-  else SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetColumnTitle(theIndex, aStr.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->SetColumnTitle(theIndex, 
+												  (char*)theTitle.c_str());
+  else SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetColumnTitle(theIndex, theTitle.c_str());
 }
 
 void SALOMEDS_AttributeTableOfString::SetColumnTitles(const std::vector<std::string>& theTitles)
@@ -103,7 +104,7 @@ void SALOMEDS_AttributeTableOfString::SetColumnTitles(const std::vector<std::str
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for(i = 0; i < aLength; i++) aSeq[i] = TCollection_AsciiString((char*)theTitles[i].c_str()).ToCString();
+    for(i = 0; i < aLength; i++) aSeq[i] = (char*)theTitles[i].c_str();
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetColumnTitles(aSeq);
   }
 }
@@ -121,17 +122,17 @@ std::vector<std::string> SALOMEDS_AttributeTableOfString::GetColumnTitles()
   else {
     SALOMEDS::StringSeq_var aSeq = SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->GetColumnTitles();
     aLength = aSeq->length();
-    for(i = 0; i<aLength; i++) aVector.push_back(TCollection_AsciiString((char*)aSeq[i].in()).ToCString());
+    for(i = 0; i<aLength; i++) aVector.push_back((char*)aSeq[i].in());
   }
   return aVector;
 }
 
-void SALOMEDS_AttributeTableOfString::SetRowUnit(int theIndex, const char* theUnit)
+void SALOMEDS_AttributeTableOfString::SetRowUnit(int theIndex, const std::string& theUnit)
 {
   CheckLocked();
-  TCollection_AsciiString aUnit((char*)theUnit);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->SetRowUnit(theIndex, aUnit);
-  else SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetRowUnit(theIndex, aUnit.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->SetRowUnit(theIndex, 
+											      (char*)theUnit.c_str());
+  else SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetRowUnit(theIndex, theUnit.c_str());
 }
 
 void SALOMEDS_AttributeTableOfString::SetRowUnits(const std::vector<std::string>& theUnits)
@@ -146,7 +147,7 @@ void SALOMEDS_AttributeTableOfString::SetRowUnits(const std::vector<std::string>
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for(i = 0; i < aLength; i++) aSeq[i] = TCollection_AsciiString((char*)theUnits[i].c_str()).ToCString();
+    for(i = 0; i < aLength; i++) aSeq[i] = (char*)theUnits[i].c_str();
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetRowUnits(aSeq);
   }
 }
@@ -164,7 +165,7 @@ std::vector<std::string> SALOMEDS_AttributeTableOfString::GetRowUnits()
   else {
     SALOMEDS::StringSeq_var aSeq = SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->GetRowUnits();
     aLength = aSeq->length();
-    for(i = 0; i<aLength; i++) aVector.push_back(TCollection_AsciiString((char*)aSeq[i].in()).ToCString());
+    for(i = 0; i<aLength; i++) aVector.push_back((char*)aSeq[i].in());
   }
   return aVector;
 }
@@ -205,7 +206,7 @@ void SALOMEDS_AttributeTableOfString::AddRow(const std::vector<std::string>& the
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for(i = 0; i < aLength; i++) aSeq[i] = TCollection_AsciiString((char*)theData[i].c_str()).ToCString();
+    for(i = 0; i < aLength; i++) aSeq[i] = (char*)theData[i].c_str();
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->AddRow(aSeq);
   }
 }
@@ -229,7 +230,7 @@ void SALOMEDS_AttributeTableOfString::SetRow(int theRow, const std::vector<std::
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for(i = 0; i < aLength; i++) aSeq[i] = TCollection_AsciiString((char*)theData[i].c_str()).ToCString();
+    for(i = 0; i < aLength; i++) aSeq[i] = (char*)theData[i].c_str();
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetRow(theRow, aSeq);
   }
 }
@@ -246,7 +247,7 @@ std::vector<std::string> SALOMEDS_AttributeTableOfString::GetRow(int theRow)
   }
   else {
     SALOMEDS::StringSeq_var aRow = SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->GetRow(theRow);
-    for(i = 0; i < aLength; i++) aVector.push_back(TCollection_AsciiString((char*)aRow[i].in()).ToCString());
+    for(i = 0; i < aLength; i++) aVector.push_back((char*)aRow[i].in());
   }
 
   return aVector;
@@ -271,7 +272,7 @@ void SALOMEDS_AttributeTableOfString::AddColumn(const std::vector<std::string>& 
   else {
     SALOMEDS::StringSeq_var aColumn = new SALOMEDS::StringSeq();
     aColumn->length(aLength);
-    for(i = 0; i < aLength; i++) aColumn[i] = TCollection_AsciiString((char*)theData[i].c_str()).ToCString();
+    for(i = 0; i < aLength; i++) aColumn[i] = (char*)theData[i].c_str();
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->AddColumn(aColumn);
   }
 }
@@ -295,7 +296,7 @@ void SALOMEDS_AttributeTableOfString::SetColumn(int theColumn, const std::vector
   else {
     SALOMEDS::StringSeq_var aColumn = new SALOMEDS::StringSeq();
     aColumn->length(aLength);
-    for(i = 0; i < aLength; i++) aColumn[i] = TCollection_AsciiString((char*)theData[i].c_str()).ToCString();
+    for(i = 0; i < aLength; i++) aColumn[i] = (char*)theData[i].c_str();
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetRow(theColumn, aColumn);
   }
 }
@@ -317,20 +318,21 @@ std::vector<std::string> SALOMEDS_AttributeTableOfString::GetColumn(int theColum
   return aVector;
 }
 
-void SALOMEDS_AttributeTableOfString::PutValue(const char* theValue, int theRow, int theColumn)
+void SALOMEDS_AttributeTableOfString::PutValue(const std::string& theValue, int theRow, int theColumn)
 {
   CheckLocked();
-  TCollection_AsciiString aValue((char*)theValue);
   if(_isLocal) {
     try {
-      Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->PutValue(aValue, theRow, theColumn);
+      Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->PutValue((char*)theValue.c_str(), 
+										   theRow, 
+										   theColumn);
     }   
     catch(...) {
       throw SALOMEDS::AttributeTableOfString::IncorrectIndex();
     }
   }
   else {
-    SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->PutValue(aValue.ToCString(), theRow, theColumn);
+    SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->PutValue(theValue.c_str(), theRow, theColumn);
   }
 }
 
@@ -342,12 +344,14 @@ bool SALOMEDS_AttributeTableOfString::HasValue(int theRow, int theColumn)
   return ret;
 }
 
-char* SALOMEDS_AttributeTableOfString::GetValue(int theRow, int theColumn)
+std::string SALOMEDS_AttributeTableOfString::GetValue(int theRow, int theColumn)
 {
-  TCollection_AsciiString aValue;
+  std::string aValue;
   if(_isLocal) {
     try {
-      aValue = Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->GetValue(theRow, theColumn);
+      aValue = 
+          TCollection_AsciiString(Handle(SALOMEDSImpl_AttributeTableOfString)::DownCast(_local_impl)->GetValue(theRow,
+													       theColumn)).ToCString();
     }   
     catch(...) {
       throw SALOMEDS::AttributeTableOfString::IncorrectIndex();
@@ -356,7 +360,7 @@ char* SALOMEDS_AttributeTableOfString::GetValue(int theRow, int theColumn)
   else {
     aValue = SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->GetValue(theRow, theColumn);
   }
-  return aValue.ToCString();
+  return aValue;
 }
 
 std::vector<int> SALOMEDS_AttributeTableOfString::GetRowSetIndices(int theRow)

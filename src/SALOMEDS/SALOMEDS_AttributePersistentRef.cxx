@@ -4,7 +4,8 @@
 
 #include "SALOMEDS_AttributePersistentRef.hxx"
 
-#include <TCollection_AsciiString.hxx>
+#include <string>
+#include <TCollection_AsciiString.hxx> 
 #include <TCollection_ExtendedString.hxx>
 
 SALOMEDS_AttributePersistentRef::SALOMEDS_AttributePersistentRef(const Handle(SALOMEDSImpl_AttributePersistentRef)& theAttr)
@@ -18,18 +19,18 @@ SALOMEDS_AttributePersistentRef::SALOMEDS_AttributePersistentRef(SALOMEDS::Attri
 SALOMEDS_AttributePersistentRef::~SALOMEDS_AttributePersistentRef()
 {}
 
-char* SALOMEDS_AttributePersistentRef::Value()
+std::string SALOMEDS_AttributePersistentRef::Value()
 {
-  TCollection_AsciiString aValue;
-  if(_isLocal) aValue = Handle(SALOMEDSImpl_AttributePersistentRef)::DownCast(_local_impl)->Value();
+  std::string aValue;
+  if(_isLocal) 
+    aValue = TCollection_AsciiString(Handle(SALOMEDSImpl_AttributePersistentRef)::DownCast(_local_impl)->Value()).ToCString();
   else aValue = SALOMEDS::AttributePersistentRef::_narrow(_corba_impl)->Value();
-  return aValue.ToCString();
+  return aValue;
 }
  
-void SALOMEDS_AttributePersistentRef::SetValue(const char* value)
+void SALOMEDS_AttributePersistentRef::SetValue(const std::string& value)
 {
   CheckLocked();
-  TCollection_AsciiString aValue((char*)value);
-  if(_isLocal) Handle(SALOMEDSImpl_AttributePersistentRef)::DownCast(_local_impl)->SetValue(aValue);
-  else SALOMEDS::AttributePersistentRef::_narrow(_corba_impl)->SetValue(aValue.ToCString());
+  if(_isLocal) Handle(SALOMEDSImpl_AttributePersistentRef)::DownCast(_local_impl)->SetValue((char*)value.c_str());
+  else SALOMEDS::AttributePersistentRef::_narrow(_corba_impl)->SetValue(value.c_str());
 }

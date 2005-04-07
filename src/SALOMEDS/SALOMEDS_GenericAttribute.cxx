@@ -4,7 +4,8 @@
 
 using namespace std; 
 
-#include <TCollection_AsciiString.hxx>
+#include <string>
+#include <TCollection_AsciiString.hxx> 
 
 #include "SALOMEDS_GenericAttribute.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
@@ -66,28 +67,28 @@ void SALOMEDS_GenericAttribute::CheckLocked()
   }
 }
 
-char* SALOMEDS_GenericAttribute::Type()
+std::string SALOMEDS_GenericAttribute::Type()
 {
-  TCollection_AsciiString aType;
+  std::string aType;
   if(_isLocal) {
-    aType = _local_impl->Type();
+    aType = _local_impl->Type().ToCString();
   }
   else {
     aType = _corba_impl->Type();
   }
-  return aType.ToCString();
+  return aType;
 }
 
-char* SALOMEDS_GenericAttribute::GetClassType()
+std::string SALOMEDS_GenericAttribute::GetClassType()
 {
-  TCollection_AsciiString aType;
+  std::string aType;
   if(_isLocal) {
-    aType = _local_impl->GetClassType();
+    aType = _local_impl->GetClassType().ToCString();
   }
   else {
     aType = _corba_impl->GetClassType();
   }
-  return aType.ToCString();
+  return aType;
 }
 
 SALOMEDSClient_SObject* SALOMEDS_GenericAttribute::GetSObject()
@@ -107,7 +108,7 @@ SALOMEDSClient_SObject* SALOMEDS_GenericAttribute::GetSObject()
 SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute(const Handle(SALOMEDSImpl_GenericAttribute)& theGA)
 {
   SALOMEDS_GenericAttribute* aGA = NULL;
-  char* aTypeOfAttribute = theGA->GetClassType().ToCString();
+  std::string aTypeOfAttribute = theGA->GetClassType().ToCString();
   __CreateGenericClientAttributeLocal
   return aGA;  
 }
@@ -115,7 +116,7 @@ SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute(const Hand
 SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute(SALOMEDS::GenericAttribute_ptr theGA)
 {
   SALOMEDS_GenericAttribute* aGA = NULL;
-  char* aTypeOfAttribute = theGA->GetClassType();
+  std::string aTypeOfAttribute = theGA->GetClassType();
   __CreateGenericClientAttributeCORBA
   return aGA;  
 }

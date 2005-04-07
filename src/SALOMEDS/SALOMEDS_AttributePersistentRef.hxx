@@ -21,8 +21,8 @@ public:
   SALOMEDS_AttributePersistentRef(SALOMEDS::AttributePersistentRef_ptr theAttr);
   ~SALOMEDS_AttributePersistentRef();
 
-  virtual char* Value();
-  virtual void SetValue(const char* value);
+  virtual std::string Value();
+  virtual void SetValue(const std::string& value);
 };
 
 #endif

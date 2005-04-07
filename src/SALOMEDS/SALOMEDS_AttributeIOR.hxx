@@ -21,8 +21,8 @@ public:
   SALOMEDS_AttributeIOR(SALOMEDS::AttributeIOR_ptr theAttr);
   ~SALOMEDS_AttributeIOR();
 
-  virtual char* Value();
-  virtual void SetValue(const char* value);
+  virtual std::string Value();
+  virtual void SetValue(const std::string& value);
 };
 
 #endif

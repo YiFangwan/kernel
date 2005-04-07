@@ -14,7 +14,8 @@ using namespace std;
 #include "SALOMEDS_Driver_i.hxx"
 #include "SALOMEDS_GenericAttribute.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
-#include <TCollection_AsciiString.hxx>
+#include <string>
+#include <TCollection_AsciiString.hxx> 
 #include <TDF_Attribute.hxx>
 #include "SALOMEDS_StudyManager.hxx"
 
@@ -43,20 +44,19 @@ SALOMEDS_StudyBuilder::~SALOMEDS_StudyBuilder()
   if(!_isLocal) CORBA::release(_corba_impl);
 }
 
-SALOMEDSClient_SComponent* SALOMEDS_StudyBuilder::NewComponent(const char* ComponentDataType)
+SALOMEDSClient_SComponent* SALOMEDS_StudyBuilder::NewComponent(const std::string& ComponentDataType)
 {
   CheckLocked();
 
   SALOMEDS_SComponent* aSCO = NULL;
-  TCollection_AsciiString aType((char*)ComponentDataType);
   
   if(_isLocal) {
-    Handle(SALOMEDSImpl_SComponent) aSCO_impl =_local_impl->NewComponent(aType);
+    Handle(SALOMEDSImpl_SComponent) aSCO_impl =_local_impl->NewComponent((char*)ComponentDataType.c_str());
     if(aSCO_impl.IsNull()) return NULL;
     aSCO = new SALOMEDS_SComponent(aSCO_impl);
   }
   else {
-    SALOMEDS::SComponent_var aSCO_impl = _corba_impl->NewComponent(aType.ToCString());
+    SALOMEDS::SComponent_var aSCO_impl = _corba_impl->NewComponent((char*)ComponentDataType.c_str());
     if(CORBA::is_nil(aSCO_impl)) return NULL;
     aSCO = new SALOMEDS_SComponent(aSCO_impl);
   }
@@ -65,15 +65,15 @@ SALOMEDSClient_SComponent* SALOMEDS_StudyBuilder::NewComponent(const char* Compo
 }
 
 void SALOMEDS_StudyBuilder::DefineComponentInstance (SALOMEDSClient_SComponent* theSCO, 
-						     const char* ComponentIOR)
+						     const std::string& ComponentIOR)
 {
   CheckLocked();
 
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO);
-  TCollection_AsciiString anIOR((char*)ComponentIOR);
-  if(_isLocal) _local_impl->DefineComponentInstance(Handle(SALOMEDSImpl_SComponent)::DownCast(aSCO->GetLocalImpl()),anIOR);
+  if(_isLocal) _local_impl->DefineComponentInstance(Handle(SALOMEDSImpl_SComponent)::DownCast(aSCO->GetLocalImpl()),
+                                                    (char*)ComponentIOR.c_str());
   else {
-    CORBA::Object_var obj = _orb->string_to_object(ComponentIOR);
+    CORBA::Object_var obj = _orb->string_to_object(ComponentIOR.c_str());
     _corba_impl->DefineComponentInstance(SALOMEDS::SComponent::_narrow(aSCO->GetCORBAImpl()), obj);
   }
 }
@@ -130,28 +130,26 @@ SALOMEDSClient_SObject* SALOMEDS_StudyBuilder::NewObjectToTag(SALOMEDSClient_SOb
   
 }
 
-void SALOMEDS_StudyBuilder::AddDirectory(const char* thePath)
+void SALOMEDS_StudyBuilder::AddDirectory(const std::string& thePath)
 {
   CheckLocked();
 
-  TCollection_AsciiString aPath((char*)thePath);
   if(_isLocal) {
-    _local_impl->AddDirectory(aPath);
-    if(!_local_impl->AddDirectory(TCollection_AsciiString((char*)thePath))) {
-      TCollection_AsciiString anErrorCode = _local_impl->GetErrorCode();
+    _local_impl->AddDirectory((char*)thePath.c_str());
+    if(_local_impl->IsError()) {
+      std::string anErrorCode = _local_impl->GetErrorCode().ToCString();
       if(anErrorCode == "StudyNameAlreadyUsed") throw SALOMEDS::Study::StudyNameAlreadyUsed(); 
       if(anErrorCode == "StudyInvalidDirectory") throw SALOMEDS::Study::StudyInvalidDirectory(); 
       if(anErrorCode == "StudyInvalidComponent") throw SALOMEDS::Study::StudyInvalidComponent();  
     }
   }
-  else _corba_impl->AddDirectory(aPath.ToCString());
+  else _corba_impl->AddDirectory((char*)thePath.c_str());
 }
 
-void SALOMEDS_StudyBuilder::LoadWith(SALOMEDSClient_SComponent* theSCO, const char* theIOR)
+void SALOMEDS_StudyBuilder::LoadWith(SALOMEDSClient_SComponent* theSCO, const std::string& theIOR)
 {
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO);
-  TCollection_AsciiString anIOR((char*)theIOR);
-  CORBA::Object_var obj = _orb->string_to_object(theIOR);
+  CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
   SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(obj);
   
   if(_isLocal) {
@@ -192,15 +190,15 @@ void SALOMEDS_StudyBuilder::RemoveObjectWithChildren(SALOMEDSClient_SObject* the
 }
  
 SALOMEDSClient_GenericAttribute* SALOMEDS_StudyBuilder::FindOrCreateAttribute(SALOMEDSClient_SObject* theSO, 
-									      const char* aTypeOfAttribute)
+									      const std::string& aTypeOfAttribute)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
   SALOMEDS_GenericAttribute* anAttr = NULL;
-  TCollection_AsciiString aType((char*)aTypeOfAttribute);
   if(_isLocal) {
     Handle(SALOMEDSImpl_GenericAttribute) aGA;
     try {
-      aGA=Handle(SALOMEDSImpl_GenericAttribute)::DownCast(_local_impl->FindOrCreateAttribute(aSO->GetLocalImpl(),aType));
+      aGA=Handle(SALOMEDSImpl_GenericAttribute)::DownCast(_local_impl->FindOrCreateAttribute(aSO->GetLocalImpl(),
+                                                                                             (char*)aTypeOfAttribute.c_str()));
      }
     catch (...) {
       throw SALOMEDS::StudyBuilder::LockProtection();
@@ -208,7 +206,7 @@ SALOMEDSClient_GenericAttribute* SALOMEDS_StudyBuilder::FindOrCreateAttribute(SA
     anAttr = SALOMEDS_GenericAttribute::CreateAttribute(aGA);
   }
   else {
-    SALOMEDS::GenericAttribute_var aGA = _corba_impl->FindOrCreateAttribute(aSO->GetCORBAImpl(), aType.ToCString());
+    SALOMEDS::GenericAttribute_var aGA = _corba_impl->FindOrCreateAttribute(aSO->GetCORBAImpl(), (char*)aTypeOfAttribute.c_str());
     anAttr = SALOMEDS_GenericAttribute::CreateAttribute(aGA);
   }
 
@@ -217,34 +215,32 @@ SALOMEDSClient_GenericAttribute* SALOMEDS_StudyBuilder::FindOrCreateAttribute(SA
 
 bool SALOMEDS_StudyBuilder::FindAttribute(SALOMEDSClient_SObject* theSO, 
 					  SALOMEDSClient_GenericAttribute* anAttribute, 
-					  const char* aTypeOfAttribute)
+					  const std::string& aTypeOfAttribute)
 {
   bool ret;
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  TCollection_AsciiString aType((char*)aTypeOfAttribute);
   anAttribute = NULL;
   if(_isLocal) {
     Handle(SALOMEDSImpl_GenericAttribute) aGA;
-    ret = _local_impl->FindAttribute(aSO->GetLocalImpl(), aGA, aType);
+    ret = _local_impl->FindAttribute(aSO->GetLocalImpl(), aGA, (char*)aTypeOfAttribute.c_str());
     if(ret) anAttribute = SALOMEDS_GenericAttribute::CreateAttribute(aGA);
   }
   else {
     SALOMEDS::GenericAttribute_var aGA;
-    ret = _corba_impl->FindAttribute(aSO->GetCORBAImpl(), aGA.out(), aType.ToCString()); 
+    ret = _corba_impl->FindAttribute(aSO->GetCORBAImpl(), aGA.out(), (char*)aTypeOfAttribute.c_str()); 
     if(ret) anAttribute = SALOMEDS_GenericAttribute::CreateAttribute(aGA);
   }
 
   return ret;
 }
  
-void SALOMEDS_StudyBuilder::RemoveAttribute(SALOMEDSClient_SObject* theSO, const char* aTypeOfAttribute)
+void SALOMEDS_StudyBuilder::RemoveAttribute(SALOMEDSClient_SObject* theSO, const std::string& aTypeOfAttribute)
 {
   CheckLocked();
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  TCollection_AsciiString aType((char*)aTypeOfAttribute);
-  if(_isLocal) _local_impl->RemoveAttribute(aSO->GetLocalImpl(), aType);
-  else _corba_impl->RemoveAttribute(aSO->GetCORBAImpl(), aType.ToCString()); 
+  if(_isLocal) _local_impl->RemoveAttribute(aSO->GetLocalImpl(), (char*)aTypeOfAttribute.c_str());
+  else _corba_impl->RemoveAttribute(aSO->GetCORBAImpl(), (char*)aTypeOfAttribute.c_str()); 
 }
 
 void SALOMEDS_StudyBuilder::Addreference(SALOMEDSClient_SObject* me, SALOMEDSClient_SObject* thereferencedObject)
@@ -266,23 +262,21 @@ void SALOMEDS_StudyBuilder::RemoveReference(SALOMEDSClient_SObject* me)
   else _corba_impl->RemoveReference(aSO->GetCORBAImpl());
 }
 
-void SALOMEDS_StudyBuilder::SetGUID(SALOMEDSClient_SObject* theSO, const char* theGUID)
+void SALOMEDS_StudyBuilder::SetGUID(SALOMEDSClient_SObject* theSO, const std::string& theGUID)
 {
   CheckLocked();
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  TCollection_AsciiString aGUID((char*)theGUID);
-  if(_isLocal) _local_impl->SetGUID(aSO->GetLocalImpl(), aGUID);
-  else _corba_impl->SetGUID(aSO->GetCORBAImpl(), aGUID.ToCString());
+  if(_isLocal) _local_impl->SetGUID(aSO->GetLocalImpl(), (char*)theGUID.c_str());
+  else _corba_impl->SetGUID(aSO->GetCORBAImpl(), (char*)theGUID.c_str());
 }
  
-bool SALOMEDS_StudyBuilder::IsGUID(SALOMEDSClient_SObject* theSO, const char* theGUID)
+bool SALOMEDS_StudyBuilder::IsGUID(SALOMEDSClient_SObject* theSO, const std::string& theGUID)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  TCollection_AsciiString aGUID((char*)theGUID);
   bool ret;
-  if(_isLocal) ret = _local_impl->IsGUID(aSO->GetLocalImpl(), aGUID);
-  else ret = _corba_impl->IsGUID(aSO->GetCORBAImpl(), aGUID.ToCString());
+  if(_isLocal) ret = _local_impl->IsGUID(aSO->GetLocalImpl(), (char*)theGUID.c_str());
+  else ret = _corba_impl->IsGUID(aSO->GetCORBAImpl(), (char*)theGUID.c_str());
 
   return ret;
 }
@@ -391,34 +385,31 @@ void SALOMEDS_StudyBuilder::CheckLocked()
   }
 }
 
-void SALOMEDS_StudyBuilder::SetName(SALOMEDSClient_SObject* theSO, const char* theValue)
+void SALOMEDS_StudyBuilder::SetName(SALOMEDSClient_SObject* theSO, const std::string& theValue)
 {
   CheckLocked();
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  TCollection_AsciiString aValue((char*)theValue);
-  if(_isLocal) _local_impl->SetName(aSO->GetLocalImpl(), aValue);
-  else _corba_impl->SetName(aSO->GetCORBAImpl(), aValue.ToCString());
+  if(_isLocal) _local_impl->SetName(aSO->GetLocalImpl(), (char*)theValue.c_str());
+  else _corba_impl->SetName(aSO->GetCORBAImpl(), (char*)theValue.c_str());
 }
 
-void SALOMEDS_StudyBuilder::SetComment(SALOMEDSClient_SObject* theSO, const char* theValue)
+void SALOMEDS_StudyBuilder::SetComment(SALOMEDSClient_SObject* theSO, const std::string& theValue)
 {
   CheckLocked();
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  TCollection_AsciiString aValue((char*)theValue);
-  if(_isLocal) _local_impl->SetComment(aSO->GetLocalImpl(), aValue);
-  else _corba_impl->SetComment(aSO->GetCORBAImpl(), aValue.ToCString());
+  if(_isLocal) _local_impl->SetComment(aSO->GetLocalImpl(), (char*)theValue.c_str());
+  else _corba_impl->SetComment(aSO->GetCORBAImpl(), (char*)theValue.c_str());
 }
 
-void SALOMEDS_StudyBuilder::SetIOR(SALOMEDSClient_SObject* theSO, const char* theValue)
+void SALOMEDS_StudyBuilder::SetIOR(SALOMEDSClient_SObject* theSO, const std::string& theValue)
 {
   CheckLocked();
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  TCollection_AsciiString aValue((char*)theValue);
-  if(_isLocal) _local_impl->SetIOR(aSO->GetLocalImpl(), aValue);
-  else _corba_impl->SetIOR(aSO->GetCORBAImpl(), aValue.ToCString());
+  if(_isLocal) _local_impl->SetIOR(aSO->GetLocalImpl(), (char*)theValue.c_str());
+  else _corba_impl->SetIOR(aSO->GetCORBAImpl(), (char*)theValue.c_str());
 }
 
 void SALOMEDS_StudyBuilder::init_orb()

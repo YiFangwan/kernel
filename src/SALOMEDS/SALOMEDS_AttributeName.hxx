@@ -21,8 +21,8 @@ public:
   SALOMEDS_AttributeName(SALOMEDS::AttributeName_ptr theAttr);
   ~SALOMEDS_AttributeName();
 
-  virtual char* Value();
-  virtual void SetValue(const char* value);
+  virtual std::string Value();
+  virtual void SetValue(const std::string& value);
 };
 
 #endif

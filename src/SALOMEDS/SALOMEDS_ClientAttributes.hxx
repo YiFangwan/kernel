@@ -67,12 +67,12 @@
 #include "SALOMEDS_AttributeFlags.hxx"
 #include "SALOMEDS_AttributeGraphic.hxx"
 
-#define __CreateClientAttributeLocal(CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
+#define __CreateClientAttributeLocal(CORBA_Name) if (strcmp(aTypeOfAttribute.c_str(), #CORBA_Name) == 0) { \
     Handle(SALOMEDSImpl_##CORBA_Name) A = Handle(SALOMEDSImpl_##CORBA_Name)::DownCast(theGA); \
     aGA = new SALOMEDS_##CORBA_Name(A); \
   }
 
-#define __CreateClientAttributeCORBA(CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
+#define __CreateClientAttributeCORBA(CORBA_Name) if (strcmp(aTypeOfAttribute.c_str(), #CORBA_Name) == 0) { \
     SALOMEDS::CORBA_Name##_var A = SALOMEDS::CORBA_Name::_narrow(theGA); \
     aGA = new SALOMEDS_##CORBA_Name(A); \
   }

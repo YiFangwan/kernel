@@ -33,8 +33,8 @@ public:
   virtual void SetFirst(SALOMEDSClient_AttributeTreeNode* value);
   virtual bool HasFirst();
   virtual SALOMEDSClient_AttributeTreeNode* GetFirst();
-  virtual void SetTreeID(const char* value);
-  virtual char* GetTreeID();
+  virtual void SetTreeID(const std::string& value);
+  virtual std::string GetTreeID();
   virtual void Append(SALOMEDSClient_AttributeTreeNode* value);
   virtual void Prepend(SALOMEDSClient_AttributeTreeNode* value);
   virtual void InsertBefore(SALOMEDSClient_AttributeTreeNode* value);
@@ -45,7 +45,7 @@ public:
   virtual bool IsDescendant(SALOMEDSClient_AttributeTreeNode* value);
   virtual bool IsFather(SALOMEDSClient_AttributeTreeNode* value);
   virtual bool IsChild(SALOMEDSClient_AttributeTreeNode* value);
-  virtual char* Label();                                        
+  virtual std::string Label();                                        
 };
 
 #endif

@@ -21,8 +21,8 @@ public:
   SALOMEDS_AttributePythonObject(SALOMEDS::AttributePythonObject_ptr theAttr);
   ~SALOMEDS_AttributePythonObject();
 
-  virtual void SetObject(const char* theSequence, bool IsScript);
-  virtual char* GetObject();
+  virtual void SetObject(const std::string& theSequence, bool IsScript);
+  virtual std::string GetObject();
   virtual bool IsScript();     
 
 };

@@ -25,18 +25,18 @@ public:
   SALOMEDS_AttributeStudyProperties(SALOMEDS::AttributeStudyProperties_ptr theAttr);
   ~SALOMEDS_AttributeStudyProperties();
 
-  virtual void SetUserName(const char* theName);
-  virtual char* GetUserName();
+  virtual void SetUserName(const std::string& theName);
+  virtual std::string GetUserName();
   virtual void SetCreationDate(int theMinute, int theHour, int theDay, int theMonth, int theYear);
   virtual bool GetCreationDate(int& theMinute, int& theHour, int& theDay, int& theMonth, int& theYear);
-  virtual void SetCreationMode(const char* theMode);
-  virtual char* GetCreationMode();
+  virtual void SetCreationMode(const std::string& theMode);
+  virtual std::string GetCreationMode();
   virtual void SetModified(int theModified);
   virtual bool IsModified();
   virtual int GetModified();
   virtual void SetLocked(bool theLocked);
   virtual bool IsLocked();
-  virtual void SetModification(const char* theName,
+  virtual void SetModification(const std::string& theName,
 			       int theMinute,
 			       int theHour,
 			       int theDay,

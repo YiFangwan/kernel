@@ -10,7 +10,8 @@ using namespace std;
 #include "SALOMEDS_SObject.hxx"
 #include "SALOMEDSImpl_UseCaseIterator.hxx"
 #include "SALOMEDS_UseCaseIterator.hxx"
-#include <TCollection_AsciiString.hxx>
+#include <TCollection_AsciiString.hxx> 
+#include <string>
 
 SALOMEDS_UseCaseBuilder::SALOMEDS_UseCaseBuilder(const Handle(SALOMEDSImpl_UseCaseBuilder)& theBuilder)
 {
@@ -104,12 +105,11 @@ bool SALOMEDS_UseCaseBuilder::IsUseCase(SALOMEDSClient_SObject* theObject)
   return ret;
 }
 
-bool SALOMEDS_UseCaseBuilder::SetName(const char* theName)
+bool SALOMEDS_UseCaseBuilder::SetName(const std::string& theName)
 {
   bool ret;
-  TCollection_AsciiString aName((char*)theName);
-  if(_isLocal) ret = _local_impl->SetName(aName);
-  else ret = _corba_impl->SetName(aName.ToCString());
+  if(_isLocal) ret = _local_impl->SetName((char*)theName.c_str());
+  else ret = _corba_impl->SetName((char*)theName.c_str());
   return ret;
 }
 
@@ -121,20 +121,19 @@ SALOMEDSClient_SObject* SALOMEDS_UseCaseBuilder::GetCurrentObject()
   return obj;
 }
 
-char* SALOMEDS_UseCaseBuilder::GetName()
+std::string SALOMEDS_UseCaseBuilder::GetName()
 {
-  TCollection_AsciiString aName;
-  if(_isLocal) aName = _local_impl->GetName();
+  std::string aName;
+  if(_isLocal) aName = _local_impl->GetName().ToCString();
   else aName = _corba_impl->GetName();
-  return aName.ToCString();
+  return aName;
 }
 
-SALOMEDSClient_SObject* SALOMEDS_UseCaseBuilder::AddUseCase(const char* theName)
+SALOMEDSClient_SObject* SALOMEDS_UseCaseBuilder::AddUseCase(const std::string& theName)
 {
   SALOMEDS_SObject* obj = NULL;
-  TCollection_AsciiString aName((char*)theName);
-  if(_isLocal) obj = new SALOMEDS_SObject(_local_impl->AddUseCase(aName));
-  else obj = new SALOMEDS_SObject(_corba_impl->AddUseCase(aName.ToCString()));
+  if(_isLocal) obj = new SALOMEDS_SObject(_local_impl->AddUseCase((char*)theName.c_str()));
+  else obj = new SALOMEDS_SObject(_corba_impl->AddUseCase((char*)theName.c_str()));
   return obj;
 }
 

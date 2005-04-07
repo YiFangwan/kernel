@@ -6,13 +6,14 @@
 #define SALOMEDSClient_AttributePythonObject_HeaderFile
 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
+#include <string> 
 
 class SALOMEDSClient_AttributePythonObject: public virtual SALOMEDSClient_GenericAttribute
 {
 public:
 
-  virtual void SetObject(const char* theSequence, bool IsScript) = 0;
-  virtual char* GetObject() = 0;
+  virtual void SetObject(const std::string& theSequence, bool IsScript) = 0;
+  virtual std::string GetObject() = 0;
   virtual bool IsScript() = 0;
 
 };

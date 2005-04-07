@@ -21,7 +21,7 @@ public:
   SALOMEDS_SComponent(SALOMEDS::SComponent_ptr theSComponent);
   ~SALOMEDS_SComponent();
 
-  virtual char* ComponentDataType();
-  virtual bool ComponentIOR(char* theID);    
+  virtual std::string ComponentDataType();
+  virtual bool ComponentIOR(std::string& theID);    
 };
 #endif

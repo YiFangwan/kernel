@@ -36,10 +36,10 @@ public:
   virtual bool SetRootCurrent();
   virtual bool  HasChildren(SALOMEDSClient_SObject* theObject);
   virtual bool  IsUseCase(SALOMEDSClient_SObject* theObject);
-  virtual bool SetName(const char* theName);
+  virtual bool SetName(const std::string& theName);
   virtual SALOMEDSClient_SObject* GetCurrentObject();
-  virtual char* GetName();
-  virtual SALOMEDSClient_SObject* AddUseCase(const char* theName);
+  virtual std::string GetName();
+  virtual SALOMEDSClient_SObject* AddUseCase(const std::string& theName);
   virtual SALOMEDSClient_UseCaseIterator* GetUseCaseIterator(SALOMEDSClient_SObject* anObject);
 
 };

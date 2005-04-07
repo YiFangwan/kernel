@@ -24,6 +24,7 @@ using namespace std;
 
 #include "SALOMEDS_Driver_i.hxx"
 
+#include <TCollection_AsciiString.hxx> 
 #include <TColStd_HSequenceOfAsciiString.hxx>
 #include <TColStd_HSequenceOfTransient.hxx>
 
@@ -73,20 +74,20 @@ SALOMEDS_Study::~SALOMEDS_Study()
   if(!_isLocal) CORBA::release(_corba_impl);
 }
 
-char* SALOMEDS_Study::GetPersistentReference()
+std::string SALOMEDS_Study::GetPersistentReference()
 {
-  TCollection_AsciiString aRef;
-  if(_isLocal) aRef = _local_impl->GetPersistentReference();
+  std::string aRef;
+  if(_isLocal) aRef = _local_impl->GetPersistentReference().ToCString();
   else aRef = _corba_impl->GetPersistentReference();
-  return aRef.ToCString();
+  return aRef;
 }
 
-char* SALOMEDS_Study::GetTransientReference()
+std::string SALOMEDS_Study::GetTransientReference()
 {
-  TCollection_AsciiString aRef;
-  if(_isLocal) aRef = _local_impl->GetTransientReference();
+  std::string aRef;
+  if(_isLocal) aRef = _local_impl->GetTransientReference().ToCString();
   else aRef = _corba_impl->GetTransientReference();
-  return aRef.ToCString();
+  return aRef;
 }
  
 bool SALOMEDS_Study::IsEmpty()
@@ -97,34 +98,32 @@ bool SALOMEDS_Study::IsEmpty()
   return ret;
 }
 
-SALOMEDSClient_SComponent* SALOMEDS_Study::FindComponent (const char* aComponentName)
+SALOMEDSClient_SComponent* SALOMEDS_Study::FindComponent (const std::string& aComponentName)
 {
   SALOMEDS_SComponent* aSCO = NULL;
-  TCollection_AsciiString aName((char*)aComponentName);
   if(_isLocal) {
-    Handle(SALOMEDSImpl_SComponent) aSCO_impl =_local_impl->FindComponent(aName);
+    Handle(SALOMEDSImpl_SComponent) aSCO_impl =_local_impl->FindComponent((char*)aComponentName.c_str());
     if(aSCO_impl.IsNull()) return NULL;
     aSCO = new SALOMEDS_SComponent(aSCO_impl);
   }
   else {
-    SALOMEDS::SComponent_var aSCO_impl = _corba_impl->FindComponent(aName.ToCString());
+    SALOMEDS::SComponent_var aSCO_impl = _corba_impl->FindComponent((char*)aComponentName.c_str());
     if(CORBA::is_nil(aSCO_impl)) return NULL;
     aSCO = new SALOMEDS_SComponent(aSCO_impl);
   }
   return aSCO;
 }
  
-SALOMEDSClient_SComponent* SALOMEDS_Study::FindComponentID(const char* aComponentID)
+SALOMEDSClient_SComponent* SALOMEDS_Study::FindComponentID(const std::string& aComponentID)
 {  
   SALOMEDS_SComponent* aSCO = NULL;
-  TCollection_AsciiString anID((char*)aComponentID);
   if(_isLocal) {
-    Handle(SALOMEDSImpl_SComponent) aSCO_impl =_local_impl->FindComponentID(anID);
+    Handle(SALOMEDSImpl_SComponent) aSCO_impl =_local_impl->FindComponentID((char*)aComponentID.c_str());
     if(aSCO_impl.IsNull()) return NULL;
     aSCO = new SALOMEDS_SComponent(aSCO_impl);
   }
   else {
-    SALOMEDS::SComponent_var aSCO_impl = _corba_impl->FindComponentID(anID.ToCString());
+    SALOMEDS::SComponent_var aSCO_impl = _corba_impl->FindComponentID((char*)aComponentID.c_str());
     if(CORBA::is_nil(aSCO_impl)) return NULL;
     aSCO = new SALOMEDS_SComponent(aSCO_impl);
   }
@@ -132,39 +131,36 @@ SALOMEDSClient_SComponent* SALOMEDS_Study::FindComponentID(const char* aComponen
   
 }
  
-SALOMEDSClient_SObject* SALOMEDS_Study::FindObject(const char* anObjectName)
+SALOMEDSClient_SObject* SALOMEDS_Study::FindObject(const std::string& anObjectName)
 {
   SALOMEDS_SObject* aSO = NULL;
-  TCollection_AsciiString aName((char*)anObjectName);
   if(_isLocal) {
-    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObject(aName);
+    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObject((char*)anObjectName.c_str());
     if(aSO_impl.IsNull()) return NULL;
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   else { 
-    SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObject(aName.ToCString());
+    SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObject((char*)anObjectName.c_str());
     if(CORBA::is_nil(aSO_impl)) return NULL;
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   return aSO;
 }
  
-std::vector<SALOMEDSClient_SObject*> SALOMEDS_Study::FindObjectByName(const char* anObjectName, 
-								      const char* aComponentName)   
+std::vector<SALOMEDSClient_SObject*> SALOMEDS_Study::FindObjectByName(const std::string& anObjectName, 
+								      const std::string& aComponentName)   
 {
   std::vector<SALOMEDSClient_SObject*> aVector;
   int i, aLength = 0;
-  TCollection_AsciiString anObjName((char*)anObjectName);
-  TCollection_AsciiString aCompName((char*)aComponentName);
   
   if(_isLocal) {
-    Handle(TColStd_HSequenceOfTransient) aSeq = _local_impl->FindObjectByName(anObjName, aCompName);
+    Handle(TColStd_HSequenceOfTransient) aSeq = _local_impl->FindObjectByName((char*)anObjectName.c_str(), (char*)aComponentName.c_str());
     aLength = aSeq->Length();
     for(i = 1; i<= aLength; i++) 
       aVector.push_back(new SALOMEDS_SObject(Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i))));
   }
   else {
-    SALOMEDS::Study::ListOfSObject_var aSeq = _corba_impl->FindObjectByName(anObjName.ToCString(), aCompName.ToCString());
+    SALOMEDS::Study::ListOfSObject_var aSeq = _corba_impl->FindObjectByName((char*)anObjectName.c_str(), (char*)aComponentName.c_str());
     aLength = aSeq->length();
     for(i = 0; i< aLength; i++) aVector.push_back(new SALOMEDS_SObject(aSeq[i]));
   }
@@ -172,159 +168,150 @@ std::vector<SALOMEDSClient_SObject*> SALOMEDS_Study::FindObjectByName(const char
   return aVector;
 }
  
-SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectID(const char* anObjectID)
+SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectID(const std::string& anObjectID)
 {
   SALOMEDS_SObject* aSO = NULL;
-  TCollection_AsciiString anID((char*)anObjectID);
   if(_isLocal) {
-    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectID(anID);
+    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectID((char*)anObjectID.c_str());
     if(aSO_impl.IsNull()) return NULL;
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   else { 
-    SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectID(anID.ToCString());
+    SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectID((char*)anObjectID.c_str());
     if(CORBA::is_nil(aSO_impl)) return NULL;
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   return aSO;
 }
  
-SALOMEDSClient_SObject* SALOMEDS_Study::CreateObjectID(const char* anObjectID)
+SALOMEDSClient_SObject* SALOMEDS_Study::CreateObjectID(const std::string& anObjectID)
 {
   SALOMEDS_SObject* aSO = NULL;
-  TCollection_AsciiString anID((char*)anObjectID);
-  if(_isLocal) aSO = new SALOMEDS_SObject(_local_impl->CreateObjectID(anID));
-  else aSO = new SALOMEDS_SObject(_corba_impl->CreateObjectID(anID.ToCString())); 
+  if(_isLocal) aSO = new SALOMEDS_SObject(_local_impl->CreateObjectID((char*)anObjectID.c_str()));
+  else aSO = new SALOMEDS_SObject(_corba_impl->CreateObjectID((char*)anObjectID.c_str())); 
   return aSO;
 }
  
-SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectIOR(const char* anObjectIOR)
+SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectIOR(const std::string& anObjectIOR)
 {
   SALOMEDS_SObject* aSO = NULL;
-  TCollection_AsciiString anIOR((char*)anObjectIOR);
   if(_isLocal) {
-    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectIOR(anIOR);
+    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectIOR((char*)anObjectIOR.c_str());
     if(aSO_impl.IsNull()) return NULL;
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   else { 
-    SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectIOR(anIOR.ToCString());
+    SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectIOR((char*)anObjectIOR.c_str());
     if(CORBA::is_nil(aSO_impl)) return NULL;
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   return aSO;
 }
 
-SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectByPath(const char* thePath)
+SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectByPath(const std::string& thePath)
 {
   SALOMEDS_SObject* aSO = NULL;
-  TCollection_AsciiString aPath((char*)thePath);
   if(_isLocal) {
-    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectByPath(aPath);
+    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectByPath((char*)thePath.c_str());
     if(aSO_impl.IsNull()) return NULL;
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   else {
-    SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectByPath(aPath.ToCString());
+    SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectByPath((char*)thePath.c_str());
     if(CORBA::is_nil(aSO_impl)) return NULL;
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   return aSO;
 }
 
-char* SALOMEDS_Study::GetObjectPath(SALOMEDSClient_SObject* theSO)
+std::string SALOMEDS_Study::GetObjectPath(SALOMEDSClient_SObject* theSO)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  TCollection_AsciiString aPath;
-  if(_isLocal) aPath = _local_impl->GetObjectPath(aSO->GetLocalImpl());
+  std::string aPath;
+  if(_isLocal) aPath = _local_impl->GetObjectPath(aSO->GetLocalImpl()).ToCString();
   else aPath = _corba_impl->GetObjectPath(aSO->GetCORBAImpl());
-  return aPath.ToCString();
+  return aPath;
 }
 
-void SALOMEDS_Study::SetContext(const char* thePath)
+void SALOMEDS_Study::SetContext(const std::string& thePath)
 {
-  TCollection_AsciiString aPath((char*)thePath);
-  if(_isLocal) _local_impl->SetContext(aPath);
-  else _corba_impl->SetContext(aPath.ToCString());
+  if(_isLocal) _local_impl->SetContext((char*)thePath.c_str());
+  else _corba_impl->SetContext((char*)thePath.c_str());
 }
 
-char* SALOMEDS_Study::GetContext()  
+std::string SALOMEDS_Study::GetContext()  
 {
-  TCollection_AsciiString aPath;
-  if(_isLocal) aPath = _local_impl->GetContext();
+  std::string aPath;
+  if(_isLocal) aPath = _local_impl->GetContext().ToCString();
   else aPath = _corba_impl->GetContext();
-  return aPath.ToCString();
+  return aPath;
 }
 
-std::vector<std::string> SALOMEDS_Study::GetObjectNames(const char* theContext)
+std::vector<std::string> SALOMEDS_Study::GetObjectNames(const std::string& theContext)
 {
   std::vector<std::string> aVector;
-  TCollection_AsciiString aContext((char*)theContext);
   int aLength, i;
   if(_isLocal) {
-    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetObjectNames(aContext);
+    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetObjectNames((char*)theContext.c_str());
     aLength = aSeq->Length();
     for(i = 1; i<=aLength; i++) aVector.push_back(aSeq->Value(i).ToCString());
   }
   else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetObjectNames(aContext.ToCString());
+    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetObjectNames((char*)theContext.c_str());
     aLength = aSeq->length();
-    for(i = 0; i<aLength; i++) aVector.push_back(TCollection_AsciiString((char*)aSeq[i].in()).ToCString());
+    for(i = 0; i<aLength; i++) aVector.push_back(std::string((std::string)aSeq[i].in()));
   }
   return aVector;
 }
  
-std::vector<std::string> SALOMEDS_Study::GetDirectoryNames(const char* theContext)
+std::vector<std::string> SALOMEDS_Study::GetDirectoryNames(const std::string& theContext)
 {
   std::vector<std::string> aVector;
-  TCollection_AsciiString aContext((char*)theContext);
   int aLength, i;
   if(_isLocal) {
-    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetDirectoryNames(aContext);
+    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetDirectoryNames((char*)theContext.c_str());
     aLength = aSeq->Length();
     for(i = 1; i<=aLength; i++) aVector.push_back(aSeq->Value(i).ToCString());
   }
   else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetDirectoryNames(aContext.ToCString());
+    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetDirectoryNames((char*)theContext.c_str());
     aLength = aSeq->length();
-    for(i = 0; i<aLength; i++) aVector.push_back(TCollection_AsciiString((char*)aSeq[i].in()).ToCString());
+    for(i = 0; i<aLength; i++) aVector.push_back((char*)aSeq[i].in());
   }
   return aVector;
 }
  
-std::vector<std::string> SALOMEDS_Study::GetFileNames(const char* theContext)
+std::vector<std::string> SALOMEDS_Study::GetFileNames(const std::string& theContext)
 {
   std::vector<std::string> aVector;
-  TCollection_AsciiString aContext((char*)theContext);
   int aLength, i;
   if(_isLocal) {
-    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetFileNames(aContext);
+    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetFileNames((char*)theContext.c_str());
     aLength = aSeq->Length();
     for(i = 1; i<=aLength; i++) aVector.push_back(aSeq->Value(i).ToCString());
   }
   else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetFileNames(aContext.ToCString());
+    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetFileNames((char*)theContext.c_str());
     aLength = aSeq->length();
 
-    for(i = 0; i<aLength; i++) aVector.push_back(TCollection_AsciiString((char*)aSeq[i].in()).ToCString());
+    for(i = 0; i<aLength; i++) aVector.push_back((char*)aSeq[i].in());
   }
   return aVector;
 }
  
-std::vector<std::string> SALOMEDS_Study::GetComponentNames(const char* theContext)
+std::vector<std::string> SALOMEDS_Study::GetComponentNames(const std::string& theContext)
 {
   std::vector<std::string> aVector;
-  TCollection_AsciiString aContext((char*)theContext);
   int aLength, i;
   if(_isLocal) {
-    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetComponentNames(aContext);
+    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetComponentNames((char*)theContext.c_str());
     aLength = aSeq->Length();
     for(i = 1; i<=aLength; i++) aVector.push_back(aSeq->Value(i).ToCString());
   }
   else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetComponentNames(aContext.ToCString());
+    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetComponentNames((char*)theContext.c_str());
     aLength = aSeq->length();
-    for(i = 0; i<aLength; i++) aVector.push_back(TCollection_AsciiString((char*)aSeq[i].in()).ToCString());
+    for(i = 0; i<aLength; i++) aVector.push_back((char*)aSeq[i].in());
   }
   return aVector;
 }
@@ -375,19 +362,18 @@ SALOMEDSClient_StudyBuilder* SALOMEDS_Study::NewBuilder()
   return aSB;
 }
 
-char* SALOMEDS_Study::Name()
+std::string SALOMEDS_Study::Name()
 {
-  TCollection_AsciiString aName;
-  if(_isLocal) aName = _local_impl->Name();
+  std::string aName;
+  if(_isLocal) aName = _local_impl->Name().ToCString();
   else aName = _corba_impl->Name();
-  return aName.ToCString();
+  return aName;
 }
  
-void SALOMEDS_Study::Name(const char* name)
+void SALOMEDS_Study::Name(const std::string& theName)
 {
-  TCollection_AsciiString aName((char*)name);
-  if(_isLocal) _local_impl->Name(aName);
-  else _corba_impl->Name(aName.ToCString());
+  if(_isLocal) _local_impl->Name((char*)theName.c_str());
+  else _corba_impl->Name((char*)theName.c_str());
 }
 
 bool SALOMEDS_Study::IsSaved()
@@ -412,19 +398,18 @@ bool SALOMEDS_Study::IsModified()
   return isModified;
 }
  
-char* SALOMEDS_Study::URL()
+std::string SALOMEDS_Study::URL()
 {
-  TCollection_AsciiString aURL;
-  if(_isLocal) aURL = _local_impl->URL();
+  std::string aURL;
+  if(_isLocal) aURL = _local_impl->URL().ToCString();
   else aURL = _corba_impl->URL();
-  return aURL.ToCString();
+  return aURL;
 }
 
-void SALOMEDS_Study::URL(const char* url)
+void SALOMEDS_Study::URL(const std::string& url)
 {
-  TCollection_AsciiString aURL((char*)url);
-  if(_isLocal) _local_impl->URL(aURL);
-  else _corba_impl->URL(aURL.ToCString());
+  if(_isLocal) _local_impl->URL((char*)url.c_str());
+  else _corba_impl->URL((char*)url.c_str());
 }
 
 int SALOMEDS_Study::StudyId()
@@ -468,12 +453,12 @@ SALOMEDSClient_AttributeStudyProperties* SALOMEDS_Study::GetProperties()
   return aProp;
 }
  
-char* SALOMEDS_Study::GetLastModificationDate() 
+std::string SALOMEDS_Study::GetLastModificationDate() 
 {
-  TCollection_AsciiString aDate;
-  if(_isLocal) aDate = _local_impl->GetLastModificationDate();
+  std::string aDate;
+  if(_isLocal) aDate = _local_impl->GetLastModificationDate().ToCString();
   else aDate = _corba_impl->GetLastModificationDate();
-  return aDate.ToCString();
+  return aDate;
 }
 
 std::vector<std::string> SALOMEDS_Study::GetModificationsDate()
@@ -488,7 +473,7 @@ std::vector<std::string> SALOMEDS_Study::GetModificationsDate()
   else {
     SALOMEDS::ListOfDates_var aSeq = _corba_impl->GetModificationsDate();
     aLength = aSeq->length();
-    for(i=0; i<aLength; i++) aVector.push_back(TCollection_AsciiString((char*)aSeq[i].in()).ToCString());
+    for(i=0; i<aLength; i++) aVector.push_back((char*)aSeq[i].in());
   }
   return aVector;
 }
@@ -520,28 +505,26 @@ void SALOMEDS_Study::EnableUseCaseAutoFilling(bool isEnabled)
   else _corba_impl->EnableUseCaseAutoFilling(isEnabled);
 }
 
-bool SALOMEDS_Study::DumpStudy(const char* thePath, const char* theBaseName, bool isPublished)
+bool SALOMEDS_Study::DumpStudy(const std::string& thePath, const std::string& theBaseName, bool isPublished)
 {
-  TCollection_AsciiString aPath((char*)thePath);
-  TCollection_AsciiString aBaseName((char*)theBaseName);
   bool ret;
   if(_isLocal) {
     SALOMEDS_DriverFactory_i* aFactory = new SALOMEDS_DriverFactory_i(_orb);
-    ret = _local_impl->DumpStudy(aPath, aBaseName, isPublished, aFactory);
+    ret = _local_impl->DumpStudy((char*)thePath.c_str(), (char*)theBaseName.c_str(), isPublished, aFactory);
     delete aFactory;
   }
-  else ret = _corba_impl->DumpStudy(aPath.ToCString(), aBaseName.ToCString(), isPublished);
+  else ret = _corba_impl->DumpStudy((char*)thePath.c_str(), (char*)theBaseName.c_str(), isPublished);
   return ret;
 }     
 
-char* SALOMEDS_Study::ConvertObjectToIOR(CORBA::Object_ptr theObject) 
+std::string SALOMEDS_Study::ConvertObjectToIOR(CORBA::Object_ptr theObject) 
 {
   return _orb->object_to_string(theObject); 
 }
 
-CORBA::Object_ptr SALOMEDS_Study::ConvertIORToObject(const char* theIOR) 
+CORBA::Object_ptr SALOMEDS_Study::ConvertIORToObject(const std::string& theIOR) 
 { 
-  return _orb->string_to_object(theIOR); 
+  return _orb->string_to_object(theIOR.c_str()); 
 } 
 
 void SALOMEDS_Study::init_orb()

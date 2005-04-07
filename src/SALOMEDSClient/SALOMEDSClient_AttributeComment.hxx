@@ -6,12 +6,13 @@
 #define SALOMEDSClient_AttributeComment_HeaderFile
 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
+#include <string>
 
 class SALOMEDSClient_AttributeComment: public virtual SALOMEDSClient_GenericAttribute
 {
 public:  
-  virtual char* Value() = 0;
-  virtual void SetValue(const char* value) = 0;
+  virtual std::string Value() = 0;
+  virtual void SetValue(const std::string& value) = 0;
 };
 
 #endif
