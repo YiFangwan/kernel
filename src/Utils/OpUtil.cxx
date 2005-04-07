@@ -35,10 +35,10 @@ int gethostname(char *name, size_t len);
 
 string GetHostname()
 {
-  int ls = 100, r = 0;
+  int ls = 100, r = 1;
   char *s;
 
-  while (ls < 10000) {
+  while (ls < 10000 && r) {
     ls *= 2;
     s = new char[ls];
     r = gethostname(s, ls-1);
