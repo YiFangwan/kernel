@@ -331,7 +331,10 @@ CORBA::Boolean SALOMEDS_StudyManager_i::CanCopy(SALOMEDS::SObject_ptr theObject)
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
   Handle(SALOMEDSImpl_SObject) anObject = aStudyImpl->GetSObject((char*)theObject->GetID());
 
-  return _impl->CanCopy(anObject, GetDriver(anObject, _orb));
+  SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
+  bool ret = _impl->CanCopy(anObject, aDriver);
+  delete aDriver;
+  return ret;
 }
 
 //============================================================================
@@ -347,7 +350,10 @@ CORBA::Boolean SALOMEDS_StudyManager_i::Copy(SALOMEDS::SObject_ptr theObject)
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
   Handle(SALOMEDSImpl_SObject) anObject = aStudyImpl->GetSObject((char*)theObject->GetID());
 
-  return _impl->Copy(anObject, GetDriver(anObject, _orb));
+  SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
+  bool ret = _impl->Copy(anObject, aDriver);
+  delete aDriver;
+  return ret;
 }
 
 //============================================================================
@@ -363,7 +369,10 @@ CORBA::Boolean SALOMEDS_StudyManager_i::CanPaste(SALOMEDS::SObject_ptr theObject
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
   Handle(SALOMEDSImpl_SObject) anObject = aStudyImpl->GetSObject((char*)theObject->GetID());
 
-  return _impl->CanPaste(anObject, GetDriver(anObject, _orb));
+  SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
+  bool ret = _impl->CanPaste(anObject, aDriver);
+  delete aDriver;
+  return ret;
 }
 
 //============================================================================
@@ -384,7 +393,9 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
   Handle(SALOMEDSImpl_SObject) aNewSO;
   
   try {
-    aNewSO =  _impl->Paste(anObject, GetDriver(anObject, _orb));
+    SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
+    aNewSO =  _impl->Paste(anObject, aDriver);
+    delete aDriver;
   }
   catch (...) {
     throw SALOMEDS::StudyBuilder::LockProtection();

@@ -189,7 +189,9 @@ bool SALOMEDS_StudyManager::CanCopy(SALOMEDSClient_SObject* theSO)
 
   if(_isLocal) {
     Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
-    ret = _local_impl->CanCopy(aSO_impl, GetDriver(aSO_impl, _orb));
+    SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
+    ret = _local_impl->CanCopy(aSO_impl, aDriver);
+    delete aDriver;
   }
   else {
     ret = _corba_impl->CanCopy(aSO->GetCORBAImpl());
@@ -204,7 +206,9 @@ bool SALOMEDS_StudyManager::Copy(SALOMEDSClient_SObject* theSO)
   bool ret;
   if(_isLocal) {
     Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
-    ret = _local_impl->Copy(aSO_impl, GetDriver(aSO_impl, _orb));
+    SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
+    ret = _local_impl->Copy(aSO_impl, aDriver);
+    delete aDriver;
   }
   else {
     ret = _corba_impl->Copy(aSO->GetCORBAImpl());
@@ -219,7 +223,9 @@ bool SALOMEDS_StudyManager::CanPaste(SALOMEDSClient_SObject* theSO)
 
   if(_isLocal) {
     Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
-    ret = _local_impl->CanPaste(aSO_impl, GetDriver(aSO_impl, _orb));
+    SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
+    ret = _local_impl->CanPaste(aSO_impl, aDriver);
+    delete aDriver;
   }
   else {
     ret = _corba_impl->CanPaste(aSO->GetCORBAImpl());
@@ -235,7 +241,9 @@ SALOMEDSClient_SObject* SALOMEDS_StudyManager::Paste(SALOMEDSClient_SObject* the
 
   if(_isLocal) {
     Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
-    Handle(SALOMEDSImpl_SObject) aNewSO = _local_impl->Paste(aSO_impl, GetDriver(aSO_impl, _orb));
+    SALOMEDS_Driver_i* aDriver = GetDriver(aSO_impl, _orb);
+    Handle(SALOMEDSImpl_SObject) aNewSO = _local_impl->Paste(aSO_impl, aDriver);
+    delete aDriver;
     if(aNewSO.IsNull()) return NULL;
     aResult = new SALOMEDS_SObject(aNewSO);
   }
