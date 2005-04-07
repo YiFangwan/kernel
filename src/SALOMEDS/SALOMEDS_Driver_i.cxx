@@ -8,6 +8,12 @@ using namespace std;
 #include "SALOMEDS.hxx"
 #include <stdlib.h>
 
+SALOMEDS_Driver_i::~SALOMEDS_Driver_i()
+{
+  CORBA::release(_driver);
+  CORBA::release(_orb); 
+}
+
 unsigned char* SALOMEDS_Driver_i::Save(const Handle(SALOMEDSImpl_SComponent)& theComponent,
 				       const TCollection_AsciiString& theURL,
 				       long& theStreamLength,

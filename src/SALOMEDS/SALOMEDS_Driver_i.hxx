@@ -25,8 +25,7 @@ public:
       _orb = CORBA::ORB::_duplicate(theORB);        
     }
 
-  ~SALOMEDS_Driver_i() {
-  }
+  ~SALOMEDS_Driver_i();
 
   virtual TCollection_AsciiString GetIOR() 
     {
