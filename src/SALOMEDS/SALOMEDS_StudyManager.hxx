@@ -23,6 +23,8 @@ private:
   bool                              _isLocal;
   Handle(SALOMEDSImpl_StudyManager) _local_impl;
   SALOMEDS::StudyManager_var        _corba_impl;  
+  CORBA::ORB_var                    _orb;
+
 public:
 
   SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManager);
@@ -42,6 +44,9 @@ public:
   virtual bool Copy(SALOMEDSClient_SObject* theSO);
   virtual bool CanPaste(SALOMEDSClient_SObject* theSO);
   virtual SALOMEDSClient_SObject* Paste(SALOMEDSClient_SObject* theSO); 
+
+private:
+  void init_orb();
 };
 
 #endif 

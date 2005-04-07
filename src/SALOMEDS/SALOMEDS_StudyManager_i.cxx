@@ -24,7 +24,7 @@
 #include <strstream>
 using namespace std;
 
-#ifdef WNT
+#ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
@@ -416,7 +416,7 @@ SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORB
 //===========================================================================
 long SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
-#ifdef WNT
+#ifdef WIN32
   long pid = (long)_getpid();
 #else
   long pid = (long)getpid();

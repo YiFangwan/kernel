@@ -8,8 +8,12 @@ using namespace std;
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDS_Study.hxx"
 #include "SALOMEDS_SObject.hxx"
+#include "SALOMEDS_Driver_i.hxx"
 
-#ifdef WNT
+#include "Utils_ORB_INIT.hxx" 
+#include "Utils_SINGLETON.hxx" 
+
+#ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
@@ -21,10 +25,12 @@ using namespace std;
 
 #include "OpUtil.hxx"
 
+SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb);
+
 SALOMEDS_StudyManager::SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManager)
 {
 
-#ifdef WNT
+#ifdef WIN32
   long pid =  (long)_getpid();
 #else
   long pid =  (long)getpid();
@@ -39,6 +45,8 @@ SALOMEDS_StudyManager::SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManag
     _local_impl = NULL;
     _corba_impl = SALOMEDS::StudyManager::_duplicate(theManager);
   }
+
+  init_orb();
 }
 
 SALOMEDS_StudyManager::~SALOMEDS_StudyManager()
@@ -177,31 +185,90 @@ SALOMEDSClient_Study* SALOMEDS_StudyManager::GetStudyByID(int theStudyID)
 bool SALOMEDS_StudyManager::CanCopy(SALOMEDSClient_SObject* theSO)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  //SRN: Pure CORBA call as SALOMEDS::Driver required for this method
-  return _corba_impl->CanCopy(aSO->GetCORBAImpl());
+  bool ret;
+
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
+    ret = _local_impl->CanCopy(aSO_impl, GetDriver(aSO_impl, _orb));
+  }
+  else {
+    ret = _corba_impl->CanCopy(aSO->GetCORBAImpl());
+  }
+
+  return ret;
 }
  
 bool SALOMEDS_StudyManager::Copy(SALOMEDSClient_SObject* theSO)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  //SRN: Pure CORBA call as SALOMEDS::Driver required for this method
-  return _corba_impl->Copy(aSO->GetCORBAImpl());
+  bool ret;
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
+    ret = _local_impl->Copy(aSO_impl, GetDriver(aSO_impl, _orb));
+  }
+  else {
+    ret = _corba_impl->Copy(aSO->GetCORBAImpl());
+  }
+  return ret;
 }
  
 bool SALOMEDS_StudyManager::CanPaste(SALOMEDSClient_SObject* theSO)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  //SRN: Pure CORBA call as SALOMEDS::Driver required for this method
-  return _corba_impl->CanPaste(aSO->GetCORBAImpl());
+  bool ret;
+
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
+    ret = _local_impl->CanPaste(aSO_impl, GetDriver(aSO_impl, _orb));
+  }
+  else {
+    ret = _corba_impl->CanPaste(aSO->GetCORBAImpl());
+  }
+
+  return ret;
 }
  
 SALOMEDSClient_SObject* SALOMEDS_StudyManager::Paste(SALOMEDSClient_SObject* theSO)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  //SRN: Pure CORBA call as SALOMEDS::Driver required for this method
-  SALOMEDS::SObject_var aSO_impl = _corba_impl->Paste(aSO->GetCORBAImpl());
-  if(CORBA::is_nil(aSO_impl)) return NULL;
-  SALOMEDS_SObject* aResultSO = new SALOMEDS_SObject(aSO_impl);
-  return aResultSO;
+  SALOMEDSClient_SObject* aResult = NULL;
+
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SObject) aSO_impl = aSO->GetLocalImpl();
+    Handle(SALOMEDSImpl_SObject) aNewSO = _local_impl->Paste(aSO_impl, GetDriver(aSO_impl, _orb));
+    if(aNewSO.IsNull()) return NULL;
+    aResult = new SALOMEDS_SObject(aNewSO);
+  }
+  else {
+    SALOMEDS::SObject_ptr aNewSO = _corba_impl->Paste(aSO->GetCORBAImpl());
+    if(CORBA::is_nil(aNewSO)) return NULL;
+    aResult = new SALOMEDS_SObject(aNewSO);
+  }
+
+  return aResult;
 }
 
+
+void SALOMEDS_StudyManager::init_orb()
+{
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
+  _orb = init(0 , 0 ) ;     
+}
+
+SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb)
+{
+  SALOMEDS_Driver_i* driver = NULL;
+  
+  Handle(SALOMEDSImpl_SComponent) aSCO = theObject->GetFatherComponent();
+  if(!aSCO.IsNull()) {
+    TCollection_AsciiString IOREngine = aSCO->GetIOR();
+    if(!IOREngine.IsEmpty()) {
+      CORBA::Object_var obj = orb->string_to_object(IOREngine.ToCString());
+      SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
+      driver = new SALOMEDS_Driver_i(Engine, orb);
+    }
+  }  
+
+  return driver;
+}

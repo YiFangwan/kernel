@@ -11,7 +11,7 @@ using namespace std;
 #include "SALOMEDS_SObject.hxx"
 #include "SALOMEDS_ClientAttributes.hxx"
 
-#ifdef WNT
+#ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
@@ -29,7 +29,7 @@ SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(const Handle(SALOMEDSImpl_G
 
 SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(SALOMEDS::GenericAttribute_ptr theGA)
 {
-#ifdef WNT
+#ifdef WIN32
   long pid =  (long)_getpid();
 #else
   long pid =  (long)getpid();

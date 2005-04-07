@@ -13,7 +13,7 @@ using namespace std;
 #include <TCollection_AsciiString.hxx>
 #include <map>
 
-#ifdef WNT
+#ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
@@ -103,7 +103,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute(cons
 //===========================================================================
 long SALOMEDS_GenericAttribute_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
-#ifdef WNT
+#ifdef WIN32
   long pid = (long)_getpid();
 #else
   long pid = (long)getpid();

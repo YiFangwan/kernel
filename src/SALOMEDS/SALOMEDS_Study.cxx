@@ -30,7 +30,7 @@ using namespace std;
 #include "Utils_ORB_INIT.hxx" 
 #include "Utils_SINGLETON.hxx" 
 
-#ifdef WNT
+#ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
@@ -49,7 +49,7 @@ SALOMEDS_Study::SALOMEDS_Study(const Handle(SALOMEDSImpl_Study)& theStudy)
 
 SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
 {
-#ifdef WNT
+#ifdef WIN32
   long pid =  (long)_getpid();
 #else
   long pid =  (long)getpid();

@@ -20,7 +20,7 @@ using namespace std;
 #include <TColStd_HSequenceOfTransient.hxx>
 #include <map>
 
-#ifdef WNT
+#ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
@@ -308,7 +308,7 @@ char* SALOMEDS_SObject_i::GetIOR()
 //===========================================================================
 long SALOMEDS_SObject_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
-#ifdef WNT
+#ifdef WIN32
   long pid = (long)_getpid();
 #else
   long pid = (long)getpid();

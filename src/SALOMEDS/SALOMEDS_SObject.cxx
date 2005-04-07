@@ -15,7 +15,7 @@ using namespace std;
 #include "SALOMEDS_Study.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
-#ifdef WNT
+#ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
@@ -26,7 +26,7 @@ using namespace std;
 
 SALOMEDS_SObject::SALOMEDS_SObject(SALOMEDS::SObject_ptr theSObject)
 {
-#ifdef WNT
+#ifdef WIN32
   long pid =  (long)_getpid();
 #else
   long pid =  (long)getpid();
@@ -57,8 +57,10 @@ SALOMEDS_SObject::~SALOMEDS_SObject()
 
 char* SALOMEDS_SObject::GetID()
 {
-  if(_isLocal) return _local_impl->GetID().ToCString();
-  return _corba_impl->GetID();
+  TCollection_AsciiString aValue;
+  if(_isLocal) aValue = _local_impl->GetID();
+  else aValue = _corba_impl->GetID();  
+  return aValue.ToCString();
 }
 
 SALOMEDSClient_SComponent* SALOMEDS_SObject::GetFatherComponent()

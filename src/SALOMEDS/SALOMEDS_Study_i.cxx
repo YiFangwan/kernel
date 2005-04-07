@@ -27,7 +27,7 @@ using namespace std;
 #include <TDF_Label.hxx>
 #include <TDF_Attribute.hxx>
 
-#ifdef WNT
+#ifdef WIN32
 #include <process.h>
 #else
 #include <sys/types.h>
@@ -714,7 +714,7 @@ CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath, const char* theB
 //===========================================================================
 long SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
-#ifdef WNT
+#ifdef WIN32
   long pid = (long)_getpid();
 #else
   long pid = (long)getpid();
