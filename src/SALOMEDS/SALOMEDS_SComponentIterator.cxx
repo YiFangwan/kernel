@@ -16,11 +16,12 @@ SALOMEDS_SComponentIterator::SALOMEDS_SComponentIterator(const SALOMEDSImpl_SCom
 SALOMEDS_SComponentIterator::SALOMEDS_SComponentIterator(SALOMEDS::SComponentIterator_ptr theIterator)
 {
   _isLocal = false;
-  _corba_impl = theIterator;
+  _corba_impl = SALOMEDS::SComponentIterator::_duplicate(theIterator);
 }
 
 SALOMEDS_SComponentIterator::~SALOMEDS_SComponentIterator()
 {
+  if(!_isLocal) CORBA::release(_corba_impl); 
 }
 
 void SALOMEDS_SComponentIterator::Init()

@@ -23,11 +23,12 @@ SALOMEDS_UseCaseBuilder::SALOMEDS_UseCaseBuilder(SALOMEDS::UseCaseBuilder_ptr th
 {
   _isLocal = false;
   _local_impl = NULL;
-  _corba_impl = theBuilder;
+  _corba_impl = SALOMEDS::UseCaseBuilder::_duplicate(theBuilder);
 }
 
 SALOMEDS_UseCaseBuilder::~SALOMEDS_UseCaseBuilder()
 {
+  if(!_isLocal) CORBA::release(_corba_impl); 
 }  
 
 bool SALOMEDS_UseCaseBuilder::Append(SALOMEDSClient_SObject* theObject)

@@ -24,7 +24,7 @@ public:
 
   SALOMEDS_ChildIterator(const Handle(SALOMEDSImpl_ChildIterator)& theIterator);
   SALOMEDS_ChildIterator(SALOMEDS::ChildIterator_ptr theIterator);
-  ~SALOMEDS_ChildIterator() {};
+  ~SALOMEDS_ChildIterator();
 
   virtual void Init();
   virtual void InitEx(bool theAllLevels);

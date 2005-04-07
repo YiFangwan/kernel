@@ -18,11 +18,12 @@ SALOMEDS_UseCaseIterator::SALOMEDS_UseCaseIterator(SALOMEDS::UseCaseIterator_ptr
 {
   _isLocal = false;
   _local_impl = NULL;
-  _corba_impl = theIterator;
+  _corba_impl = SALOMEDS::UseCaseIterator::_duplicate(theIterator);
 }
 
 SALOMEDS_UseCaseIterator::~SALOMEDS_UseCaseIterator()
 {
+  if(!_isLocal) CORBA::release(_corba_impl);    
 }
 
 void SALOMEDS_UseCaseIterator::Init(bool theAllLevels)
