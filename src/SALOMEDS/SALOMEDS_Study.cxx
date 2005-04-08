@@ -23,6 +23,7 @@ using namespace std;
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 
 #include "SALOMEDS_Driver_i.hxx"
+#include "SALOMEDS_Study_i.hxx"
 
 #include <TCollection_AsciiString.hxx> 
 #include <TColStd_HSequenceOfAsciiString.hxx>
@@ -531,4 +532,18 @@ void SALOMEDS_Study::init_orb()
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
   _orb = init(0 , 0 ) ;     
+}
+
+SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
+{
+   if(_isLocal) {
+     SALOMEDS_Study_i *Study_servant = new SALOMEDS_Study_i(_local_impl, _orb);
+     SALOMEDS::Study_var Study = Study_servant->_this();
+     return Study;
+   }
+   else {
+     return _corba_impl;
+   }
+   
+   return SALOMEDS::Study::_nil();
 }

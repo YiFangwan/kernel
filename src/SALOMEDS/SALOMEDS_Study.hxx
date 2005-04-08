@@ -80,6 +80,8 @@ public:
   std::string ConvertObjectToIOR(CORBA::Object_ptr theObject);
   CORBA::Object_ptr ConvertIORToObject(const std::string& theIOR);     
 
+  SALOMEDS::Study_ptr GetStudy();
+
 private:
   void init_orb();
 
