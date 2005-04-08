@@ -41,7 +41,7 @@ SALOMEDS_StudyBuilder::SALOMEDS_StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuild
 
 SALOMEDS_StudyBuilder::~SALOMEDS_StudyBuilder() 
 {
-  if(!_isLocal) CORBA::release(_corba_impl);
+  //if(!_isLocal) CORBA::release(_corba_impl);
 }
 
 SALOMEDSClient_SComponent* SALOMEDS_StudyBuilder::NewComponent(const std::string& ComponentDataType)

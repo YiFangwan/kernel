@@ -53,7 +53,7 @@ SALOMEDS_SObject::SALOMEDS_SObject(const Handle(SALOMEDSImpl_SObject)& theSObjec
 
 SALOMEDS_SObject::~SALOMEDS_SObject()
 {
-  if(!_isLocal) CORBA::release(_corba_impl);
+  //if(!_isLocal) CORBA::release(_corba_impl);
 }
 
 std::string SALOMEDS_SObject::GetID()

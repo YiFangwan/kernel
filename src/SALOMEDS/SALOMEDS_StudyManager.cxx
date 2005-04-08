@@ -52,7 +52,7 @@ SALOMEDS_StudyManager::SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManag
 
 SALOMEDS_StudyManager::~SALOMEDS_StudyManager()
 {
-  if(!_isLocal) CORBA::release(_corba_impl);
+  //if(!_isLocal) CORBA::release(_corba_impl);
 }
 
 SALOMEDSClient_Study* SALOMEDS_StudyManager::NewStudy(const std::string& study_name)
@@ -85,7 +85,8 @@ SALOMEDSClient_Study* SALOMEDS_StudyManager::Open(const std::string& theStudyUrl
   else {
     SALOMEDS::Study_var aStudy_impl = _corba_impl->Open((char*)theStudyUrl.c_str());
     if(CORBA::is_nil(aStudy_impl)) return NULL; 
-    aStudy = new SALOMEDS_Study(aStudy_impl);
+    
+    aStudy = new SALOMEDS_Study(aStudy_impl.in());
   }
 
   return aStudy;

@@ -29,7 +29,7 @@ SALOMEDS_UseCaseBuilder::SALOMEDS_UseCaseBuilder(SALOMEDS::UseCaseBuilder_ptr th
 
 SALOMEDS_UseCaseBuilder::~SALOMEDS_UseCaseBuilder()
 {
-  if(!_isLocal) CORBA::release(_corba_impl); 
+  //if(!_isLocal) CORBA::release(_corba_impl); 
 }  
 
 bool SALOMEDS_UseCaseBuilder::Append(SALOMEDSClient_SObject* theObject)

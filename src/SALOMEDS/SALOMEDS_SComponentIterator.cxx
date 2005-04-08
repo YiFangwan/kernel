@@ -21,7 +21,7 @@ SALOMEDS_SComponentIterator::SALOMEDS_SComponentIterator(SALOMEDS::SComponentIte
 
 SALOMEDS_SComponentIterator::~SALOMEDS_SComponentIterator()
 {
-  if(!_isLocal) CORBA::release(_corba_impl); 
+  //if(!_isLocal) CORBA::release(_corba_impl); 
 }
 
 void SALOMEDS_SComponentIterator::Init()

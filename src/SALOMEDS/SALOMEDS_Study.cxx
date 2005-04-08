@@ -71,7 +71,6 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
 
 SALOMEDS_Study::~SALOMEDS_Study()
 {
-  if(!_isLocal) CORBA::release(_corba_impl);
 }
 
 std::string SALOMEDS_Study::GetPersistentReference()
