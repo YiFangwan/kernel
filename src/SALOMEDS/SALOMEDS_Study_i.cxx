@@ -246,8 +246,16 @@ char* SALOMEDS_Study_i::GetObjectPath(CORBA::Object_ptr theObject)
 
   TCollection_AsciiString aPath("");
   if(CORBA::is_nil(theObject)) return CORBA::string_dup(aPath.ToCString());
+  Handle(SALOMEDSImpl_SObject) aSO;
+  SALOMEDS::SObject_var aSObj = SALOMEDS::SObject::_narrow(theObject);
 
-  Handle(SALOMEDSImpl_SObject) aSO  = _impl->FindObjectIOR(_orb->object_to_string(theObject));
+  if(!CORBA::is_nil(aSObj)) {
+    aSO = _impl->FindObjectID(aSObj->GetID());
+  }
+  else {
+    aSO  = _impl->FindObjectIOR(_orb->object_to_string(theObject));
+  }
+   
   if(aSO.IsNull()) return CORBA::string_dup(aPath.ToCString());
   
   aPath = _impl->GetObjectPath(aSO);
