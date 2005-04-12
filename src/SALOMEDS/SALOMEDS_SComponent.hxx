@@ -23,5 +23,7 @@ public:
 
   virtual std::string ComponentDataType();
   virtual bool ComponentIOR(std::string& theID);    
+
+  SALOMEDS::SComponent_ptr GetSComponent();
 };
 #endif

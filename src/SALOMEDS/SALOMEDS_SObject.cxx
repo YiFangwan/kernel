@@ -16,6 +16,9 @@ using namespace std;
 #include "SALOMEDS_Study.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
+#include "Utils_ORB_INIT.hxx" 
+#include "Utils_SINGLETON.hxx" 
+
 #ifdef WIN32
 #include <process.h>
 #else
@@ -36,12 +39,14 @@ SALOMEDS_SObject::SALOMEDS_SObject(SALOMEDS::SObject_ptr theSObject)
   long addr = theSObject->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
     _local_impl = ((SALOMEDSImpl_SObject*)(addr));
-    _corba_impl = SALOMEDS::SObject::_nil();
+    _corba_impl = SALOMEDS::SObject::_duplicate(theSObject);
   }
   else {
     _local_impl = NULL;
     _corba_impl = SALOMEDS::SObject::_duplicate(theSObject);
   }
+
+  init_orb();
 }
 
 SALOMEDS_SObject::SALOMEDS_SObject(const Handle(SALOMEDSImpl_SObject)& theSObject)
@@ -49,6 +54,8 @@ SALOMEDS_SObject::SALOMEDS_SObject(const Handle(SALOMEDSImpl_SObject)& theSObjec
 {
   _corba_impl = SALOMEDS::SObject::_nil();
   _local_impl = theSObject;
+
+  init_orb();
 }
 
 SALOMEDS_SObject::~SALOMEDS_SObject()
@@ -217,13 +224,31 @@ int SALOMEDS_SObject::Depth()
 
 CORBA::Object_ptr SALOMEDS_SObject::GetObject()
 {
-  CORBA::Object_var obj;
   if(_isLocal) {
     std::string anIOR = GetIOR();
-    SALOMEDS_Study* aStudy = dynamic_cast<SALOMEDS_Study*>(GetStudy());
-    obj = CORBA::Object::_duplicate(aStudy->ConvertIORToObject(anIOR));
-    delete aStudy;
+    return _orb->string_to_object(anIOR.c_str());
   }
-  else obj = CORBA::Object::_duplicate(_corba_impl->GetObject());
-  return obj._retn();
+  else return _corba_impl->GetObject();
+
+  return CORBA::Object::_nil();
+}
+
+SALOMEDS::SObject_ptr SALOMEDS_SObject::GetSObject()
+{
+  if(_isLocal) {
+    if(!CORBA::is_nil(_corba_impl)) return _corba_impl;
+    return SALOMEDS_SObject_i::New(_local_impl, _orb);
+  }
+  else {
+    return _corba_impl;
+  }
+  return SALOMEDS::SObject::_nil();
+}
+
+
+void SALOMEDS_SObject::init_orb()
+{
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
+  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
+  _orb = init(0 , 0 ) ;     
 }

@@ -5,6 +5,7 @@
 using namespace std; 
 
 #include "SALOMEDS_SComponent.hxx"
+#include "SALOMEDS_SComponent_i.hxx"
 #include <string> 
 #include <TCollection_AsciiString.hxx> 
 
@@ -47,3 +48,17 @@ bool SALOMEDS_SComponent::ComponentIOR(std::string& theID)
 
   return ret;
 }
+
+SALOMEDS::SComponent_ptr SALOMEDS_SComponent::GetSComponent()
+{
+  if(_isLocal) {
+    if(!CORBA::is_nil(_corba_impl)) return SALOMEDS::SComponent::_narrow(GetCORBAImpl());
+    return SALOMEDS_SComponent_i::New(Handle(SALOMEDSImpl_SComponent)::DownCast(GetLocalImpl()), _orb);
+  }
+  else {
+    return SALOMEDS::SComponent::_narrow(GetCORBAImpl());
+  }
+
+  return SALOMEDS::SComponent::_nil();
+}
+

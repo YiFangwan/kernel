@@ -415,6 +415,6 @@ void SALOMEDS_StudyBuilder::SetIOR(SALOMEDSClient_SObject* theSO, const std::str
 void SALOMEDS_StudyBuilder::init_orb()
 {
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
+  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()); 
   _orb = init(0 , 0 ) ;     
 }

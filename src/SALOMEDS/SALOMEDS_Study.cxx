@@ -60,7 +60,7 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
   long addr = theStudy->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
   if(_isLocal) {
     _local_impl = ((SALOMEDSImpl_Study*)(addr));
-    _corba_impl = SALOMEDS::Study::_nil();
+    _corba_impl = SALOMEDS::Study::_duplicate(theStudy);
   }
   else {
     _local_impl = NULL;
@@ -133,18 +133,21 @@ SALOMEDSClient_SComponent* SALOMEDS_Study::FindComponentID(const std::string& aC
  
 SALOMEDSClient_SObject* SALOMEDS_Study::FindObject(const std::string& anObjectName)
 {
-  SALOMEDS_SObject* aSO = NULL;
   if(_isLocal) {
     Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObject((char*)anObjectName.c_str());
     if(aSO_impl.IsNull()) return NULL;
-    aSO = new SALOMEDS_SObject(aSO_impl);
+    Handle(SALOMEDSImpl_SComponent) aSCO_impl = Handle(SALOMEDSImpl_SComponent)::DownCast(aSO_impl);
+    if(!aSCO_impl.IsNull()) return new SALOMEDS_SComponent(aSCO_impl);
+    return new SALOMEDS_SObject(aSO_impl);
   }
   else { 
     SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObject((char*)anObjectName.c_str());
     if(CORBA::is_nil(aSO_impl)) return NULL;
-    aSO = new SALOMEDS_SObject(aSO_impl);
+    SALOMEDS::SComponent_var aSCO_impl = SALOMEDS::SComponent::_narrow(aSO_impl);
+    if(!CORBA::is_nil(aSCO_impl)) return new SALOMEDS_SComponent(aSCO_impl);
+    return new SALOMEDS_SObject(aSO_impl);
   }
-  return aSO;
+  return NULL;
 }
  
 std::vector<SALOMEDSClient_SObject*> SALOMEDS_Study::FindObjectByName(const std::string& anObjectName, 
@@ -170,18 +173,17 @@ std::vector<SALOMEDSClient_SObject*> SALOMEDS_Study::FindObjectByName(const std:
  
 SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectID(const std::string& anObjectID)
 {
-  SALOMEDS_SObject* aSO = NULL;
   if(_isLocal) {
     Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectID((char*)anObjectID.c_str());
     if(aSO_impl.IsNull()) return NULL;
-    aSO = new SALOMEDS_SObject(aSO_impl);
+    return new SALOMEDS_SObject(aSO_impl);
   }
   else { 
     SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectID((char*)anObjectID.c_str());
     if(CORBA::is_nil(aSO_impl)) return NULL;
-    aSO = new SALOMEDS_SObject(aSO_impl);
+    return new SALOMEDS_SObject(aSO_impl);
   }
-  return aSO;
+  return NULL;
 }
  
 SALOMEDSClient_SObject* SALOMEDS_Study::CreateObjectID(const std::string& anObjectID)
@@ -530,13 +532,14 @@ CORBA::Object_ptr SALOMEDS_Study::ConvertIORToObject(const std::string& theIOR)
 void SALOMEDS_Study::init_orb()
 {
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
+  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()); 
   _orb = init(0 , 0 ) ;     
 }
 
 SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
 {
    if(_isLocal) {
+     if(!CORBA::is_nil(_corba_impl)) return _corba_impl;
      SALOMEDS_Study_i *Study_servant = new SALOMEDS_Study_i(_local_impl, _orb);
      SALOMEDS::Study_var Study = Study_servant->_this();
      return Study;

@@ -23,9 +23,10 @@ class SALOMEDS_SObject: public virtual SALOMEDSClient_SObject
 {
 protected:
 
-bool                         _isLocal;
-Handle(SALOMEDSImpl_SObject) _local_impl;
-SALOMEDS::SObject_var        _corba_impl;
+  bool                         _isLocal;
+  Handle(SALOMEDSImpl_SObject) _local_impl;
+  SALOMEDS::SObject_var        _corba_impl;
+  CORBA::ORB_var               _orb;
 
 public:
   
@@ -50,8 +51,13 @@ public:
   virtual int   Depth();
 
   CORBA::Object_ptr GetObject();
+  SALOMEDS::SObject_ptr GetSObject();
+
   SALOMEDS::SObject_ptr        GetCORBAImpl() { return SALOMEDS::SObject::_duplicate(_corba_impl); }
-  Handle(SALOMEDSImpl_SObject) GetLocalImpl() { return _local_impl; }
+  Handle(SALOMEDSImpl_SObject) GetLocalImpl() { return _local_impl; } 
+
+private:
+  void init_orb();
 };
 
 #endif

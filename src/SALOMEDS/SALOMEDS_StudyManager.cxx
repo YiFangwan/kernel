@@ -257,7 +257,7 @@ SALOMEDSClient_SObject* SALOMEDS_StudyManager::Paste(SALOMEDSClient_SObject* the
 void SALOMEDS_StudyManager::init_orb()
 {
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
-  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()) ;
+  ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting()); 
   _orb = init(0 , 0 ) ;     
 }
 
