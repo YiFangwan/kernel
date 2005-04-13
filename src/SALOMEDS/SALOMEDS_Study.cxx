@@ -538,15 +538,23 @@ void SALOMEDS_Study::init_orb()
 
 SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
 {
-   if(_isLocal) {
-     if(!CORBA::is_nil(_corba_impl)) return _corba_impl;
-     SALOMEDS_Study_i *Study_servant = new SALOMEDS_Study_i(_local_impl, _orb);
-     SALOMEDS::Study_var Study = Study_servant->_this();
-     return Study;
-   }
-   else {
-     return _corba_impl;
-   }
+  if(_isLocal) {
+    if(!CORBA::is_nil(_corba_impl)) return _corba_impl;
+    std::string anIOR = _local_impl->GetTransientReference().ToCString();
+    SALOMEDS::Study_var aStudy;
+    if(!_local_impl->IsError() && anIOR != "") {
+      aStudy = SALOMEDS::Study::_narrow(_orb->string_to_object(anIOR.c_str()));
+    }
+    else {
+      SALOMEDS_Study_i *aStudy_servant = new SALOMEDS_Study_i(_local_impl, _orb);
+      aStudy = aStudy_servant->_this();
+      _local_impl->SetTransientReference(_orb->object_to_string(aStudy));
+    }
+    return aStudy._retn();
+  }
+  else {
+    return _corba_impl;
+  }
    
-   return SALOMEDS::Study::_nil();
+  return SALOMEDS::Study::_nil();
 }

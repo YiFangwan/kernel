@@ -60,7 +60,6 @@ SALOMEDS_SObject::SALOMEDS_SObject(const Handle(SALOMEDSImpl_SObject)& theSObjec
 
 SALOMEDS_SObject::~SALOMEDS_SObject()
 {
-  //if(!_isLocal) CORBA::release(_corba_impl);
 }
 
 std::string SALOMEDS_SObject::GetID()
@@ -224,11 +223,16 @@ int SALOMEDS_SObject::Depth()
 
 CORBA::Object_ptr SALOMEDS_SObject::GetObject()
 {
+  CORBA::Object_var obj;
   if(_isLocal) {
     std::string anIOR = GetIOR();
-    return _orb->string_to_object(anIOR.c_str());
+    obj = _orb->string_to_object(anIOR.c_str());
+    return obj._retn();
   }
-  else return _corba_impl->GetObject();
+  else {
+    obj = _corba_impl->GetObject();
+    return obj._retn();
+  }
 
   return CORBA::Object::_nil();
 }
@@ -237,7 +241,8 @@ SALOMEDS::SObject_ptr SALOMEDS_SObject::GetSObject()
 {
   if(_isLocal) {
     if(!CORBA::is_nil(_corba_impl)) return _corba_impl;
-    return SALOMEDS_SObject_i::New(_local_impl, _orb);
+    SALOMEDS::SObject_var aSO = SALOMEDS_SObject_i::New(_local_impl, _orb);
+    return aSO._retn();
   }
   else {
     return _corba_impl;

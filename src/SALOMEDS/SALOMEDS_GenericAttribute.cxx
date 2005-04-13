@@ -49,7 +49,6 @@ SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(SALOMEDS::GenericAttribute_
 
 SALOMEDS_GenericAttribute::~SALOMEDS_GenericAttribute() 
 {
-  //if(!_isLocal) CORBA::release(_corba_impl);
 }
 
 void SALOMEDS_GenericAttribute::CheckLocked() 

@@ -42,8 +42,7 @@ bool SALOMEDS_SComponent::ComponentIOR(std::string& theID)
   else {
     CORBA::String_var anIOR;
     ret = (SALOMEDS::SComponent::_narrow(GetCORBAImpl()))->ComponentIOR(anIOR.out());
-    theID = std::string(anIOR.in());
-    		
+    theID = std::string(anIOR.in());    		
   }
 
   return ret;
@@ -53,7 +52,9 @@ SALOMEDS::SComponent_ptr SALOMEDS_SComponent::GetSComponent()
 {
   if(_isLocal) {
     if(!CORBA::is_nil(_corba_impl)) return SALOMEDS::SComponent::_narrow(GetCORBAImpl());
-    return SALOMEDS_SComponent_i::New(Handle(SALOMEDSImpl_SComponent)::DownCast(GetLocalImpl()), _orb);
+    SALOMEDS::SComponent_var aSCO = SALOMEDS_SComponent_i::New(Handle(SALOMEDSImpl_SComponent)::DownCast(GetLocalImpl()),
+							       _orb);
+    return aSCO._retn();
   }
   else {
     return SALOMEDS::SComponent::_narrow(GetCORBAImpl());

@@ -52,7 +52,6 @@ SALOMEDS_StudyManager::SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManag
 
 SALOMEDS_StudyManager::~SALOMEDS_StudyManager()
 {
-  //if(!_isLocal) CORBA::release(_corba_impl);
 }
 
 SALOMEDSClient_Study* SALOMEDS_StudyManager::NewStudy(const std::string& study_name)

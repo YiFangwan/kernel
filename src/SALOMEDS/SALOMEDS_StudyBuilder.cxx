@@ -28,6 +28,7 @@ SALOMEDS_StudyBuilder::SALOMEDS_StudyBuilder(const Handle(SALOMEDSImpl_StudyBuil
   _isLocal = true;
   _local_impl = theBuilder;
   _corba_impl = SALOMEDS::StudyBuilder::_nil();
+
   init_orb();
 }
 
@@ -36,12 +37,12 @@ SALOMEDS_StudyBuilder::SALOMEDS_StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuild
   _isLocal = false;
   _local_impl = NULL;
   _corba_impl = SALOMEDS::StudyBuilder::_duplicate(theBuilder);
+
   init_orb();
 }
 
 SALOMEDS_StudyBuilder::~SALOMEDS_StudyBuilder() 
 {
-  //if(!_isLocal) CORBA::release(_corba_impl);
 }
 
 SALOMEDSClient_SComponent* SALOMEDS_StudyBuilder::NewComponent(const std::string& ComponentDataType)
@@ -153,8 +154,9 @@ void SALOMEDS_StudyBuilder::LoadWith(SALOMEDSClient_SComponent* theSCO, const st
   SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(obj);
   
   if(_isLocal) {
-    SALOMEDS_Driver_i* drv = new SALOMEDS_Driver_i(aDriver, _orb);
-    bool isDone = _local_impl->LoadWith(Handle(SALOMEDSImpl_SComponent)::DownCast(aSCO->GetLocalImpl()), drv);
+    SALOMEDS_Driver_i* drv = new SALOMEDS_Driver_i(aDriver, _orb);    
+    Handle(SALOMEDSImpl_SComponent) aSCO_impl = Handle(SALOMEDSImpl_SComponent)::DownCast(aSCO->GetLocalImpl());
+    bool isDone = _local_impl->LoadWith(aSCO_impl, drv);
     delete drv;
     if(!isDone && _local_impl->IsError()) 
       THROW_SALOME_CORBA_EXCEPTION(_local_impl->GetErrorCode().ToCString(),SALOME::BAD_PARAM);
