@@ -116,7 +116,7 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_SObject::GetAllAttributes()
   if (NumAttr != 0) {
     for(TDF_AttributeIterator iter(_lab);iter.More();iter.Next()) {
       anAttr = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(iter.Value());
-      if(!anAttr.IsNull())
+      if(!anAttr.IsNull() && anAttr->Type() != "AttributeReference")
 	SeqOfAttr->Append(anAttr);
     }
   }
