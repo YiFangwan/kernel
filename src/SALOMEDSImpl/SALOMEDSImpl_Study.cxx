@@ -17,6 +17,7 @@ using namespace std;
 #include <CDM_Application.hxx>
 #include <TDF_ChildIDIterator.hxx>
 #include <TDF_ChildIterator.hxx>
+#include <TDF_AttributeIterator.hxx>
 
 #include "SALOMEDSImpl_ChildNodeIterator.hxx"
 #include "SALOMEDSImpl_Attributes.hxx"
@@ -1375,13 +1376,18 @@ void dumpSO(const Handle(SALOMEDSImpl_SObject)& theSO,
 {
   TCollection_AsciiString aTab(Tab), anID(theSO->GetID());
   fp << aTab << anID << endl;
-  int aLength, i;
-  Handle(TColStd_HSequenceOfTransient) aSeq = theSO->GetAllAttributes();
-  aLength = aSeq->Length();
-  for(i=1; i<=aLength; i++) {
-    Handle(SALOMEDSImpl_GenericAttribute) anAttr = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(aSeq->Value(i));
+  TDF_AttributeIterator anItr(theSO->GetLabel());
+  for(; anItr.More(); anItr.Next()) {
+    Handle(SALOMEDSImpl_GenericAttribute) anAttr = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(anItr.Value());
+ 
+    if(anAttr.IsNull()) {
+      fp << Tab << "  -- " << anItr.Value()->DynamicType();
+      continue;
+    }
+
     TCollection_AsciiString aType = anAttr->GetClassType();
     fp << Tab << "  -- " << aType;
+    
     if(aType == "AttributeReal") {
       fp << " : " << Handle(SALOMEDSImpl_AttributeReal)::DownCast(anAttr)->Value();
     }
@@ -1393,6 +1399,9 @@ void dumpSO(const Handle(SALOMEDSImpl_SObject)& theSO,
     }
     else if(aType == "AttributeComment") {
       fp << " : " << Handle(SALOMEDSImpl_AttributeComment)::DownCast(anAttr)->Value();
+    }
+    else if(aType == "AttributeReference") {
+      fp << " : " << Handle(SALOMEDSImpl_AttributeReference)::DownCast(anAttr)->Save();
     }
     fp << endl;
   }
