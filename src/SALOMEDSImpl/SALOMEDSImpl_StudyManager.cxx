@@ -897,6 +897,10 @@ bool SALOMEDSImpl_StudyManager::Copy(const Handle(SALOMEDSImpl_SObject)& theObje
 
   //Clear the clipboard
   _clipboard->Main().Root().ForgetAllAttributes(Standard_True);
+  _OCAFApp->Close(_clipboard);
+  Handle(TDocStd_Document) aDoc;
+  _OCAFApp->NewDocument("SALOME_STUDY", aDoc); 
+  _clipboard = aDoc;
 
   // set component data type to the name attribute of root label
   if (!aStructureOnly) {
