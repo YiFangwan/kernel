@@ -80,7 +80,8 @@ SALOME_NamingService::~SALOME_NamingService()
 
 void SALOME_NamingService::init_orb(CORBA::ORB_ptr orb)
 {
-  // MESSAGE("SALOME_NamingService initialisation");
+  MESSAGE("SALOME_NamingService initialisation");
+  Utils_Locker lock(&_myMutex);
   _orb = orb ;
   _initialize_root_context();
 }
@@ -100,7 +101,8 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 				    const char* Path) 
   throw(ServiceUnreachable)
 {
-  // MESSAGE("BEGIN OF Register: "<< Path);
+  MESSAGE("BEGIN OF Register: "<< Path);
+  Utils_Locker lock(&_myMutex);
   int dimension_Path = strlen(Path) + 1;
   char** resultat_resolve_Path = new char* [dimension_Path];
 
@@ -298,7 +300,8 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
   throw(ServiceUnreachable)
 {
-  //MESSAGE("BEGIN OF Resolve: " << Path);
+  MESSAGE("BEGIN OF Resolve: " << Path);
+  Utils_Locker lock(&_myMutex);
   int dimension_Path = strlen(Path) + 1;
   char** resultat_resolve_Path = new char* [dimension_Path];
 
@@ -369,6 +372,53 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
 }
 
 //----------------------------------------------------------------------
+/*! Function : ResolveFirst 
+ *  Purpose  : method to get an ObjRef with a symbolic name
+ * \param Path const char* argument like "/path/name"
+ *  search the fist reference like "/path(.dir)/name*(.kind)"
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown 
+ * \return the object reference
+ */
+//----------------------------------------------------------------------
+
+CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
+  throw(ServiceUnreachable)
+{
+  MESSAGE("ResolveFirst");
+  Utils_Locker lock(&_myMutex);
+  SCRUTE(Path);
+  string thePath =Path;
+  string basePath ="/";
+  string name = thePath;
+  string::size_type idx = thePath.rfind('/');
+  if (idx != string::npos) // at least one '/' found
+    {
+      basePath = thePath.substr(0,idx);
+      name = thePath.substr(idx+1);
+      SCRUTE(basePath);
+    }
+  SCRUTE(name);
+  CORBA::Object_ptr obj = CORBA::Object::_nil();
+  bool isOk = Change_Directory(basePath.c_str());
+  if (isOk)
+    {
+      vector<string> listElem = list_directory();
+      vector<string>::iterator its = listElem.begin();
+      while (its != listElem.end())
+	{
+	  MESSAGE(*its);
+	  if ((*its).find(name) == 0)
+	    {
+	      //string instance = basePath + "/" + *its;
+	      return Resolve((*its).c_str());
+	    }
+	  its++;
+	}
+    }
+  return obj;
+}
+
+//----------------------------------------------------------------------
 /*!  Function : Find
  *  Purpose  : method to research a name from the current directory 
  *            of the naming service. 
@@ -384,7 +434,8 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
 int SALOME_NamingService::Find(const char* name)
   throw(ServiceUnreachable)
 {
-  // MESSAGE("BEGIN OF Find " << name);
+  MESSAGE("BEGIN OF Find " << name);
+  Utils_Locker lock(&_myMutex);
   CORBA::Long occurence_number = 0 ; 
   try
     {
@@ -411,7 +462,8 @@ int SALOME_NamingService::Find(const char* name)
 bool SALOME_NamingService::Create_Directory(const char* Path)
   throw(ServiceUnreachable)
 {
-  //MESSAGE("BEGIN OF Create_Directory");
+  MESSAGE("BEGIN OF Create_Directory");
+  Utils_Locker lock(&_myMutex);
   int dimension_Path = strlen(Path) + 1;
   char** resultat_resolve_Path= new char* [dimension_Path];;
   CORBA::Boolean _return_code = true ;
@@ -525,7 +577,8 @@ bool SALOME_NamingService::Create_Directory(const char* Path)
 bool SALOME_NamingService::Change_Directory(const char* Path)
   throw(ServiceUnreachable)
 {
-  //MESSAGE("BEGIN OF Change_Directory " << Path);
+  MESSAGE("BEGIN OF Change_Directory " << Path);
+  Utils_Locker lock(&_myMutex);
   int dimension_Path = strlen(Path) + 1;
   char** resultat_resolve_Path = new char* [dimension_Path];
   CORBA::Boolean _return_code = true ;
@@ -617,7 +670,8 @@ bool SALOME_NamingService::Change_Directory(const char* Path)
 char* SALOME_NamingService::Current_Directory()
   throw(ServiceUnreachable)
 {
-  //MESSAGE("BEGIN OF Current_Directory");  
+  MESSAGE("BEGIN OF Current_Directory");  
+  Utils_Locker lock(&_myMutex);
 
   CosNaming::NamingContext_var _ref_context = _current_context;
 
@@ -672,6 +726,7 @@ void SALOME_NamingService::list()
   throw(ServiceUnreachable)
 {
   MESSAGE("Begin of list");
+  Utils_Locker lock(&_myMutex);
   CosNaming::BindingList_var _binding_list;
   CosNaming::BindingIterator_var _binding_iterator;
   unsigned long nb=0 ; // for using only the BindingIterator to access the bindings
@@ -748,6 +803,8 @@ vector<string> SALOME_NamingService::list_directory()
 vector<string> SALOME_NamingService::list_directory_recurs()
     throw(ServiceUnreachable)
 {
+  MESSAGE("list_directory_recurs");
+  Utils_Locker lock(&_myMutex);
   vector<string> _list ;
   char *currentDir=Current_Directory();
   _list_directory_recurs(_list,0,currentDir);
@@ -768,6 +825,7 @@ void SALOME_NamingService::Destroy_Name(const char* Path)
   throw(ServiceUnreachable)
 {
   MESSAGE("BEGIN OF Destroy_Name");
+  Utils_Locker lock(&_myMutex);
   int dimension_Path = strlen(Path) + 1;
   char** resultat_resolve_Path = new char* [dimension_Path];
 
@@ -889,6 +947,7 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
   throw(ServiceUnreachable)
 {
   MESSAGE("BEGIN OF Destroy_Directory");
+  Utils_Locker lock(&_myMutex);
   int dimension_Path = strlen(Path) + 1;
   char** resultat_resolve_Path = new char* [dimension_Path];
 
@@ -1383,6 +1442,7 @@ void SALOME_NamingService::_list_directory_recurs(vector<string>& myList, const 
 
 //----------------------------------------------------------------------
 
-char * SALOME_NamingService::getIORaddr(){
+char * SALOME_NamingService::getIORaddr()
+{
    return _orb->object_to_string(_root_context);
 }

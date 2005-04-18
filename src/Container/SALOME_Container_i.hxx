@@ -56,32 +56,57 @@ public:
 		      bool isServantAloneInProcess = true);
   virtual ~Engines_Container_i();
 
+  // --- CORBA methods
 
-  //! Load component in current container
-  Engines::Component_ptr load_impl(const char* nameToRegister,
-				   const char* componentName);
+  bool load_component_Library(const char* componentLibraryName);
 
-  Engines::Component_ptr instance(const char* nameToRegister,
-				   const char* componentName);
+  Engines::Component_ptr
+  create_component_instance( const char* nameToRegister,
+			     const char* componentLibraryName,
+			     CORBA::Long studyId); // 0 for multiStudy
 
-  //! Unload component from current container
+  Engines::Component_ptr
+  find_component_instance( const char* registeredName,
+			   CORBA::Long studyId); // 0 for multiStudy
+
+  Engines::Component_ptr
+  load_impl(const char* nameToRegister,
+	    const char* componentName);
+
+
   void remove_impl(Engines::Component_ptr component_i);
   void finalize_removal();
-
-  char* name();
-  char* machineName();
-  void ping();
   void Shutdown();
-  //! Kill current container
-  bool Kill_impl() ;
 
   char* getHostName();
   CORBA::Long getPID();
-  static bool isPythonContainer(const char* ContainerName);
+  char* name();
+  void ping();
 
-  static std::string BuildContainerNameForNS(const char *ContainerName, const char *hostname);
-  static const char *_defaultContainerName;
+  bool Kill_impl() ;
+
+  //char* machineName();
+  //Engines::Component_ptr instance(const char* nameToRegister,
+  //				   const char* componentName);
+
+  // --- local C++ methods
+
+  Engines::Component_ptr
+  find_or_create_instance( std::string genericRegisterName,
+			   std::string componentLibraryName);
+
+  Engines::Component_ptr
+  createInstance(std::string genericRegisterName,
+		 void *handle,
+		 int studyId);
+
+  static bool isPythonContainer(const char* ContainerName);
+  static std::string BuildContainerNameForNS(const char *ContainerName,
+					     const char *hostname);
+
 protected:
+
+  static const char *_defaultContainerName;
 
   SALOME_NamingService *_NS ;
   std::string _library_path;
@@ -90,16 +115,18 @@ protected:
   PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id ;
   int _numInstance ;
-  std::map<std::string, void *> handle_map ;
-  std::map<std::string, void *> remove_map ;
-  omni_mutex _numInstanceMutex ; // if several threads on the same object
+  std::map<std::string, void *> _library_map; // library names, loaded
+  std::map<std::string,Engines::Component_var> _listInstances_map;
+  std::map<std::string, void *> _handle_map ;
+  std::map<std::string, void *> _remove_map ;
+  omni_mutex _numInstanceMutex ;       // if several threads on the same object
 
   //private: 
 
-  int   _argc ;
+  int    _argc ;
   char** _argv ;
-  long _pid;
-  bool _isServantAloneInProcess;
+  long   _pid;
+  bool   _isServantAloneInProcess;
 };
 
 #endif
