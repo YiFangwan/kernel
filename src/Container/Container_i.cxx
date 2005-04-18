@@ -55,6 +55,10 @@ extern "C" {void ActSigIntHandler() ; }
 extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 
 const char *Engines_Container_i::_defaultContainerName="FactoryServer";
+map<std::string, int> Engines_Container_i::_cntInstances_map;
+map<std::string, void *> Engines_Container_i::_library_map;
+map<std::string, void *> Engines_Container_i::_toRemove_map;
+omni_mutex Engines_Container_i::_numInstanceMutex ;
 
 //=============================================================================
 /*! 
@@ -231,9 +235,13 @@ Engines_Container_i::load_component_Library(const char* componentLibraryName)
   string impl_name = componentLibraryName;
   SCRUTE(impl_name);
 
+  _numInstanceMutex.lock(); // lock to be alone 
+                            // (see decInstanceCnt, finalize_removal))
+  if (_toRemove_map[impl_name]) _toRemove_map.erase(impl_name);
   if (_library_map[impl_name])
     {
       MESSAGE("Library " << impl_name << " already loaded");
+      _numInstanceMutex.unlock();
       return true;
     }
   void* handle;
@@ -242,13 +250,16 @@ Engines_Container_i::load_component_Library(const char* componentLibraryName)
     {
       INFOS("Can't load shared library : " << impl_name);
       INFOS("error dlopen: " << dlerror());
+      _numInstanceMutex.unlock();
       return false;
     }
   else
     {
       _library_map[impl_name] = handle;
+      _numInstanceMutex.unlock();
       return true;
     }
+  _numInstanceMutex.unlock();
 }
 
 //=============================================================================
@@ -349,28 +360,35 @@ void Engines_Container_i::remove_impl(Engines::Component_ptr component_i)
   MESSAGE("unload component " << instanceName);
   _listInstances_map.erase(instanceName);
   component_i->destroy() ;
+  _NS->Destroy_Name(instanceName.c_str());
 }
 
 //=============================================================================
 /*! 
- *  CORBA method: Discharges all components from the container.
+ *  CORBA method: Discharges unused libraries from the container.
  */
 //=============================================================================
 
 void Engines_Container_i::finalize_removal()
 {
   MESSAGE("finalize unload : dlclose");
-  map<string, void *>::iterator im ;
-  _numInstanceMutex.lock() ; // lock on the explore _remove_map & dlclose
-  for (im = _remove_map.begin() ; im != _remove_map.end() ; im ++)
+  _numInstanceMutex.lock(); // lock to be alone
+                            // (see decInstanceCnt, load_component_Library)
+  map<string, void *>::iterator ith;
+  for (ith = _toRemove_map.begin(); ith != _toRemove_map.end(); ith++)
     {
-      void * handle = (*im).second ;
-      dlclose(handle) ;
-      MESSAGE("dlclose " << (*im).first);
+      void *handle = (*ith).second;
+      string impl_name= (*ith).first;
+      if (handle)
+	{
+	  SCRUTE(handle);
+	  SCRUTE(impl_name);
+// 	  dlclose(handle);                // SALOME unstable after ...
+// 	  _library_map.erase(impl_name);
+	}
     }
-  _remove_map.clear() ;  
-  _numInstanceMutex.unlock() ;
-  MESSAGE("_remove_map.clear()");
+  _toRemove_map.clear();
+  _numInstanceMutex.unlock();
 }
 
 //=============================================================================
@@ -543,7 +561,7 @@ Engines_Container_i::createInstance(string genericRegisterName,
 
       // --- Instanciate required CORBA object
 
-      PortableServer::ObjectId * id ;
+      PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
       id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str(),
 				 aGenRegisterName.c_str() ) ;
 
@@ -559,6 +577,9 @@ Engines_Container_i::createInstance(string genericRegisterName,
       servant->_remove_ref(); // compensate previous id_to_reference 
       SCRUTE(servant->pd_refCount);
       _listInstances_map[instanceName] = iobject;
+      _cntInstances_map[aGenRegisterName] += 1;
+      SCRUTE(aGenRegisterName);
+      SCRUTE(_cntInstances_map[aGenRegisterName]);
       SCRUTE(servant->pd_refCount);
       ASSERT(servant->setStudyId(studyId));
 
@@ -575,6 +596,32 @@ Engines_Container_i::createInstance(string genericRegisterName,
   return iobject._retn();
 }
 
+//=============================================================================
+/*! 
+ *
+ */
+//=============================================================================
+
+void Engines_Container_i::decInstanceCnt(string genericRegisterName)
+{
+  string aGenRegisterName =genericRegisterName;
+  MESSAGE("Engines_Container_i::decInstanceCnt " << aGenRegisterName);
+  ASSERT(_cntInstances_map[aGenRegisterName] > 0); 
+  _numInstanceMutex.lock(); // lock to be alone
+                            // (see finalize_removal, load_component_Library)
+  _cntInstances_map[aGenRegisterName] -= 1;
+  SCRUTE(_cntInstances_map[aGenRegisterName]);
+  if (_cntInstances_map[aGenRegisterName] == 0)
+    {
+      string impl_name =
+	Engines_Component_i::GetDynLibraryName(aGenRegisterName.c_str());
+      SCRUTE(impl_name);
+      void* handle = _library_map[impl_name];
+      ASSERT(handle);
+      _toRemove_map[impl_name] = handle;
+    }
+  _numInstanceMutex.unlock();
+}
 
 //=============================================================================
 /*! 

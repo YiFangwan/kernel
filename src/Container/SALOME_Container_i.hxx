@@ -103,10 +103,15 @@ public:
   static bool isPythonContainer(const char* ContainerName);
   static std::string BuildContainerNameForNS(const char *ContainerName,
 					     const char *hostname);
+  static void decInstanceCnt(std::string genericRegisterName);
 
 protected:
 
   static const char *_defaultContainerName;
+  static std::map<std::string, int> _cntInstances_map;
+  static std::map<std::string, void *> _library_map; // library names, loaded
+  static std::map<std::string, void *> _toRemove_map;// library names to remove
+  static omni_mutex _numInstanceMutex ; // lib and instance protection
 
   SALOME_NamingService *_NS ;
   std::string _library_path;
@@ -115,11 +120,7 @@ protected:
   PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id ;
   int _numInstance ;
-  std::map<std::string, void *> _library_map; // library names, loaded
   std::map<std::string,Engines::Component_var> _listInstances_map;
-  std::map<std::string, void *> _handle_map ;
-  std::map<std::string, void *> _remove_map ;
-  omni_mutex _numInstanceMutex ;       // if several threads on the same object
 
   //private: 
 

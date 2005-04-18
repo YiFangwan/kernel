@@ -136,6 +136,7 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
 Engines_Component_i::~Engines_Component_i()
 {
   MESSAGE("Component destructor");
+  Engines_Container_i::decInstanceCnt(_interfaceName);
 }
 
 //=============================================================================
