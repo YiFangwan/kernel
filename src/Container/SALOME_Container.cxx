@@ -37,6 +37,7 @@
 #include "SALOME_Container_i.hxx"
 #include "utilities.h"
 #include "SALOMETraceCollector.hxx"
+#include "OpUtil.hxx"
 
 #ifdef CHECKTIME
 #include <Utils_Timer.hxx>
@@ -53,6 +54,21 @@ using namespace std;
 extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
 
 static PyMethodDef MethodPyVoidMethod[] = {{ NULL, NULL }};
+PyThreadState *gtstate;
+
+void init_python(int argc, char **argv)
+{
+  if (gtstate)
+    return;
+  Py_SetProgramName(argv[0]);
+  Py_Initialize(); // Initialize the interpreter
+  PySys_SetArgv(argc, argv);
+  PyEval_InitThreads(); // Create (and acquire) the interpreter lock
+  Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
+  //PyOS_setsig(SIGSEGV,&Handler);
+  //PyOS_setsig(SIGINT,&Handler);
+  gtstate = PyEval_SaveThread(); // Release the global thread state
+}
 
 int main(int argc, char* argv[])
 {
@@ -66,9 +82,7 @@ int main(int argc, char* argv[])
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
     
-  Py_Initialize() ;
-  PySys_SetArgv( argc , argv ) ;
-  Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
+  init_python(argc,argv);
   
   try{
     // Obtain a reference to the root POA.

@@ -26,7 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
-#define private public
+//#define private public
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include "SALOME_Container_i.hxx"
@@ -318,7 +318,22 @@ Engines::Component_ptr
 Engines_Container_i::find_component_instance( const char* registeredName,
 					      CORBA::Long studyId)
 {
-  ASSERT(0);
+  Engines::Component_var anEngine = Engines::Component::_nil();
+  map<string,Engines::Component_var>::iterator itm =_listInstances_map.begin();
+  while (itm != _listInstances_map.end())
+    {
+      string instance = (*itm).first;
+      SCRUTE(instance);
+      if (instance.find(registeredName) == 0)
+	{
+	  anEngine = (*itm).second;
+	  if (studyId == anEngine->getStudyId())
+	    {
+	      return anEngine._retn();
+	    }
+	}
+    }
+  return anEngine._retn();  
 }
 
 //=============================================================================
@@ -573,14 +588,14 @@ Engines_Container_i::createInstance(string genericRegisterName,
       Engines_Component_i *servant =
 	dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
       ASSERT(servant);
-      SCRUTE(servant->pd_refCount);
+      //SCRUTE(servant->pd_refCount);
       servant->_remove_ref(); // compensate previous id_to_reference 
-      SCRUTE(servant->pd_refCount);
+      //SCRUTE(servant->pd_refCount);
       _listInstances_map[instanceName] = iobject;
       _cntInstances_map[aGenRegisterName] += 1;
       SCRUTE(aGenRegisterName);
       SCRUTE(_cntInstances_map[aGenRegisterName]);
-      SCRUTE(servant->pd_refCount);
+      //SCRUTE(servant->pd_refCount);
       ASSERT(servant->setStudyId(studyId));
 
       // --- register the engine under the name
