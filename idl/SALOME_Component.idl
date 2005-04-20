@@ -205,6 +205,8 @@ module Engines
 
     /*!
       Deactivates the %Component.
+      -- TO BE USED BY CONTAINER ONLY (Container housekeeping) --
+      use remove_impl from Container instead !
     */
     void destroy() ;
 
@@ -230,7 +232,8 @@ module Engines
     /*!
       This method is used by the %SUPERVISOR component. It sets the names of
       the graph and of the node.
-      \param aGraphName Name of graph
+      \param aGraphName
+ Name of graph
       \param aNodeName Name of node
     */
     void Names( in string aGraphName , in string aNodeName ) ;
