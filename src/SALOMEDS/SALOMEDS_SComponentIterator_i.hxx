@@ -11,13 +11,15 @@
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
+#include <SALOME_GenericObj_i.hh>
 
 //SALOMEDS headers
 #include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDSImpl_SComponentIterator.hxx"
 
-class SALOMEDS_SComponentIterator_i:public POA_SALOMEDS::SComponentIterator,
-				    public PortableServer::RefCountServantBase 
+class SALOMEDS_SComponentIterator_i:public virtual POA_SALOMEDS::SComponentIterator,
+				    public virtual PortableServer::RefCountServantBase,
+				    public virtual SALOME::GenericObj_i 
 {
 
 private:

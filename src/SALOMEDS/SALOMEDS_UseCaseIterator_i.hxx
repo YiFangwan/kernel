@@ -11,11 +11,13 @@
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
+#include <SALOME_GenericObj_i.hh>
 
 #include "SALOMEDSImpl_UseCaseIterator.hxx"
 
-class SALOMEDS_UseCaseIterator_i: public POA_SALOMEDS::UseCaseIterator,
-				  public PortableServer::RefCountServantBase 
+class SALOMEDS_UseCaseIterator_i: public virtual POA_SALOMEDS::UseCaseIterator,
+				  public virtual PortableServer::RefCountServantBase, 
+				  public virtual SALOME::GenericObj_i
 {
 private:
   CORBA::ORB_ptr                        _orb;

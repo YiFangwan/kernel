@@ -47,9 +47,7 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(const Handle(SALOMEDSImpl_Study) theImpl,
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl;
 
-  _useCaseBuilder = new SALOMEDS_UseCaseBuilder_i(_impl->GetUseCaseBuilder(), _orb);
   _builder = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);  
-  _it = new SALOMEDS_SComponentIterator_i(_impl->NewComponentIterator(), _orb);
 }
   
 //============================================================================
@@ -398,6 +396,7 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
 SALOMEDS::SComponentIterator_ptr SALOMEDS_Study_i::NewComponentIterator()
 {
   SALOMEDS::Locker lock; 
+  SALOMEDS_SComponentIterator_i* _it = new SALOMEDS_SComponentIterator_i(_impl->NewComponentIterator(), _orb);
   _it->Init();
   return _it->_this();
 }
@@ -587,7 +586,8 @@ SALOMEDS::ListOfDates* SALOMEDS_Study_i::GetModificationsDate()
 SALOMEDS::UseCaseBuilder_ptr SALOMEDS_Study_i::GetUseCaseBuilder() 
 {
   SALOMEDS::Locker lock; 
-  return _useCaseBuilder->_this();
+  SALOMEDS_UseCaseBuilder_i* UCBuilder = new SALOMEDS_UseCaseBuilder_i(_impl->GetUseCaseBuilder(), _orb);
+  return UCBuilder->_this();
 }
 
 

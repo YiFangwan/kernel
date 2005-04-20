@@ -60,6 +60,9 @@ SALOMEDS_SObject::SALOMEDS_SObject(const Handle(SALOMEDSImpl_SObject)& theSObjec
 
 SALOMEDS_SObject::~SALOMEDS_SObject()
 {
+  if (!_isLocal) {
+    _corba_impl->Destroy();
+  }
 }
 
 std::string SALOMEDS_SObject::GetID()

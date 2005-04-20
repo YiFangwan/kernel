@@ -36,6 +36,7 @@
 #define _SALOMEDS_IDL_
 
 #include "SALOME_Exception.idl"
+#include "SALOME_GenericObj.idl"
 
 /*!
      This package contains the interfaces used for creation, managment
@@ -813,7 +814,7 @@ Gets the list of open studies
 */
   //==========================================================================
 
-  interface SObject
+  interface SObject : SALOME::GenericObj
   {
 /*! Name of the %SObject
 */
@@ -920,7 +921,7 @@ Gets the list of open studies
    %Generic attribute is a base interface for all attributes which can be assigned to the SObjects created in the study.
 */
   //==========================================================================
-  interface GenericAttribute
+  interface GenericAttribute : SALOME::GenericObj
   {
 /*! \brief Exception locking all changes
 
@@ -983,7 +984,7 @@ Gets the list of open studies
   The search is started from the first %SComponent in the list.
 */
   //==========================================================================
-  interface SComponentIterator
+  interface SComponentIterator : SALOME::GenericObj
   {
 /*!
 Activates the %SComponentIterator.
@@ -1014,7 +1015,7 @@ Moves the iterator to the next %SComponent in the list.
     levels.
 */
   //==========================================================================
-  interface ChildIterator
+  interface ChildIterator : SALOME::GenericObj
   {
 /*!
 
@@ -1049,7 +1050,7 @@ Activates the %ChildIterator for all child levels.
 
    This interface contains a set of methods used for iteration over the objects in the use case.
 */
-  interface UseCaseIterator
+  interface UseCaseIterator : SALOME::GenericObj
   {
 /*!
 Activates the %UseCaseIterator.
@@ -1078,7 +1079,7 @@ Activates the %UseCaseIterator.
    Use case in the study represents a user-managed subtree, containing all or some of the objects which exist in the study.
    The %UseCaseBuilder interface contains a set of methods used for management of the use case in the study.
 */
-  interface UseCaseBuilder
+  interface UseCaseBuilder : SALOME::GenericObj
   {
 /*!
    Adds to the use case an object as a child of the current object of the use case.

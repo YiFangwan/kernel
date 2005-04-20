@@ -22,6 +22,7 @@
 #include "Utils_CorbaException.hxx"
 
 #include <strstream>
+#include <map>
 using namespace std;
 
 #ifdef WIN32
@@ -42,6 +43,7 @@ UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection);
 
 static SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb);
 
+static std::map<int, PortableServer::POA_ptr> _mapOfPOA;
 
 //============================================================================
 /*! Function : SALOMEDS_StudyManager_i
@@ -116,6 +118,9 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
   const char*  IORStudy = _orb->object_to_string(Study);
 
   aStudyImpl->SetTransientReference((char*)IORStudy);
+
+  _mapOfPOA[Study->StudyId()] = _poa;
+
   return Study;
 }
 
@@ -422,6 +427,12 @@ SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORB
 
   return driver;
 }
+
+PortableServer::POA_ptr SALOMEDS_StudyManager_i::GetPOA(const SALOMEDS::Study_ptr theStudy) {
+  if (_mapOfPOA.find(theStudy->StudyId()) != _mapOfPOA.end()) return _mapOfPOA[theStudy->StudyId()];
+  return PortableServer::POA::_nil();
+}
+
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================

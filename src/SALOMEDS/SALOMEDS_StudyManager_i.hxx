@@ -125,6 +125,8 @@ public:
   void ping(){};
 
   virtual long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+
+  static PortableServer::POA_ptr GetPOA(const SALOMEDS::Study_ptr theStudy);
 };
 
 #endif 

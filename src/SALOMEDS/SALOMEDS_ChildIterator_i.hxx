@@ -11,15 +11,16 @@
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
-
-
+#include <SALOME_GenericObj_i.hh>
 
 // Cascade headers
 #include "SALOMEDSImpl_ChildIterator.hxx"
 #include <stdio.h>
 
-class SALOMEDS_ChildIterator_i: public POA_SALOMEDS::ChildIterator,
-				public PortableServer::RefCountServantBase {
+class SALOMEDS_ChildIterator_i: public virtual POA_SALOMEDS::ChildIterator,
+				public virtual PortableServer::RefCountServantBase,
+				public virtual SALOME::GenericObj_i
+{
 private:
   CORBA::ORB_ptr                     _orb;
   Handle(SALOMEDSImpl_ChildIterator) _it;

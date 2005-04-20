@@ -8,12 +8,14 @@
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
+#include <SALOME_GenericObj_i.hh>
 #include <TDF_Attribute.hxx>
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
-class SALOMEDS_GenericAttribute_i: public POA_SALOMEDS::GenericAttribute,
-				   public PortableServer::RefCountServantBase 
+class SALOMEDS_GenericAttribute_i: public virtual POA_SALOMEDS::GenericAttribute,
+				   public virtual PortableServer::RefCountServantBase,
+				   public virtual SALOME::GenericObj_i
 {
 
 protected:

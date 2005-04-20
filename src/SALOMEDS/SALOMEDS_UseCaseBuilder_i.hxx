@@ -12,6 +12,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
+#include <SALOME_GenericObj_i.hh>
 
 // Cascade headers
 #include <Standard_GUID.hxx>
@@ -20,8 +21,9 @@
 #include "SALOMEDSImpl_UseCaseIterator.hxx"
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 
-class SALOMEDS_UseCaseBuilder_i: public POA_SALOMEDS::UseCaseBuilder,
-				 public PortableServer::RefCountServantBase 
+class SALOMEDS_UseCaseBuilder_i: public virtual POA_SALOMEDS::UseCaseBuilder,
+				 public virtual PortableServer::RefCountServantBase,
+				 public virtual SALOME::GenericObj_i
 {
 private:
 

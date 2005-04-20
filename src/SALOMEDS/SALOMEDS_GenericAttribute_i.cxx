@@ -79,6 +79,7 @@ char* SALOMEDS_GenericAttribute_i::GetClassType()
 SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute(const Handle(TDF_Attribute)& theAttr,
 									    CORBA::ORB_ptr theOrb) 
 {
+/*
   SALOMEDS::Locker lock;
   
   static std::map<TDF_Attribute*, SALOMEDS_GenericAttribute_i*> _mapOfAttrib;
@@ -94,6 +95,12 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute(cons
     __CreateGenericCORBAAttribute
     _mapOfAttrib[theAttr.operator->()] = attr_servant;
   }
+*/
+  // mpv: now servants Destroyed by common algos of CORBA
+  char* aTypeOfAttribute = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(theAttr)->GetClassType().ToCString();
+  SALOMEDS::GenericAttribute_var anAttribute;
+  SALOMEDS_GenericAttribute_i* attr_servant = NULL;
+  __CreateGenericCORBAAttribute
 
   return anAttribute._retn(); 
 }                                                                                                                    

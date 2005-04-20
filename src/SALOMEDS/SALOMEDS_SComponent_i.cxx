@@ -10,6 +10,7 @@ using namespace std;
 
 SALOMEDS::SComponent_ptr SALOMEDS_SComponent_i::New(const Handle(SALOMEDSImpl_SComponent)& theImpl, CORBA::ORB_ptr theORB)
 {
+/*
   static std::map<SALOMEDSImpl_SComponent*, SALOMEDS_SComponent_i*> _mapOfSCO;
   SALOMEDS::SComponent_var sco;
   SALOMEDS_SComponent_i* sco_servant = NULL;
@@ -23,6 +24,9 @@ SALOMEDS::SComponent_ptr SALOMEDS_SComponent_i::New(const Handle(SALOMEDSImpl_SC
   }
 
   sco  = SALOMEDS::SComponent::_narrow(sco_servant->SComponent::_this()); 
+*/
+  SALOMEDS_SComponent_i* sco_servant = new SALOMEDS_SComponent_i(theImpl, theORB);
+  SALOMEDS::SComponent_var sco  = SALOMEDS::SComponent::_narrow(sco_servant->SComponent::_this()); 
 
   return sco._retn();
 }    

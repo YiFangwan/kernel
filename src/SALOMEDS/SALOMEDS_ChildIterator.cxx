@@ -23,7 +23,7 @@ SALOMEDS_ChildIterator::SALOMEDS_ChildIterator(SALOMEDS::ChildIterator_ptr theIt
 
 SALOMEDS_ChildIterator::~SALOMEDS_ChildIterator()
 {
-//  if(!_isLocal) CORBA::release(_corba_impl); 
+  if(!_isLocal) _corba_impl->Destroy(); 
 }
 
 void SALOMEDS_ChildIterator::Init()

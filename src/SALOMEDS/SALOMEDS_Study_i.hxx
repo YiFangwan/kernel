@@ -31,8 +31,6 @@ private:
   CORBA::ORB_ptr                 _orb;
   Handle(SALOMEDSImpl_Study)     _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
-  SALOMEDS_UseCaseBuilder_i*     _useCaseBuilder;
-  SALOMEDS_SComponentIterator_i* _it;
 
 public:
 

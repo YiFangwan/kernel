@@ -8,6 +8,7 @@ using namespace std;
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
+#include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
@@ -31,21 +32,10 @@ using namespace std;
 
 SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const Handle(SALOMEDSImpl_SObject)& theImpl, CORBA::ORB_ptr theORB)
 {
-  static std::map<SALOMEDSImpl_SObject*, SALOMEDS_SObject_i*> _mapOfSO;
-  SALOMEDS::SObject_var so;
-  SALOMEDS_SObject_i* so_servant = NULL;
+  SALOMEDS_SObject_i* so_servant = new SALOMEDS_SObject_i(theImpl, theORB);
+  SALOMEDS::SObject_var so  = SALOMEDS::SObject::_narrow(so_servant->_this()); 
 
-  if(_mapOfSO.find(theImpl.operator->()) != _mapOfSO.end()) {
-    so_servant = _mapOfSO[theImpl.operator->()];
-  }
-  else {
-    so_servant = new SALOMEDS_SObject_i(theImpl, theORB);
-    _mapOfSO[theImpl.operator->()] = so_servant;
-  }
-
-  so  = SALOMEDS::SObject::_narrow(so_servant->_this()); 
-
-  return so._retn();
+  return so;
 }     
 
 
@@ -55,9 +45,10 @@ SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const Handle(SALOMEDSImpl_SObject)
  */
 //============================================================================
 SALOMEDS_SObject_i::SALOMEDS_SObject_i(const Handle(SALOMEDSImpl_SObject)& impl, CORBA::ORB_ptr orb)
-  :_impl(impl)
+  : _impl(impl)
 {
   _orb = CORBA::ORB::_duplicate(orb);
+   //SALOME::GenericObj_i::myPOA = SALOMEDS_StudyManager_i::GetPOA(GetStudy());
 }
   
 

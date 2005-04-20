@@ -49,6 +49,9 @@ SALOMEDS_GenericAttribute::SALOMEDS_GenericAttribute(SALOMEDS::GenericAttribute_
 
 SALOMEDS_GenericAttribute::~SALOMEDS_GenericAttribute() 
 {
+  if (!_isLocal) {
+    _corba_impl->Destroy();
+  }
 }
 
 void SALOMEDS_GenericAttribute::CheckLocked() 

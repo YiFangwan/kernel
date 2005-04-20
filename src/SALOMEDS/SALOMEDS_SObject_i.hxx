@@ -11,12 +11,15 @@
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
+#include <SALOME_GenericObj_i.hh>
 
 // Cascade headers
 #include "SALOMEDSImpl_SObject.hxx"
 
-class SALOMEDS_SObject_i: public POA_SALOMEDS::SObject,
-			  public PortableServer::RefCountServantBase {
+class SALOMEDS_SObject_i: public virtual POA_SALOMEDS::SObject,
+			  public virtual PortableServer::RefCountServantBase,
+			  public virtual SALOME::GenericObj_i
+{
 protected:
   CORBA::ORB_ptr                _orb;
   Handle(SALOMEDSImpl_SObject)  _impl;
