@@ -23,7 +23,7 @@ LIB_SRC = 	\
 # Executables targets
 BIN = 
 BIN_SRC = 
-LIB_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Exception.idl
+LIB_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Exception.idl SALOME_GenericObj.idl
 BIN_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl
 BIN_CLIENT_IDL = 
 

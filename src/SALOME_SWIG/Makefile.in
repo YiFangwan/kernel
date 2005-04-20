@@ -45,7 +45,8 @@ EXPORT_PYSCRIPTS = libSALOME_Swig.py batchmode_salome.py
 #EXPORT_SHAREDPYSCRIPTS=kernel_shared_modules.py
 
 LIB_CLIENT_IDL = SALOMEDS.idl \
-		 SALOME_Exception.idl
+		 SALOME_Exception.idl \
+		 SALOME_GenericObj.idl
 
 CPPFLAGS+=$(QT_INCLUDES) $(PYTHON_INCLUDES) $(OCC_INCLUDES) $(VTK_INCLUDES) $(OGL_INCLUDES) -DHAVE_CONFIG_H
 LIBS+= $(PYTHON_LIBS)

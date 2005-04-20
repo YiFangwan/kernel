@@ -50,7 +50,7 @@ LIB_SRC = ToolsGUI.cxx \
 
 LIB_MOC = ToolsGUI_CatalogGeneratorDlg_moc.cxx
 
-LIB_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl \
+LIB_CLIENT_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_GenericObj.idl \
                  SALOME_Component.idl SALOME_ContainerManager.idl SALOME_Exception.idl 
 
 # additionnal information to compil and link file
