@@ -27,7 +27,9 @@
 //  $Header$
 
 #include "SALOME_GeometryFilter.h"
+#include "SALOME_ConvexTool.h"
 
+#include <vtkSmartPointer.h>
 #include <vtkCellArray.h>
 #include <vtkCellData.h>
 #include <vtkGenericCell.h>
@@ -43,7 +45,11 @@
 #include <vtkUnstructuredGrid.h>
 #include <vtkVoxel.h>
 #include <vtkWedge.h>
+
+#include <vector>
+#include <map>
 using namespace std;
+
 
 #ifdef _DEBUG_
 static int MYDEBUG = 0;
@@ -61,7 +67,6 @@ static int MYDEBUGWITHFILES = 0;
 
 vtkCxxRevisionMacro(SALOME_GeometryFilter, "$Revision$");
 vtkStandardNewMacro(SALOME_GeometryFilter);
-
 
 SALOME_GeometryFilter::SALOME_GeometryFilter(): 
   myShowInside(0),
@@ -125,7 +130,7 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
   vtkPointData *outputPD = output->GetPointData();
   
   vtkCellData *outputCD = output->GetCellData();
-  vtkCellArray *Verts, *Lines, *Polys, *Strips;
+  //vtkCellArray *Verts, *Lines, *Polys, *Strips;
   vtkIdList *cellIds, *faceIds;
   char *cellVis;
   vtkIdType newCellId;
@@ -308,15 +313,28 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
           break;
 	  
 	case VTK_CONVEX_POINT_SET:{
-	  vtkCell* aCell = input->GetCell(cellId);
-	  int aNbFaces = aCell->GetNumberOfFaces();
-	  for (faceId=0; faceId < aNbFaces; faceId++){
-	    vtkCell *aFace = aCell->GetFace(faceId);
-	    numFacePts = aFace->GetNumberOfPoints();
-	    aCellType = aFace->GetCellType();
-	    for ( i=0; i < numFacePts; i++)
+	  TCellArray tmpCellArray;
+	  try{
+	    CONVEX_TOOL::GetPolygonalFaces(input,cellId,tmpCellArray); // "SALOME_ConvexTool.cxx"
+	  } catch (const std::exception& theExc){
+	    cout << __FILE__ << "[" << __LINE__ << "] " << "Exception:" << theExc.what() << endl;
+	  } catch (...) {
+	    cout << __FILE__ << "[" << __LINE__ << "] " << "Exception was occured"<< endl;
+	  }
+	  TCellArray::iterator aFaceIter = tmpCellArray.begin();
+	  for (;  aFaceIter!=tmpCellArray.end(); aFaceIter++){
+	    TCell cell = aFaceIter->second;
+	    numFacePts = cell.size();
+	    if(numFacePts>3)
+	      aCellType = VTK_POLYGON;
+	    else if(numFacePts == 3)
+	      aCellType = VTK_TRIANGLE;
+	    else if(numFacePts<3)
+	      continue;
+	    
+  	    for ( i=0; i < numFacePts; i++)
 	      {
-		aNewPts[i] = aFace->GetPointId(i);
+		aNewPts[i] = cell[i];
 	      }
 	    newCellId = output->InsertNextCell(aCellType,numFacePts,aNewPts);
 	    if(myStoreMapping){
