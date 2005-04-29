@@ -1217,6 +1217,12 @@ void VTKViewer_InteractorStyleSALOME::onCursorMove(QPoint mousePos) {
 
   SALOME_Actor* SActor = SALOME_Actor::SafeDownCast(aPicker->GetActor());
 
+  if (SActor && myPreSelectionActor){
+    float aPos[3];
+    SActor->GetPosition(aPos);
+    myPreSelectionActor->SetPosition(aPos);
+  }
+
   if (vtkCellPicker* picker = vtkCellPicker::SafeDownCast(aPicker)) {
     int aVtkId = picker->GetCellId();
     if ( aVtkId >= 0 ) {
