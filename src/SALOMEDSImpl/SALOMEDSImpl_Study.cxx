@@ -1246,9 +1246,9 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
   }
 
 #ifdef WIN32
-  TCollection_AsciiString aFileName=thePath+TCollection_AsciiString("\\")+theBaseName+TCollection_AsciiString("_Study.py");
+  TCollection_AsciiString aFileName=thePath+TCollection_AsciiString("\\")+theBaseName+TCollection_AsciiString(".py");
 #else
-  TCollection_AsciiString aFileName=thePath+TCollection_AsciiString("/")+theBaseName+TCollection_AsciiString("_Study.py");
+  TCollection_AsciiString aFileName=thePath+TCollection_AsciiString("/")+theBaseName+TCollection_AsciiString(".py");
 #endif    
 
   //Create a file that will contain a main Study script
@@ -1280,8 +1280,41 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
   for(int i = 1; i <= aLength; i++) {
 
     aCompType = aSeq.Value(i);
+    Handle(SALOMEDSImpl_SComponent) sco = FindComponent(aCompType);
+    SALOMEDSImpl_Driver* aDriver = NULL;
+cout << "Processing " << aCompType << endl;
+cout << 1 << endl;
+    // if there is an associated Engine call its method for saving
+    TCollection_AsciiString IOREngine;
+    try {
+      if (!sco->ComponentIOR(IOREngine)) {
+	cout << 2 << endl;
+	if (!aCompType.IsEmpty()) {
+	  
+	  aDriver = theFactory->GetDriverByType(aCompType);
+	
+	  if (aDriver != NULL) {
+	    Handle(SALOMEDSImpl_StudyBuilder) SB = NewBuilder();
+	    cout << "Before SB" << endl;
+	    if(!SB->LoadWith(sco, aDriver)) {
+	      _errorCode = SB->GetErrorCode();
+	      return false;
+	    }
+	    cout << "After SB" << endl;
+	  }
+	  else continue;
+	}
+      }
+      else {
+	aDriver = theFactory->GetDriverByIOR(IOREngine);
+      }
+    } catch(...) {
+      _errorCode = "Can not restore information to dump it";
+      return false;
+    } 
 
-    SALOMEDSImpl_Driver* aDriver = theFactory->GetDriverByType(aSeq.Value(i));
+cout << 3 << endl;
+
     if(aDriver == NULL) continue;
 
     bool isValidScript;
