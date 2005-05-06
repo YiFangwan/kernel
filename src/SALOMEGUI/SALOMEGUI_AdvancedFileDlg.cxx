@@ -49,7 +49,7 @@ SALOMEGUI_AdvancedFileDlg::SALOMEGUI_AdvancedFileDlg( QWidget* parent, bool open
   QPushButton* pb = new QPushButton(this);               
   pb->setMaximumWidth(0);
   addWidgets( label, myCheckBox, pb );
-  myCheckBox->setChecked(false);
+  myCheckBox->setChecked(true);
 }
 
 /*!
