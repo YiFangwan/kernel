@@ -230,6 +230,8 @@ public:
 		         bool isPublished,
 			 SALOMEDSImpl_DriverFactory* theFactory);
 
+  static TCollection_AsciiString GetDumpStudyComment(const char* theComponentName = 0);
+
   virtual Handle(TDocStd_Document) GetDocument() { return _doc; } 
 
   //The method dump creates a txt file that contain a dump of the study, for debug use
