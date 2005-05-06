@@ -1282,13 +1282,10 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
     aCompType = aSeq.Value(i);
     Handle(SALOMEDSImpl_SComponent) sco = FindComponent(aCompType);
     SALOMEDSImpl_Driver* aDriver = NULL;
-cout << "Processing " << aCompType << endl;
-cout << 1 << endl;
     // if there is an associated Engine call its method for saving
     TCollection_AsciiString IOREngine;
     try {
       if (!sco->ComponentIOR(IOREngine)) {
-	cout << 2 << endl;
 	if (!aCompType.IsEmpty()) {
 	  
 	  aDriver = theFactory->GetDriverByType(aCompType);
@@ -1312,8 +1309,6 @@ cout << 1 << endl;
       _errorCode = "Can not restore information to dump it";
       return false;
     } 
-
-cout << 3 << endl;
 
     if(aDriver == NULL) continue;
 
