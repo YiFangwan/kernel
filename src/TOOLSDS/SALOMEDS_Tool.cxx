@@ -62,8 +62,6 @@ std::string SALOMEDS_Tool::GetTmpDir()
   TCollection_AsciiString aSubDir(aRND);
   if(aSubDir.Length() <= 1) aSubDir = TCollection_AsciiString("123409876");
 
-  MESSAGE("#### RND "  << aRND);
-
   aTmpDir += aSubDir; //Get RND sub directory
 
 #ifdef WIN32
@@ -413,16 +411,15 @@ void SALOMEDS_Tool::GetAllChildren( SALOMEDS::Study_var               theStudy,
 // name    : GetFlag
 // Purpose : Retrieve specified flaf from "AttributeFlags" attribute
 //=======================================================================
-bool SALOMEDS_Tool::GetFlag( const int               theFlag,
-                             SALOMEDSClient_Study*   theStudy,
-                             SALOMEDSClient_SObject* theObj )
+bool SALOMEDS_Tool::GetFlag( const int     theFlag,
+                             _PTR(Study)   theStudy,
+                             _PTR(SObject) theObj )
 {
-  SALOMEDSClient_GenericAttribute* anAttr = NULL;
+  _PTR(GenericAttribute) anAttr;
   if ( theObj && theObj->FindAttribute( anAttr, "AttributeFlags" ) )
   {
-    SALOMEDSClient_AttributeFlags* aFlags = dynamic_cast<SALOMEDSClient_AttributeFlags*>( anAttr );
+    _PTR(AttributeFlags) aFlags( anAttr );
     bool ret = aFlags->Get( theFlag );
-    delete aFlags;
     return ret;
   }
 
@@ -434,29 +431,25 @@ bool SALOMEDS_Tool::GetFlag( const int               theFlag,
 // Purpose : Set/Unset specified flaf from "AttributeFlags" attribute
 //=======================================================================
 bool SALOMEDS_Tool::SetFlag( const int             theFlag,
-                             SALOMEDSClient_Study* theStudy,
+                             _PTR(Study)           theStudy,
                              const std::string&    theEntry,
                              const bool            theValue )
 {
-  SALOMEDSClient_SObject* anObj = theStudy->FindObjectID(theEntry.c_str());
+  _PTR(SObject) anObj (theStudy->FindObjectID(theEntry.c_str()));
 
   if ( anObj )
   {
-    SALOMEDSClient_GenericAttribute* aGAttr;
+    _PTR(GenericAttribute) aGAttr;
     if ( anObj->FindAttribute( aGAttr, "AttributeFlags" ) )
     {
-      SALOMEDSClient_AttributeFlags* anAttr = dynamic_cast<SALOMEDSClient_AttributeFlags*>( aGAttr );
+      _PTR(AttributeFlags) anAttr ( aGAttr );
       anAttr->Set( theFlag, theValue );
-      delete anAttr;
     }
     else if ( theValue )
     {
-      SALOMEDSClient_StudyBuilder* aBuilder = theStudy->NewBuilder();
-      SALOMEDSClient_AttributeFlags* anAttr = dynamic_cast<SALOMEDSClient_AttributeFlags*>(
-        aBuilder->FindOrCreateAttribute( anObj, "AttributeFlags" ) );
+      _PTR(StudyBuilder) aBuilder ( theStudy->NewBuilder() );
+      _PTR(AttributeFlags) anAttr = aBuilder->FindOrCreateAttribute( anObj, "AttributeFlags" );
       anAttr->Set( theFlag, theValue );
-      delete anAttr;
-      delete aBuilder;
     }
     return true;
   }
@@ -469,39 +462,35 @@ bool SALOMEDS_Tool::SetFlag( const int             theFlag,
 // Purpose : Get all entries of children of object.
 //           If theObj is null all entries of objects of study are returned
 //=======================================================================
-void SALOMEDS_Tool::GetAllChildren( SALOMEDSClient_Study*               theStudy,
-                                    SALOMEDSClient_SObject*             theObj,
-                                    std::list<std::string>& theList )
+void SALOMEDS_Tool::GetAllChildren( _PTR(Study)               theStudy,
+                                    _PTR(SObject)             theObj,
+                                    std::list<std::string>&   theList )
 {
   if ( !theObj )
   {
-    SALOMEDSClient_SComponentIterator* anIter = theStudy->NewComponentIterator();
+    _PTR(SComponentIterator) anIter (theStudy->NewComponentIterator());
     for ( ; anIter->More(); anIter->Next() )
     {
-      SALOMEDSClient_SObject* anObj = anIter->Value();
+      _PTR(SObject) anObj ( anIter->Value() );
       if ( anObj )
       {
         theList.push_back( anObj->GetID() );
         GetAllChildren( theStudy, anObj, theList );
-	delete anObj;
       }
     }
-    delete anIter;
   }
   else
   {
-    SALOMEDSClient_ChildIterator* anIter = theStudy->NewChildIterator( theObj );
+    _PTR(ChildIterator) anIter ( theStudy->NewChildIterator( theObj ) );
     for ( ; anIter->More(); anIter->Next() )
     {
-      SALOMEDSClient_SObject* anObj = anIter->Value();
-      SALOMEDSClient_SObject* aRef;
+      _PTR(SObject) anObj ( anIter->Value() );
+      _PTR(SObject) aRef;
       if ( !anObj->ReferencedObject( aRef ) )
       {
         theList.push_back( anObj->GetID() );
         GetAllChildren( theStudy, anObj, theList );
-	delete anObj;
       }
-      else delete aRef;
     }
   }
 }
