@@ -55,24 +55,24 @@ module Engines
 
     /*!
       Loads a new component class (dynamic library).
-      \param componentLibraryName like libCOMPONENTEngine.so
+      \param componentName like COMPONENT, (Python or C++ implementation)
+                           try to make a Python import of COMPONENT,
+                           then a lib open of libCOMPONENTEngine.so
       \return true if load successfull or already done, false otherwise
     */
-    boolean load_component_Library(in string componentLibraryName);
+    boolean load_component_Library(in string componentName);
 
     /*!
       Creates a new servant instance of a component.
       Component library must be loaded.
-      \param nameToRegister Name of the component which will be registered
+      \param comoponentName Name of the component which will be registered
                             in Registry and Name Service,
-                         (instance bumber suffix added to the registered name)
-      \param componentName  Name of the constructed library of the %component
+                         (instance number suffix added to the registered name)
       \param studyId        0 if instance is not associated to a study, 
                             >0 otherwise (== study id)
       \return a loaded component
     */
-    Component create_component_instance(in string nameToRegister,
-					in string componentLibraryName,
+    Component create_component_instance(in string componentName,
 					in long studyId);
 
     /*!
@@ -90,9 +90,10 @@ module Engines
       Find a servant instance of a component, or create a new one.
       Loads the component library if needed.
       Only applicable to multiStudy components.
-      \param nameToRegister    Name of the component which will be registered
-                               in Registry (or Name Service)
-      \param componentName     Name of the constructed library of the %component
+      \param nameToRegister Name of the component which will be registered
+                            in Registry (or Name Service)
+      \param componentName  Name of the constructed library of the %component
+                            (not used any more, give empty string)
       \return a loaded component
     */
     Component load_impl(in string nameToRegister,
