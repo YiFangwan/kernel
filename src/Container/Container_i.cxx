@@ -223,16 +223,18 @@ void Engines_Container_i::Shutdown()
 
 //=============================================================================
 /*! 
- *  CORBA method: load a new component class (dynamic library)
- *  \param componentLibraryName like "libCOMPONENTEngine.so"
+ *  CORBA method: load a new component class (Python or C++ implementation)
+ *  \param componentName like COMPONENT
+ *                          try to make a Python import of COMPONENT,
+ *                          then a lib open of libCOMPONENTEngine.so
  *  \return true if dlopen successfull or already done, false otherwise
  */
 //=============================================================================
 
 bool
-Engines_Container_i::load_component_Library(const char* componentLibraryName)
+Engines_Container_i::load_component_Library(const char* componentName)
 {
-  string impl_name = componentLibraryName;
+  string impl_name = string ("lib") + componentName + string("Engine.so");
   SCRUTE(impl_name);
 
   _numInstanceMutex.lock(); // lock to be alone 
@@ -268,7 +270,6 @@ Engines_Container_i::load_component_Library(const char* componentLibraryName)
  *  The servant registers itself to naming service and Registry.
  *  \param genericRegisterName  Name of the component instance to register
  *                         in Registry & Name Service (without _inst_n suffix)
- *  \param componentName   Name of the constructed library of the component
  *  \param studyId         0 for multiStudy instance, 
  *                         study Id (>0) otherwise
  *  \return a loaded component
@@ -277,7 +278,6 @@ Engines_Container_i::load_component_Library(const char* componentLibraryName)
 
 Engines::Component_ptr
 Engines_Container_i::create_component_instance(const char*genericRegisterName,
-					       const char*componentLibraryName,
 					       CORBA::Long studyId)
 {
   if (studyId < 0)
@@ -286,7 +286,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
       return Engines::Component::_nil() ;
     }
 
-  string impl_name = componentLibraryName;
+  string impl_name = string ("lib") + genericRegisterName +string("Engine.so");
   void* handle = _library_map[impl_name];
   if ( !handle )
     {
@@ -354,9 +354,10 @@ Engines::Component_ptr
 Engines_Container_i::load_impl( const char* genericRegisterName,
 				const char* componentName )
 {
+  string impl_name = string ("lib") + genericRegisterName +string("Engine.so");
   Engines::Component_var iobject = Engines::Component::_nil() ;
-  if (load_component_Library(componentName))
-    iobject = find_or_create_instance(genericRegisterName, componentName);
+  if (load_component_Library(genericRegisterName))
+    iobject = find_or_create_instance(genericRegisterName, impl_name);
   return iobject._retn();
 }
     

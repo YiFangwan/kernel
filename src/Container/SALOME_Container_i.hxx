@@ -58,11 +58,10 @@ public:
 
   // --- CORBA methods
 
-  bool load_component_Library(const char* componentLibraryName);
+  bool load_component_Library(const char* componentName);
 
   Engines::Component_ptr
-  create_component_instance( const char* nameToRegister,
-			     const char* componentLibraryName,
+  create_component_instance( const char* componentName,
 			     CORBA::Long studyId); // 0 for multiStudy
 
   Engines::Component_ptr

@@ -63,11 +63,10 @@ static ostream& operator<<(ostream& os, const CORBA::Exception& e)
 Engines::TestComponent_ptr create_intance(Engines::Container_ptr iGenFact)
 {
   bool isLib =
-    iGenFact->load_component_Library("libSalomeTestComponentEngine.so");
+    iGenFact->load_component_Library("SalomeTestComponent");
   ASSERT(isLib);
   CORBA::Object_var obj =
     iGenFact->create_component_instance("SalomeTestComponent",
-					"libSalomeTestComponentEngine.so",
 					0);
   Engines::TestComponent_var anInstance = Engines::TestComponent::_narrow(obj);
   MESSAGE("create anInstance");

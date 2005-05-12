@@ -369,8 +369,9 @@ SALOME_LifeCycleCORBA::LoadComponent(const char *containerName,
 {
   Engines::Container_var cont=_ContManager->FindOrStartContainer(containerName,
 								 listOfMachines);
-  string implementation=Engines_Component_i::GetDynLibraryName(componentName);
-  return cont->load_impl(componentName, implementation.c_str());
+  //string implementation=Engines_Component_i::GetDynLibraryName(componentName);
+  //return cont->load_impl(componentName, implementation.c_str());
+  return cont->load_impl(componentName,"");
 }
 
 
