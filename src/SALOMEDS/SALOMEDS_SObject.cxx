@@ -73,75 +73,77 @@ std::string SALOMEDS_SObject::GetID()
   return aValue;
 }
 
-SALOMEDSClient_SComponent* SALOMEDS_SObject::GetFatherComponent()
+_PTR(SComponent) SALOMEDS_SObject::GetFatherComponent()
 {
-  if(_isLocal) 
-    return new SALOMEDS_SComponent(Handle(SALOMEDSImpl_SComponent)::DownCast(_local_impl->GetFatherComponent()));
-  return new SALOMEDS_SComponent(_corba_impl->GetFatherComponent());
+  if(_isLocal) {
+    Handle(SALOMEDSImpl_SComponent) aSCO = Handle(SALOMEDSImpl_SComponent)::DownCast(_local_impl->GetFatherComponent());
+    return _PTR(SComponent)(new SALOMEDS_SComponent(aSCO));
+  }
+  return _PTR(SComponent)(new SALOMEDS_SComponent(_corba_impl->GetFatherComponent()));
 }
 
-SALOMEDSClient_SObject* SALOMEDS_SObject::GetFather()
+_PTR(SObject) SALOMEDS_SObject::GetFather()
 {
-  if(_isLocal) return new SALOMEDS_SObject(_local_impl->GetFather());
-  return new SALOMEDS_SObject(_corba_impl->GetFather());
+  if(_isLocal) return _PTR(SObject)(new SALOMEDS_SObject(_local_impl->GetFather()));
+  return _PTR(SObject)(new SALOMEDS_SObject(_corba_impl->GetFather()));
 }
 
-bool SALOMEDS_SObject::FindAttribute(SALOMEDSClient_GenericAttribute*& anAttribute, const std::string& aTypeOfAttribute)
+bool SALOMEDS_SObject::FindAttribute(_PTR(GenericAttribute)& anAttribute, const std::string& aTypeOfAttribute)
 {
   bool ret = false;
   if(_isLocal) {
     Handle(SALOMEDSImpl_GenericAttribute) anAttr;
     ret = _local_impl->FindAttribute(anAttr, (char*)aTypeOfAttribute.c_str());
-    if(ret) anAttribute = SALOMEDS_GenericAttribute::CreateAttribute(anAttr);
+    if(ret) anAttribute = _PTR(GenericAttribute)(SALOMEDS_GenericAttribute::CreateAttribute(anAttr));
   }
   else {
     SALOMEDS::GenericAttribute_var anAttr;
     ret = _corba_impl->FindAttribute(anAttr.out(), aTypeOfAttribute.c_str());
-    if(ret) anAttribute = SALOMEDS_GenericAttribute::CreateAttribute(anAttr);
+    if(ret) anAttribute = _PTR(GenericAttribute)(SALOMEDS_GenericAttribute::CreateAttribute(anAttr));
   }
 
   return ret;
 }
 
-bool SALOMEDS_SObject::ReferencedObject(SALOMEDSClient_SObject*& theObject)
+bool SALOMEDS_SObject::ReferencedObject(_PTR(SObject)& theObject)
 {
   bool ret = false;
   if(_isLocal) {
     Handle(SALOMEDSImpl_SObject) aSO;
     ret = _local_impl->ReferencedObject(aSO);
-    if(ret) theObject = new SALOMEDS_SObject(aSO);
+    if(ret) theObject = _PTR(SObject)(new SALOMEDS_SObject(aSO));
   }
   else {
     SALOMEDS::SObject_var aSO;
     ret = _corba_impl->ReferencedObject(aSO.out());
-    if(ret) theObject = new SALOMEDS_SObject(aSO);
+    if(ret) theObject = _PTR(SObject)(new SALOMEDS_SObject(aSO));
   }
 
   return ret; 
 }
 
 
-bool SALOMEDS_SObject::FindSubObject(int theTag, SALOMEDSClient_SObject*& theObject)
+bool SALOMEDS_SObject::FindSubObject(int theTag, _PTR(SObject)& theObject)
 {
   bool ret = false;
   if(_isLocal) {
     Handle(SALOMEDSImpl_SObject) aSO;
     ret = _local_impl->FindSubObject(theTag, aSO);
-    if(ret) theObject = new SALOMEDS_SObject(aSO);
+    if(ret) theObject = _PTR(SObject)(new SALOMEDS_SObject(aSO));
   }
   else {
     SALOMEDS::SObject_var aSO;
     ret = _corba_impl->FindSubObject(theTag, aSO.out());
-    if(ret) theObject = new SALOMEDS_SObject(aSO);
+    if(ret) theObject = _PTR(SObject)(new SALOMEDS_SObject(aSO));
   }
 
   return ret;   
 }
 
-SALOMEDSClient_Study* SALOMEDS_SObject::GetStudy()
+_PTR(Study) SALOMEDS_SObject::GetStudy()
 {
-  if(_isLocal) return new SALOMEDS_Study(_local_impl->GetStudy());
-  return new SALOMEDS_Study(_corba_impl->GetStudy());
+  if(_isLocal) return _PTR(Study)(new SALOMEDS_Study(_local_impl->GetStudy()));
+  return _PTR(Study)(new SALOMEDS_Study(_corba_impl->GetStudy()));
 }
 
 std::string SALOMEDS_SObject::Name()
@@ -159,18 +161,18 @@ void  SALOMEDS_SObject::Name(const std::string& theName)
   else _corba_impl->Name(theName.c_str());
 }
 
-vector<SALOMEDSClient_GenericAttribute*> SALOMEDS_SObject::GetAllAttributes()
+vector<_PTR(GenericAttribute)> SALOMEDS_SObject::GetAllAttributes()
 {
-  vector<SALOMEDSClient_GenericAttribute*> aVector;
+  vector<_PTR(GenericAttribute)> aVector;
   int aLength = 0;
-  SALOMEDS_GenericAttribute* anAttr;
+  SALOMEDSClient_GenericAttribute* anAttr;
 
   if(_isLocal) {
     Handle(TColStd_HSequenceOfTransient) aSeq = _local_impl->GetAllAttributes();
     aLength = aSeq->Length();
     for(int i = 1; i <= aLength; i++) {
       anAttr = SALOMEDS_GenericAttribute::CreateAttribute(Handle(SALOMEDSImpl_GenericAttribute)::DownCast(aSeq->Value(i)));
-      aVector.push_back(anAttr);
+      aVector.push_back(_PTR(GenericAttribute)(anAttr));
     }
   }
   else {
@@ -178,7 +180,7 @@ vector<SALOMEDSClient_GenericAttribute*> SALOMEDS_SObject::GetAllAttributes()
     aLength = aSeq->length();
     for(int i = 0; i < aLength; i++) {
       anAttr = SALOMEDS_GenericAttribute::CreateAttribute(aSeq[i]);
-      aVector.push_back(anAttr);
+      aVector.push_back(_PTR(GenericAttribute)(anAttr));
     }
   }
 

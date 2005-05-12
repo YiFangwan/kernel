@@ -21,41 +21,41 @@ SALOMEDS_AttributeTarget::SALOMEDS_AttributeTarget(SALOMEDS::AttributeTarget_ptr
 SALOMEDS_AttributeTarget::~SALOMEDS_AttributeTarget()
 {}
 
-void SALOMEDS_AttributeTarget::Add(SALOMEDSClient_SObject* theObject)
+void SALOMEDS_AttributeTarget::Add(const _PTR(SObject)& theObject)
 {
-  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theObject);
+  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
 
   if(_isLocal) Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_local_impl)->Add(aSO->GetLocalImpl());
   else SALOMEDS::AttributeTarget::_narrow(_corba_impl)->Add(aSO->GetCORBAImpl());
 }
 
-std::vector<SALOMEDSClient_SObject*> SALOMEDS_AttributeTarget::Get()
+std::vector<_PTR(SObject)> SALOMEDS_AttributeTarget::Get()
 {
-  std::vector<SALOMEDSClient_SObject*> aVector;
+  std::vector<_PTR(SObject)> aVector;
   int aLength, i;
-  SALOMEDS_SObject* aSO = NULL;
+  SALOMEDSClient_SObject* aSO = NULL;
   
   if(_isLocal) {
     Handle(TColStd_HSequenceOfTransient) aSeq = Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_local_impl)->Get();
     aLength = aSeq->Length();
     for(i=1; i<=aLength; i++) {
       aSO = new SALOMEDS_SObject(Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i)));
-      aVector.push_back(aSO);
+      aVector.push_back(_PTR(SObject)(aSO));
     }
   }
   else {
     SALOMEDS::Study::ListOfSObject_var aSeq = SALOMEDS::AttributeTarget::_narrow(_corba_impl)->Get();
     aLength = aSeq->length();
     aSO = new SALOMEDS_SObject(aSeq[i].in());
-    for(i = 0; i<aLength; i++) aVector.push_back(aSO);
+    for(i = 0; i<aLength; i++) aVector.push_back(_PTR(SObject)(aSO));
   }
 
   return aVector;
 }
 
-void SALOMEDS_AttributeTarget::Remove(SALOMEDSClient_SObject* theObject)
+void SALOMEDS_AttributeTarget::Remove(const _PTR(SObject)& theObject)
 {
-  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theObject);
+  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
 
   if(_isLocal) Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_local_impl)->Remove(aSO->GetLocalImpl());
   else SALOMEDS::AttributeTarget::_narrow(_corba_impl)->Remove(aSO->GetCORBAImpl());

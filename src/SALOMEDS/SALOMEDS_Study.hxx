@@ -8,15 +8,7 @@
 #include <vector>
 #include <string>
 
-#include "SALOMEDSClient_Study.hxx"
-#include "SALOMEDSClient_SComponentIterator.hxx"
-#include "SALOMEDSClient_StudyBuilder.hxx"
-#include "SALOMEDSClient_SObject.hxx"
-#include "SALOMEDSClient_SComponent.hxx"
-#include "SALOMEDSClient_UseCaseBuilder.hxx"
-#include "SALOMEDSClient_AttributeStudyProperties.hxx"
-#include "SALOMEDSClient_ChildIterator.hxx"
-
+#include "SALOMEDSClient.hxx"
 #include "SALOMEDSImpl_Study.hxx"
 
 // IDL headers
@@ -41,24 +33,24 @@ public:
   virtual std::string GetPersistentReference();
   virtual std::string GetTransientReference();
   virtual bool IsEmpty();
-  virtual SALOMEDSClient_SComponent* FindComponent (const std::string& aComponentName);
-  virtual SALOMEDSClient_SComponent* FindComponentID(const std::string& aComponentID);
-  virtual SALOMEDSClient_SObject* FindObject(const std::string& anObjectName);
-  virtual std::vector<SALOMEDSClient_SObject*> FindObjectByName( const std::string& anObjectName, const std::string& aComponentName ) ;  
-  virtual SALOMEDSClient_SObject* FindObjectID(const std::string& anObjectID);
-  virtual SALOMEDSClient_SObject* CreateObjectID(const std::string& anObjectID);
-  virtual SALOMEDSClient_SObject* FindObjectIOR(const std::string& anObjectIOR);
-  virtual SALOMEDSClient_SObject* FindObjectByPath(const std::string& thePath);
-  virtual std::string GetObjectPath(SALOMEDSClient_SObject* theSO);
+  virtual _PTR(SComponent) FindComponent (const std::string& aComponentName);
+  virtual _PTR(SComponent) FindComponentID(const std::string& aComponentID);
+  virtual _PTR(SObject) FindObject(const std::string& anObjectName);
+  virtual std::vector<_PTR(SObject)> FindObjectByName( const std::string& anObjectName, const std::string& aComponentName ) ;  
+  virtual _PTR(SObject) FindObjectID(const std::string& anObjectID);
+  virtual _PTR(SObject) CreateObjectID(const std::string& anObjectID);
+  virtual _PTR(SObject) FindObjectIOR(const std::string& anObjectIOR);
+  virtual _PTR(SObject) FindObjectByPath(const std::string& thePath);
+  virtual std::string GetObjectPath(const _PTR(SObject)& theSO);
   virtual void SetContext(const std::string& thePath);
   virtual std::string GetContext();  
   virtual std::vector<std::string> GetObjectNames(const std::string& theContext);
   virtual std::vector<std::string> GetDirectoryNames(const std::string& theContext);
   virtual std::vector<std::string> GetFileNames(const std::string& theContext);
   virtual std::vector<std::string> GetComponentNames(const std::string& theContext);
-  virtual SALOMEDSClient_ChildIterator* NewChildIterator(SALOMEDSClient_SObject* theSO);
-  virtual SALOMEDSClient_SComponentIterator* NewComponentIterator();
-  virtual SALOMEDSClient_StudyBuilder* NewBuilder();
+  virtual _PTR(ChildIterator) NewChildIterator(const _PTR(SObject)& theSO);
+  virtual _PTR(SComponentIterator) NewComponentIterator();
+  virtual _PTR(StudyBuilder) NewBuilder();
   virtual std::string Name();
   virtual void  Name(const std::string& name);
   virtual bool IsSaved();
@@ -68,11 +60,11 @@ public:
   virtual void  URL(const std::string& url);
   virtual int StudyId();
   virtual void  StudyId(int id);
-  virtual std::vector<SALOMEDSClient_SObject*> FindDependances(SALOMEDSClient_SObject* theSO);
-  virtual SALOMEDSClient_AttributeStudyProperties* GetProperties();
+  virtual std::vector<_PTR(SObject)> FindDependances(const _PTR(SObject)& theSO);
+  virtual _PTR(AttributeStudyProperties) GetProperties();
   virtual std::string GetLastModificationDate();
   virtual std::vector<std::string> GetModificationsDate();
-  virtual SALOMEDSClient_UseCaseBuilder* GetUseCaseBuilder();
+  virtual _PTR(UseCaseBuilder) GetUseCaseBuilder();
   virtual void Close();
   virtual void EnableUseCaseAutoFilling(bool isEnabled);
   virtual bool DumpStudy(const std::string& thePath, const std::string& theBaseName, bool isPublished); 

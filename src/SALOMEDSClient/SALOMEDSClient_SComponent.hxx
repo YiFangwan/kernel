@@ -5,6 +5,7 @@
 #ifndef __SALOMEDSCLIENT_SCOMPONENT_H__
 #define __SALOMEDSCLIENT_SCOMPONENT_H__
 
+#include "SALOMEDSClient_definitions.hxx"
 #include "SALOMEDSClient_SObject.hxx"
 #include <string> 
 

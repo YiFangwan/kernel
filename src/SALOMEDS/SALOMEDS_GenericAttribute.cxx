@@ -93,7 +93,7 @@ std::string SALOMEDS_GenericAttribute::GetClassType()
   return aType;
 }
 
-SALOMEDSClient_SObject* SALOMEDS_GenericAttribute::GetSObject()
+_PTR(SObject) SALOMEDS_GenericAttribute::GetSObject()
 {
   SALOMEDSClient_SObject* aSO = NULL;
   if(_isLocal) {
@@ -103,7 +103,7 @@ SALOMEDSClient_SObject* SALOMEDS_GenericAttribute::GetSObject()
     aSO = new SALOMEDS_SObject(_corba_impl->GetSObject());
   }
 
-  return aSO;
+  return _PTR(SObject)(aSO);
 }
 
 

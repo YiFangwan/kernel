@@ -5,6 +5,7 @@
 #ifndef SALOMEDSClient_AttributeExternalFileDef_HeaderFile
 #define SALOMEDSClient_AttributeExternalFileDef_HeaderFile
 
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 #include <string>
 

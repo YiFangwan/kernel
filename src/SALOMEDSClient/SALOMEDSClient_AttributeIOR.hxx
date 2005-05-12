@@ -5,6 +5,7 @@
 #ifndef SALOMEDSClient_AttributeIOR_HeaderFile
 #define SALOMEDSClient_AttributeIOR_HeaderFile
 
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 #include <string>
 

@@ -5,6 +5,7 @@
 #ifndef SALOMEDSClient_AttributeComment_HeaderFile
 #define SALOMEDSClient_AttributeComment_HeaderFile
 
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 #include <string>
 

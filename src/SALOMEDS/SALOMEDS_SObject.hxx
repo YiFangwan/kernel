@@ -8,9 +8,7 @@
 // std C++ headers
 #include <vector>
 
-#include <SALOMEDSClient_GenericAttribute.hxx>
-#include <SALOMEDSClient_SComponent.hxx>
-#include <SALOMEDSClient_Study.hxx>
+#include <SALOMEDSClient.hxx>
 
 // IDL headers
 #include <SALOMEconfig.h>
@@ -35,15 +33,15 @@ public:
   virtual ~SALOMEDS_SObject();
 
   virtual std::string GetID();
-  virtual SALOMEDSClient_SComponent* GetFatherComponent();
-  virtual SALOMEDSClient_SObject*    GetFather();
-  virtual bool FindAttribute(SALOMEDSClient_GenericAttribute*& anAttribute, const std::string& aTypeOfAttribute);
-  virtual bool ReferencedObject(SALOMEDSClient_SObject*& theObject);
-  virtual bool FindSubObject(int theTag, SALOMEDSClient_SObject*& theObject);
-  virtual SALOMEDSClient_Study* GetStudy();
+  virtual _PTR(SComponent) GetFatherComponent();
+  virtual _PTR(SObject)    GetFather();
+  virtual bool FindAttribute(_PTR(GenericAttribute)& anAttribute, const std::string& aTypeOfAttribute);
+  virtual bool ReferencedObject(_PTR(SObject)& theObject);
+  virtual bool FindSubObject(int theTag, _PTR(SObject)& theObject);
+  virtual _PTR(Study) GetStudy();
   virtual std::string Name();
   virtual void  Name(const std::string& theName);
-  virtual vector<SALOMEDSClient_GenericAttribute*> GetAllAttributes();
+  virtual vector<_PTR(GenericAttribute)> GetAllAttributes();
   virtual std::string GetName();
   virtual std::string GetComment();
   virtual std::string GetIOR();

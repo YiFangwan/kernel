@@ -98,137 +98,140 @@ bool SALOMEDS_Study::IsEmpty()
   return ret;
 }
 
-SALOMEDSClient_SComponent* SALOMEDS_Study::FindComponent (const std::string& aComponentName)
+_PTR(SComponent) SALOMEDS_Study::FindComponent (const std::string& aComponentName)
 {
-  SALOMEDS_SComponent* aSCO = NULL;
+  SALOMEDSClient_SComponent* aSCO = NULL;
   if(_isLocal) {
     Handle(SALOMEDSImpl_SComponent) aSCO_impl =_local_impl->FindComponent((char*)aComponentName.c_str());
-    if(aSCO_impl.IsNull()) return NULL;
+    if(aSCO_impl.IsNull()) return _PTR(SComponent)(aSCO);
     aSCO = new SALOMEDS_SComponent(aSCO_impl);
   }
   else {
     SALOMEDS::SComponent_var aSCO_impl = _corba_impl->FindComponent((char*)aComponentName.c_str());
-    if(CORBA::is_nil(aSCO_impl)) return NULL;
+    if(CORBA::is_nil(aSCO_impl)) return _PTR(SComponent)(aSCO);
     aSCO = new SALOMEDS_SComponent(aSCO_impl);
   }
-  return aSCO;
+  return _PTR(SComponent)(aSCO);
 }
  
-SALOMEDSClient_SComponent* SALOMEDS_Study::FindComponentID(const std::string& aComponentID)
+_PTR(SComponent) SALOMEDS_Study::FindComponentID(const std::string& aComponentID)
 {  
-  SALOMEDS_SComponent* aSCO = NULL;
+  SALOMEDSClient_SComponent* aSCO = NULL;
   if(_isLocal) {
     Handle(SALOMEDSImpl_SComponent) aSCO_impl =_local_impl->FindComponentID((char*)aComponentID.c_str());
-    if(aSCO_impl.IsNull()) return NULL;
+    if(aSCO_impl.IsNull()) return _PTR(SComponent)(aSCO);
     aSCO = new SALOMEDS_SComponent(aSCO_impl);
   }
   else {
     SALOMEDS::SComponent_var aSCO_impl = _corba_impl->FindComponentID((char*)aComponentID.c_str());
-    if(CORBA::is_nil(aSCO_impl)) return NULL;
+    if(CORBA::is_nil(aSCO_impl)) return _PTR(SComponent)(aSCO);
     aSCO = new SALOMEDS_SComponent(aSCO_impl);
   }
-  return aSCO;
+  return _PTR(SComponent)(aSCO);
   
 }
  
-SALOMEDSClient_SObject* SALOMEDS_Study::FindObject(const std::string& anObjectName)
+_PTR(SObject) SALOMEDS_Study::FindObject(const std::string& anObjectName)
 {
+  SALOMEDSClient_SObject* aSO = NULL;
+
   if(_isLocal) {
     Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObject((char*)anObjectName.c_str());
-    if(aSO_impl.IsNull()) return NULL;
+    if(aSO_impl.IsNull()) return _PTR(SObject)(aSO);
     Handle(SALOMEDSImpl_SComponent) aSCO_impl = Handle(SALOMEDSImpl_SComponent)::DownCast(aSO_impl);
-    if(!aSCO_impl.IsNull()) return new SALOMEDS_SComponent(aSCO_impl);
-    return new SALOMEDS_SObject(aSO_impl);
+    if(!aSCO_impl.IsNull()) return _PTR(SObject)(new SALOMEDS_SComponent(aSCO_impl));
   }
   else { 
     SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObject((char*)anObjectName.c_str());
-    if(CORBA::is_nil(aSO_impl)) return NULL;
+    if(CORBA::is_nil(aSO_impl)) return _PTR(SObject)(aSO);
     SALOMEDS::SComponent_var aSCO_impl = SALOMEDS::SComponent::_narrow(aSO_impl);
-    if(!CORBA::is_nil(aSCO_impl)) return new SALOMEDS_SComponent(aSCO_impl);
-    return new SALOMEDS_SObject(aSO_impl);
+    if(!CORBA::is_nil(aSCO_impl)) return _PTR(SObject)(new SALOMEDS_SComponent(aSCO_impl));
   }
-  return NULL;
+
+  return _PTR(SObject)(aSO);
 }
  
-std::vector<SALOMEDSClient_SObject*> SALOMEDS_Study::FindObjectByName(const std::string& anObjectName, 
+std::vector<_PTR(SObject)> SALOMEDS_Study::FindObjectByName(const std::string& anObjectName, 
 								      const std::string& aComponentName)   
 {
-  std::vector<SALOMEDSClient_SObject*> aVector;
+  std::vector<_PTR(SObject)> aVector;
   int i, aLength = 0;
   
   if(_isLocal) {
     Handle(TColStd_HSequenceOfTransient) aSeq = _local_impl->FindObjectByName((char*)anObjectName.c_str(), (char*)aComponentName.c_str());
     aLength = aSeq->Length();
     for(i = 1; i<= aLength; i++) 
-      aVector.push_back(new SALOMEDS_SObject(Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i))));
+      aVector.push_back(_PTR(SObject)(new SALOMEDS_SObject(Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i)))));
   }
   else {
-    SALOMEDS::Study::ListOfSObject_var aSeq = _corba_impl->FindObjectByName((char*)anObjectName.c_str(), (char*)aComponentName.c_str());
+    SALOMEDS::Study::ListOfSObject_var aSeq = _corba_impl->FindObjectByName((char*)anObjectName.c_str(), 
+									    (char*)aComponentName.c_str());
     aLength = aSeq->length();
-    for(i = 0; i< aLength; i++) aVector.push_back(new SALOMEDS_SObject(aSeq[i]));
+    for(i = 0; i< aLength; i++) aVector.push_back(_PTR(SObject)(new SALOMEDS_SObject(aSeq[i])));
   }
 
   return aVector;
 }
  
-SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectID(const std::string& anObjectID)
+_PTR(SObject) SALOMEDS_Study::FindObjectID(const std::string& anObjectID)
 {
+  SALOMEDSClient_SObject* aSO = NULL;
   if(_isLocal) {
     Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectID((char*)anObjectID.c_str());
-    if(aSO_impl.IsNull()) return NULL;
-    return new SALOMEDS_SObject(aSO_impl);
+    if(aSO_impl.IsNull()) return _PTR(SObject)(aSO);
+    return _PTR(SObject)(new SALOMEDS_SObject(aSO_impl));
   }
   else { 
     SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectID((char*)anObjectID.c_str());
-    if(CORBA::is_nil(aSO_impl)) return NULL;
-    return new SALOMEDS_SObject(aSO_impl);
+    if(CORBA::is_nil(aSO_impl)) return _PTR(SObject)(aSO);
+    return _PTR(SObject)(new SALOMEDS_SObject(aSO_impl));
   }
-  return NULL;
+  return _PTR(SObject)(aSO);
 }
  
-SALOMEDSClient_SObject* SALOMEDS_Study::CreateObjectID(const std::string& anObjectID)
+_PTR(SObject) SALOMEDS_Study::CreateObjectID(const std::string& anObjectID)
 {
-  SALOMEDS_SObject* aSO = NULL;
+  SALOMEDSClient_SObject* aSO = NULL;
   if(_isLocal) aSO = new SALOMEDS_SObject(_local_impl->CreateObjectID((char*)anObjectID.c_str()));
   else aSO = new SALOMEDS_SObject(_corba_impl->CreateObjectID((char*)anObjectID.c_str())); 
-  return aSO;
+  return _PTR(SObject)(aSO);
 }
  
-SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectIOR(const std::string& anObjectIOR)
+_PTR(SObject) SALOMEDS_Study::FindObjectIOR(const std::string& anObjectIOR)
 {
-  SALOMEDS_SObject* aSO = NULL;
+  SALOMEDSClient_SObject* aSO = NULL;
   if(_isLocal) {
     Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectIOR((char*)anObjectIOR.c_str());
-    if(aSO_impl.IsNull()) return NULL;
+    if(aSO_impl.IsNull()) return _PTR(SObject)(aSO);
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   else { 
     SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectIOR((char*)anObjectIOR.c_str());
-    if(CORBA::is_nil(aSO_impl)) return NULL;
+    if(CORBA::is_nil(aSO_impl)) return _PTR(SObject)(aSO);
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
-  return aSO;
+  return _PTR(SObject)(aSO);
 }
 
-SALOMEDSClient_SObject* SALOMEDS_Study::FindObjectByPath(const std::string& thePath)
+_PTR(SObject) SALOMEDS_Study::FindObjectByPath(const std::string& thePath)
 {
-  SALOMEDS_SObject* aSO = NULL;
+  SALOMEDSClient_SObject* aSO = NULL;
   if(_isLocal) {
     Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->FindObjectByPath((char*)thePath.c_str());
-    if(aSO_impl.IsNull()) return NULL;
+    if(aSO_impl.IsNull()) return _PTR(SObject)(aSO);
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
   else {
     SALOMEDS::SObject_var aSO_impl = _corba_impl->FindObjectByPath((char*)thePath.c_str());
-    if(CORBA::is_nil(aSO_impl)) return NULL;
+    if(CORBA::is_nil(aSO_impl)) return _PTR(SObject)(aSO);
     aSO = new SALOMEDS_SObject(aSO_impl);
   }
-  return aSO;
+  return _PTR(SObject)(aSO);
 }
 
-std::string SALOMEDS_Study::GetObjectPath(SALOMEDSClient_SObject* theSO)
+std::string SALOMEDS_Study::GetObjectPath(const _PTR(SObject)& theSO)
 {
-  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
+  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   std::string aPath;
   if(_isLocal) aPath = _local_impl->GetObjectPath(aSO->GetLocalImpl()).ToCString();
   else aPath = _corba_impl->GetObjectPath(aSO->GetCORBAImpl());
@@ -318,10 +321,10 @@ std::vector<std::string> SALOMEDS_Study::GetComponentNames(const std::string& th
   return aVector;
 }
 
-SALOMEDSClient_ChildIterator* SALOMEDS_Study::NewChildIterator(SALOMEDSClient_SObject* theSO)
+_PTR(ChildIterator) SALOMEDS_Study::NewChildIterator(const _PTR(SObject)& theSO)
 {
-  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
-  SALOMEDS_ChildIterator* aCI = NULL; 
+  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
+  SALOMEDSClient_ChildIterator* aCI = NULL; 
   if(_isLocal) {
     Handle(SALOMEDSImpl_ChildIterator) aCIimpl = _local_impl->NewChildIterator(aSO->GetLocalImpl());
     aCI = new SALOMEDS_ChildIterator(aCIimpl);
@@ -331,12 +334,12 @@ SALOMEDSClient_ChildIterator* SALOMEDS_Study::NewChildIterator(SALOMEDSClient_SO
     aCI = new SALOMEDS_ChildIterator(aCIimpl);
   }
 
-  return aCI;
+  return _PTR(ChildIterator)(aCI);
 }
- 
-SALOMEDSClient_SComponentIterator* SALOMEDS_Study::NewComponentIterator()
+
+_PTR(SComponentIterator) SALOMEDS_Study::NewComponentIterator()
 {
-  SALOMEDS_SComponentIterator* aCI = NULL; 
+  SALOMEDSClient_SComponentIterator* aCI = NULL; 
   if(_isLocal) {
     SALOMEDSImpl_SComponentIterator aCIimpl = _local_impl->NewComponentIterator();
     aCI = new SALOMEDS_SComponentIterator(aCIimpl);
@@ -346,12 +349,12 @@ SALOMEDSClient_SComponentIterator* SALOMEDS_Study::NewComponentIterator()
     aCI = new SALOMEDS_SComponentIterator(aCIimpl);
   }
 
-  return aCI;
+  return _PTR(SComponentIterator)(aCI);
 }
  
-SALOMEDSClient_StudyBuilder* SALOMEDS_Study::NewBuilder()
+_PTR(StudyBuilder) SALOMEDS_Study::NewBuilder()
 {
-  SALOMEDS_StudyBuilder* aSB = NULL; 
+  SALOMEDSClient_StudyBuilder* aSB = NULL; 
   if(_isLocal) {
     Handle(SALOMEDSImpl_StudyBuilder) aSBimpl = _local_impl->NewBuilder();
     aSB = new SALOMEDS_StudyBuilder(aSBimpl);
@@ -361,7 +364,7 @@ SALOMEDSClient_StudyBuilder* SALOMEDS_Study::NewBuilder()
     aSB = new SALOMEDS_StudyBuilder(aSBimpl);
   }
 
-  return aSB;
+  return _PTR(StudyBuilder)(aSB);
 }
 
 std::string SALOMEDS_Study::Name()
@@ -428,31 +431,31 @@ void SALOMEDS_Study::StudyId(int id)
   else _corba_impl->StudyId(id);  
 }
 
-std::vector<SALOMEDSClient_SObject*> SALOMEDS_Study::FindDependances(SALOMEDSClient_SObject* theSO)
+std::vector<_PTR(SObject)> SALOMEDS_Study::FindDependances(const _PTR(SObject)& theSO)
 {
-  std::vector<SALOMEDSClient_SObject*> aVector;
-  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO);
+  std::vector<_PTR(SObject)> aVector;
+  SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   int aLength, i;
   if(_isLocal) {
     Handle(TColStd_HSequenceOfTransient) aSeq = _local_impl->FindDependances(aSO->GetLocalImpl());
     aLength = aSeq->Length();
     for(i=1; i<=aLength; i++) 
-      aVector.push_back(new SALOMEDS_SObject(Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i))));
+      aVector.push_back(_PTR(SObject)(new SALOMEDS_SObject(Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i)))));
   }
   else {
     SALOMEDS::Study::ListOfSObject_var aSeq = _corba_impl->FindDependances(aSO->GetCORBAImpl());
     aLength = aSeq->length();
-    for(i=0; i<aLength; i++) aVector.push_back(new SALOMEDS_SObject(aSeq[i]));
+    for(i=0; i<aLength; i++) aVector.push_back(_PTR(SObject)(new SALOMEDS_SObject(aSeq[i])));
   }
   return aVector;
 }
  
-SALOMEDSClient_AttributeStudyProperties* SALOMEDS_Study::GetProperties()
+_PTR(AttributeStudyProperties) SALOMEDS_Study::GetProperties()
 {
-  SALOMEDS_AttributeStudyProperties* aProp;
+  SALOMEDSClient_AttributeStudyProperties* aProp;
   if(_isLocal) aProp = new SALOMEDS_AttributeStudyProperties(_local_impl->GetProperties());
   else aProp = new SALOMEDS_AttributeStudyProperties(_corba_impl->GetProperties());
-  return aProp;
+  return _PTR(AttributeStudyProperties)(aProp);
 }
  
 std::string SALOMEDS_Study::GetLastModificationDate() 
@@ -480,9 +483,9 @@ std::vector<std::string> SALOMEDS_Study::GetModificationsDate()
   return aVector;
 }
 
-SALOMEDSClient_UseCaseBuilder* SALOMEDS_Study::GetUseCaseBuilder()
+_PTR(UseCaseBuilder) SALOMEDS_Study::GetUseCaseBuilder()
 {
-  SALOMEDS_UseCaseBuilder* aUB = NULL;
+  SALOMEDSClient_UseCaseBuilder* aUB = NULL;
   if(_isLocal) {
     Handle(SALOMEDSImpl_UseCaseBuilder) aUBimpl = _local_impl->GetUseCaseBuilder();
     aUB = new SALOMEDS_UseCaseBuilder(aUBimpl);
@@ -492,7 +495,7 @@ SALOMEDSClient_UseCaseBuilder* SALOMEDS_Study::GetUseCaseBuilder()
     aUB = new SALOMEDS_UseCaseBuilder(aUBimpl);
   }
 
-  return aUB;
+  return _PTR(UseCaseBuilder)(aUB);
 }
 
 void SALOMEDS_Study::Close()

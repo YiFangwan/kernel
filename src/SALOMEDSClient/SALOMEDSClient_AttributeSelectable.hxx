@@ -5,6 +5,7 @@
 #ifndef SALOMEDSClient_AttributeSelectable_HeaderFile
 #define SALOMEDSClient_AttributeSelectable_HeaderFile
 
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 
 class SALOMEDSClient_AttributeSelectable: public virtual SALOMEDSClient_GenericAttribute

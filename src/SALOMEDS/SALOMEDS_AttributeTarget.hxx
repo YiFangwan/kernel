@@ -7,9 +7,7 @@
 
 #include <vector>
 
-#include "SALOMEDSClient_SObject.hxx"
-
-#include "SALOMEDSClient_AttributeTarget.hxx"
+#include "SALOMEDSClient.hxx"
 #include "SALOMEDS_GenericAttribute.hxx"
 #include "SALOMEDSImpl_AttributeTarget.hxx"
 
@@ -25,9 +23,9 @@ public:
   SALOMEDS_AttributeTarget(SALOMEDS::AttributeTarget_ptr theAttr);
   ~SALOMEDS_AttributeTarget();
 
-  virtual void Add(SALOMEDSClient_SObject* theObject);
-  virtual std::vector<SALOMEDSClient_SObject*> Get();
-  virtual void Remove(SALOMEDSClient_SObject* theObject); 
+  virtual void Add(const _PTR(SObject)& theObject);
+  virtual std::vector<_PTR(SObject)> Get();
+  virtual void Remove(const _PTR(SObject)& theObject); 
 };
 
 #endif

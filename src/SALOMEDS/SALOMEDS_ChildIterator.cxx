@@ -52,10 +52,10 @@ void SALOMEDS_ChildIterator::Next()
   else _corba_impl->Next();
 }
 
-SALOMEDSClient_SObject* SALOMEDS_ChildIterator::Value()
+_PTR(SObject) SALOMEDS_ChildIterator::Value()
 {
-  SALOMEDS_SObject* aSO;
+  SALOMEDSClient_SObject* aSO;
   if(_isLocal) aSO = new SALOMEDS_SObject(_local_impl->Value());
   else aSO = new SALOMEDS_SObject(_corba_impl->Value());
-  return aSO;
+  return _PTR(SObject)(aSO);
 }

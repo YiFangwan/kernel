@@ -44,10 +44,10 @@ void SALOMEDS_SComponentIterator::Next()
   else _corba_impl->Next();
 }
  
-SALOMEDSClient_SComponent* SALOMEDS_SComponentIterator::Value()  
+_PTR(SComponent) SALOMEDS_SComponentIterator::Value()  
 {
-  SALOMEDS_SComponent* aSCO = NULL;
+  SALOMEDSClient_SComponent* aSCO = NULL;
   if(_isLocal) aSCO = new SALOMEDS_SComponent(_local_impl.Value());
   else aSCO = new SALOMEDS_SComponent(_corba_impl->Value());
-  return aSCO;
+  return _PTR(SComponent)(aSCO);
 }

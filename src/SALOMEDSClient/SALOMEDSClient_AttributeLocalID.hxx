@@ -6,6 +6,7 @@
 #ifndef SALOMEDSClient_AttributeLocalID_HeaderFile
 #define SALOMEDSClient_AttributeLocalID_HeaderFile
 
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 
 class SALOMEDSClient_AttributeLocalID: public virtual SALOMEDSClient_GenericAttribute

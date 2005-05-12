@@ -8,8 +8,7 @@
 #include <vector>
 #include <string>
 
-#include "SALOMEDSClient_StudyManager.hxx" 
-#include "SALOMEDSClient_Study.hxx"
+#include "SALOMEDSClient.hxx"
 #include "SALOMEDSImpl_StudyManager.hxx"
 
 // IDL headers
@@ -30,20 +29,20 @@ public:
   SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManager);
   ~SALOMEDS_StudyManager();
 
-  virtual SALOMEDSClient_Study* NewStudy(const std::string& study_name);
-  virtual SALOMEDSClient_Study* Open(const std::string& theStudyUrl);
-  virtual void Close( SALOMEDSClient_Study* theStudy);
-  virtual void Save( SALOMEDSClient_Study* theStudy, bool theMultiFile);
-  virtual void SaveASCII( SALOMEDSClient_Study* theStudy, bool theMultiFile);
-  virtual void SaveAs(const std::string& theUrl,  SALOMEDSClient_Study* theStudy, bool theMultiFile);
-  virtual void SaveAsASCII(const std::string& theUrl,  SALOMEDSClient_Study* theStudy, bool theMultiFile);
+  virtual _PTR(Study) NewStudy(const std::string& study_name);
+  virtual _PTR(Study) Open(const std::string& theStudyUrl);
+  virtual void Close(const _PTR(Study)& theStudy);
+  virtual void Save(const _PTR(Study)& theStudy, bool theMultiFile);
+  virtual void SaveASCII(const _PTR(Study)& theStudy, bool theMultiFile);
+  virtual void SaveAs(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile);
+  virtual void SaveAsASCII(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile);
   virtual std::vector<std::string> GetOpenStudies();
-  virtual SALOMEDSClient_Study* GetStudyByName(const std::string& theStudyName) ;
-  virtual SALOMEDSClient_Study* GetStudyByID(int theStudyID) ;
-  virtual bool CanCopy(SALOMEDSClient_SObject* theSO);
-  virtual bool Copy(SALOMEDSClient_SObject* theSO);
-  virtual bool CanPaste(SALOMEDSClient_SObject* theSO);
-  virtual SALOMEDSClient_SObject* Paste(SALOMEDSClient_SObject* theSO); 
+  virtual _PTR(Study) GetStudyByName(const std::string& theStudyName) ;
+  virtual _PTR(Study) GetStudyByID(int theStudyID) ;
+  virtual bool CanCopy(const _PTR(SObject)& theSO);
+  virtual bool Copy(const _PTR(SObject)& theSO);
+  virtual bool CanPaste(const _PTR(SObject)& theSO);
+  virtual _PTR(SObject) Paste(const _PTR(SObject)& theSO); 
 
 private:
   void init_orb();

@@ -1,5 +1,5 @@
 #ifndef  SALOMEDSCLIENT_HXX
-#define SALOMEDSCLIENT_HXX
+#define  SALOMEDSCLIENT_HXX
 
 #include "SALOMEDSClient_definitions.hxx"
 #include "SALOMEDSClient_AttributeComment.hxx"

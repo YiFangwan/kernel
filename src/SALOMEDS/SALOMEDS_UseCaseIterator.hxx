@@ -29,7 +29,7 @@ public:
   virtual void Init(bool theAllLevels);
   virtual bool More();
   virtual void Next();
-  virtual SALOMEDSClient_SObject* Value();
+  virtual _PTR(SObject) Value();
 };
 
 #endif

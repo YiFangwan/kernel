@@ -5,28 +5,31 @@
 #ifndef __SALOMEDSClient_USECaseBuilder_H__
 #define __SALOMEDSClient_USECaseBuilder_H__
 
+#include <string>
+#include "SALOMEDSClient_definitions.hxx"
 #include "SALOMEDSClient_UseCaseIterator.hxx"
 #include "SALOMEDSClient_SObject.hxx"
-#include <string> 
 
 class SALOMEDSClient_UseCaseBuilder
 {
 public:
   virtual ~SALOMEDSClient_UseCaseBuilder() {}
   
-  virtual bool Append(SALOMEDSClient_SObject* theObject) = 0;
-  virtual bool Remove(SALOMEDSClient_SObject* theObject) = 0;
-  virtual bool AppendTo(SALOMEDSClient_SObject* theFather, SALOMEDSClient_SObject* theObject) = 0;
-  virtual bool InsertBefore(SALOMEDSClient_SObject* theFirst, SALOMEDSClient_SObject* theNext) = 0;
-  virtual bool  SetCurrentObject(SALOMEDSClient_SObject* theObject) = 0;
+  virtual bool Append(const _PTR(SObject)& theObject) = 0;
+  virtual bool Remove(const _PTR(SObject)& theObject) = 0;
+  virtual bool AppendTo(const _PTR(SObject)& theFather, _PTR(SObject) theObject) = 0;
+  virtual bool InsertBefore(const _PTR(SObject)& theFirst, _PTR(SObject) theNext) = 0;
+  virtual bool SetCurrentObject(const _PTR(SObject)& theObject) = 0;
   virtual bool SetRootCurrent() = 0;
-  virtual bool  HasChildren(SALOMEDSClient_SObject* theObject) = 0;
-  virtual bool  IsUseCase(SALOMEDSClient_SObject* theObject) = 0;
+  virtual bool HasChildren(const _PTR(SObject)& theObject) = 0;
+  virtual bool IsUseCase(const _PTR(SObject)& theObject) = 0;
   virtual bool SetName(const std::string& theName) = 0;
-  virtual SALOMEDSClient_SObject* GetCurrentObject() = 0;
+  virtual _PTR(SObject) GetCurrentObject() = 0;
   virtual std::string GetName() = 0;
-  virtual SALOMEDSClient_SObject* AddUseCase(const std::string& theName) = 0;
-  virtual SALOMEDSClient_UseCaseIterator* GetUseCaseIterator(SALOMEDSClient_SObject* anObject) = 0;
+  virtual _PTR(SObject) AddUseCase(const std::string& theName) = 0;
+  virtual _PTR(UseCaseIterator) GetUseCaseIterator(const _PTR(SObject)& anObject) = 0;
 
 };
+
+
 #endif

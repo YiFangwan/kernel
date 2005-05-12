@@ -6,6 +6,7 @@
 #ifndef SALOMEDSClient_AttributeGraphic_HeaderFile
 #define SALOMEDSClient_AttributeGraphic_HeaderFile
 
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 
 class SALOMEDSClient_AttributeGraphic: public virtual SALOMEDSClient_GenericAttribute

@@ -6,6 +6,7 @@
 #ifndef SALOMEDSClient_AttributeOpened_HeaderFile
 #define SALOMEDSClient_AttributeOpened_HeaderFile
 
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 
 class SALOMEDSClient_AttributeOpened: public virtual SALOMEDSClient_GenericAttribute

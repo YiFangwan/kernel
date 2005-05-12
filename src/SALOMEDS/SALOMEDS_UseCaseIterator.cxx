@@ -46,10 +46,10 @@ void SALOMEDS_UseCaseIterator::Next()
   else _corba_impl->Next();
 }
 
-SALOMEDSClient_SObject* SALOMEDS_UseCaseIterator::Value()
+_PTR(SObject) SALOMEDS_UseCaseIterator::Value()
 {
   SALOMEDS_SObject* aSO;
   if(_isLocal) aSO = new SALOMEDS_SObject(_local_impl->Value());
   else aSO = new SALOMEDS_SObject(_corba_impl->Value());
-  return aSO;
+  return _PTR(SObject)(aSO);
 }

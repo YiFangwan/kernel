@@ -5,6 +5,7 @@
 #ifndef SALOMEDSClient_AttributeDrawable_HeaderFile
 #define SALOMEDSClient_AttributeDrawable_HeaderFile
 
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 
 class SALOMEDSClient_AttributeDrawable: public virtual SALOMEDSClient_GenericAttribute

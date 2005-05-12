@@ -5,10 +5,7 @@
 #ifndef __SALOMEDS_STUDYBUILDER_H__
 #define __SALOMEDS_STUDYBUILDER_H__
 
-#include "SALOMEDSClient_StudyBuilder.hxx"
-#include "SALOMEDSClient_SObject.hxx"
-#include "SALOMEDSClient_SComponent.hxx"
-#include "SALOMEDSClient_GenericAttribute.hxx"
+#include "SALOMEDSClient.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"
 
 // IDL headers
@@ -30,26 +27,26 @@ public:
   SALOMEDS_StudyBuilder(SALOMEDS::StudyBuilder_ptr theBuilder);
   ~SALOMEDS_StudyBuilder();
 
-  virtual SALOMEDSClient_SComponent* NewComponent(const std::string& ComponentDataType);
-  virtual void DefineComponentInstance (SALOMEDSClient_SComponent*, const std::string& ComponentIOR);
-  virtual void RemoveComponent(SALOMEDSClient_SComponent* theSCO);
-  virtual SALOMEDSClient_SObject* NewObject(SALOMEDSClient_SObject* theFatherObject);
-  virtual SALOMEDSClient_SObject* NewObjectToTag(SALOMEDSClient_SObject* theFatherObject, int theTag);
+  virtual _PTR(SComponent) NewComponent(const std::string& ComponentDataType);
+  virtual void DefineComponentInstance (const _PTR(SComponent)&, const std::string& ComponentIOR);
+  virtual void RemoveComponent(const _PTR(SComponent)& theSCO);
+  virtual _PTR(SObject) NewObject(const _PTR(SObject)& theFatherObject);
+  virtual _PTR(SObject) NewObjectToTag(const _PTR(SObject)& theFatherObject, int theTag);
   virtual void AddDirectory(const std::string& thePath);
-  virtual void LoadWith(SALOMEDSClient_SComponent* theSCO, const std::string& theIOR);
-  virtual void Load(SALOMEDSClient_SObject* theSCO);
-  virtual void RemoveObject(SALOMEDSClient_SObject* theSO);
-  virtual void RemoveObjectWithChildren(SALOMEDSClient_SObject* theSO);
-  virtual SALOMEDSClient_GenericAttribute* FindOrCreateAttribute(SALOMEDSClient_SObject* theSO, 
-								 const std::string& aTypeOfAttribute);
-  virtual bool FindAttribute(SALOMEDSClient_SObject* theSO, 
-                             SALOMEDSClient_GenericAttribute* theAttribute, 
+  virtual void LoadWith(const _PTR(SComponent)& theSCO, const std::string& theIOR);
+  virtual void Load(const _PTR(SObject)& theSCO);
+  virtual void RemoveObject(const _PTR(SObject)& theSO);
+  virtual void RemoveObjectWithChildren(const _PTR(SObject)& theSO);
+  virtual _PTR(GenericAttribute) FindOrCreateAttribute(const _PTR(SObject)& theSO, 
+						       const std::string& aTypeOfAttribute);
+  virtual bool FindAttribute(const _PTR(SObject)& theSO, 
+                             _PTR(GenericAttribute)& theAttribute, 
 			     const std::string& aTypeOfAttribute);
-  virtual void RemoveAttribute(SALOMEDSClient_SObject* theSO, const std::string& aTypeOfAttribute);
-  virtual void Addreference(SALOMEDSClient_SObject* me, SALOMEDSClient_SObject* thereferencedObject);
-  virtual void RemoveReference(SALOMEDSClient_SObject* me);
-  virtual void SetGUID(SALOMEDSClient_SObject* theSO, const std::string& theGUID);
-  virtual bool IsGUID(SALOMEDSClient_SObject* theSO, const std::string& theGUID);
+  virtual void RemoveAttribute(const _PTR(SObject)& theSO, const std::string& aTypeOfAttribute);
+  virtual void Addreference(const _PTR(SObject)& me, const _PTR(SObject)& thereferencedObject);
+  virtual void RemoveReference(const _PTR(SObject)& me);
+  virtual void SetGUID(const _PTR(SObject)& theSO, const std::string& theGUID);
+  virtual bool IsGUID(const _PTR(SObject)& theSO, const std::string& theGUID);
   virtual void NewCommand();
   virtual void CommitCommand();
   virtual bool HasOpenCommand();
@@ -60,9 +57,9 @@ public:
   virtual bool GetAvailableRedos();
   virtual int UndoLimit();
   virtual void UndoLimit(int theLimit);
-  virtual void SetName(SALOMEDSClient_SObject* theSO, const std::string& theValue);
-  virtual void SetComment(SALOMEDSClient_SObject* theSO, const std::string& theValue);
-  virtual void SetIOR(SALOMEDSClient_SObject* theSO, const std::string& theValue);
+  virtual void SetName(const _PTR(SObject)& theSO, const std::string& theValue);
+  virtual void SetComment(const _PTR(SObject)& theSO, const std::string& theValue);
+  virtual void SetIOR(const _PTR(SObject)& theSO, const std::string& theValue);
 
 private:
   void CheckLocked();

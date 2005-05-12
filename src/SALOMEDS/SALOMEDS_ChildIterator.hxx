@@ -5,8 +5,7 @@
 #ifndef __SALOMEDS_CHILDITERATOR_H__
 #define __SALOMEDS_CHILDITERATOR_H__
 
-#include "SALOMEDSClient_ChildIterator.hxx"
-#include "SALOMEDSClient_SObject.hxx"
+#include "SALOMEDSClient.hxx"
 #include "SALOMEDSImpl_ChildIterator.hxx"
 
 // IDL headers
@@ -30,6 +29,6 @@ public:
   virtual void InitEx(bool theAllLevels);
   virtual bool More();
   virtual void Next();
-  virtual SALOMEDSClient_SObject* Value();
+  virtual _PTR(SObject) Value();
 };
 #endif

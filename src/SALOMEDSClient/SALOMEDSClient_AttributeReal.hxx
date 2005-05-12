@@ -5,6 +5,7 @@
 #ifndef SALOMEDSClient_AttributeReal_HeaderFile
 #define SALOMEDSClient_AttributeReal_HeaderFile
 
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 
 class SALOMEDSClient_AttributeReal: public virtual SALOMEDSClient_GenericAttribute

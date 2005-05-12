@@ -5,6 +5,7 @@
 #ifndef SALOMEDSClient_AttributePixMap_HeaderFile
 #define SALOMEDSClient_AttributePixMap_HeaderFile
 
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 #include <string> 
 

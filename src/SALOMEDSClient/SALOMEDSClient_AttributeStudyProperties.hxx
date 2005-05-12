@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <string>
-
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx"
 
 class SALOMEDSClient_AttributeStudyProperties: public virtual SALOMEDSClient_GenericAttribute

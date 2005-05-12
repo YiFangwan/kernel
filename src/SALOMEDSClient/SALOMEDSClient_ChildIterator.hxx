@@ -5,6 +5,7 @@
 #ifndef __SALOMEDSClient_CHILDITERATOR_H__
 #define __SALOMEDSClient_CHILDITERATOR_H__
 
+#include "SALOMEDSClient_definitions.hxx"
 #include "SALOMEDSClient_SObject.hxx"
 
 class SALOMEDSClient_ChildIterator
@@ -16,6 +17,6 @@ public:
   virtual void InitEx(bool) = 0;
   virtual bool More() = 0;
   virtual void Next() = 0;
-  virtual SALOMEDSClient_SObject* Value() = 0;
+  virtual _PTR(SObject) Value() = 0;
 };
 #endif

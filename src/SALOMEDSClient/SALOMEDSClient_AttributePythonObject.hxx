@@ -5,6 +5,7 @@
 #ifndef SALOMEDSClient_AttributePythonObject_HeaderFile
 #define SALOMEDSClient_AttributePythonObject_HeaderFile
 
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 #include <string> 
 

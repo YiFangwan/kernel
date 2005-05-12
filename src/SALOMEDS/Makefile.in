@@ -115,8 +115,8 @@ LIB_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl SALOME_Exception.idl SALOM
 BIN_SERVER_IDL = SALOMEDS.idl SALOMEDS_Attributes.idl
 BIN_CLIENT_IDL = 
 
-CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES)
-CXXFLAGS+=$(OCC_CXXFLAGS)
+CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES) $(BOOST_CPPFLAGS)
+CXXFLAGS+=$(OCC_CXXFLAGS) $(BOOST_CPPFLAGS)
 LDFLAGS+= $(HDF5_LIBS) -lTOOLSDS -lSalomeNS -lSalomeHDFPersist -lOpUtil -lSALOMELocalTrace -lSalomeDSImpl -lSalomeGenericObj $(CAS_LDPATH) -lTKCAF -lTKBO -lTKStdSchema -lSalomeGenericObj -lSalomeLifeCycleCORBA
 
 # _CS_gbo_090604 Ajout Spécifique Calibre 3, pour l'utilisation de la version 5.12 de la bibliothèque OCC.

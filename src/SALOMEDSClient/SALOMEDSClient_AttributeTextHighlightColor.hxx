@@ -6,6 +6,7 @@
 #define SALOMEDSClient_AttributeTextHighlightColor_HeaderFile
 
 #include <vector>
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 #include "SALOMEDSClient_definitions.hxx"
 

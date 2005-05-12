@@ -6,6 +6,7 @@
 #define SALOMEDSClient_AttributeSequenceOfInteger_HeaderFile
 
 #include <vector>
+#include "SALOMEDSClient_definitions.hxx" 
 #include "SALOMEDSClient_GenericAttribute.hxx" 
 
 class SALOMEDSClient_AttributeSequenceOfInteger: public virtual SALOMEDSClient_GenericAttribute

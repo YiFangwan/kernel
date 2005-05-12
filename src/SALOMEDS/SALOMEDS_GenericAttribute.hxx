@@ -6,8 +6,7 @@
 #define _GENERIC_ATTRIBUTE_HXX_
 
 #include <exception>
-#include "SALOMEDSClient_GenericAttribute.hxx"
-#include "SALOMEDSClient_SObject.hxx"
+#include "SALOMEDSClient.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
 // IDL headers
@@ -30,7 +29,7 @@ public:
   void CheckLocked();
   std::string Type();
   std::string GetClassType();
-  SALOMEDSClient_SObject* GetSObject();
+  _PTR(SObject) GetSObject();
   
   static SALOMEDS_GenericAttribute* CreateAttribute(const Handle(SALOMEDSImpl_GenericAttribute)& theGA);
   static SALOMEDS_GenericAttribute* CreateAttribute(SALOMEDS::GenericAttribute_ptr theGA);

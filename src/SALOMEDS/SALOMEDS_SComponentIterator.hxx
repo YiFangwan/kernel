@@ -5,8 +5,7 @@
 #ifndef __SALOMEDS_SCOMPONENTITERATOR_H__
 #define __SALOMEDS_SCOMPONENTITERATOR_H__
 
-#include "SALOMEDSClient_SComponentIterator.hxx"
-#include "SALOMEDSClient_SComponent.hxx"
+#include "SALOMEDSClient.hxx"
 #include "SALOMEDSImpl_SComponentIterator.hxx"
 
 // IDL headers
@@ -29,6 +28,6 @@ public:
   virtual void Init();
   virtual bool More();
   virtual void Next();
-  virtual SALOMEDSClient_SComponent* Value();  
+  virtual _PTR(SComponent) Value();  
 };
 #endif
