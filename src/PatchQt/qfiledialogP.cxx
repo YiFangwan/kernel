@@ -2507,8 +2507,12 @@ void QFileDialogP::fileNameEditReturnPressed()
 	    }
 	}
 	nameEdit->setText( QString::null );
-	d->ignoreReturn = TRUE;
+        // Fix for the pb that okClicked() is called twice if you validate 
+        // the selected file name by pressing 'Return' key in file name editor:
+        // ignoreReturn = TRUE for all modes
+        //d->ignoreReturn = TRUE;
     }
+    d->ignoreReturn = TRUE;
 }
 
 /*!
@@ -3283,11 +3287,18 @@ void QFileDialogP::okClicked()
     detailViewMode = files->isVisible();
     *lastSize = size();
 
+    // Fix for the pb that okClicked() is called twice if you validate 
+    // the selected file name by pressing 'Return' key in file name editor:
+    // check ignoreReturn for all modes, not only if ( isDirectoryMode( d->mode ) )
+     if ( d->ignoreReturn ) {
+      d->ignoreReturn = FALSE;
+      return;
+    }
     if ( isDirectoryMode( d->mode ) ) {
-	if ( d->ignoreReturn ) {
-	    d->ignoreReturn = FALSE;
-	    return;
-	}
+// 	if ( d->ignoreReturn ) {
+// 	    d->ignoreReturn = FALSE;
+// 	    return;
+// 	}
 	QUrlInfo f( d->url, nameEdit->text() );
 	if ( f.isDir() ) {
 	    d->currentFileName = d->url;
