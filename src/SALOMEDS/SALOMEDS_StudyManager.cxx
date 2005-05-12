@@ -50,6 +50,32 @@ SALOMEDS_StudyManager::SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManag
   init_orb();
 }
 
+SALOMEDS_StudyManager::SALOMEDS_StudyManager()
+{
+  init_orb();
+
+  SALOME_NamingService namingService(_orb);
+  CORBA::Object_var obj = namingService.Resolve( "/myStudyManager" );
+  SALOMEDS::StudyManager_var theManager = SALOMEDS::StudyManager::_narrow( obj );
+  ASSERT( !CORBA::is_nil(theManager) );
+
+#ifdef WIN32
+  long pid =  (long)_getpid();
+#else
+  long pid =  (long)getpid();
+#endif  
+
+  long addr = theManager->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+  if(_isLocal) {
+    _local_impl = ((SALOMEDSImpl_StudyManager*)(addr));
+    _corba_impl = SALOMEDS::StudyManager::_duplicate(theManager);
+  }
+  else {
+    _local_impl = NULL;
+    _corba_impl = SALOMEDS::StudyManager::_duplicate(theManager);
+  }
+}
+
 SALOMEDS_StudyManager::~SALOMEDS_StudyManager()
 {
 }

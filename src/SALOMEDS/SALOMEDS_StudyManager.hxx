@@ -27,6 +27,7 @@ private:
 public:
 
   SALOMEDS_StudyManager(SALOMEDS::StudyManager_ptr theManager);
+  SALOMEDS_StudyManager();
   ~SALOMEDS_StudyManager();
 
   virtual _PTR(Study) NewStudy(const std::string& study_name);
