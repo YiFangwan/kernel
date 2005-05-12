@@ -82,6 +82,10 @@ static int MYDEBUG = 0;
 static int MYDEBUG = 0;
 #endif
 
+#include "SALOMEDSClient.hxx"
+#include "SALOMEDS_Study.hxx"
+#include "SALOMEDS_SObject.hxx"
+#include "SALOMEDS_SComponent.hxx"
 
 /*!
   Small button which updates Object Browser's contents
@@ -677,45 +681,46 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
   if ( myStudy->_is_nil() || SO->_is_nil() || !theParentItem ) {
     return;
   }
-  SALOMEDS::ChildIterator_var it = myStudy->NewChildIterator(SO);
+  SALOMEDSClient_Study* aStudy = new SALOMEDS_Study(myStudy);
+
+  _PTR(SObject) aSO ( aStudy->FindObjectID(SO->GetID()) );  //This is not good way, just temporary solution 
+  _PTR(ChildIterator) it (aStudy->NewChildIterator(aSO));
 
   for (; it->More();it->Next()) {
-    SALOMEDS::SObject_var             CSO = it->Value();
-    SALOMEDS::SObject_var             RefSO;
-    QString                           ior = "";
-    CORBA::String_var                 aString(CSO->GetID());
-    QString                           CSOEntry(aString.in());
-    SALOMEDS::GenericAttribute_var    anAttr;
-    SALOMEDS::AttributeName_var       aName;
-    SALOMEDS::AttributeComment_var    aCmnt;
-    SALOMEDS::AttributeIOR_var        anIOR;
-    SALOMEDS::AttributeReal_var       aReal;
-    SALOMEDS::AttributeInteger_var    anInt;
-    SALOMEDS::AttributeSelectable_var aSelectable;
-    SALOMEDS::AttributeExpandable_var anExpandable;
-    SALOMEDS::AttributeOpened_var     anOpened;
-    SALOMEDS::AttributePixMap_var     aPixmap;
-    SALOMEDS::AttributeTextColor_var  aTextColor;
-    SALOMEDS::AttributeTextHighlightColor_var  aTextHighlightColor;
+    _PTR(SObject)             CSO (it->Value());
+    _PTR(SObject)             RefSO;
+    QString                   ior = "";
+    string                    aString(CSO->GetID());
+    QString                   CSOEntry(aString.c_str());
+    _PTR(GenericAttribute)    anAttr;
+    _PTR(AttributeName)       aName;
+    _PTR(AttributeIOR)        anIOR;
+    _PTR(AttributeSelectable) aSelectable;
+    _PTR(AttributeExpandable) anExpandable;
+    _PTR(AttributeOpened)     anOpened;
+    _PTR(AttributePixMap)     aPixmap;
+    _PTR(AttributeTextColor)  aTextColor;
+    _PTR(AttributeTextHighlightColor)  aTextHighlightColor;
 
     QAD_ObjectBrowserItem*            Item = 0;
     QString                           valueString;
    
-    if ( CSO->ReferencedObject(RefSO) && !RefSO->_is_nil() ) {
+    if ( CSO->ReferencedObject(RefSO) && RefSO ) {
       
       aString = RefSO->GetID();
-      QString RefSOEntry(aString.in());
-      if (CSO->FindAttribute(anAttr, "AttributeName") || RefSO->FindAttribute(anAttr, "AttributeName")) {
-        aName = SALOMEDS::AttributeName::_narrow(anAttr);
+      QString RefSOEntry(aString.c_str());
+      if (CSO->FindAttribute(anAttr, "AttributeName") || RefSO->FindAttribute(anAttr, "AttributeName")) {  
+	aName = anAttr;
         if (RefSO->FindAttribute(anAttr, "AttributeIOR")) {
-          anIOR = SALOMEDS::AttributeIOR::_narrow(anAttr);
+	  anIOR = anAttr;
 	  aString = anIOR->Value();
-          ior = aString.in();
+          ior = aString.c_str();
         }
- 	valueString = getValueFromObject( RefSO );
+   
+ 	valueString = getValueFromObject( _CAST(SObject, RefSO)->GetSObject() );
 	aString = aName->Value();
 	Item = AddItem(theParentItem, 
-		       QString(" * ") + aString.in(), 
+		       QString(" * ") + aString.c_str(), 
 		       RefSOEntry, 
 		       ior, 
 		       2, 
@@ -728,49 +733,51 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
       }
     } else {
       // getting Value
-      valueString = getValueFromObject( CSO );
+      valueString = getValueFromObject( _CAST(SObject, CSO)->GetSObject() );
       // getting IOR
       if (CSO->FindAttribute(anAttr, "AttributeIOR"))  {
-        anIOR = SALOMEDS::AttributeIOR::_narrow(anAttr);
+        anIOR = anAttr;
 	aString = anIOR->Value();
-	ior = aString.in();
+	ior = aString.c_str();
       }
+
       // getting Name and adding new Item
       if (CSO->FindAttribute(anAttr, "AttributeName") ) {
-        aName = SALOMEDS::AttributeName::_narrow(anAttr);
+	aName = anAttr;
 	aString = aName->Value();
-        Item = AddItem(theParentItem, aString.in(), CSOEntry, ior, 0, "", valueString);
+        Item = AddItem(theParentItem, aString.c_str(), CSOEntry, ior, 0, "", valueString);
 	myListViewMap[ CSOEntry ].append( Item );
       } 
       else {
 	if(MYDEBUG) MESSAGE("QAD_ObjectBrowser::Update : noname item: "<<CSO->GetID());
       }
+
       // adding other attributes 
       if (Item) {
         // Selectable
         if ( CSO->FindAttribute(anAttr, "AttributeSelectable") ) {
-          aSelectable = SALOMEDS::AttributeSelectable::_narrow(anAttr);
+          aSelectable = anAttr;
           Item->setSelectable(aSelectable->IsSelectable());
         }
         // Expandable
         if ( CSO->FindAttribute(anAttr, "AttributeExpandable") ) {
-          anExpandable = SALOMEDS::AttributeExpandable::_narrow(anAttr);
+          anExpandable = anAttr;
           Item->setExpandable(anExpandable->IsExpandable());
         }
         // Opened
         if ( CSO->FindAttribute(anAttr, "AttributeOpened") ) {
-          anOpened = SALOMEDS::AttributeOpened::_narrow(anAttr);
+          anOpened = anAttr;
           Item->setOpen(anOpened->IsOpened());
         }
 	// TextColor
         if ( CSO->FindAttribute(anAttr, "AttributeTextColor") ) {
-          aTextColor = SALOMEDS::AttributeTextColor::_narrow(anAttr);
+          aTextColor = anAttr;
 	  QColor aColor((int)(aTextColor->TextColor().R), (int)(aTextColor->TextColor().G), (int)(aTextColor->TextColor().B)) ;
           Item->setTextColor(aColor);
         }
 	// TextHighlightColor
         if ( CSO->FindAttribute(anAttr, "AttributeTextHighlightColor") ) {
-          aTextHighlightColor = SALOMEDS::AttributeTextHighlightColor::_narrow(anAttr);
+          aTextHighlightColor = anAttr;
 	  QColor aColor((int)(aTextHighlightColor->TextHighlightColor().R), 
 			(int)(aTextHighlightColor->TextHighlightColor().G), 
 			(int)(aTextHighlightColor->TextHighlightColor().B)) ;
@@ -778,22 +785,18 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
         }
 	// Pixmap
 	if ( CSO->FindAttribute(anAttr, "AttributePixMap") ) {
-	  aPixmap = SALOMEDS::AttributePixMap::_narrow(anAttr);
+	  aPixmap = anAttr;
 	  if ( aPixmap->HasPixMap() ) {
-	    SALOMEDS::SComponent_var father = CSO->GetFatherComponent();
+	    string aMap = aPixmap->GetPixMap();
+	    _PTR(SComponent) father( CSO->GetFatherComponent() );
 	    if (father->FindAttribute(anAttr, "AttributeName") ) {
-	      SALOMEDS::AttributeName_var aFatherName;
-	      aFatherName = SALOMEDS::AttributeName::_narrow(anAttr);
-
+	      _PTR(AttributeName) aFatherName(anAttr);
 	      QString msg;
 	      QAD_ResourceMgr* resMgr = QAD_Desktop::createResourceManager();
 	      if ( resMgr ) {
-		//if(resMgr->loadResources( QString(aFatherName->Value()) + "GUI", msg )) {
-		if( resMgr->loadResources( QAD_Application::getDesktop()->getComponentName( QString( aFatherName->Value() ) ), msg ) ) {
-		  QPixmap icon ( resMgr->loadPixmap( QAD_Application::getDesktop()->getComponentName( QString( aFatherName->Value() ) ),
-						    tr( aPixmap->GetPixMap() )  /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ) );
-		  //QPixmap icon ( resMgr->loadPixmap( QString(aFatherName->Value()) + "GUI",
-		  //tr(aPixmap->GetPixMap()) /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ));
+	if( resMgr->loadResources( QAD_Application::getDesktop()->getComponentName( QString( aFatherName->Value().c_str() ) ), msg ) ) {
+		  QPixmap icon ( resMgr->loadPixmap( QAD_Application::getDesktop()->getComponentName( QString( aFatherName->Value().c_str() ) ),
+						    tr( aMap.c_str() )  /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ) );
 		  Item->setPixmap( 0, icon );
 		}
 	      }
@@ -805,8 +808,9 @@ void QAD_ObjectBrowser::Update( SALOMEDS::SObject_ptr SO,
 //  if ( theParentItem->isOpen() )
 //    Item->setOpen(TRUE);
 
-    if ( Item )
-      Update(CSO, Item);
+    if ( Item ) {
+      Update(_CAST(SObject, CSO)->GetSObject(), Item);
+    }
   }
 }
 
@@ -827,35 +831,34 @@ void QAD_ObjectBrowser::Update()
   }
 
   QString ShowIAPP = QAD_CONFIG->getSetting("ObjectBrowser:IAPP");
+  
+  SALOMEDSClient_Study* aStudy = new SALOMEDS_Study(myStudy);
 
   /* Updating Object Browser ============================================== */
-  SALOMEDS::SComponentIterator_var itcomp = myStudy->NewComponentIterator();
+  _PTR(SComponentIterator) itcomp = aStudy->NewComponentIterator();
   for (; itcomp->More(); itcomp->Next()) {
     QAD_ObjectBrowserItem*   Item     = 0;
-    SALOMEDS::SComponent_var SC       = itcomp->Value();
-    CORBA::String_var        aString  = SC->ComponentDataType();
-    QString                  dataType = aString.in();
+    _PTR(SComponent)         SC       = itcomp->Value();
+    string                   aString  = SC->ComponentDataType();
+    QString                  dataType = aString.c_str();
     QString                  ior      = "";
     aString = SC->GetID();
-    QString                  SCEntry  = aString.in();
+    QString                  SCEntry  = aString.c_str();
 
-    SALOMEDS::GenericAttribute_var    anAttr;
-    SALOMEDS::AttributeName_var       aName;
-    SALOMEDS::AttributeComment_var    aCmnt;
-    SALOMEDS::AttributeIOR_var        anIOR;
-    SALOMEDS::AttributeReal_var       aReal;
-    SALOMEDS::AttributeInteger_var    anInt;
-    SALOMEDS::AttributeSelectable_var aSelectable;
-    SALOMEDS::AttributeExpandable_var anExpandable;
-    SALOMEDS::AttributeOpened_var     anOpened;
-    SALOMEDS::AttributePixMap_var     aPixmap;
-    SALOMEDS::AttributeTextColor_var  aTextColor;
-    SALOMEDS::AttributeTextHighlightColor_var  aTextHighlightColor;
+    _PTR(GenericAttribute)    anAttr;
+    _PTR(AttributeName)       aName;
+    _PTR(AttributeIOR)        anIOR;
+    _PTR(AttributeSelectable) aSelectable;
+    _PTR(AttributeExpandable) anExpandable;
+    _PTR(AttributeOpened)     anOpened;
+    _PTR(AttributePixMap)     aPixmap;
+    _PTR(AttributeTextColor)  aTextColor;
+    _PTR(AttributeTextHighlightColor)  aTextHighlightColor;
 
     if (SC->FindAttribute(anAttr, "AttributeIOR")) {
-      anIOR = SALOMEDS::AttributeIOR::_narrow(anAttr);
+      anIOR = anAttr;
       aString = anIOR->Value();
-      ior = aString.in();
+      ior = aString.c_str();
     }
 
     bool caseIAPP = false;
@@ -865,9 +868,9 @@ void QAD_ObjectBrowser::Update()
       caseIAPP = true;
       if ( ShowIAPP.compare("true") == 0 ) {
 	if (SC->FindAttribute(anAttr, "AttributeName")) {
-          aName = SALOMEDS::AttributeName::_narrow(anAttr);
+          aName = anAttr;
 	  aString = aName->Value();
-	  Item = AddItem (myListView, aString.in(), SCEntry.latin1(), ior, 1, "");
+	  Item = AddItem (myListView, aString.c_str(), SCEntry.latin1(), ior, 1, "");
 	  myListViewMap[ SCEntry ].append( Item );
 	} 
         else {
@@ -880,9 +883,9 @@ void QAD_ObjectBrowser::Update()
     else {
       caseIAPP = false;
       if (SC->FindAttribute(anAttr, "AttributeName")) {
-        aName = SALOMEDS::AttributeName::_narrow(anAttr);
+        aName = anAttr;
 	aString = aName->Value();
-	Item = AddItem (myListView, aString.in(), SCEntry, ior, 1, "");
+	Item = AddItem (myListView, aString.c_str(), SCEntry, ior, 1, "");
 	myListViewMap[ SCEntry ].append( Item );
       } 
       else {
@@ -897,28 +900,28 @@ void QAD_ObjectBrowser::Update()
     if (Item) {
       // Selectable
       if ( SC->FindAttribute(anAttr, "AttributeSelectable") ) {
-        aSelectable = SALOMEDS::AttributeSelectable::_narrow(anAttr);
+        aSelectable = anAttr;
         Item->setSelectable(aSelectable->IsSelectable());
       }
       // Expandable
       if ( SC->FindAttribute(anAttr, "AttributeExpandable") ) {
-        anExpandable = SALOMEDS::AttributeExpandable::_narrow(anAttr);
+        anExpandable = anAttr;
         Item->setExpandable(anExpandable->IsExpandable());
       }
       // Opened
       if ( SC->FindAttribute(anAttr, "AttributeOpened") ) {
-        anOpened = SALOMEDS::AttributeOpened::_narrow(anAttr);
+        anOpened = anAttr;
 	Item->setOpen(anOpened->IsOpened());
       }
       // TextColor
       if ( SC->FindAttribute(anAttr, "AttributeTextColor") ) {
-	aTextColor = SALOMEDS::AttributeTextColor::_narrow(anAttr);
+	aTextColor = anAttr;
 	QColor aColor((int)(aTextColor->TextColor().R), (int)(aTextColor->TextColor().G), (int)(aTextColor->TextColor().B)) ;
 	Item->setTextColor(aColor);
       }
       // TextHighlightColor
       if ( SC->FindAttribute(anAttr, "AttributeTextHighlightColor") ) {
-	aTextHighlightColor = SALOMEDS::AttributeTextHighlightColor::_narrow(anAttr);
+	aTextHighlightColor = anAttr;
 	QColor aColor((int)(aTextHighlightColor->TextHighlightColor().R), 
 		      (int)(aTextHighlightColor->TextHighlightColor().G), 
 		      (int)(aTextHighlightColor->TextHighlightColor().B)) ;
@@ -927,16 +930,16 @@ void QAD_ObjectBrowser::Update()
       
       // Pixmap
       if ( SC->FindAttribute(anAttr, "AttributePixMap") ) {
-	aPixmap = SALOMEDS::AttributePixMap::_narrow(anAttr);
+	aPixmap = anAttr;
 	if ( aPixmap->HasPixMap() ) {
 	  QString msg;
 	  QAD_ResourceMgr* resMgr = QAD_Desktop::createResourceManager();
 	  if ( resMgr ) {
 	    if(MYDEBUG) MESSAGE ( " Component " << aName->Value() );
 	    if(MYDEBUG) MESSAGE ( " Icon " << aPixmap->GetPixMap() );
-	    if(resMgr->loadResources( QAD_Application::getDesktop()->getComponentName(QString(aName->Value())), msg )) {
-	      QPixmap icon ( resMgr->loadPixmap( QAD_Application::getDesktop()->getComponentName(QString(aName->Value())),
-						 tr(aPixmap->GetPixMap()) /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ));
+	    if(resMgr->loadResources( QAD_Application::getDesktop()->getComponentName(QString(aName->Value().c_str())), msg )) {
+	      QPixmap icon ( resMgr->loadPixmap( QAD_Application::getDesktop()->getComponentName(QString(aName->Value().c_str())),
+						 tr(aPixmap->GetPixMap().c_str()) /*tr( "ICON_OBJBROWSER_" + theComponent )*/ ));
 	      Item->setPixmap( 0, icon );
 	    }
 	  }
@@ -947,10 +950,10 @@ void QAD_ObjectBrowser::Update()
 	 Item->setOpen(TRUE);
       */
       if ( caseIAPP && ShowIAPP.compare("true") == 0 )
-	Update (SC, Item);
+	Update (_CAST(SComponent,SC)->GetSComponent(), Item);
       
       if ( !caseIAPP )
-	Update (SC, Item);
+	Update (_CAST(SComponent,SC)->GetSComponent(), Item);
     }
   }
   myListView->setContentsPos(xc,yc);
