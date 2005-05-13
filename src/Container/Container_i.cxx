@@ -272,6 +272,39 @@ Engines_Container_i::load_component_Library(const char* componentName)
 {
 
   string aCompName = componentName;
+
+  // --- try dlopen C++ component
+
+  string impl_name = string ("lib") + aCompName + string("Engine.so");
+  SCRUTE(impl_name);
+  
+  _numInstanceMutex.lock(); // lock to be alone 
+  // (see decInstanceCnt, finalize_removal))
+  if (_toRemove_map[impl_name]) _toRemove_map.erase(impl_name);
+  if (_library_map[impl_name])
+    {
+      MESSAGE("Library " << impl_name << " already loaded");
+      _numInstanceMutex.unlock();
+      return true;
+    }
+  
+  void* handle;
+  handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+  if ( handle )
+    {
+      _library_map[impl_name] = handle;
+      _numInstanceMutex.unlock();
+      return true;
+    }
+  else
+    {
+      INFOS("Can't load shared library : " << impl_name);
+      INFOS("error dlopen: " << dlerror());
+    }
+    _numInstanceMutex.unlock();
+
+  // --- try import Python component
+
   if (_library_map[aCompName])
     {
       return true; // Python Component, already imported
@@ -296,37 +329,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
 	  return true;
 	}
     }
-  // try dlopen C++ component
-  {
-    string impl_name = string ("lib") + componentName + string("Engine.so");
-    SCRUTE(impl_name);
-      
-    _numInstanceMutex.lock(); // lock to be alone 
-    // (see decInstanceCnt, finalize_removal))
-    if (_toRemove_map[impl_name]) _toRemove_map.erase(impl_name);
-    if (_library_map[impl_name])
-      {
-	MESSAGE("Library " << impl_name << " already loaded");
-	_numInstanceMutex.unlock();
-	return true;
-      }
-    void* handle;
-    handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
-    if ( !handle )
-      {
-	INFOS("Can't load shared library : " << impl_name);
-	INFOS("error dlopen: " << dlerror());
-	_numInstanceMutex.unlock();
-	return false;
-      }
-    else
-      {
-	_library_map[impl_name] = handle;
-	_numInstanceMutex.unlock();
-	return true;
-      }
-    _numInstanceMutex.unlock();
-  }
+  return false;
 }
 
 //=============================================================================
