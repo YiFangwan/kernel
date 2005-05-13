@@ -53,23 +53,6 @@ using namespace std;
 
 extern "C" void HandleServerSideSignals(CORBA::ORB_ptr theORB);
 
-static PyMethodDef MethodPyVoidMethod[] = {{ NULL, NULL }};
-PyThreadState *gtstate;
-
-void init_python(int argc, char **argv)
-{
-  if (gtstate)
-    return;
-  Py_SetProgramName(argv[0]);
-  Py_Initialize(); // Initialize the interpreter
-  PySys_SetArgv(argc, argv);
-  PyEval_InitThreads(); // Create (and acquire) the interpreter lock
-  Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
-  //PyOS_setsig(SIGSEGV,&Handler);
-  //PyOS_setsig(SIGINT,&Handler);
-  gtstate = PyEval_SaveThread(); // Release the global thread state
-}
-
 int main(int argc, char* argv[])
 {
 #ifdef HAVE_MPI2
@@ -81,8 +64,6 @@ int main(int argc, char* argv[])
   SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
-    
-  init_python(argc,argv);
   
   try{
     // Obtain a reference to the root POA.

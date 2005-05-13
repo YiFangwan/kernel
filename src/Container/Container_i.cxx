@@ -37,6 +37,7 @@
 #include <stdio.h>
 #include <dlfcn.h>
 #include <unistd.h>
+#include <Python.h>
 
 #include "utilities.h"
 using namespace std;
@@ -53,6 +54,24 @@ char ** _ArgV ;
 
 extern "C" {void ActSigIntHandler() ; }
 extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
+
+
+static PyMethodDef MethodPyVoidMethod[] = {{ NULL, NULL }};
+PyThreadState *gtstate;
+
+void init_python(int argc, char **argv)
+{
+  if (gtstate)
+    return;
+  Py_SetProgramName(argv[0]);
+  Py_Initialize(); // Initialize the interpreter
+  PySys_SetArgv(argc, argv);
+  PyEval_InitThreads(); // Create (and acquire) the interpreter lock
+  Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
+  //PyOS_setsig(SIGSEGV,&Handler);
+  //PyOS_setsig(SIGINT,&Handler);
+  gtstate = PyEval_SaveThread(); // Release the global thread state
+}
 
 const char *Engines_Container_i::_defaultContainerName="FactoryServer";
 map<std::string, int> Engines_Container_i::_cntInstances_map;
@@ -139,7 +158,24 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
       Engines::Container_var pCont 
 	= Engines::Container::_narrow(obj);
       SCRUTE(_containerName);
-      _NS->Register(pCont, _containerName.c_str()); 
+      _NS->Register(pCont, _containerName.c_str());
+
+      // Python: 
+      // import SALOME_Container
+      // pycont = SALOME_Container.SALOME_Container_i(containerIORStr)
+    
+      init_python(argc,argv);
+
+      CORBA::String_var sior =  _orb->object_to_string(pCont);
+      string myCommand="pyCont = SALOME_Container.SALOME_Container_i('";
+      myCommand += sior;
+      myCommand += "')\n";
+      SCRUTE(myCommand);
+
+      PyEval_RestoreThread(gtstate);
+      PyRun_SimpleString("import SALOME_Container\n");
+      PyRun_SimpleString((char*)myCommand.c_str());
+      PyEval_ReleaseThread(gtstate);
     }
 }
 
@@ -332,6 +368,7 @@ Engines_Container_i::find_component_instance( const char* registeredName,
 	      return anEngine._retn();
 	    }
 	}
+      itm++;
     }
   return anEngine._retn();  
 }
