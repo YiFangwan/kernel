@@ -75,6 +75,8 @@ class SALOME_Container_i:
             print "import ",componentName," successful"
             ret=1
         except:
+            import traceback
+            traceback.print_exc()
             print "import ",componentName," not possible"
         return ret
         

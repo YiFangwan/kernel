@@ -147,6 +147,19 @@ int main (int argc, char * argv[])
 	  iGenFact->remove_impl(anInstance) ;
 	  //iGenFact->finalize_removal() ; // unpredictable results ...
 	} 
+      MESSAGE("------------------------------- PYTHON ");
+      {
+	bool isLib =
+	  iGenFact->load_component_Library("SALOME_TestComponentPy");
+	ASSERT(isLib);
+	CORBA::Object_var obj =
+	  iGenFact->create_component_instance("SALOME_TestComponentPy",
+					      0);
+	Engines::TestComponent_var anInstance =
+	  Engines::TestComponent::_narrow(obj);
+	MESSAGE("create anInstance");
+	SCRUTE(anInstance->instanceName());
+      }
    
       // Clean-up.
       iGenFact->finalize_removal() ;

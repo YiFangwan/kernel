@@ -270,34 +270,63 @@ void Engines_Container_i::Shutdown()
 bool
 Engines_Container_i::load_component_Library(const char* componentName)
 {
-  string impl_name = string ("lib") + componentName + string("Engine.so");
-  SCRUTE(impl_name);
 
-  _numInstanceMutex.lock(); // lock to be alone 
-                            // (see decInstanceCnt, finalize_removal))
-  if (_toRemove_map[impl_name]) _toRemove_map.erase(impl_name);
-  if (_library_map[impl_name])
+  string aCompName = componentName;
+  if (_library_map[aCompName])
     {
-      MESSAGE("Library " << impl_name << " already loaded");
-      _numInstanceMutex.unlock();
-      return true;
-    }
-  void* handle;
-  handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
-  if ( !handle )
-    {
-      INFOS("Can't load shared library : " << impl_name);
-      INFOS("error dlopen: " << dlerror());
-      _numInstanceMutex.unlock();
-      return false;
+      return true; // Python Component, already imported
     }
   else
     {
-      _library_map[impl_name] = handle;
-      _numInstanceMutex.unlock();
-      return true;
+      PyEval_RestoreThread(gtstate);
+      PyObject *mainmod = PyImport_AddModule("__main__");
+      PyObject *globals = PyModule_GetDict(mainmod);
+      PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
+      PyObject *result = PyObject_CallMethod(pyCont,
+					     "import_component",
+					     "s",componentName);
+      int ret= PyInt_AsLong(result);
+      SCRUTE(ret);
+      PyEval_ReleaseThread(gtstate);
+  
+      if (ret) // import possible: Python component
+	{
+	  _library_map[aCompName] = (void *)pyCont; // any non O value OK
+	  MESSAGE("import Python: "<<aCompName<<" OK");
+	  return true;
+	}
     }
-  _numInstanceMutex.unlock();
+  // try dlopen C++ component
+  {
+    string impl_name = string ("lib") + componentName + string("Engine.so");
+    SCRUTE(impl_name);
+      
+    _numInstanceMutex.lock(); // lock to be alone 
+    // (see decInstanceCnt, finalize_removal))
+    if (_toRemove_map[impl_name]) _toRemove_map.erase(impl_name);
+    if (_library_map[impl_name])
+      {
+	MESSAGE("Library " << impl_name << " already loaded");
+	_numInstanceMutex.unlock();
+	return true;
+      }
+    void* handle;
+    handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+    if ( !handle )
+      {
+	INFOS("Can't load shared library : " << impl_name);
+	INFOS("error dlopen: " << dlerror());
+	_numInstanceMutex.unlock();
+	return false;
+      }
+    else
+      {
+	_library_map[impl_name] = handle;
+	_numInstanceMutex.unlock();
+	return true;
+      }
+    _numInstanceMutex.unlock();
+  }
 }
 
 //=============================================================================
@@ -322,6 +351,43 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
       return Engines::Component::_nil() ;
     }
 
+  Engines::Component_var iobject = Engines::Component::_nil() ;
+
+  string aCompName = genericRegisterName;
+  if (_library_map[aCompName]) // Python component
+    {
+      _numInstanceMutex.lock() ; // lock on the instance number
+      _numInstance++ ;
+      int numInstance = _numInstance ;
+      _numInstanceMutex.unlock() ;
+
+      char aNumI[12];
+      sprintf( aNumI , "%d" , numInstance ) ;
+      string instanceName = aCompName + "_inst_" + aNumI ;
+      string component_registerName =
+	_containerName + "/" + instanceName;
+
+      PyEval_RestoreThread(gtstate);
+      PyObject *mainmod = PyImport_AddModule("__main__");
+      PyObject *globals = PyModule_GetDict(mainmod);
+      PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
+      PyObject *result = PyObject_CallMethod(pyCont,
+					     "create_component_instance",
+					     "ssl",
+					     aCompName.c_str(),
+					     instanceName.c_str(),
+					     studyId);
+      string iors = PyString_AsString(result);
+      SCRUTE(iors);
+      PyEval_ReleaseThread(gtstate);
+  
+      CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
+      iobject = Engines::Component::_narrow( obj ) ;
+      return iobject._retn();
+    }
+  
+  //--- try C++
+
   string impl_name = string ("lib") + genericRegisterName +string("Engine.so");
   void* handle = _library_map[impl_name];
   if ( !handle )
@@ -331,7 +397,6 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
     }
   else
     {
-      Engines::Component_var iobject = Engines::Component::_nil() ;
       iobject = createInstance(genericRegisterName,
 			       handle,
 			       studyId);
