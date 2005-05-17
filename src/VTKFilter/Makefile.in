@@ -37,7 +37,8 @@ EXPORT_HEADERS = SALOME_Transform.h \
 	         SALOME_PassThroughFilter.h \
 		 SALOME_ShrinkFilter.h \
 		 SALOME_GeometryFilter.h \
-		 SALOME_ExtractUnstructuredGrid.h
+		 SALOME_ExtractUnstructuredGrid.h \
+		 SALOME_CubeAxesActor2D.h \
 
 # Libraries targets
 
@@ -47,7 +48,8 @@ LIB_SRC = SALOME_Transform.cxx \
 	  SALOME_PassThroughFilter.cxx \
 	  SALOME_ShrinkFilter.cxx \
 	  SALOME_GeometryFilter.cxx \
-	  SALOME_ExtractUnstructuredGrid.cxx
+	  SALOME_ExtractUnstructuredGrid.cxx \
+	  SALOME_CubeAxesActor2D.cxx \
 
 # Executables targets
 
