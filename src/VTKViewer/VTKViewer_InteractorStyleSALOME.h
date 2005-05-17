@@ -40,6 +40,7 @@ class vtkRenderWindowInteractor;
 #include "VTKViewer_Filter.h"
 
 class SALOME_Actor;
+class SALOME_CubeAxesActor2D;
 class VTKViewer_Actor;
 class VTKViewer_Trihedron;
 class VTKViewer_ViewFrame;
@@ -69,6 +70,8 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
   void setGUIWindow(QWidget* theWindow);
 
   void setTriedron(VTKViewer_Trihedron* theTrihedron);
+  void setCubeAxes(SALOME_CubeAxesActor2D* theCubeAxes);
+  
   void setPreselectionProp(const double& theRed = 0, const double& theGreen = 1,
 			   const double& theBlue = 1, const int& theWidth = 5);
 
@@ -170,6 +173,7 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
   VTKViewer_RenderWindowInteractor* m_Interactor;
   VTKViewer_ViewFrame*      m_ViewFrame;
   VTKViewer_Trihedron*      m_Trihedron;
+  SALOME_CubeAxesActor2D*   m_CubeAxes;
   QWidget*                  myGUIWindow;
   
   std::map<int, Handle(VTKViewer_Filter)> myFilters;

@@ -29,6 +29,7 @@
 #include "VTKViewer_ViewFrame.h"
 #include "VTKViewer_Utilities.h"
 #include "VTKViewer_Trihedron.h"
+#include "SALOME_CubeAxesActor2D.h"
 #include "VTKViewer_RenderWindow.h"
 #include "VTKViewer_RenderWindowInteractor.h"
 #include "VTKViewer_InteractorStyleSALOME.h"
@@ -65,8 +66,15 @@
 #include <vtkRenderer.h>
 #include <vtkTransform.h>
 #include <vtkActorCollection.h>
+#include <vtkTextProperty.h>
 
 #include <TColStd_IndexedMapOfInteger.hxx>
+
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+#else
+static int MYDEBUG = 0;
+#endif
 
 using namespace std;
 
@@ -79,11 +87,13 @@ VTKViewer_ViewFrame::VTKViewer_ViewFrame(QWidget* parent, const char* name)
   m_ViewUp[0] = 0; m_ViewUp[1] = 0; m_ViewUp[2] = -1;
   m_ViewNormal[0] = 0; m_ViewNormal[1] = 0; m_ViewNormal[2] = 1;
   m_Triedron = VTKViewer_Trihedron::New();
+  m_CubeAxes = SALOME_CubeAxesActor2D::New();
   m_Transform = SALOME_Transform::New();
   //m_Renderer = VTKViewer_Renderer::New() ;
   m_Renderer = vtkRenderer::New() ;
 
   m_Triedron->AddToRender(m_Renderer);
+  m_Renderer->AddProp(m_CubeAxes);
   InitialSetup();
 }  
 
@@ -119,10 +129,30 @@ void VTKViewer_ViewFrame::InitialSetup() {
   m_RWInteractor->Initialize();
   m_RWInteractor->setViewFrame(this);
   RWS->setTriedron(m_Triedron);
+  RWS->setCubeAxes(m_CubeAxes);
+
   RWS->setViewFrame(this);
   //SRN: additional initialization, to init CurrentRenderer of vtkInteractorStyle 
   RWS->FindPokedRenderer(0, 0);
 
+  vtkTextProperty* tprop = vtkTextProperty::New();
+  tprop->SetColor(1, 1, 1);
+  tprop->ShadowOn();
+  
+  float bnd[6];
+  bnd[0] = bnd[2] = bnd[4] = 0;
+  bnd[1] = bnd[3] = bnd[5] = m_Triedron->GetSize();
+  m_CubeAxes->SetLabelFormat("%6.4g");
+  m_CubeAxes->SetBounds(bnd);
+  m_CubeAxes->SetCamera(m_Renderer->GetActiveCamera());
+  m_CubeAxes->SetLabelFormat("%6.4g");
+  m_CubeAxes->SetFlyModeToOuterEdges(); // ENK remarks: it must bee
+  m_CubeAxes->SetFontFactor(0.8);
+  m_CubeAxes->SetAxisTitleTextProperty(tprop);
+  m_CubeAxes->SetAxisLabelTextProperty(tprop);
+  m_CubeAxes->SetCornerOffset(0.0);
+  tprop->Delete();
+  
   setCentralWidget( m_RW );
   onViewReset();
 }
@@ -139,6 +169,8 @@ VTKViewer_ViewFrame::~VTKViewer_ViewFrame() {
   m_Renderer->RemoveAllProps();
   // NRI : BugID 1137:  m_Renderer->Delete() ;
   m_Triedron->Delete();
+
+  m_CubeAxes->Delete();
   INFOS("VTKViewer_ViewFrame::~VTKViewer_ViewFrame()");
 }
 
@@ -151,6 +183,10 @@ QWidget* VTKViewer_ViewFrame::getViewWidget(){
 
 bool VTKViewer_ViewFrame::isTrihedronDisplayed(){
   return m_Triedron->GetVisibility() == VTKViewer_Trihedron::eOn;
+}
+
+bool VTKViewer_ViewFrame::isCubeAxesDisplayed(){
+  return m_CubeAxes->GetVisibility() == 1;
 }
 
 bool VTKViewer_ViewFrame::ComputeTrihedronSize( double& theNewSize, double& theSize )
@@ -200,8 +236,21 @@ double VTKViewer_ViewFrame::GetTrihedronSize() const
 
 void VTKViewer_ViewFrame::AdjustTrihedrons( const bool forcedUpdate )
 {
+  
   if ( !isTrihedronDisplayed() && !forcedUpdate )
     return;
+
+  float bnd[ 6 ];
+  float newbnd[6];
+  newbnd[ 0 ] = newbnd[ 2 ] = newbnd[ 4 ] = VTK_LARGE_FLOAT;
+  newbnd[ 1 ] = newbnd[ 3 ] = newbnd[ 5 ] = -VTK_LARGE_FLOAT;
+
+  m_CubeAxes->GetBounds(bnd);
+  if(MYDEBUG)
+    cout << "Bounds: BEFORE\n"
+	 << "\txMin=" << bnd[ 0 ] << " xMax=" << bnd[ 1 ] << "\n"
+	 << "\tyMin=" << bnd[ 2 ] << " yMax=" << bnd[ 3 ] << "\n"
+	 << "\tzMin=" << bnd[ 4 ] << " zMax=" << bnd[ 5 ] << "\n";
 
   int aVisibleNum = m_Triedron->GetVisibleActorCount( m_Renderer );
   if ( aVisibleNum || forcedUpdate )
@@ -221,10 +270,39 @@ void VTKViewer_ViewFrame::AdjustTrihedrons( const bool forcedUpdate )
         {
           if ( aSActor->IsResizable() )
             aSActor->SetSize( 0.5 * aNewSize );
+	  if( aSActor->GetVisibility()){
+	    float abounds[6];
+	    aSActor->GetBounds(abounds);
+	    if(MYDEBUG)
+	      cout << "Bounds: Actor="<<aSActor<<"\n"
+		   << "\txMin=" << abounds[ 0 ] << " xMax=" << abounds[ 1 ] << "\n"
+		   << "\tyMin=" << abounds[ 2 ] << " yMax=" << abounds[ 3 ] << "\n"
+		   << "\tzMin=" << abounds[ 4 ] << " zMax=" << abounds[ 5 ] << "\n";
+	    if (  abounds[0] > -VTK_LARGE_FLOAT && abounds[1] < VTK_LARGE_FLOAT &&
+		  abounds[2] > -VTK_LARGE_FLOAT && abounds[3] < VTK_LARGE_FLOAT &&
+		  abounds[4] > -VTK_LARGE_FLOAT && abounds[5] < VTK_LARGE_FLOAT)
+	      for(int i=0;i<5;i=i+2){
+		if(abounds[i]<newbnd[i]) newbnd[i]=abounds[i];
+		if(abounds[i+1]>newbnd[i+1]) newbnd[i+1]=abounds[i+1];
+		
+	      }
+	  }
         }
       }
     }
   }
+  if( newbnd[0]<VTK_LARGE_FLOAT && newbnd[2]<VTK_LARGE_FLOAT && newbnd[4]<VTK_LARGE_FLOAT &&
+      newbnd[1]>-VTK_LARGE_FLOAT && newbnd[3]>-VTK_LARGE_FLOAT && newbnd[5]>-VTK_LARGE_FLOAT){
+    for(int i=0;i<6;i++) bnd[i] = newbnd[i];
+    m_CubeAxes->SetBounds(bnd);
+  }
+  if(MYDEBUG)
+    cout << "Bounds AFTER: VisibleActors="<<aVisibleNum<<"\n"
+	 << "\txMin=" << bnd[ 0 ] << " xMax=" << bnd[ 1 ] << "\n"
+	 << "\tyMin=" << bnd[ 2 ] << " yMax=" << bnd[ 3 ] << "\n"
+	 << "\tzMin=" << bnd[ 4 ] << " zMax=" << bnd[ 5 ] << "\n";
+  
+  m_CubeAxes->SetBounds(bnd);
 
   ::ResetCameraClippingRange(m_Renderer);
 }
@@ -239,10 +317,13 @@ void VTKViewer_ViewFrame::onAdjustTrihedron()
 */
 void VTKViewer_ViewFrame::onViewTrihedron(){
   if(!m_Triedron) return;
-  if(isTrihedronDisplayed())
+  if(isTrihedronDisplayed()){
     m_Triedron->VisibilityOff();
+    m_CubeAxes->VisibilityOff();
+  }
   else{
     m_Triedron->VisibilityOn();
+    m_CubeAxes->VisibilityOn();
   }
   Repaint();
 }
@@ -327,13 +408,20 @@ void VTKViewer_ViewFrame::onViewFitAll(){
 void VTKViewer_ViewFrame::onViewReset(){
   int aTriedronIsVisible = isTrihedronDisplayed();
   m_Triedron->SetVisibility(VTKViewer_Trihedron::eOnlyLineOn);
+  m_CubeAxes->SetVisibility(2);
   ::ResetCamera(m_Renderer,true);  
   vtkCamera* aCamera = m_Renderer->GetActiveCamera();
   aCamera->SetPosition(1,-1,1);
   aCamera->SetViewUp(0,0,1);
   ::ResetCamera(m_Renderer,true);  
-  if(aTriedronIsVisible) m_Triedron->VisibilityOn();
-  else m_Triedron->VisibilityOff();
+  if(aTriedronIsVisible){
+    m_Triedron->VisibilityOn();
+    m_CubeAxes->VisibilityOn();
+  }
+  else{
+    m_Triedron->VisibilityOff();
+    m_CubeAxes->VisibilityOff();
+  }
   static float aCoeff = 3.0;
   aCamera->SetParallelScale(aCoeff*aCamera->GetParallelScale());
   Repaint();
@@ -812,14 +900,19 @@ void VTKViewer_ViewFrame::redisplayAll( QAD_Study* theQADStudy, const bool theTo
     return;
 
   bool isTrhDisplayed = isTrihedronDisplayed();
+  bool isCubeDisplayed = isCubeAxesDisplayed();
 
   m_RWInteractor->RemoveAll( false );
   //m_RWInteractor->EraseAll();
 
   aSel->ClearIObjects();
-  
+
+  /*  
+   //   ENK commented, already added to renderer in 
+   //   VTKViewer_ViewFrame::VTKViewer_ViewFrame(...)
   if ( isTrhDisplayed )
-    m_Triedron->AddToRender( m_Renderer );
+      m_Triedron->AddToRender( m_Renderer );
+  */
 
   std::list<SALOMEDS::SObject_var> aList;
   SALOMEDS_Tool::GetAllChildren( aStudy, aComponent, aList );
@@ -932,17 +1025,3 @@ void VTKViewer_ViewFrame::onRotateDown()
 {
   m_RWInteractor->GetInteractorStyleSALOME()->IncrementalRotate( 0, INCREMENT_FOR_OP );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

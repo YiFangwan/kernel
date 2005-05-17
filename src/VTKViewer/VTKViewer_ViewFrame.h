@@ -38,6 +38,7 @@ class SALOME_Actor;
 class SALOME_Transform;
 
 class VTKViewer_Trihedron;
+class SALOME_CubeAxesActor2D;
 class VTKViewer_RenderWindow;
 class VTKViewer_RenderWindowInteractor;
 
@@ -58,6 +59,7 @@ public:
   VTKViewer_RenderWindowInteractor* getRWInteractor() {return m_RWInteractor;}
 
   bool                              isTrihedronDisplayed();
+  bool                              isCubeAxesDisplayed();
  
   void                              setBackgroundColor( const QColor& );
   QColor                            backgroundColor() const;
@@ -153,6 +155,7 @@ private:
   VTKViewer_RenderWindow*           m_RW;
   VTKViewer_RenderWindowInteractor* m_RWInteractor;
   VTKViewer_Trihedron*              m_Triedron;  
+  SALOME_CubeAxesActor2D*           m_CubeAxes;
   SALOME_Transform*                 m_Transform;
 
   friend class                      VTKViewer_RenderWindowInteractor;
