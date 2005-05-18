@@ -313,7 +313,7 @@ int SALOME_CubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->AdjustAxes(pts, bounds, idx, xIdx, yIdx, zIdx, zIdx2, 
                    xAxes, yAxes, zAxes, 
                    xCoords, yCoords, zCoords, xRange, yRange, zRange);
-
+  
   // Upate axes
   this->Labels[0] = this->XLabel;
   this->Labels[1] = this->YLabel;
@@ -382,15 +382,60 @@ int SALOME_CubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->planeYZ->SetInput(rgrid);
   this->planeXZ->SetInput(rgrid);
   
+  rgrid->Delete();
+
+  // begin enk::debug
+  float aCPosition[3];
+  float aCDirection[3];
+  this->Camera->GetPosition(aCPosition);
+  this->Camera->GetDirectionOfProjection(aCDirection);
+  
+  // culculate placement of XY
+  bool replaceXY=false;
+  bool replaceYZ=false;
+  bool replaceXZ=false;
+  float p[4][3]; // bounding points of plane XY
+  float vecs[4][3]; // 4 vectors from camera position to bounding points
+  
+  p[0][0] = XCoords->GetValue(0);
+  p[0][1] = YCoords->GetValue(0);
+  p[0][2] = ZCoords->GetValue(0);
+  
+  p[1][0] = XCoords->GetValue(numOfLabelsX);
+  p[1][1] = YCoords->GetValue(0);
+  p[1][2] = ZCoords->GetValue(0);
+
+  p[2][0] = XCoords->GetValue(0);
+  p[2][1] = YCoords->GetValue(numOfLabelsY);
+  p[2][2] = ZCoords->GetValue(0);
+
+  p[3][0] = XCoords->GetValue(0);
+  p[3][1] = YCoords->GetValue(0);
+  p[3][2] = ZCoords->GetValue(numOfLabelsZ);
+
+  for(int i=0;i<3;i++) 
+    for(int j=0;j<4;j++) vecs[j][i] = p[j][i] - aCPosition[i];
+  
+  float aProj=vtkMath::Dot(vecs[0],aCDirection); // projection of vecs[0] to aCDirection 
+  if ( aProj > vtkMath::Dot(vecs[3],aCDirection))
+    replaceXY = true;
+  if ( aProj > vtkMath::Dot(vecs[1],aCDirection))
+    replaceYZ = true;
+  if ( aProj > vtkMath::Dot(vecs[2],aCDirection))
+    replaceXZ = true;
+
+  if(replaceXY) this->planeXY->SetExtent(0,numOfLabelsX, 0,numOfLabelsY, numOfLabelsZ,numOfLabelsZ);
+  else this->planeXY->SetExtent(0,numOfLabelsX, 0,numOfLabelsY, 0,0);
+
+  if(replaceYZ) this->planeYZ->SetExtent(numOfLabelsX,numOfLabelsX, 0,numOfLabelsY, 0,numOfLabelsZ);
+  else this->planeYZ->SetExtent(0,0, 0,numOfLabelsY, 0,numOfLabelsZ);
+  
+  if(replaceXZ) this->planeXZ->SetExtent(0,numOfLabelsX, numOfLabelsY,numOfLabelsY, 0,numOfLabelsZ);
+  else this->planeXZ->SetExtent(0,numOfLabelsX, 0,0, 0,numOfLabelsZ);
+
   XCoords->Delete();
   YCoords->Delete();
   ZCoords->Delete();
-  rgrid->Delete();
-
-  // ENK:: here must be setting of correct placement of planex
-  this->planeXY->SetExtent(0,numOfLabelsX, 0,numOfLabelsY, 0,0);
-  this->planeYZ->SetExtent(0,0, 0,numOfLabelsY, 0,numOfLabelsZ);
-  this->planeXZ->SetExtent(0,numOfLabelsX, 0,0, 0,numOfLabelsZ);
 
   float color[3];
   
