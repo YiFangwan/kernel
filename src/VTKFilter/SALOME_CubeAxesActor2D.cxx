@@ -384,44 +384,57 @@ int SALOME_CubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   
   rgrid->Delete();
 
-  // begin enk::debug
   float aCPosition[3];
   float aCDirection[3];
   this->Camera->GetPosition(aCPosition);
   this->Camera->GetDirectionOfProjection(aCDirection);
-  
+
   // culculate placement of XY
   bool replaceXY=false;
   bool replaceYZ=false;
   bool replaceXZ=false;
-  float p[4][3]; // bounding points of plane XY
-  float vecs[4][3]; // 4 vectors from camera position to bounding points
+  float p[6][3]; // centers of planes
+  float vecs[6][3]; // 6 vectors from camera position to centers
   
-  p[0][0] = XCoords->GetValue(0);
-  p[0][1] = YCoords->GetValue(0);
+  float aMiddleX = (XCoords->GetValue(0) + XCoords->GetValue(numOfLabelsX-1))/2;
+  float aMiddleY = (YCoords->GetValue(0) + YCoords->GetValue(numOfLabelsY-1))/2;
+  float aMiddleZ = (ZCoords->GetValue(0) + ZCoords->GetValue(numOfLabelsZ-1))/2;
+  
+  // plane XY
+  p[0][0] = aMiddleX; // plane X=0.5 Y=0.5 Z=0
+  p[0][1] = aMiddleY;
   p[0][2] = ZCoords->GetValue(0);
   
-  p[1][0] = XCoords->GetValue(numOfLabelsX);
-  p[1][1] = YCoords->GetValue(0);
-  p[1][2] = ZCoords->GetValue(0);
+  p[1][0] = aMiddleX; // plane X=0.5 Y=0.5 Z=1
+  p[1][1] = aMiddleY;
+  p[1][2] = ZCoords->GetValue(numOfLabelsZ-1);
 
-  p[2][0] = XCoords->GetValue(0);
-  p[2][1] = YCoords->GetValue(numOfLabelsY);
-  p[2][2] = ZCoords->GetValue(0);
+  // plane YZ
+  p[2][0] = XCoords->GetValue(0); // plane X=0 Y=0.5 Z=0.5
+  p[2][1] = aMiddleY;
+  p[2][2] = aMiddleZ;
 
-  p[3][0] = XCoords->GetValue(0);
-  p[3][1] = YCoords->GetValue(0);
-  p[3][2] = ZCoords->GetValue(numOfLabelsZ);
+  p[3][0] = XCoords->GetValue(numOfLabelsX-1);
+  p[3][1] = aMiddleY;
+  p[3][2] = aMiddleZ;
+  
+  // plane XZ
+  p[4][0] = aMiddleX; // plane X=0.5 Y=0 Z=0.5
+  p[4][1] = YCoords->GetValue(0);
+  p[4][2] = aMiddleZ;
+
+  p[5][0] = aMiddleX; // plane X=0.5 Y=1 Z=0.5
+  p[5][1] = YCoords->GetValue(numOfLabelsY-1);
+  p[5][2] = aMiddleZ;
 
   for(int i=0;i<3;i++) 
-    for(int j=0;j<4;j++) vecs[j][i] = p[j][i] - aCPosition[i];
+    for(int j=0;j<6;j++) vecs[j][i] = p[j][i] - aCPosition[i];
   
-  float aProj=vtkMath::Dot(vecs[0],aCDirection); // projection of vecs[0] to aCDirection 
-  if ( aProj > vtkMath::Dot(vecs[3],aCDirection))
+  if ( vtkMath::Dot(vecs[0],aCDirection) < vtkMath::Dot(vecs[1],aCDirection))
     replaceXY = true;
-  if ( aProj > vtkMath::Dot(vecs[1],aCDirection))
+  if ( vtkMath::Dot(vecs[2],aCDirection) < vtkMath::Dot(vecs[3],aCDirection))
     replaceYZ = true;
-  if ( aProj > vtkMath::Dot(vecs[2],aCDirection))
+  if ( vtkMath::Dot(vecs[4],aCDirection) < vtkMath::Dot(vecs[5],aCDirection))
     replaceXZ = true;
 
   if(replaceXY) this->planeXY->SetExtent(0,numOfLabelsX, 0,numOfLabelsY, numOfLabelsZ,numOfLabelsZ);
