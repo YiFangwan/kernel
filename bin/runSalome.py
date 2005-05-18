@@ -564,23 +564,6 @@ def startSalome(args, modules_list, modules_root_dir):
     myCmServer.setpath(modules_list,modules_root_dir)
     myCmServer.run()
 
-    #
-    # Lancement Session Server
-    #
-
-    mySessionServ = SessionServer(args)
-    mySessionServ.setpath(modules_list,modules_root_dir)
-    mySessionServ.run()
-
-    #macomm2=['ddd']
-    #pid = os.spawnvp(os.P_NOWAIT, macomm2[0], macomm2)
-    #
-    # Attente de la disponibilite du Session Server dans le Naming Service
-    #
-
-    import SALOME
-    session=clt.waitNS("/Kernel/Session",SALOME.Session)
-
     from Utils_Identity import getShortHostName
     
     if os.getenv("HOSTNAME") == None:
@@ -622,6 +605,23 @@ def startSalome(args, modules_list, modules_root_dir):
         myServer=ContainerSUPERVServer(args)
         myServer.run()
         clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
+
+    #
+    # Lancement Session Server
+    #
+
+    mySessionServ = SessionServer(args)
+    mySessionServ.setpath(modules_list,modules_root_dir)
+    mySessionServ.run()
+
+    #macomm2=['ddd']
+    #pid = os.spawnvp(os.P_NOWAIT, macomm2[0], macomm2)
+    #
+    # Attente de la disponibilite du Session Server dans le Naming Service
+    #
+
+    import SALOME
+    session=clt.waitNS("/Kernel/Session",SALOME.Session)
 
     end_time = os.times()
     print

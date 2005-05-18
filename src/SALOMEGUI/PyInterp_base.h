@@ -64,11 +64,11 @@ ThreadLock GetPyThreadLock(const char* theComment = "");
 
 class PyInterp_base{
  public:
-  static PyThreadState *_gtstate;
+  //static PyThreadState *_gtstate;
   static int _argc;
   static char* _argv[];
   static PyObject *builtinmodule;
-  static PyObject *salome_shared_modules_module;
+  //static PyObject *salome_shared_modules_module;
   
   PyInterp_base();
   ~PyInterp_base();

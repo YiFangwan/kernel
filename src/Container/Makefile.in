@@ -41,12 +41,17 @@ EXPORT_PYSCRIPTS = SALOME_ComponentPy.py \
 EXPORT_HEADERS = \
 	SALOME_Component_i.hxx \
 	SALOME_Container_i.hxx \
-	SALOME_ContainerManager.hxx
+	SALOME_ContainerManager.hxx \
+	Container_init_python.hxx
 
 # Libraries targets
 
 LIB = libSalomeContainer.la 
-LIB_SRC = Component_i.cxx  Container_i.cxx SALOME_ContainerManager.cxx
+LIB_SRC = Component_i.cxx \
+	  Container_i.cxx \
+	  SALOME_ContainerManager.cxx \
+	  Container_init_python.cxx
+
 LIB_SERVER_IDL = SALOME_Registry.idl SALOME_Component.idl SALOME_ContainerManager.idl
 LIB_CLIENT_IDL = 
 

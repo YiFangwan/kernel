@@ -60,13 +60,16 @@ static ostream& operator<<(ostream& os, const CORBA::Exception& e)
   return os;
 }
 
-Engines::TestComponent_ptr create_intance(Engines::Container_ptr iGenFact)
+Engines::TestComponent_ptr create_instance(Engines::Container_ptr iGenFact,
+					   string componenttName)
 {
   bool isLib =
-    iGenFact->load_component_Library("SalomeTestComponent");
+    iGenFact->load_component_Library(componenttName.c_str());
+  //    iGenFact->load_component_Library("SalomeTestComponent");
   ASSERT(isLib);
   CORBA::Object_var obj =
-    iGenFact->create_component_instance("SalomeTestComponent",
+    //    iGenFact->create_component_instance("SalomeTestComponent",
+    iGenFact->create_component_instance(componenttName.c_str(),
 					0);
   Engines::TestComponent_var anInstance = Engines::TestComponent::_narrow(obj);
   MESSAGE("create anInstance");
@@ -99,7 +102,7 @@ int main (int argc, char * argv[])
       MESSAGE("------------------------------- create instances ");
       for (int iter = 0; iter < nbInstances ; iter++)
 	{
-	  instances[iter] = create_intance(iGenFact);
+	  instances[iter] = create_instance(iGenFact,"SalomeTestComponent");
 	}
 
       MESSAGE("------------------------------ set env instances ");
@@ -149,16 +152,29 @@ int main (int argc, char * argv[])
 	} 
       MESSAGE("------------------------------- PYTHON ");
       {
-	bool isLib =
-	  iGenFact->load_component_Library("SALOME_TestComponentPy");
-	ASSERT(isLib);
-	CORBA::Object_var obj =
-	  iGenFact->create_component_instance("SALOME_TestComponentPy",
-					      0);
-	Engines::TestComponent_var anInstance =
-	  Engines::TestComponent::_narrow(obj);
-	MESSAGE("create anInstance");
-	SCRUTE(anInstance->instanceName());
+// 	bool isLib =
+// 	  iGenFact->load_component_Library("SALOME_TestComponentPy");
+// 	ASSERT(isLib);
+// 	CORBA::Object_var obj =
+// 	  iGenFact->create_component_instance("SALOME_TestComponentPy",
+// 					      0);
+// 	Engines::TestComponent_var anInstance =
+// 	  Engines::TestComponent::_narrow(obj);
+// 	MESSAGE("create anInstance");
+// 	SCRUTE(anInstance->instanceName());
+      MESSAGE("------------------------------- create instances ");
+      for (int iter = 0; iter < nbInstances ; iter++)
+	{
+	  instances[iter] = create_instance(iGenFact,"SALOME_TestComponentPy");
+	}
+
+      MESSAGE("---------------------------------- get instances ");
+      for (int iter = 0; iter < nbInstances ; iter++)
+	{
+	  Engines::TestComponent_var anInstance = instances[iter];
+	  SCRUTE(anInstance->instanceName());
+	  MESSAGE("Coucou " << anInstance->Coucou(iter));
+	}
       }
    
       // Clean-up.

@@ -38,6 +38,7 @@
 #include <dlfcn.h>
 #include <unistd.h>
 #include <Python.h>
+#include "Container_init_python.hxx"
 
 #include "utilities.h"
 using namespace std;
@@ -56,22 +57,23 @@ extern "C" {void ActSigIntHandler() ; }
 extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 
 
-static PyMethodDef MethodPyVoidMethod[] = {{ NULL, NULL }};
-PyThreadState *gtstate;
+// static PyMethodDef MethodPyVoidMethod[] = {{ NULL, NULL }};
+// PyThreadState *gtstate;
 
-void init_python(int argc, char **argv)
-{
-  if (gtstate)
-    return;
-  Py_SetProgramName(argv[0]);
-  Py_Initialize(); // Initialize the interpreter
-  PySys_SetArgv(argc, argv);
-  PyEval_InitThreads(); // Create (and acquire) the interpreter lock
-  Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
-  //PyOS_setsig(SIGSEGV,&Handler);
-  //PyOS_setsig(SIGINT,&Handler);
-  gtstate = PyEval_SaveThread(); // Release the global thread state
-}
+// void init_python(int argc, char **argv)
+// {
+//   if (gtstate)
+//     return;
+//   Py_SetProgramName(argv[0]);
+//   Py_Initialize(); // Initialize the interpreter
+//   PySys_SetArgv(argc, argv);
+//   PyEval_InitThreads(); // Create (and acquire) the interpreter lock
+//   Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
+//   //PyOS_setsig(SIGSEGV,&Handler);
+//   //PyOS_setsig(SIGINT,&Handler);
+//   gtstate = PyEval_SaveThread(); // Release the global thread state
+//   SCRUTE(gtstate);
+// }
 
 const char *Engines_Container_i::_defaultContainerName="FactoryServer";
 map<std::string, int> Engines_Container_i::_cntInstances_map;
@@ -164,18 +166,17 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
       // import SALOME_Container
       // pycont = SALOME_Container.SALOME_Container_i(containerIORStr)
     
-      init_python(argc,argv);
-
       CORBA::String_var sior =  _orb->object_to_string(pCont);
       string myCommand="pyCont = SALOME_Container.SALOME_Container_i('";
       myCommand += sior;
       myCommand += "')\n";
       SCRUTE(myCommand);
 
-      PyEval_RestoreThread(gtstate);
+      SCRUTE(KERNEL_PYTHON::_gtstate);
+      PyEval_RestoreThread(KERNEL_PYTHON::_gtstate);
       PyRun_SimpleString("import SALOME_Container\n");
       PyRun_SimpleString((char*)myCommand.c_str());
-      PyEval_ReleaseThread(gtstate);
+      PyEval_ReleaseThread(KERNEL_PYTHON::_gtstate);
     }
 }
 
@@ -301,17 +302,19 @@ Engines_Container_i::load_component_Library(const char* componentName)
       INFOS("Can't load shared library : " << impl_name);
       INFOS("error dlopen: " << dlerror());
     }
-    _numInstanceMutex.unlock();
+  _numInstanceMutex.unlock();
 
   // --- try import Python component
 
+  INFOS("try import Python component "<<componentName);
   if (_library_map[aCompName])
     {
       return true; // Python Component, already imported
     }
   else
     {
-      PyEval_RestoreThread(gtstate);
+      SCRUTE(KERNEL_PYTHON::_gtstate);
+      PyEval_RestoreThread(KERNEL_PYTHON::_gtstate);
       PyObject *mainmod = PyImport_AddModule("__main__");
       PyObject *globals = PyModule_GetDict(mainmod);
       PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
@@ -320,7 +323,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
 					     "s",componentName);
       int ret= PyInt_AsLong(result);
       SCRUTE(ret);
-      PyEval_ReleaseThread(gtstate);
+      PyEval_ReleaseThread(KERNEL_PYTHON::_gtstate);
   
       if (ret) // import possible: Python component
 	{
@@ -370,7 +373,8 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
       string component_registerName =
 	_containerName + "/" + instanceName;
 
-      PyEval_RestoreThread(gtstate);
+      SCRUTE(KERNEL_PYTHON::_gtstate);
+      PyEval_RestoreThread(KERNEL_PYTHON::_gtstate);
       PyObject *mainmod = PyImport_AddModule("__main__");
       PyObject *globals = PyModule_GetDict(mainmod);
       PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
@@ -382,7 +386,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
 					     studyId);
       string iors = PyString_AsString(result);
       SCRUTE(iors);
-      PyEval_ReleaseThread(gtstate);
+      PyEval_ReleaseThread(KERNEL_PYTHON::_gtstate);
   
       CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
       iobject = Engines::Component::_narrow( obj ) ;

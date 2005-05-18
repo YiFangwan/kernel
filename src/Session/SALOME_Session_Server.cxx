@@ -49,6 +49,7 @@
 #include "Utils_CorbaException.hxx"
 #include "SALOMEGUI_QtCatchCorbaException.hxx"
 #include "SALOME_Event.hxx"
+#include "Container_init_python.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Session)
@@ -90,6 +91,8 @@ static int MYDEBUG = 0;
 static int MYDEBUG = 0;
 #endif
 
+PyObject *salome_shared_modules_module = NULL;
+
 void MessageOutput( QtMsgType type, const char *msg )
 {
   switch ( type ) {
@@ -113,6 +116,27 @@ int main(int argc, char **argv)
   CORBA::ORB_var &orb = init( orbArgc , argv ) ;
   SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   qInstallMsgHandler( MessageOutput );
+
+  /*
+   * Python initialisation : only once
+   */
+  int _argc = 1;
+  char* _argv[] = {""};
+  KERNEL_PYTHON::init_python(_argc,_argv);
+  PyEval_RestoreThread(KERNEL_PYTHON::_gtstate);
+  if(!KERNEL_PYTHON::salome_shared_modules_module) // import only once
+    {
+      KERNEL_PYTHON::salome_shared_modules_module =
+	PyImport_ImportModule("salome_shared_modules");
+    }
+  if(!KERNEL_PYTHON::salome_shared_modules_module)
+    {
+      INFOS("salome_shared_modules_module == NULL");
+      PyErr_Print();
+      PyErr_Clear();
+    }
+  PyEval_ReleaseThread(KERNEL_PYTHON::_gtstate);
+
   try
     {
       CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");

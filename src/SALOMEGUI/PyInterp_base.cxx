@@ -14,6 +14,7 @@
 #include <vector>
 
 #include "PyInterp_base.h" // this include must be first (see PyInterp_base.h)!
+#include "Container_init_python.hxx"
 #include <cStringIO.h>
 
 #include <qmutex.h>
@@ -25,8 +26,8 @@ using namespace std;
 
 
 #ifdef _DEBUG_
-static int MYDEBUG = 0;
-static int MYPYDEBUG = 0;
+static int MYDEBUG = 1;
+static int MYPYDEBUG = 1;
 #else
 static int MYDEBUG = 0;
 static int MYPYDEBUG = 0;
@@ -38,7 +39,8 @@ static QMutex myMutex(true);
 
 PyLockWrapper::PyLockWrapper(PyThreadState* theThreadState): 
   myThreadState(theThreadState),
-  mySaveThreadState(PyInterp_base::_gtstate)
+  //mySaveThreadState(PyInterp_base::_gtstate)
+  mySaveThreadState(KERNEL_PYTHON::_gtstate)
 {
   PyEval_AcquireLock();
   mySaveThreadState = PyThreadState_Swap(myThreadState); // store previous current in save,
@@ -93,12 +95,12 @@ PyLockWrapper PyInterp_base::GetLockWrapper(){
 
 // main python interpreter
 
-PyThreadState *PyInterp_base::_gtstate = 0; // force 0 before execution
+// PyThreadState *PyInterp_base::_gtstate = 0; // force 0 before execution
 int PyInterp_base::_argc = 1;
 char* PyInterp_base::_argv[] = {""};
 
 PyObject *PyInterp_base::builtinmodule = NULL;
-PyObject *PyInterp_base::salome_shared_modules_module = NULL;
+//PyObject *PyInterp_base::salome_shared_modules_module = NULL;
 
 
 /*!
@@ -129,9 +131,9 @@ void PyInterp_base::initialize()
   _history.clear();       // start a new list of user's commands 
   _ith = _history.begin();
 
-  if(!_gtstate) init_python();
+  init_python();
   // Here the global lock is released
-  if(MYPYDEBUG) MESSAGE("PyInterp_base::initialize() - this = "<<this<<"; _gtstate = "<<_gtstate);
+  if(MYPYDEBUG) MESSAGE("PyInterp_base::initialize() - this = "<<this<<"; _gtstate = "<<KERNEL_PYTHON::_gtstate);
 
   // The lock will be acquired in initState. Make provision to release it on exit
   PyReleaseLock aReleaseLock;
@@ -165,23 +167,21 @@ void PyInterp_base::init_python()
    * The lock is released on init_python output
    * It is the caller responsability to acquire it if needed
    */
-  if(!_gtstate){
-    PyReleaseLock aReleaseLock;
-    Py_Initialize(); // Initialize the interpreter
-    PyEval_InitThreads(); // Initialize and acquire the global interpreter lock
-    PySys_SetArgv(_argc,_argv); // initialize sys.argv
-    _gtstate = PyThreadState_Get();
-    /*
-     * salome_shared_modules should be imported only once
-     */
-    salome_shared_modules_module = PyImport_ImportModule("salome_shared_modules");
-    if(!salome_shared_modules_module)
-      {
-	INFOS("PyInterp_base::initialize() - salome_shared_modules_module == NULL");
-	PyErr_Print();
-	PyErr_Clear();
-      }
-  }
+  MESSAGE("PyInterp_base::init_python");
+  ASSERT(KERNEL_PYTHON::_gtstate); // initialisation in main
+  SCRUTE(KERNEL_PYTHON::_gtstate);
+//   PyEval_RestoreThread(KERNEL_PYTHON::_gtstate);
+//   if(!salome_shared_modules_module) // import only once
+//     {
+//       salome_shared_modules_module=PyImport_ImportModule("salome_shared_modules");
+//     }
+//   if(!salome_shared_modules_module)
+//     {
+//       INFOS("salome_shared_modules_module == NULL");
+//       PyErr_Print();
+//       PyErr_Clear();
+//     }
+//   PyEval_ReleaseThread(KERNEL_PYTHON::_gtstate);
 }
 
 string PyInterp_base::getbanner()

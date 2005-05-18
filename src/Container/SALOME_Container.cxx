@@ -48,6 +48,7 @@
 #endif
 
 #include <Python.h>
+#include "Container_init_python.hxx"
 
 using namespace std;
 
@@ -64,6 +65,10 @@ int main(int argc, char* argv[])
   SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
+
+  int _argc = 1;
+  char* _argv[] = {""};
+  KERNEL_PYTHON::init_python(_argc,_argv);
   
   try{
     // Obtain a reference to the root POA.

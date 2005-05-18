@@ -10,6 +10,7 @@
 //  $Header$
 
 #include "PyInterp_PyQt.h" // this include must be first (see PyInterp_base.h)!
+#include "Container_init_python.hxx"
 #include "utilities.h"
 
 using namespace std;
@@ -35,8 +36,8 @@ void PyInterp_PyQt::initState()
   * The GIL is acquired in initState and will be held on initState exit
   * It is the caller responsability to release the lock on exit if needed
   */
-  SCRUTE(PyInterp_base::_gtstate);
-  _tstate=PyInterp_base::_gtstate;
+  SCRUTE(KERNEL_PYTHON::_gtstate);
+  _tstate=KERNEL_PYTHON::_gtstate;
   PyEval_AcquireLock();
   PyThreadState_Swap(_tstate);
   SCRUTE(_tstate);
