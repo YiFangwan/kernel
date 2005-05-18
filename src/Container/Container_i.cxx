@@ -168,6 +168,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
     
       CORBA::String_var sior =  _orb->object_to_string(pCont);
       string myCommand="pyCont = SALOME_Container.SALOME_Container_i('";
+      myCommand += _containerName + "','";
       myCommand += sior;
       myCommand += "')\n";
       SCRUTE(myCommand);

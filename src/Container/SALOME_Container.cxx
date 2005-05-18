@@ -47,7 +47,6 @@
 #include <mpi.h>
 #endif
 
-#include <Python.h>
 #include "Container_init_python.hxx"
 
 using namespace std;
@@ -69,7 +68,7 @@ int main(int argc, char* argv[])
   int _argc = 1;
   char* _argv[] = {""};
   KERNEL_PYTHON::init_python(_argc,_argv);
-  
+ 
   try{
     // Obtain a reference to the root POA.
     // obtain the root poa manager
