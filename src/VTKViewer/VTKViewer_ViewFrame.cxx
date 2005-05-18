@@ -151,6 +151,7 @@ void VTKViewer_ViewFrame::InitialSetup() {
   m_CubeAxes->SetAxisTitleTextProperty(tprop);
   m_CubeAxes->SetAxisLabelTextProperty(tprop);
   m_CubeAxes->SetCornerOffset(0.0);
+  m_CubeAxes->SetScaling(0);
   tprop->Delete();
   
   setCentralWidget( m_RW );
