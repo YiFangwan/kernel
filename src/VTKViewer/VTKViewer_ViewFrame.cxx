@@ -128,8 +128,6 @@ void VTKViewer_ViewFrame::InitialSetup() {
 
   m_RWInteractor->Initialize();
   m_RWInteractor->setViewFrame(this);
-  RWS->setTriedron(m_Triedron);
-  RWS->setCubeAxes(m_CubeAxes);
 
   RWS->setViewFrame(this);
   //SRN: additional initialization, to init CurrentRenderer of vtkInteractorStyle 
@@ -152,6 +150,7 @@ void VTKViewer_ViewFrame::InitialSetup() {
   m_CubeAxes->SetAxisLabelTextProperty(tprop);
   m_CubeAxes->SetCornerOffset(0.0);
   m_CubeAxes->SetScaling(0);
+  m_CubeAxes->SetNumberOfLabels(10);
   tprop->Delete();
   
   setCentralWidget( m_RW );
@@ -238,7 +237,7 @@ double VTKViewer_ViewFrame::GetTrihedronSize() const
 void VTKViewer_ViewFrame::AdjustTrihedrons( const bool forcedUpdate )
 {
   
-  if ( !isTrihedronDisplayed() && !forcedUpdate )
+  if ( !isCubeAxesDisplayed() && !isTrihedronDisplayed() && !forcedUpdate )
     return;
 
   float bnd[ 6 ];
@@ -308,9 +307,19 @@ void VTKViewer_ViewFrame::AdjustTrihedrons( const bool forcedUpdate )
   ::ResetCameraClippingRange(m_Renderer);
 }
 
+void VTKViewer_ViewFrame::AdjustAxes( const bool forcedUpdate )
+{
+  AdjustTrihedrons(forcedUpdate);
+}
+
 void VTKViewer_ViewFrame::onAdjustTrihedron()
 {   
   AdjustTrihedrons( false );
+}
+
+void VTKViewer_ViewFrame::onAdjustAxes()
+{   
+  AdjustAxes( false );
 }
 
 /*!
@@ -399,7 +408,33 @@ void VTKViewer_ViewFrame::onViewFront(){
   Fits all objects in the active view
 */
 void VTKViewer_ViewFrame::onViewFitAll(){
-  m_RWInteractor->GetInteractorStyleSALOME()->ViewFitAll();
+
+  int aTriedronWasVisible = false;
+  int aCubeAxesWasVisible = false;
+  if(m_Triedron){
+    aTriedronWasVisible = m_Triedron->GetVisibility() == VTKViewer_Trihedron::eOn;
+    if(aTriedronWasVisible) m_Triedron->VisibilityOff();
+  }
+  if(m_CubeAxes){
+    aCubeAxesWasVisible = m_CubeAxes->GetVisibility();
+    if(aCubeAxesWasVisible) m_CubeAxes->VisibilityOff();
+  }
+
+  if(m_Triedron->GetVisibleActorCount(m_Renderer)){
+    m_Triedron->VisibilityOff();
+    m_CubeAxes->VisibilityOff();
+    ::ResetCamera(m_Renderer);
+  }else{
+    m_Triedron->SetVisibility(VTKViewer_Trihedron::eOnlyLineOn);
+    m_CubeAxes->SetVisibility(2);
+    ::ResetCamera(m_Renderer,true);
+  }
+  if(aTriedronWasVisible) m_Triedron->VisibilityOn();
+  else m_Triedron->VisibilityOff();
+  if(aCubeAxesWasVisible) m_CubeAxes->VisibilityOn();
+  else m_CubeAxes->VisibilityOff();
+  ::ResetCameraClippingRange(m_Renderer);
+
   Repaint();
 }
 
@@ -689,9 +724,9 @@ void VTKViewer_ViewFrame::EraseAll()
 }
 
 
-void VTKViewer_ViewFrame::Repaint(bool theUpdateTrihedron)
+void VTKViewer_ViewFrame::Repaint(bool theUpdateAxes)
 {
-  if (theUpdateTrihedron) onAdjustTrihedron();
+  if (theUpdateAxes) onAdjustAxes();
   m_RW->update();
 }
 
@@ -900,8 +935,8 @@ void VTKViewer_ViewFrame::redisplayAll( QAD_Study* theQADStudy, const bool theTo
   if ( aComponent->_is_nil() )
     return;
 
-  bool isTrhDisplayed = isTrihedronDisplayed();
-  bool isCubeDisplayed = isCubeAxesDisplayed();
+//   bool isTrhDisplayed = isTrihedronDisplayed();
+//   bool isCubeDisplayed = isCubeAxesDisplayed();
 
   m_RWInteractor->RemoveAll( false );
   //m_RWInteractor->EraseAll();
