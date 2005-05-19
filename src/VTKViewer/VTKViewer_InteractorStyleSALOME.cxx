@@ -33,7 +33,6 @@
 #include "VTKViewer_ViewFrame.h"
 
 #include "VTKViewer_Utilities.h"
-#include "VTKViewer_Trihedron.h"
 #include "VTKViewer_RectPicker.h"
 #include "VTKViewer_CellRectPicker.h"
 
@@ -45,7 +44,6 @@
 #include "VTKViewer_Actor.h"
 #include "SALOME_Selection.h"
 #include "SALOME_ListIteratorOfListIO.hxx"
-#include "SALOME_CubeAxesActor2D.h"
 
 #include <vtkObjectFactory.h>
 #include <vtkMath.h>
@@ -146,8 +144,6 @@ vtkStandardNewMacro(VTKViewer_InteractorStyleSALOME);
 
 VTKViewer_InteractorStyleSALOME::VTKViewer_InteractorStyleSALOME() 
 {
-  m_Trihedron = 0;
-  m_CubeAxes = 0;
   this->MotionFactor = 10.0;
   this->State = VTK_INTERACTOR_STYLE_CAMERA_NONE;
   this->RadianToDegree = 180.0 / vtkMath::Pi();
@@ -196,15 +192,6 @@ void VTKViewer_InteractorStyleSALOME::setViewFrame(VTKViewer_ViewFrame* theViewF
 //----------------------------------------------------------------------------
 void VTKViewer_InteractorStyleSALOME::setGUIWindow(QWidget* theWindow){
   myGUIWindow = theWindow;
-}
-
-//----------------------------------------------------------------------------
-void VTKViewer_InteractorStyleSALOME::setTriedron(VTKViewer_Trihedron* theTrihedron){
-  m_Trihedron = theTrihedron;
-}
-
-void VTKViewer_InteractorStyleSALOME::setCubeAxes(SALOME_CubeAxesActor2D* theCubeAxes){
-  m_CubeAxes = theCubeAxes;
 }
 
 //----------------------------------------------------------------------------
@@ -628,36 +615,6 @@ void VTKViewer_InteractorStyleSALOME::startFitArea()
 
 
 //----------------------------------------------------------------------------
-void  VTKViewer_InteractorStyleSALOME::ViewFitAll() {
-  int aTriedronWasVisible = false;
-  int aCubeAxesWasVisible = false;
-  if(m_Trihedron){
-    aTriedronWasVisible = m_Trihedron->GetVisibility() == VTKViewer_Trihedron::eOn;
-    if(aTriedronWasVisible) m_Trihedron->VisibilityOff();
-  }
-  if(m_CubeAxes){
-    aCubeAxesWasVisible = m_CubeAxes->GetVisibility();
-    if(aCubeAxesWasVisible) m_CubeAxes->VisibilityOff();
-  }
-
-  if(m_Trihedron->GetVisibleActorCount(CurrentRenderer)){
-    m_Trihedron->VisibilityOff();
-    m_CubeAxes->VisibilityOff();
-    ::ResetCamera(CurrentRenderer);
-  }else{
-    m_Trihedron->SetVisibility(VTKViewer_Trihedron::eOnlyLineOn);
-    m_CubeAxes->SetVisibility(2);
-    ::ResetCamera(CurrentRenderer,true);
-  }
-  if(aTriedronWasVisible) m_Trihedron->VisibilityOn();
-  else m_Trihedron->VisibilityOff();
-  if(aCubeAxesWasVisible) m_CubeAxes->VisibilityOn();
-  else m_CubeAxes->VisibilityOff();
-  ::ResetCameraClippingRange(CurrentRenderer);
-}
-
-
-//----------------------------------------------------------------------------
 // starts Global Panning operation (e.g. through menu command)
 void VTKViewer_InteractorStyleSALOME::startGlobalPan()
 {
@@ -673,7 +630,7 @@ void VTKViewer_InteractorStyleSALOME::startGlobalPan()
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   myScale = cam->GetParallelScale();
 
-  ViewFitAll();
+  if (m_ViewFrame) m_ViewFrame->onViewFitAll();
 
   if (myGUIWindow) myGUIWindow->update();
   
