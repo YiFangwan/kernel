@@ -32,10 +32,32 @@
 #include <pthread.h>  // must be before Python.h !
 #include <Python.h>
 
+
+// next two MACRO must be used together only once inside a block
+// -------------------------------------------------------------
+// protect a sequence of Python calls:
+// - Python lock must be acquired for these calls
+// - new Python thread state allows multi thread use of the sequence:
+//    - Python may release the lock within the sequence, so multiple
+//      thread execution of the sequence may occur.
+//    - For that case, each sequence call must use a specific Python
+//      thread state.
+//    - There is no need of C Lock protection of the sequence.
+
+#define Py_ACQUIRE_NEW_THREAD \
+  PyEval_AcquireLock(); \
+  PyThreadState *myTstate = PyThreadState_New(KERNEL_PYTHON::_interp); \
+  PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
+
+#define Py_RELEASE_NEW_THREAD \
+  PyEval_ReleaseThread(myTstate); \
+  PyThreadState_Delete(myTstate);
+
 struct  KERNEL_PYTHON
 {
   static PyThreadState *_gtstate;
   static PyObject *salome_shared_modules_module;
+  static PyInterpreterState *_interp;
 
   static void init_python(int argc, char **argv);
 

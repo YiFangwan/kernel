@@ -59,16 +59,28 @@ int main(int argc, char* argv[])
   MPI_Init(&argc,&argv);
 #endif
   // Initialise the ORB.
-  //ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
   SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
 
-  int _argc = 1;
-  char* _argv[] = {""};
-  KERNEL_PYTHON::init_python(_argc,_argv);
- 
+  ASSERT(argc > 1);
+  SCRUTE(argv[1]);
+  bool isSupervContainer = false;
+  if (strcmp(argv[1],"SuperVisionContainer") == 0) isSupervContainer = true;
+
+  if (!isSupervContainer)
+    {
+      int _argc = 1;
+      char* _argv[] = {""};
+      KERNEL_PYTHON::init_python(argc,argv);
+    }
+  else
+    {
+      Py_Initialize() ;
+      PySys_SetArgv( argc , argv ) ;
+    }
+
   try{
     // Obtain a reference to the root POA.
     // obtain the root poa manager

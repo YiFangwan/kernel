@@ -56,25 +56,6 @@ char ** _ArgV ;
 extern "C" {void ActSigIntHandler() ; }
 extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 
-
-// static PyMethodDef MethodPyVoidMethod[] = {{ NULL, NULL }};
-// PyThreadState *gtstate;
-
-// void init_python(int argc, char **argv)
-// {
-//   if (gtstate)
-//     return;
-//   Py_SetProgramName(argv[0]);
-//   Py_Initialize(); // Initialize the interpreter
-//   PySys_SetArgv(argc, argv);
-//   PyEval_InitThreads(); // Create (and acquire) the interpreter lock
-//   Py_InitModule( "InitPyRunMethod" , MethodPyVoidMethod ) ;
-//   //PyOS_setsig(SIGSEGV,&Handler);
-//   //PyOS_setsig(SIGINT,&Handler);
-//   gtstate = PyEval_SaveThread(); // Release the global thread state
-//   SCRUTE(gtstate);
-// }
-
 const char *Engines_Container_i::_defaultContainerName="FactoryServer";
 map<std::string, int> Engines_Container_i::_cntInstances_map;
 map<std::string, void *> Engines_Container_i::_library_map;
@@ -136,12 +117,15 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
       MESSAGE("           argv" << i << " " << _argv[ i ]) ;
       i++ ;
     }
-  if ( argc != 4 )
+
+  if ( argc < 2 )
     {
-      MESSAGE("SALOME_Container usage : SALOME_Container ServerName " <<
-	      "-ORBInitRef NameService=corbaname::hostname:tcpipPortNumber") ;
-      //    exit(0) ;
+      INFOS("SALOME_Container usage : SALOME_Container ServerName");
+      ASSERT(0) ;
     }
+  SCRUTE(argv[1]);
+  _isSupervContainer = false;
+  if (strcmp(argv[1],"SuperVisionContainer") == 0) _isSupervContainer = true;
 
   _containerName = BuildContainerNameForNS(containerName,hostname.c_str());
   
@@ -173,11 +157,13 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
       myCommand += "')\n";
       SCRUTE(myCommand);
 
-      SCRUTE(KERNEL_PYTHON::_gtstate);
-      PyEval_RestoreThread(KERNEL_PYTHON::_gtstate);
-      PyRun_SimpleString("import SALOME_Container\n");
-      PyRun_SimpleString((char*)myCommand.c_str());
-      PyEval_ReleaseThread(KERNEL_PYTHON::_gtstate);
+      if (!_isSupervContainer)
+	{
+	  Py_ACQUIRE_NEW_THREAD;
+	  PyRun_SimpleString("import SALOME_Container\n");
+	  PyRun_SimpleString((char*)myCommand.c_str());
+	  Py_RELEASE_NEW_THREAD;
+	}
     }
 }
 
@@ -308,14 +294,18 @@ Engines_Container_i::load_component_Library(const char* componentName)
   // --- try import Python component
 
   INFOS("try import Python component "<<componentName);
+  if (_isSupervContainer)
+    {
+      INFOS('Supervision Container does not support Python Component Engines');
+      return false;
+    }
   if (_library_map[aCompName])
     {
       return true; // Python Component, already imported
     }
   else
     {
-      SCRUTE(KERNEL_PYTHON::_gtstate);
-      PyEval_RestoreThread(KERNEL_PYTHON::_gtstate);
+      Py_ACQUIRE_NEW_THREAD;
       PyObject *mainmod = PyImport_AddModule("__main__");
       PyObject *globals = PyModule_GetDict(mainmod);
       PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
@@ -324,7 +314,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
 					     "s",componentName);
       int ret= PyInt_AsLong(result);
       SCRUTE(ret);
-      PyEval_ReleaseThread(KERNEL_PYTHON::_gtstate);
+      Py_RELEASE_NEW_THREAD;
   
       if (ret) // import possible: Python component
 	{
@@ -363,6 +353,11 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
   string aCompName = genericRegisterName;
   if (_library_map[aCompName]) // Python component
     {
+      if (_isSupervContainer)
+	{
+	  INFOS('Supervision Container does not support Python Component Engines');
+	  return Engines::Component::_nil();
+	}
       _numInstanceMutex.lock() ; // lock on the instance number
       _numInstance++ ;
       int numInstance = _numInstance ;
@@ -374,8 +369,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
       string component_registerName =
 	_containerName + "/" + instanceName;
 
-      SCRUTE(KERNEL_PYTHON::_gtstate);
-      PyEval_RestoreThread(KERNEL_PYTHON::_gtstate);
+      Py_ACQUIRE_NEW_THREAD;
       PyObject *mainmod = PyImport_AddModule("__main__");
       PyObject *globals = PyModule_GetDict(mainmod);
       PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
@@ -387,7 +381,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
 					     studyId);
       string iors = PyString_AsString(result);
       SCRUTE(iors);
-      PyEval_ReleaseThread(KERNEL_PYTHON::_gtstate);
+      Py_RELEASE_NEW_THREAD;
   
       CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
       iobject = Engines::Component::_narrow( obj ) ;

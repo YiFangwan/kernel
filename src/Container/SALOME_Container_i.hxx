@@ -112,6 +112,8 @@ protected:
   static std::map<std::string, void *> _toRemove_map;// library names to remove
   static omni_mutex _numInstanceMutex ; // lib and instance protection
 
+  bool _isSupervContainer;
+
   SALOME_NamingService *_NS ;
   std::string _library_path;
   std::string _containerName;

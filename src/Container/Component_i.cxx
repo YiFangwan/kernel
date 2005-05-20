@@ -56,7 +56,8 @@ bool Engines_Component_i::_isMultiInstance = false;
 
 Engines_Component_i::Engines_Component_i()
 {
-  ASSERT(0);
+  //ASSERT(0);
+  INFOS("Default Constructor...");
 }
 
 //=============================================================================
