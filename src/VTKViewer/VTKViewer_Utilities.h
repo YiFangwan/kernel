@@ -35,5 +35,7 @@ extern void ResetCamera(vtkRenderer* theRenderer, int theUsingZeroFocalPoint = f
 extern int ComputeVisiblePropBounds(vtkRenderer* theRenderer, float theBounds[6]);
 extern void ResetCameraClippingRange(vtkRenderer* theRenderer);
 extern float EPS_BNDBOX;
+extern bool ComputeTrihedronSize(vtkRenderer* theRenderer, double& theNewSize, 
+				 const double theSize, const float theSizeInPercents);
 
 #endif

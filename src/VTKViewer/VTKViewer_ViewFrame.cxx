@@ -189,55 +189,15 @@ bool VTKViewer_ViewFrame::isCubeAxesDisplayed(){
   return m_CubeAxes->GetVisibility() == 1;
 }
 
-bool VTKViewer_ViewFrame::ComputeTrihedronSize( double& theNewSize, double& theSize )
-{
-  // calculating diagonal of visible props of the renderer
-  float bnd[ 6 ];
-  m_Triedron->VisibilityOff();
-  if ( ::ComputeVisiblePropBounds( m_Renderer, bnd ) == 0 )
-  {
-    bnd[ 1 ] = bnd[ 3 ] = bnd[ 5 ] = 100;
-    bnd[ 0 ] = bnd[ 2 ] = bnd[ 100 ] = 0;
-  }
-  m_Triedron->VisibilityOn();
-  float aLength = 0;
-  static bool CalcByDiag = false;
-  if ( CalcByDiag )
-  {
-    aLength = sqrt( ( bnd[1]-bnd[0])*(bnd[1]-bnd[0] )+
-                    ( bnd[3]-bnd[2])*(bnd[3]-bnd[2] )+
-                    ( bnd[5]-bnd[4])*(bnd[5]-bnd[4] ) );
-  }
-  else
-  {
-    aLength = bnd[ 1 ]-bnd[ 0 ];
-    aLength = max( ( bnd[ 3 ] - bnd[ 2 ] ),aLength );
-    aLength = max( ( bnd[ 5 ] - bnd[ 4 ] ),aLength );
-  }
-
-  static float aSizeInPercents = 105;
-  QString aSetting = QAD_CONFIG->getSetting( "Viewer:TrihedronSize" );
-  if ( !aSetting.isEmpty() )
-    aSizeInPercents = aSetting.toFloat();
-
-  static float EPS_SIZE = 5.0E-3;
-  theSize = m_Triedron->GetSize();
-  theNewSize = aLength * aSizeInPercents / 100.0;
-
-  // if the new trihedron size have sufficient difference, then apply the value
-  return fabs( theNewSize - theSize) > theSize * EPS_SIZE ||
-         fabs( theNewSize-theSize ) > theNewSize * EPS_SIZE;
-}
-
 double VTKViewer_ViewFrame::GetTrihedronSize() const
 {
   return m_Triedron->GetSize();
 }
 
-void VTKViewer_ViewFrame::AdjustTrihedrons( const bool forcedUpdate )
+void VTKViewer_ViewFrame::AdjustTrihedrons(const bool forced)
 {
   
-  if ( !isCubeAxesDisplayed() && !isTrihedronDisplayed() && !forcedUpdate )
+  if ( (!isCubeAxesDisplayed() || !isTrihedronDisplayed()) && forced)
     return;
 
   float bnd[ 6 ];
@@ -253,11 +213,22 @@ void VTKViewer_ViewFrame::AdjustTrihedrons( const bool forcedUpdate )
 	 << "\tzMin=" << bnd[ 4 ] << " zMax=" << bnd[ 5 ] << "\n";
 
   int aVisibleNum = m_Triedron->GetVisibleActorCount( m_Renderer );
-  if ( aVisibleNum || forcedUpdate )
+  if ( aVisibleNum )
   {
     // if the new trihedron size have sufficient difference, then apply the value
-    double aNewSize = 100, anOldSize;
-    if ( ComputeTrihedronSize( aNewSize, anOldSize ) || forcedUpdate )
+    double aNewSize = 100, anOldSize=m_Triedron->GetSize();
+    
+    m_Triedron->VisibilityOff();
+    m_CubeAxes->VisibilityOff();
+    static float aSizeInPercents = 105;
+    QString aSetting = QAD_CONFIG->getSetting( "Viewer:TrihedronSize" );
+    if ( !aSetting.isEmpty() )
+      aSizeInPercents = aSetting.toFloat();
+    bool isComputeTrihedronSize = ::ComputeTrihedronSize(m_Renderer, aNewSize, anOldSize, aSizeInPercents);
+    m_Triedron->VisibilityOn();
+    m_CubeAxes->VisibilityOn();
+    
+    if ( isComputeTrihedronSize )
     {
       m_Triedron->SetSize( aNewSize );
       // itearte throuh displayed objects and set size if necessary
@@ -307,36 +278,34 @@ void VTKViewer_ViewFrame::AdjustTrihedrons( const bool forcedUpdate )
   ::ResetCameraClippingRange(m_Renderer);
 }
 
-void VTKViewer_ViewFrame::AdjustAxes( const bool forcedUpdate )
-{
-  AdjustTrihedrons(forcedUpdate);
-}
-
 void VTKViewer_ViewFrame::onAdjustTrihedron()
-{   
-  AdjustTrihedrons( false );
+{
+  AdjustTrihedrons(false);
 }
 
-void VTKViewer_ViewFrame::onAdjustAxes()
+void VTKViewer_ViewFrame::onAdjustCubeAxes()
 {   
-  AdjustAxes( false );
+  AdjustTrihedrons(false);
 }
 
 /*!
   Display/hide Trihedron
 */
 void VTKViewer_ViewFrame::onViewTrihedron(){
+  onViewCubeAxes();
   if(!m_Triedron) return;
-  if(isTrihedronDisplayed()){
-    m_Triedron->VisibilityOff();
-    m_CubeAxes->VisibilityOff();
-  }
-  else{
-    m_Triedron->VisibilityOn();
-    m_CubeAxes->VisibilityOn();
-  }
+  if(isTrihedronDisplayed()) m_Triedron->VisibilityOff();
+  else m_Triedron->VisibilityOn();
   Repaint();
 }
+
+void VTKViewer_ViewFrame::onViewCubeAxes(){
+  if(!m_CubeAxes) return;
+  if(isCubeAxesDisplayed()) m_CubeAxes->VisibilityOff();
+  else m_CubeAxes->VisibilityOn();
+  Repaint();
+}
+
 
 /*!
   Provides top projection of the active view
@@ -412,11 +381,11 @@ void VTKViewer_ViewFrame::onViewFitAll(){
   int aTriedronWasVisible = false;
   int aCubeAxesWasVisible = false;
   if(m_Triedron){
-    aTriedronWasVisible = m_Triedron->GetVisibility() == VTKViewer_Trihedron::eOn;
+    aTriedronWasVisible = isTrihedronDisplayed();
     if(aTriedronWasVisible) m_Triedron->VisibilityOff();
   }
   if(m_CubeAxes){
-    aCubeAxesWasVisible = m_CubeAxes->GetVisibility();
+    aCubeAxesWasVisible = isCubeAxesDisplayed();
     if(aCubeAxesWasVisible) m_CubeAxes->VisibilityOff();
   }
 
@@ -443,21 +412,23 @@ void VTKViewer_ViewFrame::onViewFitAll(){
 */
 void VTKViewer_ViewFrame::onViewReset(){
   int aTriedronIsVisible = isTrihedronDisplayed();
+  int aCubeAxesIsVisible = isCubeAxesDisplayed();
+  
   m_Triedron->SetVisibility(VTKViewer_Trihedron::eOnlyLineOn);
-  m_CubeAxes->SetVisibility(2);
+  m_CubeAxes->SetVisibility(0);
+  
   ::ResetCamera(m_Renderer,true);  
   vtkCamera* aCamera = m_Renderer->GetActiveCamera();
   aCamera->SetPosition(1,-1,1);
   aCamera->SetViewUp(0,0,1);
   ::ResetCamera(m_Renderer,true);  
-  if(aTriedronIsVisible){
-    m_Triedron->VisibilityOn();
-    m_CubeAxes->VisibilityOn();
-  }
-  else{
-    m_Triedron->VisibilityOff();
-    m_CubeAxes->VisibilityOff();
-  }
+  
+  if(aTriedronIsVisible) m_Triedron->VisibilityOn();
+  else m_Triedron->VisibilityOff();
+  
+  if(aCubeAxesIsVisible) m_CubeAxes->VisibilityOn();
+  else m_CubeAxes->VisibilityOff();
+
   static float aCoeff = 3.0;
   aCamera->SetParallelScale(aCoeff*aCamera->GetParallelScale());
   Repaint();
@@ -724,9 +695,10 @@ void VTKViewer_ViewFrame::EraseAll()
 }
 
 
-void VTKViewer_ViewFrame::Repaint(bool theUpdateAxes)
+void VTKViewer_ViewFrame::Repaint(bool theUpdateTrihedron)
 {
-  if (theUpdateAxes) onAdjustAxes();
+  if (theUpdateTrihedron) onAdjustTrihedron();
+  //if (theUpdateCubeAxes) onAdjustCubeAxes();
   m_RW->update();
 }
 
@@ -934,9 +906,6 @@ void VTKViewer_ViewFrame::redisplayAll( QAD_Study* theQADStudy, const bool theTo
 
   if ( aComponent->_is_nil() )
     return;
-
-//   bool isTrhDisplayed = isTrihedronDisplayed();
-//   bool isCubeDisplayed = isCubeAxesDisplayed();
 
   m_RWInteractor->RemoveAll( false );
   //m_RWInteractor->EraseAll();

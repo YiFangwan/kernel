@@ -109,10 +109,6 @@ public:
   void                              RemoveActor(SALOME_Actor*, bool update = false);
 
   void                              AdjustTrihedrons( const bool forced );
-  void                              AdjustAxes( const bool forced );
-  
-  bool                              ComputeTrihedronSize( double& theNewSize,
-                                                          double& theOldSize );
   double                            GetTrihedronSize() const;
 
   VTKViewer_Trihedron*              GetTrihedron() {return this->m_Triedron;};
@@ -132,9 +128,11 @@ public slots:
   void                              onViewLeft();     
   void                              onViewBottom();
   void                              onViewTop();
-  void                              onViewTrihedron(); 
+  void                              onViewTrihedron();
+  void                              onViewCubeAxes();
+
   void                              onAdjustTrihedron();
-  void                              onAdjustAxes();
+  void                              onAdjustCubeAxes();
  
   void                              onPanLeft();
   void                              onPanRight();
