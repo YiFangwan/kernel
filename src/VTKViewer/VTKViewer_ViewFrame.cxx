@@ -217,16 +217,17 @@ void VTKViewer_ViewFrame::AdjustTrihedrons(const bool forced)
   {
     // if the new trihedron size have sufficient difference, then apply the value
     double aNewSize = 100, anOldSize=m_Triedron->GetSize();
-    
-    m_Triedron->VisibilityOff();
-    m_CubeAxes->VisibilityOff();
+    bool aTDisplayed = isTrihedronDisplayed();
+    bool aCDisplayed = isCubeAxesDisplayed();
+    if(aTDisplayed) m_Triedron->VisibilityOff();
+    if(aCDisplayed) m_CubeAxes->VisibilityOff();
     static float aSizeInPercents = 105;
     QString aSetting = QAD_CONFIG->getSetting( "Viewer:TrihedronSize" );
     if ( !aSetting.isEmpty() )
       aSizeInPercents = aSetting.toFloat();
     bool isComputeTrihedronSize = ::ComputeTrihedronSize(m_Renderer, aNewSize, anOldSize, aSizeInPercents);
-    m_Triedron->VisibilityOn();
-    m_CubeAxes->VisibilityOn();
+    if(aTDisplayed) m_Triedron->VisibilityOn();
+    if(aCDisplayed) m_CubeAxes->VisibilityOn();
     
     if ( isComputeTrihedronSize )
     {
