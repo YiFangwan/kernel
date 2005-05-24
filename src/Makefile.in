@@ -57,7 +57,7 @@ SUBDIRS = MSG2QM SALOMELocalTrace SALOMETraceCollector Logger Utils CASCatch \
 endif
 
 ifeq (@mpi_ok@,yes)
-  SUBDIRS+= MPIContainer MPILifeCycleCORBA TestMPIContainer
+  SUBDIRS+= MPIContainer TestMPIContainer
 endif
 
 ifeq (@WITH_BATCH@,yes)

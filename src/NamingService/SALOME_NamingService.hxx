@@ -34,6 +34,9 @@
 #include <vector>
 #include <string>
 
+#include <SALOMEconfig.h>
+#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
+#include CORBA_CLIENT_HEADER(SALOME_Component)
 //class ServiceUnreachable;
 #include "ServiceUnreachable.hxx"
 
@@ -59,6 +62,15 @@ public:
   //! method to get the ObjRef of a symbolic name
   CORBA::Object_ptr Resolve(const char* Path)
     throw( ServiceUnreachable); 
+
+  //! method to get the ObjRef of a component
+  CORBA::Object_ptr ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc=0);
+
+  std::string ContainerName(const char *ContainerName);
+  std::string ContainerName(const Engines::MachineParameters& params);
+
+  std::string BuildContainerNameForNS(const char *ContainerName, const char *hostname);
+  std::string BuildContainerNameForNS(const Engines::MachineParameters& params, const char *hostname);
 
   //! method to research a name from the naming service's current directory 
   int Find(const char* name)

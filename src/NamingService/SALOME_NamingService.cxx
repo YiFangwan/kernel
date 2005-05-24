@@ -33,6 +33,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <string>
 
 using namespace std;
 
@@ -366,6 +367,109 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
   delete[] resultat_resolve_Path ;
   
   return _obj;
+}
+
+//----------------------------------------------------------------------
+/*! Function : Resolve Component  from hostname, containername, componentName and number of prcoessors
+ *  Purpose  : method to get the ObjRef of a component
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown 
+ * \param hostname const char* argument
+ * \param containername const char* argument
+ * \param componentname const char* argument
+ * \param nbproc const int argument
+ * \return the object reference
+ */
+//----------------------------------------------------------------------
+
+CORBA::Object_ptr SALOME_NamingService::ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc)
+{
+
+  string name="/Containers/";
+  name += hostname;
+  if( strlen(containerName) != 0 ){
+    name += "/";
+    if( nbproc >=1 ){
+      char *newContainerName = new char[strlen(containerName)+8];
+      sprintf(newContainerName,"%s_%d",containerName,nbproc);
+      name += newContainerName;
+    }
+    else
+      name += containerName;
+    name += "/";
+    name += componentName;
+    return Resolve(name.c_str());
+  }
+  else {
+    Change_Directory(name.c_str());
+    vector<string> contList = list_directory();
+    for(unsigned int ind = 0; ind < contList.size(); ind++){
+      name = contList[ind].c_str();
+      name += "/";
+      name += componentName;
+      CORBA::Object_ptr obj = Resolve(name.c_str());
+      if( !CORBA::is_nil(obj) )
+	return obj;
+    }
+    return CORBA::Object::_nil();
+  }
+
+}
+
+string SALOME_NamingService::ContainerName(const char *containerName)
+{
+  string ret;
+
+  if (strlen(containerName)== 0)
+    ret = "FactoryServer";
+  else
+    ret = containerName;
+
+  return ret;
+}
+
+string SALOME_NamingService::ContainerName(const Engines::MachineParameters& params)
+{
+  int nbproc;
+  if( !params.isMPI )
+    nbproc = 0;
+  else if( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
+    nbproc = 1;
+  else if( params.nb_node == 0 )
+    nbproc = params.nb_proc_per_node;
+  else if( params.nb_proc_per_node == 0 )
+    nbproc = params.nb_node;
+  else
+    nbproc = params.nb_node * params.nb_proc_per_node;
+
+  string ret=ContainerName(params.container_name);
+
+  if( nbproc >=1 ){
+    char *suffix = new char[8];
+    sprintf(suffix,"_%d",nbproc);
+    ret += suffix;
+  }
+
+  return ret;
+}
+
+string SALOME_NamingService::BuildContainerNameForNS(const char *containerName, const char *hostname)
+{
+  string ret="/Containers/";
+  ret += hostname;
+  ret+="/";
+  ret+=ContainerName(containerName);
+
+  return ret;
+}
+
+string SALOME_NamingService::BuildContainerNameForNS(const Engines::MachineParameters& params, const char *hostname)
+{
+  string ret="/Containers/";
+  ret += hostname;
+  ret+="/";
+  ret+=ContainerName(params);
+
+  return ret;
 }
 
 //----------------------------------------------------------------------

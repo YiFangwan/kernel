@@ -33,6 +33,8 @@
 
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Registry)
+#include CORBA_CLIENT_HEADER(SALOME_Component)
+#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 
 #include <IntervalWindow.hxx>
 

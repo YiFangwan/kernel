@@ -407,11 +407,3 @@ string Engines_Component_i::GetDynLibraryName(const char *componentName)
   return ret;
 }
 
-string Engines_Component_i::BuildComponentNameForNS(const char *ComponentName, const char *ContainerName, const char *hostname)
-{
-  string ret=Engines_Container_i::BuildContainerNameForNS(ContainerName,hostname);
-  ret+="/";
-  ret+=ComponentName;
-  return ret;
-}
-

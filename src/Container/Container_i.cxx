@@ -53,8 +53,6 @@ char ** _ArgV ;
 extern "C" {void ActSigIntHandler() ; }
 extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 
-const char *Engines_Container_i::_defaultContainerName="FactoryServer";
-
 Engines_Container_i::Engines_Container_i () :
  _numInstance(0)
 {
@@ -102,8 +100,6 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
   SCRUTE(hostname);
 
-  _containerName = BuildContainerNameForNS(containerName,hostname.c_str());
-
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
 
@@ -116,6 +112,8 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
     CORBA::Object_var obj=_poa->id_to_reference(*_id);
     Engines::Container_var pCont 
       = Engines::Container::_narrow(obj);
+
+    _containerName = _NS->BuildContainerNameForNS(containerName,hostname.c_str());
     SCRUTE(_containerName);
     _NS->Register(pCont, _containerName.c_str()); 
   }
@@ -352,19 +350,6 @@ bool Engines_Container_i::isPythonContainer(const char* ContainerName)
       ret=true;
   return ret;
 }
-
-string Engines_Container_i::BuildContainerNameForNS(const char *ContainerName, const char *hostname)
-{
-  string ret="/Containers/";
-  ret += hostname;
-  ret+="/";
-  if (strlen(ContainerName)== 0)
-    ret+=_defaultContainerName;
-  else
-    ret += ContainerName;
-  return ret;
-}
-
 
 /*
  *  Create one instance of componentName component and register it 

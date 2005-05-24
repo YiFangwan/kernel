@@ -44,18 +44,21 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
 {
   MESSAGE("[" << numproc << "] activate object");
   _id = _poa->activate_object(this);
-  this->_add_ref();
+//   this->_add_ref();
 
   if(numproc==0){
 
-    //   _NS = new SALOME_NamingService(_orb);
-    _NS = SINGLETON_<SALOME_NamingService>::Instance() ;
-    ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
-    _NS->init_orb( orb ) ;
+    _NS = new SALOME_NamingService();
+//     _NS = SINGLETON_<SALOME_NamingService>::Instance() ;
+//     ASSERT(SINGLETON_<SALOME_NamingService>::IsAlreadyExisting()) ;
+    _NS->init_orb( CORBA::ORB::_duplicate(_orb) ) ;
 
 //     Engines::Container_ptr pCont 
 //       = Engines::Container::_narrow(POA_Engines::MPIContainer::_this());
-    Engines::Container_ptr pCont = Engines::Container::_narrow(_poa->id_to_reference(*_id));
+    CORBA::Object_var obj=_poa->id_to_reference(*_id);
+    Engines::Container_var pCont = Engines::Container::_narrow(obj);
+    string hostname = GetHostname();
+    _containerName = _NS->BuildContainerNameForNS(containerName,hostname.c_str());
     SCRUTE(_containerName);
     _NS->Register(pCont, _containerName.c_str());
   }
@@ -388,16 +391,17 @@ void Engines_MPIContainer_i::Lfinalize_removal()
 }
 
 // Load component
-void Engines_MPIContainer_i::MPIShutdown()
+void Engines_MPIContainer_i::Shutdown()
 {
   int ip;
-  MESSAGE("[" << _numproc << "] shutdown of Corba Server");
+  MESSAGE("[" << _numproc << "] shutdown of MPI Corba Server");
   if( _numproc == 0 ){
+    MESSAGE("[" << _numproc << "] destroy from Naming Service of " << _containerName);
+    _NS->Destroy_Name(_containerName.c_str());
     for(ip= 1;ip<_nbproc;ip++)
       (Engines::MPIContainer::_narrow((*_tior)[ip]))->Shutdown();
   }
-
-  Shutdown();
+  _orb->shutdown(0);
 
 }
 

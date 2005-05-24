@@ -93,7 +93,6 @@ public:
   CORBA::Long CpuUsed_impl() ;
 
   static std::string GetDynLibraryName(const char *componentName);
-  static std::string BuildComponentNameForNS(const char *ComponentName, const char *ContainerName, const char *hostname);
 protected:
   std::string _instanceName ;
   std::string _interfaceName ;
