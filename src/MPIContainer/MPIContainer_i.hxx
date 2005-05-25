@@ -48,10 +48,6 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
   // Destructor
   ~Engines_MPIContainer_i();
 
-  // Launch a new MPI container from the current container
-  Engines::MPIContainer_ptr start_MPIimpl(const char* ContainerName,
-					  CORBA::Short nbproc);
-
   // Load a component in current MPI container
   // synchronous version for process 0
   Engines::Component_ptr load_impl(const char* nameToRegister,
@@ -60,18 +56,18 @@ class Engines_MPIContainer_i : public POA_Engines::MPIContainer,
   void Shutdown();
 
   // asynchronous version for other process
-  void SPload_impl(const char* nameToRegister, const char* componentName);
+  void Asload_impl(const char* nameToRegister, const char* componentName);
 
   // Unload a component from current MPI container
   // synchronous version for process 0
   void remove_impl(Engines::Component_ptr component_i);
   // asynchronous version for other process
-  void SPremove_impl(Engines::Component_ptr component_i);
+  void Asremove_impl(Engines::Component_ptr component_i);
 
   // synchronous version for process 0
   void finalize_removal();
   // asynchronous version for other process
-  void SPfinalize_removal();
+  void Asfinalize_removal();
 
  private:
   // local version to not duplicate code 

@@ -31,13 +31,10 @@ module Engines
 {
   interface MPIContainer:Container,MPIObject
   {
-    // start MPI container executable
-    MPIContainer start_MPIimpl( in string ContainerName, in short nbproc );
-
     // asynchronous version to load and remove parallel component in parallel
-    oneway void SPload_impl(in string nameToRegister, in string componentName);
-    oneway void SPremove_impl(in Component component_i);
-    oneway void SPfinalize_removal();
+    oneway void Asload_impl(in string nameToRegister, in string componentName);
+    oneway void Asremove_impl(in Component component_i);
+    oneway void Asfinalize_removal();
   };
 } ;
 

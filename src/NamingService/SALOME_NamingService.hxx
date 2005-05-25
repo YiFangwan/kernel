@@ -109,6 +109,10 @@ public:
   virtual void Destroy_Directory(const char* Path)
     throw(ServiceUnreachable);
 
+  //! method to destroy a directory even if it is not empty
+  virtual void Destroy_FullDirectory(const char* Path)
+    throw(ServiceUnreachable);
+
   //! get IORstring naming service address 
   char * getIORaddr();
 

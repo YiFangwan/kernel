@@ -176,7 +176,6 @@ Engines::Component_ptr SALOME_LifeCycleCORBA::FindComponent(const Engines::Machi
 {
   const char *containerName = params.container_name;
   int nbproc = NbProc(params);
-  cerr << nbproc << endl;;
 
   if (! isKnownComponentClass(componentName)) return Engines::Component::_nil();
 

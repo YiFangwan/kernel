@@ -51,7 +51,6 @@ void SALOME_ContainerManager::ShutdownContainers()
   vector<string> vec=_NS->list_directory_recurs();
   for(vector<string>::iterator iter=vec.begin();iter!=vec.end();iter++)
     {
-      cerr << "SALOME_ContainerManager::ShutdownContainers : " << (*iter).c_str() << endl;
       SCRUTE((*iter));
       CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
       Engines::Container_var cont=Engines::Container::_narrow(obj);
@@ -76,7 +75,6 @@ Engines::Container_ptr SALOME_ContainerManager::FindOrStartContainer(const Engin
     command=_ResManager->BuildTempFileToLaunchRemoteContainer(theMachine,params);
   _ResManager->RmTmpFile();
   int status=system(command.c_str());
-  cerr << status << endl;
   if (status == -1) {
     MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed (system command status -1)");
     return Engines::Container::_nil();

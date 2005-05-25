@@ -146,7 +146,7 @@ void Engines_Container_i::ping()
 void Engines_Container_i::Shutdown()
 {
   MESSAGE("Engines_Container_i::Shutdown()");
-  _NS->Destroy_Name(_containerName.c_str());
+  _NS->Destroy_FullDirectory(_containerName.c_str());
   //_remove_ref();
   //_poa->deactivate_object(*_id);
   if(_isServantAloneInProcess)

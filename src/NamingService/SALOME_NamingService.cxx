@@ -1158,6 +1158,27 @@ void SALOME_NamingService::Destroy_Directory(const char* Path)
 }
 
 //----------------------------------------------------------------------
+/*! Function : Destroy_Directory.
+ *  Purpose  : method to destroy a directory if it is empty.
+ *  WARNING : The complete Path  to the directory (from the root_context)
+ *  to destroy should be given.
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown.
+ * \param Path const char* arguments
+ */
+//----------------------------------------------------------------------
+
+void SALOME_NamingService::Destroy_FullDirectory(const char* Path)
+  throw(ServiceUnreachable)
+{
+  Change_Directory(Path);
+  vector<string> contList = list_directory();
+  for(unsigned int ind = 0; ind < contList.size(); ind++)
+    Destroy_Name(contList[ind].c_str());
+  Destroy_Directory(Path);
+  Destroy_Name(Path);
+}
+
+//----------------------------------------------------------------------
 /*! Function : _initialize_root_context
  * Purpose  :  method called by constructor to initialize _root_context
  */
