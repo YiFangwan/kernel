@@ -294,7 +294,6 @@ void VTKViewer_ViewFrame::onAdjustCubeAxes()
   Display/hide Trihedron
 */
 void VTKViewer_ViewFrame::onViewTrihedron(){
-  onViewCubeAxes();
   if(!m_Triedron) return;
   if(isTrihedronDisplayed()) m_Triedron->VisibilityOff();
   else m_Triedron->VisibilityOn();
