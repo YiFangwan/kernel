@@ -80,7 +80,25 @@ SALOME_CubeAxesActor2D::SALOME_CubeAxesActor2D()
   this->wireActorYZ->GetProperty()->SetAmbient(1);
   this->wireActorXZ->GetProperty()->SetAmbient(1);
 
+  this->XAxis->SetTitle(this->XLabel);
+  this->YAxis->SetTitle(this->YLabel);
+  this->ZAxis->SetTitle(this->ZLabel);
   
+  this->XAxis->SetNumberOfLabels(this->NumberOfLabels);
+  this->YAxis->SetNumberOfLabels(this->NumberOfLabels);
+  this->ZAxis->SetNumberOfLabels(this->NumberOfLabels);
+ 
+  this->XAxis->SetLabelFormat(this->LabelFormat);
+  this->YAxis->SetLabelFormat(this->LabelFormat);
+  this->ZAxis->SetLabelFormat(this->LabelFormat);
+  
+  this->XAxis->SetFontFactor(this->FontFactor);
+  this->YAxis->SetFontFactor(this->FontFactor);
+  this->ZAxis->SetFontFactor(this->FontFactor);
+  
+  this->XAxis->SetProperty(this->GetProperty());
+  this->YAxis->SetProperty(this->GetProperty());
+  this->ZAxis->SetProperty(this->GetProperty());
 }
 
 //----------------------------------------------------------------------------
@@ -322,36 +340,18 @@ int SALOME_CubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->XAxis->GetPositionCoordinate()->SetValue(xCoords[0], xCoords[1]);
   this->XAxis->GetPosition2Coordinate()->SetValue(xCoords[2], xCoords[3]);
   this->XAxis->SetRange(xRange[0], xRange[1]);
-  this->XAxis->SetTitle(this->Labels[xAxes]);
-  this->XAxis->SetNumberOfLabels(this->NumberOfLabels);
-  this->XAxis->SetLabelFormat(this->LabelFormat);
-  this->XAxis->SetFontFactor(this->FontFactor);
-  this->XAxis->SetProperty(this->GetProperty());
   
   this->YAxis->GetPositionCoordinate()->SetValue(yCoords[2], yCoords[3]);
   this->YAxis->GetPosition2Coordinate()->SetValue(yCoords[0], yCoords[1]);
   this->YAxis->SetRange(yRange[1], yRange[0]);
-  this->YAxis->SetTitle(this->Labels[yAxes]);
-  this->YAxis->SetNumberOfLabels(this->NumberOfLabels);
-  this->YAxis->SetLabelFormat(this->LabelFormat);
-  this->YAxis->SetFontFactor(this->FontFactor);
-  this->YAxis->SetProperty(this->GetProperty());
 
   this->ZAxis->GetPositionCoordinate()->SetValue(zCoords[0], zCoords[1]);
   this->ZAxis->GetPosition2Coordinate()->SetValue(zCoords[2], zCoords[3]);
   this->ZAxis->SetRange(zRange[0], zRange[1]);
-  this->ZAxis->SetTitle(this->Labels[zAxes]);
-  this->ZAxis->SetNumberOfLabels(this->NumberOfLabels);
-  this->ZAxis->SetLabelFormat(this->LabelFormat);
-  this->ZAxis->SetFontFactor(this->FontFactor);
-  this->ZAxis->SetProperty(this->GetProperty());
-
   
-  // ENK:: need specify property 
-
-  int numOfLabelsX = XAxis->GetNumberOfLabels();
-  int numOfLabelsY = YAxis->GetNumberOfLabels();
-  int numOfLabelsZ = ZAxis->GetNumberOfLabels();
+  int numOfLabelsX = this->XAxis->GetNumberOfLabels();
+  int numOfLabelsY = this->YAxis->GetNumberOfLabels();
+  int numOfLabelsZ = this->ZAxis->GetNumberOfLabels();
 
   // XCoords coordinates for X grid
   vtkFloatArray *XCoords = vtkFloatArray::New();
