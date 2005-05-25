@@ -151,6 +151,7 @@ void VTKViewer_ViewFrame::InitialSetup() {
   m_CubeAxes->SetCornerOffset(0.0);
   m_CubeAxes->SetScaling(0);
   m_CubeAxes->SetNumberOfLabels(5);
+  m_CubeAxes->VisibilityOff();
   tprop->Delete();
   
   setCentralWidget( m_RW );
