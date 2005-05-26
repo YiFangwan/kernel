@@ -169,6 +169,47 @@ int SALOME_CubeAxesActor2D::RenderOverlay(vtkViewport *viewport)
   return renderedSomething;
 }
 
+static void ChangeValues(float* aArray1,float* aArray2,float *aRange1,float* aRange2,bool theY){
+  float tmp=-1000;
+  if (!theY){
+    for (int i=0; i<4; i++){
+      tmp = aArray1[i]; aArray1[i] = aArray2[i]; aArray2[i] = tmp;
+    }
+    for(int i=0;i<2; i++){
+      tmp = aRange1[i]; aRange1[i] = aRange2[i]; aRange2[i] = tmp;
+    }
+  }
+  else{
+    tmp = aArray1[2]; aArray1[2] = aArray2[0]; aArray2[0] = tmp;
+    tmp = aArray1[3]; aArray1[3] = aArray2[1]; aArray2[1] = tmp;
+    tmp = aArray1[0]; aArray1[0] = aArray2[2]; aArray2[2] = tmp;
+    tmp = aArray1[1]; aArray1[1] = aArray2[3]; aArray2[3] = tmp;
+
+    tmp = aRange1[0]; aRange1[0] = aRange2[1]; aRange2[1] = tmp;
+    tmp = aRange1[1]; aRange1[1] = aRange2[0]; aRange2[0] = tmp;
+  }
+}
+
+static void ChangeArrays(float* xCoords,float* yCoords,float* zCoords,
+			 float* xRange,float* yRange,float* zRange,
+			 const int xAxes,const int yAxes, const int zAxes)
+{
+  if ( xAxes == 0 && yAxes == 2 && zAxes == 1)
+    ChangeValues(yCoords,zCoords,yRange,zRange,true);
+  else if (xAxes == 1 && yAxes == 0 && zAxes == 2)
+    ChangeValues(xCoords,yCoords,xRange,yRange,true);
+  else if (xAxes == 1 && yAxes == 2 && zAxes == 0){
+    ChangeValues(xCoords,zCoords,xRange,zRange,false);
+    // xAxes == 0 && yAxes == 2 && zAxes == 1
+    ChangeValues(yCoords,zCoords,yRange,zRange,true);
+  } else if (xAxes == 2 && yAxes == 0 && zAxes == 1){
+    ChangeValues(xCoords,yCoords,xRange,yRange,true);
+    // xAxes == 0 && yAxes == 2 && zAxes == 1
+    ChangeValues(zCoords,yCoords,zRange,yRange,true);
+  } else if (xAxes == 2 && yAxes == 1 && zAxes == 0)
+    ChangeValues(zCoords,xCoords,zRange,xRange,false);
+}
+
 //----------------------------------------------------------------------------
 // Project the bounding box and compute edges on the border of the bounding
 // cube. Determine which parts of the edges are visible via intersection 
@@ -336,6 +377,15 @@ int SALOME_CubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->Labels[0] = this->XLabel;
   this->Labels[1] = this->YLabel;
   this->Labels[2] = this->ZLabel;
+
+  // correct XAxis, YAxis, ZAxis, which must be 
+  // parallel OX, OY, OZ system coordinates
+  // if xAxes=0 yAxes=1 zAxes=2 - good situation
+  if (!(xAxes == 0 && yAxes == 1 && zAxes == 2))
+    ChangeArrays(xCoords,yCoords,zCoords,
+		 xRange,yRange,zRange,
+		 xAxes,yAxes,zAxes);
+
 
   this->XAxis->GetPositionCoordinate()->SetValue(xCoords[0], xCoords[1]);
   this->XAxis->GetPosition2Coordinate()->SetValue(xCoords[2], xCoords[3]);
