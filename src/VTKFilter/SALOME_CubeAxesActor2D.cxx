@@ -27,6 +27,7 @@
 //  $Header$
 
 #include "SALOME_CubeAxesActor2D.h"
+#include "SALOME_Transform.h"
 
 #include <vtkPolyDataMapper.h>
 #include <vtkRectilinearGridGeometryFilter.h>
@@ -387,17 +388,24 @@ int SALOME_CubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 		 xAxes,yAxes,zAxes);
 
 
+  double aTScale[3];
+  if(m_Transform.GetPointer() != NULL)
+    m_Transform->GetScale(aTScale);
+
   this->XAxis->GetPositionCoordinate()->SetValue(xCoords[0], xCoords[1]);
   this->XAxis->GetPosition2Coordinate()->SetValue(xCoords[2], xCoords[3]);
-  this->XAxis->SetRange(xRange[0], xRange[1]);
+  if(m_Transform.GetPointer() != NULL) this->XAxis->SetRange(xRange[0]/aTScale[0], xRange[1]/aTScale[0]);
+  else this->XAxis->SetRange(xRange[0], xRange[1]);
   
   this->YAxis->GetPositionCoordinate()->SetValue(yCoords[2], yCoords[3]);
   this->YAxis->GetPosition2Coordinate()->SetValue(yCoords[0], yCoords[1]);
-  this->YAxis->SetRange(yRange[1], yRange[0]);
+  if(m_Transform.GetPointer() != NULL) this->YAxis->SetRange(yRange[1]/aTScale[1], yRange[0]/aTScale[1]);
+  else this->YAxis->SetRange(yRange[1], yRange[0]);
 
   this->ZAxis->GetPositionCoordinate()->SetValue(zCoords[0], zCoords[1]);
   this->ZAxis->GetPosition2Coordinate()->SetValue(zCoords[2], zCoords[3]);
-  this->ZAxis->SetRange(zRange[0], zRange[1]);
+  if(m_Transform.GetPointer() != NULL) this->ZAxis->SetRange(zRange[0]/aTScale[2], zRange[1]/aTScale[2]);
+  else this->ZAxis->SetRange(zRange[0], zRange[1]);
   
   int numOfLabelsX = this->XAxis->GetNumberOfLabels();
   int numOfLabelsY = this->YAxis->GetNumberOfLabels();
@@ -604,4 +612,12 @@ void SALOME_CubeAxesActor2D::ReleaseGraphicsResources(vtkWindow *win)
   this->wireActorYZ->ReleaseGraphicsResources(win);
   this->wireActorXZ->ReleaseGraphicsResources(win);
   
+}
+
+void SALOME_CubeAxesActor2D::SetTransform(SALOME_Transform* theTransform){
+  this->m_Transform = theTransform;
+}
+
+SALOME_Transform* SALOME_CubeAxesActor2D::GetTransform(){
+  return (this->m_Transform.GetPointer());
 }

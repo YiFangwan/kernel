@@ -152,6 +152,7 @@ void VTKViewer_ViewFrame::InitialSetup() {
   m_CubeAxes->SetScaling(0);
   m_CubeAxes->SetNumberOfLabels(5);
   m_CubeAxes->VisibilityOff();
+  m_CubeAxes->SetTransform(m_Transform);
   tprop->Delete();
   
   setCentralWidget( m_RW );
@@ -227,8 +228,6 @@ void VTKViewer_ViewFrame::AdjustTrihedrons(const bool forced)
     if ( !aSetting.isEmpty() )
       aSizeInPercents = aSetting.toFloat();
     bool isComputeTrihedronSize = ::ComputeTrihedronSize(m_Renderer, aNewSize, anOldSize, aSizeInPercents);
-    if(aTDisplayed) m_Triedron->VisibilityOn();
-    if(aCDisplayed) m_CubeAxes->VisibilityOn();
     
     m_Triedron->SetSize( aNewSize );
     // itearte throuh displayed objects and set size if necessary
@@ -260,7 +259,15 @@ void VTKViewer_ViewFrame::AdjustTrihedrons(const bool forced)
 	    }
 	  }
       }
+    if(aTDisplayed) m_Triedron->VisibilityOn();
+    if(aCDisplayed) m_CubeAxes->VisibilityOn();
+    
+  } else {
+     double aSize = m_Triedron->GetSize();
+     newbnd[0] = newbnd[2] = newbnd[4] = 0;
+     newbnd[1] = newbnd[3] = newbnd[5] = aSize;
   }
+  
   if( newbnd[0]<VTK_LARGE_FLOAT && newbnd[2]<VTK_LARGE_FLOAT && newbnd[4]<VTK_LARGE_FLOAT &&
       newbnd[1]>-VTK_LARGE_FLOAT && newbnd[3]>-VTK_LARGE_FLOAT && newbnd[5]>-VTK_LARGE_FLOAT){
     for(int i=0;i<6;i++) bnd[i] = newbnd[i];

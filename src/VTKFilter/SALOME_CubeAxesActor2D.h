@@ -29,7 +29,8 @@
 #ifndef __SALOME_CubeAxesActor2D_h
 #define __SALOME_CubeAxesActor2D_h
 
-#include "vtkCubeAxesActor2D.h"
+#include <vtkCubeAxesActor2D.h>
+#include <vtkSmartPointer.h>
 
 class vtkActor;
 class vtkAxisActor2D;
@@ -38,6 +39,7 @@ class vtkDataSet;
 class vtkTextProperty;
 class vtkPolyDataMapper;
 class vtkRectilinearGridGeometryFilter;
+class SALOME_Transform;
 
 class VTK_HYBRID_EXPORT SALOME_CubeAxesActor2D : public vtkCubeAxesActor2D
 {
@@ -66,6 +68,9 @@ public:
   vtkActor* GetWireActorXY(){return this->wireActorXY;}
   vtkActor* GetWireActorYZ(){return this->wireActorYZ;}
   vtkActor* GetWireActorXZ(){return this->wireActorXZ;}
+
+  void SetTransform(SALOME_Transform* theTransform);
+  SALOME_Transform* GetTransform();
   
 protected:
   SALOME_CubeAxesActor2D();
@@ -88,6 +93,7 @@ private:
   vtkRectilinearGridGeometryFilter *planeXZ; // rectilinear grid XZ
   vtkPolyDataMapper *rgridMapperXZ;
   
+  vtkSmartPointer<SALOME_Transform> m_Transform;
 private:
   SALOME_CubeAxesActor2D(const SALOME_CubeAxesActor2D&);  // Not implemented.
   void operator=(const SALOME_CubeAxesActor2D&);  // Not implemented.
