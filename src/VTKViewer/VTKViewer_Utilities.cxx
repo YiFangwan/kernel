@@ -202,7 +202,7 @@ bool ComputeTrihedronSize( vtkRenderer* theRenderer,double& theNewSize,
   if ( ComputeVisiblePropBounds( theRenderer, bnd ) == 0 )
   {
     bnd[ 1 ] = bnd[ 3 ] = bnd[ 5 ] = 100;
-    bnd[ 0 ] = bnd[ 2 ] = bnd[ 100 ] = 0;
+    bnd[ 0 ] = bnd[ 2 ] = bnd[ 4 ] = 0;
   }
   float aLength = 0;
 

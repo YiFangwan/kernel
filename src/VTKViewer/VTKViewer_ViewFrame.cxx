@@ -230,39 +230,36 @@ void VTKViewer_ViewFrame::AdjustTrihedrons(const bool forced)
     if(aTDisplayed) m_Triedron->VisibilityOn();
     if(aCDisplayed) m_CubeAxes->VisibilityOn();
     
-    if ( isComputeTrihedronSize )
-    {
-      m_Triedron->SetSize( aNewSize );
-      // itearte throuh displayed objects and set size if necessary
-
-      vtkActorCollection* anActors = getRenderer()->GetActors();
-      anActors->InitTraversal();
-      while( vtkActor* anActor = anActors->GetNextActor() )
+    m_Triedron->SetSize( aNewSize );
+    // itearte throuh displayed objects and set size if necessary
+    
+    vtkActorCollection* anActors = getRenderer()->GetActors();
+    anActors->InitTraversal();
+    while( vtkActor* anActor = anActors->GetNextActor() )
       {
         if( SALOME_Actor* aSActor = SALOME_Actor::SafeDownCast( anActor ) )
-        {
-          if ( aSActor->IsResizable() )
-            aSActor->SetSize( 0.5 * aNewSize );
-	  if( aSActor->GetVisibility()){
-	    float abounds[6];
-	    aSActor->GetBounds(abounds);
-	    if(MYDEBUG)
-	      cout << "Bounds: Actor="<<aSActor<<"\n"
-		   << "\txMin=" << abounds[ 0 ] << " xMax=" << abounds[ 1 ] << "\n"
-		   << "\tyMin=" << abounds[ 2 ] << " yMax=" << abounds[ 3 ] << "\n"
-		   << "\tzMin=" << abounds[ 4 ] << " zMax=" << abounds[ 5 ] << "\n";
-	    if (  abounds[0] > -VTK_LARGE_FLOAT && abounds[1] < VTK_LARGE_FLOAT &&
-		  abounds[2] > -VTK_LARGE_FLOAT && abounds[3] < VTK_LARGE_FLOAT &&
-		  abounds[4] > -VTK_LARGE_FLOAT && abounds[5] < VTK_LARGE_FLOAT)
-	      for(int i=0;i<5;i=i+2){
-		if(abounds[i]<newbnd[i]) newbnd[i]=abounds[i];
-		if(abounds[i+1]>newbnd[i+1]) newbnd[i+1]=abounds[i+1];
-		
-	      }
+	  {
+	    if ( aSActor->IsResizable() )
+	      aSActor->SetSize( 0.5 * aNewSize );
+	    if( aSActor->GetVisibility()){
+	      float abounds[6];
+	      aSActor->GetBounds(abounds);
+	      if(MYDEBUG)
+		cout << "Bounds: Actor="<<aSActor<<"\n"
+		     << "\txMin=" << abounds[ 0 ] << " xMax=" << abounds[ 1 ] << "\n"
+		     << "\tyMin=" << abounds[ 2 ] << " yMax=" << abounds[ 3 ] << "\n"
+		     << "\tzMin=" << abounds[ 4 ] << " zMax=" << abounds[ 5 ] << "\n";
+	      if (  abounds[0] > -VTK_LARGE_FLOAT && abounds[1] < VTK_LARGE_FLOAT &&
+		    abounds[2] > -VTK_LARGE_FLOAT && abounds[3] < VTK_LARGE_FLOAT &&
+		    abounds[4] > -VTK_LARGE_FLOAT && abounds[5] < VTK_LARGE_FLOAT)
+		for(int i=0;i<5;i=i+2){
+		  if(abounds[i]<newbnd[i]) newbnd[i]=abounds[i];
+		  if(abounds[i+1]>newbnd[i+1]) newbnd[i+1]=abounds[i+1];
+		  
+		}
+	    }
 	  }
-        }
       }
-    }
   }
   if( newbnd[0]<VTK_LARGE_FLOAT && newbnd[2]<VTK_LARGE_FLOAT && newbnd[4]<VTK_LARGE_FLOAT &&
       newbnd[1]>-VTK_LARGE_FLOAT && newbnd[3]>-VTK_LARGE_FLOAT && newbnd[5]>-VTK_LARGE_FLOAT){
