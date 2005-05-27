@@ -41,6 +41,7 @@
 #include "NOTIFICATION.hxx"
 
 class RegistryConnexion;
+class Engines_Container_i;
 
 class Engines_Component_i: public virtual POA_Engines::Component,
 			   public virtual PortableServer::RefCountServantBase
@@ -71,6 +72,7 @@ public:
   void ping();
 
   Engines::Container_ptr GetContainerRef();
+  Engines_Container_i *GetContainerPtr();
   PortableServer::ObjectId * getId(); 
 
   void setProperties(const Engines::FieldsDict& dico);

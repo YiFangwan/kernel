@@ -79,6 +79,9 @@ public:
   CORBA::Long getPID();
   static bool isPythonContainer(const char* ContainerName);
 
+  int getArgc() { return _argc; }
+  char **getArgv() { return _argv; }
+
 protected:
 
   SALOME_NamingService *_NS ;

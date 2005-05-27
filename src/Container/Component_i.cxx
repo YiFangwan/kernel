@@ -125,9 +125,13 @@ void Engines_Component_i::destroy()
 
 Engines::Container_ptr Engines_Component_i::GetContainerRef()
 {
-  MESSAGE("Engines_Component_i::GetContainerRef");
   CORBA::Object_ptr o = _poa->id_to_reference(*_contId) ;
   return Engines::Container::_narrow(o);
+}
+
+Engines_Container_i *Engines_Component_i::GetContainerPtr()
+{
+  return dynamic_cast<Engines_Container_i*>(_poa->id_to_servant(*_contId)) ;
 }
 
 PortableServer::ObjectId * Engines_Component_i::getId()
