@@ -31,11 +31,7 @@
 #include <vtkObjectFactory.h>
 #include <vtkMatrix4x4.h>
 
-#ifdef _DEBUG_
-static int MYDEBUG = 0;
-#else
-static int MYDEBUG = 0;
-#endif
+static double EPS = 10e-4;
 
 using namespace std;
 
@@ -47,10 +43,6 @@ void SALOME_Transform::SetMatrixScale(double theScaleX, double theScaleY, double
                         0,0,theScaleZ,0, 
                         0,0,0,1.0000000};
   this->SetMatrix(aMatrix);
-  if(MYDEBUG)
-    cout << __FILE__ << "[" << __LINE__ << "]:" << endl
-	 << "SetMatrixSize" << endl
-	 << "\t theScaleX=" << theScaleX << " theScaleY=" << theScaleY << " theScaleZ=" << theScaleZ << endl;
 }
 
 void SALOME_Transform::GetMatrixScale(double theScale[3]){
@@ -61,14 +53,12 @@ void SALOME_Transform::GetMatrixScale(double theScale[3]){
   theScale[0] = aScaleX;
   theScale[1] = aScaleY;
   theScale[2] = aScaleZ;
-  if(MYDEBUG)
-    cout << __FILE__ << "[" << __LINE__ << "]:" << endl
-	 << "GetMatrixSize" << endl
-	 << "\t theScaleX=" << theScale[0] << " theScaleY=" << theScale[1] << " theScaleZ=" << theScale[2] << endl;
 }
 
 int SALOME_Transform::IsIdentity(){ 
   double aScale[3];
   this->GetMatrixScale(aScale);
-  return (aScale[0] == 1.0 && aScale[1] == 1.0 && aScale[2] == 1.0);
+  return (fabs(aScale[0] - 1.0) < EPS && 
+	  fabs(aScale[1] - 1.0) < EPS && 
+	  fabs(aScale[2] - 1.0) < EPS);
 }

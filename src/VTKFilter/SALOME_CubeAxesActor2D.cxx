@@ -101,25 +101,27 @@ SALOME_CubeAxesActor2D::SALOME_CubeAxesActor2D()
   this->YAxis->SetProperty(this->GetProperty());
   this->ZAxis->SetProperty(this->GetProperty());
 
-  if (this->AxisLabelTextProperty)
-    {
-      if (this->XAxis->GetLabelTextProperty())
-	this->XAxis->GetLabelTextProperty()->ShallowCopy(this->AxisLabelTextProperty);
-      if (this->YAxis->GetLabelTextProperty())
-	this->YAxis->GetLabelTextProperty()->ShallowCopy(this->AxisLabelTextProperty);
-      if (this->ZAxis->GetLabelTextProperty())
-	this->ZAxis->GetLabelTextProperty()->ShallowCopy(this->AxisLabelTextProperty);
-    }
+  vtkTextProperty* aTLProp = vtkTextProperty::New();
+  aTLProp->SetBold(0);
+  aTLProp->SetItalic(0);
+  aTLProp->SetShadow(0);
+  aTLProp->SetFontFamilyToArial();
+  aTLProp->SetColor(1,1,1);
+  if (this->XAxis->GetLabelTextProperty())
+    this->XAxis->GetLabelTextProperty()->ShallowCopy(aTLProp);
+  if (this->YAxis->GetLabelTextProperty())
+    this->YAxis->GetLabelTextProperty()->ShallowCopy(aTLProp);
+  if (this->ZAxis->GetLabelTextProperty())
+    this->ZAxis->GetLabelTextProperty()->ShallowCopy(aTLProp);;
   
-  if (this->AxisTitleTextProperty)
-    {
-      if (this->XAxis->GetLabelTextProperty())
-	  this->XAxis->GetTitleTextProperty()->ShallowCopy(this->AxisTitleTextProperty);
-      if (this->YAxis->GetLabelTextProperty())
-	this->YAxis->GetTitleTextProperty()->ShallowCopy(this->AxisTitleTextProperty);
-      if (this->ZAxis->GetLabelTextProperty())
-	this->ZAxis->GetTitleTextProperty()->ShallowCopy(this->AxisTitleTextProperty);
-    }
+  if (this->XAxis->GetLabelTextProperty())
+    this->XAxis->GetTitleTextProperty()->ShallowCopy(aTLProp);
+  if (this->YAxis->GetLabelTextProperty())
+    this->YAxis->GetTitleTextProperty()->ShallowCopy(aTLProp);
+  if (this->ZAxis->GetLabelTextProperty())
+    this->ZAxis->GetTitleTextProperty()->ShallowCopy(aTLProp);
+  
+  aTLProp->Delete();
   
 }
 
