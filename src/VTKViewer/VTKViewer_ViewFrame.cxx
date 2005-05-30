@@ -143,12 +143,11 @@ void VTKViewer_ViewFrame::InitialSetup() {
   m_CubeAxes->SetLabelFormat("%6.4g");
   m_CubeAxes->SetBounds(bnd);
   m_CubeAxes->SetCamera(m_Renderer->GetActiveCamera());
-  m_CubeAxes->SetLabelFormat("%6.4g");
   m_CubeAxes->SetFlyModeToOuterEdges(); // ENK remarks: it must bee
   m_CubeAxes->SetFontFactor(0.8);
   m_CubeAxes->SetAxisTitleTextProperty(tprop);
   m_CubeAxes->SetAxisLabelTextProperty(tprop);
-  m_CubeAxes->SetCornerOffset(0.0);
+  m_CubeAxes->SetCornerOffset(0);
   m_CubeAxes->SetScaling(0);
   m_CubeAxes->SetNumberOfLabels(5);
   m_CubeAxes->VisibilityOff();
@@ -708,11 +707,11 @@ void VTKViewer_ViewFrame::Repaint(bool theUpdateTrihedron)
 }
 
 void VTKViewer_ViewFrame::GetScale(double theScale[3]){
-  m_Transform->GetScale(theScale);
+  m_Transform->GetMatrixScale(theScale);
 }
 
 void VTKViewer_ViewFrame::SetScale(double theScale[3]){
-  m_Transform->SetScale(theScale[0], theScale[1], theScale[2]);
+  m_Transform->SetMatrixScale(theScale[0], theScale[1], theScale[2]);
   m_RWInteractor->Render();
   Repaint();
 }
