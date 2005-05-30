@@ -1,5 +1,3 @@
-#  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
-#
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 # 
@@ -22,7 +20,7 @@
 #
 #
 #  File   : Makefile.in
-#  Author : Paul RASCLE, EDF - Marc Tajchman, CEA
+#  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
 
@@ -34,28 +32,21 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 @COMMENCE@
 
-EXPORT_HEADERS = SALOME_LifeCycleCORBA.hxx
-
-EXPORT_PYSCRIPTS = Launchers.py
-
 # Libraries targets
 
-LIB = libSalomeLifeCycleCORBA.la
-LIB_SRC = SALOME_LifeCycleCORBA.cxx Launchers.cxx
-LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
-		 SALOME_ModuleCatalog.idl SALOME_ContainerManager.idl
+LIB = libSALOME_LifeCycleCORBAcmodule.la
+LIB_SRC = 
 
-# Executables targets
-BIN = TestLifeCycleCORBA
-BIN_SRC =
-BIN_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
-		 SALOME_ModuleCatalog.idl SALOME_ContainerManager.idl
+LIB_CLIENT_IDL = SALOME_Component.idl SALOME_ContainerManager.idl
 
-CPPFLAGS += $(PYTHON_INCLUDES) $(QT_MT_INCLUDES)
+SWIG_DEF = libSALOME_LifeCycleCORBA.i
 
-LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSalomeContainer -lSalomeResourcesManager
-LDFLAGSFORBIN= $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMETraceCollector
-LIBS += $(PYTHON_LIBS)
+EXPORT_PYSCRIPTS = libSALOME_LifeCycleCORBA.py LifeCycleCORBA.py TestLifeCycleCORBA.py
+
+CPPFLAGS+= $(PYTHON_INCLUDES)
+
+LIBS+= $(PYTHON_LIBS) -lSalomeLifeCycleCORBA
+
+LDFLAGS+=
 
 @CONCLUDE@
-

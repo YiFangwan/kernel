@@ -42,7 +42,7 @@ class SALOME_NamingService;
 class SALOME_LifeCycleCORBA
 {
 public:
-  SALOME_LifeCycleCORBA(SALOME_NamingService *ns);
+  SALOME_LifeCycleCORBA(SALOME_NamingService *ns = 0);
   virtual ~SALOME_LifeCycleCORBA();
 
   Engines::Container_ptr 
@@ -60,9 +60,9 @@ public:
 		int studyId=0);
 
   Engines::Component_ptr 
-  FindOrLoad_Component(const Engines::MachineParameters& params,
-		       const char *componentName,
-		       int studyId=0);
+  FindElseLoadComponent(const Engines::MachineParameters& params,
+			const char *componentName,
+			int studyId=0);
 
   Engines::Component_ptr
   FindOrLoad_Component(const char *containerName,

@@ -52,7 +52,15 @@ using namespace std;
 
 SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
 {
-  _NS = ns;
+  if (!ns)
+    {
+      int argc = 0;
+      char *xargv = "";
+      char **argv = &xargv;
+      CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+      _NS = new SALOME_NamingService(orb);
+    }
+  else _NS = ns;
   //add try catch
   _NS->Change_Directory("/"); // mpv 250105: current directory may be not root 
                               // (in SALOMEDS for an example)
@@ -188,7 +196,9 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
 //=============================================================================
 /*! Public - 
  *  Find and aready existing and registered component instance or load a new
- *  component instance on a container defined by machine parameters
+ *  component instance on a container defined by machine parameters.
+ *  Renamed (Else / Or) to avoid problems with Python (Swig) version and keep
+ *  compatiblity with existing Python method FindOrLoadComponent
  *  \param params         machine parameters like type or name...
  *  \param componentName  the name of component class
  *  \param studyId        default = 0  : multistudy instance
@@ -198,9 +208,9 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
 
 Engines::Component_ptr
 SALOME_LifeCycleCORBA::
-FindOrLoad_Component(const Engines::MachineParameters& params,
-		     const char *componentName,
-		     int studyId)
+FindElseLoadComponent(const Engines::MachineParameters& params,
+		      const char *componentName,
+		      int studyId)
 {
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
@@ -275,7 +285,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
       params->hostname=CORBA::string_dup(stContainer);
       params->OS=CORBA::string_dup("LINUX");
       free(stContainer);
-      return FindOrLoad_Component(params,componentName);
+      return FindElseLoadComponent(params,componentName);
     }
 }
 

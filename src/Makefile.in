@@ -37,7 +37,7 @@ SUBDIRS = MSG2QM SALOMELocalTrace SALOMETraceCollector Logger Utils CASCatch Pat
           GenericObj MEDWrapper NamingService Registry \
 	  ModuleCatalog DataTypeCatalog RessourcesCatalog \
           ResourcesManager Notification  NOTIFICATION_SWIG \
-	  Container TestContainer LifeCycleCORBA HDFPersist Prs \
+	  Container TestContainer LifeCycleCORBA LifeCycleCORBA_SWIG HDFPersist Prs \
 	  VTKFilter OBJECT \
           TOOLSDS SALOMEDS Event \
           SALOMEGUI TOOLSGUI Plot2d VTKViewer OCCViewer \

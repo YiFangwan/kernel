@@ -21,41 +21,21 @@
 #
 #
 #
-#  File   : Makefile.in
-#  Author : Paul RASCLE, EDF - Marc Tajchman, CEA
+#  File   : LifeCycleCORBA.py
+#  Author : Paul RASCLE, EDF
 #  Module : SALOME
 #  $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
 
+import Engines
+from libSALOME_LifeCycleCORBA import *
 
-@COMMENCE@
+class LifeCycleCORBA (SALOME_LifeCycleCORBA):
 
-EXPORT_HEADERS = SALOME_LifeCycleCORBA.hxx
+    def __init__(self, orb = None):
+        SALOME_LifeCycleCORBA.__init__(self)
 
-EXPORT_PYSCRIPTS = Launchers.py
-
-# Libraries targets
-
-LIB = libSalomeLifeCycleCORBA.la
-LIB_SRC = SALOME_LifeCycleCORBA.cxx Launchers.cxx
-LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
-		 SALOME_ModuleCatalog.idl SALOME_ContainerManager.idl
-
-# Executables targets
-BIN = TestLifeCycleCORBA
-BIN_SRC =
-BIN_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
-		 SALOME_ModuleCatalog.idl SALOME_ContainerManager.idl
-
-CPPFLAGS += $(PYTHON_INCLUDES) $(QT_MT_INCLUDES)
-
-LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSalomeContainer -lSalomeResourcesManager
-LDFLAGSFORBIN= $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMETraceCollector
-LIBS += $(PYTHON_LIBS)
-
-@CONCLUDE@
-
+    def FindOrLoadComponent(self, containerName, componentName):
+        return SALOME_LifeCycleCORBA.FindOrLoad_Component(self,
+                                                          containerName,
+                                                          componentName)
