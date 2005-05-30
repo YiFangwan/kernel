@@ -100,6 +100,27 @@ SALOME_CubeAxesActor2D::SALOME_CubeAxesActor2D()
   this->XAxis->SetProperty(this->GetProperty());
   this->YAxis->SetProperty(this->GetProperty());
   this->ZAxis->SetProperty(this->GetProperty());
+
+  if (this->AxisLabelTextProperty)
+    {
+      if (this->XAxis->GetLabelTextProperty())
+	this->XAxis->GetLabelTextProperty()->ShallowCopy(this->AxisLabelTextProperty);
+      if (this->YAxis->GetLabelTextProperty())
+	this->YAxis->GetLabelTextProperty()->ShallowCopy(this->AxisLabelTextProperty);
+      if (this->ZAxis->GetLabelTextProperty())
+	this->ZAxis->GetLabelTextProperty()->ShallowCopy(this->AxisLabelTextProperty);
+    }
+  
+  if (this->AxisTitleTextProperty)
+    {
+      if (this->XAxis->GetLabelTextProperty())
+	  this->XAxis->GetTitleTextProperty()->ShallowCopy(this->AxisTitleTextProperty);
+      if (this->YAxis->GetLabelTextProperty())
+	this->YAxis->GetTitleTextProperty()->ShallowCopy(this->AxisTitleTextProperty);
+      if (this->ZAxis->GetLabelTextProperty())
+	this->ZAxis->GetTitleTextProperty()->ShallowCopy(this->AxisTitleTextProperty);
+    }
+  
 }
 
 //----------------------------------------------------------------------------
@@ -390,7 +411,7 @@ int SALOME_CubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
 
   double aTScale[3];
   if(m_Transform.GetPointer() != NULL)
-    m_Transform->GetScale(aTScale);
+    m_Transform->GetMatrixScale(aTScale);
 
   this->XAxis->GetPositionCoordinate()->SetValue(xCoords[0], xCoords[1]);
   this->XAxis->GetPosition2Coordinate()->SetValue(xCoords[2], xCoords[3]);
@@ -515,6 +536,7 @@ int SALOME_CubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
   this->wireActorYZ->GetProperty()->SetColor(color);
   this->wireActorXZ->GetProperty()->SetColor(color);
   
+  /*
   // Rebuid text props
   // Perform shallow copy here since each individual axis can be
   // accessed through the class API (i.e. each individual axis text prop
@@ -560,7 +582,7 @@ int SALOME_CubeAxesActor2D::RenderOpaqueGeometry(vtkViewport *viewport)
         this->AxisTitleTextProperty);
       }
     }
-  
+  */  
   this->BuildTime.Modified();
 
   //Render the axes

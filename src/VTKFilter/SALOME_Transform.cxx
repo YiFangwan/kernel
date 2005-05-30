@@ -31,19 +31,44 @@
 #include <vtkObjectFactory.h>
 #include <vtkMatrix4x4.h>
 
+#ifdef _DEBUG_
+static int MYDEBUG = 0;
+#else
+static int MYDEBUG = 0;
+#endif
+
 using namespace std;
 
 vtkStandardNewMacro(SALOME_Transform);
 
-void SALOME_Transform::SetScale(float theScaleX, float theScaleY, float theScaleZ){ 
+void SALOME_Transform::SetMatrixScale(double theScaleX, double theScaleY, double theScaleZ){ 
   double aMatrix[16] = {theScaleX,0,0,0, 
                         0,theScaleY,0,0, 
                         0,0,theScaleZ,0, 
                         0,0,0,1.0000000};
-  vtkTransform::SetMatrix(aMatrix);
+  this->SetMatrix(aMatrix);
+  if(MYDEBUG)
+    cout << __FILE__ << "[" << __LINE__ << "]:" << endl
+	 << "SetMatrixSize" << endl
+	 << "\t theScaleX=" << theScaleX << " theScaleY=" << theScaleY << " theScaleZ=" << theScaleZ << endl;
+}
+
+void SALOME_Transform::GetMatrixScale(double theScale[3]){
+  vtkMatrix4x4 *aTMatrix=this->GetMatrix();
+  const double aScaleX = aTMatrix->GetElement(0,0);
+  const double aScaleY = aTMatrix->GetElement(1,1);
+  const double aScaleZ = aTMatrix->GetElement(2,2);
+  theScale[0] = aScaleX;
+  theScale[1] = aScaleY;
+  theScale[2] = aScaleZ;
+  if(MYDEBUG)
+    cout << __FILE__ << "[" << __LINE__ << "]:" << endl
+	 << "GetMatrixSize" << endl
+	 << "\t theScaleX=" << theScale[0] << " theScaleY=" << theScale[1] << " theScaleZ=" << theScale[2] << endl;
 }
 
 int SALOME_Transform::IsIdentity(){ 
-  float* aScale = GetScale();
+  double aScale[3];
+  this->GetMatrixScale(aScale);
   return (aScale[0] == 1.0 && aScale[1] == 1.0 && aScale[2] == 1.0);
 }
