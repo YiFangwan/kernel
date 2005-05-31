@@ -239,9 +239,8 @@ void VTKViewer_ViewFrame::AdjustTrihedrons(const bool forced)
 	  {
 	    if ( aSActor->IsResizable() )
 	      aSActor->SetSize( 0.5 * aNewSize );
-	    if( aSActor->GetVisibility()){
-	      float abounds[6];
-	      aSActor->GetBounds(abounds);
+	    if( aSActor->GetVisibility() && !aSActor->IsInfinitive()){
+	      float *abounds = aSActor->GetBounds();
 	      if(MYDEBUG)
 		cout << "Bounds: Actor="<<aSActor<<"\n"
 		     << "\txMin=" << abounds[ 0 ] << " xMax=" << abounds[ 1 ] << "\n"
