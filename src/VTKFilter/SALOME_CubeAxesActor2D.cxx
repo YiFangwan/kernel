@@ -106,18 +106,23 @@ SALOME_CubeAxesActor2D::SALOME_CubeAxesActor2D()
   aTLProp->SetItalic(0);
   aTLProp->SetShadow(0);
   aTLProp->SetFontFamilyToArial();
-  aTLProp->SetColor(1,1,1);
+  aTLProp->SetColor(1,0,0);
   if (this->XAxis->GetLabelTextProperty())
     this->XAxis->GetLabelTextProperty()->ShallowCopy(aTLProp);
+  aTLProp->SetColor(0,1,0);
   if (this->YAxis->GetLabelTextProperty())
     this->YAxis->GetLabelTextProperty()->ShallowCopy(aTLProp);
+  aTLProp->SetColor(0,0,1);
   if (this->ZAxis->GetLabelTextProperty())
     this->ZAxis->GetLabelTextProperty()->ShallowCopy(aTLProp);;
-  
+
+  aTLProp->SetColor(1,0,0);
   if (this->XAxis->GetLabelTextProperty())
     this->XAxis->GetTitleTextProperty()->ShallowCopy(aTLProp);
+  aTLProp->SetColor(0,1,0);
   if (this->YAxis->GetLabelTextProperty())
     this->YAxis->GetTitleTextProperty()->ShallowCopy(aTLProp);
+  aTLProp->SetColor(0,0,1);
   if (this->ZAxis->GetLabelTextProperty())
     this->ZAxis->GetTitleTextProperty()->ShallowCopy(aTLProp);
   
