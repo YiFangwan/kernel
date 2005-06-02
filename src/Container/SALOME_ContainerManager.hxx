@@ -15,7 +15,6 @@ class SALOME_ContainerManager: public POA_Engines::ContainerManager,
 			       public PortableServer::RefCountServantBase {
 private:
   SALOME_ResourcesManager *_ResManager;
-  SALOME_LoadRateManager _LoadManager;
   SALOME_NamingService *_NS;
 public:
   SALOME_ContainerManager(CORBA::ORB_ptr orb);

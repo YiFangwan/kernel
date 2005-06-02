@@ -67,7 +67,7 @@ Engines::Container_ptr SALOME_ContainerManager::FindOrStartContainer(const Engin
   // Container doesn't exist try to launch it ...
   MESSAGE("Container doesn't exist try to launch it ...");
   vector<string> vector;
-  string theMachine=_LoadManager.FindBest(possibleComputers);
+  string theMachine=_ResManager->FindBest(possibleComputers);
   string command;
   if(theMachine==GetHostname())
     command=_ResManager->BuildCommandToLaunchLocalContainer(params);
@@ -116,7 +116,7 @@ Engines::MachineList *SALOME_ContainerManager::GetFittingResources(const Engines
 
 char* SALOME_ContainerManager::FindBest(const Engines::MachineList& possibleComputers)
   {
-    string theMachine=_LoadManager.FindBest(possibleComputers);
+    string theMachine=_ResManager->FindBest(possibleComputers);
     return CORBA::string_dup(theMachine.c_str());
   }
 
