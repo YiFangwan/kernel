@@ -72,6 +72,21 @@ case $host_os in
 esac
 
 AC_MSG_CHECKING(for OpenCascade directories)
+
+if test -z $CASROOT; then
+  AC_MSG_RESULT(CASROOT not defined)
+  dnl E.A. : if CASROOT is not defined, trying to find libTKernel.so
+  dnl E.A. : in LD_LIBRARY_PATH ...
+  for d in `echo $LD_LIBRARY_PATH | sed -e "s/:/ /g"` ; do
+    if test -f $d/libTKernel.so ; then
+      AC_MSG_RESULT(libTKernel.so detected in $d)
+      CASROOT=$d
+      CASROOT=`echo ${CASROOT} | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+      break
+    fi
+  done
+fi
+
 if test -d ${CASROOT}/${casdir}/lib; then
   CAS_LDPATH="-L$CASROOT/$casdir/lib "
   AC_MSG_RESULT(yes)
