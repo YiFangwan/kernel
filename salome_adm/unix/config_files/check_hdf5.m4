@@ -46,6 +46,16 @@ LOCAL_LIBS=""
 if test -z $HDF5HOME
 then
    AC_MSG_WARN(undefined HDF5HOME variable which specify hdf5 installation directory)
+   dnl E.A. : If HDF5HOME is not defined, trying to find h5dump in PATH
+   AC_PATH_PROG(H5DUMP, h5dump)
+   if test "xH5DUMP" != "x" ; then
+      HDF5HOME=$H5DUMP
+      HDF5HOME=`echo ${HDF5HOME} | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+      HDF5HOME=`echo ${HDF5HOME} | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+   fi
+fi
+if test ! -z $HDF5HOME
+then
 else
    LOCAL_INCLUDES="-I$HDF5HOME/include"
    LOCAL_LIBS="-L$HDF5HOME/lib"
