@@ -56,7 +56,6 @@ then
 fi
 if test ! -z $HDF5HOME
 then
-else
    LOCAL_INCLUDES="-I$HDF5HOME/include"
    LOCAL_LIBS="-L$HDF5HOME/lib"
 fi
