@@ -40,6 +40,8 @@ else
            SIP_VERS=new2 ;;
 	 4.1*)
 	   SIP_VERS=v4_1 ;;
+	 4.2*)
+	   SIP_VERS=v4_2 ;;
          *)
            AC_MSG_RESULT(sip version $version not supported)
            SIP_VERS=no ;;
@@ -86,10 +88,10 @@ else
 	SIP_LIBS="-L${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/site-packages -lsip"
     fi
 
-    if test "x$SIP_VERS" = "xv4_1"
+    if test "x$SIP_VERS" = "xv4_1" || test "x$SIP_VERS" = "xv4_2"
         then
         dnl 4.1 install : includes and libs are in python install 
-        AC_MSG_RESULT(4.1 install detected)
+        AC_MSG_RESULT($SIP_VERS install detected)
 	sip_ok=yes
         AC_CHECK_FILE($PYTHON_PREFIX/include/python$PYTHON_VERSION/sip.h,sip_ok=$sip_ok,sip_ok=no)
 	SIP_INCLUDES="${PYTHON_INCLUDES}"
