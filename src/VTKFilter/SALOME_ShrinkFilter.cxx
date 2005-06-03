@@ -63,7 +63,12 @@ void SALOME_ShrinkFilter::Execute()
   int i, j, numIds, abort=0;
   vtkIdType cellId, numCells, numPts;
   vtkIdType oldId, newId;
-  float center[3], *p, pt[3];
+  float center[3], pt[3];
+#if ((VTK_MAJOR_VERSION == 4)&&(VTK_MINOR_VERSION <= 2))
+  float *p;
+#else
+  double *p;
+#endif
   vtkPointData *pd, *outPD;;
   vtkIdList *ptIds, *newPtIds;
   vtkDataSet *input= this->GetInput();

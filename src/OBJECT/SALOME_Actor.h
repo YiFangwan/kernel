@@ -92,7 +92,11 @@ class SALOME_Actor : public vtkLODActor{
 
   // For selection mapping purpose
   virtual int GetNodeObjId(int theVtkID) { return theVtkID;}
+#if ((VTK_MAJOR_VERSION == 4)&&(VTK_MINOR_VERSION <= 2))
   virtual float* GetNodeCoord(int theObjID);
+#else
+  virtual double* GetNodeCoord(int theObjID);
+#endif
 
   virtual int GetElemObjId(int theVtkID) { return theVtkID;}
   virtual vtkCell* GetElemCell(int theObjID);

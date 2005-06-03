@@ -130,7 +130,11 @@ void SALOME_GeometryFilter::UnstructuredGridExecute()
   char *cellVis;
   vtkIdType newCellId;
   int faceId, *faceVerts, numFacePts;
+#if ((VTK_MAJOR_VERSION == 4)&&(VTK_MINOR_VERSION <= 2))
   float *x;
+#else
+  double *x;
+#endif
   int PixelConvert[4], aNewPts[VTK_CELL_SIZE];
   // ghost cell stuff
   unsigned char  updateLevel = (unsigned char)(output->GetUpdateGhostLevel());

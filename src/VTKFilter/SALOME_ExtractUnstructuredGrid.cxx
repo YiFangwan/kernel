@@ -267,7 +267,11 @@ void SALOME_ExtractUnstructuredGrid::Execute(){
 	}
       }
       if((aNbElems = aConnectivity->GetNumberOfCells())){
+#if ((VTK_MAJOR_VERSION == 4)&&(VTK_MINOR_VERSION <= 2))
 	vtkIntArray* aCellLocationsArray = vtkIntArray::New();
+#else
+	vtkIdTypeArray* aCellLocationsArray = vtkIdTypeArray::New();
+#endif
 	aCellLocationsArray->SetNumberOfComponents(1);
 	aCellLocationsArray->SetNumberOfTuples(aNbElems);
 	aConnectivity->InitTraversal();
@@ -356,7 +360,11 @@ void SALOME_ExtractUnstructuredGrid::Execute(){
       }
     }
     if((aNbElems = aConnectivity->GetNumberOfCells())){
+#if ((VTK_MAJOR_VERSION == 4)&&(VTK_MINOR_VERSION <= 2))
       vtkIntArray* aCellLocationsArray = vtkIntArray::New();
+#else
+      vtkIdTypeArray* aCellLocationsArray = vtkIdTypeArray::New();
+#endif
       aCellLocationsArray->SetNumberOfComponents(1);
       aCellLocationsArray->SetNumberOfTuples(aNbElems);
       aConnectivity->InitTraversal();

@@ -44,6 +44,10 @@ void SALOME_Transform::SetScale(float theScaleX, float theScaleY, float theScale
 }
 
 int SALOME_Transform::IsIdentity(){ 
+#if ((VTK_MAJOR_VERSION == 4)&&(VTK_MINOR_VERSION <= 2))
   float* aScale = GetScale();
+#else
+  double* aScale = GetScale();
+#endif
   return (aScale[0] == 1.0 && aScale[1] == 1.0 && aScale[2] == 1.0);
 }

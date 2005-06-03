@@ -68,9 +68,18 @@ SALOME_Actor::SALOME_Actor(){
   myIsInfinite = false;
 
   myIsResolveCoincidentTopology = true;
-
-  vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(myPolygonOffsetFactor,
-								 myPolygonOffsetUnits);
+  
+#if ((VTK_MAJOR_VERSION == 4)&&(VTK_MINOR_VERSION <= 2))
+  float a = myPolygonOffsetFactor ;
+  float b = myPolygonOffsetUnits ;
+#else
+  double a = myPolygonOffsetFactor ;
+  double b = myPolygonOffsetUnits ;
+#endif
+  vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(a, b);
+  myPolygonOffsetFactor = a ;
+  myPolygonOffsetUnits = b ;
+  
   myStoreMapping = false;
   myGeomFilter = SALOME_GeometryFilter::New();
 
@@ -154,7 +163,11 @@ void SALOME_Actor::InitPipeLine(vtkMapper* theMapper){
 void SALOME_Actor::Render(vtkRenderer *ren, vtkMapper* m){
   if(myIsResolveCoincidentTopology){
     int aResolveCoincidentTopology = vtkMapper::GetResolveCoincidentTopology();
+#if ((VTK_MAJOR_VERSION == 4)&&(VTK_MINOR_VERSION <= 2))
     float aFactor, aUnit; 
+#else
+    double aFactor, aUnit; 
+#endif
     vtkMapper::GetResolveCoincidentTopologyPolygonOffsetParameters(aFactor,aUnit);
     
     vtkMapper::SetResolveCoincidentTopologyToPolygonOffset();
@@ -242,7 +255,11 @@ vtkCell* SALOME_Actor::GetElemCell(int theObjID){
 }
 
 
+#if ((VTK_MAJOR_VERSION == 4)&&(VTK_MINOR_VERSION <= 2))
 float* SALOME_Actor::GetNodeCoord(int theObjID){
+#else
+double* SALOME_Actor::GetNodeCoord(int theObjID){
+#endif
   return GetInput()->GetPoint(theObjID);
 }
 
@@ -280,7 +297,11 @@ void SALOME_Actor::SetColor(float r,float g,float b){
 }
 
 void SALOME_Actor::GetColor(float& r,float& g,float& b){
+#if ((VTK_MAJOR_VERSION == 4)&&(VTK_MINOR_VERSION <= 2))
   float aColor[3];
+#else
+  double aColor[3];
+#endif
   GetProperty()->GetColor(aColor);
   r = aColor[0];
   g = aColor[1];
