@@ -38,10 +38,14 @@ EXPORT_HEADERS = \
 	qfiledialogP.h
 
 # Libraries targets
+ifeq ($(QT_VERS),v3_3_4)
+	LIB_SRC = qsplitterP.cxx qsplitterP_moc.cxx
+else
 ifeq ($(QT_VERS),v3_3_3)
 	LIB_SRC = qsplitterP.cxx qsplitterP_moc.cxx
 else
 	LIB_SRC = qsplitterP.cxx qsplitterP_moc.cxx qworkspaceP.cxx qworkspaceP_moc.cxx qactionP.cxx qactionP_moc.cxx qfiledialogP.cxx qfiledialogP_moc.cxx
+endif
 endif
 
 LIB = libqsplitterP.la 
