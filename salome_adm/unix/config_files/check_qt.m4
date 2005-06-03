@@ -75,8 +75,14 @@ then
   fi
 fi
 
-version=`moc -v > mocversion 2>&1;cut -c40-44 mocversion;rm -rf mocversion`
+dnl E.A. : replace moc by $MOC (moc may be not in PATH)
+version=`$MOC -v > mocversion 2>&1;cut -c40-44 mocversion;rm -rf mocversion`
 case "$version" in
+  dnl E.A. : adding 3.3.4 for mandrake 10.2
+  3.3.4)
+   QT_VERS=v3_3_4
+   AC_MSG_RESULT(QT3.3.4 install detected)
+   qt_ok=yes;;
   3.3.3)
    QT_VERS=v3_3_3
    AC_MSG_RESULT(QT3.3.3 install detected)
