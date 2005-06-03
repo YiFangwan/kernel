@@ -33,6 +33,21 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 #	$(CURDIR)/sipSalomePyQtSalomePyQt.cc \
 #	$(CURDIR)/sipSalomePyQtSALOME_Selection.cc
 
+ifeq ($(SIP_VERS),v4_2)
+SIP_FLAGS    = -t WS_X11 -t Qt_3_3_0 -s ".cc" -c $(CURDIR) -I $(PYQT_SIPS)
+SIP_SRC=$(CURDIR)/sipSalomePyQtcmodule.cc \
+	$(CURDIR)/sipSalomePyQtSalomePyQt.cc \
+	$(CURDIR)/sipSalomePyQtSALOME_Selection.cc
+# MOC_SRC = sipSalomePyQtcmodule_moc.cxx
+# MOC_H = sipSalomePyQtcmodule.h
+SIP_FILES = SalomePyQt_v4.sip
+#LDFLAGS+= -lSalomeGUI 
+#LDFLAGS+= -lSalomeGUI -module
+LDFLAGS+= -shared -lSalomeGUI
+
+# Libraries targets
+LIB = SalomePyQt.so
+else
 ifeq ($(SIP_VERS),v4_1)
 SIP_FLAGS    = -t WS_X11 -t Qt_3_3_0 -s ".cc" -c $(CURDIR) -I $(PYQT_SIPS)
 SIP_SRC=$(CURDIR)/sipSalomePyQtcmodule.cc \
@@ -76,6 +91,7 @@ LDFLAGS+= -lSalomeGUI -lqtcmodule
 LIB = libSalomePyQtcmodule.la
 
 EXPORT_SHAREDPYSCRIPTS = SalomePyQt.py
+endif
 endif
 endif
 
