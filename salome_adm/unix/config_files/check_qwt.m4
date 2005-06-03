@@ -23,24 +23,45 @@ AC_ARG_WITH(qwt_inc,
 
 if test -z $QWTHOME; then
   AC_MSG_RESULT(QWTHOME not defined)
+  dnl E.A. : Trying to detect QWTHOME
   exits_ok=no	
-  AC_CHECK_FILE("/usr/local/lib/libqwt.so",exits_ok=yes,exits_ok=no)
+  if test "x$exits_ok" = "xno"; then
+     dnl E.A. : Searching for libqwt.so in usual system paths
+     for d in /usr/local /usr ; do
+        AC_CHECK_FILE(${d}/lib/libqwt.so,exits_ok=yes,exits_ok=no)
+        if test "x$exits_ok" = "xyes"; then
+           QWTHOME=$d
+           AC_MSG_RESULT(libqwt.so detected in $d/lib)
+           break
+        fi
+     done
+  fi
+  if test "x$exits_ok" = "xno"; then
+     dnl E.A. : Searching for libqwt.so in LD_LIBRARY_PATH
+     for d in `echo $LD_LIBRARY_PATH | sed -e "s/:/ /g"` ; do
+        if test -f $d/libqwt.so ; then
+           AC_MSG_RESULT(libqwt.so detected in $d)
+           QWTHOME=$d
+           QWTHOME=`echo ${QWTHOME} | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+           exits_ok=yes
+           break
+        fi
+     done
+  fi
+  dnl E.A. : Trying to find QWT_INCLUDES
   if test "x$exits_ok" = "xyes"; then
-     QWTHOME="/usr/local/lib"    
-     AC_MSG_RESULT(libqwt.so detected in /usr/local/lib)
      if test -z $QWT_INCLUDES; then
-        QWT_INCLUDES="/usr/local/include/qwt"
+	dnl E.A. : /usr/lib/qt3/include/qwt for mandrake 10.2 qwt rpm
+	for d in ${QWTHOME}/include/qwt ${QWTHOME}/include /usr/lib/qt3/include/qwt ; do
+           AC_CHECK_FILE(${d}/qwt.h,exits_ok=yes,exits_ok=no)
+           if test "x$exits_ok" = "xyes"; then
+              QWT_INCLUDES=$d
+              AC_MSG_RESULT(qwt.h detected in $d)
+              break
+           fi
+        done
      fi
-  else
-     AC_CHECK_FILE("/usr/lib/libqwt.so",exits_ok=yes,exits_ok=no)
-     if test "x$exits_ok" = "xyes"; then
-       QWTHOME="/usr/lib"   
-       AC_MSG_RESULT(libqwt.so detected in /usr/lib)
-         if test -z $QWT_INCLUDES; then
-           QWT_INCLUDES="/usr/include/qwt"
-         fi
-       fi
-  fi	
+  fi
 else
   if test -z $QWT_INCLUDES; then
      QWT_INCLUDES="$QWTHOME/include"
