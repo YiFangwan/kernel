@@ -26,17 +26,6 @@ if test -z $QWTHOME; then
   dnl E.A. : Trying to detect QWTHOME
   exits_ok=no	
   if test "x$exits_ok" = "xno"; then
-     dnl E.A. : Searching for libqwt.so in usual system paths
-     for d in /usr/local /usr ; do
-        AC_CHECK_FILE(${d}/lib/libqwt.so,exits_ok=yes,exits_ok=no)
-        if test "x$exits_ok" = "xyes"; then
-           QWTHOME=$d
-           AC_MSG_RESULT(libqwt.so detected in $d/lib)
-           break
-        fi
-     done
-  fi
-  if test "x$exits_ok" = "xno"; then
      dnl E.A. : Searching for libqwt.so in LD_LIBRARY_PATH
      for d in `echo $LD_LIBRARY_PATH | sed -e "s/:/ /g"` ; do
         if test -f $d/libqwt.so ; then
@@ -44,6 +33,17 @@ if test -z $QWTHOME; then
            QWTHOME=$d
            QWTHOME=`echo ${QWTHOME} | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
            exits_ok=yes
+           break
+        fi
+     done
+  fi
+  if test "x$exits_ok" = "xno"; then
+     dnl E.A. : Searching for libqwt.so in usual system paths
+     for d in /usr/local /usr ; do
+        AC_CHECK_FILE(${d}/lib/libqwt.so,exits_ok=yes,exits_ok=no)
+        if test "x$exits_ok" = "xyes"; then
+           QWTHOME=$d
+           AC_MSG_RESULT(libqwt.so detected in $d/lib)
            break
         fi
      done
