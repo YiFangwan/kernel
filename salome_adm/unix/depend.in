@@ -44,6 +44,7 @@ depend:.depend
 	            obj=`basename $$dep .c`.lo;				      \
 	            sed '\%^'"$$obj"':%,\%[^\\]$$%d' <$@ >$@- && mv $@- $@;   \
 	            $(CC) $(C_DEPEND_FLAG) $(CPPFLAGS) $$dep 2>/dev/null |    \
+                        sed 's%^  ./%  %g' |				      \
                         sed 's% $(srcdir)/% $$(srcdir)/%g' |		      \
                         sed 's% $(top_srcdir)/% $$(top_srcdir)/%g' |	      \
                         sed 's% $(top_builddir)/% $$(top_builddir)/%g' |      \
@@ -54,6 +55,7 @@ depend:.depend
 	            obj=`basename $$dep .cc`.lo;			      \
 	            sed '\%^'"$$obj"':%,\%[^\\]$$%d' <$@ >$@- && mv $@- $@;   \
 	            $(CXX) $(CXX_DEPEND_FLAG) $(CXXFLAGS) $(CPPFLAGS) $$dep 2>/dev/null | \
+                        sed 's%^  ./%  %g' |				      \
                         sed 's% $(srcdir)/% $$(srcdir)/%g' |		      \
                         sed 's% $(top_srcdir)/% $$(top_srcdir)/%g' |	      \
                         sed 's% $(top_builddir)/% $$(top_builddir)/%g' |      \
@@ -64,6 +66,7 @@ depend:.depend
 	            obj=`basename $$dep .cxx`.lo;			      \
 	            sed '\%^'"$$obj"':%,\%[^\\]$$%d' <$@ >$@- && mv $@- $@;   \
 	            $(CXX) $(CXX_DEPEND_FLAG) $(CXXFLAGS) $(CPPFLAGS) $$dep 2>/dev/null | \
+                        sed 's%^  ./%  %g' |				      \
                         sed 's% $(srcdir)/% $$(srcdir)/%g' |		      \
                         sed 's% $(top_srcdir)/% $$(top_srcdir)/%g' |	      \
                         sed 's% $(top_builddir)/% $$(top_builddir)/%g' |      \
