@@ -106,12 +106,12 @@ static bool IsSelected(Handle(SALOME_InteractiveObject)& theIO,
 static int GetEdgeId(vtkPicker *thePicker, SALOME_Actor *theActor, int theObjId){
   int anEdgeId = -1;
   if (vtkCell* aPickedCell = theActor->GetElemCell(theObjId)) {
-    float aPickPosition[3];
+    _VTK_FLOAT_ aPickPosition[3];
     thePicker->GetPickPosition(aPickPosition);
-    float aMinDist = 1000000.0, aDist = 0;
+    _VTK_FLOAT_ aMinDist = 1000000.0, aDist = 0;
     for (int i = 0, iEnd = aPickedCell->GetNumberOfEdges(); i < iEnd; i++){
       if(vtkLine* aLine = vtkLine::SafeDownCast(aPickedCell->GetEdge(i))){
-	int subId;  float pcoords[3], closestPoint[3], weights[3];
+	int subId;  _VTK_FLOAT_ pcoords[3], closestPoint[3], weights[3];
 	aLine->EvaluatePosition(aPickPosition,closestPoint,subId,pcoords,aDist,weights);
 	if (aDist < aMinDist) {
 	  aMinDist = aDist;
@@ -993,15 +993,15 @@ void VTKViewer_InteractorStyleSALOME::onFinishOperation()
 		    if (vtkDataSet* aDataSet = SActor->GetInput()) {
 		      SALOME_Selection::TContainerOfId anIndices;
 		      for(int i = 0; i < aDataSet->GetNumberOfPoints(); i++) {
-			float aPoint[3];
+			_VTK_FLOAT_ aPoint[3];
 			aDataSet->GetPoint(i,aPoint);
 			if (IsInRect(aPoint,x1,y1,x2,y2)){
-			  float aDisp[3];
+			  _VTK_FLOAT_ aDisp[3];
 			  ComputeWorldToDisplay(aPoint[0],aPoint[1],aPoint[2],aDisp);
 			  if(aPointPicker->Pick(aDisp[0],aDisp[1],0.0,CurrentRenderer)){
 			    if(vtkActorCollection *anActorCollection = aPointPicker->GetActors()){
 			      if(anActorCollection->IsItemPresent(SActor)){
-				float aPickedPoint[3];
+				_VTK_FLOAT_ aPickedPoint[3];
 				aPointPicker->GetMapperPosition(aPickedPoint);
 				vtkIdType aVtkId = aDataSet->FindPoint(aPickedPoint);
 				if ( aVtkId >= 0 && IsValid( SActor, aVtkId, true ) ){
@@ -1351,7 +1351,7 @@ void VTKViewer_InteractorStyleSALOME::TranslateView(int toX, int toY, int fromX,
 {
   vtkCamera *cam = this->CurrentRenderer->GetActiveCamera();
   double viewFocus[4], focalDepth, viewPoint[3];
-  float newPickPoint[4], oldPickPoint[4], motionVector[3];
+  _VTK_FLOAT_ newPickPoint[4], oldPickPoint[4], motionVector[3];
   cam->GetFocalPoint(viewFocus);
 
   this->ComputeWorldToDisplay(viewFocus[0], viewFocus[1],
@@ -1384,17 +1384,17 @@ bool VTKViewer_InteractorStyleSALOME::IsInRect(vtkActor* theActor,
 					       const int left, const int top, 
 					       const int right, const int bottom)
 {
-  float* aBounds = theActor->GetBounds();
-  float aMin[3], aMax[3];
+  _VTK_FLOAT_* aBounds = theActor->GetBounds();
+  _VTK_FLOAT_ aMin[3], aMax[3];
   ComputeWorldToDisplay(aBounds[0], aBounds[2], aBounds[4], aMin);
   ComputeWorldToDisplay(aBounds[1], aBounds[3], aBounds[5], aMax);
   if (aMin[0] > aMax[0]) {
-    float aBuf = aMin[0];
+    _VTK_FLOAT_ aBuf = aMin[0];
     aMin[0] = aMax[0];
     aMax[0] = aBuf;
   }
   if (aMin[1] > aMax[1]) {
-    float aBuf = aMin[1];
+    _VTK_FLOAT_ aBuf = aMin[1];
     aMin[1] = aMax[1];
     aMax[1] = aBuf;    
   }
@@ -1408,17 +1408,17 @@ bool VTKViewer_InteractorStyleSALOME::IsInRect(vtkCell* theCell,
 					       const int left, const int top, 
 					       const int right, const int bottom)
 {
-  float* aBounds = theCell->GetBounds();
-  float aMin[3], aMax[3];
+  _VTK_FLOAT_* aBounds = theCell->GetBounds();
+  _VTK_FLOAT_ aMin[3], aMax[3];
   ComputeWorldToDisplay(aBounds[0], aBounds[2], aBounds[4], aMin);
   ComputeWorldToDisplay(aBounds[1], aBounds[3], aBounds[5], aMax);
   if (aMin[0] > aMax[0]) {
-    float aBuf = aMin[0];
+    _VTK_FLOAT_ aBuf = aMin[0];
     aMin[0] = aMax[0];
     aMax[0] = aBuf;
   }
   if (aMin[1] > aMax[1]) {
-    float aBuf = aMin[1];
+    _VTK_FLOAT_ aBuf = aMin[1];
     aMin[1] = aMax[1];
     aMax[1] = aBuf;    
   }
@@ -1427,11 +1427,11 @@ bool VTKViewer_InteractorStyleSALOME::IsInRect(vtkCell* theCell,
 }
 
 
-bool VTKViewer_InteractorStyleSALOME::IsInRect(float* thePoint, 
+bool VTKViewer_InteractorStyleSALOME::IsInRect(_VTK_FLOAT_* thePoint, 
 					       const int left, const int top, 
 					       const int right, const int bottom)
 {
-  float aPnt[3];
+  _VTK_FLOAT_ aPnt[3];
   ComputeWorldToDisplay(thePoint[0], thePoint[1], thePoint[2], aPnt);
 
   return ((aPnt[0]>left) && (aPnt[0]<right) && (aPnt[1]>bottom) && (aPnt[1]<top));

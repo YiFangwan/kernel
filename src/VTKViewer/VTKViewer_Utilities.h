@@ -29,11 +29,13 @@
 #ifndef VTKViewer_Utilities_H
 #define VTKViewer_Utilities_H
 
+#include "VTKViewer_Definitions.h"
+
 class vtkRenderer;
 
 extern void ResetCamera(vtkRenderer* theRenderer, int theUsingZeroFocalPoint = false);
-extern int ComputeVisiblePropBounds(vtkRenderer* theRenderer, float theBounds[6]);
+extern int ComputeVisiblePropBounds(vtkRenderer* theRenderer, _VTK_FLOAT_ theBounds[6]);
 extern void ResetCameraClippingRange(vtkRenderer* theRenderer);
-extern float EPS_BNDBOX;
+extern _VTK_FLOAT_ EPS_BNDBOX;
 
 #endif

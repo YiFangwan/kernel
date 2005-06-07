@@ -38,13 +38,13 @@
 
 using namespace std;
 
-//see vtkRenderer::ResetCamera(float bounds[6]) method
+//see vtkRenderer::ResetCamera(_VTK_FLOAT_ bounds[6]) method
 void ResetCamera(vtkRenderer* theRenderer, int theUsingZeroFocalPoint){  
   if(!theRenderer) return;
-  float bounds[6];
+  _VTK_FLOAT_ bounds[6];
   int aCount = ComputeVisiblePropBounds(theRenderer,bounds);
   if(theUsingZeroFocalPoint || aCount){
-    float aLength = bounds[1]-bounds[0];
+    _VTK_FLOAT_ aLength = bounds[1]-bounds[0];
     aLength = max((bounds[3]-bounds[2]),aLength);
     aLength = max((bounds[5]-bounds[4]),aLength);
     
@@ -56,7 +56,7 @@ void ResetCamera(vtkRenderer* theRenderer, int theUsingZeroFocalPoint){
       return;
     }
     
-    float center[3] = {0.0, 0.0, 0.0};
+    _VTK_FLOAT_ center[3] = {0.0, 0.0, 0.0};
     if(!theUsingZeroFocalPoint){
       center[0] = (bounds[0] + bounds[1])/2.0;
       center[1] = (bounds[2] + bounds[3])/2.0;
@@ -64,12 +64,12 @@ void ResetCamera(vtkRenderer* theRenderer, int theUsingZeroFocalPoint){
     }
     theRenderer->GetActiveCamera()->SetFocalPoint(center[0],center[1],center[2]);
     
-    float width = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
+    _VTK_FLOAT_ width = sqrt((bounds[1]-bounds[0])*(bounds[1]-bounds[0]) +
 		       (bounds[3]-bounds[2])*(bounds[3]-bounds[2]) +
 		       (bounds[5]-bounds[4])*(bounds[5]-bounds[4]));
     
     double ang = theRenderer->GetActiveCamera()->GetViewAngle();
-    float distance = 2.0*width/tan(ang*vtkMath::Pi()/360.0);
+    _VTK_FLOAT_ distance = 2.0*width/tan(ang*vtkMath::Pi()/360.0);
     
     // check view-up vector against view plane normal
     double *vup = theRenderer->GetActiveCamera()->GetViewUp();
@@ -84,7 +84,7 @@ void ResetCamera(vtkRenderer* theRenderer, int theUsingZeroFocalPoint){
 						center[2]+distance*vn[2]);
     // find size of the window
     int* winsize = theRenderer->GetSize();
-    if(winsize[0] < winsize[1]) width *= float(winsize[1])/float(winsize[0]);
+    if(winsize[0] < winsize[1]) width *= _VTK_FLOAT_(winsize[1])/_VTK_FLOAT_(winsize[0]);
     
     if(theUsingZeroFocalPoint) width *= sqrt(2.0);
     
@@ -97,9 +97,9 @@ void ResetCamera(vtkRenderer* theRenderer, int theUsingZeroFocalPoint){
 
 
 // Compute the bounds of the visible props
-int ComputeVisiblePropBounds(vtkRenderer* theRenderer, float theBounds[6]){
+int ComputeVisiblePropBounds(vtkRenderer* theRenderer, _VTK_FLOAT_ theBounds[6]){
   vtkProp    *prop;
-  float      *bounds;
+  _VTK_FLOAT_      *bounds;
   int        aCount=0;
 
   theBounds[0] = theBounds[2] = theBounds[4] = VTK_LARGE_FLOAT;
@@ -154,7 +154,7 @@ int ComputeVisiblePropBounds(vtkRenderer* theRenderer, float theBounds[6]){
 }
 
 
-//see vtkRenderer::ResetCameraClippingRange(float bounds[6]) method
+//see vtkRenderer::ResetCameraClippingRange(_VTK_FLOAT_ bounds[6]) method
 void ResetCameraClippingRange(vtkRenderer* theRenderer){
   if(!theRenderer || !theRenderer->VisibleActorCount()) return;
 
@@ -170,7 +170,7 @@ void ResetCameraClippingRange(vtkRenderer* theRenderer){
   double  position[3];
   anActiveCamera->GetPosition(position);
 
-  float bounds[6];
+  _VTK_FLOAT_ bounds[6];
   theRenderer->ComputeVisiblePropBounds(bounds);
 
   double center[3];
@@ -186,7 +186,7 @@ void ResetCameraClippingRange(vtkRenderer* theRenderer){
 			 (position[1]-center[1])*(position[1]-center[1]) +
 			 (position[2]-center[2])*(position[2]-center[2]));
 
-  float range[2] = {distance - width/2.0, distance + width/2.0};
+  _VTK_FLOAT_ range[2] = {distance - width/2.0, distance + width/2.0};
 
   // Do not let the range behind the camera throw off the calculation.
   if (range[0] < 0.0) range[0] = 0.0;

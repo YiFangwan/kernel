@@ -27,6 +27,7 @@
 //  $Header$
 
 #include "VTKViewer_RenderWindow.h"
+#include "VTKViewer_Definitions.h"
 #include "utilities.h"
 #include "QAD_Settings.h"
 #include "QAD_Config.h"
@@ -185,8 +186,8 @@ void VTKViewer_RenderWindow::onCreatePopup()
 
 void VTKViewer_RenderWindow::onChangeBackgroundColor()
 {
-  float red, green, blue;
-  float backint[3];
+  _VTK_FLOAT_ red, green, blue;
+  _VTK_FLOAT_ backint[3];
 
   vtkRendererCollection * theRenderers = myRW->GetRenderers();
   theRenderers->InitTraversal();

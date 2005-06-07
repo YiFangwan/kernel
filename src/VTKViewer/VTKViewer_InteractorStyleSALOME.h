@@ -29,6 +29,7 @@
 #ifndef __VTKViewer_InteractorStyleSALOME_h
 #define __VTKViewer_InteractorStyleSALOME_h
 
+#include "VTKViewer_Definitions.h"
 #include <vtkInteractorStyle.h>
 
 class vtkCell;
@@ -116,13 +117,13 @@ class VTKViewer_InteractorStyleSALOME : public QObject, public vtkInteractorStyl
   bool IsInRect(vtkCell* theCell, 
 		const int left, const int top, 
 		const int right, const int bottom);
-  bool IsInRect(float* thePoint, 
+  bool IsInRect(_VTK_FLOAT_* thePoint, 
 		const int left, const int top, 
 		const int right, const int bottom);
 
   int State;
-  float MotionFactor;
-  float RadianToDegree;                 // constant: for conv from deg to rad
+  _VTK_FLOAT_ MotionFactor;
+  _VTK_FLOAT_ RadianToDegree;                 // constant: for conv from deg to rad
   double myScale;
 
   SALOME_Actor* myPreViewActor;

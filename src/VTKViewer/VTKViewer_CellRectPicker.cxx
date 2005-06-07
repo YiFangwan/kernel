@@ -68,7 +68,7 @@ void VTKViewer_CellRectPicker::Initialize()
 }
 
 //----------------------------------------------------------------------------
-float VTKViewer_CellRectPicker::IntersectWithHex(float p1[4][4], float p2[4][4], float tol, 
+_VTK_FLOAT_ VTKViewer_CellRectPicker::IntersectWithHex(_VTK_FLOAT_ p1[4][4], _VTK_FLOAT_ p2[4][4], _VTK_FLOAT_ tol, 
 						 vtkAssemblyPath *path, vtkProp3D *prop3D, 
 						 vtkAbstractMapper3D *m)
 {
@@ -93,9 +93,9 @@ float VTKViewer_CellRectPicker::IntersectWithHex(float p1[4][4], float p2[4][4],
   }
 
   int i, k, subId;
-  float bounds[6], center[3], cp1[3], cp2[3];
-  float pcoord[3], weight[4], dist;
-  float t1[2], t2[2], x[3], t;
+  _VTK_FLOAT_ bounds[6], center[3], cp1[3], cp2[3];
+  _VTK_FLOAT_ pcoord[3], weight[4], dist;
+  _VTK_FLOAT_ t1[2], t2[2], x[3], t;
 
   for (k = 0; k < 4; k++) {
     this->Quad1->PointIds->SetId(k, k);
@@ -118,8 +118,8 @@ float VTKViewer_CellRectPicker::IntersectWithHex(float p1[4][4], float p2[4][4],
   VTKViewer_CellData cellData;
   VTKViewer_CellDataSet dataList;
 
-  char inside; int n; float *point;
-  float tMin = VTK_LARGE_FLOAT, xMin[3];
+  char inside; int n; _VTK_FLOAT_ *point;
+  _VTK_FLOAT_ tMin = VTK_LARGE_FLOAT, xMin[3];
   for (cellId = 0; cellId < numCells; cellId++) {
     input->GetCell(cellId, this->Cell);
 
@@ -206,7 +206,7 @@ void VTKViewer_CellRectPicker::IncludeCell(vtkDataSet* input,
     sub1 = cell1->GetFace(cellData.subId);
 
   int i, result;
-  float p1[3], p2[3], dir[3];
+  _VTK_FLOAT_ p1[3], p2[3], dir[3];
   char add = 1;
 
   VTKViewer_CellData curData;
@@ -274,7 +274,7 @@ void VTKViewer_CellRectPicker::IncludeActor(vtkProp3D* prop,
   vtkGenericCell* cell2 = vtkGenericCell::New();
 
   int i, result;
-  float p1[3], p2[3], dir[3];
+  _VTK_FLOAT_ p1[3], p2[3], dir[3];
   char removed;
 
   VTKViewer_CellDataSet actorData;
@@ -331,10 +331,10 @@ void VTKViewer_CellRectPicker::IncludeActor(vtkProp3D* prop,
   cell2->Delete();
 }
 
-int VTKViewer_CellRectPicker::IntersectCells(vtkCell* c1, float d1, vtkCell* c2, float d2, float dir[3])
+int VTKViewer_CellRectPicker::IntersectCells(vtkCell* c1, _VTK_FLOAT_ d1, vtkCell* c2, _VTK_FLOAT_ d2, _VTK_FLOAT_ dir[3])
 {
   int i, k;
-  float *orig, cp[3], bounds[6];
+  _VTK_FLOAT_ *orig, cp[3], bounds[6];
   vtkCell* cell = 0;
   vtkCell* tcell = 0;
 
@@ -358,10 +358,10 @@ int VTKViewer_CellRectPicker::IntersectCells(vtkCell* c1, float d1, vtkCell* c2,
       cp[i] = (bounds[2*i] + bounds[2*i+1])/2;
   }
 
-  float proj[3];
+  _VTK_FLOAT_ proj[3];
   vtkPlane::GeneralizedProjectPoint(cp, orig, dir, proj);
 
-  float *p, pp[3];
+  _VTK_FLOAT_ *p, pp[3];
   vtkPoints* aPoints = vtkPoints::New();
   for (k = 0; k < cell->Points->GetNumberOfPoints(); k++) {
     p = cell->Points->GetPoint(k);
@@ -390,10 +390,10 @@ int VTKViewer_CellRectPicker::IntersectCells(vtkCell* c1, float d1, vtkCell* c2,
   return result;
 }
 
-char VTKViewer_CellRectPicker::PointInside(float point[3], vtkPoints* list)
+char VTKViewer_CellRectPicker::PointInside(_VTK_FLOAT_ point[3], vtkPoints* list)
 {
   int i, k, l, n;
-  float x[3], *a1, *a2, v[3], p[3], q[3];
+  _VTK_FLOAT_ x[3], *a1, *a2, v[3], p[3], q[3];
 
   n = list->GetNumberOfPoints();
   if (n < 3) return 0;

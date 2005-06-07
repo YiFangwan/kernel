@@ -58,32 +58,32 @@ VTKViewer_RectPicker::VTKViewer_RectPicker()
 }
 
 //----------------------------------------------------------------------------
-int VTKViewer_RectPicker::Pick(float selectionX1, float selectionY1, float selectionZ1,
-			       float selectionX2, float selectionY2, float selectionZ2,
+int VTKViewer_RectPicker::Pick(_VTK_FLOAT_ selectionX1, _VTK_FLOAT_ selectionY1, _VTK_FLOAT_ selectionZ1,
+			       _VTK_FLOAT_ selectionX2, _VTK_FLOAT_ selectionY2, _VTK_FLOAT_ selectionZ2,
 			       vtkRenderer *renderer)
 {
   int k, i;
   vtkProp *prop;
   vtkCamera *camera;
   vtkAbstractMapper3D *mapper = NULL;
-  float p1World[4][4], p2World[4][4], p1Mapper[4][4], p2Mapper[4][4];
-  float c1[3], c2[3];
+  _VTK_FLOAT_ p1World[4][4], p2World[4][4], p1Mapper[4][4], p2Mapper[4][4];
+  _VTK_FLOAT_ c1[3], c2[3];
   int picked=0;
   int *winSize;
-  float x, y, t, p;
-  float *viewport;
-  float cameraPos[4], cameraFP[4];
-  float *displayCoords, *worldCoords;
-  float pickPosition[4][3];
+  _VTK_FLOAT_ x, y, t, p;
+  _VTK_FLOAT_ *viewport;
+  _VTK_FLOAT_ cameraPos[4], cameraFP[4];
+  _VTK_FLOAT_ *displayCoords, *worldCoords;
+  _VTK_FLOAT_ pickPosition[4][3];
   double *clipRange;
-  float ray[4][3], rayLength[4];
+  _VTK_FLOAT_ ray[4][3], rayLength[4];
   int pickable;
   int LODId;
-  float windowLowerLeft[4], windowUpperRight[4];
-  float bounds[6], tol;
-  float tF, tB;
-  float hitPosition[3];
-  float cameraDOP[3];
+  _VTK_FLOAT_ windowLowerLeft[4], windowUpperRight[4];
+  _VTK_FLOAT_ bounds[6], tol;
+  _VTK_FLOAT_ tF, tB;
+  _VTK_FLOAT_ hitPosition[3];
+  _VTK_FLOAT_ cameraDOP[3];
   
   //  Initialize picking process
   this->Initialize();
@@ -108,8 +108,8 @@ int VTKViewer_RectPicker::Pick(float selectionX1, float selectionY1, float selec
   // coordinates. We need a depth value for z-buffer.
   //
   camera = renderer->GetActiveCamera();
-  camera->GetPosition((float *)cameraPos); cameraPos[3] = 1.0;
-  camera->GetFocalPoint((float *)cameraFP); cameraFP[3] = 1.0;
+  camera->GetPosition((_VTK_FLOAT_ *)cameraPos); cameraPos[3] = 1.0;
+  camera->GetFocalPoint((_VTK_FLOAT_ *)cameraFP); cameraFP[3] = 1.0;
 
   renderer->SetWorldPoint(cameraFP);
   renderer->WorldToDisplay();
@@ -396,13 +396,13 @@ int VTKViewer_RectPicker::Pick(float selectionX1, float selectionY1, float selec
 #define SIDE_RIGHT 1
 #define SIDE_MIDDLE 2
 
-float GetParameterValue(float start, float end, float point)
+_VTK_FLOAT_ GetParameterValue(_VTK_FLOAT_ start, _VTK_FLOAT_ end, _VTK_FLOAT_ point)
 {
   if (start == end) return -VTK_LARGE_FLOAT;
   return (point-start)/(end-start);
 }
 
-void GetPointCoord(const float start[3], const float end[3], float t, float point[3])
+void GetPointCoord(const _VTK_FLOAT_ start[3], const _VTK_FLOAT_ end[3], _VTK_FLOAT_ t, _VTK_FLOAT_ point[3])
 {
   int i;
   for (i = 0; i < 3; i++) {
@@ -410,10 +410,10 @@ void GetPointCoord(const float start[3], const float end[3], float t, float poin
   }
 }
 
-char GetIntersectionPoint(const float start[3], const float end[3], 
-			  const int& index, const float p, float point[3])
+char GetIntersectionPoint(const _VTK_FLOAT_ start[3], const _VTK_FLOAT_ end[3], 
+			  const int& index, const _VTK_FLOAT_ p, _VTK_FLOAT_ point[3])
 {
-  float t = GetParameterValue(start[index], end[index], p);
+  _VTK_FLOAT_ t = GetParameterValue(start[index], end[index], p);
   char result = 0;
   if (t >= 0.0 && t <= 1.0) {
     result = 1;
@@ -423,10 +423,10 @@ char GetIntersectionPoint(const float start[3], const float end[3],
 }
 
 //----------------------------------------------------------------------------
-char VTKViewer_RectPicker::HitBBox (float bounds[6], float origin[4][4], float dir[4][3])
+char VTKViewer_RectPicker::HitBBox (_VTK_FLOAT_ bounds[6], _VTK_FLOAT_ origin[4][4], _VTK_FLOAT_ dir[4][3])
 {
   int i, j, k, n;
-  float endray[4][3];
+  _VTK_FLOAT_ endray[4][3];
 
   for (k = 0; k < 4; k++) {
     for (i = 0; i < 3; i++) {
@@ -435,7 +435,7 @@ char VTKViewer_RectPicker::HitBBox (float bounds[6], float origin[4][4], float d
   }
 
   // Compute hex bounding box, center point and center direction
-  float hbounds[6], center[3], ray[3];
+  _VTK_FLOAT_ hbounds[6], center[3], ray[3];
   for (i = 0; i < 3; i++) {
     hbounds[2*i] = hbounds[2*i+1] = origin[0][i];
     center[i] = ray[i] = 0;
@@ -478,7 +478,7 @@ char VTKViewer_RectPicker::HitBBox (float bounds[6], float origin[4][4], float d
 
   // Find the closest coord plane for the center point
   char side[3];
-  float coordPlane[3];
+  _VTK_FLOAT_ coordPlane[3];
   inside = 1;
   for (i = 0; i < 3; i++) {
     if (center[i] < bounds[2*i]) {
@@ -499,7 +499,7 @@ char VTKViewer_RectPicker::HitBBox (float bounds[6], float origin[4][4], float d
   if (inside) return 1;
 
   // Calculate parametric distances to the planes and find the max
-  float maxT[3];
+  _VTK_FLOAT_ maxT[3];
   int whichPlane = 0;
   char defined = 0;
   for (i = 0; i < 3; i++) {
@@ -516,7 +516,7 @@ char VTKViewer_RectPicker::HitBBox (float bounds[6], float origin[4][4], float d
   }
 
   // Check for intersection along the center ray
-  float coord;
+  _VTK_FLOAT_ coord;
   if (maxT[whichPlane] <= 1.0 && maxT[whichPlane] >= 0.0) {
     inside = 1;
     for (i = 0; i < 3; i++) {
@@ -545,7 +545,7 @@ char VTKViewer_RectPicker::HitBBox (float bounds[6], float origin[4][4], float d
   }
 
   // Compute the intersection between hex and coord plane
-  float t[4];
+  _VTK_FLOAT_ t[4];
   for (k = 0; k < 4; k++) {
     if (dir[k][whichPlane] != 0.0) {
       t[k] = (coordPlane[whichPlane]-origin[k][whichPlane])/dir[k][whichPlane];
@@ -556,7 +556,7 @@ char VTKViewer_RectPicker::HitBBox (float bounds[6], float origin[4][4], float d
   }
 
   vtkPoints* aPoints = vtkPoints::New();
-  float p[3], q[3], t1;
+  _VTK_FLOAT_ p[3], q[3], t1;
   for (k = 0; k < 4; k++) {
     n = (k+1)%4; // next point
     if (t[k] > 1.0) {
@@ -632,7 +632,7 @@ char VTKViewer_RectPicker::HitBBox (float bounds[6], float origin[4][4], float d
 
   // Analize intersection
   int nearPlane, boundPlane = -1;
-  float boundCoord, boundMin, boundMax;
+  _VTK_FLOAT_ boundCoord, boundMin, boundMax;
   char intersect = 0;
   for (k = 0; k < n; k++) {
     aPoints->GetPoint(k, p);
@@ -715,10 +715,10 @@ char VTKViewer_RectPicker::HitBBox (float bounds[6], float origin[4][4], float d
 }
 
 //----------------------------------------------------------------------------
-char VTKViewer_RectPicker::PointInside (float p[3], float p1[4][4], float p2[4][4], float tol)
+char VTKViewer_RectPicker::PointInside (_VTK_FLOAT_ p[3], _VTK_FLOAT_ p1[4][4], _VTK_FLOAT_ p2[4][4], _VTK_FLOAT_ tol)
 {
   int i, j, k;
-  float t, coord[3];
+  _VTK_FLOAT_ t, coord[3];
 
   // Fix one coordinate (x, for example) and 
   // compute intersection with coordinate plane
@@ -806,7 +806,7 @@ char VTKViewer_RectPicker::PointInside (float p[3], float p1[4][4], float p2[4][
   }
 
   // Fix the second coord and define bounds
-  float zMin = VTK_LARGE_FLOAT, zMax = -VTK_LARGE_FLOAT, z, ncoord[3];
+  _VTK_FLOAT_ zMin = VTK_LARGE_FLOAT, zMax = -VTK_LARGE_FLOAT, z, ncoord[3];
   char inside = 0;
   for (k = 0; k < n; k++) {
     aPoints->GetPoint(k, coord);
@@ -837,12 +837,12 @@ char VTKViewer_RectPicker::PointInside (float p[3], float p1[4][4], float p2[4][
 }
 
 //----------------------------------------------------------------------------
-float VTKViewer_RectPicker::IntersectWithHex(float p1[4][4], float p2[4][4], float tol, 
+_VTK_FLOAT_ VTKViewer_RectPicker::IntersectWithHex(_VTK_FLOAT_ p1[4][4], _VTK_FLOAT_ p2[4][4], _VTK_FLOAT_ tol, 
 					     vtkAssemblyPath *path, vtkProp3D *prop3D, 
 					     vtkAbstractMapper3D *mapper)
 {
   int i, k;
-  float *center, p0[3], ray[3], rayFactor, t;
+  _VTK_FLOAT_ *center, p0[3], ray[3], rayFactor, t;
 
   // Get the data from the modeler
   //

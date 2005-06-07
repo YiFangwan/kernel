@@ -29,6 +29,7 @@
 #ifndef VTKViewer_Trihedron_H
 #define VTKViewer_Trihedron_H
 
+#include "VTKViewer_Definitions.h"
 #include <vtkObject.h>
 #include <vtkFollower.h>
 
@@ -98,8 +99,8 @@ class VTKViewer_Trihedron : public vtkObject{
   vtkTypeMacro(VTKViewer_Trihedron,vtkObject);
   static VTKViewer_Trihedron *New();
   
-  virtual void SetSize(float theSize);
-  virtual float GetSize() { return mySize;}
+  virtual void SetSize(_VTK_FLOAT_ theSize);
+  virtual _VTK_FLOAT_ GetSize() { return mySize;}
 
   enum TVisibility{eOff, eOn, eOnlyLineOn};
   virtual void SetVisibility(TVisibility theVis);
@@ -115,7 +116,7 @@ class VTKViewer_Trihedron : public vtkObject{
 protected:
   vtkActorCollection* myPresent;
   VTKViewer_Axis* myAxis[3];
-  float mySize;
+  _VTK_FLOAT_ mySize;
 };
 
 //==============================================================================
@@ -137,14 +138,14 @@ protected:
 
   virtual void SetCamera(vtkCamera* theCamera);
   virtual void SetProperty(vtkProperty* theProperty);
-  virtual void SetSize(float theSize);
+  virtual void SetSize(_VTK_FLOAT_ theSize);
 
   virtual VTKViewer_UnScaledActor* GetLabel(){ return myLabelActor; }
   virtual VTKViewer_UnScaledActor* GetArrow(){ return myArrowActor; }
 
 protected:
   VTKViewer_Trihedron::TVisibility myVisibility;
-  float myDir[3], myRot[3];
+  _VTK_FLOAT_ myDir[3], myRot[3];
 
   VTKViewer_LineActor *myLineActor;
   //vtkActor *myLineActor;

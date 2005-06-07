@@ -35,7 +35,8 @@ VPATH=.:@srcdir@:$(top_builddir)/inc:$(top_builddir)/idl
 @COMMENCE@
 
 # header files 
-EXPORT_HEADERS=  VTKViewer_RenderWindow.h \
+EXPORT_HEADERS=  VTKViewer_Definitions.h \
+	 	 VTKViewer_RenderWindow.h \
 	 	 VTKViewer_ViewFrame.h \
 		 VTKViewer_RenderWindowInteractor.h \
 	         VTKViewer_InteractorStyleSALOME.h \

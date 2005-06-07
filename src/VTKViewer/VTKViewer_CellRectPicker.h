@@ -28,6 +28,7 @@
 #ifndef __VTKViewer_CellRectPicker_h
 #define __VTKViewer_CellRectPicker_h
 
+#include "VTKViewer_Definitions.h"
 #include "VTKViewer_RectPicker.h"
 #include <map>
 #include <vector>
@@ -35,9 +36,9 @@
 typedef struct {
   vtkIdType cellId;
   int subId;
-  float depth;
-  float p1[3];
-  float p2[3];
+  _VTK_FLOAT_ depth;
+  _VTK_FLOAT_ p1[3];
+  _VTK_FLOAT_ p2[3];
 } VTKViewer_CellData;
 
 typedef std::vector<VTKViewer_CellData> VTKViewer_CellDataSet;
@@ -63,11 +64,11 @@ public:
   // The method returns a non-zero value if the cells intersect each other 
   // in the direction dir[3]. Returned value is 1 if the first cell is top of 
   // the second one according to direction and 2 if the second cell is top.
-  static int IntersectCells(vtkCell* c1, float d1, vtkCell* c2, float d2, float dir[3]);
+  static int IntersectCells(vtkCell* c1, _VTK_FLOAT_ d1, vtkCell* c2, _VTK_FLOAT_ d2, _VTK_FLOAT_ dir[3]);
 
   // Description:
   // The method returns a non-zero value if the point is inlide point data set
-  static char PointInside(float point[3], vtkPoints* list);
+  static char PointInside(_VTK_FLOAT_ point[3], vtkPoints* list);
 
 protected:
   VTKViewer_CellRectPicker();
@@ -75,7 +76,7 @@ protected:
 
   VTKViewer_ActorDataMap ActorData;
 
-  virtual float IntersectWithHex(float p1[4][4], float p2[4][4], float tol, 
+  virtual _VTK_FLOAT_ IntersectWithHex(_VTK_FLOAT_ p1[4][4], _VTK_FLOAT_ p2[4][4], _VTK_FLOAT_ tol, 
                           vtkAssemblyPath *path, vtkProp3D *p, 
                           vtkAbstractMapper3D *m);
   void Initialize();

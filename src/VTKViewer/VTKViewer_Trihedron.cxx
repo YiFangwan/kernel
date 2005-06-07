@@ -57,19 +57,19 @@ VTKViewer_UnScaledActor::VTKViewer_UnScaledActor(){}
 
 void VTKViewer_UnScaledActor::Render(vtkRenderer *theRenderer){
   if(theRenderer){
-    float P[2][3] = {{-1.0, -1.0, 0.0},{+1.0, +1.0, 0.0}};
+    _VTK_FLOAT_ P[2][3] = {{-1.0, -1.0, 0.0},{+1.0, +1.0, 0.0}};
     theRenderer->ViewToWorld(P[0][0],P[0][1],P[0][2]);
     theRenderer->ViewToWorld(P[1][0],P[1][1],P[1][2]);
-    float aWorldDiag = sqrt((P[1][0]-P[0][0])*(P[1][0]-P[0][0])+
+    _VTK_FLOAT_ aWorldDiag = sqrt((P[1][0]-P[0][0])*(P[1][0]-P[0][0])+
 			    (P[1][1]-P[0][1])*(P[1][1]-P[0][1])+
 			    (P[1][2]-P[0][2])*(P[1][2]-P[0][2]));
     int* aSize = theRenderer->GetRenderWindow()->GetSize();
-    float aWinDiag = sqrt(float(aSize[0]*aSize[0]+aSize[1]*aSize[1]));
+    _VTK_FLOAT_ aWinDiag = sqrt(_VTK_FLOAT_(aSize[0]*aSize[0]+aSize[1]*aSize[1]));
     vtkDataSet* aDataSet = GetMapper()->GetInput();
-    float aLength = aDataSet->GetLength();
-    float aPrecision = 1.0E-3;
-    float anOldScale = GetScale()[0];
-    float aScale = mySize*aWorldDiag/aWinDiag/aLength*sqrt(float(aSize[0])/float(aSize[1]));
+    _VTK_FLOAT_ aLength = aDataSet->GetLength();
+    _VTK_FLOAT_ aPrecision = 1.0E-3;
+    _VTK_FLOAT_ anOldScale = GetScale()[0];
+    _VTK_FLOAT_ aScale = mySize*aWorldDiag/aWinDiag/aLength*sqrt(_VTK_FLOAT_(aSize[0])/_VTK_FLOAT_(aSize[1]));
     if(fabs(aScale - anOldScale)/aScale > aPrecision){
       SetScale(aScale);
     }
@@ -198,8 +198,8 @@ void VTKViewer_Axis::SetVisibility(VTKViewer_Trihedron::TVisibility theVis){
   myVisibility = theVis;
 }
 
-void VTKViewer_Axis::SetSize(float theSize){
-  float aPosition[3] = {myDir[0]*theSize, myDir[1]*theSize, myDir[2]*theSize};
+void VTKViewer_Axis::SetSize(_VTK_FLOAT_ theSize){
+  _VTK_FLOAT_ aPosition[3] = {myDir[0]*theSize, myDir[1]*theSize, myDir[2]*theSize};
   myLineSource->SetPoint2(aPosition);
 
   myArrowActor->SetPosition(0.0,0.0,0.0);
@@ -305,7 +305,7 @@ VTKViewer_Trihedron::VTKViewer_Trihedron(){
   myAxis[0] = VTKViewer_XAxis::New();
   myAxis[1] = VTKViewer_YAxis::New();
   myAxis[2] = VTKViewer_ZAxis::New();
-  static float aSize = 100;
+  static _VTK_FLOAT_ aSize = 100;
   SetSize(aSize);
 }
 
@@ -316,7 +316,7 @@ VTKViewer_Trihedron::~VTKViewer_Trihedron(){
     myAxis[i]->Delete();
 }
 
-void VTKViewer_Trihedron::SetSize(float theSize){
+void VTKViewer_Trihedron::SetSize(_VTK_FLOAT_ theSize){
   mySize = theSize;
   for(int i = 0; i < 3; i++)
     myAxis[i]->SetSize(theSize);

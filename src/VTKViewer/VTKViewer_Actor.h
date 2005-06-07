@@ -27,6 +27,7 @@ class vtkShrinkFilter;
 class vtkDataSetMapper;
 class vtkUnstructuredGrid;
 
+#include "VTKViewer_Definitions.h"
 #include "SALOME_Actor.h"
 
 class VTKViewer_Actor : public SALOME_Actor {
@@ -35,7 +36,7 @@ class VTKViewer_Actor : public SALOME_Actor {
   static VTKViewer_Actor* New();
   virtual ~VTKViewer_Actor();
 
-  void  SetShrinkFactor(float value);
+  void  SetShrinkFactor(_VTK_FLOAT_ value);
   virtual void SetShrink(); 
   virtual void UnShrink(); 
 

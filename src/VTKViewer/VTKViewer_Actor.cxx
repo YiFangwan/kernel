@@ -81,7 +81,7 @@ VTKViewer_Actor::VTKViewer_Actor()
 }
 
 
-void VTKViewer_Actor::SetShrinkFactor(float theValue){
+void VTKViewer_Actor::SetShrinkFactor(_VTK_FLOAT_ theValue){
   myShrinkFilter->SetShrinkFactor(theValue);
   Modified();
 }
@@ -164,7 +164,7 @@ void VTKViewer_Actor::MapPoints(SALOME_Actor* theMapActor,
     aPoints->SetNumberOfPoints(aNbOfParts);
     for(int i = 0; i < aNbOfParts; i++){
       int aPartId = theMapIndex( i+1 );
-      float* aCoord = theMapActor->GetNodeCoord(aPartId);
+      _VTK_FLOAT_* aCoord = theMapActor->GetNodeCoord(aPartId);
       aPoints->SetPoint(i,aCoord);
       myUnstructuredGrid->InsertNextCell(VTK_VERTEX,1,&i);
     }

@@ -27,6 +27,7 @@
 //  $Header$
 
 #include "VTKViewer_ViewFrame.h"
+#include "VTKViewer_Definitions.h"
 #include "VTKViewer_Utilities.h"
 #include "VTKViewer_Trihedron.h"
 #include "VTKViewer_RenderWindow.h"
@@ -157,7 +158,7 @@ bool VTKViewer_ViewFrame::isTrihedronDisplayed(){
 bool VTKViewer_ViewFrame::ComputeTrihedronSize( double& theNewSize, double& theSize )
 {
   // calculating diagonal of visible props of the renderer
-  float bnd[ 6 ];
+  _VTK_FLOAT_ bnd[ 6 ];
   m_Triedron->VisibilityOff();
   if ( ::ComputeVisiblePropBounds( m_Renderer, bnd ) == 0 )
   {
@@ -165,7 +166,7 @@ bool VTKViewer_ViewFrame::ComputeTrihedronSize( double& theNewSize, double& theS
     bnd[ 0 ] = bnd[ 2 ] = bnd[ 100 ] = 0;
   }
   m_Triedron->VisibilityOn();
-  float aLength = 0;
+  _VTK_FLOAT_ aLength = 0;
   static bool CalcByDiag = false;
   if ( CalcByDiag )
   {
@@ -180,12 +181,12 @@ bool VTKViewer_ViewFrame::ComputeTrihedronSize( double& theNewSize, double& theS
     aLength = max( ( bnd[ 5 ] - bnd[ 4 ] ),aLength );
   }
 
-  static float aSizeInPercents = 105;
+  static _VTK_FLOAT_ aSizeInPercents = 105;
   QString aSetting = QAD_CONFIG->getSetting( "Viewer:TrihedronSize" );
   if ( !aSetting.isEmpty() )
     aSizeInPercents = aSetting.toFloat();
 
-  static float EPS_SIZE = 5.0E-3;
+  static _VTK_FLOAT_ EPS_SIZE = 5.0E-3;
   theSize = m_Triedron->GetSize();
   theNewSize = aLength * aSizeInPercents / 100.0;
 
@@ -335,7 +336,7 @@ void VTKViewer_ViewFrame::onViewReset(){
   ::ResetCamera(m_Renderer,true);  
   if(aTriedronIsVisible) m_Triedron->VisibilityOn();
   else m_Triedron->VisibilityOff();
-  static float aCoeff = 3.0;
+  static _VTK_FLOAT_ aCoeff = 3.0;
   aCamera->SetParallelScale(aCoeff*aCamera->GetParallelScale());
   Repaint();
 }
@@ -390,7 +391,7 @@ void VTKViewer_ViewFrame::setBackgroundColor( const QColor& color)
 */
 QColor VTKViewer_ViewFrame::backgroundColor() const
 {
-  float backint[3];
+  _VTK_FLOAT_ backint[3];
   if ( m_Renderer ) {
     m_Renderer->GetBackground(backint);
     return QColorDialog::getColor ( QColor(int(backint[0]*255), int(backint[1]*255), int(backint[2]*255)), NULL );
