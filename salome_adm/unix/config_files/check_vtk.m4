@@ -72,6 +72,11 @@ if test ! -z $VTKHOME
 then
    LOCAL_INCLUDES="-I$VTKHOME/include/vtk $LOCAL_INCLUDES"
    LOCAL_LIBS="-L$VTKHOME/lib/vtk $LOCAL_LIBS"
+   dnl E.A. : On mandrake 10.2 with vtk4.4, the libvtk*Python.so
+   dnl E.A. : are separated ...
+   if test -d $VTKHOME/lib/vtk/python ; then
+      LOCAL_LIBS="-L$VTKHOME/lib/vtk/python $LOCAL_LIBS"
+   fi
    TRY_LINK_LIBS="-L$VTKHOME/lib/vtk $TRY_LINK_LIBS"
 fi
 
