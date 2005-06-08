@@ -96,6 +96,7 @@ killSalomeWithPort.py \
 runSalome \
 runSalome.csh \
 runNS.sh \
+createAppli.sh \
 launchConfigureParser.py \
 salome.launch \
 envSalome.py \
@@ -171,6 +172,10 @@ install-include: $(include_list)
 	done
 
 # install script in $(bindir) :
+install-appliskel:
+	$(INSTALL) -d  $(bindir)
+	cp -rp $(top_builddir)/bin/salome/appliskel $(bindir)
+
 install-bin: $(BIN_SCRIPT)
 	$(INSTALL) -d  $(bindir)
 	$(INSTALL_PROGRAM) $^ $(bindir)
@@ -190,5 +195,5 @@ distclean-other:
 
 @MODULE@
 
-install: install-bin install-include install-make install-end
+install: install-bin install-appliskel install-include install-make install-end
 

@@ -436,13 +436,14 @@ dnl directory
 
 mkdir -p bin/salome
 cd bin/salome
-for i in $ROOT_SRCDIR/bin/*
+for i in  `find $ROOT_SRCDIR/bin`
 do
-  local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR,.,"`
+  local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR/bin,.,"`
   case "$local_bin" in
         *.in | *~) ;;
-        ./bin/CVS | ./bin/salome) ;;
-        *) $INSTALL $i .; echo $local_bin ;;
+        . | */CVS | */CVS/* | ./salome) ;;
+        ./appliskel |./appliskel/env.d) $INSTALL -d $local_bin ; echo $local_bin ;;
+        *) $INSTALL $i $local_bin; echo $local_bin ;;
   esac
 done
 cd $ROOT_BUILDDIR

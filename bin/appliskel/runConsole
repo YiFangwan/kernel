@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# --- retrieve APPLI path, relative to $HOME
+     
+comName=`which $0`
+APPLI=`echo ${HOME} \`dirname $comName\` | awk ' { print substr($2,length($1)+2) } '`
+export APPLI
+
+# --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
+
+${HOME}/${APPLI}/envd ${HOME}/${APPLI}
+
+# --- open a Python interpreter with SALOME environment
+
+${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python -i ${KERNEL_ROOT_DIR}/bin/salome/salomeConsole.py $*

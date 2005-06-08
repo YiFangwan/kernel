@@ -1,0 +1,24 @@
+#!/bin/bash
+#
+# Useful shell to run executable progs or shells under Salome env
+# Use it with args to run a program : runSession python -i myprog.py
+# Use it without args to run an interactive shell under Salome env
+#
+
+# --- retrieve APPLI path, relative to $HOME
+     
+comName=`which $0`
+APPLI=`echo ${HOME} \`dirname $comName\` | awk ' { print substr($2,length($1)+2) } '`
+export APPLI
+
+# --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
+
+${HOME}/${APPLI}/envd ${HOME}/${APPLI}
+
+# --- invoque shell with or without args
+
+if [ $# -ne 0 ] ; then
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc -c "$*"
+else
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc
+fi

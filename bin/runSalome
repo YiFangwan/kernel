@@ -12,6 +12,7 @@ searchFreePort() {
             echo ${NSPORT} - Ok
 	    local myhost=`hostname`
             export OMNIORB_CONFIG=${HOME}/.omniORB_${myhost}_${NSPORT}.cfg
+	    export NSPORT
             local initref="NameService=corbaname::"`hostname`":$NSPORT"
             echo "ORBInitRef $initref" > $OMNIORB_CONFIG
             break
