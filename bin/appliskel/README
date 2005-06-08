@@ -23,7 +23,7 @@ runRemote.sh : called from remote computer, via ssh, rsh...
                used for instance to create container
 
 envd         : sets SALOME application environment
-               called by other scripts
+               sourced by other scripts
 
 The following files must be adapted to your environment and SALOME Application:
 -------------------------------------------------------------------------------

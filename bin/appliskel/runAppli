@@ -8,7 +8,7 @@ export APPLI
 
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
 
-${HOME}/${APPLI}/envd ${HOME}/${APPLI}
+. ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
 # --- define port for CORBA naming service
 

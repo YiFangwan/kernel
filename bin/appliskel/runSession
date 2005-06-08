@@ -13,7 +13,7 @@ export APPLI
 
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
 
-${HOME}/${APPLI}/envd ${HOME}/${APPLI}
+. ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
 # --- invoque shell with or without args
 

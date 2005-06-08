@@ -29,7 +29,7 @@ export APPLI
 
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
 
-${HOME}/${APPLI}/envd ${HOME}/${APPLI}
+. ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
 
