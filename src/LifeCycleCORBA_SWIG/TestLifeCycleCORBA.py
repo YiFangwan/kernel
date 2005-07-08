@@ -9,9 +9,9 @@ lcc = LifeCycleCORBA.LifeCycleCORBA()
 #comp.Coucou(1)
 
 param={}
-param['hostname']='cli70ac'
+param['hostname']='cli76ce'
 param['container_name']='myContainer'
-smesh=lcc.FindElseLoadComponent(param,'SMESH')
+smesh=lcc.FindOrLoad_Component(param,'SMESH')
 
 container=lcc.FindContainer('myContainer')
 engine=lcc.FindComponent(param,'SMESH')

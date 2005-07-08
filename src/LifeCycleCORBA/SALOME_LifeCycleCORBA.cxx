@@ -197,8 +197,6 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
 /*! Public - 
  *  Find and aready existing and registered component instance or load a new
  *  component instance on a container defined by machine parameters.
- *  Renamed (Else / Or) to avoid problems with Python (Swig) version and keep
- *  compatiblity with existing Python method FindOrLoadComponent
  *  \param params         machine parameters like type or name...
  *  \param componentName  the name of component class
  *  \param studyId        default = 0  : multistudy instance
@@ -208,9 +206,9 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
 
 Engines::Component_ptr
 SALOME_LifeCycleCORBA::
-FindElseLoadComponent(const Engines::MachineParameters& params,
-		      const char *componentName,
-		      int studyId)
+FindOrLoad_Component(const Engines::MachineParameters& params,
+		     const char *componentName,
+		     int studyId)
 {
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
@@ -233,7 +231,7 @@ FindElseLoadComponent(const Engines::MachineParameters& params,
  *           - 1 localhost/aContainer
  *           - 2 aContainer
  *           - 3 /machine/aContainer
- *     (not the same rules as FindContainer() method base on protected method
+ *     (not the same rules as FindContainer() method based on protected method
  *      ContainerName() -- MUST BE CORRECTED --)
  *  \param componentName  the name of component class
  *  \return a CORBA reference of the component instance, or _nil if problem
@@ -285,7 +283,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
       params->hostname=CORBA::string_dup(stContainer);
       params->OS=CORBA::string_dup("LINUX");
       free(stContainer);
-      return FindElseLoadComponent(params,componentName);
+      return FindOrLoad_Component(params,componentName);
     }
 }
 
@@ -494,9 +492,9 @@ SALOME_LifeCycleCORBA::_FindOrStartContainer(const string aComputerContainer ,
  *  \param aComputerContainer container name under one of the forms:
  *           - 1 aContainer
  *           - 2 machine/aContainer
- *  \param theComputer  return computer name:
+ *  \param theComputer  return computer name (machine):
  *           - 1 machine = GetHostname() 
- *           - 2 machine (localhost replaced by GetHostName())
+ *           - 2 machine = as given (localhost replaced by GetHostName())
  *  \param theContainer return container name:
  *           - 1 aContainer 
  *           - 2 aContainer
