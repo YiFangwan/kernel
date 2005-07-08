@@ -12,9 +12,13 @@ searchFreePort() {
             echo ${NSPORT} - Ok
 	    local myhost=`hostname`
             export OMNIORB_CONFIG=${HOME}/.omniORB_${myhost}_${NSPORT}.cfg
+	    local initref="NameService=corbaname::"`hostname`":$NSPORT"
 	    export NSPORT
-            local initref="NameService=corbaname::"`hostname`":$NSPORT"
-            echo "ORBInitRef $initref" > $OMNIORB_CONFIG
+	    if [[ `python -c "import CORBA; print CORBA.ORB_ID"` = "omniORB4" ]]; then
+                echo "InitRef = $initref" > $OMNIORB_CONFIG
+    	    else
+	        echo "ORBInitRef $initref" > $OMNIORB_CONFIG
+	    fi
             break
         fi
         echo -n "${NSPORT} "

@@ -24,23 +24,34 @@ AC_ARG_WITH(qwt_inc,
 if test -z $QWTHOME; then
   AC_MSG_RESULT(QWTHOME not defined)
   exits_ok=no	
-  AC_CHECK_FILE("/usr/local/lib/libqwt.so",exits_ok=yes,exits_ok=no)
+  if test "x$exits_ok" = "xno"; then
+     for d in /usr/local /usr ; do
+        AC_CHECK_FILE(${d}/lib/libqwt.so,exits_ok=yes,exits_ok=no)
+        if test "x$exits_ok" = "xyes"; then
+           QWTHOME=$d
+           AC_MSG_RESULT(libqwt.so detected in $d/lib)
+        fi
+     done
+  fi
+  if test "x$exits_ok" = "xno"; then
+     for d in `echo $LD_LIBRARY_PATH | sed -e "s/:/ /g"` ; do
+        if test -f $d/libqwt.so ; then
+           AC_MSG_RESULT(libqwt.so detected in $d)
+           QWTHOME=$d
+           QWTHOME=`echo ${QWTHOME} | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+           exits_ok=yes
+           break
+        fi
+     done
+  fi
   if test "x$exits_ok" = "xyes"; then
-     QWTHOME="/usr/local/lib"    
-     AC_MSG_RESULT(libqwt.so detected in /usr/local/lib)
      if test -z $QWT_INCLUDES; then
-        QWT_INCLUDES="/usr/local/include/qwt"
+        QWT_INCLUDES=$QWTHOME"/include/qwt"
+	if test ! -d $QWTHOME"/include/qwt" ; then
+          QWT_INCLUDES=$QWTHOME"/include"
+	fi
      fi
-  else
-     AC_CHECK_FILE("/usr/lib/libqwt.so",exits_ok=yes,exits_ok=no)
-     if test "x$exits_ok" = "xyes"; then
-       QWTHOME="/usr/lib"   
-       AC_MSG_RESULT(libqwt.so detected in /usr/lib)
-         if test -z $QWT_INCLUDES; then
-           QWT_INCLUDES="/usr/include/qwt"
-         fi
-       fi
-  fi	
+  fi
 else
   if test -z $QWT_INCLUDES; then
      QWT_INCLUDES="$QWTHOME/include"
@@ -57,7 +68,6 @@ else
    CPPFLAGS_old=$CPPFLAGS
    CPPFLAGS="$CPPFLAGS -I$QWT_INCLUDES"
    CPPFLAGS="$CPPFLAGS $QT_INCLUDES"
-#   CPPFLAGS="$CPPFLAGS -I$QTDIR/include"
 
    AC_CHECK_HEADER(qwt.h,qwt_ok=yes,qwt_ok=no) 
 
@@ -74,11 +84,21 @@ if  test "x$qwt_ok" = "xyes"
 then
   AC_MSG_CHECKING(linking qwt library)
   LIBS_old=$LIBS
-  LIBS="$LIBS -L$QTDIR/lib -lqt-mt -L$QWTHOME/lib -lqwt"
+  if test "x$QTDIR" = "x/usr"
+  then
+    LIBS="$LIBS -lqt-mt"
+  else
+    LIBS="$LIBS -L$QTDIR/lib -lqt-mt"
+  fi
+  if test "x$QWTHOME" = "x/usr/lib"
+  then
+    LIBS="$LIBS -lqwt"
+  else
+    LIBS="$LIBS -L$QWTHOME/lib -lqwt"
+  fi
 
   CXXFLAGS_old=$CXXFLAGS
   CXXFLAGS="$CXXFLAGS $QT_INCLUDES -I$QWT_INCLUDES"
-#  CXXFLAGS="$CXXFLAGS -I$QTDIR/include -I$QWT_INCLUDES"
 
   AC_CACHE_VAL(salome_cv_lib_qwt,[
     AC_TRY_LINK(
@@ -100,7 +120,12 @@ then
     AC_MSG_RESULT(QWTHOME environment variable may be wrong)
   else
     QWT_INCLUDES="-I$QWT_INCLUDES"
-    QWT_LIBS="-L$QWTHOME/lib -lqwt"
+    if test "x$QWTHOME" = "x/usr/lib"
+    then
+      QWT_LIBS=" -lqwt"
+    else
+      QWT_LIBS="-L$QWTHOME/lib -lqwt"
+    fi
 
     AC_SUBST(QWT_INCLUDES)
     AC_SUBST(QWT_LIBS)

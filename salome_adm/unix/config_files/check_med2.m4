@@ -51,9 +51,22 @@ dnl check, if there is MED library
 if test -z $MED2HOME
 then
    AC_MSG_WARN(undefined MED2HOME variable which specify med2 installation directory)
-else
+   AC_PATH_PROG(MDUMP, mdump)
+   if test "xMDUMP" != "x" ; then
+      MED2HOME=$MDUMP
+      MED2HOME=`echo ${MED2HOME} | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+      MED2HOME=`echo ${MED2HOME} | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
+   fi
+fi
+if test ! -z $MED2HOME
+then
    LOCAL_INCLUDES="$HDF5_INCLUDES -I$MED2HOME/include"
-   LOCAL_LIBS="-L$MED2HOME/lib -lmed $HDF5_LIBS"
+   if test "x$MED2HOME" = "x/usr"
+   then
+     LOCAL_LIBS="-lmed $HDF5_LIBS"
+   else
+     LOCAL_LIBS="-L$MED2HOME/lib -lmed $HDF5_LIBS"
+   fi
 fi
 
 dnl check med2 header

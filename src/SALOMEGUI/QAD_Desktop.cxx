@@ -794,7 +794,11 @@ void QAD_Desktop::createActions()
     myStdActions.insert( DefaultPlot2dId, viewerPlot2dAction1 );
 
     myQAG->addTo( &myDefaultViewer );
-    QAD_ASSERT(connect( myQAG, SIGNAL(selected(QActionP * )), this, SLOT(onDefaultViewer(QActionP *) )));
+#if (QT_VERSION >= 0x030303) // mpv: do not use patches for QT version >= 3.3.3
+    QAD_ASSERT(connect( myQAG, SIGNAL(selected(QAction* )), this, SLOT(onDefaultViewer(QAction*) )));
+#else
+    QAD_ASSERT(connect( myQAG, SIGNAL(selected(QActionP* )), this, SLOT(onDefaultViewer(QActionP *) )));
+#endif
     //VRV: T2.5 - add default viewer
 
     myPrefPopup.insertSeparator();
@@ -3349,7 +3353,7 @@ SALOMEGUI* QAD_Desktop::getComponentGUI( const QString& component )
 #ifdef WNT
 	dir = dir + "libSalomePyQtcmodule.dll" ;
 #else
-#ifdef SIP_VERS_v4_1
+#ifdef SIP_VERS_v4
 	dir = dir + "SalomePyQt.so" ;
 #else
 	dir = dir + "libSalomePyQtcmodule.so" ;

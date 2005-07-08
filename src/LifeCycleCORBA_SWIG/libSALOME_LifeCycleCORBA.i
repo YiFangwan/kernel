@@ -37,10 +37,18 @@
   SCRUTE($result);
 }
 
+
+%typemap(typecheck) const Engines::MachineParameters &
+{
+  $1 = ($input != 0);
+}
+
 %typemap(python,in) const Engines::MachineParameters &
 {
-  MESSAGE("typemap in on Engines::MachineParameters");
-  ASSERT (PyDict_Check($input))
+  printf("typemap in on Engines::MachineParameters\n");
+  //MESSAGE("typemap in on Engines::MachineParameters");
+  //ASSERT (PyDict_Check($input))
+  if (PyDict_Check($input) == 1)
     {
       Engines::MachineParameters *param = new Engines::MachineParameters ;
       PyObject *key, *value;
@@ -48,7 +56,7 @@
       while (PyDict_Next($input, &pos, &key, &value))
 	{
 	  char* keystr = PyString_AsString(key);
-	  MESSAGE("key: " << keystr);
+	  printf("key: %s\n", keystr);
 	  if (strcmp(keystr,"container_name")==0)
 	    {
 	      param->container_name = CORBA::string_dup(PyString_AsString(value));
@@ -79,6 +87,11 @@
 	    }
 	}
       $1 = param;
+    }
+  else 
+    {
+       printf("pas un dico\n");
+       return NULL;
     }
 }
 

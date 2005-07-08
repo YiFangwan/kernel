@@ -32,6 +32,7 @@
 #include <iostream>
 #include <unistd.h>
 
+#include "Container_init_python.hxx"
 #include <qthread.h> 
 #include <qapplication.h>
 #include <qlabel.h>
@@ -49,7 +50,6 @@
 #include "Utils_CorbaException.hxx"
 #include "SALOMEGUI_QtCatchCorbaException.hxx"
 #include "SALOME_Event.hxx"
-#include "Container_init_python.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Session)

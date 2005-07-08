@@ -597,8 +597,6 @@ static void SaveAttributes(SALOMEDS::SObject_ptr SO, HDFgroup *hdf_group_sobject
   SALOMEDS::ListOfAttributes_var anAttrList = SO->GetAllAttributes();
   for(a = anAttrList->length() - 1; a >= 0; a--) {
     if (strcmp(anAttrList[a]->Type(), "AttributeIOR") == 0) continue; // never write AttributeIOR to file
-    if (strcmp(anAttrList[a]->Type(), "AttributeExternalFileDef") == 0) continue; // never write ExternalFileDef to file
-    if (strcmp(anAttrList[a]->Type(), "AttributeFileType") == 0) continue; // never write FileType to file
     CORBA::String_var aSaveStr(anAttrList[a]->Store());
     size[0] = (hdf_int32) strlen(aSaveStr.in()) + 1;
     HDFdataset *hdf_dataset = new HDFdataset(anAttrList[a]->Type(),hdf_group_sobject,HDF_STRING,size,1);
@@ -831,10 +829,12 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 	    
 	    SALOMEDS::TMPFile_var aStream;
 	    
+	    SALOMEDS::unlock();	// asv : fix for PAL8727 
 	    if(theASCII) 
 	      aStream = Engine->SaveASCII(sco,SALOMEDS_Tool::GetDirFromPath(aUrl).c_str(),theMultiFile);
 	    else
 	      aStream = Engine->Save(sco,SALOMEDS_Tool::GetDirFromPath(aUrl).c_str(),theMultiFile);
+	    SALOMEDS::lock();  // asv : fix for PAL8727
 
 	    HDFdataset *hdf_dataset;
 	    hdf_size aHDFSize[1];
@@ -863,7 +863,9 @@ void SALOMEDS_StudyManager_i::_SaveAs(const char* aUrl,
 	    hdf_dataset->CloseOnDisk();
 	    hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor		 
 	    
+	    SALOMEDS::unlock(); //srn: fix for bug PAL8727
 	    Translate_IOR_to_persistentID(aStudy,SB,sco,Engine,theMultiFile, theASCII);
+	    SALOMEDS::lock();   //srn: fix for bug PAL8727
 	    MESSAGE("After Translate_IOR_to_persistentID");
 		  
 	    // Creation of the persistance reference  attribute

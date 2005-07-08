@@ -35,7 +35,7 @@ class QAD_EXPORT Plot2d_ViewFrame : public QAD_ViewFrame, public QAD_PopupClient
 
   enum { NoOpId, FitAllId, FitAreaId, ZoomId, PanId, DumpId, 
 	 ModeXLinearId, ModeXLogarithmicId, ModeYLinearId, ModeYLogarithmicId,
-	 LegendId, CurvePointsId, CurveLinesId, CurveSplinesId, SettingsId, FitDataId, ChangeBackgroundId };
+	 LegendId, CurvePointsId, CurveLinesId, CurveSplinesId, SettingsId, FitDataId, ChangeBackgroundId, DumpViewId };
 public:
   /* Construction/destruction */
   Plot2d_ViewFrame( QWidget* parent, const QString& title = "" );
@@ -203,7 +203,15 @@ public:
 
   void       replot();
   void       getNextMarker( QwtSymbol::Style& typeMarker, QColor& color, Qt::PenStyle& typeLine );
-  QwtLegend* getLegend() { return d_legend; }
+
+
+  QwtLegend* getLegend() { 
+#if QWT_VERSION < 0x040200
+    return d_legend;
+#else
+   return legend(); /* mpv: porting to QWT 4.2.0 */
+#endif
+  }
 
 protected:
   bool       existMarker( const QwtSymbol::Style typeMarker, const QColor& color, const Qt::PenStyle typeLine );

@@ -41,14 +41,17 @@
 **
 **********************************************************************/
 
-#include "qplatformdefs.h"
-
 // Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
 #if defined(connect)
 #undef connect
 #endif
 
 #include "qfiledialogP.h"
+
+#if (QT_VERSION < 0x030303)
+
+#include <qplatformdefs.h>
+#include "qfiledialogP_moc.cxx"
 
 #ifndef QT_NO_FILEDIALOG
 
@@ -5974,5 +5977,7 @@ QFilePreviewP::QFilePreviewP()
   for the \a url should be shown. Reimplement this
   function to provide file previewing.
 */
+
+#endif
 
 #endif

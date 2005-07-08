@@ -37,6 +37,14 @@ if test "x$QTDIR" = "x"
 then
    AC_MSG_RESULT(please define QTDIR variable)
    qt_ok=no
+else
+   AC_MSG_RESULT(QTDIR is $QTDIR)
+   qt_inc_ok=no
+   QTINC=""
+   AC_CHECK_FILE(${QTDIR}/include/qt3/qglobal.h,QTINC="/qt3",QTINC="")
+   QT_VERS=`grep "QT_VERSION_STR" ${QTDIR}/include${QTINC}/qglobal.h | sed -e 's%^#define QT_VERSION_STR\([[:space:]]*\)%%g' -e 's%\"%%g'`
+   AC_MSG_RESULT(Qt version is $QT_VERS)
+   QT_VERS="Qt_"`echo $QT_VERS | sed -e 's%\"%%g' -e 's%\.%_%g'`
 fi
 
 if  test "x$qt_ok" = "xyes"
@@ -75,32 +83,13 @@ then
   fi
 fi
 
-version=`moc -v > mocversion 2>&1;cut -c40-44 mocversion;rm -rf mocversion`
-case "$version" in
-  3.3.3)
-   QT_VERS=v3_3_3
-   AC_MSG_RESULT(QT3.3.3 install detected)
-   qt_ok=yes;;
-  3.0.5)
-   AC_MSG_RESULT(QT3.0.5 install detected)
-   QT_VERS=v3_0_5
-   qt_ok=yes;;
-  *)
-   AC_MSG_RESULT(qt version $version not supported)
-   qt_ok=no
-   QT_VERS=no ;;
-esac
-
-AC_SUBST(QT_VERS)
-AC_MSG_RESULT(qt version $QT_VERS )
-
 AC_SUBST(QTDIR)
 QT_ROOT=$QTDIR
 
 if  test "x$qt_ok" = "xyes"
 then
   CPPFLAGS_old=$CPPFLAGS
-  CPPFLAGS="$CPPFLAGS -I$QTDIR/include"
+  CPPFLAGS="$CPPFLAGS -I$QTDIR/include${QTINC}"
 
   AC_LANG_CPLUSPLUS
   AC_CHECK_HEADER(qaction.h,qt_ok=yes ,qt_ok=no)
@@ -109,31 +98,14 @@ then
 
   AC_MSG_CHECKING(include of qt headers)
 
-  if  test "x$qt_ok" = "xyes"
+  if  test "x$qt_ok" = "xno"
   then
-    AC_MSG_RESULT(yes)
-    QT_INCLUDES="-I${QT_ROOT}/include -DQT_THREAD_SUPPORT"
-    QT_MT_INCLUDES="-I${QT_ROOT}/include -DQT_THREAD_SUPPORT"
+    AC_MSG_RESULT(qt headers not found, or too old qt version, in $QTDIR/include)
+    AC_MSG_RESULT(QTDIR environment variable may be wrong)
   else
-    CPPFLAGS_old=$CPPFLAGS
-    CPPFLAGS="$CPPFLAGS -I$QTDIR/include/qt3"
-
-    AC_LANG_CPLUSPLUS
-    AC_CHECK_HEADER(qapp.h,qt_ok=yes ,qt_ok=no)
-
-    CPPFLAGS=$CPPFLAGS_old
-
-    AC_MSG_CHECKING(include of qt headers)
-
-    if  test "x$qt_ok" = "xno"
-    then
-      AC_MSG_RESULT(qt headers not found, or too old qt version, in $QTDIR/include)
-      AC_MSG_RESULT(QTDIR environment variable may be wrong)
-    else
-      AC_MSG_RESULT(yes)
-      QT_INCLUDES="-I${QT_ROOT}/include/qt3 -DQT_THREAD_SUPPORT"
-      QT_MT_INCLUDES="-I${QT_ROOT}/include/qt3 -DQT_THREAD_SUPPORT"
-    fi
+    AC_MSG_RESULT(yes)
+    QT_INCLUDES="-I${QT_ROOT}/include${QTINC} -DQT_THREAD_SUPPORT"
+    QT_MT_INCLUDES="-I${QT_ROOT}/include${QTINC} -DQT_THREAD_SUPPORT"
   fi
 fi
 
@@ -141,10 +113,15 @@ if  test "x$qt_ok" = "xyes"
 then
   AC_MSG_CHECKING(linking qt library)
   LIBS_old=$LIBS
-  LIBS="$LIBS -L$QTDIR/lib -lqt-mt $OGL_LIBS"
+  if test "x$QTDIR" = "x/usr"
+  then
+    LIBS="$LIBS -lqt-mt $OGL_LIBS"
+  else
+    LIBS="$LIBS -L$QTDIR/lib -lqt-mt $OGL_LIBS"
+  fi
 
   CXXFLAGS_old=$CXXFLAGS
-  CXXFLAGS="$CXXFLAGS $QT_MT_INCLUDES"
+  CXXFLAGS="$CXXFLAGS $QT_INCLUDES"
 
   AC_CACHE_VAL(salome_cv_lib_qt,[
     AC_TRY_LINK(
@@ -163,8 +140,14 @@ then
     AC_MSG_RESULT(QTDIR environment variable may be wrong)
   else
     AC_MSG_RESULT(yes)
-       QT_LIBS="-L$QTDIR/lib -lqt-mt"
-    QT_MT_LIBS="-L$QTDIR/lib -lqt-mt"
+    if test "x$QTDIR" = "x/usr"
+    then
+         QT_LIBS=" -lqt-mt"
+      QT_MT_LIBS=" -lqt-mt"
+    else
+         QT_LIBS="-L$QTDIR/lib -lqt-mt"
+      QT_MT_LIBS="-L$QTDIR/lib -lqt-mt"
+    fi
   fi
 
   LIBS=$LIBS_old

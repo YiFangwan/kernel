@@ -62,7 +62,7 @@ public:
   Engines::Component_ptr 
   FindElseLoadComponent(const Engines::MachineParameters& params,
 			const char *componentName,
-			int studyId=0);
+			int studyId =0);
 
   Engines::Component_ptr
   FindOrLoad_Component(const char *containerName,
