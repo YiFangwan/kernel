@@ -45,7 +45,7 @@ using namespace std;
 
 bool _Sleeping = false ;
 
-// Needed by multi-threaded Python
+// // Needed by multi-threaded Python --- Supervision
 int _ArgC ;
 char ** _ArgV ;
 
@@ -93,25 +93,14 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
   if(activAndRegist)
     ActSigIntHandler() ;
 
-  _ArgC = argc ;
-  _ArgV = argv ;
-
   _argc = argc ;
   _argv = argv ;
-  int i = strlen( _argv[ 0 ] ) - 1 ;
-  while ( i >= 0 )
-    {
-      if ( _argv[ 0 ][ i ] == '/' )
-	{
-	  _argv[ 0 ][ i+1 ] = '\0' ;
-	  break ;
-	}
-      i -= 1 ;
-    }
+
   string hostname = GetHostname();
   MESSAGE(hostname << " " << getpid() << " Engines_Container_i starting argc "
 	  << _argc << " Thread " << pthread_self() ) ;
-  i = 0 ;
+
+  int i = 0 ;
   while ( _argv[ i ] )
     {
       MESSAGE("           argv" << i << " " << _argv[ i ]) ;
@@ -126,6 +115,12 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
   SCRUTE(argv[1]);
   _isSupervContainer = false;
   if (strcmp(argv[1],"SuperVisionContainer") == 0) _isSupervContainer = true;
+
+  if (_isSupervContainer)
+    {
+      _ArgC = argc ;
+      _ArgV = argv ;
+    }
 
   _containerName = BuildContainerNameForNS(containerName,hostname.c_str());
   
@@ -800,21 +795,32 @@ void ActSigIntHandler()
     perror("SALOME_Container main ") ;
     exit(0) ;
   }
-  INFOS(pthread_self() << "SigIntHandler activated") ;
+  //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
+  //             use of streams (and so on) should never be used because :
+  //             streams of C++ are naturally thread-safe and use pthread_mutex_lock ===>
+  //             A stream operation may be interrupted by a signal and if the Handler use stream we
+  //             may have a "Dead-Lock" ===HangUp
+  //==INFOS is commented
+  //  INFOS(pthread_self() << "SigIntHandler activated") ;
 }
 
 void SetCpuUsed() ;
 
 void SigIntHandler(int what , siginfo_t * siginfo ,
-                                        void * toto )
-{
-  MESSAGE(pthread_self() << "SigIntHandler what     " << what << endl
-          << "              si_signo " << siginfo->si_signo << endl
-          << "              si_code  " << siginfo->si_code << endl
-          << "              si_pid   " << siginfo->si_pid) ;
+                                        void * toto ) {
+  //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
+  //             use of streams (and so on) should never be used because :
+  //             streams of C++ are naturally thread-safe and use pthread_mutex_lock ===>
+  //             A stream operation may be interrupted by a signal and if the Handler use stream we
+  //             may have a "Dead-Lock" ===HangUp
+  //==MESSAGE is commented
+  //  MESSAGE(pthread_self() << "SigIntHandler what     " << what << endl
+  //          << "              si_signo " << siginfo->si_signo << endl
+  //          << "              si_code  " << siginfo->si_code << endl
+  //          << "              si_pid   " << siginfo->si_pid) ;
   if ( _Sleeping ) {
     _Sleeping = false ;
-    MESSAGE("SigIntHandler END sleeping.") ;
+    //     MESSAGE("SigIntHandler END sleeping.") ;
     return ;
   }
   else {
@@ -824,13 +830,13 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
     }
     else {
       _Sleeping = true ;
-      MESSAGE("SigIntHandler BEGIN sleeping.") ;
+      //      MESSAGE("SigIntHandler BEGIN sleeping.") ;
       int count = 0 ;
       while( _Sleeping ) {
         sleep( 1 ) ;
         count += 1 ;
       }
-      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+      //      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
     }
     return ;
   }

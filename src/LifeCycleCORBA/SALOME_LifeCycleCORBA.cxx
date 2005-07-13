@@ -52,7 +52,15 @@ using namespace std;
 
 SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
 {
-  _NS = ns;
+  if (!ns)
+    {
+      int argc = 0;
+      char *xargv = "";
+      char **argv = &xargv;
+      CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+      _NS = new SALOME_NamingService(orb);
+    }
+  else _NS = ns;
   //add try catch
   _NS->Change_Directory("/"); // mpv 250105: current directory may be not root 
                               // (in SALOMEDS for an example)
@@ -99,7 +107,7 @@ SALOME_LifeCycleCORBA::FindContainer(const char *containerName)
     { // Compatibility ...
       string theComputer ;
       string theContainer ;
-      cont = ContainerName( containerName , &theComputer , &theContainer ) ;
+      cont = _ContainerName( containerName , &theComputer , &theContainer ) ;
     }
   else
     {
@@ -142,7 +150,13 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
 				     int studyId,
 				     const char *instanceName)
 {
-  ASSERT(0);
+  if (! isKnownComponentClass(componentName))
+    return Engines::Component::_nil();
+  Engines::MachineList_var listOfMachine =
+    _ContManager->GetFittingResources(params,componentName);
+  Engines::Component_var compo =
+    _FindComponent(params.container_name,componentName,listOfMachine);
+  return compo._retn();
 }
 
 //=============================================================================
@@ -160,13 +174,29 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
 				     const char *componentName,
 				     int studyId)
 {
-  ASSERT(0);
+  if (! isKnownComponentClass(componentName))
+    return Engines::Component::_nil();
+
+  Engines::MachineList_var listOfMachine =
+    _ContManager->GetFittingResources(params,componentName);
+
+  Engines::Container_var cont =
+    _ContManager->FindOrStartContainer(params.container_name,
+				       listOfMachine);
+  if (CORBA::is_nil(cont)) return Engines::Component::_nil();
+
+  bool isLoadable = cont->load_component_Library(componentName);
+  if (!isLoadable) return Engines::Component::_nil();
+
+  Engines::Component_var myInstance =
+    cont->create_component_instance(componentName, 0);
+  return myInstance._retn();
 }
 
 //=============================================================================
 /*! Public - 
  *  Find and aready existing and registered component instance or load a new
- *  component instance on a container defined by machine parameters
+ *  component instance on a container defined by machine parameters.
  *  \param params         machine parameters like type or name...
  *  \param componentName  the name of component class
  *  \param studyId        default = 0  : multistudy instance
@@ -185,12 +215,12 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
 
   Engines::MachineList_var listOfMachine =
     _ContManager->GetFittingResources(params,componentName);
-  Engines::Component_ptr ret=
-    FindComponent(params.container_name,componentName,listOfMachine);
-  if(CORBA::is_nil(ret))
-    return LoadComponent(params.container_name,componentName,listOfMachine);
+  Engines::Component_var compo=
+    _FindComponent(params.container_name,componentName,listOfMachine);
+  if(CORBA::is_nil(compo))
+    return _LoadComponent(params.container_name,componentName,listOfMachine);
   else
-    return ret;
+    return compo._retn();
 }
 
 //=============================================================================
@@ -201,7 +231,7 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
  *           - 1 localhost/aContainer
  *           - 2 aContainer
  *           - 3 /machine/aContainer
- *     (not the same rules as FindContainer() method base on protected method
+ *     (not the same rules as FindContainer() method based on protected method
  *      ContainerName() -- MUST BE CORRECTED --)
  *  \param componentName  the name of component class
  *  \return a CORBA reference of the component instance, or _nil if problem
@@ -222,10 +252,10 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
       stContainer[rg]='\0';
       if(strcmp(stContainer,"localhost")==0)
 	{
-	  Engines::Component_ptr ret=FindOrLoad_Component(stContainer+rg+1,
-							  componentName);
+	  Engines::Component_var compo = FindOrLoad_Component(stContainer+rg+1,
+							      componentName);
 	  free(stContainer);
-	  return ret;
+	  return compo._retn();
 	}
       else ASSERT(0); // no return in that case...
     }
@@ -236,13 +266,13 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
       Engines::MachineList_var listOfMachine=new Engines::MachineList;
       listOfMachine->length(1);
       listOfMachine[0]=CORBA::string_dup(GetHostname().c_str());
-      Engines::Component_ptr ret = FindComponent(containerName,
-						 componentName,
-						 listOfMachine.in());
-      if(CORBA::is_nil(ret))
-	return LoadComponent(containerName,componentName,listOfMachine);
+      Engines::Component_var compo = _FindComponent(containerName,
+						    componentName,
+						    listOfMachine.in());
+      if(CORBA::is_nil(compo))
+	return _LoadComponent(containerName,componentName,listOfMachine);
       else
-	return ret;
+	return compo._retn();
     }
   else 
     {
@@ -295,16 +325,25 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
 
 //=============================================================================
 /*! Protected -
- *  
+ *  Find and aready existing and registered component instance.
+ *  \param containerName  the name of container, or empty string 
+ *                        (now, default Container Name used = FactoryServer)
+ *  \param componentName  the name of component class
+ *  \param listOfMachines list of machine address
+ *  \return a CORBA reference of the component instance, or _nil if not found
+ *  - if containerName given, creates a sublist of the machine list, where
+ *  machine/ContainerName/ComponentName exists. then chooses the best machine.
+ *  - if no  containerName given, choose first the best machine, then tries
+ *  machine/ContainerName/ComponentName, where ContainerName = FactoryServer
  */
 //=============================================================================
 
 Engines::Component_ptr
-SALOME_LifeCycleCORBA::FindComponent(const char *containerName,
-				     const char *componentName,
-				     const Engines::MachineList& listOfMachines)
+SALOME_LifeCycleCORBA::_FindComponent(const char *containerName,
+				      const char *componentName,
+				      const Engines::MachineList& listOfMachines)
 {
-  if (! isKnownComponentClass(componentName)) return Engines::Component::_nil();
+  if (!isKnownComponentClass(componentName)) return Engines::Component::_nil();
   if(containerName[0]!='\0')
     {
       Engines::MachineList_var machinesOK=new Engines::MachineList;
@@ -358,39 +397,48 @@ SALOME_LifeCycleCORBA::FindComponent(const char *containerName,
 
 //=============================================================================
 /*! Protected -
- *
+ *  Load a component instance.
+ *  \param containerName  the name of container (no default name)
+ *  \param componentName  the name of component class
+ *  \param listOfMachines list of machine address
+ *  \return a CORBA reference of the component instance, or _nil if problem
+ *  - uses the first container (of given name) found in the machines list.
+ *  - if no container found, tries to launch one one the best machine of the
+ *    list.
+ *  Then, find or loads a component instance on the choosen container.
  */
 //=============================================================================
 
 Engines::Component_ptr
-SALOME_LifeCycleCORBA::LoadComponent(const char *containerName,
-				     const char *componentName,
-				     const Engines::MachineList& listOfMachines)
+SALOME_LifeCycleCORBA::_LoadComponent(const char *containerName,
+				      const char *componentName,
+				      const Engines::MachineList& listOfMachines)
 {
-  Engines::Container_var cont=_ContManager->FindOrStartContainer(containerName,
-								 listOfMachines);
-  //string implementation=Engines_Component_i::GetDynLibraryName(componentName);
-  //return cont->load_impl(componentName, implementation.c_str());
-  return cont->load_impl(componentName,"");
+  Engines::Container_var cont =
+    _ContManager->FindOrStartContainer(containerName,
+				       listOfMachines);
+  if (!CORBA::is_nil(cont)) return cont->load_impl(componentName,"");
+  else return Engines::Component::_nil();
 }
 
 
 //=============================================================================
 /*! Protected -
- *
+ *  Alternate Container Launcher, without container manager...
  */
 //=============================================================================
 
 Engines::Container_ptr
-SALOME_LifeCycleCORBA::FindOrStartContainer(const string aComputerContainer ,
-					    const string theComputer ,
-					    const string theContainer )
+SALOME_LifeCycleCORBA::_FindOrStartContainer(const string aComputerContainer ,
+					     const string theComputer ,
+					     const string theContainer )
 {
   SCRUTE( aComputerContainer ) ;
   SCRUTE( theComputer ) ;
   SCRUTE( theContainer ) ;
 
-  Engines::Container_var aContainer = FindContainer(aComputerContainer.c_str());
+  Engines::Container_var aContainer =
+    FindContainer(aComputerContainer.c_str());
 
   if ( !CORBA::is_nil( aContainer ) )
     {
@@ -444,9 +492,9 @@ SALOME_LifeCycleCORBA::FindOrStartContainer(const string aComputerContainer ,
  *  \param aComputerContainer container name under one of the forms:
  *           - 1 aContainer
  *           - 2 machine/aContainer
- *  \param theComputer  return computer name:
+ *  \param theComputer  return computer name (machine):
  *           - 1 machine = GetHostname() 
- *           - 2 machine (localhost replaced by GetHostName())
+ *           - 2 machine = as given (localhost replaced by GetHostName())
  *  \param theContainer return container name:
  *           - 1 aContainer 
  *           - 2 aContainer
@@ -454,9 +502,9 @@ SALOME_LifeCycleCORBA::FindOrStartContainer(const string aComputerContainer ,
  */
 //=============================================================================
 
-string SALOME_LifeCycleCORBA::ContainerName(const char *aComputerContainer ,
-					    string * theComputer ,
-					    string * theContainer )
+string SALOME_LifeCycleCORBA::_ContainerName(const char *aComputerContainer ,
+					     string * theComputer ,
+					     string * theContainer )
 {
   char * ContainerName = new char [ strlen( aComputerContainer ) + 1 ] ;
   strcpy( ContainerName , aComputerContainer ) ;
@@ -498,7 +546,7 @@ string SALOME_LifeCycleCORBA::ContainerName(const char *aComputerContainer ,
  */
 //=============================================================================
 
-string SALOME_LifeCycleCORBA::ComputerPath(const char * theComputer ) 
+string SALOME_LifeCycleCORBA::_ComputerPath(const char * theComputer ) 
 {
   CORBA::String_var path;
   CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");

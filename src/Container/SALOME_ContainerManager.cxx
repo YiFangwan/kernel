@@ -13,6 +13,7 @@ const char *SALOME_ContainerManager::_ContainerManagerNameInNS="/ContainerManage
 
 SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
 {
+  MESSAGE("constructor");
   _NS=new SALOME_NamingService(orb);
   PortableServer::POA_var root_poa=PortableServer::POA::_the_root_poa();
   PortableServer::POAManager_var pman = root_poa->the_POAManager();
@@ -27,15 +28,18 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
   CORBA::Object_var obj=my_poa->id_to_reference(id);
   Engines::ContainerManager_var refContMan = Engines::ContainerManager::_narrow(obj);
   _NS->Register(refContMan,_ContainerManagerNameInNS);
+  MESSAGE("constructor end");
 }
 
 SALOME_ContainerManager::~SALOME_ContainerManager()
 {
+  MESSAGE("destructor");
   delete _NS;
 }
 
 void SALOME_ContainerManager::Shutdown()
 {
+  MESSAGE("Shutdown");
   ShutdownContainers();
   PortableServer::ObjectId_var oid = _default_POA()->servant_to_id(this);
   _default_POA()->deactivate_object(oid);
@@ -45,6 +49,7 @@ void SALOME_ContainerManager::Shutdown()
 
 void SALOME_ContainerManager::ShutdownContainers()
 {
+  MESSAGE("ShutdownContainers");
   _NS->Change_Directory("/Containers");
   vector<string> vec=_NS->list_directory_recurs();
   for(vector<string>::iterator iter=vec.begin();iter!=vec.end();iter++)
@@ -59,18 +64,20 @@ void SALOME_ContainerManager::ShutdownContainers()
 
 Engines::Container_ptr SALOME_ContainerManager::FindOrStartContainer(const char *containerName, const Engines::MachineList& possibleComputers)
 {
+  MESSAGE("FindOrStartContainer "<<containerName);
   Engines::Container_ptr ret=FindContainer(containerName,possibleComputers);
   if(!CORBA::is_nil(ret))
     return ret;
-  // Container doesn't exist try to launch it ...
+  MESSAGE("Container doesn't exist try to launch it ...");
   vector<string> vector;
   string theMachine=_LoadManager.FindBest(possibleComputers);
+  SCRUTE(theMachine);
   string command;
   if(theMachine==GetHostname())
     command=_ResManager.BuildCommandToLaunchLocalContainer(containerName);
   else
     command=_ResManager.BuildTempFileToLaunchRemoteContainer(theMachine,containerName);
-  _ResManager.RmTmpFile();
+  //_ResManager.RmTmpFile();
   int status=system(command.c_str());
   if (status == -1) {
     MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed (system command status -1)");
@@ -101,8 +108,10 @@ Engines::Container_ptr SALOME_ContainerManager::FindOrStartContainer(const char 
 
 Engines::MachineList *SALOME_ContainerManager::GetFittingResources(const Engines::MachineParameters& params, const char *componentName)
 {
+  MESSAGE("GetFittingResources");
   vector<string> vec=_ResManager.GetFittingResources(params,componentName);
   Engines::MachineList *ret=new Engines::MachineList;
+  MESSAGE("Machine list length "<<vec.size());
   ret->length(vec.size());
   for(unsigned int i=0;i<vec.size();i++)
     {
@@ -113,12 +122,14 @@ Engines::MachineList *SALOME_ContainerManager::GetFittingResources(const Engines
 
 char* SALOME_ContainerManager::FindBest(const Engines::MachineList& possibleComputers)
   {
+    MESSAGE("FindBest");
     string theMachine=_LoadManager.FindBest(possibleComputers);
     return CORBA::string_dup(theMachine.c_str());
   }
 
 Engines::Container_ptr SALOME_ContainerManager::FindContainer(const char *containerName,const char *theMachine)
 {
+  MESSAGE("FindContainer "<<theMachine);
   string containerNameInNS(BuildContainerNameInNS(containerName,theMachine));
   SCRUTE(containerNameInNS);
   CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
@@ -130,8 +141,10 @@ Engines::Container_ptr SALOME_ContainerManager::FindContainer(const char *contai
 
 Engines::Container_ptr SALOME_ContainerManager::FindContainer(const char *containerName,const Engines::MachineList& possibleComputers)
 {
+  MESSAGE("FindContainer "<<possibleComputers.length());
   for(unsigned int i=0;i<possibleComputers.length();i++)
     {
+      SCRUTE(possibleComputers[i]);
       Engines::Container_ptr cont=FindContainer(containerName,possibleComputers[i]);
       if( !CORBA::is_nil(cont) )
 	return cont;
@@ -141,6 +154,7 @@ Engines::Container_ptr SALOME_ContainerManager::FindContainer(const char *contai
 
 string SALOME_ContainerManager::BuildContainerNameInNS(const char *containerName,const char *machineName)
 {
+  MESSAGE("BuildContainerNameInNS");
   string containerNameInNS("/Containers/");
   containerNameInNS+=machineName;
   containerNameInNS+="/";

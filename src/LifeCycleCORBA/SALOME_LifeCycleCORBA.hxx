@@ -42,7 +42,7 @@ class SALOME_NamingService;
 class SALOME_LifeCycleCORBA
 {
 public:
-  SALOME_LifeCycleCORBA(SALOME_NamingService *ns);
+  SALOME_LifeCycleCORBA(SALOME_NamingService *ns = 0);
   virtual ~SALOME_LifeCycleCORBA();
 
   Engines::Container_ptr 
@@ -62,7 +62,7 @@ public:
   Engines::Component_ptr 
   FindOrLoad_Component(const Engines::MachineParameters& params,
 		       const char *componentName,
-		       int studyId=0);
+		       int studyId =0);
 
   Engines::Component_ptr
   FindOrLoad_Component(const char *containerName,
@@ -78,29 +78,29 @@ protected:
    *  This method uses Naming Service to find the component.
    */
   Engines::Component_ptr 
-  FindComponent(const char *containerName,
-		const char *componentName,
-		const Engines::MachineList& listOfMachines);
+  _FindComponent(const char *containerName,
+		 const char *componentName,
+		 const Engines::MachineList& listOfMachines);
 
   Engines::Component_ptr
-  LoadComponent(const char *containerName,
-		const char *componentName,
-		const Engines::MachineList& listOfMachines);
+  _LoadComponent(const char *containerName,
+		 const char *componentName,
+		 const Engines::MachineList& listOfMachines);
   
   SALOME_NamingService *_NS;
   Engines::ContainerManager_var _ContManager;
   
   //private:
 
-  std::string ContainerName( const char * aComputerContainer ,
-			     std::string * theComputer ,
-			     std::string * theContainer ) ;
-  std::string ComputerPath( const char * theComputer ) ;
+  std::string _ContainerName( const char * aComputerContainer ,
+			      std::string * theComputer ,
+			      std::string * theContainer ) ;
+  std::string _ComputerPath( const char * theComputer ) ;
 
   Engines::Container_ptr 
-  FindOrStartContainer(const std::string aComputerContainer ,
-		       const std::string theComputer ,
-		       const std::string theContainer ) ;
+  _FindOrStartContainer(const std::string aComputerContainer ,
+			const std::string theComputer ,
+			const std::string theContainer ) ;
 } ;
 
 #endif

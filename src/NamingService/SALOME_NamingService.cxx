@@ -69,7 +69,8 @@ SALOME_NamingService::SALOME_NamingService(CORBA::ORB_ptr orb)
 
 SALOME_NamingService::~SALOME_NamingService()
 {
-  MESSAGE("SALOME_NamingService destruction");
+  // Problem MESSAGE with singleton: late destruction, after trace system destruction ?
+  //MESSAGE("SALOME_NamingService destruction");
 }
 
 //----------------------------------------------------------------------

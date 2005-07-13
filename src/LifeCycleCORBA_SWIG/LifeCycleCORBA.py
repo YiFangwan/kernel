@@ -1,3 +1,5 @@
+#  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
+#
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 # 
@@ -19,33 +21,21 @@
 #
 #
 #
-#  File   : Makefile.in
-#  Author : Patrick GOLDBRONN (CEA)
+#  File   : LifeCycleCORBA.py
+#  Author : Paul RASCLE, EDF
 #  Module : SALOME
-# $Header$
-
-top_srcdir=@top_srcdir@
-top_builddir=..
-srcdir=@srcdir@
-VPATH=.:@srcdir@
+#  $Header$
 
 
-@COMMENCE@
+import Engines
+from libSALOME_LifeCycleCORBA import *
 
-SUBDIRS = SALOMELocalTrace SALOMETraceCollector Logger Utils \
-	  CASCatch GenericObj MEDWrapper NamingService Registry \
-	  ModuleCatalog DataTypeCatalog RessourcesCatalog \
-          ResourcesManager Notification  NOTIFICATION_SWIG \
-	  Container TestContainer LifeCycleCORBA LifeCycleCORBA_SWIG HDFPersist \
-          SALOMEDSClient TOOLSDS SALOMEDSImpl SALOMEDS KERNEL_PY \
-	  ModuleGenerator Communication
+class LifeCycleCORBA (SALOME_LifeCycleCORBA):
 
-ifeq (@mpi_ok@,yes)
-  SUBDIRS+= MPIContainer MPILifeCycleCORBA TestMPIContainer
-endif
+    def __init__(self, orb = None):
+        SALOME_LifeCycleCORBA.__init__(self)
 
-ifeq (@WITH_BATCH@,yes)
-  SUBDIRS += Batch Batch_SWIG
-endif
-
-@MODULE@
+    def FindOrLoadComponent(self, containerName, componentName):
+        return SALOME_LifeCycleCORBA.FindOrLoad_Component(self,
+                                                          containerName,
+                                                          componentName)
