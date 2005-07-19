@@ -190,6 +190,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
     params->container_name=CORBA::string_dup(stContainer+rg+1);
     params->hostname=CORBA::string_dup(stContainer);
   }
+  params->isMPI = false;
   free(stContainer);
   return FindOrLoad_Component(params,componentName);
   

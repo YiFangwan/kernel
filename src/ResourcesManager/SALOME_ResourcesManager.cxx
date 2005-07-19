@@ -1,4 +1,4 @@
-#include "SALOME_ResourcesManager.hxx"
+ #include "SALOME_ResourcesManager.hxx"
 #include "SALOME_Container_i.hxx"
 #include "Utils_ExceptHandlers.hxx"
 #include "OpUtil.hxx"
@@ -220,12 +220,14 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
   }
   tempOutputFile << (*(resInfo.ModulesPath.find("KERNEL"))).second << "/bin/salome/";
   if(params.isMPI){
+    cout << "PARALLELE" << endl;
     if(Engines_Container_i::isPythonContainer(params.container_name))
       tempOutputFile << "pyMPI SALOME_ContainerPy.py ";
     else
       tempOutputFile << "SALOME_MPIContainer ";
   }
   else{
+    cout << "SEQUENTIEL" << endl;
     if(Engines_Container_i::isPythonContainer(params.container_name))
       tempOutputFile << "SALOME_ContainerPy.py ";
     else
@@ -388,11 +390,12 @@ void SALOME_ResourcesManager::AddOmninamesParams(string& command) const
 {
   string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
   ifstream omniORBfile( omniORBcfg.c_str() ) ;
-  char ORBInitRef[12] ;
+  char ORBInitRef[11] ;
+  char egal[3] ;
   char nameservice[132] ;
   omniORBfile >> ORBInitRef ;
-  command += ORBInitRef ;
-  command += " " ;
+  command += "ORBInitRef " ;
+  omniORBfile >> egal ;
   omniORBfile >> nameservice ;
   omniORBfile.close() ;
   char * bsn = strchr( nameservice , '\n' ) ;
@@ -406,11 +409,12 @@ void SALOME_ResourcesManager::AddOmninamesParams(ofstream& fileStream) const
 {
   string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
   ifstream omniORBfile( omniORBcfg.c_str() ) ;
-  char ORBInitRef[12] ;
+  char ORBInitRef[11] ;
+  char egal[3] ;
   char nameservice[132] ;
   omniORBfile >> ORBInitRef ;
-  fileStream << ORBInitRef;
-  fileStream << " ";
+  fileStream << "ORBInitRef ";
+  omniORBfile >> egal ;
   omniORBfile >> nameservice ;
   omniORBfile.close() ;
   char * bsn = strchr( nameservice , '\n' ) ;

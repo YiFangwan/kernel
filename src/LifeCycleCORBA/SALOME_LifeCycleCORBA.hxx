@@ -53,9 +53,6 @@ public:
   SALOME_LifeCycleCORBA(SALOME_NamingService *ns = 0);
   virtual ~SALOME_LifeCycleCORBA();
 
-  Engines::Container_ptr 
-  FindContainer(const char *containerName); // for supervision
-
   Engines::Component_ptr 
   FindComponent(const Engines::MachineParameters& params,
 		const char *componentName, 
