@@ -20,7 +20,7 @@ RESOURCES_FILES = \
 CatalogDataType.xml \
 KERNELCatalog.xml \
 CatalogResources.xml \
-CatalogRessources.xml \
+close.png \
 config \
 channel.cfg \
 SALOMEDS_Resources

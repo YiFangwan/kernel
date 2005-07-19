@@ -9,6 +9,7 @@
 #include <unistd.h>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string.h>
 #include <map>
 #include <list>
@@ -21,12 +22,14 @@
 using namespace std;
 
 //just for test
-SALOME_ResourcesManager::SALOME_ResourcesManager(const char *xmlFilePath):_path_resources(xmlFilePath)
+SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb,const char *xmlFilePath):_path_resources(xmlFilePath)
 {
+  _NS=new SALOME_NamingService(orb);  
 }
 
-SALOME_ResourcesManager::SALOME_ResourcesManager()
+SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb)
 {
+  _NS=new SALOME_NamingService(orb);
   _path_resources=getenv("KERNEL_ROOT_DIR");
   _path_resources+="/share/salome/resources/CatalogResources.xml";
   ParseXmlFile();
@@ -34,17 +37,21 @@ SALOME_ResourcesManager::SALOME_ResourcesManager()
 
 SALOME_ResourcesManager::~SALOME_ResourcesManager()
 {
+  delete _NS;
 }
 
 vector<string> SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& params,const char *moduleName) throw(SALOME_Exception)
 {
+  MESSAGE("ResourcesManager::GetFittingResources");
   vector <std::string> ret;
   //To be sure that we search in a correct list.
   ParseXmlFile();
   const char *hostname=(const char *)params.hostname;
   if(hostname[0]!='\0')
     {
-      if(_resourcesList.find(hostname)!=_resourcesList.end())
+      if( strcmp(hostname,"localhost") == 0 || strcmp(hostname,GetHostname().c_str()) == 0 )
+	ret.push_back(GetHostname().c_str());
+      else if(_resourcesList.find(hostname)!=_resourcesList.end())
 	// params.hostame is in the list of resources so return it.
 	ret.push_back(hostname);
       else
@@ -176,7 +183,7 @@ string SALOME_ResourcesManager::FindBest(const Engines::MachineList& listOfMachi
   return _dynamicResourcesSelecter.FindBest(listOfMachines);
 }
 
-string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const string& machine,const char *containerName)
+string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const string& machine,const Engines::MachineParameters& params)
 {
   _TmpFileName=BuildTemporaryFileName();
   ofstream tempOutputFile;
@@ -197,12 +204,34 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
   tempOutputFile << "export PYTHONPATH" << endl;
   tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
   // ! env vars
+  if(params.isMPI){
+    tempOutputFile << "mpirun -np ";
+    int nbproc;
+    if( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
+      nbproc = 1;
+    else if( params.nb_node == 0 )
+      nbproc = params.nb_proc_per_node;
+    else if( params.nb_proc_per_node == 0 )
+      nbproc = params.nb_node;
+    else
+      nbproc = params.nb_node * params.nb_proc_per_node;
+    std::ostringstream o;
+    tempOutputFile << nbproc << " ";
+  }
   tempOutputFile << (*(resInfo.ModulesPath.find("KERNEL"))).second << "/bin/salome/";
-  if(Engines_Container_i::isPythonContainer(containerName))
-    tempOutputFile << "SALOME_ContainerPy.py ";
-  else
-    tempOutputFile << "SALOME_Container ";
-  tempOutputFile << containerName << " -";
+  if(params.isMPI){
+    if(Engines_Container_i::isPythonContainer(params.container_name))
+      tempOutputFile << "pyMPI SALOME_ContainerPy.py ";
+    else
+      tempOutputFile << "SALOME_MPIContainer ";
+  }
+  else{
+    if(Engines_Container_i::isPythonContainer(params.container_name))
+      tempOutputFile << "SALOME_ContainerPy.py ";
+    else
+      tempOutputFile << "SALOME_Container ";
+  }
+  tempOutputFile << _NS->ContainerName(params) << " -";
   AddOmninamesParams(tempOutputFile);
   tempOutputFile << " &" << endl;
   tempOutputFile.flush();
@@ -231,27 +260,48 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
   command+=_TmpFileName;
   command += " > ";
   command += "/tmp/";
-  command += containerName;
+  command += _NS->ContainerName(params);
   command += "_";
   command += machine;
-  command += ".log &";
+  command += ".log 2>&1 &";
   cout << "Command is ... " << command << endl;
   return command;
 }
 
-string SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer(const char *containerName)
+string SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer(const Engines::MachineParameters& params)
 {
   _TmpFileName="";
   string command;
-  if(Engines_Container_i::isPythonContainer(containerName))
-    command="SALOME_ContainerPy.py ";
-  else
-    command="SALOME_Container ";
-  command+=containerName;
+  int nbproc=0;
+  if(params.isMPI){
+    command="mpirun -np ";
+    if( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
+      nbproc = 1;
+    else if( params.nb_node == 0 )
+      nbproc = params.nb_proc_per_node;
+    else if( params.nb_proc_per_node == 0 )
+      nbproc = params.nb_node;
+    else
+      nbproc = params.nb_node * params.nb_proc_per_node;
+    std::ostringstream o;
+    o << nbproc << " ";
+    command += o.str();
+    if(Engines_Container_i::isPythonContainer(params.container_name))
+      command+="pyMPI SALOME_ContainerPy.py ";
+    else
+      command+="SALOME_MPIContainer ";
+  }
+  else{
+    if(Engines_Container_i::isPythonContainer(params.container_name))
+      command="SALOME_ContainerPy.py ";
+    else
+      command="SALOME_Container ";
+  }
+  command+=_NS->ContainerName(params);
   command+=" -";
   AddOmninamesParams(command);
   command+=" > /tmp/";
-  command+=containerName;
+  command+=_NS->ContainerName(params);
   command += "_";
   command += GetHostname();
   command += "_";
@@ -314,21 +364,23 @@ void SALOME_ResourcesManager::SelectOnlyResourcesWithOS(vector<string>& hosts,co
 {
   string base(OS);
   for(map<string, ParserResourcesType>::const_iterator iter=_resourcesList.begin();iter!=_resourcesList.end();iter++)
+    {
     if((*iter).second.OS==base)
-      hosts.push_back((*iter).first);
+      hosts.push_back((*iter).first); 
+    }
 }
 
 //Warning need an updated parsed list : _resourcesList
 void SALOME_ResourcesManager::KeepOnlyResourcesWithModule(vector<string>& hosts,const char *moduleName) const throw(SALOME_Exception)
 {
-   for(vector<string>::iterator iter=hosts.begin();iter!=hosts.end();iter++)
+   for(vector<string>::iterator iter=hosts.begin();iter!=hosts.end();)
      {
        MapOfParserResourcesType::const_iterator it=_resourcesList.find(*iter);
        const map<string,string>& mapOfModulesOfCurrentHost=(((*it).second).ModulesPath);
        if(mapOfModulesOfCurrentHost.find(moduleName)==mapOfModulesOfCurrentHost.end())
-	 {
-	   hosts.erase(iter);
-	 }
+	 hosts.erase(iter);
+       else
+	 iter++;
      }
 }
 

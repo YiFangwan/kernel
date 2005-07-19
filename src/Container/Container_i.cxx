@@ -56,7 +56,6 @@ char ** _ArgV ;
 extern "C" {void ActSigIntHandler() ; }
 extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 
-const char *Engines_Container_i::_defaultContainerName="FactoryServer";
 map<std::string, int> Engines_Container_i::_cntInstances_map;
 map<std::string, void *> Engines_Container_i::_library_map;
 map<std::string, void *> Engines_Container_i::_toRemove_map;
@@ -122,8 +121,6 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
       _ArgV = argv ;
     }
 
-  _containerName = BuildContainerNameForNS(containerName,hostname.c_str());
-  
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
   
@@ -138,6 +135,8 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
       CORBA::Object_var obj=_poa->id_to_reference(*_id);
       Engines::Container_var pCont 
 	= Engines::Container::_narrow(obj);
+
+      _containerName = _NS->BuildContainerNameForNS(containerName,hostname.c_str());
       SCRUTE(_containerName);
       _NS->Register(pCont, _containerName.c_str());
 
@@ -232,7 +231,7 @@ void Engines_Container_i::ping()
 void Engines_Container_i::Shutdown()
 {
   MESSAGE("Engines_Container_i::Shutdown()");
-  _NS->Destroy_Name(_containerName.c_str());
+  _NS->Destroy_FullDirectory(_containerName.c_str());
   //_remove_ref();
   //_poa->deactivate_object(*_id);
   if(_isServantAloneInProcess)
@@ -752,25 +751,6 @@ bool Engines_Container_i::isPythonContainer(const char* ContainerName)
   if(len>=2)
     if(strcmp(ContainerName+len-2,"Py")==0)
       ret=true;
-  return ret;
-}
-
-//=============================================================================
-/*! 
- *  Returns string = container path + name, to use in Naming service
- */
-//=============================================================================
-
-string Engines_Container_i::BuildContainerNameForNS(const char *ContainerName,
-						    const char *hostname)
-{
-  string ret="/Containers/";
-  ret += hostname;
-  ret+="/";
-  if (strlen(ContainerName)== 0)
-    ret+=_defaultContainerName;
-  else
-    ret += ContainerName;
   return ret;
 }
 

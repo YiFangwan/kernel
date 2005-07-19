@@ -52,12 +52,14 @@ BIN = SALOME_MPIContainer
 BIN_SRC = 
 BIN_SERVER_IDL = SALOME_MPIObject.idl SALOME_MPIContainer.idl
 
-LDFLAGS+= -lSalomeContainer -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace
+LDFLAGS+= -lSalomeContainer -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace -lSalomeResourcesManager
 
 ifeq (@WITHMPI@,yes)
   CXXFLAGS+=${MPI_INCLUDES}
   CXX_DEPEND_FLAG+=${MPI_INCLUDES}
   LDFLAGS+= ${MPI_LIBS}
+  LDFLAGSFORBIN= $(LDFLAGS) -lSALOMETraceCollector
+  LIBSFORBIN= $(LIBS)
 endif
 
 @CONCLUDE@

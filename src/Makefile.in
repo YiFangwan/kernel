@@ -37,11 +37,11 @@ SUBDIRS = SALOMELocalTrace SALOMETraceCollector Logger Utils \
 	  ModuleCatalog DataTypeCatalog RessourcesCatalog \
           ResourcesManager Notification  NOTIFICATION_SWIG \
 	  Container TestContainer LifeCycleCORBA LifeCycleCORBA_SWIG HDFPersist \
-          SALOMEDSClient TOOLSDS SALOMEDSImpl SALOMEDS KERNEL_PY \
+	  SALOMEDSClient TOOLSDS SALOMEDSImpl SALOMEDS KERNEL_PY \
 	  ModuleGenerator Communication
 
 ifeq (@mpi_ok@,yes)
-  SUBDIRS+= MPIContainer MPILifeCycleCORBA TestMPIContainer
+  SUBDIRS+= MPIContainer TestMPIContainer
 endif
 
 ifeq (@WITH_BATCH@,yes)

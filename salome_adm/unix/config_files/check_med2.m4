@@ -68,10 +68,7 @@ then
 fi
 
 dnl check med2 header
-
 CPPFLAGS_old="$CPPFLAGS"
-dnl we must test system : linux = -DPCLINUX
-dnl we must test system : Alpha-OSF = -DOSF1
 case $host_os in
    linux*)
       CPPFLAGS="$CPPFLAGS -DPCLINUX $LOCAL_INCLUDES"
@@ -83,23 +80,20 @@ esac
 AC_CHECK_HEADER(med.h,med2_ok=yes ,med2_ok=no)
 CPPFLAGS="$CPPFLAGS_old"
 
+dnl check med2 library
 if  test "x$med2_ok" = "xyes"
 then
-
-dnl check med2 library
-
   LIBS_old="$LIBS"
   LIBS="$LIBS $LOCAL_LIBS"
   AC_CHECK_LIB(med,MEDouvrir,med2_ok=yes,med2_ok=no)
   LIBS="$LIBS_old"
-
 fi
 
 if  test "x$med2_ok" = "xyes"
 then
 case $host_os in
    linux*)
-        MED2_INCLUDES="-DPCLINUX $LOCAL_INCLUDES"
+      MED2_INCLUDES="-DPCLINUX $LOCAL_INCLUDES"
       ;;
    osf*)
       MED2_INCLUDES="-DOSF1 $LOCAL_INCLUDES"

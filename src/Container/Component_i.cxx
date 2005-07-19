@@ -242,21 +242,14 @@ void Engines_Component_i::destroy()
 
 Engines::Container_ptr Engines_Component_i::GetContainerRef()
 {
-  MESSAGE("Engines_Component_i::GetContainerRef");
   CORBA::Object_ptr o = _poa->id_to_reference(*_contId) ;
   return Engines::Container::_narrow(o);
 }
 
-//=============================================================================
-/*! 
- *  CORBA method: 
- *  Gives a sequence of (key=string,value=any) to the component. 
- *  Base class component stores the sequence in a map.
- *  The map is cleared before.
- *  This map is for use by derived classes. 
- *  \param dico sequence of (key=string,value=any)
- */
-//=============================================================================
+Engines_Container_i *Engines_Component_i::GetContainerPtr()
+{
+  return dynamic_cast<Engines_Container_i*>(_poa->id_to_servant(*_contId)) ;
+}
 
 void Engines_Component_i::setProperties(const Engines::FieldsDict& dico)
 {
@@ -715,22 +708,6 @@ string Engines_Component_i::GetDynLibraryName(const char *componentName)
   return ret;
 }
 
-//=============================================================================
-/*! 
- *  C++ method:
- */
-//=============================================================================
-
-string Engines_Component_i::BuildComponentNameForNS(const char *ComponentName,
-						    const char *ContainerName,
-						    const char *hostname)
-{
-  string ret =
-    Engines_Container_i::BuildContainerNameForNS(ContainerName,hostname);
-  ret+="/";
-  ret+=ComponentName;
-  return ret;
-}
 //=============================================================================
 /*! 
  *  C++ method: DumpPython default implementation
