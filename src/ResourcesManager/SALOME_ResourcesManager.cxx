@@ -220,14 +220,12 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
   }
   tempOutputFile << (*(resInfo.ModulesPath.find("KERNEL"))).second << "/bin/salome/";
   if(params.isMPI){
-    cout << "PARALLELE" << endl;
     if(Engines_Container_i::isPythonContainer(params.container_name))
       tempOutputFile << "pyMPI SALOME_ContainerPy.py ";
     else
       tempOutputFile << "SALOME_MPIContainer ";
   }
   else{
-    cout << "SEQUENTIEL" << endl;
     if(Engines_Container_i::isPythonContainer(params.container_name))
       tempOutputFile << "SALOME_ContainerPy.py ";
     else

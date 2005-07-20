@@ -452,7 +452,7 @@ CORBA::Object_ptr SALOME_NamingService::ResolveComponent(const char* hostname, c
       name += containerName;
     name += "/";
     name += componentName;
-    return Resolve(name.c_str());
+    return ResolveFirst(name.c_str());
   }
   else {
     Change_Directory(name.c_str());
@@ -461,7 +461,7 @@ CORBA::Object_ptr SALOME_NamingService::ResolveComponent(const char* hostname, c
       name = contList[ind].c_str();
       name += "/";
       name += componentName;
-      CORBA::Object_ptr obj = Resolve(name.c_str());
+      CORBA::Object_ptr obj = ResolveFirst(name.c_str());
       if( !CORBA::is_nil(obj) )
 	return obj;
     }

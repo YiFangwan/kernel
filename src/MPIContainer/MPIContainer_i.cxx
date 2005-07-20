@@ -27,11 +27,14 @@
 #include <iostream.h>
 #include <dlfcn.h>
 #include <stdio.h>
+#include "SALOME_Component_i.hxx"
 #include "MPIContainer_i.hxx"
 #include "SALOME_NamingService.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "OpUtil.hxx"
 #include "utilities.h"
+#include <Python.h>
+#include "Container_init_python.hxx"
 using namespace std;
 
 // L'appel au registry SALOME ne se fait que pour le process 0
@@ -79,14 +82,295 @@ Engines_MPIContainer_i::~Engines_MPIContainer_i(void)
 }
 
 // Load component
+void Engines_MPIContainer_i::Shutdown()
+{
+  int ip;
+  MESSAGE("[" << _numproc << "] shutdown of MPI Corba Server");
+  if( _numproc == 0 ){
+    _NS->Destroy_FullDirectory(_containerName.c_str());
+    for(ip= 1;ip<_nbproc;ip++)
+      (Engines::MPIContainer::_narrow((*_tior)[ip]))->Shutdown();
+  }
+  _orb->shutdown(0);
+
+}
+
+// Load a component library
+bool Engines_MPIContainer_i::load_component_Library(const char* componentName)
+{
+  if( _numproc == 0 ){
+    // Invocation du chargement du composant dans les autres process
+    for(int ip= 1;ip<_nbproc;ip++)
+      (Engines::MPIContainer::_narrow((*_tior)[ip]))->Asload_component_Library(componentName);
+  }
+
+  return Lload_component_Library(componentName);
+}
+
+void Engines_MPIContainer_i::Asload_component_Library(const char* componentName)
+{
+  Lload_component_Library(componentName);
+}
+
+bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
+{
+  string aCompName = componentName;
+
+  // --- try dlopen C++ component
+
+  string impl_name = string ("lib") + aCompName + string("Engine.so");
+  SCRUTE(impl_name);
+  
+  _numInstanceMutex.lock(); // lock to be alone 
+  // (see decInstanceCnt, finalize_removal))
+  if (_toRemove_map[impl_name]) _toRemove_map.erase(impl_name);
+  if (_library_map[impl_name])
+    {
+      MESSAGE("[" << _numproc << "] Library " << impl_name << " already loaded");
+      _numInstanceMutex.unlock();
+      return true;
+    }
+  
+  void* handle;
+  handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+  if ( handle )
+    {
+      _library_map[impl_name] = handle;
+      _numInstanceMutex.unlock();
+      return true;
+    }
+  else
+    {
+      INFOS("[" << _numproc << "] Can't load shared library : " << impl_name);
+      INFOS("[" << _numproc << "] error dlopen: " << dlerror());
+    }
+  _numInstanceMutex.unlock();
+
+  // --- try import Python component
+
+  INFOS("[" << _numproc << "] try import Python component "<<componentName);
+  if (_isSupervContainer)
+    {
+      INFOS("[" << _numproc << "] Supervision Container does not support Python Component Engines");
+      return false;
+    }
+  if (_library_map[aCompName])
+    {
+      return true; // Python Component, already imported
+    }
+  else
+    {
+      Py_ACQUIRE_NEW_THREAD;
+      PyObject *mainmod = PyImport_AddModule("__main__");
+      PyObject *globals = PyModule_GetDict(mainmod);
+      PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
+      PyObject *result = PyObject_CallMethod(pyCont,
+					     "import_component",
+					     "s",componentName);
+      int ret= PyInt_AsLong(result);
+      SCRUTE(ret);
+      Py_RELEASE_NEW_THREAD;
+  
+      if (ret) // import possible: Python component
+	{
+	  _library_map[aCompName] = (void *)pyCont; // any non O value OK
+	  MESSAGE("[" << _numproc << "] import Python: "<<aCompName<<" OK");
+	  return true;
+	}
+    }
+  return false;
+}
+
+// Create an instance of component
+Engines::Component_ptr
+Engines_MPIContainer_i::create_component_instance( const char* componentName,
+						   CORBA::Long studyId)
+{
+  if( _numproc == 0 ){
+    // Invocation du chargement du composant dans les autres process
+    for(int ip= 1;ip<_nbproc;ip++)
+      (Engines::MPIContainer::_narrow((*_tior)[ip]))->Ascreate_component_instance(componentName,studyId);
+  }
+
+  return Lcreate_component_instance(componentName,studyId);
+}
+
+void Engines_MPIContainer_i::Ascreate_component_instance( const char* componentName,
+							  CORBA::Long studyId)
+{
+  Lcreate_component_instance(componentName,studyId);
+}
+
+Engines::Component_ptr
+Engines_MPIContainer_i::Lcreate_component_instance( const char* genericRegisterName, CORBA::Long studyId)
+{
+  if (studyId < 0) {
+    INFOS("studyId must be > 0 for mono study instance, =0 for multiStudy");
+    return Engines::Component::_nil() ;
+  }
+
+  Engines::Component_var iobject = Engines::Component::_nil() ;
+  Engines::MPIObject_var pobj;
+
+  string aCompName = genericRegisterName;
+  if (_library_map[aCompName]) { // Python component
+    if (_isSupervContainer) {
+      INFOS("Supervision Container does not support Python Component Engines");
+      return Engines::Component::_nil();
+    }
+    _numInstanceMutex.lock() ; // lock on the instance number
+    _numInstance++ ;
+    int numInstance = _numInstance ;
+    _numInstanceMutex.unlock() ;
+
+    char aNumI[12];
+    sprintf( aNumI , "%d" , numInstance ) ;
+    string instanceName = aCompName + "_inst_" + aNumI ;
+    string component_registerName =
+      _containerName + "/" + instanceName;
+
+    Py_ACQUIRE_NEW_THREAD;
+    PyObject *mainmod = PyImport_AddModule("__main__");
+    PyObject *globals = PyModule_GetDict(mainmod);
+    PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
+    PyObject *result = PyObject_CallMethod(pyCont,
+					   "create_component_instance",
+					   "ssl",
+					   aCompName.c_str(),
+					   instanceName.c_str(),
+					   studyId);
+    string iors = PyString_AsString(result);
+    SCRUTE(iors);
+    Py_RELEASE_NEW_THREAD;
+  
+    CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
+    iobject = Engines::Component::_narrow( obj ) ;
+    pobj = Engines::MPIObject::_narrow(obj) ;
+    if( _numproc == 0 )
+      _NS->Register(iobject, component_registerName.c_str()) ;
+    // Root recupere les ior des composants des autre process
+    BCastIOR(_orb,pobj,false);
+
+    return iobject._retn();
+  }
+  
+  //--- try C++
+
+  string impl_name = string ("lib") + genericRegisterName +string("Engine.so");
+  void* handle = _library_map[impl_name];
+  if ( !handle ) {
+    INFOS("shared library " << impl_name <<"must be loaded before instance");
+    return Engines::Component::_nil() ;
+  }
+  else {
+    iobject = createMPIInstance(genericRegisterName,
+				handle,
+				studyId);
+    return iobject._retn();
+  }
+}
+
+Engines::Component_ptr
+Engines_MPIContainer_i::createMPIInstance(string genericRegisterName,
+					  void *handle,
+					  int studyId)
+{
+  Engines::Component_var iobject;
+  Engines::MPIObject_var pobj;
+  // --- find the factory
+
+  string aGenRegisterName = genericRegisterName;
+  string factory_name = aGenRegisterName + string("Engine_factory");
+  SCRUTE(factory_name) ;
+
+  typedef  PortableServer::ObjectId * (*MPIFACTORY_FUNCTION)
+    (int,int,
+     CORBA::ORB_ptr,
+     PortableServer::POA_ptr, 
+     PortableServer::ObjectId *, 
+     const char *, 
+     const char *) ;
+
+  MPIFACTORY_FUNCTION MPIComponent_factory
+    = (MPIFACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
+
+  char *error ;
+  if ( (error = dlerror() ) != NULL) {
+    // Try to load a sequential component
+    MESSAGE("[" << _numproc << "] Try to load a sequential component");
+    _numInstanceMutex.unlock() ;
+    iobject = Engines_Container_i::createInstance(genericRegisterName,handle,studyId);
+    if( CORBA::is_nil(iobject) ) return Engines::Component::_duplicate(iobject);
+  }
+
+  // --- create instance
+
+  iobject = Engines::Component::_nil() ;
+
+  try
+    {
+      _numInstanceMutex.lock() ; // lock on the instance number
+      _numInstance++ ;
+      int numInstance = _numInstance ;
+      _numInstanceMutex.unlock() ;
+
+      char aNumI[12];
+      sprintf( aNumI , "%d" , numInstance ) ;
+      string instanceName = aGenRegisterName + "_inst_" + aNumI ;
+      string component_registerName =
+	_containerName + "/" + instanceName;
+
+      // --- Instanciate required CORBA object
+
+      PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
+      id = (MPIComponent_factory) ( _nbproc,_numproc,_orb, _poa, _id, instanceName.c_str(),
+				 aGenRegisterName.c_str() ) ;
+
+      // --- get reference & servant from id
+
+      CORBA::Object_var obj = _poa->id_to_reference(*id);
+      iobject = Engines::Component::_narrow( obj ) ;
+      pobj = Engines::MPIObject::_narrow(obj) ;
+
+      Engines_Component_i *servant =
+	dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
+      ASSERT(servant);
+      //SCRUTE(servant->pd_refCount);
+      servant->_remove_ref(); // compensate previous id_to_reference 
+      //SCRUTE(servant->pd_refCount);
+      _listInstances_map[instanceName] = iobject;
+      _cntInstances_map[aGenRegisterName] += 1;
+      SCRUTE(aGenRegisterName);
+      SCRUTE(_cntInstances_map[aGenRegisterName]);
+      //SCRUTE(servant->pd_refCount);
+      bool ret_studyId = servant->setStudyId(studyId);
+      ASSERT(ret_studyId);
+
+      // --- register the engine under the name
+      //     containerName(.dir)/instanceName(.object)
+
+      if( _numproc == 0 ){
+	_NS->Register( iobject , component_registerName.c_str() ) ;
+	MESSAGE( component_registerName.c_str() << " bound" ) ;
+      }
+      // Root recupere les ior des composants des autre process
+      BCastIOR(_orb,pobj,false);
+
+    }
+  catch (...)
+    {
+      INFOS( "Container_i::createInstance exception catched" ) ;
+    }
+  return iobject._retn();
+}
+
+// Load component
 Engines::Component_ptr Engines_MPIContainer_i::load_impl(const char* nameToRegister,
 						 const char* componentName)
 {
-  int ip;
-
   if( _numproc == 0 ){
     // Invocation du chargement du composant dans les autres process
-    for(ip= 1;ip<_nbproc;ip++)
+    for(int ip= 1;ip<_nbproc;ip++)
       (Engines::MPIContainer::_narrow((*_tior)[ip]))->Asload_impl(nameToRegister,
 								componentName);
   }
@@ -268,18 +552,3 @@ void Engines_MPIContainer_i::Lfinalize_removal()
 
   END_OF("[" << _numproc << "] MPIContainer_i::Lfinalize_removal");
 }
-
-// Load component
-void Engines_MPIContainer_i::Shutdown()
-{
-  int ip;
-  MESSAGE("[" << _numproc << "] shutdown of MPI Corba Server");
-  if( _numproc == 0 ){
-    _NS->Destroy_FullDirectory(_containerName.c_str());
-    for(ip= 1;ip<_nbproc;ip++)
-      (Engines::MPIContainer::_narrow((*_tior)[ip]))->Shutdown();
-  }
-  _orb->shutdown(0);
-
-}
-
