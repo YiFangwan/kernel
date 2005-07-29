@@ -44,6 +44,21 @@
 //      thread state.
 //    - There is no need of C Lock protection of the sequence.
 
+
+#if defined CONTAINER_EXPORTS
+#if defined WIN32
+#define CONTAINER_EXPORT __declspec( dllexport )
+#else
+#define CONTAINER_EXPORT
+#endif
+#else
+#if defined WNT
+#define CONTAINER_EXPORT __declspec( dllimport )
+#else
+#define CONTAINER_EXPORT
+#endif
+#endif
+
 #define Py_ACQUIRE_NEW_THREAD \
   PyEval_AcquireLock(); \
   PyThreadState *myTstate = PyThreadState_New(KERNEL_PYTHON::_interp); \
@@ -53,7 +68,7 @@
   PyEval_ReleaseThread(myTstate); \
   PyThreadState_Delete(myTstate);
 
-struct  KERNEL_PYTHON
+struct CONTAINER_EXPORT KERNEL_PYTHON
 {
   static PyThreadState *_gtstate;
   static PyObject *salome_shared_modules_module;

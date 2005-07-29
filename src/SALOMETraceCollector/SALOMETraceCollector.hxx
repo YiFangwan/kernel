@@ -33,7 +33,21 @@
 
 //! See LocalTraceCollector instead of SALOMETraceCollector for usage without CORBA
 
-class SALOMETraceCollector
+#if defined SALOMETRACECOLLECTOR_EXPORTS
+#if defined WIN32
+#define SALOMETRACECOLLECTOR_EXPORT __declspec( dllexport )
+#else
+#define SALOMETRACECOLLECTOR_EXPORT
+#endif
+#else
+#if defined WNT
+#define SALOMETRACECOLLECTOR_EXPORT __declspec( dllimport )
+#else
+#define SALOMETRACECOLLECTOR_EXPORT
+#endif
+#endif
+
+class SALOMETRACECOLLECTOR_EXPORT SALOMETraceCollector
 {
  public:
   static SALOMETraceCollector* instance(CORBA::ORB_ptr theOrb, int typeTrace=0);

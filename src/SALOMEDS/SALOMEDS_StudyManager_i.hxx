@@ -32,7 +32,7 @@ namespace SALOMEDS{
 
 }    
 
-class SALOMEDS_StudyManager_i: public POA_SALOMEDS::StudyManager,
+class Standard_EXPORT SALOMEDS_StudyManager_i: public POA_SALOMEDS::StudyManager,
 			       public PortableServer::RefCountServantBase {
 private:
 

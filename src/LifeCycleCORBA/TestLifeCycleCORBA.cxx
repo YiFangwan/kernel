@@ -27,10 +27,17 @@
 //  $Header$
 
 #include <iostream>
+#ifndef WNT
 #include <unistd.h>
+#endif
 #include <SALOMEconfig.h>
+#ifndef WNT
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 #include CORBA_CLIENT_HEADER(SALOME_TestComponent)
+#else
+#include <SALOME_Component.hh>
+#include <SALOME_TestComponent.hh>
+#endif
 #include "SALOME_NamingService.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
 #include "utilities.h"
@@ -115,10 +122,12 @@ int main (int argc, char * argv[])
     {
       INFOS("Caught system exception COMM_FAILURE -- unable to contact the object.");
     }
+#ifndef WNT
   catch(CORBA::SystemException&)
     {
       INFOS("Caught a CORBA::SystemException.");
     }
+#endif
   catch(CORBA::Exception&)
     {
       INFOS("Caught CORBA::Exception.");

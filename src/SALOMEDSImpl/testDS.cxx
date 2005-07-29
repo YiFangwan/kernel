@@ -2,7 +2,7 @@
 //Author:  Sergey RUIN
 
 #include <stdio.h>
-#include <iostream.h> 
+#include <iostream> 
 
 #include <TColStd_HSequenceOfTransient.hxx>
 #include <TCollection_AsciiString.hxx>

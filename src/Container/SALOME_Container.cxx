@@ -30,7 +30,11 @@
 #include <string>
 #include <stdio.h>
 
+#ifndef WNT
 #include <unistd.h>
+#else
+#include <process.h>
+#endif
 #include "SALOME_Container_i.hxx"
 #include "utilities.h"
 #include "Utils_ORB_INIT.hxx"

@@ -41,7 +41,11 @@ using namespace std;
 // Class attributes initialisation, for class method SALOMETraceCollector::run
 
 SALOMETraceCollector* SALOMETraceCollector::_singleton = 0;
+#ifndef WNT
 pthread_mutex_t SALOMETraceCollector::_singletonMutex;
+#else
+pthread_mutex_t SALOMETraceCollector::_singletonMutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 int SALOMETraceCollector::_threadToClose = 0;
 pthread_t* SALOMETraceCollector::_threadId = 0; // used to control single run
 int SALOMETraceCollector::_toFile = 0;
