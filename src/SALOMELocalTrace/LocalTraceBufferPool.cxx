@@ -37,7 +37,11 @@ using namespace std;
 #define MAXMESS_LENGTH MAX_TRACE_LENGTH-5
 
 LocalTraceBufferPool* LocalTraceBufferPool::_singleton = 0;
+#ifndef WNT
 pthread_mutex_t LocalTraceBufferPool::_singletonMutex;
+#else
+pthread_mutex_t LocalTraceBufferPool::_singletonMutex = PTHREAD_MUTEX_INITIALIZER;
+#endif
 
 // ============================================================================
 /*!

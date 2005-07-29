@@ -110,8 +110,11 @@ CORBA::ULong RegistryService::add( const Registry::Infos & infos )
 	return (CORBA::ULong)_Compteur ;
 }
 
-
+#ifndef WNT
 void RegistryService::remove( const CORBA::ULong id)
+#else
+void RegistryService::remove( CORBA::ULong id)
+#endif
 {
 	BEGIN_OF("RegistryService::remove") ;
 	SCRUTE(id) ;
@@ -135,8 +138,11 @@ void RegistryService::remove( const CORBA::ULong id)
 }
 
 
-
+#ifndef WNT
 void RegistryService::hello( const CORBA::ULong id )
+#else
+void RegistryService::hello( CORBA::ULong id )
+#endif
 {
 	BEGIN_OF("RegistryService::hello") ;
 	SCRUTE(id) ;
