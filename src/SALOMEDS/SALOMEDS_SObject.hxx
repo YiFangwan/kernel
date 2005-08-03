@@ -17,7 +17,7 @@
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 
-class SALOMEDS_SObject: public virtual SALOMEDSClient_SObject
+class Standard_EXPORT SALOMEDS_SObject: public virtual SALOMEDSClient_SObject
 {
 protected:
 

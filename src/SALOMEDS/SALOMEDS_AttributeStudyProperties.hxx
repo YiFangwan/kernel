@@ -21,7 +21,7 @@
 #undef GetUserName
 #endif
 
-class SALOMEDS_AttributeStudyProperties: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeStudyProperties
+class Standard_EXPORT SALOMEDS_AttributeStudyProperties: public SALOMEDS_GenericAttribute, public SALOMEDSClient_AttributeStudyProperties
 {
 public:
   

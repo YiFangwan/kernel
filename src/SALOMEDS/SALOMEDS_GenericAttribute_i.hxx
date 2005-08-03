@@ -13,7 +13,7 @@
 #include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
-class SALOMEDS_GenericAttribute_i: public virtual POA_SALOMEDS::GenericAttribute,
+class Standard_EXPORT SALOMEDS_GenericAttribute_i: public virtual POA_SALOMEDS::GenericAttribute,
 				   public virtual PortableServer::RefCountServantBase,
 				   public virtual SALOME::GenericObj_i
 {

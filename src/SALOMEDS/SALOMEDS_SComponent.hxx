@@ -13,7 +13,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-class SALOMEDS_SComponent: public SALOMEDS_SObject, public SALOMEDSClient_SComponent
+class Standard_EXPORT SALOMEDS_SComponent: public SALOMEDS_SObject, public SALOMEDSClient_SComponent
 {
 public:
 

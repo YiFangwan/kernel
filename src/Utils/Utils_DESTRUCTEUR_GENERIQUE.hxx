@@ -54,14 +54,28 @@
  * 	-# an object method to execute the destruction : operator()().
  */
 
+#if defined UTILS_EXPORTS
+#if defined WIN32
+#define UTILS_EXPORT __declspec( dllexport )
+#else
+#define UTILS_EXPORT
+#endif
+#else
+#if defined WNT
+#define UTILS_EXPORT __declspec( dllimport )
+#else
+#define UTILS_EXPORT
+#endif
+#endif
+
 class DESTRUCTEUR_GENERIQUE_
 {
 public :
-  static std::list<DESTRUCTEUR_GENERIQUE_*> *Destructeurs;
+  UTILS_EXPORT static std::list<DESTRUCTEUR_GENERIQUE_*> *Destructeurs;
 
   virtual ~DESTRUCTEUR_GENERIQUE_() {}//!< virtual destructor
-  static const int Ajout( DESTRUCTEUR_GENERIQUE_ &objet );//!< adds a destruction object to the list of destructions
-  virtual void operator()( void )=0 ;//!< performs the destruction
+  UTILS_EXPORT static const int Ajout( DESTRUCTEUR_GENERIQUE_ &objet );//!< adds a destruction object to the list of destructions
+  UTILS_EXPORT virtual void operator()( void )=0 ;//!< performs the destruction
 } ;
 
 

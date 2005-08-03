@@ -70,6 +70,11 @@
 
 struct CONTAINER_EXPORT KERNEL_PYTHON
 {
+#ifdef WNT
+  static PyThreadState *get_gtstate() { return KERNEL_PYTHON::_gtstate; }
+  static PyObject *getsalome_shared_modules_module() { return KERNEL_PYTHON::salome_shared_modules_module; }
+  static PyInterpreterState *get_interp() { return KERNEL_PYTHON::_interp; }
+#endif
   static PyThreadState *_gtstate;
   static PyObject *salome_shared_modules_module;
   static PyInterpreterState *_interp;

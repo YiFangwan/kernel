@@ -14,7 +14,7 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
 
-class SALOMEDS_GenericAttribute: public virtual SALOMEDSClient_GenericAttribute
+class Standard_EXPORT SALOMEDS_GenericAttribute: public virtual SALOMEDSClient_GenericAttribute
 {
 protected:
   bool                                  _isLocal;

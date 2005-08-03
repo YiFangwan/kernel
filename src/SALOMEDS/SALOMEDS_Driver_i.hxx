@@ -11,7 +11,7 @@
 #include CORBA_SERVER_HEADER(SALOMEDS) 
 #include CORBA_SERVER_HEADER(SALOME_Component)
 
-class SALOMEDS_Driver_i :  public virtual SALOMEDSImpl_Driver 
+class Standard_EXPORT SALOMEDS_Driver_i :  public virtual SALOMEDSImpl_Driver 
 {
 protected:
   SALOMEDS::Driver_var _driver;

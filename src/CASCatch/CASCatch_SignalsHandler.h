@@ -25,7 +25,7 @@
 #include "Utils_SignalsHandler.h"
 #include <Standard_ErrorHandler.hxx>
 
-class CASCatch_SignalsHandler: private Utils_SignalsHandler{
+class Standard_EXPORT CASCatch_SignalsHandler: private Utils_SignalsHandler{
  public:
   CASCatch_SignalsHandler(bool theFloatingSignal = true);
 };

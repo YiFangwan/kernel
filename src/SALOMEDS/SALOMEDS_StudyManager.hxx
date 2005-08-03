@@ -16,7 +16,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-class SALOMEDS_StudyManager: public SALOMEDSClient_StudyManager
+class Standard_EXPORT SALOMEDS_StudyManager: public SALOMEDSClient_StudyManager
 {
 private:
   bool                              _isLocal;

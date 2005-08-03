@@ -24,7 +24,7 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
-class SALOMEDS_Study_i: public POA_SALOMEDS::Study,
+class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study,
 			public PortableServer::RefCountServantBase 
 {
 private:

@@ -15,7 +15,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-class SALOMEDS_Study: public SALOMEDSClient_Study
+class Standard_EXPORT SALOMEDS_Study: public SALOMEDSClient_Study
 {
 
 private:

@@ -18,7 +18,7 @@
 #include "SALOMEDSImpl_SObject.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
 
-class SALOMEDS_SComponent_i: public POA_SALOMEDS::SComponent,
+class Standard_EXPORT SALOMEDS_SComponent_i: public POA_SALOMEDS::SComponent,
 			     public SALOMEDS_SObject_i
 {
 
