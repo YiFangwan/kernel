@@ -35,7 +35,7 @@ extern "C"
 #endif
 #include <string.h>
 }
-#include <iostream.h>
+#include <iostream>
 #include "HDFfile.hxx"
 #include "HDFexception.hxx"
 using namespace std;

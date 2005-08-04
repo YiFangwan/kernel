@@ -27,8 +27,8 @@
 //  $Header$
 
 #include <stdlib.h>
-#include <iostream.h>
-#include <fstream.h>
+#include <iostream>
+#include <fstream>
 
 extern "C"
 {
