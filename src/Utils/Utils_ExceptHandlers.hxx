@@ -31,9 +31,23 @@
 
 #include <stdexcept>
 
+#if defined UTILS_EXPORTS
+#if defined WIN32
+#define UTILS_EXPORT __declspec( dllexport )
+#else
+#define UTILS_EXPORT
+#endif
+#else
+#if defined WNT
+#define UTILS_EXPORT __declspec( dllimport )
+#else
+#define UTILS_EXPORT
+#endif
+#endif
+
 typedef void (*PVF)();
 
-class Unexpect { //save / retrieve unexpected exceptions treatment
+class UTILS_EXPORT Unexpect { //save / retrieve unexpected exceptions treatment
   PVF old;
   public :
 #ifndef WNT
@@ -47,7 +61,7 @@ class Unexpect { //save / retrieve unexpected exceptions treatment
 #endif
 };
 
-class Terminate {//save / retrieve terminate function
+class UTILS_EXPORT Terminate {//save / retrieve terminate function
   
   PVF old;
   public :
@@ -81,7 +95,7 @@ inline void FuncName () {\
 
 
 //Definitions :
-extern void SalomeException();
-extern void SALOME_SalomeException();
+UTILS_EXPORT extern void SalomeException();
+UTILS_EXPORT extern void SALOME_SalomeException();
 
 #endif
