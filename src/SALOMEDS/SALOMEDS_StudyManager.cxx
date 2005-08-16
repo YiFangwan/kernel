@@ -84,44 +84,32 @@ SALOMEDS_StudyManager::~SALOMEDS_StudyManager()
 
 _PTR(Study) SALOMEDS_StudyManager::NewStudy(const std::string& study_name)
 {
+  //SRN: Pure CORBA NewStudy as it does more initialization than the local one   
   SALOMEDSClient_Study* aStudy = NULL;
 
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->NewStudy((char*)study_name.c_str());
-    if(aStudy_impl.IsNull()) return _PTR(Study)(aStudy);
-    aStudy = new SALOMEDS_Study(aStudy_impl);
-  }
-  else {
-    SALOMEDS::Study_var aStudy_impl = _corba_impl->NewStudy((char*)study_name.c_str());
-    if(CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy); 
-    aStudy = new SALOMEDS_Study(aStudy_impl);
-  }
+  SALOMEDS::Study_var aStudy_impl = _corba_impl->NewStudy((char*)study_name.c_str());
+  if(CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy); 
+  aStudy = new SALOMEDS_Study(aStudy_impl);
 
   return _PTR(Study)(aStudy);
 }
 
 _PTR(Study) SALOMEDS_StudyManager::Open(const std::string& theStudyUrl)
 {
+  //SRN: Pure CORBA Open as it does more initialization than the local one   
   SALOMEDSClient_Study* aStudy = NULL;
 
-  if(_isLocal) {
-    Handle(SALOMEDSImpl_Study) aStudy_impl = _local_impl->Open((char*)theStudyUrl.c_str());
-    if(aStudy_impl.IsNull()) return  _PTR(Study)(aStudy);
-    aStudy = new SALOMEDS_Study(aStudy_impl);
-  }
-  else {
-    SALOMEDS::Study_var aStudy_impl = _corba_impl->Open((char*)theStudyUrl.c_str());
-    if(CORBA::is_nil(aStudy_impl)) return  _PTR(Study)(aStudy); 
+  SALOMEDS::Study_var aStudy_impl = _corba_impl->Open((char*)theStudyUrl.c_str());
+  if(CORBA::is_nil(aStudy_impl)) return  _PTR(Study)(aStudy); 
     
-    aStudy = new SALOMEDS_Study(aStudy_impl.in());
-  }
+  aStudy = new SALOMEDS_Study(aStudy_impl.in());
 
   return _PTR(Study)(aStudy);
 }
  
 void SALOMEDS_StudyManager::Close(const _PTR(Study)& theStudy)
 {
-  //SRN: Pure CORBA close as it does more cleaning then the local one
+  //SRN: Pure CORBA close as it does more cleaning than the local one
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
   _corba_impl->Close(aStudy);
 }
