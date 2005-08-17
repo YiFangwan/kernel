@@ -27,7 +27,7 @@ dnl
 dnl @version $Id$
 dnl @author Marc Tajchman
 dnl
-AC_DEFUN(AC_DEPEND_FLAG,
+AC_DEFUN([AC_DEPEND_FLAG],
 [AC_CACHE_CHECK(which flag for dependency information generation,
 ac_cv_depend_flag,
 [AC_LANG_SAVE
