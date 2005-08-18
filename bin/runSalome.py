@@ -57,6 +57,7 @@ def get_config():
     if args.has_key("modules"):
         modules_list += args["modules"]
     # KERNEL must be last in the list to locate it at the first place in PATH 
+    modules_list[:0] = ["GUI"]
     modules_list[:0] = ["KERNEL"]
     modules_list.reverse()
 
@@ -85,6 +86,10 @@ def get_config():
         modules_list.remove("KERNEL")
         pass
 
+    while "GUI" in modules_list:
+        modules_list.remove("GUI")
+        pass
+
     if "SUPERV" in modules_list and not 'superv' in args['standalone']:
         args['standalone'].append("superv")
         pass
@@ -98,6 +103,7 @@ def set_env(args, modules_list, modules_root_dir):
     
     python_version="python%d.%d" % sys.version_info[0:2]
     modules_root_dir_list = []
+    modules_list = modules_list[:] + ["GUI"] 
     modules_list = modules_list[:] + ["KERNEL"] 
     for module in modules_list :
         module_root_dir = modules_root_dir[module]
@@ -288,7 +294,7 @@ class CatalogServer(Server):
         cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
-        for module in ["KERNEL"] + list_modules:
+        for module in ["KERNEL", "GUI"] + list_modules:
             module_root_dir=modules_root_dir[module]
             module_cata=module+"Catalog.xml"
             print "   ", module_cata
@@ -405,7 +411,7 @@ class SessionServer(Server):
         cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
-        for module in ["KERNEL"] + list_modules:
+        for module in ["KERNEL", "GUI"] + list_modules:
             module_root_dir=modules_root_dir[module]
             module_cata=module+"Catalog.xml"
             print "   ", module_cata
@@ -442,7 +448,7 @@ class ContainerManagerServer(Server):
         cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
-        for module in ["KERNEL"] + list_modules:
+        for module in ["KERNEL", "GUI"] + list_modules:
             module_root_dir=modules_root_dir[module]
             module_cata=module+"Catalog.xml"
             print "   ", module_cata
