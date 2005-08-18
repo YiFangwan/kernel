@@ -170,6 +170,11 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
       if (!_isSupervContainer)
 	{
 	  Py_ACQUIRE_NEW_THREAD;
+#ifdef WNT
+Sleep(2000); // mpv: this is temporary solution: there is a unregular crash if not
+	  PyRun_SimpleString("import sys\n"); // first element is the path to Registry.dll, but it's wrong
+	  PyRun_SimpleString("sys.path = sys.path[1:]\n");
+#endif
 	  PyRun_SimpleString("import SALOME_Container\n");
 	  PyRun_SimpleString((char*)myCommand.c_str());
 	  Py_RELEASE_NEW_THREAD;
