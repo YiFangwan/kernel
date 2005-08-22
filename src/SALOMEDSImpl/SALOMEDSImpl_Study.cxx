@@ -1464,3 +1464,9 @@ void dumpSO(const Handle(SALOMEDSImpl_SObject)& theSO,
 
   return;
 }
+
+void SALOMEDSImpl_Study::Modify()
+{
+  _errorCode = ""; 
+  _doc->Modify();
+}

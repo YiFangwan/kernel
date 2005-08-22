@@ -60,6 +60,8 @@ void SALOMEDSImpl_AttributeTarget::SetRelation(const TCollection_ExtendedString&
 
   Backup();
   myRelation = theRelation; 
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 //=======================================================================
@@ -76,6 +78,8 @@ void SALOMEDSImpl_AttributeTarget::Add(const Handle(SALOMEDSImpl_SObject)& theSO
     for(;anIter.More();anIter.Next()) if(anIter.Value()->Label() == aRefLabel) return; //BugID: PAL6192    
     GetVariables().Append(aReference);
   } 
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 //=======================================================================
@@ -109,6 +113,8 @@ void SALOMEDSImpl_AttributeTarget::Remove(const Handle(SALOMEDSImpl_SObject)& th
       return;
     }
   }  
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 //=======================================================================

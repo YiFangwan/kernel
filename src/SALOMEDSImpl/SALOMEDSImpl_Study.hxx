@@ -246,6 +246,9 @@ public:
   //The method dump creates a txt file that contain a dump of the study, for debug use
   Standard_EXPORT void dump(const TCollection_AsciiString& theFileName);
 
+  //This method marks the study as being modified
+  Standard_EXPORT void Modify();
+
 public:
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_Study )
 

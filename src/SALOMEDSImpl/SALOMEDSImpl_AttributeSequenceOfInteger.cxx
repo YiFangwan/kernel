@@ -106,6 +106,8 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::Assign(const Handle(TColStd_HSeque
   Backup();
   if (myValue.IsNull()) myValue = new TColStd_HSequenceOfInteger;
   myValue->ChangeSequence() = other->Sequence();
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeSequenceOfInteger::ChangeValue(const Standard_Integer Index,const Standard_Integer Value) 
@@ -113,6 +115,8 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::ChangeValue(const Standard_Integer
   CheckLocked();  
   Backup();
   myValue->SetValue(Index, Value);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeSequenceOfInteger::Add(const Standard_Integer Value) 
@@ -120,6 +124,8 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::Add(const Standard_Integer Value)
   CheckLocked();  
   Backup();
   myValue->Append(Value);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeSequenceOfInteger::Remove(const Standard_Integer Index) 
@@ -127,6 +133,8 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::Remove(const Standard_Integer Inde
   CheckLocked();  
   Backup();
   myValue->Remove(Index);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Standard_Integer SALOMEDSImpl_AttributeSequenceOfInteger::Length() 

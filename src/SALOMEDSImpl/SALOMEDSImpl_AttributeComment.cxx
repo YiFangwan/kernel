@@ -30,6 +30,7 @@ Handle(SALOMEDSImpl_AttributeComment) SALOMEDSImpl_AttributeComment::Set (const 
   }
 
   A->SetValue(Val);     
+    
   return A;
 }
 
@@ -46,6 +47,8 @@ void SALOMEDSImpl_AttributeComment::SetValue (const TCollection_ExtendedString& 
   Backup();
 
   myString = S;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
            
 

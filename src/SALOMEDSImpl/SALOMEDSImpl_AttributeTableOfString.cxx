@@ -84,6 +84,8 @@ void SALOMEDSImpl_AttributeTableOfString::SetNbColumns(const Standard_Integer th
   while (myCols->Length() < myNbColumns) { // append empty columns titles
     myCols->Append(TCollection_ExtendedString(""));
   }
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetRowTitle(const Standard_Integer theRow,
@@ -97,6 +99,8 @@ void SALOMEDSImpl_AttributeTableOfString::SetRowTitle(const Standard_Integer the
     aTitle += aUnit;
   }
   myRows->SetValue(theRow, aTitle);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetRowUnit(const Standard_Integer theRow,
@@ -109,6 +113,8 @@ void SALOMEDSImpl_AttributeTableOfString::SetRowUnit(const Standard_Integer theR
   aTitle += theUnit;
 
   myRows->SetValue(theRow, aTitle);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetRowUnits(const Handle(TColStd_HSequenceOfExtendedString)& theUnits)
@@ -131,6 +137,8 @@ void SALOMEDSImpl_AttributeTableOfString::SetRowTitles(const Handle(TColStd_HSeq
   if (theTitles->Length() != GetNbRows()) Standard_Failure::Raise("Invalid number of rows");
   int aLength = theTitles->Length(), i;
   for(i = 1; i <= aLength; i++) SetRowTitle(i, theTitles->Value(i));
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfString::GetRowTitles()
@@ -171,6 +179,8 @@ void SALOMEDSImpl_AttributeTableOfString::SetRowData(const Standard_Integer theR
   }
 
   if(theRow > myNbRows) myNbRows = theRow;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeTableOfString::SetTitle(const TCollection_ExtendedString& theTitle) 
@@ -178,6 +188,8 @@ void SALOMEDSImpl_AttributeTableOfString::SetTitle(const TCollection_ExtendedStr
   CheckLocked();  
   Backup();
   myTitle = theTitle;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfString::GetTitle() const 
@@ -218,6 +230,8 @@ void SALOMEDSImpl_AttributeTableOfString::SetColumnData(const Standard_Integer t
       myRows->Append(TCollection_ExtendedString(""));
     }
   }
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 
@@ -244,6 +258,8 @@ void SALOMEDSImpl_AttributeTableOfString::SetColumnTitle(const Standard_Integer 
   Backup();
   while(myCols->Length() < theColumn) myCols->Append(TCollection_ExtendedString(""));
   myCols->SetValue(theColumn,theTitle);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfString::GetColumnTitle(const Standard_Integer theColumn) const 
@@ -259,6 +275,8 @@ void SALOMEDSImpl_AttributeTableOfString::SetColumnTitles(const Handle(TColStd_H
   if (theTitles->Length() != myNbColumns) Standard_Failure::Raise("Invalid number of columns");
   int aLength = theTitles->Length(), i;
   for(i = 1; i <= aLength; i++)  myCols->SetValue(i, theTitles->Value(i));
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfString::GetColumnTitles()
@@ -296,6 +314,8 @@ void SALOMEDSImpl_AttributeTableOfString::PutValue(const TCollection_ExtendedStr
     }
     myNbRows = theRow;
   }
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Standard_Boolean SALOMEDSImpl_AttributeTableOfString::HasValue(const Standard_Integer theRow,

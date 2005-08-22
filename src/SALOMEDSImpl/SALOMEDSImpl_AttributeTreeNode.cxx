@@ -86,6 +86,9 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::Append (const Handle(SALOMEDSIm
   }
   // Set Father
   TN->SetFather(this);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
+  
   return !TN.IsNull();
 }
 
@@ -111,6 +114,9 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::Prepend (const Handle(SALOMEDSI
   }
   TN->SetFather(this);
   SetFirst(TN);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
+  
   return !TN.IsNull();
 }                     
 
@@ -136,6 +142,9 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::InsertBefore (const Handle(SALO
     GetPrevious()->SetNext(TN);
 
   SetPrevious(TN);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
+  
   return !TN.IsNull();
 }
 
@@ -157,6 +166,9 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::InsertAfter (const Handle(SALOM
   if (HasNext()) GetNext()->SetPrevious(TN);
 
   SetNext(TN);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
+  
   return !TN.IsNull();
 }         
 
@@ -197,6 +209,8 @@ Standard_Boolean SALOMEDSImpl_AttributeTreeNode::Remove ()
   SetNext(bid);
   SetPrevious(bid);
 
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
+
   return Standard_True;
 }         
 
@@ -223,6 +237,8 @@ Standard_Integer SALOMEDSImpl_AttributeTreeNode::Depth () const
 void SALOMEDSImpl_AttributeTreeNode::SetTreeID (const Standard_GUID& explicitID)
 {
   myTreeID = explicitID;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 
@@ -306,6 +322,8 @@ void SALOMEDSImpl_AttributeTreeNode::SetFather(const Handle(SALOMEDSImpl_Attribu
   CheckLocked();
   Backup();
   myFather = F;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 //=======================================================================
@@ -317,6 +335,8 @@ void SALOMEDSImpl_AttributeTreeNode::SetNext(const Handle(SALOMEDSImpl_Attribute
   CheckLocked();
   Backup();
   myNext = F;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 
@@ -329,6 +349,8 @@ void SALOMEDSImpl_AttributeTreeNode::SetPrevious(const Handle(SALOMEDSImpl_Attri
   CheckLocked();
   Backup();
   myPrevious = F;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 //=======================================================================
@@ -340,6 +362,8 @@ void SALOMEDSImpl_AttributeTreeNode::SetFirst(const Handle(SALOMEDSImpl_Attribut
   CheckLocked();
   Backup();
   myFirst = F;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }         
 
 //=======================================================================

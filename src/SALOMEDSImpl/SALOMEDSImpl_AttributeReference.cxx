@@ -48,6 +48,8 @@ void SALOMEDSImpl_AttributeReference::Set(const TDF_Label& Origin)
 
   Backup();
   myLabel = Origin;
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }  
 
 //=======================================================================

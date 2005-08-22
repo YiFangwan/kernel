@@ -83,6 +83,8 @@ void SALOMEDSImpl_AttributeTableOfReal::SetNbColumns(const Standard_Integer theN
   while (myCols->Length() < myNbColumns) { // append empty columns titles
     myCols->Append(TCollection_ExtendedString(""));
   }
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeTableOfReal::SetTitle(const TCollection_ExtendedString& theTitle) 
@@ -90,6 +92,8 @@ void SALOMEDSImpl_AttributeTableOfReal::SetTitle(const TCollection_ExtendedStrin
   CheckLocked();  
   Backup();
   myTitle = theTitle;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfReal::GetTitle() const 
@@ -115,6 +119,8 @@ void SALOMEDSImpl_AttributeTableOfReal::SetRowData(const Standard_Integer theRow
   }
 
   if(theRow > myNbRows) myNbRows = theRow;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Handle(TColStd_HSequenceOfReal) SALOMEDSImpl_AttributeTableOfReal::GetRowData(const Standard_Integer theRow)
@@ -143,6 +149,8 @@ void SALOMEDSImpl_AttributeTableOfReal::SetRowTitle(const Standard_Integer theRo
     aTitle += aUnit;
   }
   myRows->SetValue(theRow, aTitle);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeTableOfReal::SetRowUnit(const Standard_Integer theRow,
@@ -155,6 +163,8 @@ void SALOMEDSImpl_AttributeTableOfReal::SetRowUnit(const Standard_Integer theRow
   aTitle += theUnit;
 
   myRows->SetValue(theRow, aTitle);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeTableOfReal::SetRowUnits(const Handle(TColStd_HSequenceOfExtendedString)& theUnits)
@@ -162,6 +172,8 @@ void SALOMEDSImpl_AttributeTableOfReal::SetRowUnits(const Handle(TColStd_HSequen
   if (theUnits->Length() != GetNbRows()) Standard_Failure::Raise("Invalid number of rows");
   int aLength = theUnits->Length(), i;
   for(i = 1; i <= aLength; i++) SetRowUnit(i, theUnits->Value(i));
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfReal::GetRowUnits()
@@ -177,6 +189,8 @@ void SALOMEDSImpl_AttributeTableOfReal::SetRowTitles(const Handle(TColStd_HSeque
   if (theTitles->Length() != GetNbRows()) Standard_Failure::Raise("Invalid number of rows");
   int aLength = theTitles->Length(), i;
   for(i = 1; i <= aLength; i++) SetRowTitle(i, theTitles->Value(i));
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfReal::GetRowTitles()
@@ -218,6 +232,8 @@ void SALOMEDSImpl_AttributeTableOfReal::SetColumnData(const Standard_Integer the
       myRows->Append(TCollection_ExtendedString(""));
     }
   }
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 
@@ -244,6 +260,8 @@ void SALOMEDSImpl_AttributeTableOfReal::SetColumnTitle(const Standard_Integer th
   Backup();
   while(myCols->Length() < theColumn) myCols->Append(TCollection_ExtendedString(""));
   myCols->SetValue(theColumn,theTitle);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfReal::GetColumnTitle(const Standard_Integer theColumn) const 
@@ -258,6 +276,8 @@ void SALOMEDSImpl_AttributeTableOfReal::SetColumnTitles(const Handle(TColStd_HSe
   if (theTitles->Length() != myNbColumns) Standard_Failure::Raise("Invalid number of columns");
   int aLength = theTitles->Length(), i;
   for(i = 1; i <= aLength; i++)  myCols->SetValue(i, theTitles->Value(i));
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfReal::GetColumnTitles()
@@ -294,6 +314,8 @@ void SALOMEDSImpl_AttributeTableOfReal::PutValue(const Standard_Real theValue,
     }
     myNbRows = theRow;
   }
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Standard_Boolean SALOMEDSImpl_AttributeTableOfReal::HasValue(const Standard_Integer theRow,

@@ -46,6 +46,8 @@ void SALOMEDSImpl_AttributeName::SetValue (const TCollection_ExtendedString& S)
   Backup();
 
   myString = S;
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
            
 

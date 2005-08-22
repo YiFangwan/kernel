@@ -57,6 +57,8 @@ void SALOMEDSImpl_AttributeTextHighlightColor::SetTextHighlightColor(const Stand
    myValue->SetValue(1, R);
    myValue->SetValue(2, G);
    myValue->SetValue(3, B);
+   
+   SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 	    
 //=======================================================================
@@ -78,6 +80,8 @@ void SALOMEDSImpl_AttributeTextHighlightColor::ChangeArray(const Handle(TColStd_
 
   for(int i = 1; i <= 3; i++)
     myValue->SetValue(i, newArray->Value(i));
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved  
 }    
 
 //=======================================================================

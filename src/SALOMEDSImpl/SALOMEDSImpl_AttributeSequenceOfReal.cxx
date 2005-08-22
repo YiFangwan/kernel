@@ -105,6 +105,8 @@ void SALOMEDSImpl_AttributeSequenceOfReal::Assign(const Handle(TColStd_HSequence
   Backup();
   if (myValue.IsNull()) myValue = new TColStd_HSequenceOfReal;
   myValue->ChangeSequence() = other->Sequence();
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeSequenceOfReal::ChangeValue(const Standard_Integer Index,const Standard_Real Value) 
@@ -112,6 +114,8 @@ void SALOMEDSImpl_AttributeSequenceOfReal::ChangeValue(const Standard_Integer In
   CheckLocked();  
   Backup();
   myValue->SetValue(Index, Value);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeSequenceOfReal::Add(const Standard_Real Value) 
@@ -119,6 +123,8 @@ void SALOMEDSImpl_AttributeSequenceOfReal::Add(const Standard_Real Value)
   CheckLocked();  
   Backup();
   myValue->Append(Value);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeSequenceOfReal::Remove(const Standard_Integer Index) 
@@ -126,6 +132,8 @@ void SALOMEDSImpl_AttributeSequenceOfReal::Remove(const Standard_Integer Index)
   CheckLocked();  
   Backup();
   myValue->Remove(Index);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Standard_Integer SALOMEDSImpl_AttributeSequenceOfReal::Length() 

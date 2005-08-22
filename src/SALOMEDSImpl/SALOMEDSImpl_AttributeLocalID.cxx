@@ -64,6 +64,8 @@ void SALOMEDSImpl_AttributeLocalID::SetValue(const Standard_Integer theValue)
   Backup();
 
   myValue = theValue;
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
     
 

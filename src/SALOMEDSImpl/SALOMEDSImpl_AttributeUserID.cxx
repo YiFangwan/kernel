@@ -40,6 +40,8 @@ void SALOMEDSImpl_AttributeUserID::SetValue( const Standard_GUID&  guid)
 
   Backup();
   myID = guid;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }        
 
 //=======================================================================

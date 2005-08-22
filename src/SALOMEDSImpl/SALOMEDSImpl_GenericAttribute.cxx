@@ -55,3 +55,13 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_GenericAttribute::GetSObject()
   if(aLabel.IsNull()) return NULL;
   return SALOMEDSImpl_Study::SObject(aLabel);
 }
+
+void SALOMEDSImpl_GenericAttribute::SetModifyFlag()
+{
+   TDF_Label aLabel = Label();
+   if(aLabel.IsNull()) return; 
+
+  Handle(SALOMEDSImpl_Study) aStudy = SALOMEDSImpl_Study::GetStudy(aLabel);
+  if(!aStudy.IsNull()) aStudy->Modify();
+}
+

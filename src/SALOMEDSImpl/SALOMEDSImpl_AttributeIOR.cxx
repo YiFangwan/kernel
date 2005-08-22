@@ -62,6 +62,8 @@ void SALOMEDSImpl_AttributeIOR::SetValue(const TCollection_ExtendedString& theVa
   myString = theValue;
 
   SALOMEDSImpl_Study::IORUpdated(this);
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 //=======================================================================

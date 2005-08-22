@@ -82,6 +82,9 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetNbColumns(const Standard_Integer t
   while (myCols->Length() < myNbColumns) { // append empty columns titles
     myCols->Append(TCollection_ExtendedString(""));
   }
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
+
 }
 
 void SALOMEDSImpl_AttributeTableOfInteger::SetTitle(const TCollection_ExtendedString& theTitle) 
@@ -89,6 +92,8 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetTitle(const TCollection_ExtendedSt
   CheckLocked();  
   Backup();
   myTitle = theTitle;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfInteger::GetTitle() const 
@@ -114,6 +119,8 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetRowData(const Standard_Integer the
   }
 
   if(theRow > myNbRows) myNbRows = theRow;
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Handle(TColStd_HSequenceOfInteger) SALOMEDSImpl_AttributeTableOfInteger::GetRowData(const Standard_Integer theRow)
@@ -141,6 +148,8 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetRowTitle(const Standard_Integer th
     aTitle += aUnit;
   }
   myRows->SetValue(theRow, aTitle);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeTableOfInteger::SetRowUnit(const Standard_Integer theRow,
@@ -153,6 +162,8 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetRowUnit(const Standard_Integer the
   aTitle += theUnit;
 
   myRows->SetValue(theRow, aTitle);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 void SALOMEDSImpl_AttributeTableOfInteger::SetRowUnits(const Handle(TColStd_HSequenceOfExtendedString)& theUnits)
@@ -160,6 +171,8 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetRowUnits(const Handle(TColStd_HSeq
   if (theUnits->Length() != GetNbRows()) Standard_Failure::Raise("Invalid number of rows");
   int aLength = theUnits->Length(), i;
   for(i = 1; i <= aLength; i++) SetRowUnit(i, theUnits->Value(i));
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfInteger::GetRowUnits()
@@ -175,6 +188,8 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetRowTitles(const Handle(TColStd_HSe
   if (theTitles->Length() != GetNbRows()) Standard_Failure::Raise("Invalid number of rows");
   int aLength = theTitles->Length(), i;
   for(i = 1; i <= aLength; i++) SetRowTitle(i, theTitles->Value(i));
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfInteger::GetRowTitles()
@@ -217,6 +232,8 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetColumnData(const Standard_Integer 
       myRows->Append(TCollection_ExtendedString(""));
     }
   }
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 
@@ -243,6 +260,8 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetColumnTitle(const Standard_Integer
   Backup();
   while(myCols->Length() < theColumn) myCols->Append(TCollection_ExtendedString(""));
   myCols->SetValue(theColumn,theTitle);
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 TCollection_ExtendedString SALOMEDSImpl_AttributeTableOfInteger::GetColumnTitle(const Standard_Integer theColumn) const 
@@ -257,6 +276,8 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetColumnTitles(const Handle(TColStd_
   if (theTitles->Length() != myNbColumns) Standard_Failure::Raise("Invalid number of columns");
   int aLength = theTitles->Length(), i;
   for(i = 1; i <= aLength; i++)  myCols->SetValue(i, theTitles->Value(i));
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Handle(TColStd_HSequenceOfExtendedString) SALOMEDSImpl_AttributeTableOfInteger::GetColumnTitles()
@@ -293,6 +314,8 @@ void SALOMEDSImpl_AttributeTableOfInteger::PutValue(const Standard_Integer theVa
     }
     myNbRows = theRow;
   }
+  
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 Standard_Boolean SALOMEDSImpl_AttributeTableOfInteger::HasValue(const Standard_Integer theRow,

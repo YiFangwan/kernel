@@ -39,6 +39,8 @@ void SALOMEDSImpl_AttributePythonObject::SetObject(const TCollection_AsciiString
   Backup();
   mySequence = theSequence;
   myIsScript = theScript;
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 TCollection_AsciiString SALOMEDSImpl_AttributePythonObject::GetObject() const

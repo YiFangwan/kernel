@@ -60,6 +60,8 @@ void SALOMEDSImpl_AttributeExternalFileDef::SetValue (const TCollection_Extended
   Backup();
 
   myString = S;
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
            
 

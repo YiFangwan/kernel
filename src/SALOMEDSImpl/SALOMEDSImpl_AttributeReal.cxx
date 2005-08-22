@@ -43,6 +43,8 @@ void SALOMEDSImpl_AttributeReal::SetValue(const Standard_Real v)
 
   Backup();
   myValue = v;  
+
+  SetModifyFlag(); //SRN: Mark the study as being modified, so it could be saved 
 }
 
 //=======================================================================

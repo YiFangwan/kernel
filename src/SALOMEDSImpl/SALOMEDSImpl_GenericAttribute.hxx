@@ -37,6 +37,7 @@ Standard_EXPORT virtual TCollection_AsciiString Type();
 Standard_EXPORT virtual void CheckLocked();
 Standard_EXPORT TCollection_AsciiString GetClassType() { return _type; }
 Standard_EXPORT Handle(SALOMEDSImpl_SObject) GetSObject();
+Standard_EXPORT void SetModifyFlag();
 
 Standard_EXPORT static char* Impl_GetType(const Handle(TDF_Attribute)& theAttr); 
 Standard_EXPORT static char* Impl_GetClassType(const Handle(TDF_Attribute)& theAttr);

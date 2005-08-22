@@ -565,8 +565,6 @@ bool SALOMEDSImpl_StudyBuilder::Addreference(const Handle(SALOMEDSImpl_SObject)&
 
   if(!_callbackOnRemove.IsNull() && Lab.IsDescendant(_doc->Main())) _callbackOnRemove->OnRemoveSObject(me);
   
-  _doc->Modify();  
-  
   return true;
 }
 
