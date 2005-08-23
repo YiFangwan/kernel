@@ -165,6 +165,77 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         return comp_o
     
     #-------------------------------------------------------------------------
+    
+    def import_component(self, componentName):
+        MESSAGE( "SALOME_Container_i::import_component" )
+        ret=0
+        try:
+            print "try import ",componentName
+            __import__(componentName)
+            print "import ",componentName," successful"
+            ret=1
+        except:
+            import traceback
+            traceback.print_exc()
+            print "import ",componentName," not possible"
+        return ret
+
+    #-------------------------------------------------------------------------
+
+    def load_component_Library(self, componentName):
+        MESSAGE(  "SALOME_ContainerPy_i::load_component_Library " + str(componentName) )
+        ret = 0
+        instanceName = componentName + "_inst_" + `self._numInstance`
+        interfaceName = componentName
+        the_command = "import " + componentName + "\n"
+        the_command = the_command + "comp_i = " + componentName + "." + componentName
+        the_command = the_command + "(self._orb, self._poa, self._this(), self._containerName, instanceName, interfaceName)\n"
+        MESSAGE( "SALOME_ContainerPy_i::load_component_Library :" + str (the_command) )
+        exec the_command
+        comp_o = comp_i._this()
+        if comp_o is not None:
+            ret = 1
+        else:
+            # --- try to import Python component
+            retImpl = self.import_component(componentName)
+            if retImpl == 1:
+                #import is possible
+                ret = 1
+            else:
+                #import isn't possible
+                ret = 0
+        return ret
+    
+    #-------------------------------------------------------------------------
+
+    def create_component_instance(self, componentName, studyId):
+        MESSAGE( "SALOME_ContainerPy_i::create_component_instance ==> " + str(componentName) + ' ' + str(studyId) )
+        if studyId < 0:
+            MESSAGE( "Study ID is lower than 0!" )
+            return None
+        else:
+            self._numInstance = self._numInstance +1
+            instanceName = componentName + "_inst_" + `self._numInstance`
+            comp_iors=""
+            try:
+                component=__import__(componentName)
+                factory=getattr(component,componentName)
+                comp_i=factory(self._orb,
+                               self._poa,
+                               self._this(),
+                               self._containerName,
+                               instanceName,
+                               componentName)
+                
+                MESSAGE( "SALOME_Container_i::create_component_instance : OK")
+                comp_o = comp_i._this()
+            except:
+                import traceback
+                traceback.print_exc()
+                MESSAGE( "SALOME_Container_i::create_component_instance : NOT OK")
+            return comp_o
+
+    #-------------------------------------------------------------------------
 
     def remove_impl(self, component):
         MESSAGE( "SALOME_ContainerPy_i::remove_impl" )
