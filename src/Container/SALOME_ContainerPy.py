@@ -52,6 +52,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     _orb = None
     _poa = None
     _numInstance = 0
+    _listInstances_map = {}
 
     #-------------------------------------------------------------------------
 
@@ -229,6 +230,7 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
                 
                 MESSAGE( "SALOME_Container_i::create_component_instance : OK")
                 comp_o = comp_i._this()
+                self._listInstances_map[instanceName] = comp_i
             except:
                 import traceback
                 traceback.print_exc()
@@ -237,9 +239,29 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
     #-------------------------------------------------------------------------
 
+    def find_component_instance(self, registeredName, studyId):
+        anEngine = None
+        keysList = self._listInstances_map.keys()
+        i = 0
+        while i < len(keysList):
+            instance = keysList[i]
+            if find(instance,registeredName) == 0:
+                anEngine = self._listInstances_map[instance]
+                if studyId == anEngine.getStudyId():
+                    return anEngine._this()
+            i = i + 1
+        return anEngine._this()
+        
+        
+    #-------------------------------------------------------------------------
+
     def remove_impl(self, component):
         MESSAGE( "SALOME_ContainerPy_i::remove_impl" )
-        return None
+        instanceName = component._get_instanceName()
+        MESSAGE( "unload component " + str(instanceName) )
+        self._listInstances_map.remove(instanceName)
+        component.destroy()
+        self._naming_service.Destroy_Name(str(instanceName))
 
     #-------------------------------------------------------------------------
 
@@ -250,8 +272,13 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
     #-------------------------------------------------------------------------
 
     def ping(self):
-        MESSAGE( "SALOME_ContainerPy_i::ping" )
+        MESSAGE( "SALOME_ContainerPy_i::ping() pid " + str(os.getpid()) )
         return None
+
+    #-------------------------------------------------------------------------
+
+    def getPID(self):
+        return os.getpid()
 
     #-------------------------------------------------------------------------
 
@@ -261,6 +288,13 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 
     #-------------------------------------------------------------------------
 
+    def getHostName(self):
+        MESSAGE( "SALOME_ContainerPy_i::_get_MachineName" )
+        self._machineName = "localhost"
+        return self._machineName
+
+    #-------------------------------------------------------------------------
+    
     def _get_machineName(self):
         MESSAGE( "SALOME_ContainerPy_i::_get_MachineName" )
         self._machineName = "localhost"

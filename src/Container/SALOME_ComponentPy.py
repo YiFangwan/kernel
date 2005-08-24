@@ -51,6 +51,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
     _orb = None
     _poa = None
     _fieldsDict = []
+    _studyId = -1
     
     #-------------------------------------------------------------------------
 
@@ -224,3 +225,6 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 	return (aBuffer, 1) 
 
     #-------------------------------------------------------------------------    
+
+    def getStudyId(self):
+        return self._studyId
