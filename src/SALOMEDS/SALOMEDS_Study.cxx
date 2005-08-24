@@ -442,9 +442,13 @@ std::vector<_PTR(SObject)> SALOMEDS_Study::FindDependances(const _PTR(SObject)& 
   int aLength, i;
   if(_isLocal) {
     Handle(TColStd_HSequenceOfTransient) aSeq = _local_impl->FindDependances(aSO->GetLocalImpl());
-    aLength = aSeq->Length();
-    for(i=1; i<=aLength; i++) 
-      aVector.push_back(_PTR(SObject)(new SALOMEDS_SObject(Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i)))));
+    if ( !aSeq.IsNull() )
+    {
+      aLength = aSeq->Length();
+      for(i=1; i<=aLength; i++) 
+        aVector.push_back(_PTR(SObject)(
+          new SALOMEDS_SObject(Handle(SALOMEDSImpl_SObject)::DownCast(aSeq->Value(i)))));
+    }
   }
   else {
     SALOMEDS::Study::ListOfSObject_var aSeq = _corba_impl->FindDependances(aSO->GetCORBAImpl());
