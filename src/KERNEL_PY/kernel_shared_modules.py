@@ -13,6 +13,9 @@ register_name("libSALOME_LifeCycleCORBA")
 register_pattern(lambda(x):x.endswith("_idl"))
 register_pattern(lambda(x):x.endswith("_Swig"))
 
+register_name("CORBA")
+import CORBA
+
 register_name("omniORB")
 import omniORB
 
