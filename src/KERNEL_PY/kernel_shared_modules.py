@@ -9,6 +9,7 @@ from import_hook import register_name
 from import_hook import register_pattern
 
 register_name("qt")
+register_name("libSALOME_LifeCycleCORBA")
 register_pattern(lambda(x):x.endswith("_idl"))
 register_pattern(lambda(x):x.endswith("_Swig"))
 
