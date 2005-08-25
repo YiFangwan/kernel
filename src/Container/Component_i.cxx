@@ -405,6 +405,7 @@ bool Engines_Component_i::Suspend_impl()
 #else
 	RetVal = Killer( *_ThreadId ,SIGINT ) ;
 #endif
+	//if ( RetVal ) _Sleeping = true;
 
       }
     }

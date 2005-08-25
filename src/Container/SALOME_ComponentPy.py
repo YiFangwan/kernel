@@ -32,6 +32,7 @@ import os
 import sys
 import time
 import string
+import signal
 from omniORB import CORBA, PortableServer
 import Engines, Engines__POA
 import Registry
@@ -44,6 +45,8 @@ from SALOME_utilities import *
 from thread import *
 
 #=============================================================================
+
+_Sleeping = 0
 
 #define an implementation of the component interface
 
@@ -73,6 +76,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
         self._StartUsed = 0
         self._ThreadCpuUsed = 0
         self._Executed = 0
+        self._contId = contID
 
         naming_service = SALOME_NamingServicePy_i(self._orb)
         myMachine=getShortHostName()
@@ -118,7 +122,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
     #-------------------------------------------------------------------------
 
     def ping(self):
-        MESSAGE(  "SALOME_ComponentPy_i::ping" )
+        MESSAGE(  "SALOME_ComponentPy_i::ping() pid " + str(os.getpid()) )
         
     #-------------------------------------------------------------------------
 
@@ -134,14 +138,16 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     def destroy(self):
         MESSAGE(  "SALOME_ComponentPy_i::destroy" )
-        poa.deactivate_object(self)
-        CORBA.release(_poa)
+        self._poa.deactivate_object(self)
+        CORBA.release(self._poa)
         
     #-------------------------------------------------------------------------
 
     def GetContainerRef(self):
         MESSAGE(  "SALOME_ComponentPy_i::GetContainerRef" )
-        
+        corbaObj_ptr = self._poa.id_to_reference(self._contId)
+        return corbaObj_ptr._narrow(Engines.Container)
+                
     #-------------------------------------------------------------------------
 
     def beginService(self , serviceName ):
@@ -186,23 +192,68 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     #-------------------------------------------------------------------------
 
-    def Kill(self):
-        MESSAGE(  "SALOME_ComponentPy_i::Kill not yet implemented" )
+    def Killer(self, ThreadId, signum):
+        #if ThreadId > 0:
+            #if signum == 0:
+                #if pthread_cancel(ThreadId): <- from C++
+                #   return 0
+                #else:
+                #   MESSAGE()
+            #else:
+                #if pthread_kill(ThreadId): <- from C++
+                #   return 0
+                #else:
+                #   MESSAGE()
+        return 1                 
+    
+    #-------------------------------------------------------------------------
+
+    def Kill_impl(self):
+        MESSAGE(  "SALOME_ComponentPy_i::Kill_impl" )
+        RetVal = 0
+        if self._ThreadId > 0 & self._ThreadId != get_ident():
+            RetVal = Killer(self._ThreadId,0)
+            self._ThreadId = 0
+        return RetVal
 
     #-------------------------------------------------------------------------
 
-    def Stop(self):
-        MESSAGE(  "SALOME_ComponentPy_i::Stop not yet implemented" )
+    def Stop_impl(self):
+        MESSAGE(  "SALOME_ComponentPy_i::Stop_impl" )
+        RetVal = 0
+        if self._ThreadId > 0 & self._ThreadId != get_ident():
+            RetVal = Killer(self._ThreadId,0)
+            self._ThreadId = 0
+        return RetVal
 
     #-------------------------------------------------------------------------
 
-    def Suspend(self):
-        MESSAGE(  "SALOME_ComponentPy_i::Suspend not yet implemented" )
+    def Suspend_impl(self):
+        MESSAGE(  "SALOME_ComponentPy_i::Suspend_impl" )
+        global _Sleeping
+        RetVal = 0
+        if self._ThreadId > 0 & self._ThreadId != get_ident():
+            if _Sleeping > 0:
+                return 0
+            else:
+                RetVal = Killer(self._ThreadId, signal.SIGINT)
+                if RetVal > 0:
+                    _Sleeping = 1
+        return RetVal
 
     #-------------------------------------------------------------------------
 
-    def Resume(self):
-        MESSAGE(  "SALOME_ComponentPy_i::Resume not yet implemented" )
+    def Resume_impl(self):
+        MESSAGE(  "SALOME_ComponentPy_i::Resume_impl" )
+        global _Sleeping
+        RetVal = 0
+        if self._ThreadId > 0 & self._ThreadId != get_ident():
+            if _Sleeping > 0:
+                _Sleeping = 0
+                RetVal = 1
+            else:
+                RetVal = 0
+        return RetVal
 
     #-------------------------------------------------------------------------
 
@@ -220,9 +271,14 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
     #-------------------------------------------------------------------------
    
-    def DumpPython(self, theStudy, isPublished):
+    def DumpPython(self, theStudy, isPublished, isValidScript):
         aBuffer = "def RebuildData(theStudy): pass"
-	return (aBuffer, 1) 
+        aBufferSize = len(aBuffer) + 1
+        anOctetBuf = aBuffer._narrow(CORBA.Octet)
+        aTMPFile = Engines.TMPFile(aBufferSize, aBufferSize, anOctetBuf._this(), 1)
+        isValidScript = 1
+	#return (aBuffer, 1)
+        return aTMPFile._this()
 
     #-------------------------------------------------------------------------    
 
