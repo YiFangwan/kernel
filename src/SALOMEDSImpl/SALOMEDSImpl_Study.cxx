@@ -1361,6 +1361,8 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
     fp << aScriptName << ".RebuildData(" << aBatchModeScript << ".myStudy)" << endl;
   }
 
+  fp << "salome.sg.updateObjBrowser(1)" << endl;
+
   fp.close();
   return isOk;
 }
