@@ -278,7 +278,11 @@ Engines_Container_i::load_component_Library(const char* componentName)
 
   // --- try dlopen C++ component
 
+#ifndef WNT
   string impl_name = string ("lib") + aCompName + string("Engine.so");
+#else
+  string impl_name = aCompName + string("Engine.dll");
+#endif
   SCRUTE(impl_name);
   
   _numInstanceMutex.lock(); // lock to be alone 
@@ -409,7 +413,11 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
   
   //--- try C++
 
+#ifndef WNT
   string impl_name = string ("lib") + genericRegisterName +string("Engine.so");
+#else
+  string impl_name = genericRegisterName +string("Engine.dll");
+#endif
   void* handle = _library_map[impl_name];
   if ( !handle )
     {
