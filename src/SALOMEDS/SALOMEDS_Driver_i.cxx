@@ -195,7 +195,6 @@ TCollection_AsciiString SALOMEDS_Driver_i::PasteInto(const unsigned char* theStr
 
   SALOMEDS::unlock();
   SALOMEDS::SObject_var ret_so = _driver->PasteInto(aStream.in(), theObjectID, so.in());
-  SALOMEDS::lock();
 
   return TCollection_AsciiString((char*)ret_so->GetID());
 }
