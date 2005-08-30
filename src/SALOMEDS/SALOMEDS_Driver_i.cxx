@@ -237,7 +237,8 @@ SALOMEDSImpl_Driver* SALOMEDS_DriverFactory_i::GetDriverByType(const TCollection
   TCollection_AsciiString aFactoryType;
   if (theComponentType == "SUPERV") aFactoryType = "SuperVisionContainer";
   else aFactoryType = "FactoryServer";
-  
+
+  SALOMEDS::unlock();   
   obj = SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component(aFactoryType.ToCString(), 
 								  theComponentType.ToCString());
   
