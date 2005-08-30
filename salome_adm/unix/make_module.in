@@ -45,13 +45,18 @@ depend:
 	done
 
 # copy all resources files in common directory
+RESOURCES_FILES_ALL = $(notdir $(wildcard $(srcdir)/resources/*))
+RESOURCES_FILES ?= $(RESOURCES_FILES_All)
+
 resources: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
 	@@SETX@; for d in $(SUBDIRS); do 	\
 	   (cd $$d && $(MAKE) $@) || exit 1; 	\
 	done
 
 $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%): $(top_builddir)/share/salome/resources/% : %
-	cp -f $< $@
+	if [ $(notdir $<) != "CVS" ] ; then \
+	    cp -fr $< $@; \
+	fi
 
 data:
 	@if test "X$(top_builddir)" = "X."; then							 \
