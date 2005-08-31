@@ -24,7 +24,6 @@ unsigned char* SALOMEDS_Driver_i::Save(const Handle(SALOMEDSImpl_SComponent)& th
   CORBA::String_var url = CORBA::string_dup(theURL.ToCString());
   SALOMEDS::unlock(); 
   aStream = _driver->Save(sco.in(), url, isMultiFile);
-  SALOMEDS::lock(); 
   theStreamLength = aStream->length();
   unsigned char* aRetStream = NULL;
   if(theStreamLength > 0) {
@@ -44,7 +43,6 @@ unsigned char* SALOMEDS_Driver_i::SaveASCII(const Handle(SALOMEDSImpl_SComponent
   CORBA::String_var url = CORBA::string_dup(theURL.ToCString());
   SALOMEDS::unlock(); 
   aStream = _driver->SaveASCII(sco.in(), url, isMultiFile);
-  SALOMEDS::lock(); 
   theStreamLength = aStream->length();
   unsigned char* aRetStream = NULL;
   if(theStreamLength > 0) {
@@ -99,7 +97,6 @@ void SALOMEDS_Driver_i::Close(const Handle(SALOMEDSImpl_SComponent)& theComponen
   SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (theComponent, _orb);
   SALOMEDS::unlock(); 
   _driver->Close(sco.in());
-  SALOMEDS::lock(); 
 }
  
 
@@ -113,7 +110,6 @@ TCollection_AsciiString SALOMEDS_Driver_i::IORToLocalPersistentID(const Handle(S
   CORBA::String_var ior = CORBA::string_dup(IORString.ToCString());
   SALOMEDS::unlock(); 
   CORBA::String_var pers_string =_driver->IORToLocalPersistentID(so.in(), ior.in(), isMultiFile, isASCII);
-  SALOMEDS::lock(); 
   return TCollection_AsciiString(pers_string);
 }
 
@@ -127,7 +123,6 @@ TCollection_AsciiString SALOMEDS_Driver_i::LocalPersistentIDToIOR(const Handle(S
   CORBA::String_var pers_string = CORBA::string_dup(aLocalPersistentID.ToCString());
   SALOMEDS::unlock(); 
   CORBA::String_var IOR =_driver->LocalPersistentIDToIOR(so.in(), pers_string.in(), isMultiFile, isASCII);
-  SALOMEDS::lock(); 
   return TCollection_AsciiString(IOR);
 }
 
@@ -138,11 +133,6 @@ bool SALOMEDS_Driver_i::CanCopy(const Handle(SALOMEDSImpl_SObject)& theObject)
   return _driver->CanCopy(so.in());
 }
 
-/*
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-*/
 
 unsigned char* SALOMEDS_Driver_i::CopyFrom(const Handle(SALOMEDSImpl_SObject)& theObject, 
 					   int& theObjectID,
@@ -154,7 +144,6 @@ unsigned char* SALOMEDS_Driver_i::CopyFrom(const Handle(SALOMEDSImpl_SObject)& t
 
   SALOMEDS::unlock();
   aStream = _driver->CopyFrom(so.in(), anObjectID);
-  SALOMEDS::lock();
 
   theObjectID = anObjectID;
   theStreamLength = aStream->length();
@@ -165,11 +154,6 @@ unsigned char* SALOMEDS_Driver_i::CopyFrom(const Handle(SALOMEDSImpl_SObject)& t
     memcpy(aRetStream, aStream->NP_data(), theStreamLength);
   }
 
-/*
-  int fd = open("/dn05/salome/srn/sh_copy.brep", O_CREAT | O_WRONLY);
-  cout << "Written " << write(fd, (char*)aRetStream, theStreamLength) << endl;
-  close(fd);
-*/
   return aRetStream;
 }
 
