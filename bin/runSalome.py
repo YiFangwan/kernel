@@ -499,13 +499,6 @@ def startSalome(args, modules_list, modules_root_dir):
    
     clt=orbmodule.client()
 
-    #
-    # Lancement Session Server
-    #
-    mySessionServ = SessionServer(args)
-    mySessionServ.setpath(modules_list,modules_root_dir)
-    mySessionServ.run()
-
     # (non obligatoire) Lancement Logger Server
     # et attente de sa disponibilite dans le naming service
     #
@@ -625,6 +618,13 @@ def startSalome(args, modules_list, modules_root_dir):
         myServer=ContainerSUPERVServer(args)
         myServer.run()
         clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
+
+    #
+    # Lancement Session Server
+    #
+    mySessionServ = SessionServer(args)
+    mySessionServ.setpath(modules_list,modules_root_dir)
+    mySessionServ.run()
 ##----------------        
 
     # Attente de la disponibilite du Session Server dans le Naming Service
