@@ -153,7 +153,7 @@ $(DEST_HEADERS): $(inc_builddir)/%: %
 
 # build resources file (icons and messages) : .qm file from .po file
 RESOURCES_FILES_ALL = $(notdir $(wildcard $(srcdir)/resources/*))
-RESOURCES_FILES ?= $(RESOURCES_FILES_All)
+RESOURCES_FILES ?= $(RESOURCES_FILES_ALL)
 
 resources: resources-po resources-cp 
 

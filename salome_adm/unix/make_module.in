@@ -46,7 +46,7 @@ depend:
 
 # copy all resources files in common directory
 RESOURCES_FILES_ALL = $(notdir $(wildcard $(srcdir)/resources/*))
-RESOURCES_FILES ?= $(RESOURCES_FILES_All)
+RESOURCES_FILES ?= $(RESOURCES_FILES_ALL)
 
 resources: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
 	@@SETX@; for d in $(SUBDIRS); do 	\
