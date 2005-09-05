@@ -152,7 +152,9 @@ $(DEST_HEADERS): $(inc_builddir)/%: %
 	cp -f $< $@
 
 # build resources file (icons and messages) : .qm file from .po file
-RESOURCES_FILES_ALL = $(notdir $(wildcard $(srcdir)/resources/*))
+RESOURCES_FILES_ALL := $(notdir $(wildcard $(srcdir)/resources/*))
+RESOURCES_FILES_ALL := $(filter-out CVS, $(RESOURCES_FILES_ALL))
+RESOURCES_FILES_ALL := $(filter-out %.po, $(RESOURCES_FILES_ALL))
 RESOURCES_FILES ?= $(RESOURCES_FILES_ALL)
 
 resources: resources-po resources-cp 
@@ -162,9 +164,7 @@ resources-po: $(PO_FILES:%.po=$(top_builddir)/share/salome/resources/%.qm)
 resources-cp: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
 
 $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%): $(top_builddir)/share/salome/resources/% : %
-	if [ $(notdir $<) != "CVS" ] ; then \
-	    cp -fr $< $@; \
-	fi
+	cp -fr $< $@;
 
 # Make installation directories if they don't exist.
 $(libdir) $(includedir) $(bindir) $(datadir) $(idldir) $(sharedpydir):

@@ -45,7 +45,9 @@ depend:
 	done
 
 # copy all resources files in common directory
-RESOURCES_FILES_ALL = $(notdir $(wildcard $(srcdir)/resources/*))
+RESOURCES_FILES_ALL := $(notdir $(wildcard $(srcdir)/resources/*))
+RESOURCES_FILES_ALL := $(filter-out CVS, $(RESOURCES_FILES_ALL))
+RESOURCES_FILES_ALL := $(filter-out %.po, $(RESOURCES_FILES_ALL))
 RESOURCES_FILES ?= $(RESOURCES_FILES_ALL)
 
 resources: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
@@ -54,9 +56,7 @@ resources: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
 	done
 
 $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%): $(top_builddir)/share/salome/resources/% : %
-	if [ $(notdir $<) != "CVS" ] ; then \
-	    cp -fr $< $@; \
-	fi
+	cp -fr $< $@;
 
 data:
 	@if test "X$(top_builddir)" = "X."; then							 \
