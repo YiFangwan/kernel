@@ -105,9 +105,11 @@ int main(int argc, char* argv[])
       PortableServer::POAManager_var pman = root_poa->the_POAManager();
 
       // add new container to the kill list
+#ifndef WNT
       char aCommand[40];
       sprintf(aCommand, "addToKillList.py %d SALOME_Container", getpid());
       system(aCommand);
+#endif
       
       Engines_Container_i * myContainer 
 	= new Engines_Container_i(orb, root_poa, containerName , argc , argv );
