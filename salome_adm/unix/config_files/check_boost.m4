@@ -28,25 +28,56 @@ AC_LANG_CPLUSPLUS
 
 AC_SUBST(BOOST_CPPFLAGS)
 BOOST_CPPFLAGS=""
+
+AC_SUBST(BOOST_LIBS)
+BOOST_LIBS=""
+
 boost_ok=no
 
 if test -z ${BOOSTDIR}; then
+  dnl BOOST headers
   AC_CHECK_HEADER(boost/shared_ptr.hpp,boost_ok=yes,boost_ok=no)
-  if test boost_ok = no ; then
-    AC_MSG_WARN(You must provide BOOSTDIR variable)
+  if test "x${boost_ok}" = "xyes" ; then
+    dnl BOOST libs
+    AC_CHECKING(for libboost_thread-mt.so library file)
+    for aDir in `echo $LD_LIBRARY_PATH | sed -e "s/:/ /g"` ; do
+      if test -f ${aDir}/libboost_thread-mt.so ; then
+        AC_MSG_RESULT(libboost_thread-mt.so detected in $aDir)
+        BOOST_LIBS="-L${aDir}"
+	boost_ok="yes"
+	break
+      fi
+    done
+  fi
+  if test "x${boost_ok}" = "xno" ; then
+    AC_MSG_WARN(You must provide \$BOOSTDIR variable)
   fi
 else
   AC_MSG_RESULT(\$BOOSTDIR = ${BOOSTDIR})
-  AC_CHECKING(for boost/shared_ptr.hpp header file)
+
   dnl BOOST headers
+  AC_CHECKING(for boost/shared_ptr.hpp header file)
   CPPFLAGS_old="${CPPFLAGS}"
-  BOOST_CPPFLAGS="-I${BOOSTDIR}"
+  BOOST_CPPFLAGS="-I${BOOSTDIR}/include"
   CPPFLAGS="${CPPFLAGS} ${BOOST_CPPFLAGS}"
 
   AC_CHECK_HEADER(boost/shared_ptr.hpp,boost_ok=yes,boost_ok=no)
 
   CPPFLAGS="${CPPFLAGS_old}"
+
+  if test "x${boost_ok}" = "xyes" ; then
+    AC_MSG_RESULT(\$BOOST_CPPFLAGS = ${BOOST_CPPFLAGS})
+    dnl BOOST libs
+    AC_CHECKING(for libboost_thread-mt.so library file)
+    AC_CHECK_FILE(${BOOSTDIR}/lib/libboost_thread-mt.so,boost_ok=yes,boost_ok=no)
+    if test "x${boost_ok}" = "xyes" ; then
+      BOOST_LIBS="-L${BOOSTDIR}/lib"
+      AC_MSG_RESULT(\$BOOST_LIBS = ${BOOST_LIBS})
+    fi
+  fi
 fi
+
+AC_MSG_RESULT(for boost: $boost_ok)
 
 AC_LANG_RESTORE
 
