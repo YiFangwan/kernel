@@ -801,6 +801,7 @@ void SALOMEDSImpl_Study::URL(const TCollection_AsciiString& url)
   _errorCode = "";
   _URL = url;
 
+  /*jfa: Now name of SALOMEDS study will correspond to name of SalomeApp study
   TCollection_AsciiString tmp(_URL);    
 
   char *aName = (char*)tmp.ToCString();
@@ -810,7 +811,8 @@ void SALOMEDSImpl_Study::URL(const TCollection_AsciiString& url)
       aName = adr;
       adr = strtok(NULL, "/");
     }
-  Name(aName);
+  Name(aName);*/
+  Name(url);
 }
 
 
