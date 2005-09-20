@@ -61,6 +61,7 @@ class SALOME_Container_i:
         self._orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
         self._poa = self._orb.resolve_initial_references("RootPOA")
         self._containerName = containerName
+        print "SALOME_Container.SALOME_Container_i : _containerName ",self._containerName
         #self._naming_service = SALOME_NamingServicePy_i(self._orb)
         self._container = self._orb.string_to_object(containerIORStr)
 

@@ -250,14 +250,21 @@ void Engines_Component_i::destroy()
 
 Engines::Container_ptr Engines_Component_i::GetContainerRef()
 {
+  MESSAGE("Engines_Component_i::GetContainerRef");
   CORBA::Object_ptr o = _poa->id_to_reference(*_contId) ;
   return Engines::Container::_narrow(o);
 }
 
-Engines_Container_i *Engines_Component_i::GetContainerPtr()
-{
-  return dynamic_cast<Engines_Container_i*>(_poa->id_to_servant(*_contId)) ;
-}
+//=============================================================================
+/*! 
+ *  CORBA method: 
+ *  Gives a sequence of (key=string,value=any) to the component. 
+ *  Base class component stores the sequence in a map.
+ *  The map is cleared before.
+ *  This map is for use by derived classes. 
+ *  \param dico sequence of (key=string,value=any)
+ */
+//=============================================================================
 
 void Engines_Component_i::setProperties(const Engines::FieldsDict& dico)
 {
@@ -502,13 +509,26 @@ CORBA::Long Engines_Component_i::CpuUsed_impl()
   return cpu ;
 }
 
+
+//=============================================================================
+/*! 
+ *  C++ method: return Container Servant
+ */
+//=============================================================================
+
+Engines_Container_i *Engines_Component_i::GetContainerPtr()
+{
+  return dynamic_cast<Engines_Container_i*>(_poa->id_to_servant(*_contId)) ;
+}
+
 //=============================================================================
 /*! 
  *  C++ method: set study Id
  *  \param studyId         0 if instance is not associated to a study, 
  *                         >0 otherwise (== study id)
  *  \return true if the set of study Id is OK
- *  must be set once by Container, and cannot be changed after.
+ *  must be set once by Container, at instance creation,
+ *  and cannot be changed after.
  */
 //=============================================================================
 
@@ -516,7 +536,7 @@ CORBA::Boolean Engines_Component_i::setStudyId(CORBA::Long studyId)
 {
   ASSERT( studyId >= 0);
   CORBA::Boolean ret = false;
-  if (_studyId < 0)
+  if (_studyId < 0) // --- not yet initialized 
     {
       _studyId = studyId;
       ret = true;
@@ -760,7 +780,7 @@ void Engines_Component_i::sendMessage(const char *event_type,
 
 //=============================================================================
 /*! 
- *  C++ method:
+ *  C++ method: return standard library name built on component name
  */
 //=============================================================================
 
@@ -791,4 +811,3 @@ Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy,
   isValidScript = true;
   return aStreamFile._retn(); 
 }
-

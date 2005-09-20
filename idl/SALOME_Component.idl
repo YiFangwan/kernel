@@ -33,8 +33,8 @@ component in %SALOME application.
 module Engines
 {
   /*! 
-    A byte stream which is used for binary data transfer between different components
-
+    A byte stream which is used for binary data transfer between different
+    components
   */
   typedef sequence<octet> TMPFile;  
   
@@ -71,8 +71,8 @@ module Engines
     /*!
       Creates a new servant instance of a component.
       Component library must be loaded.
-      \param comoponentName Name of the component which will be registered
-                            in Registry and Name Service,
+      \param componentName Name of the component which will be registered
+                           in Registry and Name Service,
                          (instance number suffix added to the registered name)
       \param studyId        0 if instance is not associated to a study, 
                             >0 otherwise (== study id)
@@ -239,9 +239,8 @@ module Engines
     /*!
       This method is used by the %SUPERVISOR component. It sets the names of
       the graph and of the node.
-      \param aGraphName
- Name of graph
-      \param aNodeName Name of node
+      \param aGraphName Name of graph
+      \param aNodeName  Name of node
     */
     void Names( in string aGraphName , in string aNodeName ) ;
 
@@ -273,9 +272,12 @@ module Engines
     long CpuUsed_impl() ;
     
     /*!
-      Returns a python script, which is being played back reproduces the data model of component
+      Returns a python script, which is being played back reproduces
+      the data model of component
     */    
-    TMPFile DumpPython(in Object theStudy, in boolean isPublished, out boolean isValidScript); 
+    TMPFile DumpPython(in Object theStudy,
+		       in boolean isPublished, 
+		       out boolean isValidScript); 
 
   } ;
 } ;

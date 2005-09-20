@@ -59,7 +59,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
     #-------------------------------------------------------------------------
 
     def __init__ (self, orb, poa, contID, containerName,
-                  instanceName, interfaceName, notif):
+                  instanceName, interfaceName, notif=0):
         # Notif for notification services
         # NOT YET IMPLEMENTED
         MESSAGE(  "SALOME_ComponentPy_i::__init__" + " " + str (containerName) + " " + str(instanceName) + " " + str(interfaceName) )
@@ -80,7 +80,7 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
 
         naming_service = SALOME_NamingServicePy_i(self._orb)
         myMachine=getShortHostName()
-        Component_path = "/Containers/" + myMachine + "/" + self._containerName + "/" + self._interfaceName
+        Component_path = self._containerName + "/" + self._instanceName
         MESSAGE(  'SALOME_ComponentPy_i Register' + str( Component_path ) )
         naming_service.Register(self._this(), Component_path)
 

@@ -60,9 +60,9 @@ class SALOME_NamingService;
 class LIFECYCLECORBA_EXPORT IncompatibleComponent : public SALOME_Exception
 {
 public :
-	IncompatibleComponent( void );
-	IncompatibleComponent( const IncompatibleComponent &ex  );
-} ;
+  IncompatibleComponent(void);
+  IncompatibleComponent(const IncompatibleComponent &ex);
+};
 
 class LIFECYCLECORBA_EXPORT SALOME_LifeCycleCORBA
 {
@@ -72,13 +72,13 @@ public:
 
   Engines::Component_ptr 
   FindComponent(const Engines::MachineParameters& params,
-		const char *componentName, 
-		const Engines::MachineList& listOfMachines);
+		const char *componentName,
+		int studyId=0);
 
-  Engines::Component_ptr 
-  LoadComponent(const Engines::MachineParameters& params, 
-		const char *componentName, 
-		const Engines::MachineList& listOfMachines);
+  Engines::Component_ptr
+  LoadComponent(const Engines::MachineParameters& params,
+		const char *componentName,
+		int studyId=0);
 
   Engines::Component_ptr 
   FindOrLoad_Component(const Engines::MachineParameters& params,
@@ -90,10 +90,11 @@ public:
 		       const char *componentName); // for compatibility
   
   bool isKnownComponentClass(const char *componentName);
-  bool isMpiContainer(const Engines::MachineParameters& params) throw(IncompatibleComponent);
+
+  bool isMpiContainer(const Engines::MachineParameters& params)
+    throw(IncompatibleComponent);
+
   int NbProc(const Engines::MachineParameters& params);
-  //! Establish if a component called "componentName" in a container called "containerName" exists among the list of resources
-  //! in "listOfMachines". This method uses Naming Service to find the component.
 
 protected:
 
@@ -102,15 +103,16 @@ protected:
    *  exists among the list of resources in "listOfMachines".
    *  This method uses Naming Service to find the component.
    */
-
   Engines::Component_ptr 
-  _FindComponent(const char *containerName,
+  _FindComponent(const Engines::MachineParameters& params,
 		 const char *componentName,
+		 int studyId,
 		 const Engines::MachineList& listOfMachines);
 
   Engines::Component_ptr
-  _LoadComponent(const char *containerName,
+  _LoadComponent(const Engines::MachineParameters& params,
 		 const char *componentName,
+		 int studyId,
 		 const Engines::MachineList& listOfMachines);
   
   SALOME_NamingService *_NS;
@@ -119,4 +121,3 @@ protected:
 } ;
 
 #endif
-

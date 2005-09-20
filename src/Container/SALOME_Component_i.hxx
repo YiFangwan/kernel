@@ -59,8 +59,9 @@ class Engines_Container_i;
 #endif
 #endif
 
-class CONTAINER_EXPORT Engines_Component_i: public virtual POA_Engines::Component,
-			   public virtual PortableServer::RefCountServantBase
+class CONTAINER_EXPORT Engines_Component_i: 
+  public virtual POA_Engines::Component,
+  public virtual PortableServer::RefCountServantBase
 {
 public:
   Engines_Component_i();
@@ -81,51 +82,59 @@ public:
 
   virtual ~Engines_Component_i();
 
+  // --- CORBA methods
+
   char* instanceName();
   char* interfaceName();
 
-  void destroy();
   void ping();
+  void destroy();
 
+  CORBA::Long getStudyId();
   Engines::Container_ptr GetContainerRef();
-  Engines_Container_i *GetContainerPtr();
-  PortableServer::ObjectId * getId(); 
 
   void setProperties(const Engines::FieldsDict& dico);
   Engines::FieldsDict* getProperties();
 
-  void beginService(const char *serviceName);
-  void endService(const char *serviceName);
-  void sendMessage(const char *event_type, const char *message);
-
   void Names( const char * graphName , const char * nodeName ) ;
-  char * graphName() ;
-  char * nodeName() ;
-  bool Killer( pthread_t ThreadId , int signum );
   bool Kill_impl();
   bool Stop_impl();
   bool Suspend_impl();
   bool Resume_impl();
-  void SetCurCpu() ;
-  long CpuUsed() ;
   CORBA::Long CpuUsed_impl() ;
-  CORBA::Long getStudyId();
 
- virtual Engines::TMPFile* DumpPython(CORBA::Object_ptr theStudy, CORBA::Boolean isPublished, CORBA::Boolean& isValidScript);
+ virtual Engines::TMPFile* DumpPython(CORBA::Object_ptr theStudy,
+				      CORBA::Boolean isPublished,
+				      CORBA::Boolean& isValidScript);
+
+
+  // --- local C++ methods
+
+  PortableServer::ObjectId * getId(); 
+  Engines_Container_i *GetContainerPtr();
 
   bool setStudyId(CORBA::Long studyId);
   static bool isMultiStudy();
   static bool isMultiInstance();
   static std::string GetDynLibraryName(const char *componentName);
+
+  void beginService(const char *serviceName);
+  void endService(const char *serviceName);
+  void sendMessage(const char *event_type, const char *message);
+  char * graphName() ;
+  char * nodeName() ;
+  bool Killer( pthread_t ThreadId , int signum );
+  void SetCurCpu() ;
+  long CpuUsed() ;
+
 protected:
+  int _studyId; // -1: not initialised; 0: multiStudy; >0: study
   static bool _isMultiStudy;
   static bool _isMultiInstance;
+
   std::string _instanceName ;
   std::string _interfaceName ;
-  std::string _serviceName ;
-  std::string _graphName ;
-  std::string _nodeName ;
-  int _studyId; // -1: not initialised; 0: multiStudy; >0: study
+
   CORBA::ORB_ptr _orb;
   PortableServer::POA_ptr _poa;
   PortableServer::ObjectId * _id;
@@ -134,6 +143,10 @@ protected:
   RegistryConnexion *_myConnexionToRegistry;
   NOTIFICATION_Supplier* _notifSupplier;
   std::map<std::string,CORBA::Any>_fieldsDict;
+
+  std::string _serviceName ;
+  std::string _graphName ;
+  std::string _nodeName ;
 
 private:
 #ifndef WNT
@@ -147,4 +160,3 @@ private:
 };
 
 #endif
-

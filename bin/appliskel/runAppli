@@ -33,10 +33,13 @@ searchFreePort() {
         if [ -z "$aRes" ]; then
             echo ${NSPORT} - Ok
 	    local myhost=`hostname`
-            export OMNIORB_CONFIG=${HOME}/$APPLI//.omniORB_${myhost}_${NSPORT}.cfg
+            export OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_${NSPORT}.cfg
 	    export NSPORT
             local initref="NameService=corbaname::"`hostname`":$NSPORT"
             echo "ORBInitRef $initref" > $OMNIORB_CONFIG
+            LAST_RUNNING_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+	    rm ${LAST_RUNNING_CONFIG}
+            ln -s ${OMNIORB_CONFIG} ${LAST_RUNNING_CONFIG}
             break
         fi
         echo -n "${NSPORT} "
@@ -61,3 +64,5 @@ if [ $# -ne 0 ] ; then
 else
     ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py 
 fi
+
+rm ${OMNIORB_CONFIG}

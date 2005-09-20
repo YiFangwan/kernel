@@ -152,9 +152,12 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
       Engines::Container_var pCont 
 	= Engines::Container::_narrow(obj);
 
-      _containerName = _NS->BuildContainerNameForNS(containerName,hostname.c_str());
+      _containerName = _NS->BuildContainerNameForNS(containerName,
+						    hostname.c_str());
       SCRUTE(_containerName);
       _NS->Register(pCont, _containerName.c_str());
+      MESSAGE("Engines_Container_i::Engines_Container_i : Container name "
+	      << _containerName);
 
       // Python: 
       // import SALOME_Container
@@ -171,8 +174,10 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 	{
 	  Py_ACQUIRE_NEW_THREAD;
 #ifdef WNT
-Sleep(2000); // mpv: this is temporary solution: there is a unregular crash if not
-	  PyRun_SimpleString("import sys\n"); // first element is the path to Registry.dll, but it's wrong
+	  // mpv: this is temporary solution: there is a unregular crash if not
+	  Sleep(2000);
+	  PyRun_SimpleString("import sys\n");
+	  // first element is the path to Registry.dll, but it's wrong
 	  PyRun_SimpleString("sys.path = sys.path[1:]\n");
 #endif
 	  PyRun_SimpleString("import SALOME_Container\n");
@@ -802,8 +807,10 @@ void ActSigIntHandler()
   SigIntAct.sa_flags = SA_SIGINFO ;
 #endif
 
-// DEBUG 03.02.2005 : the first parameter of sigaction is not a mask of signals (SIGINT | SIGUSR1) :
-// it must be only one signal ===> one call for SIGINT and an other one for SIGUSR1
+// DEBUG 03.02.2005 : the first parameter of sigaction is not a mask of signals
+// (SIGINT | SIGUSR1) :
+// it must be only one signal ===> one call for SIGINT 
+// and an other one for SIGUSR1
 #ifndef WNT
   if ( sigaction( SIGINT , &SigIntAct, NULL ) ) {
     perror("SALOME_Container main ") ;

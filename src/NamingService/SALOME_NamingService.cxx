@@ -438,6 +438,8 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
 
 CORBA::Object_ptr SALOME_NamingService::ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc)
 {
+  MESSAGE("ResolveComponent");
+  Utils_Locker lock(&_myMutex);
 
   string name="/Containers/";
   name += hostname;

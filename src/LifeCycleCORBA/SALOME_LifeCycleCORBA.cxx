@@ -2,7 +2,7 @@
 //
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-//
+// 
 //  This library is free software; you can redistribute it and/or 
 //  modify it under the terms of the GNU Lesser General Public 
 //  License as published by the Free Software Foundation; either 
@@ -48,13 +48,14 @@
 #include "SALOME_NamingService.hxx"
 using namespace std;
 
-IncompatibleComponent::IncompatibleComponent( void ): SALOME_Exception( "IncompatibleComponent" )
+IncompatibleComponent::IncompatibleComponent( void ):
+  SALOME_Exception( "IncompatibleComponent" )
 {
-	;
 }
-IncompatibleComponent::IncompatibleComponent( const IncompatibleComponent &ex  ): SALOME_Exception( ex ) 
+
+IncompatibleComponent::IncompatibleComponent(const IncompatibleComponent &ex):
+  SALOME_Exception( ex ) 
 {
-	;
 }
 
 //=============================================================================
@@ -97,19 +98,103 @@ SALOME_LifeCycleCORBA::~SALOME_LifeCycleCORBA()
 {
 }
 
-Engines::Component_ptr
-SALOME_LifeCycleCORBA::FindOrLoad_Component(const Engines::MachineParameters& params, 
-                                            const char *componentName,
-                                            int studyId)
-{
-  if (! isKnownComponentClass(componentName)) return Engines::Component::_nil();
+//=============================================================================
+/*! Public - 
+ *  Find and aready existing and registered component instance.
+ *  \param params         machine parameters like type or name...
+ *  \param componentName  the name of component class
+ *  \param studyId        default = 0  : multistudy instance
+ *  \return a CORBA reference of the component instance, or _nil if not found
+ */
+//=============================================================================
 
-  Engines::MachineList_var listOfMachine=_ContManager->GetFittingResources(params,componentName);
-  Engines::Component_ptr ret=FindComponent(params,componentName,listOfMachine);
-  if(CORBA::is_nil(ret))
-    return LoadComponent(params,componentName,listOfMachine);
-  else
-    return ret;
+Engines::Component_ptr
+SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
+				     const char *componentName,
+				     int studyId)
+{
+  if (! isKnownComponentClass(componentName))
+    return Engines::Component::_nil();
+
+  Engines::MachineList_var listOfMachines =
+    _ContManager->GetFittingResources(params, componentName);
+
+  Engines::Component_var compo = _FindComponent(params,
+						componentName,
+						studyId,
+						listOfMachines);
+
+  return compo._retn();
+}
+
+//=============================================================================
+/*! Public - 
+ *  Load a component instance on a container defined by machine parameters
+ *  \param params         machine parameters like type or name...
+ *  \param componentName  the name of component class
+ *  \param studyId        default = 0  : multistudy instance
+ *  \return a CORBA reference of the component instance, or _nil if problem
+ */
+//=============================================================================
+
+Engines::Component_ptr
+SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
+				     const char *componentName,
+				     int studyId)
+{
+  // --- Check if Component Name is known in ModuleCatalog
+
+  if (! isKnownComponentClass(componentName))
+    return Engines::Component::_nil();
+
+  Engines::MachineList_var listOfMachines =
+    _ContManager->GetFittingResources(params, componentName);
+
+  Engines::Component_var compo = _LoadComponent(params,
+						componentName,
+						studyId,
+						listOfMachines);
+
+  return compo._retn();
+}
+
+//=============================================================================
+/*! Public - 
+ *  Find and aready existing and registered component instance or load a new
+ *  component instance on a container defined by machine parameters.
+ *  \param params         machine parameters like type or name...
+ *  \param componentName  the name of component class
+ *  \param studyId        default = 0  : multistudy instance
+ *  \return a CORBA reference of the component instance, or _nil if problem
+ */
+//=============================================================================
+
+Engines::Component_ptr
+SALOME_LifeCycleCORBA::
+FindOrLoad_Component(const Engines::MachineParameters& params,
+		     const char *componentName,
+		     int studyId)
+{
+  // --- Check if Component Name is known in ModuleCatalog
+
+  if (! isKnownComponentClass(componentName))
+    return Engines::Component::_nil();
+
+  Engines::MachineList_var listOfMachines =
+    _ContManager->GetFittingResources(params,componentName);
+
+  Engines::Component_var compo = _FindComponent(params,
+						componentName,
+						studyId,
+						listOfMachines);
+
+  if(CORBA::is_nil(compo))
+    compo = _LoadComponent(params,
+			   componentName,
+			   studyId,
+			   listOfMachines);
+
+  return compo._retn();
 }
 
 //=============================================================================
@@ -117,11 +202,8 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const Engines::MachineParameters& pa
  *  Find and aready existing and registered component instance or load a new
  *  component instance on a container defined by name
  *  \param containerName  the name of container, under one of the forms
- *           - 1 localhost/aContainer
- *           - 2 aContainer
- *           - 3 /machine/aContainer
- *     (not the same rules as FindContainer() method based on protected method
- *      ContainerName() -- MUST BE CORRECTED --)
+ *           - 1 aContainer (local container)
+ *           - 2 /machine/aContainer (container on hostnme = machine)
  *  \param componentName  the name of component class
  *  \return a CORBA reference of the component instance, or _nil if problem
  */
@@ -131,25 +213,39 @@ Engines::Component_ptr
 SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
 					    const char *componentName)
 {
-  // Check if Component Name is known
-  if (! isKnownComponentClass(componentName)) return Engines::Component::_nil();
+  // --- Check if Component Name is known in ModuleCatalog
 
-  // Chack if containerName contains machine name (if yes: rg>0)
+  if (! isKnownComponentClass(componentName))
+    return Engines::Component::_nil();
+
+  // --- Check if containerName contains machine name (if yes: rg>0)
+
   char *stContainer=strdup(containerName);
   string st2Container(stContainer);
   int rg=st2Container.find("/");
 
   Engines::MachineParameters_var params=new Engines::MachineParameters;
-  if(rg<0) {
-    params->container_name=CORBA::string_dup(stContainer);
-    params->hostname=CORBA::string_dup(GetHostname().c_str());
-  }
-  else {
-    stContainer[rg]='\0';
-    params->container_name=CORBA::string_dup(stContainer+rg+1);
-    params->hostname=CORBA::string_dup(stContainer);
-  }
+  if (rg<0)
+    {
+      //containerName doesn't contain "/" => Local container
+      params->container_name=CORBA::string_dup(stContainer);
+      params->hostname=CORBA::string_dup(GetHostname().c_str());
+    }
+  else 
+    {
+      stContainer[rg]='\0';
+      params->container_name=CORBA::string_dup(stContainer+rg+1);
+      params->hostname=CORBA::string_dup(stContainer);
+    }
   params->isMPI = false;
+  SCRUTE(params->container_name);
+  SCRUTE(params->hostname);
+  SCRUTE(params->OS);
+  SCRUTE(params->mem_mb);
+  SCRUTE(params->cpu_clock);
+  SCRUTE(params->nb_proc_per_node);
+  SCRUTE(params->nb_node);
+  SCRUTE(params->isMPI);
   free(stContainer);
   return FindOrLoad_Component(params,componentName);
   
@@ -191,28 +287,27 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
   return false;
 }
 
-bool SALOME_LifeCycleCORBA::isMpiContainer(const Engines::MachineParameters& params) throw(IncompatibleComponent)
+//=============================================================================
+/*! Public -
+ *  Not so complex... useful ?
+ */
+//=============================================================================
+
+bool 
+SALOME_LifeCycleCORBA::isMpiContainer(const Engines::MachineParameters& params)
+  throw(IncompatibleComponent)
 {
-//   MESSAGE(params.container_name)
-//   if( strstr(params.container_name,"MPI") ){
-//     if( !params.isMPI ){
-//       cerr << "IncompatibleComponent" << endl;
-//       throw IncompatibleComponent();
-//     }
-//     return true;
-//   }
-//   else{
-//     if( params.isMPI ){
-//       cerr << "IncompatibleComponent" << endl;
-//       throw IncompatibleComponent();
-//     }
-//     return false;
-//   }
   if( params.isMPI )
     return true;
   else
     return false;
 }
+
+//=============================================================================
+/*! Public -
+ *  \return a number of processors not 0, only for MPI containers
+ */
+//=============================================================================
 
 int SALOME_LifeCycleCORBA::NbProc(const Engines::MachineParameters& params)
 {
@@ -228,52 +323,103 @@ int SALOME_LifeCycleCORBA::NbProc(const Engines::MachineParameters& params)
     return params.nb_node * params.nb_proc_per_node;
 }
 
+//=============================================================================
+/*! Protected -
+ *  Find and aready existing and registered component instance.
+ *  \param params         machine parameters like type or name...
+ *  \param componentName  the name of component class
+ *  \param studyId        default = 0  : multistudy instance
+ *  \param listOfMachines list of machine address
+ *  \return a CORBA reference of the component instance, or _nil if not found
+ * - build a list of machines on which an instance of the component is running,
+ * - find the best machine among the list
+ */
+//=============================================================================
+
 Engines::Component_ptr
-SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params, 
-                                     const char *componentName, 
-                                     const Engines::MachineList& listOfMachines)
+SALOME_LifeCycleCORBA::
+_FindComponent(const Engines::MachineParameters& params,
+	       const char *componentName,
+	       int studyId,
+	       const Engines::MachineList& listOfMachines)
 {
+  // --- build the list of machines on which the component is already running
+
   const char *containerName = params.container_name;
   int nbproc = NbProc(params);
+  MESSAGE("_FindComponent, required " << containerName <<
+	  " " << componentName << " " << nbproc);
 
-  if (! isKnownComponentClass(componentName)) return Engines::Component::_nil();
+  Engines::MachineList_var machinesOK = new Engines::MachineList;
 
-  // find list of machines which have component
-  Engines::MachineList_var machinesOK=new Engines::MachineList;
-  unsigned int lghtOfmachinesOK=0;
+  unsigned int lghtOfmachinesOK = 0;
   machinesOK->length(listOfMachines.length());
-  for(unsigned int i=0;i<listOfMachines.length();i++) {
-    const char *currentMachine=listOfMachines[i];
-    
-    CORBA::Object_var obj = _NS->ResolveComponent(currentMachine,containerName,componentName,nbproc);
-    if(!CORBA::is_nil(obj))
-      machinesOK[lghtOfmachinesOK++]=CORBA::string_dup(currentMachine);
-  }
 
-  // find the best machine among the list which have component
-  if(lghtOfmachinesOK!=0) {
-    machinesOK->length(lghtOfmachinesOK);
-    CORBA::String_var bestMachine=_ContManager->FindBest(machinesOK);
-    CORBA::Object_var obj = _NS->ResolveComponent(bestMachine,containerName,componentName,nbproc);
-    return Engines::Component::_narrow(obj);
-  }
+  for(unsigned int i=0; i<listOfMachines.length(); i++)
+    {
+      const char *currentMachine=listOfMachines[i];
+      MESSAGE("_FindComponent, look at " << currentMachine);
+      CORBA::Object_var obj = _NS->ResolveComponent(currentMachine,
+						    containerName,
+						    componentName,
+						    nbproc);
+      if (!CORBA::is_nil(obj))
+	machinesOK[lghtOfmachinesOK++] = CORBA::string_dup(currentMachine);
+    }
+
+  // --- find the best machine among the list
+
+  if(lghtOfmachinesOK != 0)
+    {
+      machinesOK->length(lghtOfmachinesOK);
+      CORBA::String_var bestMachine = _ContManager->FindBest(machinesOK);
+      CORBA::Object_var obj = _NS->ResolveComponent(bestMachine,
+						    containerName,
+						    componentName,
+						    nbproc);
+      return Engines::Component::_narrow(obj);
+    }
   else
     return Engines::Component::_nil();
 }
 
+//=============================================================================
+/*! Protected -
+ *  Load a component instance.
+ *  \param params         machine parameters like type or name...
+ *  \param componentName  the name of component class
+ *  \param studyId        default = 0  : multistudy instance
+ *  \param listOfMachines list of machine address
+ *  \return a CORBA reference of the component instance, or _nil if problem
+ *  - Finds a container in the list of machine or start one.
+ *  - Try to load the component library in the container,
+ *  - then create an instance of the component.
+ */
+//=============================================================================
+
 Engines::Component_ptr 
-SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params, 
-                                     const char *componentName, 
-                                     const Engines::MachineList& listOfMachines)
+SALOME_LifeCycleCORBA::
+_LoadComponent(const Engines::MachineParameters& params, 
+	      const char *componentName,
+	      int studyId,
+	      const Engines::MachineList& listOfMachines)
 {
-  Engines::Container_var cont=_ContManager->FindOrStartContainer(params,listOfMachines);
+  const char *containerName = params.container_name;
+  int nbproc = NbProc(params);
+
+  MESSAGE("_LoadComponent, required " << containerName <<
+	  " " << componentName << " " << nbproc);
+
+  Engines::Container_var cont =
+    _ContManager->FindOrStartContainer(params,
+				       listOfMachines);
   if (CORBA::is_nil(cont)) return Engines::Component::_nil();
 
   bool isLoadable = cont->load_component_Library(componentName);
   if (!isLoadable) return Engines::Component::_nil();
 
   Engines::Component_var myInstance =
-    cont->create_component_instance(componentName, 0);
+    cont->create_component_instance(componentName, studyId);
   return myInstance._retn();
 }
 

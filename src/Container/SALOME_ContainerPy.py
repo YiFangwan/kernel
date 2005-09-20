@@ -60,12 +60,14 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         MESSAGE( "SALOME_ContainerPy_i::__init__" )
         self._orb = orb
         self._poa = poa
-        self._containerName = containerName
-
         myMachine=getShortHostName()
+        Container_path = "/Containers/" + myMachine + "/" + containerName
+        #self._containerName = containerName
+        self._containerName = Container_path
+        print "container name ",self._containerName
+
         naming_service = SALOME_NamingServicePy_i(self._orb)
         self._naming_service = naming_service
-        Container_path = "/Containers/" + myMachine + "/" + self._containerName
         MESSAGE( str(Container_path) )
         naming_service.Register(self._this(), Container_path)
             
@@ -188,24 +190,25 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
         ret = 0
         instanceName = componentName + "_inst_" + `self._numInstance`
         interfaceName = componentName
-        the_command = "import " + componentName + "\n"
-        the_command = the_command + "comp_i = " + componentName + "." + componentName
-        the_command = the_command + "(self._orb, self._poa, self._this(), self._containerName, instanceName, interfaceName)\n"
-        MESSAGE( "SALOME_ContainerPy_i::load_component_Library :" + str (the_command) )
-        exec the_command
-        comp_o = comp_i._this()
-        if comp_o is not None:
-            ret = 1
-        else:
+        #the_command = "import " + componentName + "\n"
+        #the_command = the_command + "comp_i = " + componentName + "." + componentName
+        #the_command = the_command + "(self._orb, self._poa, self._this(), self._containerName, instanceName, interfaceName)\n"
+        #MESSAGE( "SALOME_ContainerPy_i::load_component_Library :" + str (the_command) )
+        #exec the_command
+        #comp_o = comp_i._this()
+        #if comp_o is not None:
+        #    ret = 1
+        #else:
             # --- try to import Python component
-            retImpl = self.import_component(componentName)
-            if retImpl == 1:
+        #    retImpl = self.import_component(componentName)
+        #    if retImpl == 1:
                 #import is possible
-                ret = 1
-            else:
+        #        ret = 1
+        #    else:
                 #import isn't possible
-                ret = 0
-        return ret
+        #        ret = 0
+        #return ret
+        return self.import_component(componentName)
     
     #-------------------------------------------------------------------------
 

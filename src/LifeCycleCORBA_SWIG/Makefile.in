@@ -37,7 +37,7 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 LIB = libSALOME_LifeCycleCORBAcmodule.la
 LIB_SRC = 
 
-LIB_CLIENT_IDL = SALOME_Component.idl SALOME_ContainerManager.idl
+LIB_CLIENT_IDL = SALOME_Component.idl SALOME_ContainerManager.idl SALOME_Exception.idl
 
 SWIG_DEF = libSALOME_LifeCycleCORBA.i
 

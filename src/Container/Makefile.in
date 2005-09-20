@@ -52,7 +52,7 @@ LIB_SRC = Component_i.cxx \
 	  SALOME_ContainerManager.cxx \
 	  Container_init_python.cxx
 
-LIB_SERVER_IDL = SALOME_Registry.idl SALOME_Component.idl SALOME_ContainerManager.idl
+LIB_SERVER_IDL = SALOME_Registry.idl SALOME_Component.idl SALOME_ContainerManager.idl SALOME_Exception.idl
 LIB_CLIENT_IDL = 
 
 # Executables targets

@@ -60,8 +60,9 @@ class SALOME_NamingService;
 #endif
 #endif
 
-class CONTAINER_EXPORT Engines_Container_i: public virtual POA_Engines::Container,
-			   public virtual PortableServer::RefCountServantBase
+class CONTAINER_EXPORT Engines_Container_i:
+  public virtual POA_Engines::Container,
+  public virtual PortableServer::RefCountServantBase
 {
 public:
   Engines_Container_i();
@@ -93,12 +94,11 @@ public:
   void remove_impl(Engines::Component_ptr component_i);
   void finalize_removal();
 
+  virtual void ping();
+  char* name();
+  virtual void Shutdown();
   char* getHostName();
   CORBA::Long getPID();
-  char* name();
-  char* machineName();
-  virtual void ping();
-  virtual void Shutdown();
   //! Kill current container
   bool Kill_impl() ;
 
@@ -118,11 +118,12 @@ public:
 
   static bool isPythonContainer(const char* ContainerName);
   static void decInstanceCnt(std::string genericRegisterName);
+  //??? char* machineName();
 
 protected:
 
-  int getArgc() { return _argc; }
-  char **getArgv() { return _argv; }
+  //??? int getArgc() { return _argc; }
+  //??? char **getArgv() { return _argv; }
 
   static std::map<std::string, int> _cntInstances_map;
   static std::map<std::string, void *> _library_map; // library names, loaded
@@ -131,7 +132,7 @@ protected:
 
   bool _isSupervContainer;
 
-   SALOME_NamingService *_NS ;
+  SALOME_NamingService *_NS ;
   std::string _library_path;
   std::string _containerName;
   CORBA::ORB_var _orb;
@@ -149,5 +150,4 @@ protected:
 };
 
 #endif
-
 

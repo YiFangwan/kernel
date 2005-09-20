@@ -25,6 +25,9 @@ export APPLI
 
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
+myhost=`hostname`
+export OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+
 # --- invoque shell with or without args
 
 if [ $# -ne 0 ] ; then

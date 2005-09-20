@@ -52,16 +52,24 @@ vector<string> SALOME_ResourcesManager::GetFittingResources(const Engines::Machi
   //To be sure that we search in a correct list.
   ParseXmlFile();
   const char *hostname=(const char *)params.hostname;
+  MESSAGE("ResourcesManager::GetFittingResources" << hostname << GetHostname().c_str());
   if(hostname[0]!='\0')
     {
-      if( strcmp(hostname,"localhost") == 0 || strcmp(hostname,GetHostname().c_str()) == 0 )
+  MESSAGE("ResourcesManager::GetFittingResources : hostname specified" );
+  cout << "hostname specified" << endl;
+      if( strcmp(hostname,"localhost") == 0 || strcmp(hostname,GetHostname().c_str()) == 0 ){
+        MESSAGE("ResourcesManager::GetFittingResources : localhost" );
 	ret.push_back(GetHostname().c_str());
-      else if(_resourcesList.find(hostname)!=_resourcesList.end())
+        MESSAGE("ResourcesManager::GetFittingResources : " << ret.size());
+      }
+      else if(_resourcesList.find(hostname)!=_resourcesList.end()){
 	// params.hostame is in the list of resources so return it.
 	ret.push_back(hostname);
-      else
+      } else{
 	//user specified an unknown hostame so notify to him.
+        MESSAGE("ResourcesManager::GetFittingResources : SALOME_Exception");
 	throw SALOME_Exception("unknown host");
+      }
     }
   else
     // Search for available resources sorted by priority
@@ -82,6 +90,7 @@ vector<string> SALOME_ResourcesManager::GetFittingResources(const Engines::Machi
       for(list<ResourceDataToSort>::iterator iter2=li.begin();iter2!=li.end();iter2++)
 	ret[i++]=(*iter2)._hostName;
     }
+  MESSAGE("ResourcesManager::GetFittingResources : return" << ret.size());
   return ret;
 }
 
@@ -401,21 +410,28 @@ void SALOME_ResourcesManager::KeepOnlyResourcesWithModule(vector<string>& hosts,
 
 void SALOME_ResourcesManager::AddOmninamesParams(string& command) const
 {
-  string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
-  ifstream omniORBfile( omniORBcfg.c_str() ) ;
-  char ORBInitRef[11] ;
-  char egal[3] ;
-  char nameservice[132] ;
-  omniORBfile >> ORBInitRef ;
-  command += "ORBInitRef " ;
-  omniORBfile >> egal ;
-  omniORBfile >> nameservice ;
-  omniORBfile.close() ;
-  char * bsn = strchr( nameservice , '\n' ) ;
-  if ( bsn ) {
-    bsn[ 0 ] = '\0' ;
-  }
-  command += nameservice ;
+  // If env variable OMNIORB_CONFIG is not defined or the file is more complex than one line
+  // does not work
+  // Even if we use it we have to check if env variable exists
+  //string omniORBcfg( getenv( "OMNIORB_CONFIG" ) ) ;
+  //ifstream omniORBfile( omniORBcfg.c_str() ) ;
+  //char ORBInitRef[11] ;
+  //char egal[3] ;
+  //char nameservice[132] ;
+  //omniORBfile >> ORBInitRef ;
+  //command += "ORBInitRef " ;
+  //omniORBfile >> egal ;
+  //omniORBfile >> nameservice ;
+  //omniORBfile.close() ;
+  //char * bsn = strchr( nameservice , '\n' ) ;
+  //if ( bsn ) {
+    //bsn[ 0 ] = '\0' ;
+  //}
+  //command += nameservice ;
+
+  char *iorstr = _NS->getIORaddr();
+  command += "ORBInitRef NameService=";
+  command += iorstr;
 }
 
 void SALOME_ResourcesManager::AddOmninamesParams(ofstream& fileStream) const

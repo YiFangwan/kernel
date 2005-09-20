@@ -58,7 +58,7 @@ CXXFLAGS+=-ftemplate-depth-32
 # in fact client is a test ! So it may go away BIN !
 BIN = SALOME_ModuleCatalog_Server SALOME_ModuleCatalog_Client
 BIN_SRC = 
-BIN_SERVER_IDL = SALOME_ModuleCatalog.idl
+BIN_SERVER_IDL = SALOME_ModuleCatalog.idl SALOME_Exception.idl
 
 CPPFLAGS+= $(QT_MT_INCLUDES) 
 LDFLAGS+= $(QT_MT_LIBS) -lSalomeNS -lSALOMELocalTrace -lSALOMETraceCollector -lOpUtil
