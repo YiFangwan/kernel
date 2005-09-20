@@ -171,20 +171,21 @@ for dir in dirs:
     filename = dir+'/'+appname+'.xml'
     try:
         p = xml_parser(filename, _opts)
+        _opts = p.opts
     except:
         print 'Can not read launch configuration file ', filename
         continue
-    _opts = p.opts
 
 # SalomeApprc file in user's catalogue
 filename = os.environ['HOME']+'/.'+appname+'rc.'+version()
 try:
     p = xml_parser(filename, _opts)
+    _opts = p.opts
 except:
     print 'Can not read launch configuration file ', filename
 
 
-args = p.opts
+args = _opts
 
 # --- setting default values of keys if they were NOT set in config files ---
 for aKey in listKeys:
