@@ -38,6 +38,7 @@
 #include <ServiceUnreachable.hxx>
 
 #include "SALOME_LifeCycleCORBA.hxx"
+#include "SALOMETraceCollector.hxx"
 #ifndef WNT
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
 #else
@@ -66,12 +67,15 @@ IncompatibleComponent::IncompatibleComponent(const IncompatibleComponent &ex):
 
 SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
 {
+  // be sure to have an instance of traceCollector, when used via SWIG
+  // in a Python module
+  int argc = 0;
+  char *xargv = "";
+  char **argv = &xargv;
+  CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   if (!ns)
     {
-      int argc = 0;
-      char *xargv = "";
-      char **argv = &xargv;
-      CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
       _NS = new SALOME_NamingService(orb);
     }
   else _NS = ns;
