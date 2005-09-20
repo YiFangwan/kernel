@@ -24,7 +24,7 @@ using namespace std;
 #include "SALOMEDSImpl_ChildNodeIterator.hxx"
 #include "SALOMEDSImpl_Attributes.hxx"
 #include "SALOMEDSImpl_UseCaseIterator.hxx"
-#include "SALOMEDSImpl_AttributeReference.hxx" 
+#include "SALOMEDSImpl_AttributeReference.hxx"
 #include "SALOMEDSImpl_StudyHandle.hxx"
 #include "SALOMEDSImpl_Tool.hxx"
 
@@ -32,7 +32,7 @@ IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_Study, MMgt_TShared )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_Study, MMgt_TShared )
 
 #define DIRECTORYID       16661
-#define FILELOCALID       26662 
+#define FILELOCALID       26662
 #define FILEID            "FILE: "
 
 //============================================================================
@@ -56,11 +56,11 @@ SALOMEDSImpl_Study::SALOMEDSImpl_Study(const Handle(TDocStd_Document)& doc,
   _useCaseBuilder = new SALOMEDSImpl_UseCaseBuilder(_doc);
   _builder = new SALOMEDSImpl_StudyBuilder(this);
   _cb = new SALOMEDSImpl_Callback(_useCaseBuilder);
-  //Put on the root label a StudyHandle attribute to store the address of this object 
+  //Put on the root label a StudyHandle attribute to store the address of this object
   //It will be used to retrieve the study object by TDF_Label that belongs to the study
   SALOMEDSImpl_StudyHandle::Set(_doc->Main().Root(), this);
 }
-  
+
 
 //============================================================================
 /*! Function : ~SALOMEDSImpl_Study
@@ -68,7 +68,7 @@ SALOMEDSImpl_Study::SALOMEDSImpl_Study(const Handle(TDocStd_Document)& doc,
  */
 //============================================================================
 SALOMEDSImpl_Study::~SALOMEDSImpl_Study()
-{}  
+{}
 
 //============================================================================
 /*! Function : GetPersistentReference
@@ -99,7 +99,7 @@ TCollection_AsciiString SALOMEDSImpl_Study::GetTransientReference()
     _errorCode = "IOR is empty";
   }
 
-  return IOR; 
+  return IOR;
 }
 
 void SALOMEDSImpl_Study::SetTransientReference(const TCollection_AsciiString& theIOR)
@@ -146,10 +146,10 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_Study::FindComponent (const TCollec
     name = SC->ComponentDataType();
     if(aComponentName == name) {
       _find = true;
-      return SC; 
+      return SC;
     }
   }
-  
+
   if(!_find)
     {
       _errorCode = "No component was found";
@@ -168,7 +168,7 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_Study::FindComponentID(const TColle
   _errorCode = "";
 
   // Iterate on each components defined in the study
-  // Get the component ID and compare with aComponentID 
+  // Get the component ID and compare with aComponentID
   bool _find = false;
   TCollection_AsciiString ID;
   Handle(SALOMEDSImpl_SComponent) compo;
@@ -217,7 +217,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObject(const TCollection_As
 	{
 	    _find = true;
 	    RefSO = SC;
-	
+
 	}
 	if (!_find) RefSO =  _FindObject(SC, anObjectName, _find);
       }
@@ -238,12 +238,12 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectID(const TCollection_
   // Convert aSO->GetID in TDF_Label.
   TDF_Label Lab;
   TDF_Tool::Label(_doc->Main().Data(), anObjectID, Lab);
-  
+
   if (Lab.IsNull()) {
     _errorCode = "No label was found by ID";
     return NULL;
   }
-  return GetSObject(Lab); 
+  return GetSObject(Lab);
 
 }
 
@@ -259,7 +259,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::CreateObjectID(const TCollectio
   // Convert aSO->GetID in TDF_Label.
   TDF_Label Lab;
   TDF_Tool::Label(_doc->Main().Data(), anObjectID, Lab, Standard_True);
-  
+
   if (Lab.IsNull()) {
     _errorCode = "Can not create a label";
     return NULL;
@@ -280,7 +280,7 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_Study::FindObjectByName(const 
   _errorCode = "";
 
   Handle(TColStd_HSequenceOfTransient) listSO = new TColStd_HSequenceOfTransient();
-  
+
   Handle(SALOMEDSImpl_SComponent) compo = FindComponent(aComponentName) ;
   if ( compo.IsNull() ) {
     _errorCode = "Can not find the component";
@@ -288,19 +288,19 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_Study::FindObjectByName(const 
   }
 
   // Iterate on each object and subobject of the component
-  // If objectName is found add it to the list of SObjects 
+  // If objectName is found add it to the list of SObjects
   TCollection_AsciiString childName ;
 
   TCollection_AsciiString compoId = compo->GetID();
   Handle(SALOMEDSImpl_ChildIterator) it = NewChildIterator(compo);
   for ( ; it->More(); it->Next() ) {
-    
+
     Handle(SALOMEDSImpl_SObject) CSO = it->Value();
     if ( CSO->GetName() == anObjectName ) {
 	/* add to list */
 	listSO->Append(CSO) ;
     }
-      
+
     /* looks also for eventual children */
     bool found = false ;
     CSO = _FindObject( CSO, anObjectName, found ) ;
@@ -308,7 +308,7 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_Study::FindObjectByName(const 
       listSO->Append(CSO) ;
     }
   }
-  
+
   return listSO;
 }
 
@@ -329,7 +329,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectIOR(const TCollection
     // 11 oct 2002: forbidden attributes must be checked here
     if (!aResult->GetLabel().IsAttribute(SALOMEDSImpl_AttributeIOR::GetID())) {
       myIORLabels.UnBind(anObjectIOR);
-    } else 
+    } else
       return aResult;
   }
   // Iterate to all components defined in the study
@@ -345,7 +345,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectIOR(const TCollection
       {
 	SC = it.Value();
 	TCollection_AsciiString ior = SC->GetIOR();
-	if (ior != "") 
+	if (ior != "")
 	{
 	  if (ior ==  anObjectIOR)
 	    {
@@ -353,11 +353,11 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectIOR(const TCollection
 	      RefSO = SC;
 	    }
 	}
-	if (!_find) 
+	if (!_find)
 	  RefSO =  _FindObjectIOR(SC, anObjectIOR, _find);
       }
   }
-  
+
   if(RefSO.IsNull()) _errorCode = "No object was found";
   return RefSO;
 }
@@ -380,7 +380,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectByPath(const TCollect
     return GetSObject(_current);
   }
 
-  if(aPath.Value(1) != '/')  //Relative path 
+  if(aPath.Value(1) != '/')  //Relative path
     isRelative = true;
 
   TDF_ChildIterator anIterator;
@@ -388,7 +388,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectByPath(const TCollect
   Handle(SALOMEDSImpl_AttributeName) anAttr;
 
   if(isRelative) {
-    if(_current.IsNull()) return NULL; 
+    if(_current.IsNull()) return NULL;
     anIterator.Initialize(_current, Standard_False);
   }
   else {
@@ -427,7 +427,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::FindObjectByPath(const TCollect
 
 //============================================================================
 /*! Function : GetObjectPath
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 TCollection_AsciiString SALOMEDSImpl_Study::GetObjectPath(const Handle(SALOMEDSImpl_SObject)& theObject)
@@ -439,7 +439,7 @@ TCollection_AsciiString SALOMEDSImpl_Study::GetObjectPath(const Handle(SALOMEDSI
     _errorCode = "Null object";
     return aPath.ToCString();
   }
-    
+
   TCollection_AsciiString aName = theObject->GetName();
   if(!aName.IsEmpty() && aName != "" ) {
     TCollection_AsciiString aValue((char*)aName.ToCString());
@@ -456,7 +456,7 @@ TCollection_AsciiString SALOMEDSImpl_Study::GetObjectPath(const Handle(SALOMEDSI
     }
   }
 
-  return aPath; 
+  return aPath;
 }
 
 
@@ -464,7 +464,7 @@ TCollection_AsciiString SALOMEDSImpl_Study::GetObjectPath(const Handle(SALOMEDSI
 /*! Function : GetObjectPathByIOR
  *  Purpose  :
  */
-//============================================================================  
+//============================================================================
 TCollection_AsciiString SALOMEDSImpl_Study::GetObjectPathByIOR(const TCollection_AsciiString& theIOR)
 {
   _errorCode = "";
@@ -475,9 +475,9 @@ TCollection_AsciiString SALOMEDSImpl_Study::GetObjectPathByIOR(const TCollection
     _errorCode = "No SObject was found by IOR";
     return aPath;
   }
-  
+
   return GetObjectPath(so);
-} 
+}
 
 
 //============================================================================
@@ -485,7 +485,7 @@ TCollection_AsciiString SALOMEDSImpl_Study::GetObjectPathByIOR(const TCollection
  *  Purpose  : Sets the current context
  */
 //============================================================================
-bool SALOMEDSImpl_Study::SetContext(const TCollection_AsciiString& thePath) 
+bool SALOMEDSImpl_Study::SetContext(const TCollection_AsciiString& thePath)
 {
   _errorCode = "";
   if(thePath.IsEmpty()) {
@@ -496,15 +496,15 @@ bool SALOMEDSImpl_Study::SetContext(const TCollection_AsciiString& thePath)
   TCollection_AsciiString aPath(thePath), aContext("");
   bool isInvalid = false;
   Handle(SALOMEDSImpl_SObject) aSO;
-  
-  if(aPath.Value(1) != '/') { //Relative path 
+
+  if(aPath.Value(1) != '/') { //Relative path
     aContext = GetContext();
     aContext += '/';
     aContext += aPath;
   }
   else
     aContext = aPath;
-  
+
   try {
     aSO = FindObjectByPath(aContext.ToCString());
   }
@@ -533,7 +533,7 @@ bool SALOMEDSImpl_Study::SetContext(const TCollection_AsciiString& thePath)
  *  Purpose  : Gets the current context
  */
 //============================================================================
-TCollection_AsciiString SALOMEDSImpl_Study::GetContext() 
+TCollection_AsciiString SALOMEDSImpl_Study::GetContext()
 {
   _errorCode = "";
 
@@ -542,7 +542,7 @@ TCollection_AsciiString SALOMEDSImpl_Study::GetContext()
     return "";
   }
   Handle(SALOMEDSImpl_SObject) so = GetSObject(_current);
-  return GetObjectPath(so);  
+  return GetObjectPath(so);
 }
 
 //============================================================================
@@ -550,7 +550,7 @@ TCollection_AsciiString SALOMEDSImpl_Study::GetContext()
  *  Purpose  : method to get all object names in the given context (or in the current context, if 'theContext' is empty)
  */
 //============================================================================
-Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetObjectNames(const TCollection_AsciiString& theContext) 
+Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetObjectNames(const TCollection_AsciiString& theContext)
 {
   _errorCode = "";
 
@@ -583,7 +583,7 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetObjectNames(const 
  *  Purpose  : method to get all directory names in the given context (or in the current context, if 'theContext' is empty)
  */
 //============================================================================
-Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetDirectoryNames(const TCollection_AsciiString& theContext) 
+Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetDirectoryNames(const TCollection_AsciiString& theContext)
 {
   _errorCode = "";
 
@@ -623,7 +623,7 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetDirectoryNames(con
  *  Purpose  : method to get all file names in the given context (or in the current context, if 'theContext' is empty)
  */
 //============================================================================
-Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetFileNames(const TCollection_AsciiString& theContext) 
+Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetFileNames(const TCollection_AsciiString& theContext)
 {
   _errorCode = "";
 
@@ -665,7 +665,7 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetFileNames(const TC
  *  Purpose  : method to get all components names
  */
 //============================================================================
-Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetComponentNames(const TCollection_AsciiString& theContext) 
+Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetComponentNames(const TCollection_AsciiString& theContext)
 {
   _errorCode = "";
 
@@ -719,7 +719,7 @@ Handle(SALOMEDSImpl_StudyBuilder) SALOMEDSImpl_Study::NewBuilder()
   return _builder;
 
 }
- 
+
 //============================================================================
 /*! Function : Name
  *  Purpose  : get study name
@@ -802,7 +802,7 @@ void SALOMEDSImpl_Study::URL(const TCollection_AsciiString& url)
   _URL = url;
 
   /*jfa: Now name of SALOMEDS study will correspond to name of SalomeApp study
-  TCollection_AsciiString tmp(_URL);    
+  TCollection_AsciiString tmp(_URL);
 
   char *aName = (char*)tmp.ToCString();
   char *adr = strtok(aName, "/");
@@ -822,22 +822,22 @@ void SALOMEDSImpl_Study::URL(const TCollection_AsciiString& url)
  */
 //============================================================================
 Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::_FindObject(const Handle(SALOMEDSImpl_SObject)& SO,
-						             const TCollection_AsciiString& theObjectName, 
+						             const TCollection_AsciiString& theObjectName,
 						             bool& _find)
 {
-  if(SO.IsNull()) return NULL;   
+  if(SO.IsNull()) return NULL;
 
   // Iterate on each objects and subobjects of the component
   // If objectName find, stop the loop and get the object reference
   Handle(SALOMEDSImpl_SObject) RefSO;
-  Handle(SALOMEDSImpl_AttributeName) anAttr; 
+  Handle(SALOMEDSImpl_AttributeName) anAttr;
 
   TCollection_AsciiString soid = SO->GetID();
   TDF_ChildIterator it(SO->GetLabel());
   for (; it.More(); it.Next()){
     if(!_find)
       {
-	if (it.Value().FindAttribute(SALOMEDSImpl_AttributeName::GetID(), anAttr)) 
+	if (it.Value().FindAttribute(SALOMEDSImpl_AttributeName::GetID(), anAttr))
 	{
           TCollection_AsciiString Val(anAttr->Value());
 	  if (Val == theObjectName)
@@ -857,12 +857,12 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::_FindObject(const Handle(SALOME
  *  Purpose  : Find an Object with SALOMEDSImpl_IOR = anObjectIOR
  */
 //============================================================================
-Handle(SALOMEDSImpl_SObject) 
+Handle(SALOMEDSImpl_SObject)
 SALOMEDSImpl_Study::_FindObjectIOR(const Handle(SALOMEDSImpl_SObject)& SO,
-				   const TCollection_AsciiString& theObjectIOR, 
+				   const TCollection_AsciiString& theObjectIOR,
 				   bool& _find)
 {
-  if(SO.IsNull()) return NULL;   
+  if(SO.IsNull()) return NULL;
 
   // Iterate on each objects and subobjects of the component
   // If objectName find, stop the loop and get the object reference
@@ -873,9 +873,9 @@ SALOMEDSImpl_Study::_FindObjectIOR(const Handle(SALOMEDSImpl_SObject)& SO,
   for (; it.More();it.Next()){
     if(!_find)
       {
-	if (it.Value().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), anAttr)) 
+	if (it.Value().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(), anAttr))
 	{
-          TCollection_AsciiString Val(anAttr->Value());  
+          TCollection_AsciiString Val(anAttr->Value());
 	  if (Val == theObjectIOR)
 	    {
 	      RefSO = GetSObject(it.Value());
@@ -907,7 +907,7 @@ void SALOMEDSImpl_Study::StudyId(int id)
   _StudyId = id;
 }
 
-void SALOMEDSImpl_Study::UpdateIORLabelMap(const TCollection_AsciiString& anIOR,const TCollection_AsciiString& anEntry) 
+void SALOMEDSImpl_Study::UpdateIORLabelMap(const TCollection_AsciiString& anIOR,const TCollection_AsciiString& anEntry)
 {
   _errorCode = "";
   TDF_Label aLabel;
@@ -918,12 +918,12 @@ void SALOMEDSImpl_Study::UpdateIORLabelMap(const TCollection_AsciiString& anIOR,
   myIORLabels.Bind(TCollection_ExtendedString(IOR), aLabel);
 }
 
-Handle(SALOMEDSImpl_Study) SALOMEDSImpl_Study::GetStudy(const TDF_Label& theLabel) 
+Handle(SALOMEDSImpl_Study) SALOMEDSImpl_Study::GetStudy(const TDF_Label& theLabel)
 {
   Handle(SALOMEDSImpl_StudyHandle) Att;
   if (theLabel.Root().FindAttribute(SALOMEDSImpl_StudyHandle::GetID(),Att)) {
     return Att->GetHandle();
-  } 
+  }
   return NULL;
 }
 
@@ -938,68 +938,68 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_Study::SComponent(const TDF_Label& 
 }
 
 
-void SALOMEDSImpl_Study::IORUpdated(const Handle(SALOMEDSImpl_AttributeIOR)& theAttribute) 
+void SALOMEDSImpl_Study::IORUpdated(const Handle(SALOMEDSImpl_AttributeIOR)& theAttribute)
 {
   TCollection_AsciiString aString;
   TDF_Tool::Entry(theAttribute->Label(), aString);
   GetStudy(theAttribute->Label())->UpdateIORLabelMap(theAttribute->Value(), aString);
 }
 
-Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_Study::FindDependances(const Handle(SALOMEDSImpl_SObject)& anObject) 
+Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_Study::FindDependances(const Handle(SALOMEDSImpl_SObject)& anObject)
 {
   _errorCode = "";
   Handle(TColStd_HSequenceOfTransient) aSeq;
-  
+
   Handle(SALOMEDSImpl_AttributeTarget) aTarget;
   if (anObject->GetLabel().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID(), aTarget)) {
     return aTarget->Get();
   }
-  
+
   return aSeq;
 }
 
 
-Handle(SALOMEDSImpl_AttributeStudyProperties) SALOMEDSImpl_Study::GetProperties() 
+Handle(SALOMEDSImpl_AttributeStudyProperties) SALOMEDSImpl_Study::GetProperties()
 {
   _errorCode = "";
   return SALOMEDSImpl_AttributeStudyProperties::Set(_doc->Main());
 }
 
-TCollection_AsciiString SALOMEDSImpl_Study::GetLastModificationDate() 
+TCollection_AsciiString SALOMEDSImpl_Study::GetLastModificationDate()
 {
   _errorCode = "";
   Handle(SALOMEDSImpl_AttributeStudyProperties) aProp = GetProperties();
 
   Handle(TColStd_HSequenceOfExtendedString) aNames;
   Handle(TColStd_HSequenceOfInteger) aMinutes, aHours, aDays, aMonths, aYears;
-  aNames = aProp->GetUserNames();
-  aProp->GetModificationDates(aMinutes, aHours, aDays, aMonths, aYears);
+  aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
   int aLastIndex = aNames->Length();
   char aResult[20];
-  sprintf(aResult, "%2.2d/%2.2d/%4.4d %2.2d:%2.2d", (int)(aDays->Value(aLastIndex)),(int)(aMonths->Value(aLastIndex)),
-	  (int)(aYears->Value(aLastIndex)), (int)(aHours->Value(aLastIndex)), (int)(aMinutes->Value(aLastIndex)));
-  TCollection_AsciiString aResStr(aResult);
+  sprintf(aResult, "%2.2d/%2.2d/%4.4d %2.2d:%2.2d",
+          (int)(aDays->Value(aLastIndex)),(int)(aMonths->Value(aLastIndex)), (int)(aYears->Value(aLastIndex)),
+          (int)(aHours->Value(aLastIndex)), (int)(aMinutes->Value(aLastIndex)));
+  TCollection_AsciiString aResStr (aResult);
   return aResStr;
 }
 
-Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetModificationsDate() 
+Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetModificationsDate()
 {
   _errorCode = "";
   Handle(SALOMEDSImpl_AttributeStudyProperties) aProp = GetProperties();
 
   Handle(TColStd_HSequenceOfExtendedString) aNames;
   Handle(TColStd_HSequenceOfInteger) aMinutes, aHours, aDays, aMonths, aYears;
-  aNames = aProp->GetUserNames();
-  aProp->GetModificationDates(aMinutes, aHours, aDays, aMonths, aYears);
+  aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
   int anIndex, aLength = aNames->Length();
   Handle(TColStd_HSequenceOfAsciiString) aDates = new TColStd_HSequenceOfAsciiString;
 
-  for(anIndex = 2; anIndex <= aLength; anIndex++) {
+  for (anIndex = 2; anIndex <= aLength; anIndex++) {
     char aDate[20];
-    sprintf(aDate, "%2.2d/%2.2d/%4.4d %2.2d:%2.2d", (int)(aDays->Value(anIndex)), (int)(aMonths->Value(anIndex)),
-	    (int)(aYears->Value(anIndex)), (int)(aHours->Value(anIndex)), (int)(aMinutes->Value(anIndex)));
+    sprintf(aDate, "%2.2d/%2.2d/%4.4d %2.2d:%2.2d",
+            (int)(aDays->Value(anIndex)), (int)(aMonths->Value(anIndex)), (int)(aYears->Value(anIndex)),
+	    (int)(aHours->Value(anIndex)), (int)(aMinutes->Value(anIndex)));
     aDates->Append(aDate);
   }
   return aDates;
@@ -1012,7 +1012,7 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetModificationsDate(
  *  Purpose  : Returns a UseCase builder
  */
 //============================================================================
-Handle(SALOMEDSImpl_UseCaseBuilder) SALOMEDSImpl_Study::GetUseCaseBuilder() 
+Handle(SALOMEDSImpl_UseCaseBuilder) SALOMEDSImpl_Study::GetUseCaseBuilder()
 {
   _errorCode = "";
   return _useCaseBuilder;
@@ -1021,7 +1021,7 @@ Handle(SALOMEDSImpl_UseCaseBuilder) SALOMEDSImpl_Study::GetUseCaseBuilder()
 
 //============================================================================
 /*! Function : Close
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 void SALOMEDSImpl_Study::Close()
@@ -1036,40 +1036,40 @@ void SALOMEDSImpl_Study::Close()
 
 //============================================================================
 /*! Function : AddPostponed
- *  Purpose  : 
+ *  Purpose  :
  */
  //============================================================================
-void SALOMEDSImpl_Study::AddPostponed(const TCollection_AsciiString& theIOR) 
+void SALOMEDSImpl_Study::AddPostponed(const TCollection_AsciiString& theIOR)
 {
   _errorCode = "";
   if (!NewBuilder()->HasOpenCommand()) return;
   TCollection_AsciiString anIOR(theIOR);
   anIOR.Prepend("d");
   myPostponedIORs.Append(anIOR); // add prefix: deleted
-  myNbPostponed.SetValue(myNbPostponed.Length(), myNbPostponed.Last() + 1);  
+  myNbPostponed.SetValue(myNbPostponed.Length(), myNbPostponed.Last() + 1);
 }
 
 //============================================================================
 /*! Function : AddCreatedPostponed
- *  Purpose  : 
+ *  Purpose  :
  */
  //============================================================================
-void SALOMEDSImpl_Study::AddCreatedPostponed(const TCollection_AsciiString& theIOR) 
+void SALOMEDSImpl_Study::AddCreatedPostponed(const TCollection_AsciiString& theIOR)
 {
   _errorCode = "";
   if (!NewBuilder()->HasOpenCommand()) return;
   TCollection_AsciiString anIOR(theIOR);
   anIOR.Prepend("c");
   myPostponedIORs.Append(anIOR); // add prefix: created
-  myNbPostponed.SetValue(myNbPostponed.Length(), myNbPostponed.Last() + 1);    
+  myNbPostponed.SetValue(myNbPostponed.Length(), myNbPostponed.Last() + 1);
 }
 
 //============================================================================
 /*! Function : RemovePostponed
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
-Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::RemovePostponed(const int theUndoLimit) 
+Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::RemovePostponed(const int theUndoLimit)
 {
   _errorCode = "";
 
@@ -1126,10 +1126,10 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::RemovePostponed(const
 
 //============================================================================
 /*! Function : UndoPostponed
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
-void SALOMEDSImpl_Study::UndoPostponed(const int theWay) 
+void SALOMEDSImpl_Study::UndoPostponed(const int theWay)
 {
   _errorCode = "";
 
@@ -1143,13 +1143,13 @@ void SALOMEDSImpl_Study::UndoPostponed(const int theWay)
 
 //============================================================================
 /*! Function : GetSComponent
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_Study::GetSComponent(const TCollection_AsciiString& theEntry)
 {
   Handle(SALOMEDSImpl_SComponent) aSCO;
-  if(_mapOfSCO.IsBound(theEntry)) 
+  if(_mapOfSCO.IsBound(theEntry))
     aSCO = Handle(SALOMEDSImpl_SComponent)::DownCast(_mapOfSCO.Find(theEntry));
   else {
     TDF_Label aLabel;
@@ -1163,7 +1163,7 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_Study::GetSComponent(const TCollect
 
 //============================================================================
 /*! Function : GetSComponent
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_Study::GetSComponent(const TDF_Label& theLabel)
@@ -1175,13 +1175,13 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_Study::GetSComponent(const TDF_Labe
 
 //============================================================================
 /*! Function : GetSObject
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::GetSObject(const TCollection_AsciiString& theEntry)
 {
   Handle(SALOMEDSImpl_SObject) aSO;
-  if(_mapOfSO.IsBound(theEntry)) 
+  if(_mapOfSO.IsBound(theEntry))
     aSO = Handle(SALOMEDSImpl_SObject)::DownCast(_mapOfSO.Find(theEntry));
   else {
     TDF_Label aLabel;
@@ -1195,7 +1195,7 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::GetSObject(const TCollection_As
 
 //============================================================================
 /*! Function : GetSObject
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::GetSObject(const TDF_Label& theLabel)
@@ -1207,10 +1207,10 @@ Handle(SALOMEDSImpl_SObject) SALOMEDSImpl_Study::GetSObject(const TDF_Label& the
 
 //============================================================================
 /*! Function : GetAttribute
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
-Handle(TDF_Attribute) SALOMEDSImpl_Study::GetAttribute(const TCollection_AsciiString& theEntry, 
+Handle(TDF_Attribute) SALOMEDSImpl_Study::GetAttribute(const TCollection_AsciiString& theEntry,
 						       const TCollection_AsciiString& theType)
 {
   Handle(SALOMEDSImpl_SObject) aSO = GetSObject(theEntry);
@@ -1221,11 +1221,11 @@ Handle(TDF_Attribute) SALOMEDSImpl_Study::GetAttribute(const TCollection_AsciiSt
 
 //============================================================================
 /*! Function : DumpStudy
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
-bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath, 
-				   const TCollection_AsciiString& theBaseName, 
+bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
+				   const TCollection_AsciiString& theBaseName,
 				   bool isPublished,
 				   SALOMEDSImpl_DriverFactory* theFactory)
 {
@@ -1241,7 +1241,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
 
   //Build a list of all components in the Study
   SALOMEDSImpl_SComponentIterator itcomponent = NewComponentIterator();
-  
+
   for (; itcomponent.More(); itcomponent.Next()) {
     Handle(SALOMEDSImpl_SComponent) sco = itcomponent.Value();
     aCompType = sco->ComponentDataType();
@@ -1254,13 +1254,13 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
   TCollection_AsciiString aFileName=thePath+TCollection_AsciiString("\\")+theBaseName+TCollection_AsciiString(".py");
 #else
   TCollection_AsciiString aFileName=thePath+TCollection_AsciiString("/")+theBaseName+TCollection_AsciiString(".py");
-#endif    
+#endif
 
   //Create a file that will contain a main Study script
   fstream fp;
-  fp.open(aFileName.ToCString(), ios::out);  
+  fp.open(aFileName.ToCString(), ios::out);
 
-#ifdef WIN32 
+#ifdef WIN32
   bool isOpened = fp.is_open();
 #else
   bool isOpened = fp.rdbuf()->is_open();
@@ -1268,7 +1268,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
 
   if(!isOpened) {
     _errorCode = TCollection_AsciiString("Can't create a file ")+aFileName;
-    return false;    
+    return false;
   }
 
   TCollection_AsciiString aBatchModeScript = "salome";
@@ -1278,7 +1278,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
   fp << "import sys" << endl;
   fp << "import " << aBatchModeScript << "\n" << endl;
   fp << "sys.path.insert( 0, \'" << thePath << "\')\n" << endl;
-  
+
   Handle(TColStd_HSequenceOfAsciiString) aSeqOfFileNames = new TColStd_HSequenceOfAsciiString;
 
   //Iterate all components and create the componponents specific scripts.
@@ -1294,9 +1294,9 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
     try {
       if (!sco->ComponentIOR(IOREngine)) {
 	if (!aCompType.IsEmpty()) {
-	  
+
 	  aDriver = theFactory->GetDriverByType(aCompType);
-	
+
 	  if (aDriver != NULL) {
 	    Handle(SALOMEDSImpl_StudyBuilder) SB = NewBuilder();
 	    cout << "Before SB" << endl;
@@ -1315,7 +1315,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
     } catch(...) {
       _errorCode = "Can not restore information to dump it";
       return false;
-    } 
+    }
 
     if(aDriver == NULL) continue;
 
@@ -1331,18 +1331,18 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
     aFileName=thePath+TCollection_AsciiString("\\");
 #else
     aFileName=thePath+TCollection_AsciiString("/");
-#endif    
+#endif
     TCollection_AsciiString aScriptName;
     aScriptName += theBaseName;
     aScriptName += "_";
     aScriptName += aCompType;
-    
+
     aFileName += aScriptName+ TCollection_AsciiString(".py");
     aSeqOfFileNames->Append(aFileName);
-    
+
     fp2.open(aFileName.ToCString(), ios::out);
 
-#ifdef WIN32 
+#ifdef WIN32
     isOpened = fp.is_open();
 #else
     isOpened = fp.rdbuf()->is_open();
@@ -1351,8 +1351,8 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
     if(!isOpened) {
       _errorCode = TCollection_AsciiString("Can't create a file ")+aFileName;
       SALOMEDSImpl_Tool::RemoveTemporaryFiles(thePath, aSeqOfFileNames, false);
-      return false;    
-    }    
+      return false;
+    }
 
     //Output the Python script generated by the component in the newly created file.
     fp2 << aStream;
@@ -1383,22 +1383,22 @@ TCollection_AsciiString SALOMEDSImpl_Study::GetDumpStudyComment(const char* theC
   return txt;
 }
 
-void dumpSO(const Handle(SALOMEDSImpl_SObject)& theSO, 
-	    fstream& fp, 
+void dumpSO(const Handle(SALOMEDSImpl_SObject)& theSO,
+	    fstream& fp,
 	    const TCollection_AsciiString& Tab,
 	    const Handle(SALOMEDSImpl_Study) theStudy);
 //============================================================================
 /*! Function : dump
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 void SALOMEDSImpl_Study::dump(const TCollection_AsciiString& theFileName)
 {
   //Create a file that will contain a main Study script
   fstream fp;
-  fp.open(theFileName.ToCString(), ios::out);  
+  fp.open(theFileName.ToCString(), ios::out);
 
-#ifdef WIN32 
+#ifdef WIN32
   bool isOpened = fp.is_open();
 #else
   bool isOpened = fp.rdbuf()->is_open();
@@ -1407,7 +1407,7 @@ void SALOMEDSImpl_Study::dump(const TCollection_AsciiString& theFileName)
   if(!isOpened) {
     _errorCode = TCollection_AsciiString("Can't create a file ")+theFileName;
     cout << "### SALOMEDSImpl_Study::dump Error: " << _errorCode << endl;
-    return;    
+    return;
   }
 
   Handle(SALOMEDSImpl_SObject) aSO = FindObjectID("0:1");
@@ -1422,8 +1422,8 @@ void SALOMEDSImpl_Study::dump(const TCollection_AsciiString& theFileName)
 }
 
 
-void dumpSO(const Handle(SALOMEDSImpl_SObject)& theSO, 
-	    fstream& fp, 
+void dumpSO(const Handle(SALOMEDSImpl_SObject)& theSO,
+	    fstream& fp,
 	    const TCollection_AsciiString& Tab,
 	    const Handle(SALOMEDSImpl_Study) theStudy)
 {
@@ -1432,7 +1432,7 @@ void dumpSO(const Handle(SALOMEDSImpl_SObject)& theSO,
   TDF_AttributeIterator anItr(theSO->GetLabel());
   for(; anItr.More(); anItr.Next()) {
     Handle(SALOMEDSImpl_GenericAttribute) anAttr = Handle(SALOMEDSImpl_GenericAttribute)::DownCast(anItr.Value());
- 
+
     if(anAttr.IsNull()) {
       fp << Tab << "  -- " << anItr.Value()->DynamicType();
       continue;
@@ -1440,7 +1440,7 @@ void dumpSO(const Handle(SALOMEDSImpl_SObject)& theSO,
 
     TCollection_AsciiString aType = anAttr->GetClassType();
     fp << Tab << "  -- " << aType;
-    
+
     if(aType == "AttributeReal") {
       fp << " : " << Handle(SALOMEDSImpl_AttributeReal)::DownCast(anAttr)->Value();
     }
@@ -1471,6 +1471,6 @@ void dumpSO(const Handle(SALOMEDSImpl_SObject)& theSO,
 
 void SALOMEDSImpl_Study::Modify()
 {
-  _errorCode = ""; 
+  _errorCode = "";
   _doc->Modify();
 }
