@@ -102,7 +102,7 @@ bool SALOMEDSImpl_StudyBuilder::DefineComponentInstance(const Handle(SALOMEDSImp
   //add IOR definition 
   SALOMEDSImpl_AttributeIOR::Set(aComponent->GetLabel(), IOR);  
 
-  _doc->Modify();
+  //_doc->Modify();
 
   return true;
 }
