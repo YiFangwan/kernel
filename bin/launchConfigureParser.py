@@ -262,27 +262,27 @@ def options_parser(line):
 # -----------------------------------------------------------------------------
 
 ### read command-line options : each arg given in command line supersedes arg from xml config file
-
+cmd_opts = {}
 try:
-    opts = options_parser(sys.argv[1:])
-    print "opts=",opts
+    cmd_opts = options_parser(sys.argv[1:])
+    print "opts=",cmd_opts
     kernel_root_dir=os.environ["KERNEL_ROOT_DIR"]
 except:
-    opts["h"] = 1
+    cmd_opts["h"] = 1
     pass
 
 ### check all options are right
 
 opterror=0
-for opt in opts:
+for opt in cmd_opts:
     if not opt in ("h","g","l","f","x","m","e","s","c","p","k","t","i"):
         print "command line error: -", opt
         opterror=1
 
 if opterror == 1:
-    opts["h"] = 1
+    cmd_opts["h"] = 1
 
-if opts.has_key("h"):
+if cmd_opts.has_key("h"):
     print """USAGE: runSalome.py [options]
     [command line options] :
     --help or -h                  : print this help
@@ -315,7 +315,7 @@ if opts.has_key("h"):
     pass
 
 ### apply command-line options to the arguments
-for opt in opts:
+for opt in cmd_opts:
     if opt == 'g':
         args[gui_nam] = 1
     elif opt == 'z':
@@ -323,19 +323,19 @@ for opt in opts:
     elif opt == 'l':
         args[logger_nam] = 1
     elif opt == 'f':
-        args[file_nam] = opts['f']
+        args[file_nam] = cmd_opts['f']
     elif opt == 'x':
         args[xterm_nam] = 1
     elif opt == 'i':
-        args[interp_nam] = opts['i']
+        args[interp_nam] = cmd_opts['i']
     elif opt == 'm':
-        args[modules_nam] = opts['m']
+        args[modules_nam] = cmd_opts['m']
     elif opt == 'e':
-        args[embedded_nam] = opts['e']
+        args[embedded_nam] = cmd_opts['e']
     elif opt == 's':
-        args[standalone_nam] = opts['s']
+        args[standalone_nam] = cmd_opts['s']
     elif opt == 'c':
-        args[containers_nam] = opts['c']
+        args[containers_nam] = cmd_opts['c']
     elif opt == 'p':
         args[portkill_nam] = 1
     elif opt == 'k':
@@ -344,7 +344,7 @@ for opt in opts:
     pass
 
 # 'terminal' must be processed in the end: to deny any 'gui' options
-if 't' in opts:
+if 't' in cmd_opts:
     args[gui_nam] = 0
     pass
 
