@@ -51,6 +51,14 @@
   if (PyDict_Check($input) == 1)
     {
       Engines::MachineParameters *param = new Engines::MachineParameters ;
+      param->container_name = CORBA::string_dup("");
+      param->hostname = CORBA::string_dup("");
+      param->OS = CORBA::string_dup("");
+      param->mem_mb = 0;
+      param->cpu_clock = 0;
+      param->nb_proc_per_node = 0;
+      param->nb_node = 0;
+      param->isMPI = false;
       PyObject *key, *value;
       int pos = 0;
       while (PyDict_Next($input, &pos, &key, &value))
@@ -84,6 +92,10 @@
 	  else if (strcmp(keystr,"nb_node")==0)
 	    {
 	      param->nb_node = PyLong_AsLong(value);
+	    }
+	  else if (strcmp(keystr,"isMPI")==0)
+	    {
+	      param->isMPI = PyLong_AsLong(value);
 	    }
 	}
       $1 = param;

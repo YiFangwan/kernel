@@ -21,6 +21,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "utilities.h"
 
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
@@ -35,8 +36,12 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb,const char *
 SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb)
 {
   _NS=new SALOME_NamingService(orb);
-  _path_resources=getenv("KERNEL_ROOT_DIR");
-  _path_resources+="/share/salome/resources/CatalogResources.xml";
+//   _path_resources=getenv("KERNEL_ROOT_DIR");
+//   _path_resources+="/share/salome/resources/CatalogResources.xml";
+  _path_resources=getenv("HOME");
+  _path_resources+="/";
+  _path_resources+=getenv("APPLI");
+  _path_resources+="/CatalogResources.xml";
   ParseXmlFile();
 }
 
@@ -52,11 +57,10 @@ vector<string> SALOME_ResourcesManager::GetFittingResources(const Engines::Machi
   //To be sure that we search in a correct list.
   ParseXmlFile();
   const char *hostname=(const char *)params.hostname;
-  MESSAGE("ResourcesManager::GetFittingResources" << hostname << GetHostname().c_str());
+  MESSAGE("GetFittingResources " << hostname << "" << GetHostname().c_str());
   if(hostname[0]!='\0')
     {
   MESSAGE("ResourcesManager::GetFittingResources : hostname specified" );
-  cout << "hostname specified" << endl;
       if( strcmp(hostname,"localhost") == 0 || strcmp(hostname,GetHostname().c_str()) == 0 ){
         MESSAGE("ResourcesManager::GetFittingResources : localhost" );
 	ret.push_back(GetHostname().c_str());
@@ -209,27 +213,27 @@ bool isPythonContainer(const char* ContainerName)
 
 string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const string& machine,const Engines::MachineParameters& params)
 {
-  _TmpFileName=BuildTemporaryFileName();
-  ofstream tempOutputFile;
-  tempOutputFile.open(_TmpFileName.c_str(),ofstream::out );
+//   _TmpFileName=BuildTemporaryFileName();
+//   ofstream tempOutputFile;
+//   tempOutputFile.open(_TmpFileName.c_str(),ofstream::out );
   const ParserResourcesType& resInfo=_resourcesList[machine];
-  tempOutputFile << "#! /bin/sh" << endl;
-  //set env vars
-  for(map<string,string>::const_iterator iter=resInfo.ModulesPath.begin();iter!=resInfo.ModulesPath.end();iter++)
-    {
-      string curModulePath((*iter).second);
-      tempOutputFile << (*iter).first << "_ROOT_DIR="<< curModulePath << endl;
-      tempOutputFile << "export " << (*iter).first << "_ROOT_DIR" << endl;
-      tempOutputFile << "LD_LIBRARY_PATH=" << curModulePath << "/lib/salome" << ":${LD_LIBRARY_PATH}" << endl;
-      tempOutputFile << "PYTHONPATH=" << curModulePath << "/bin/salome:" << curModulePath << "/lib/salome:" << curModulePath << "/lib/python2.2/site-packages/salome:";
-      tempOutputFile << curModulePath << "/lib/python2.2/site-packages/salome/shared_modules:${PYTHONPATH}" << endl;
-    }
-  tempOutputFile << "export LD_LIBRARY_PATH" << endl;
-  tempOutputFile << "export PYTHONPATH" << endl;
-  tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
-  // ! env vars
+//   tempOutputFile << "#! /bin/sh" << endl;
+//   //set env vars
+//   for(map<string,string>::const_iterator iter=resInfo.ModulesPath.begin();iter!=resInfo.ModulesPath.end();iter++)
+//     {
+//       string curModulePath((*iter).second);
+//       tempOutputFile << (*iter).first << "_ROOT_DIR="<< curModulePath << endl;
+//       tempOutputFile << "export " << (*iter).first << "_ROOT_DIR" << endl;
+//       tempOutputFile << "LD_LIBRARY_PATH=" << curModulePath << "/lib/salome" << ":${LD_LIBRARY_PATH}" << endl;
+//       tempOutputFile << "PYTHONPATH=" << curModulePath << "/bin/salome:" << curModulePath << "/lib/salome:" << curModulePath << "/lib/python2.2/site-packages/salome:";
+//       tempOutputFile << curModulePath << "/lib/python2.2/site-packages/salome/shared_modules:${PYTHONPATH}" << endl;
+//     }
+//   tempOutputFile << "export LD_LIBRARY_PATH" << endl;
+//   tempOutputFile << "export PYTHONPATH" << endl;
+//   tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
+//   // ! env vars
   if(params.isMPI){
-    tempOutputFile << "mpirun -np ";
+//     tempOutputFile << "mpirun -np ";
     int nbproc;
     if( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
       nbproc = 1;
@@ -239,56 +243,67 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
       nbproc = params.nb_node;
     else
       nbproc = params.nb_node * params.nb_proc_per_node;
-    std::ostringstream o;
-    tempOutputFile << nbproc << " ";
-  }
-  tempOutputFile << (*(resInfo.ModulesPath.find("KERNEL"))).second << "/bin/salome/";
-  if(params.isMPI){
-    if(isPythonContainer(params.container_name))
-      tempOutputFile << "pyMPI SALOME_ContainerPy.py ";
-    else
-      tempOutputFile << "SALOME_MPIContainer ";
-  }
-  else{
-    if(isPythonContainer(params.container_name))
-      tempOutputFile << "SALOME_ContainerPy.py ";
-    else
-      tempOutputFile << "SALOME_Container ";
-  }
-  tempOutputFile << _NS->ContainerName(params) << " -";
-  AddOmninamesParams(tempOutputFile);
-  tempOutputFile << " &" << endl;
-  tempOutputFile.flush();
-  tempOutputFile.close();
-  chmod(_TmpFileName.c_str(),0x1ED);
+//     std::ostringstream o;
+//     tempOutputFile << nbproc << " ";
+   }
+//   tempOutputFile << (*(resInfo.ModulesPath.find("KERNEL"))).second << "/bin/salome/";
+//   if(params.isMPI){
+//     if(isPythonContainer(params.container_name))
+//       tempOutputFile << "pyMPI SALOME_ContainerPy.py ";
+//     else
+//       tempOutputFile << "SALOME_MPIContainer ";
+//   }
+//   else{
+//     if(isPythonContainer(params.container_name))
+//       tempOutputFile << "SALOME_ContainerPy.py ";
+//     else
+//       tempOutputFile << "SALOME_Container ";
+//   }
+//   tempOutputFile << _NS->ContainerName(params) << " -";
+//   AddOmninamesParams(tempOutputFile);
+//   tempOutputFile << " &" << endl;
+//   tempOutputFile.flush();
+//   tempOutputFile.close();
+//   chmod(_TmpFileName.c_str(),0x1ED);
   //Build command
   string command;
   if(resInfo.Protocol==rsh)
     {
       command = "rsh ";
-      string commandRcp="rcp ";
-      commandRcp+=_TmpFileName;
-      commandRcp+=" ";
-      commandRcp+=machine;
-      commandRcp+=":";
-      commandRcp+=_TmpFileName;
-      system(commandRcp.c_str());
+//       string commandRcp="rcp ";
+//       commandRcp+=_TmpFileName;
+//       commandRcp+=" ";
+//       commandRcp+=machine;
+//       commandRcp+=":";
+//       commandRcp+=_TmpFileName;
+//       system(commandRcp.c_str());
     }
   else if(resInfo.Protocol==ssh)
     command = "ssh ";
   else
     throw SALOME_Exception("Unknown protocol");
-  command+=machine;
-  _CommandForRemAccess=command;
-  command+=" ";
-  command+=_TmpFileName;
-  command += " > ";
-  command += "/tmp/";
+//   command+=machine;
+//   _CommandForRemAccess=command;
+//   command+=" ";
+//   command+=_TmpFileName;
+//   command += " > ";
+//   command += "/tmp/";
+//   command += _NS->ContainerName(params);
+//   command += "_";
+//   command += machine;
+//   command += ".log 2>&1 &";
+//   cout << "Command is ... " << command << endl;
+  command += machine; // on suppose le même user par defaut
+  command += " ";
+  command += getenv("APPLI"); // chemin relatif a $HOME
+  command += "/runRemote.sh ";
+  command += GetHostname();  // ********** A CHANGER, le naming service n'est pas obligatoirement ici
+  command += " ";
+  command += getenv("NSPORT");
+  command += " SALOME_Container ";
   command += _NS->ContainerName(params);
-  command += "_";
-  command += machine;
-  command += ".log 2>&1 &";
-  cout << "Command is ... " << command << endl;
+  command += "&";
+  MESSAGE("command =" << command);
   return command;
 }
 

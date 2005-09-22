@@ -15,6 +15,15 @@ using namespace std;
 const char *SALOME_ContainerManager::_ContainerManagerNameInNS = 
   "/ContainerManager";
 
+//=============================================================================
+/*! 
+ *  Constructor
+ *  \param orb
+ *  Define a CORBA single thread policy for the server, which avoid to deal
+ *  with non thread-safe usage like Change_Directory in SALOME naming service
+ */
+//=============================================================================
+
 SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
 {
   MESSAGE("constructor");
@@ -42,12 +51,24 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
   MESSAGE("constructor end");
 }
 
+//=============================================================================
+/*! 
+ * destructor
+ */
+//=============================================================================
+
 SALOME_ContainerManager::~SALOME_ContainerManager()
 {
   MESSAGE("destructor");
   delete _NS;
   delete _ResManager;
 }
+
+//=============================================================================
+/*! CORBA method:
+ *  shutdown all the containers, then the ContainerManager servant
+ */
+//=============================================================================
 
 void SALOME_ContainerManager::Shutdown()
 {
@@ -58,6 +79,12 @@ void SALOME_ContainerManager::Shutdown()
   _remove_ref();
   
 }
+
+//=============================================================================
+/*! CORBA Method:
+ *  Loop on all the containers listed in naming service, ask shutdown on each
+ */
+//=============================================================================
 
 void SALOME_ContainerManager::ShutdownContainers()
 {
@@ -73,6 +100,14 @@ void SALOME_ContainerManager::ShutdownContainers()
 	cont->Shutdown();
     }
 }
+
+//=============================================================================
+/*! CORBA Method:
+ *  Find a suitable Container in a list of machines, or start one
+ *  \param params            Machine Parameters required for the container
+ *  \param possibleComputers list of machines usable for find or start
+ */
+//=============================================================================
 
 Engines::Container_ptr
 SALOME_ContainerManager::
@@ -145,6 +180,12 @@ FindOrStartContainer(const Engines::MachineParameters& params,
     }
 }
 
+//=============================================================================
+/*! 
+ * 
+ */
+//=============================================================================
+
 Engines::MachineList *
 SALOME_ContainerManager::
 GetFittingResources(const Engines::MachineParameters& params,
@@ -174,6 +215,12 @@ GetFittingResources(const Engines::MachineParameters& params,
   return ret;
 }
 
+//=============================================================================
+/*! 
+ * 
+ */
+//=============================================================================
+
 char*
 SALOME_ContainerManager::
 FindBest(const Engines::MachineList& possibleComputers)
@@ -181,6 +228,12 @@ FindBest(const Engines::MachineList& possibleComputers)
   string theMachine=_ResManager->FindBest(possibleComputers);
   return CORBA::string_dup(theMachine.c_str());
 }
+
+//=============================================================================
+/*! 
+ * 
+ */
+//=============================================================================
 
 Engines::Container_ptr
 SALOME_ContainerManager::
@@ -194,6 +247,12 @@ FindContainer(const Engines::MachineParameters& params,
   else
     return Engines::Container::_nil();
 }
+
+//=============================================================================
+/*! 
+ * 
+ */
+//=============================================================================
 
 Engines::Container_ptr
 SALOME_ContainerManager::
