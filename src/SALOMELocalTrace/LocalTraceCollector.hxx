@@ -42,7 +42,6 @@ class SALOMELOCALTRACE_EXPORT LocalTraceCollector
  protected:
   LocalTraceCollector();
 
- private:
   static int _threadToClose;
   static int _toFile;
   static LocalTraceCollector* _singleton;

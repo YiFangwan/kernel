@@ -9,7 +9,7 @@ int main(int argc, char* argv[])
   CORBA::Object_var obj;
 
   CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
-  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
   try{ 

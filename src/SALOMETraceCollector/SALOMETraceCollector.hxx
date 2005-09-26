@@ -29,9 +29,11 @@
 
 #include <string>
 #include <CORBA.h>
+#include "LocalTraceCollector.hxx"
 #include "LocalTraceBufferPool.hxx"
 
-//! See LocalTraceCollector instead of SALOMETraceCollector for usage without CORBA
+//! See LocalTraceCollector instead of SALOMETraceCollector,
+//! for usage without CORBA
 
 #if defined SALOMETRACECOLLECTOR_EXPORTS
 #if defined WIN32
@@ -47,10 +49,10 @@
 #endif
 #endif
 
-class SALOMETRACECOLLECTOR_EXPORT SALOMETraceCollector
+class SALOMETRACECOLLECTOR_EXPORT SALOMETraceCollector:  LocalTraceCollector
 {
  public:
-  static SALOMETraceCollector* instance(CORBA::ORB_ptr theOrb, int typeTrace=0);
+  static LocalTraceCollector* instance(CORBA::ORB_ptr theOrb, int typeTrace=0);
   static void *run(void *bid);
   ~SALOMETraceCollector();
 
@@ -58,12 +60,6 @@ class SALOMETRACECOLLECTOR_EXPORT SALOMETraceCollector
   SALOMETraceCollector();
 
  private:
-  static int _threadToClose;
-  static int _toFile;
-  static SALOMETraceCollector* _singleton;
-  static pthread_mutex_t _singletonMutex;
-  static pthread_t* _threadId;
-  static std::string _fileName;
   static CORBA::ORB_ptr _orb;
 };
 

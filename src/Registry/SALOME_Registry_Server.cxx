@@ -54,7 +54,7 @@ int main( int argc , char **argv )
 {
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var &orb = init( argc , argv ) ;
-  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   BEGIN_OF( argv[0] )
     INFOS_COMPILATION 
     SCRUTE(argc) 

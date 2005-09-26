@@ -40,16 +40,6 @@ using namespace std;
 
 // Class attributes initialisation, for class method SALOMETraceCollector::run
 
-SALOMETraceCollector* SALOMETraceCollector::_singleton = 0;
-#ifndef WNT
-pthread_mutex_t SALOMETraceCollector::_singletonMutex;
-#else
-pthread_mutex_t SALOMETraceCollector::_singletonMutex = PTHREAD_MUTEX_INITIALIZER;
-#endif
-int SALOMETraceCollector::_threadToClose = 0;
-pthread_t* SALOMETraceCollector::_threadId = 0; // used to control single run
-int SALOMETraceCollector::_toFile = 0;
-std::string SALOMETraceCollector::_fileName = "";
 CORBA::ORB_ptr SALOMETraceCollector::_orb = 0;
 
 // ============================================================================
@@ -68,7 +58,7 @@ CORBA::ORB_ptr SALOMETraceCollector::_orb = 0;
  */
 // ============================================================================
 
-SALOMETraceCollector* SALOMETraceCollector::instance(CORBA::ORB_ptr theOrb,
+LocalTraceCollector* SALOMETraceCollector::instance(CORBA::ORB_ptr theOrb,
 						   int typeTrace)
 {
   if (_singleton == 0) // no need of lock when singleton already exists

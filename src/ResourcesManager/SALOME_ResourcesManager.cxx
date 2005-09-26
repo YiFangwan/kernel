@@ -282,6 +282,7 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
     command = "ssh ";
   else
     throw SALOME_Exception("Unknown protocol");
+   
 //   command+=machine;
 //   _CommandForRemAccess=command;
 //   command+=" ";
@@ -293,6 +294,7 @@ string SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer(const strin
 //   command += machine;
 //   command += ".log 2>&1 &";
 //   cout << "Command is ... " << command << endl;
+
   command += machine; // on suppose le même user par defaut
   command += " ";
   command += getenv("APPLI"); // chemin relatif a $HOME

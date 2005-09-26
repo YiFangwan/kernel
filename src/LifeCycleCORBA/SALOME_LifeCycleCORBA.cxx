@@ -73,7 +73,7 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
   char *xargv = "";
   char **argv = &xargv;
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
-  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   if (!ns)
     {
       _NS = new SALOME_NamingService(orb);

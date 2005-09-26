@@ -41,7 +41,7 @@ int main(int argc,char **argv)
 {
   // initialize the ORB
   CORBA::ORB_ptr orb = CORBA::ORB_init (argc, argv);
-  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   try 
     {
       CosNaming::NamingContext_var _rootContext, catalogContext;
