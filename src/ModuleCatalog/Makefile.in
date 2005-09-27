@@ -61,8 +61,8 @@ BIN_SRC =
 BIN_SERVER_IDL = SALOME_ModuleCatalog.idl SALOME_Exception.idl
 
 CPPFLAGS+= $(QT_MT_INCLUDES) 
-LDFLAGS+= $(QT_MT_LIBS) -lSalomeNS -lSALOMELocalTrace -lSALOMETraceCollector -lOpUtil
-LDFLAGSFORBIN+=  -lSalomeNS -lSALOMELocalTrace -lSALOMETraceCollector -lOpUtil
+LDFLAGS+= $(QT_MT_LIBS) -lSalomeNS -lSALOMELocalTrace -lOpUtil
+LDFLAGSFORBIN+=  -lSalomeNS -lSALOMELocalTrace -lOpUtil
 
 
 @CONCLUDE@

@@ -19,49 +19,46 @@
 //
 //
 //
-//  File   : SALOMETraceCollector.hxx
+//  File   : BaseTraceCollector.hxx
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
 //  $Header$
 
-#ifndef _SALOMETRACECOLLECTOR_HXX_
-#define _SALOMETRACECOLLECTOR_HXX_
+#ifndef _BASETRACECOLLECTOR_HXX_
+#define _BASETRACECOLLECTOR_HXX_
 
-#include <string>
-#include <CORBA.h>
-#include "BaseTraceCollector.hxx"
-#include "LocalTraceBufferPool.hxx"
+#include <pthread.h>
 
-//! See LocalTraceCollector instead of SALOMETraceCollector,
-//! for usage without CORBA
 
-#if defined SALOMETRACECOLLECTOR_EXPORTS
+#if defined SALOMELOCALTRACE_EXPORTS
 #if defined WIN32
-#define SALOMETRACECOLLECTOR_EXPORT __declspec( dllexport )
+#define SALOMELOCALTRACE_EXPORT __declspec( dllexport )
 #else
-#define SALOMETRACECOLLECTOR_EXPORT
+#define SALOMELOCALTRACE_EXPORT
 #endif
 #else
 #if defined WNT
-#define SALOMETRACECOLLECTOR_EXPORT __declspec( dllimport )
+#define SALOMELOCALTRACE_EXPORT __declspec( dllimport )
 #else
-#define SALOMETRACECOLLECTOR_EXPORT
+#define SALOMELOCALTRACE_EXPORT
 #endif
 #endif
 
-class SALOMETRACECOLLECTOR_EXPORT SALOMETraceCollector:
-  public BaseTraceCollector
+//! See derived Classes in SALOMELocalTrace for usage without CORBA,
+//! see derived Classes in SALOMETraceCollector for usage with CORBA.
+
+class SALOMELOCALTRACE_EXPORT BaseTraceCollector
 {
  public:
-  static BaseTraceCollector* instance();
-  static void *run(void *bid);
-  ~SALOMETraceCollector();
+  ~BaseTraceCollector();
 
  protected:
-  SALOMETraceCollector();
+  BaseTraceCollector();
 
- private:
-  static CORBA::ORB_ptr _orb;
+  static int _threadToClose;
+  static BaseTraceCollector* _singleton;
+  static pthread_mutex_t _singletonMutex;
+  static pthread_t* _threadId;
 };
 
 #endif

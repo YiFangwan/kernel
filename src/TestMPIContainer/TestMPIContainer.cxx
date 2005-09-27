@@ -29,7 +29,7 @@ int main (int argc, char * argv[])
   // Initializing omniORB
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var &orb = init( argc , argv ) ;
-  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  //  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
     
   BEGIN_OF(argv[0])
   try{
@@ -133,6 +133,6 @@ int main (int argc, char * argv[])
   }
 
   END_OF(argv[0]);
-  delete myThreadTrace;
+  //  delete myThreadTrace;
   return 0 ;
 }

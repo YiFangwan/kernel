@@ -30,25 +30,10 @@
 
 #include <pthread.h>
 #include <semaphore.h>
+#include "BaseTraceCollector.hxx"
 
 #define ABORT_MESS  1   // for traceType field in struct LocalTrace_TraceInfo
 #define NORMAL_MESS 0
-
-#if defined SALOMELOCALTRACE_EXPORTS
-#if defined WIN32
-#define SALOMELOCALTRACE_EXPORT __declspec( dllexport )
-#else
-#define SALOMELOCALTRACE_EXPORT
-#endif
-#else
-#if defined WNT
-#define SALOMELOCALTRACE_EXPORT __declspec( dllimport )
-#else
-#define SALOMELOCALTRACE_EXPORT
-#endif
-#endif
-
-
 
 struct SALOMELOCALTRACE_EXPORT LocalTrace_TraceInfo
 {
@@ -82,6 +67,7 @@ class SALOMELOCALTRACE_EXPORT LocalTraceBufferPool
   unsigned long _insertPos;
   unsigned long _retrievePos;
   pthread_t _threadId;
+  static BaseTraceCollector *_myThreadTrace;
 };
 
 #endif

@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   CORBA::ORB_var orb = init(0 , 0 ) ;
 	  
-  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
 
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
 #endif
 
   END_OF(argv[0]);
-  delete myThreadTrace;
+  //  delete myThreadTrace;
   return 0 ;
 }
 

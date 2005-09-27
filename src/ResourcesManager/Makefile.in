@@ -59,7 +59,7 @@ BIN_SERVER_IDL = SALOME_ContainerManager.idl
 
 CPPFLAGS+= $(QT_MT_INCLUDES) -I$(srcdir)/../Container
 CXXFLAGS+= 
-LDFLAGS+= $(QT_MT_LIBS) $(OGL_LIBS) -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSALOMETraceCollector
+LDFLAGS+= $(QT_MT_LIBS) $(OGL_LIBS) -lSalomeNS -lOpUtil -lSALOMELocalTrace 
 
 @CONCLUDE@
 

@@ -41,7 +41,7 @@ int main(int argc,char **argv)
 {
   // initialize the ORB
   CORBA::ORB_ptr orb = CORBA::ORB_init (argc, argv);
-  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   try 
     {
       CosNaming::NamingContext_var _rootContext, catalogContext;
@@ -174,6 +174,6 @@ int main(int argc,char **argv)
     INFOS("Caught CORBA::Exception.")
       }
 
-  delete myThreadTrace;
+  //  delete myThreadTrace;
   return 0;
 }

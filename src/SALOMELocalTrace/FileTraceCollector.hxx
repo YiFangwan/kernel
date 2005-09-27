@@ -19,49 +19,32 @@
 //
 //
 //
-//  File   : SALOMETraceCollector.hxx
+//  File   : FileTraceCollector.hxx
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
 //  $Header$
 
-#ifndef _SALOMETRACECOLLECTOR_HXX_
-#define _SALOMETRACECOLLECTOR_HXX_
+#ifndef _FILETRACECOLLECTOR_HXX_
+#define _FILETRACECOLLECTOR_HXX_
 
 #include <string>
-#include <CORBA.h>
-#include "BaseTraceCollector.hxx"
 #include "LocalTraceBufferPool.hxx"
+#include "BaseTraceCollector.hxx"
 
-//! See LocalTraceCollector instead of SALOMETraceCollector,
-//! for usage without CORBA
+//! See also other derived Classes in SALOMELocalTrace for usage without CORBA,
+//! see also derived Classes in SALOMETraceCollector for usage with CORBA.
 
-#if defined SALOMETRACECOLLECTOR_EXPORTS
-#if defined WIN32
-#define SALOMETRACECOLLECTOR_EXPORT __declspec( dllexport )
-#else
-#define SALOMETRACECOLLECTOR_EXPORT
-#endif
-#else
-#if defined WNT
-#define SALOMETRACECOLLECTOR_EXPORT __declspec( dllimport )
-#else
-#define SALOMETRACECOLLECTOR_EXPORT
-#endif
-#endif
-
-class SALOMETRACECOLLECTOR_EXPORT SALOMETraceCollector:
-  public BaseTraceCollector
+class SALOMELOCALTRACE_EXPORT FileTraceCollector : public BaseTraceCollector
 {
  public:
-  static BaseTraceCollector* instance();
+  static BaseTraceCollector* instance(const char *fileName);
   static void *run(void *bid);
-  ~SALOMETraceCollector();
+  ~FileTraceCollector();
 
  protected:
-  SALOMETraceCollector();
+  FileTraceCollector();
 
- private:
-  static CORBA::ORB_ptr _orb;
+  static std::string _fileName;
 };
 
 #endif

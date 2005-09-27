@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
   // Initialise the ORB.
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var &orb = init( argc , argv ) ;
-  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  //  SALOMETraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
  
   BEGIN_OF("[" << numproc << "] " << argv[0])
   try {
@@ -90,7 +90,7 @@ int main(int argc, char* argv[])
     delete myContainer;
 
   END_OF("[" << numproc << "] " << argv[0]);
-  delete myThreadTrace;
+  //  delete myThreadTrace;
 
   MPI_Finalize();
 

@@ -133,7 +133,7 @@ def set_env(args, modules_list, modules_root_dir):
     
     os.environ["SALOME_trace"]="local"
     if args['file']:
-        os.environ["SALOME_trace"]=args['file'][0]
+        os.environ["SALOME_trace"]="file:"+args['file'][0]
     if args['logger']:
         os.environ["SALOME_trace"]="with_logger"
         locdir=os.environ['PWD']

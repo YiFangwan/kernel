@@ -82,7 +82,7 @@ int main (int argc, char * argv[])
   // Initializing omniORB
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   CORBA::ORB_var &orb = init( argc , argv ) ;
-  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
 
   try
     {
@@ -194,7 +194,7 @@ int main (int argc, char * argv[])
     INFOS("Caught unknown exception.")
       }
 
-  delete myThreadTrace;
+  //  delete myThreadTrace;
   return 0;
 }
 

@@ -26,26 +26,65 @@
 
 #include <iostream>
 #include <limits.h>
+#include <cassert>
+
+#ifndef WNT
+#include <dlfcn.h>
+#else
+#endif
 
 #include "LocalTraceBufferPool.hxx"
+#include "BaseTraceCollector.hxx"
+#include "LocalTraceCollector.hxx"
+#include "FileTraceCollector.hxx"
+//#include "Utils_DESTRUCTEUR_GENERIQUE.hxx"
 #include "utilities.h"
+
+//! specialisation template...
+
+// void DESTRUCTEUR_DE_<LocalTraceBufferPool>::operator()(void)
+// {
+//   if(_PtrObjet)
+//     {
+//       std::cerr << "deleting _PtrObjet LocalTraceBufferPool" << std::endl;
+//       LocalTraceBufferPool* aPtr =
+// 	static_cast<LocalTraceBufferPool*>(_PtrObjet);
+//       delete aPtr;
+//     }
+//       _PtrObjet = NULL ;
+// }
 
 using namespace std;
 
 // In case of truncated message, end of trace contains "...\n\0"
+
 #define TRUNCATED_MESSAGE "...\n"
 #define MAXMESS_LENGTH MAX_TRACE_LENGTH-5
+
+// Class static attributes initialisation
 
 LocalTraceBufferPool* LocalTraceBufferPool::_singleton = 0;
 #ifndef WNT
 pthread_mutex_t LocalTraceBufferPool::_singletonMutex;
 #else
-pthread_mutex_t LocalTraceBufferPool::_singletonMutex = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t LocalTraceBufferPool::_singletonMutex =
+  PTHREAD_MUTEX_INITIALIZER;
 #endif
+BaseTraceCollector *LocalTraceBufferPool::_myThreadTrace = 0;
 
 // ============================================================================
 /*!
- *  guarantees a unique object instance of the class (singleton thread safe)
+ *  Guarantees a unique object instance of the class (singleton thread safe).
+ *  When the LocalTraceBufferPool instance is created, the trace collector is
+ *  also created (singleton). Type of trace collector to create depends on 
+ *  environment variable "SALOME_trace":
+ *  - "local" implies standard err trace, LocalTraceCollector is launched.
+ *  - "file" implies trace in /tmp/tracetest.log
+ *  - "file:pathname" implies trace in file pathname
+ *  - anything else like "other" : try to load dynamically a library named
+ *    otherTraceCollector, and invoque C method instance() to start a singleton
+ *    instance of the trace collector. Example: with_loggerTraceCollector, for
+ *    CORBA Log.
  */
 // ============================================================================
 
@@ -58,6 +97,63 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
       if (_singleton == 0)                     // another thread may have got
 	{                                      // the lock after the first test
 	  _singleton = new LocalTraceBufferPool(); 
+
+// 	  DESTRUCTEUR_DE_<LocalTraceBufferPool> *ptrDestroy =
+// 	    new DESTRUCTEUR_DE_<LocalTraceBufferPool> (*_singleton);
+
+	  // --- start a trace Collector
+
+	  char* traceKind = getenv("SALOME_trace");
+	  assert(traceKind);
+	  cout<<"SALOME_trace="<<traceKind<<endl;
+
+	  if (strcmp(traceKind,"local")==0)
+	    {
+	      _myThreadTrace = LocalTraceCollector::instance();
+	    }
+	  else if (strncmp(traceKind,"file",strlen("file"))==0)
+	    {
+	      char *fileName;
+	      if (strlen(traceKind) > strlen("file"))
+		fileName = &traceKind[strlen("file")+1];
+	      else
+		fileName = "/tmp/tracetest.log";
+	      
+	      _myThreadTrace = FileTraceCollector::instance(fileName);
+	    }
+	  else // --- try a dynamic library
+	    {
+	      void* handle;
+#ifndef WNT
+	      string impl_name = string ("lib") + traceKind 
+		+ string("TraceCollector.so");
+	      handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+#else
+	      string impl_name = string ("lib") + traceKind + string(".dll");
+	      handle = dlopen( impl_name.c_str() , 0 ) ;
+#endif
+	      if ( handle )
+		{
+		  typedef BaseTraceCollector * (*FACTORY_FUNCTION) (void);
+		  FACTORY_FUNCTION TraceCollectorFactory =
+		    (FACTORY_FUNCTION) dlsym(handle, "SingletonInstance");
+		  char *error ;
+		  if ( (error = dlerror() ) != NULL)
+		    {
+		      cerr << "Can't resolve symbol: SingletonInstance" <<endl;
+		      cerr << "dlerror: " << error << endl;
+		      assert(error == NULL); // to give file and line
+		      exit(1);               // in case assert is deactivated
+		    }
+		  _myThreadTrace = (TraceCollectorFactory) ();
+		}
+	      else
+		{
+		  cerr << "library: " << impl_name << " not found !" << endl;
+		  assert(handle); // to give file and line
+		  exit(1);        // in case assert is deactivated
+		}	      
+	    }
 	}
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
@@ -198,10 +294,13 @@ LocalTraceBufferPool::LocalTraceBufferPool()
 
 LocalTraceBufferPool::~LocalTraceBufferPool()
 {
+  cerr << "LocalTraceBufferPool::~LocalTraceBufferPool()" << endl << flush;
+  delete (_myThreadTrace);
   int ret;
   ret=sem_destroy(&_freeBufferSemaphore);
   ret=sem_destroy(&_fullBufferSemaphore);
   ret=pthread_mutex_destroy(&_incrementMutex);
+  cerr << "LocalTraceBufferPool::~LocalTraceBufferPool()" << endl << flush;
 }
 
 // ============================================================================

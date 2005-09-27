@@ -33,15 +33,6 @@ using namespace std;
 
 #include "LocalTraceCollector.hxx"
 
-// Class attributes initialisation, for class method LocalTraceCollector::run
-
-LocalTraceCollector* LocalTraceCollector::_singleton = 0;
-pthread_mutex_t LocalTraceCollector::_singletonMutex;
-int LocalTraceCollector::_threadToClose = 0;
-pthread_t* LocalTraceCollector::_threadId = 0; // used to control single run
-int LocalTraceCollector::_toFile = 0;
-std::string LocalTraceCollector::_fileName = "";
-
 // ============================================================================
 /*!
  *  This class is for use without CORBA, outside SALOME.
@@ -57,7 +48,7 @@ std::string LocalTraceCollector::_fileName = "";
  */
 // ============================================================================
 
-LocalTraceCollector* LocalTraceCollector::instance(int typeTrace)
+BaseTraceCollector* LocalTraceCollector::instance()
 {
   if (_singleton == 0) // no need of lock when singleton already exists
     {
@@ -66,28 +57,6 @@ LocalTraceCollector* LocalTraceCollector::instance(int typeTrace)
       if (_singleton == 0)                     // another thread may have got
 	{                                      // the lock after the first test
 	  _singleton = new LocalTraceCollector();
-
-	  _fileName = "/tmp/tracetest.log";
-	  _toFile=0;
-
-	  if (typeTrace)       // caller sets a value different from default=0
-	    _toFile = typeTrace; 
-	  else                 // check environment
-	    {
-	      char* traceKind = getenv("SALOME_trace");
-	      //cout<<"SALOME_trace="<<traceKind<<endl;
-	      if (traceKind)
-		{
-		  if (strcmp(traceKind,"local")==0) _toFile=0;
-
-		  else
-		    {
-		      _toFile=1;
-		      _fileName = traceKind;
-		    }	    
-		}
-	    }
-	  //cout <<"_toFile: "<<_toFile<<" _fileName: "<<_fileName<<endl;
 
 	  pthread_t traceThread;
 	  int bid;
@@ -114,6 +83,7 @@ void* LocalTraceCollector::run(void *bid)
 {
   int isOKtoRun = 0;
   int ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+
   if (! _threadId)  // only one run
     {
       isOKtoRun = 1;
@@ -123,104 +93,51 @@ void* LocalTraceCollector::run(void *bid)
       *_threadId = pthread_self();
     }
   else cout << "----- Comment est-ce possible de passer la ? -------" <<endl;
+
   ret = pthread_mutex_unlock(&_singletonMutex); // release lock
 
   if (isOKtoRun)
     { 
-      if(_threadId == 0) {
-	_threadId = new pthread_t;
-      }
+      if(_threadId == 0) 
+	{
+	  _threadId = new pthread_t;
+	}
 
       *_threadId = pthread_self();
       LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
       LocalTrace_TraceInfo myTrace;
 
-      // if trace in file requested, opens a file with append mode
-      // so, several processes can share the same file
-
-
-      ofstream traceFile;
-
-      switch (_toFile)
-	{
-	case 1 :  // --- trace to file
-	  {
-	    const char *fileName = _fileName.c_str();
-	    traceFile.open(fileName, ios::out | ios::app);
-	    if (!traceFile)
-	      {
-		cerr << "impossible to open trace file "<< fileName << endl;
-		exit (1);
-	      }
-	  }
-	  break;
-
-	case 0 : ; // --- trace to standard output
-	default :  // --- on standard output, too
-	  break;
-	}
-
-      // Loop until there is no more buffer to print,
-      // and no ask for end from destructor.
+      // --- Loop until there is no more buffer to print,
+      //     and no ask for end from destructor.
 
       while ((!_threadToClose) || myTraceBuffer->toCollect() )
 	{
 	  int fullBuf = myTraceBuffer->retrieve(myTrace);
 	  if (myTrace.traceType == ABORT_MESS)
 	    {
-	      switch (_toFile)
-		{
-		case 1 :  // --- trace to file
+	      cout << flush ;
 #ifndef WNT
-		  traceFile << "INTERRUPTION from thread " << myTrace.threadId
-        << " : " <<  myTrace.trace;
+	      cerr << "INTERRUPTION from thread " << myTrace.threadId
+		   << " : " <<  myTrace.trace;
 #else
-		  traceFile << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
-        << " : " <<  myTrace.trace;
+	      cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+		   << " : " <<  myTrace.trace;
 #endif
-		  traceFile.close();
-		  // no break here !
-		case 0 :  // --- trace to standard output
-		default : // --- on standard output, too
-		  cout << flush ;
-#ifndef WNT
-		  cerr << "INTERRUPTION from thread " << myTrace.threadId
-		       << " : " <<  myTrace.trace;
-#else
-		  cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
-		       << " : " <<  myTrace.trace;
-#endif
-      cerr << flush ; 
-		  exit(1);     
-		  break;
-		}
+	      cerr << flush ; 
+	      exit(1);     
 	    }
 	  else
 	    {
-	      switch (_toFile)
-		{
-		case 1 :  // --- trace to file
+	      cout << flush ;
 #ifndef WNT
-      traceFile << "th. " << myTrace.threadId
-			    << " " << myTrace.trace;
+	      cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
 #else
-      traceFile << "th. " << (void*)(&myTrace.threadId)
-			    << " " << myTrace.trace;
+	      cerr << "th. " << (void*)(&myTrace.threadId)
+		   << " " << myTrace.trace;
 #endif
-		  break;
-		case 0 :  // --- trace to standard output
-		default : // --- on standard output, too
-#ifndef WNT
-		  cout << "th. " << myTrace.threadId << " " << myTrace.trace;
-#else
-		  cout << "th. " << (void*)(&myTrace.threadId) << " " << myTrace.trace;
-#endif
-		  break;
-		}
+	      cerr << flush ; 
 	    }
 	}
-
-      if (_toFile==1) traceFile.close();
     }
   pthread_exit(NULL);
   return NULL;
@@ -234,16 +151,7 @@ void* LocalTraceCollector::run(void *bid)
 
 LocalTraceCollector:: ~LocalTraceCollector()
 {
-  LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
-  _threadToClose = 1;
-  myTraceBuffer->insert(NORMAL_MESS,"end of trace "); //needed to wake up thread
-  if (_threadId)
-    {
-      int ret = pthread_join(*_threadId, NULL);
-      if (ret) cout << "error close LocalTraceCollector : "<< ret << endl;
-      else cout << "LocalTraceCollector destruction OK" << endl;
-    }
-  delete myTraceBuffer;
+  cerr << "LocalTraceCollector:: ~LocalTraceCollector()" << endl << flush;
 }
 
 // ============================================================================
