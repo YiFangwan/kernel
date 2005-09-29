@@ -322,31 +322,31 @@ Handle(TColStd_HSequenceOfTransient) SALOMEDSImpl_StudyManager::GetOpenStudies()
  *  Purpose  : Get a study from its name
  */
 //============================================================================
-Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::GetStudyByName(const TCollection_AsciiString& aStudyName)
+Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::GetStudyByName
+                                   (const TCollection_AsciiString& aStudyName)
 {
   _errorCode = "";
-
-  Handle(SALOMEDSImpl_Study) aStudy;
   int nbDocs = _OCAFApp->NbDocuments();
 
-  if(nbDocs == 0) {
+  if (nbDocs == 0) {
     _errorCode = "No active study in this session";
-    return aStudy;
+    return NULL;
   }
   else {
+    Handle(SALOMEDSImpl_Study) aStudy;
     Handle(CDF_Session) S = CDF_Session::CurrentSession();
     CDF_DirectoryIterator it (S->Directory());
-    for (;it.MoreDocument();it.NextDocument()) {
+    for (; it.MoreDocument(); it.NextDocument()) {
       Handle(TDocStd_Document) D = Handle(TDocStd_Document)::DownCast(it.Document());
-      if(D == _clipboard) continue;
+      if (D == _clipboard) continue;
       aStudy = SALOMEDSImpl_Study::GetStudy(D->Main());
-      if(aStudy.IsNull()) continue;
-      if(aStudy->Name() == aStudyName) return aStudy;
+      if (aStudy.IsNull()) continue;
+      if (aStudy->Name() == aStudyName) return aStudy;
     }
   }
 
-  _errorCode = TCollection_AsciiString("Found no study with the name ")+aStudyName;
-  return aStudy;
+  _errorCode = TCollection_AsciiString("Found no study with the name ") + aStudyName;
+  return NULL;
 }
 
 //============================================================================
@@ -357,27 +357,27 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::GetStudyByName(const TColl
 Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::GetStudyByID(int aStudyID)
 {
   _errorCode = "";
-  Handle(SALOMEDSImpl_Study) aStudy;
   int nbDocs = _OCAFApp->NbDocuments();
 
-  if(nbDocs == 0) {
+  if (nbDocs == 0) {
     _errorCode = "No active study in this session";
-    return aStudy;
+    return NULL;
   }
   else {
+    Handle(SALOMEDSImpl_Study) aStudy;
     Handle(CDF_Session) S = CDF_Session::CurrentSession();
     CDF_DirectoryIterator it (S->Directory());
-    for (;it.MoreDocument();it.NextDocument()) {
+    for (; it.MoreDocument(); it.NextDocument()) {
       Handle(TDocStd_Document) D = Handle(TDocStd_Document)::DownCast(it.Document());
-      if(D == _clipboard) continue;
+      if (D == _clipboard) continue;
       aStudy = SALOMEDSImpl_Study::GetStudy(D->Main());
-      if(aStudy.IsNull()) continue;
-      if(aStudy->StudyId() == aStudyID) return aStudy;
+      if (aStudy.IsNull()) continue;
+      if (aStudy->StudyId() == aStudyID) return aStudy;
     }
   }
 
   _errorCode = "Found no study with the given ID";
-  return aStudy;
+  return NULL;
 }
 
 //=============================================================================
