@@ -59,6 +59,8 @@ class SALOMELOCALTRACE_EXPORT LocalTraceBufferPool
  private:
   static LocalTraceBufferPool* _singleton;
   static pthread_mutex_t _singletonMutex;
+  static BaseTraceCollector *_myThreadTrace;
+
   LocalTrace_TraceInfo _myBuffer[TRACE_BUFFER_SIZE];
   sem_t _freeBufferSemaphore;       // to wait until there is a free buffer
   sem_t _fullBufferSemaphore;       // to wait until there is a buffer to print
@@ -66,8 +68,6 @@ class SALOMELOCALTRACE_EXPORT LocalTraceBufferPool
   unsigned long _position;
   unsigned long _insertPos;
   unsigned long _retrievePos;
-  pthread_t _threadId;
-  static BaseTraceCollector *_myThreadTrace;
 };
 
 #endif

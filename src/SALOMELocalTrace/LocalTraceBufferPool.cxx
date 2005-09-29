@@ -105,7 +105,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 
 	  char* traceKind = getenv("SALOME_trace");
 	  assert(traceKind);
-	  cout<<"SALOME_trace="<<traceKind<<endl;
+	  //cerr<<"SALOME_trace="<<traceKind<<endl;
 
 	  if (strcmp(traceKind,"local")==0)
 	    {
@@ -268,7 +268,7 @@ unsigned long LocalTraceBufferPool::toCollect()
 
 LocalTraceBufferPool::LocalTraceBufferPool()
 {
-  //cout << "LocalTraceBufferPool::LocalTraceBufferPool()" << endl;
+  //cerr << "LocalTraceBufferPool::LocalTraceBufferPool()" << endl;
 
   _insertPos   = ULONG_MAX;  // first increment will give 0
   _retrievePos = ULONG_MAX;
@@ -284,6 +284,8 @@ LocalTraceBufferPool::LocalTraceBufferPool()
   if (ret!=0) IMMEDIATE_ABORT(ret);
   ret=pthread_mutex_init(&_incrementMutex,NULL); // default = fast mutex
   if (ret!=0) IMMEDIATE_ABORT(ret);
+
+  //cerr << "LocalTraceBufferPool::LocalTraceBufferPool()-end" << endl;
 }
 
 // ============================================================================
@@ -294,13 +296,20 @@ LocalTraceBufferPool::LocalTraceBufferPool()
 
 LocalTraceBufferPool::~LocalTraceBufferPool()
 {
-  cerr << "LocalTraceBufferPool::~LocalTraceBufferPool()" << endl << flush;
-  delete (_myThreadTrace);
-  int ret;
-  ret=sem_destroy(&_freeBufferSemaphore);
-  ret=sem_destroy(&_fullBufferSemaphore);
-  ret=pthread_mutex_destroy(&_incrementMutex);
-  cerr << "LocalTraceBufferPool::~LocalTraceBufferPool()" << endl << flush;
+  int ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+  if (_singleton)
+    {
+      //cerr << "LocalTraceBufferPool::~LocalTraceBufferPool()" << endl<<flush;
+      delete (_myThreadTrace);
+      _myThreadTrace = 0;
+      int ret;
+      ret=sem_destroy(&_freeBufferSemaphore);
+      ret=sem_destroy(&_fullBufferSemaphore);
+      ret=pthread_mutex_destroy(&_incrementMutex);
+      //cerr<<"LocalTraceBufferPool::~LocalTraceBufferPool()-end"<<endl<<flush;
+      _singleton = 0;
+      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+    }
 }
 
 // ============================================================================

@@ -103,8 +103,8 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
 		  obj = inc->resolve(name);
 		  if (!CORBA::is_nil(obj))
 		    {
-		      cout << "TraceCollector_WaitForServerReadiness: "
-			   << serverName << " found in CORBA Name Service" << endl;
+		      //cout << "TraceCollector_WaitForServerReadiness: "
+		      //	   << serverName << " found in CORBA Name Service" << endl;
 		      break;
 		    }
 		}

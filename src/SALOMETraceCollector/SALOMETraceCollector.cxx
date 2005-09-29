@@ -34,7 +34,6 @@ using namespace std;
 
 #include "SALOMETraceCollector.hxx"
 #include "TraceCollector_WaitForServerReadiness.hxx"
-//#include "SALOME_Log.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(Logger)
 
@@ -44,17 +43,11 @@ CORBA::ORB_ptr SALOMETraceCollector::_orb = 0;
 
 // ============================================================================
 /*!
- *  This class replaces LocalTraceCollector, which is to use outside SALOME,
- *  without CORBA.
+ *  This class is for use with CORBA, inside SALOME.
+ *  Type of trace (and corresponding class) is choosen in LocalTraceBufferPool.
  *
- *  guarantees a unique object instance of the class (singleton thread safe)
+ *  Guarantees a unique object instance of the class (singleton thread safe)
  *  a separate thread for loop to print traces is launched.
- *  \param typeTrace 0=standard out, 1=file(/tmp/tracetest.log), 2=CORBA log
- *  If typeTrace=0, checks environment for "SALOME_trace". Test values in
- *  the following order:
- *  - "local"  standard out
- *  - "with_logger" CORBA log
- *  - anything else is kept as a file name
  */
 // ============================================================================
 
@@ -107,17 +100,18 @@ void* SALOMETraceCollector::run(void *bid)
 
       *_threadId = pthread_self();
     }
-  else cout << "----- Comment est-ce possible de passer la ? -------" <<endl;
+  else cerr << "-- SALOMETraceCollector::run-serious design problem..." <<endl;
+
   ret = pthread_mutex_unlock(&_singletonMutex); // release lock
 
   if (isOKtoRun)
     { 
       if(_threadId == 0)
 	{
-	  _threadId = new pthread_t;
+	  cerr << "SALOMETraceCollector::run error!" << endl << flush;
+	  exit(1);
 	}
 
-      *_threadId = pthread_self();
       LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
       LocalTrace_TraceInfo myTrace;
 
@@ -138,7 +132,7 @@ void* SALOMETraceCollector::run(void *bid)
 	  CORBA::String_var LogMsg =
 	    CORBA::string_dup("\n---Init logger trace---\n");
 	  m_pInterfaceLogger->putMessage(LogMsg);
-	  cout << " Logger server found" << endl;
+	  //cerr << " Logger server found" << endl;
 	}
 
       // --- Loop until there is no more buffer to print,
@@ -190,6 +184,25 @@ void* SALOMETraceCollector::run(void *bid)
 
 SALOMETraceCollector:: ~SALOMETraceCollector()
 {
+  int ret;
+  ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+  if (_singleton)
+    {
+      //cerr << "SALOMETraceCollector:: ~SALOMETraceCollector()" <<endl<<flush;
+      LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
+      _threadToClose = 1;
+      myTraceBuffer->insert(NORMAL_MESS,"end of trace\n"); // to wake up thread
+      if (_threadId)
+	{
+	  int ret = pthread_join(*_threadId, NULL);
+	  if (ret) cerr << "error close SALOMETraceCollector : "<< ret << endl;
+	  //else cerr << "SALOMETraceCollector destruction OK" << endl;
+	  _threadId = 0;
+	  _threadToClose = 0;
+	}
+      _singleton = 0;
+      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+    }
 }
 
 // ============================================================================
@@ -202,6 +215,7 @@ SALOMETraceCollector:: ~SALOMETraceCollector()
 SALOMETraceCollector::SALOMETraceCollector()
 {
   _threadId=0;
+  _threadToClose = 0;
 }
 
 // ============================================================================

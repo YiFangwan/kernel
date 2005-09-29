@@ -39,16 +39,12 @@ std::string FileTraceCollector::_fileName = "";
 
 // ============================================================================
 /*!
- *  This class is for use without CORBA, outside SALOME.
+ *  This class is for use without CORBA, inside or outside SALOME.
  *  SALOME uses SALOMETraceCollector, to allow trace collection via CORBA.
+ *  Type of trace (and corresponding class) is choosen in LocalTraceBufferPool.
  *
- *  guarantees a unique object instance of the class (singleton thread safe)
+ *  Guarantees a unique object instance of the class (singleton thread safe)
  *  a separate thread for loop to print traces is launched.
- *  \param typeTrace 0=standard out, 1=file(/tmp/tracetest.log)
- *  If typeTrace=0, checks environment for "SALOME_trace". Test values in
- *  the following order:
- *  - "local"  standard out
- *  - anything else is kept as a file name
  */
 // ============================================================================
 
@@ -60,15 +56,17 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
       ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
       if (_singleton == 0)                     // another thread may have got
 	{                                      // the lock after the first test
+	  //cerr << "FileTraceCollector:: instance()" << endl << flush;
 	  _singleton = new FileTraceCollector();
 
 	  _fileName = fileName;
-	  cout << " _fileName: " << _fileName << endl;
+	  //cerr << " _fileName: " << _fileName << endl;
 
 	  pthread_t traceThread;
 	  int bid;
 	  int re2 = pthread_create(&traceThread, NULL,
 				   FileTraceCollector::run, (void *)bid);
+	  //cerr << "FileTraceCollector:: instance()-end" << endl << flush;
 	}
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
@@ -100,23 +98,18 @@ void* FileTraceCollector::run(void *bid)
 	}
       *_threadId = pthread_self();
     }
-  else cout << "----- Comment est-ce possible de passer la ? -------" <<endl;
+  else cerr << "--- FileTraceCollector::run-serious design problem..." <<endl;
 
   ret = pthread_mutex_unlock(&_singletonMutex); // release lock
 
   if (isOKtoRun)
     { 
-//       if (_threadId == 0)
-// 	{
-// 	  _threadId = new pthread_t;
-// 	}
       if (_threadId == 0)
 	{
 	  cerr << "FileTraceCollector::run error!" << endl << flush;
 	  exit(1);
 	}
 
-//       *_threadId = pthread_self();
       LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
       LocalTrace_TraceInfo myTrace;
 
@@ -137,6 +130,9 @@ void* FileTraceCollector::run(void *bid)
 
       while ((!_threadToClose) || myTraceBuffer->toCollect() )
 	{
+	  //if (_threadToClose)
+	  //  cerr << "FileTraceCollector _threadToClose" << endl << flush;
+
 	  int fullBuf = myTraceBuffer->retrieve(myTrace);
 	  if (myTrace.traceType == ABORT_MESS)
 	    {
@@ -185,7 +181,25 @@ void* FileTraceCollector::run(void *bid)
 
 FileTraceCollector:: ~FileTraceCollector()
 {
-  cerr << "FileTraceCollector:: ~FileTraceCollector()" << endl << flush;
+  int ret;
+  ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+  if (_singleton)
+    {
+      //cerr << "FileTraceCollector:: ~FileTraceCollector()" << endl << flush;
+      LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
+      _threadToClose = 1;
+      myTraceBuffer->insert(NORMAL_MESS,"end of trace\n"); // to wake up thread
+      if (_threadId)
+	{
+	  int ret = pthread_join(*_threadId, NULL);
+	  if (ret) cerr << "error close FileTraceCollector : "<< ret << endl;
+	  //else cerr << "FileTraceCollector destruction OK" << endl;
+	  _threadId = 0;
+	  _threadToClose = 0;
+	}
+      _singleton = 0;
+      ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+    }
 }
 
 // ============================================================================
@@ -198,6 +212,7 @@ FileTraceCollector:: ~FileTraceCollector()
 FileTraceCollector::FileTraceCollector()
 {
   _threadId=0;
+  _threadToClose = 0;
 }
 
 

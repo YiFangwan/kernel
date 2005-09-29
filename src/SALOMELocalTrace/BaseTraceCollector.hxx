@@ -50,7 +50,7 @@
 class SALOMELOCALTRACE_EXPORT BaseTraceCollector
 {
  public:
-  ~BaseTraceCollector();
+  virtual ~BaseTraceCollector();
 
  protected:
   BaseTraceCollector();

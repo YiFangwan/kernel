@@ -43,35 +43,25 @@ pthread_t* BaseTraceCollector::_threadId = 0; // used to control single run
 
 // ============================================================================
 /*!
- *  Destructor: wait until printing thread ends (BaseTraceCollector::run)
+ *  Destructor: virtual, implemented in derived classes.
+ *  Wait until printing thread ends (BaseTraceCollector::run)
  */
 // ============================================================================
 
 BaseTraceCollector:: ~BaseTraceCollector()
 {
-  LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
-  _threadToClose = 1;
-  cerr << "BaseTraceCollector:: ~BaseTraceCollector()" << endl << flush;
-  myTraceBuffer->insert(NORMAL_MESS,"end of trace"); //needed to wake up thread
-  if (_threadId)
-    {
-      int ret = pthread_join(*_threadId, NULL);
-      if (ret) cerr << "error close BaseTraceCollector : "<< ret << endl;
-      else cerr << "BaseTraceCollector destruction OK" << endl;
-      _threadId = 0;
-    }
 }
 
 // ============================================================================
 /*!
  * Constructor: no need of LocalTraceBufferPool object initialization here,
  * thread safe singleton used in LocalTraceBufferPool::instance()
+ * See derived classes.
  */
 // ============================================================================
 
 BaseTraceCollector::BaseTraceCollector()
 {
-  _threadId=0;
 }
 
 
