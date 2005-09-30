@@ -167,6 +167,7 @@ void* FileTraceCollector::run(void *bid)
 #endif
 	    }
 	}
+      //cerr <<"traceFile.close();" << endl << flush;
       traceFile.close();
     }
   pthread_exit(NULL);

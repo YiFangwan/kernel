@@ -50,7 +50,7 @@ LIB_SRC = BaseTraceCollector.cxx \
 	  LocalTraceBufferPool.cxx
 
 LIBS= @LIBS@ 
-#LDFLAGS+= 
+LDFLAGS+= -lSALOMEBasics
 
 
 @CONCLUDE@

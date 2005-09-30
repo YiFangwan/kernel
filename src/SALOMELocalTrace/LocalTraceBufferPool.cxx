@@ -37,22 +37,8 @@
 #include "BaseTraceCollector.hxx"
 #include "LocalTraceCollector.hxx"
 #include "FileTraceCollector.hxx"
-//#include "Utils_DESTRUCTEUR_GENERIQUE.hxx"
+#include "BasicsGenericDestructor.hxx"
 #include "utilities.h"
-
-//! specialisation template...
-
-// void DESTRUCTEUR_DE_<LocalTraceBufferPool>::operator()(void)
-// {
-//   if(_PtrObjet)
-//     {
-//       std::cerr << "deleting _PtrObjet LocalTraceBufferPool" << std::endl;
-//       LocalTraceBufferPool* aPtr =
-// 	static_cast<LocalTraceBufferPool*>(_PtrObjet);
-//       delete aPtr;
-//     }
-//       _PtrObjet = NULL ;
-// }
 
 using namespace std;
 
@@ -98,8 +84,8 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 	{                                      // the lock after the first test
 	  _singleton = new LocalTraceBufferPool(); 
 
-// 	  DESTRUCTEUR_DE_<LocalTraceBufferPool> *ptrDestroy =
-// 	    new DESTRUCTEUR_DE_<LocalTraceBufferPool> (*_singleton);
+ 	  DESTRUCTOR_OF<LocalTraceBufferPool> *ptrDestroy =
+ 	    new DESTRUCTOR_OF<LocalTraceBufferPool> (*_singleton);
 
 	  // --- start a trace Collector
 
@@ -299,14 +285,14 @@ LocalTraceBufferPool::~LocalTraceBufferPool()
   int ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
   if (_singleton)
     {
-      //cerr << "LocalTraceBufferPool::~LocalTraceBufferPool()" << endl<<flush;
+      cerr << "LocalTraceBufferPool::~LocalTraceBufferPool()" << endl<<flush;
       delete (_myThreadTrace);
       _myThreadTrace = 0;
       int ret;
       ret=sem_destroy(&_freeBufferSemaphore);
       ret=sem_destroy(&_fullBufferSemaphore);
       ret=pthread_mutex_destroy(&_incrementMutex);
-      //cerr<<"LocalTraceBufferPool::~LocalTraceBufferPool()-end"<<endl<<flush;
+      cerr<<"LocalTraceBufferPool::~LocalTraceBufferPool()-end"<<endl<<flush;
       _singleton = 0;
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
