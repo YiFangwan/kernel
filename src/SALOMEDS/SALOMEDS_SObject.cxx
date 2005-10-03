@@ -27,6 +27,7 @@
 #endif
 
 #include "OpUtil.hxx"
+#include "utilities.h"
 
 using namespace std;  
 
