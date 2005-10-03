@@ -30,8 +30,9 @@
 # define __DESTRUCTEUR_GENERIQUE__H__
 
 # include <list>
+#include <cassert>
 # include <CORBA.h>
-# include "utilities.h"
+//# include "utilities.h"
 
 /*!\class DESTRUCTEUR_GENERIQUE_
  *
@@ -111,7 +112,7 @@ public :
   DESTRUCTEUR_DE_(TYPE &objet):
     _PtrObjet( &objet )
   {
-    ASSERT(DESTRUCTEUR_GENERIQUE_::Ajout( *this ) >= 0) ;
+    assert(DESTRUCTEUR_GENERIQUE_::Ajout( *this ) >= 0) ;
   }
 
   /* Performs the destruction of the object.
@@ -122,13 +123,13 @@ public :
     typedef PortableServer::ServantBase TServant;
     if(_PtrObjet){
       if(TServant* aServant = dynamic_cast<TServant*>(_PtrObjet)){
-	//MESSAGE("deleting ServantBase's _PtrObjet");
+	cerr << "DESTRUCTEUR_GENERIQUE_::operator() deleting ServantBase's _PtrObjet" << endl;
 	PortableServer::POA_var aPOA = aServant->_default_POA();
 	PortableServer::ObjectId_var anObjectId = aPOA->servant_to_id(aServant);
 	aPOA->deactivate_object(anObjectId.in());
 	aServant->_remove_ref();
       }else{
-	//MESSAGE("deleting _PtrObjet");
+	cerr << "DESTRUCTEUR_GENERIQUE_::operator() deleting _PtrObjet" << endl;
 	TYPE* aPtr = static_cast<TYPE*>(_PtrObjet);
 	delete aPtr;
       }
@@ -137,7 +138,7 @@ public :
   } 
 
   virtual ~DESTRUCTEUR_DE_(){
-    ASSERT(!_PtrObjet) ;
+    assert(!_PtrObjet) ;
   }
 
 private :

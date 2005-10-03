@@ -35,7 +35,7 @@ extern "C"
 }
 
 # include "Utils_DESTRUCTEUR_GENERIQUE.hxx"
-# include "utilities.h"
+//# include "utilities.h"
 void Nettoyage();
 
 #ifdef _DEBUG_
@@ -78,20 +78,20 @@ public :
 	  //CCRT
 	  if ( Make_ATEXIT && !ATEXIT_Done ) {
 	    //CCRT
-		ASSERT (DESTRUCTEUR_GENERIQUE_::Destructeurs==0);
-		if(MYDEBUG) MESSAGE("Construction ATEXIT"); // message necessaire pour utiliser logger dans Nettoyage (cf.BUG KERNEL4561)
+		assert (DESTRUCTEUR_GENERIQUE_::Destructeurs==0);
+		cerr << "ATEXIT_::ATEXIT_ Construction ATEXIT" << endl;// message necessaire pour utiliser logger dans Nettoyage (cf.BUG KERNEL4561)
 		DESTRUCTEUR_GENERIQUE_::Destructeurs = 
                       new std::list<DESTRUCTEUR_GENERIQUE_*> ; // Destructeur alloue dynamiquement (cf. ci-dessous) ,
 								   // il est utilise puis detruit par la fonction Nettoyage
 		int cr = atexit( Nettoyage );                      // execute Nettoyage lors de exit, aprs la destruction des donnees statiques !
-		ASSERT(cr==0) ;
+		assert(cr==0) ;
 		ATEXIT_Done = true ;
 	  }
 	}
 
 	~ATEXIT_( )
 	{
-		if(MYDEBUG) MESSAGE("Destruction ATEXIT") ;
+	  cerr << "ATEXIT_::~ATEXIT_ Destruction ATEXIT" << endl;
 	}
 };
 
@@ -111,16 +111,17 @@ static ATEXIT_ nettoyage = ATEXIT_( false );	/* singleton statique */
 
 void Nettoyage( void )
 {
-	if(MYDEBUG) BEGIN_OF("Nettoyage( void )") ;
-	ASSERT(DESTRUCTEUR_GENERIQUE_::Destructeurs) ;
-	if(MYDEBUG) SCRUTE( DESTRUCTEUR_GENERIQUE_::Destructeurs->size() ) ;
+  cerr << "Nettoyage()" << endl;
+  //if(MYDEBUG) BEGIN_OF("Nettoyage( void )") ;
+	assert(DESTRUCTEUR_GENERIQUE_::Destructeurs) ;
+	//if(MYDEBUG) SCRUTE( DESTRUCTEUR_GENERIQUE_::Destructeurs->size() ) ;
 	if( DESTRUCTEUR_GENERIQUE_::Destructeurs->size() )
 	{
 		std::list<DESTRUCTEUR_GENERIQUE_*>::iterator it = DESTRUCTEUR_GENERIQUE_::Destructeurs->end() ;
 
 		do
 		{
-			if(MYDEBUG) MESSAGE( "DESTRUCTION d'un SINGLETON");
+		  //if(MYDEBUG) MESSAGE( "DESTRUCTION d'un SINGLETON");
 			it-- ;
 			DESTRUCTEUR_GENERIQUE_* ptr = *it ;
 			//DESTRUCTEUR_GENERIQUE_::Destructeurs->remove( *it ) ;
@@ -129,14 +130,14 @@ void Nettoyage( void )
 		}while( it!=  DESTRUCTEUR_GENERIQUE_::Destructeurs->begin() ) ;
 
 		DESTRUCTEUR_GENERIQUE_::Destructeurs->clear() ;
-		if(MYDEBUG) SCRUTE( DESTRUCTEUR_GENERIQUE_::Destructeurs->size() ) ;
-		ASSERT( DESTRUCTEUR_GENERIQUE_::Destructeurs->size()==0 ) ;
-		ASSERT( DESTRUCTEUR_GENERIQUE_::Destructeurs->empty() ) ;
+		//if(MYDEBUG) SCRUTE( DESTRUCTEUR_GENERIQUE_::Destructeurs->size() ) ;
+		assert( DESTRUCTEUR_GENERIQUE_::Destructeurs->size()==0 ) ;
+		assert( DESTRUCTEUR_GENERIQUE_::Destructeurs->empty() ) ;
 	}
 
 	delete DESTRUCTEUR_GENERIQUE_::Destructeurs;
 	DESTRUCTEUR_GENERIQUE_::Destructeurs=0;
-	if(MYDEBUG) END_OF("Nettoyage( void )") ;
+	//if(MYDEBUG) END_OF("Nettoyage( void )") ;
 	return ;
 }
 
@@ -156,7 +157,7 @@ const int DESTRUCTEUR_GENERIQUE_::Ajout( DESTRUCTEUR_GENERIQUE_ &objet )
           nettoyage = ATEXIT_( true ) ;
 	}
 	//CCRT
-	ASSERT(Destructeurs) ;
+	assert(Destructeurs) ;
 	Destructeurs->push_back( &objet ) ;
 	return Destructeurs->size() ;
 }
