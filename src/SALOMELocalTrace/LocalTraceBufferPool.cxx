@@ -84,8 +84,8 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 	{                                      // the lock after the first test
 	  _singleton = new LocalTraceBufferPool(); 
 
- 	  DESTRUCTOR_OF<LocalTraceBufferPool> *ptrDestroy =
- 	    new DESTRUCTOR_OF<LocalTraceBufferPool> (*_singleton);
+  	  DESTRUCTOR_OF<LocalTraceBufferPool> *ptrDestroy =
+  	    new DESTRUCTOR_OF<LocalTraceBufferPool> (*_singleton);
 
 	  // --- start a trace Collector
 

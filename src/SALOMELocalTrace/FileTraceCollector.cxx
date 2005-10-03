@@ -130,8 +130,8 @@ void* FileTraceCollector::run(void *bid)
 
       while ((!_threadToClose) || myTraceBuffer->toCollect() )
 	{
-	  //if (_threadToClose)
-	  //  cerr << "FileTraceCollector _threadToClose" << endl << flush;
+	  if (_threadToClose)
+	    cerr << "FileTraceCollector _threadToClose" << endl << flush;
 
 	  int fullBuf = myTraceBuffer->retrieve(myTrace);
 	  if (myTrace.traceType == ABORT_MESS)
@@ -167,11 +167,12 @@ void* FileTraceCollector::run(void *bid)
 #endif
 	    }
 	}
-      //cerr <<"traceFile.close();" << endl << flush;
+      cerr <<"traceFile.close();" << endl << flush;
       traceFile.close();
+      cerr <<"traceFile.close()_end;" << endl << flush;
+      pthread_exit(NULL);
     }
-  pthread_exit(NULL);
-  return NULL;
+  //return NULL;
 }
 
 // ============================================================================
@@ -186,7 +187,7 @@ FileTraceCollector:: ~FileTraceCollector()
   ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
   if (_singleton)
     {
-      //cerr << "FileTraceCollector:: ~FileTraceCollector()" << endl << flush;
+      cerr << "FileTraceCollector:: ~FileTraceCollector()" << endl << flush;
       LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
       _threadToClose = 1;
       myTraceBuffer->insert(NORMAL_MESS,"end of trace\n"); // to wake up thread
@@ -194,7 +195,7 @@ FileTraceCollector:: ~FileTraceCollector()
 	{
 	  int ret = pthread_join(*_threadId, NULL);
 	  if (ret) cerr << "error close FileTraceCollector : "<< ret << endl;
-	  //else cerr << "FileTraceCollector destruction OK" << endl;
+	  else cerr << "FileTraceCollector destruction OK" << endl;
 	  _threadId = 0;
 	  _threadToClose = 0;
 	}

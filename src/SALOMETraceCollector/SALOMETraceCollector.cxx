@@ -141,34 +141,37 @@ void* SALOMETraceCollector::run(void *bid)
       while ((!_threadToClose) || myTraceBuffer->toCollect() )
 	{
 	  int fullBuf = myTraceBuffer->retrieve(myTrace);
-	  if (myTrace.traceType == ABORT_MESS)
+	  if (!CORBA::is_nil(_orb))
 	    {
-	      stringstream abortMessage("");
+	      if (myTrace.traceType == ABORT_MESS)
+		{
+		  stringstream abortMessage("");
 #ifndef WNT
-	      abortMessage << "INTERRUPTION from thread "
-			   << myTrace.threadId << " : " << myTrace.trace;
+		  abortMessage << "INTERRUPTION from thread "
+			       << myTrace.threadId << " : " << myTrace.trace;
 #else
-	      abortMessage << "INTERRUPTION from thread "
-			   << (void*)&myTrace.threadId 
-			   << " : " << myTrace.trace;
+		  abortMessage << "INTERRUPTION from thread "
+			       << (void*)&myTrace.threadId 
+			       << " : " << myTrace.trace;
 #endif
-	      CORBA::String_var LogMsg =
-		CORBA::string_dup(abortMessage.str().c_str());
-	      m_pInterfaceLogger->putMessage(LogMsg);
-	      exit(1);
-	    }
-	  else
-	    {
-	      stringstream aMessage("");
+		  CORBA::String_var LogMsg =
+		    CORBA::string_dup(abortMessage.str().c_str());
+		  m_pInterfaceLogger->putMessage(LogMsg);
+		  exit(1);
+		}
+	      else
+		{
+		  stringstream aMessage("");
 #ifndef WNT
-	      aMessage << "th. " << myTrace.threadId
+		  aMessage << "th. " << myTrace.threadId
 #else
-	      aMessage << "th. " << (void*)&myTrace.threadId
+		    aMessage << "th. " << (void*)&myTrace.threadId
 #endif
-		       << " " << myTrace.trace;
-	      CORBA::String_var LogMsg =
-		CORBA::string_dup(aMessage.str().c_str());
-	      m_pInterfaceLogger->putMessage(LogMsg);
+			   << " " << myTrace.trace;
+		  CORBA::String_var LogMsg =
+		    CORBA::string_dup(aMessage.str().c_str());
+		  m_pInterfaceLogger->putMessage(LogMsg);
+		}
 	    }
 	}
     }
