@@ -60,13 +60,6 @@ SUBDIRS = \
  KERNEL_PY \
  ModuleGenerator \
  Communication \
- \
- SALOMELocalTrace/Test \
- SALOMETraceCollector/Test \
- Utils/Test \
- UnitTests
-
-# Basics \
 
 ifeq (@mpi_ok@,yes)
   SUBDIRS+= MPIContainer TestMPIContainer
