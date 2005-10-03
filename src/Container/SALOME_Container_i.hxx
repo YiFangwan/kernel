@@ -120,10 +120,12 @@ public:
   static void decInstanceCnt(std::string genericRegisterName);
   //??? char* machineName();
 
-protected:
+  // --- needed for parallel components, Numerical Platon
 
-  //??? int getArgc() { return _argc; }
-  //??? char **getArgv() { return _argv; }
+  int getArgc() { return _argc; }
+  char **getArgv() { return _argv; }
+
+protected:
 
   static std::map<std::string, int> _cntInstances_map;
   static std::map<std::string, void *> _library_map; // library names, loaded
@@ -140,8 +142,6 @@ protected:
   PortableServer::ObjectId * _id ;
   int _numInstance ;
   std::map<std::string,Engines::Component_var> _listInstances_map;
-
-  //private: 
 
   int    _argc ;
   char** _argv ;
