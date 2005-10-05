@@ -65,10 +65,12 @@ BaseTraceCollector* SALOMETraceCollector::instance()
 	  char ** argv = &_argv;
 	  _orb = CORBA::ORB_init (argc, argv);
 
+	  sem_init(&_sem,0,0); // to wait until run thread is initialized
 	  pthread_t traceThread;
 	  int bid;
 	  int re2 = pthread_create(&traceThread, NULL,
 				   SALOMETraceCollector::run, (void *)bid);
+	  sem_wait(&_sem);
 	}
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
@@ -88,90 +90,72 @@ BaseTraceCollector* SALOMETraceCollector::instance()
 
 void* SALOMETraceCollector::run(void *bid)
 {
-  int isOKtoRun = 0;
-  int ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
-  if (! _threadId)  // only one run
+  _threadId = new pthread_t;
+  *_threadId = pthread_self();
+  sem_post(&_sem); // unlock instance
+
+  LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
+  LocalTrace_TraceInfo myTrace;
+
+  SALOME_Logger::Logger_var m_pInterfaceLogger;
+  CORBA::Object_var obj;
+
+  obj = TraceCollector_WaitForServerReadiness(_orb,"Logger");
+  if (!CORBA::is_nil(obj))
+    m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
+  if (CORBA::is_nil(m_pInterfaceLogger))
     {
-      isOKtoRun = 1;
-      if(_threadId == 0)
-	{
-	  _threadId = new pthread_t;
-	}
-
-      *_threadId = pthread_self();
+      cerr << "Logger server not found ! Abort" << endl;
+      cerr << flush ; 
+      exit(1);
+    } 
+  else
+    {
+      CORBA::String_var LogMsg =
+	CORBA::string_dup("\n---Init logger trace---\n");
+      m_pInterfaceLogger->putMessage(LogMsg);
+      DEVTRACE("Logger server found");
     }
-  else cerr << "-- SALOMETraceCollector::run-serious design problem..." <<endl;
 
-  ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+  // --- Loop until there is no more buffer to print,
+  //     and no ask for end from destructor.
 
-  if (isOKtoRun)
-    { 
-      if(_threadId == 0)
+  while ((!_threadToClose) || myTraceBuffer->toCollect() )
+    {
+      if (_threadToClose)
+	DEVTRACE("SALOMETraceCollector _threadToClose");
+
+      int fullBuf = myTraceBuffer->retrieve(myTrace);
+      if (!CORBA::is_nil(_orb))
 	{
-	  cerr << "SALOMETraceCollector::run error!" << endl << flush;
-	  exit(1);
-	}
-
-      LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
-      LocalTrace_TraceInfo myTrace;
-
-      SALOME_Logger::Logger_var m_pInterfaceLogger;
-      CORBA::Object_var obj;
-
-      obj = TraceCollector_WaitForServerReadiness(_orb,"Logger");
-      if (!CORBA::is_nil(obj))
-	m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);
-      if (CORBA::is_nil(m_pInterfaceLogger))
-	{
-	  cerr << "Logger server not found ! Abort" << endl;
-	  cerr << flush ; 
-	  exit(1);
-	} 
-      else
-	{
-	  CORBA::String_var LogMsg =
-	    CORBA::string_dup("\n---Init logger trace---\n");
-	  m_pInterfaceLogger->putMessage(LogMsg);
-	  DEVTRACE("Logger server found");
-	}
-
-      // --- Loop until there is no more buffer to print,
-      //     and no ask for end from destructor.
-
-      while ((!_threadToClose) || myTraceBuffer->toCollect() )
-	{
-	  int fullBuf = myTraceBuffer->retrieve(myTrace);
-	  if (!CORBA::is_nil(_orb))
+	  if (myTrace.traceType == ABORT_MESS)
 	    {
-	      if (myTrace.traceType == ABORT_MESS)
-		{
-		  stringstream abortMessage("");
+	      stringstream abortMessage("");
 #ifndef WNT
-		  abortMessage << "INTERRUPTION from thread "
-			       << myTrace.threadId << " : " << myTrace.trace;
+	      abortMessage << "INTERRUPTION from thread "
+			   << myTrace.threadId << " : " << myTrace.trace;
 #else
-		  abortMessage << "INTERRUPTION from thread "
-			       << (void*)&myTrace.threadId 
-			       << " : " << myTrace.trace;
+	      abortMessage << "INTERRUPTION from thread "
+			   << (void*)&myTrace.threadId 
+			   << " : " << myTrace.trace;
 #endif
-		  CORBA::String_var LogMsg =
-		    CORBA::string_dup(abortMessage.str().c_str());
-		  m_pInterfaceLogger->putMessage(LogMsg);
-		  exit(1);
-		}
-	      else
-		{
-		  stringstream aMessage("");
+	      CORBA::String_var LogMsg =
+		CORBA::string_dup(abortMessage.str().c_str());
+	      m_pInterfaceLogger->putMessage(LogMsg);
+	      exit(1);
+	    }
+	  else
+	    {
+	      stringstream aMessage("");
 #ifndef WNT
-		  aMessage << "th. " << myTrace.threadId
+	      aMessage << "th. " << myTrace.threadId
 #else
-		    aMessage << "th. " << (void*)&myTrace.threadId
+		aMessage << "th. " << (void*)&myTrace.threadId
 #endif
-			   << " " << myTrace.trace;
-		  CORBA::String_var LogMsg =
-		    CORBA::string_dup(aMessage.str().c_str());
-		  m_pInterfaceLogger->putMessage(LogMsg);
-		}
+		       << " " << myTrace.trace;
+	      CORBA::String_var LogMsg =
+		CORBA::string_dup(aMessage.str().c_str());
+	      m_pInterfaceLogger->putMessage(LogMsg);
 	    }
 	}
     }

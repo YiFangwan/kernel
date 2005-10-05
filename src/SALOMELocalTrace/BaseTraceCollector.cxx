@@ -38,6 +38,7 @@ using namespace std;
 
 BaseTraceCollector* BaseTraceCollector::_singleton = 0;
 pthread_mutex_t BaseTraceCollector::_singletonMutex;
+sem_t BaseTraceCollector::_sem;
 int BaseTraceCollector::_threadToClose = 0;
 pthread_t* BaseTraceCollector::_threadId = 0; // used to control single run
 

@@ -58,14 +58,15 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
 	{                                      // the lock after the first test
 	  DEVTRACE("FileTraceCollector:: instance()");
 	  _singleton = new FileTraceCollector();
-
 	  _fileName = fileName;
 	  DEVTRACE(" _fileName: " << _fileName);
 
+	  sem_init(&_sem,0,0); // to wait until run thread is initialized
 	  pthread_t traceThread;
 	  int bid;
 	  int re2 = pthread_create(&traceThread, NULL,
 				   FileTraceCollector::run, (void *)bid);
+	  sem_wait(&_sem);
 	  DEVTRACE("FileTraceCollector:: instance()-end");
 	}
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
@@ -86,93 +87,71 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
 
 void* FileTraceCollector::run(void *bid)
 {
-  int isOKtoRun = 0;
-  int ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+  _threadId = new pthread_t;
+  *_threadId = pthread_self();
+  sem_post(&_sem); // unlock instance
 
-  if (! _threadId)  // only one run
+  LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
+  LocalTrace_TraceInfo myTrace;
+
+  // --- opens a file with append mode
+  //     so, several processes can share the same file
+
+  ofstream traceFile;
+  const char *theFileName = _fileName.c_str();
+  traceFile.open(theFileName, ios::out | ios::app);
+  if (!traceFile)
     {
-      isOKtoRun = 1;
-      if(_threadId == 0)
-	{
-	  _threadId = new pthread_t;
-	}
-      *_threadId = pthread_self();
+      cerr << "impossible to open trace file "<< theFileName << endl;
+      exit (1);
     }
-  else cerr << "--- FileTraceCollector::run-serious design problem..." <<endl;
 
-  ret = pthread_mutex_unlock(&_singletonMutex); // release lock
+  // --- Loop until there is no more buffer to print,
+  //     and no ask for end from destructor.
 
-  if (isOKtoRun)
-    { 
-      if (_threadId == 0)
+  while ((!_threadToClose) || myTraceBuffer->toCollect() )
+    {
+      if (_threadToClose)
+	DEVTRACE("FileTraceCollector _threadToClose");
+
+      int fullBuf = myTraceBuffer->retrieve(myTrace);
+      if (myTrace.traceType == ABORT_MESS)
 	{
-	  cerr << "FileTraceCollector::run error!" << endl << flush;
-	  exit(1);
+#ifndef WNT
+	  traceFile << "INTERRUPTION from thread " << myTrace.threadId
+		    << " : " <<  myTrace.trace;
+#else
+	  traceFile << "INTERRUPTION from thread "
+		    << (void*)(&myTrace.threadId)
+		    << " : " <<  myTrace.trace;
+#endif
+	  traceFile.close();
+	  cout << flush ;
+#ifndef WNT
+	  cerr << "INTERRUPTION from thread " << myTrace.threadId
+	       << " : " <<  myTrace.trace;
+#else
+	  cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+	       << " : " <<  myTrace.trace;
+#endif
+	  cerr << flush ; 
+	  exit(1);     
 	}
-
-      LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
-      LocalTrace_TraceInfo myTrace;
-
-      // --- opens a file with append mode
-      //     so, several processes can share the same file
-
-      ofstream traceFile;
-      const char *theFileName = _fileName.c_str();
-      traceFile.open(theFileName, ios::out | ios::app);
-      if (!traceFile)
+      else
 	{
-	  cerr << "impossible to open trace file "<< theFileName << endl;
-	  exit (1);
+#ifndef WNT
+	  traceFile << "th. " << myTrace.threadId
+		    << " " << myTrace.trace;
+#else
+	  traceFile << "th. " << (void*)(&myTrace.threadId)
+		    << " " << myTrace.trace;
+#endif
 	}
-
-      // --- Loop until there is no more buffer to print,
-      //     and no ask for end from destructor.
-
-      while ((!_threadToClose) || myTraceBuffer->toCollect() )
-	{
-	  if (_threadToClose)
-	    DEVTRACE("FileTraceCollector _threadToClose");
-
-	  int fullBuf = myTraceBuffer->retrieve(myTrace);
-	  if (myTrace.traceType == ABORT_MESS)
-	    {
-#ifndef WNT
-	      traceFile << "INTERRUPTION from thread " << myTrace.threadId
-			<< " : " <<  myTrace.trace;
-#else
-	      traceFile << "INTERRUPTION from thread "
-			<< (void*)(&myTrace.threadId)
-			<< " : " <<  myTrace.trace;
-#endif
-	      traceFile.close();
-	      cout << flush ;
-#ifndef WNT
-	      cerr << "INTERRUPTION from thread " << myTrace.threadId
-		   << " : " <<  myTrace.trace;
-#else
-	      cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
-		   << " : " <<  myTrace.trace;
-#endif
-	      cerr << flush ; 
-	      exit(1);     
-	    }
-	  else
-	    {
-#ifndef WNT
-	      traceFile << "th. " << myTrace.threadId
-			<< " " << myTrace.trace;
-#else
-	      traceFile << "th. " << (void*)(&myTrace.threadId)
-			<< " " << myTrace.trace;
-#endif
-	    }
-	}
-      DEVTRACE("traceFile.close()");
-      traceFile.close();
-      DEVTRACE("traceFile.close()_end");
-      pthread_exit(NULL);
     }
-  //return NULL;
+  DEVTRACE("traceFile.close()");
+  traceFile.close();
+  DEVTRACE("traceFile.close()_end");
+  pthread_exit(NULL);
 }
 
 // ============================================================================

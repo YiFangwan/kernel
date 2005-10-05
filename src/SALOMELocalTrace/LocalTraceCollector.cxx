@@ -54,10 +54,12 @@ BaseTraceCollector* LocalTraceCollector::instance()
 	{                                      // the lock after the first test
 	  _singleton = new LocalTraceCollector();
 
+	  sem_init(&_sem,0,0); // to wait until run thread is initialized
 	  pthread_t traceThread;
 	  int bid;
 	  int re2 = pthread_create(&traceThread, NULL,
 				   LocalTraceCollector::run, (void *)bid);
+	  sem_wait(&_sem);
 	}
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
@@ -77,66 +79,45 @@ BaseTraceCollector* LocalTraceCollector::instance()
 
 void* LocalTraceCollector::run(void *bid)
 {
-  int isOKtoRun = 0;
-  int ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
+  _threadId = new pthread_t;
+  *_threadId = pthread_self();
+  sem_post(&_sem); // unlock instance
 
-  if (! _threadId)  // only one run
+  LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
+  LocalTrace_TraceInfo myTrace;
+
+  // --- Loop until there is no more buffer to print,
+  //     and no ask for end from destructor.
+
+  while ((!_threadToClose) || myTraceBuffer->toCollect() )
     {
-      isOKtoRun = 1;
-      if(_threadId == 0)
+      if (_threadToClose)
+	DEVTRACE("FileTraceCollector _threadToClose");
+
+      int fullBuf = myTraceBuffer->retrieve(myTrace);
+      if (myTrace.traceType == ABORT_MESS)
 	{
-	  _threadId = new pthread_t;
-	}
-      *_threadId = pthread_self();
-    }
-  else cerr << "--- LocalTraceCollector::run-serious design problem..." <<endl;
-
-  ret = pthread_mutex_unlock(&_singletonMutex); // release lock
-
-  if (isOKtoRun)
-    { 
-      if(_threadId == 0) 
-	{
-	  cerr << "LocalTraceCollector::run error!" << endl << flush;
-	  exit(1);
-	}
-
-      LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
-      LocalTrace_TraceInfo myTrace;
-
-      // --- Loop until there is no more buffer to print,
-      //     and no ask for end from destructor.
-
-      while ((!_threadToClose) || myTraceBuffer->toCollect() )
-	{
-	  //if (_threadToClose)
-	  //  cerr << "FileTraceCollector _threadToClose" << endl << flush;
-
-	  int fullBuf = myTraceBuffer->retrieve(myTrace);
-	  if (myTrace.traceType == ABORT_MESS)
-	    {
-	      cout << flush ;
+	  cout << flush ;
 #ifndef WNT
-	      cerr << "INTERRUPTION from thread " << myTrace.threadId
-		   << " : " <<  myTrace.trace;
+	  cerr << "INTERRUPTION from thread " << myTrace.threadId
+	       << " : " <<  myTrace.trace;
 #else
-	      cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
-		   << " : " <<  myTrace.trace;
+	  cerr << "INTERRUPTION from thread " << (void*)(&myTrace.threadId)
+	       << " : " <<  myTrace.trace;
 #endif
-	      cerr << flush ; 
-	      exit(1);     
-	    }
-	  else
-	    {
-	      cout << flush ;
+	  cerr << flush ; 
+	  exit(1);     
+	}
+      else
+	{
+	  cout << flush ;
 #ifndef WNT
-	      cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
+	  cerr << "th. " << myTrace.threadId << " " << myTrace.trace;
 #else
-	      cerr << "th. " << (void*)(&myTrace.threadId)
-		   << " " << myTrace.trace;
+	  cerr << "th. " << (void*)(&myTrace.threadId)
+	       << " " << myTrace.trace;
 #endif
-	      cerr << flush ; 
-	    }
+	  cerr << flush ; 
 	}
     }
   pthread_exit(NULL);
@@ -155,7 +136,7 @@ LocalTraceCollector:: ~LocalTraceCollector()
   ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
   if (_singleton)
     {
-      //cerr << "LocalTraceCollector:: ~LocalTraceCollector()" << endl <<flush;
+      DEVTRACE("LocalTraceCollector:: ~LocalTraceCollector()");
       LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
       _threadToClose = 1;
       myTraceBuffer->insert(NORMAL_MESS,"end of trace\n"); // to wake up thread
@@ -163,7 +144,7 @@ LocalTraceCollector:: ~LocalTraceCollector()
 	{
 	  int ret = pthread_join(*_threadId, NULL);
 	  if (ret) cerr << "error close LocalTraceCollector : "<< ret << endl;
-	  //else cerr << "LocalTraceCollector destruction OK" << endl;
+	  else DEVTRACE("LocalTraceCollector destruction OK");
 	  _threadId = 0;
 	  _threadToClose = 0;
 	}

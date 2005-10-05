@@ -28,6 +28,7 @@
 #define _BASETRACECOLLECTOR_HXX_
 
 #include <pthread.h>
+#include <semaphore.h>
 
 
 #if defined SALOMELOCALTRACE_EXPORTS
@@ -59,6 +60,7 @@ class SALOMELOCALTRACE_EXPORT BaseTraceCollector
   static BaseTraceCollector* _singleton;
   static pthread_mutex_t _singletonMutex;
   static pthread_t* _threadId;
+  static sem_t _sem;
 };
 
 #endif
