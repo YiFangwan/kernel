@@ -18,7 +18,7 @@ else
   mycom=${PWD}/${comName}
 fi
 APPLI=`echo ${HOME} \`dirname $mycom\` | awk ' { print substr($2,length($1)+2) } '`
-#echo $APPLI
+echo $APPLI
 export APPLI
 
 # --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
@@ -33,5 +33,6 @@ export OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
 if [ $# -ne 0 ] ; then
     ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc -c "$*"
 else
+
     ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc
 fi

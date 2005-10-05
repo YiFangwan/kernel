@@ -38,7 +38,7 @@ searchFreePort() {
             local initref="NameService=corbaname::"`hostname`":$NSPORT"
             #echo "ORBInitRef $initref" > $OMNIORB_CONFIG
             echo "InitRef = $initref" > $OMNIORB_CONFIG
-            export LAST_RUNNING_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_last.cfg
+            export LAST_RUNNING_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_test.cfg
 	    rm ${LAST_RUNNING_CONFIG}
             ln -s ${OMNIORB_CONFIG} ${LAST_RUNNING_CONFIG}
             break
@@ -54,16 +54,15 @@ searchFreePort() {
     done
 }
 
-# --- run SALOME
-#    (default arguments defined in local salome.launch could be completed
-#     by arguments to this command)
+# --- invoque shell with or without args
 
 searchFreePort
 
 if [ $# -ne 0 ] ; then
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $*
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc -c "$*"
 else
-    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py 
+
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc
 fi
 
 rm ${OMNIORB_CONFIG}
