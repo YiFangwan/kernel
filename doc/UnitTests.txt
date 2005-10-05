@@ -1,0 +1,118 @@
+
+=================================================================
+Source code structuration and Unit Tests
+=================================================================
+
+You will find here general information on code directories structure,
+unit tests associated to the different kind of classes, and how to run
+the unit tests.
+
+1. SALOME KERNEL source code structuration
+==========================================
+
+1.1 General structure of KERNEL_SRC
+-----------------------------------
+
+KERNEL_SRC
+
+KERNEL_SRC/adm_local
+
+KERNEL_SRC/bin
+
+KERNEL_SRC/doc
+
+KERNEL_SRC/examples
+
+KERNEL_SRC/idl
+
+KERNEL_SRC/resources
+
+KERNEL_SRC/salome_adm
+
+KERNEL_SRC/share
+
+KERNEL_SRC/src
+
+KERNEL_SRC/tests
+
+
+1.2 Directory src: C++ and Python source code
+---------------------------------------------
+
+1.2.1 Basic services non related to CORBA
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Basics
+  A set of general purpose C++ services.
+
+SALOMELocalTrace
+  A multithread trace system that allows message tracing on standard error
+  or a file. 
+
+CASCatch
+  Exceptions and signal handler.
+
+HDFPersist
+  A C++ interface to HDF.
+
+1.2.2 Basic CORBA services
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Logger
+  A CORBA server that collects the trace messages from differents CORBA 
+  process. 
+
+SALOMETraceCollector
+  A multithread trace system derived from SALOMELocalTrace, that sends messages
+  to Logger server via CORBA.
+
+Utils
+  A set of general purpose services related to CORBA, such as basic CORBA
+  exception system.
+
+NamingService
+  C++ and Python interfaces to name, store and retreive CORBA objects
+
+GenericObj
+  A generic CORBA interface for CORBA objects, to count distributed references,
+  and to allow destruction by client. 
+
+1.2.3 Miscelaneous CORBA servers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Registry
+
+ModuleCatalog
+
+DataTypeCatalog
+
+RessourcesCatalog
+
+ResourcesManager
+
+Notification
+
+NOTIFICATION_SWIG
+
+1.2.4 CORBA Containers for SALOME Modules
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Container
+
+TestContainer
+
+LifeCycleCORBA
+
+LifeCycleCORBA_SWIG
+
+1.2.5 STUDY server and related interfaces and tools
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+SALOMEDSClient
+
+TOOLSDS
+
+SALOMEDSImpl
+
+SALOMEDS
+
