@@ -132,7 +132,7 @@ void* SALOMETraceCollector::run(void *bid)
 	  CORBA::String_var LogMsg =
 	    CORBA::string_dup("\n---Init logger trace---\n");
 	  m_pInterfaceLogger->putMessage(LogMsg);
-	  //cerr << " Logger server found" << endl;
+	  DEVTRACE("Logger server found");
 	}
 
       // --- Loop until there is no more buffer to print,
@@ -191,7 +191,7 @@ SALOMETraceCollector:: ~SALOMETraceCollector()
   ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
   if (_singleton)
     {
-      //cerr << "SALOMETraceCollector:: ~SALOMETraceCollector()" <<endl<<flush;
+      DEVTRACE("SALOMETraceCollector:: ~SALOMETraceCollector()");
       LocalTraceBufferPool* myTraceBuffer = LocalTraceBufferPool::instance();
       _threadToClose = 1;
       myTraceBuffer->insert(NORMAL_MESS,"end of trace\n"); // to wake up thread
@@ -199,7 +199,7 @@ SALOMETraceCollector:: ~SALOMETraceCollector()
 	{
 	  int ret = pthread_join(*_threadId, NULL);
 	  if (ret) cerr << "error close SALOMETraceCollector : "<< ret << endl;
-	  //else cerr << "SALOMETraceCollector destruction OK" << endl;
+	  else DEVTRACE("SALOMETraceCollector destruction OK");
 	  _threadId = 0;
 	  _threadToClose = 0;
 	}

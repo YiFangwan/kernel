@@ -42,6 +42,14 @@ pthread_mutex_t PROTECTED_DELETE::_listMutex;
 std::list<GENERIC_DESTRUCTOR*> *GENERIC_DESTRUCTOR::Destructors = 0;
 static bool atExitSingletonDone = false ;
 
+// ============================================================================
+/*! 
+ *  deleteInstance deletes only once the object. Only object present on the
+ *  static list of PROTECTED_DELETE* are deleted, then removed of the list.
+ *  The operation is protected by a mutex.
+ */
+// ============================================================================
+
 void PROTECTED_DELETE::deleteInstance(PROTECTED_DELETE *anObject)
   {
     if (std::find(_objList.begin(), _objList.end(),anObject) == _objList.end())
@@ -53,25 +61,37 @@ void PROTECTED_DELETE::deleteInstance(PROTECTED_DELETE *anObject)
 	if (std::find(_objList.begin(), _objList.end(), anObject)
 	    != _objList.end())
 	  {
-	    cerr << "PROTECTED_DELETE::deleteInstance1 " << anObject << endl;
+	    DEVTRACE("PROTECTED_DELETE::deleteInstance1 " << anObject);
 	    delete anObject;
-	    cerr << "PROTECTED_DELETE::deleteInstance2 " << &_objList << endl;
+	    DEVTRACE("PROTECTED_DELETE::deleteInstance2 " << &_objList);
 	    _objList.remove(anObject);
-	    cerr << "PROTECTED_DELETE::deleteInstance3" << endl;
 	  }
 	ret = pthread_mutex_unlock(&_listMutex); // release lock
       }
   }
 
+// ============================================================================
+/*! 
+ * To allow a further destruction of a PRTECTED_DELETE object, it must be added
+ * to the static list of PROTECTED_DELETE*
+ */
+// ============================================================================
+
 void PROTECTED_DELETE::addObj(PROTECTED_DELETE *anObject)
 {
-  cerr << "PROTECTED_DELETE::addObj " << anObject << endl;
+  DEVTRACE("PROTECTED_DELETE::addObj " << anObject);
   _objList.push_back(anObject);
 }
 
+// ============================================================================
+/*! 
+ *  Herited classes have there own destructors
+ */
+// ============================================================================
+
 PROTECTED_DELETE::~PROTECTED_DELETE()
 {
-  cerr << "PROTECTED_DELETE::~PROTECTED_DELETE()" << endl;
+  DEVTRACE("PROTECTED_DELETE::~PROTECTED_DELETE()");
 }
 
 // ============================================================================
@@ -92,7 +112,7 @@ public:
   {
     if (Make_ATEXIT && !atExitSingletonDone)
       {
-	cerr << "atExitSingleton(" << Make_ATEXIT << ")" << endl;
+	DEVTRACE("atExitSingleton(" << Make_ATEXIT << ")");
 	assert(GENERIC_DESTRUCTOR::Destructors == 0);
 	GENERIC_DESTRUCTOR::Destructors = new std::list<GENERIC_DESTRUCTOR*>;
 	int cr = atexit(HouseKeeping);
@@ -103,7 +123,7 @@ public:
 
   ~atExitSingleton()
   {
-    cerr << "atExitSingleton::~atExitSingleton()" << endl << flush;
+    DEVTRACE("atExitSingleton::~atExitSingleton()");
   }
 };
 
@@ -121,7 +141,7 @@ static atExitSingleton HouseKeeper = atExitSingleton(false);
 
 void HouseKeeping( void )
 {
-  cerr << "HouseKeeping()" << endl;
+  DEVTRACE("HouseKeeping()");
   assert(GENERIC_DESTRUCTOR::Destructors);
   if(GENERIC_DESTRUCTOR::Destructors->size())
     {
@@ -132,22 +152,22 @@ void HouseKeeping( void )
 	{
 	  it-- ;
 	  GENERIC_DESTRUCTOR* ptr = *it ;
-	  cerr << "HouseKeeping() " << typeid(ptr).name() << endl;
+	  DEVTRACE("HouseKeeping() " << typeid(ptr).name());
 	  (*ptr)();
 	  delete ptr ;
 	}
       while (it !=  GENERIC_DESTRUCTOR::Destructors->begin()) ;
 
-      cerr << "HouseKeeping() end list "<< endl;
+      DEVTRACE("HouseKeeping() end list ");
       GENERIC_DESTRUCTOR::Destructors->clear() ;
       assert(GENERIC_DESTRUCTOR::Destructors->size() == 0);
       assert(GENERIC_DESTRUCTOR::Destructors->empty());
-      cerr << "HouseKeeping()after clear "<< endl;
+      DEVTRACE("HouseKeeping()after clear ");
     }
 
   delete GENERIC_DESTRUCTOR::Destructors;
   GENERIC_DESTRUCTOR::Destructors = 0;
-  cerr << "HouseKeeping() very end "<< endl;
+  DEVTRACE("HouseKeeping() very end ");
   return ;
 }
 
@@ -160,18 +180,13 @@ void HouseKeeping( void )
 
 const int GENERIC_DESTRUCTOR::Add(GENERIC_DESTRUCTOR &anObject)
 {
-  cerr << "GENERIC_DESTRUCTOR::Add("<<typeid(anObject).name()<<") "
-       << &anObject << endl;
+  DEVTRACE("GENERIC_DESTRUCTOR::Add("<<typeid(anObject).name()<<") "
+	   << &anObject);
   if (!atExitSingletonDone)
     {
       HouseKeeper = atExitSingleton(true);
     }
   assert(Destructors);
-//   if (std::find(Destructors->begin(), Destructors->end(), &anObject)
-//       == Destructors->end())
-//     {
-//       Destructors->push_back(&anObject);
-//     }
   Destructors->push_back(&anObject);
   return Destructors->size();
 }

@@ -33,6 +33,8 @@
 #include <algorithm>
 #include <cassert>
 #include <typeinfo>
+#include <iostream>
+#include <cstdlib>
 #include <pthread.h>
 
 #if defined BASICS_EXPORTS
@@ -48,6 +50,34 @@
 #define BASICS_EXPORT
 #endif
 #endif
+
+//#define _DEVDEBUG_
+
+#ifdef _DEVDEBUG_
+#define MYDEVTRACE {std::cerr << __FILE__ << " [" << __LINE__ << "] : ";}
+#define DEVTRACE(msg) {MYDEVTRACE; std::cerr<<msg<<std::endl<<std::flush;}
+#else
+#define MYDEVTRACE
+#define DEVTRACE(msg)
+#endif
+
+// ============================================================================
+/*!
+ * The PROTECTED_DELETE base class provides a protected destructor. 
+ * The only way to use PROTECTED_DELETE is inheritance:
+ *   example: class LocalTraceBufferPool : public PROTECTED_DELETE
+ * Herited class destructor must stay protected.
+ * Normal use is:
+ * - create an instance of herited class on the heap (new),
+ * - use addObj(instance) to store the instance on the static list _objList,
+ * - delete instance with deleteInstance(instance)
+ *
+ * This class is utilised with GENERIC_DESTRUCTOR and DESTRUCTOR_OF, 
+ * to program automatic deletion of objects at the end of the process, while
+ * keeping the possibility of an early destruction, if required. This is used
+ * for unit testing and trace mecanism.
+ */ 
+// ============================================================================
 
 class PROTECTED_DELETE
 {
@@ -122,8 +152,8 @@ public:
   DESTRUCTOR_OF(TYPE &anObject):
     _objectPtr(&anObject)
   {
-    std::cerr << " DESTRUCTOR_OF " << typeid(anObject).name() 
-	      << " " << _objectPtr << " " << this << endl;
+    DEVTRACE(" DESTRUCTOR_OF " << typeid(anObject).name() 
+	     << " " << _objectPtr << " " << this );
     PROTECTED_DELETE::addObj(_objectPtr);
     assert(GENERIC_DESTRUCTOR::Add(*this) >= 0);
   }
@@ -137,11 +167,7 @@ public:
   {
     if (_objectPtr)
       {
-	//TYPE* aPtr = static_cast<TYPE*>(_objectPtr);
-   	//std::cerr << "DESTRUCTOR_OF<" << typeid(*aPtr).name() 
-        //          << ">::operator() " << _objectPtr << " " << aPtr << endl;
-	//if (aPtr) PROTECTED_DELETE::deleteInstance(_objectPtr);
-   	std::cerr << "DESTRUCTOR_OF<>::operator() " << _objectPtr << endl;
+   	DEVTRACE("DESTRUCTOR_OF<>::operator() " << _objectPtr);
 	if (_objectPtr) PROTECTED_DELETE::deleteInstance(_objectPtr);
 	_objectPtr = NULL;
       }
@@ -149,7 +175,7 @@ public:
 
   virtual ~DESTRUCTOR_OF()
   {
-    cerr << "~DESTRUCTOR_OF() " << this << endl;
+    DEVTRACE("~DESTRUCTOR_OF() " << this);
     assert(!_objectPtr);
   }
 

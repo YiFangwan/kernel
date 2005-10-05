@@ -285,14 +285,14 @@ LocalTraceBufferPool::~LocalTraceBufferPool()
   int ret = pthread_mutex_lock(&_singletonMutex); // acquire lock to be alone
   if (_singleton)
     {
-      cerr << "LocalTraceBufferPool::~LocalTraceBufferPool()" << endl<<flush;
+      DEVTRACE("LocalTraceBufferPool::~LocalTraceBufferPool()");
       delete (_myThreadTrace);
       _myThreadTrace = 0;
       int ret;
       ret=sem_destroy(&_freeBufferSemaphore);
       ret=sem_destroy(&_fullBufferSemaphore);
       ret=pthread_mutex_destroy(&_incrementMutex);
-      cerr<<"LocalTraceBufferPool::~LocalTraceBufferPool()-end"<<endl<<flush;
+      DEVTRACE("LocalTraceBufferPool::~LocalTraceBufferPool()-end");
       _singleton = 0;
       ret = pthread_mutex_unlock(&_singletonMutex); // release lock
     }
