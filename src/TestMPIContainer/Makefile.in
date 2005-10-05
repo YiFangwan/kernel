@@ -29,9 +29,9 @@ LIB_CLIENT_IDL = Logger.idl SALOME_MPIObject.idl SALOME_TestMPIComponent.idl SAL
 BIN = TestMPIContainer
 BIN_SRC = 
 BIN_CLIENT_IDL = Logger.idl SALOME_MPIObject.idl SALOME_MPIContainer.idl SALOME_TestMPIComponent.idl
-BIN_SERVER_IDL = 
+BIN_SERVER_IDL = SALOME_Exception.idl
 
-LDFLAGSFORBIN+= -lSalomeNotification -lSalomeNS -lSalomeLifeCycleCORBA -lSalomeMPIContainer -lSalomeContainer -lRegistry -lOpUtil -lSALOMELocalTrace  -lSalomeResourcesManager ${MPI_LIBS}
+LDFLAGSFORBIN+= -lSalomeNotification -lSalomeNS -lSalomeLifeCycleCORBA -lSalomeMPIContainer -lSalomeContainer -lRegistry -lOpUtil -lSALOMELocalTrace  -lSalomeResourcesManager  -lSALOMEBasics ${MPI_LIBS}
 
 CXXFLAGS+=${MPI_INCLUDES}
 CXX_DEPEND_FLAG+=${MPI_INCLUDES}

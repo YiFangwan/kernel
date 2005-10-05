@@ -44,8 +44,8 @@ EXPORT_HEADERS = \
 
 LIB = libSalomeMPIContainer.la 
 LIB_SRC = MPIObject_i.cxx  MPIContainer_i.cxx
-LIB_CLIENT_IDL = SALOME_Component.idl
-LIB_SERVER_IDL = SALOME_MPIObject.idl SALOME_MPIContainer.idl
+LIB_CLIENT_IDL = 
+LIB_SERVER_IDL = SALOME_MPIObject.idl SALOME_MPIContainer.idl SALOME_ContainerManager.idl SALOME_Exception.idl
 
 # Executables targets
 BIN = SALOME_MPIContainer
@@ -53,7 +53,7 @@ BIN_SRC =
 BIN_SERVER_IDL = SALOME_MPIObject.idl SALOME_MPIContainer.idl
 
 CPPFLAGS+= $(PYTHON_INCLUDES) 
-LDFLAGS+= -lSalomeContainer -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace -lSalomeResourcesManager
+LDFLAGS+= -lSalomeContainer -lSalomeNS -lRegistry -lOpUtil -lSalomeNotification -lSALOMELocalTrace -lSalomeResourcesManager -lSALOMEBasics
 
 ifeq (@WITHMPI@,yes)
   LIBS += $(PYTHON_LIBS) $(MPI_LIBS)
