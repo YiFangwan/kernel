@@ -40,8 +40,8 @@ SUBDIRS = \
  Logger \
  SALOMETraceCollector \
  Utils \
- GenericObj \
  NamingService \
+ GenericObj \
  Registry \
  ModuleCatalog \
  DataTypeCatalog \
@@ -61,7 +61,9 @@ SUBDIRS = \
  ModuleGenerator \
  Communication \
  \
+ Basics/Test \
  SALOMELocalTrace/Test \
+ Logger/Test \
  SALOMETraceCollector/Test \
  Utils/Test \
  UnitTests

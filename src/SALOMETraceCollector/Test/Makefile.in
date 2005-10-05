@@ -37,14 +37,24 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 # header files  
 EXPORT_HEADERS= SALOMETraceCollectorTest.hxx
 
-EXPORT_PYSCRIPTS = 
+EXPORT_PYSCRIPTS = TestSALOMETraceCollector.py
 
 # Libraries targets
 
 LIB = libSALOMETraceCollectorTest.la 
 LIB_SRC = SALOMETraceCollectorTest.cxx
 
+# Executables targets
+
+BIN = TestSALOMETraceCollector
+BIN_SRC = 
+
 LIBS= @LIBS@ 
 LDFLAGS+=
+
+LDFLAGSFORBIN+= \
+ -lSALOMELocalTraceTest -lSALOMELocalTrace -lSALOMEBasics \
+ -lSALOMETraceCollectorTest \
+ -lcppunit
 
 @CONCLUDE@

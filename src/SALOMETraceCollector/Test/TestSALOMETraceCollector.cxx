@@ -3,7 +3,6 @@
 
 #include "SALOMELocalTraceTest.hxx"
 #include "SALOMETraceCollectorTest.hxx"
-#include "UtilsTest.hxx"
 
 // --- generic Main program from Basic/Test
 

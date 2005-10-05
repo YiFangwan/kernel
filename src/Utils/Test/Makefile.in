@@ -37,14 +37,25 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 # header files  
 EXPORT_HEADERS= UtilsTest.hxx
 
-EXPORT_PYSCRIPTS = 
+EXPORT_PYSCRIPTS = TestUtils.py
 
 # Libraries targets
 
 LIB = libUtilsTest.la 
 LIB_SRC = UtilsTest.cxx
 
+# Executables targets
+
+BIN = TestUtils
+BIN_SRC = 
+
 LIBS= @LIBS@ 
 LDFLAGS+=
+
+LDFLAGSFORBIN+= \
+ -lSALOMELocalTraceTest -lSALOMELocalTrace -lSALOMEBasics \
+ -lSALOMETraceCollectorTest \
+ -lUtilsTest -lOpUtil \
+ -lcppunit
 
 @CONCLUDE@
