@@ -79,7 +79,7 @@ public :
 	  if ( Make_ATEXIT && !ATEXIT_Done ) {
 	    //CCRT
 		assert (DESTRUCTEUR_GENERIQUE_::Destructeurs==0);
-		cerr << "ATEXIT_::ATEXIT_ Construction ATEXIT" << endl;// message necessaire pour utiliser logger dans Nettoyage (cf.BUG KERNEL4561)
+		//cerr << "ATEXIT_::ATEXIT_ Construction ATEXIT" << endl;// message necessaire pour utiliser logger dans Nettoyage (cf.BUG KERNEL4561)
 		DESTRUCTEUR_GENERIQUE_::Destructeurs = 
                       new std::list<DESTRUCTEUR_GENERIQUE_*> ; // Destructeur alloue dynamiquement (cf. ci-dessous) ,
 								   // il est utilise puis detruit par la fonction Nettoyage
@@ -91,7 +91,7 @@ public :
 
 	~ATEXIT_( )
 	{
-	  cerr << "ATEXIT_::~ATEXIT_ Destruction ATEXIT" << endl;
+	  //cerr << "ATEXIT_::~ATEXIT_ Destruction ATEXIT" << endl;
 	}
 };
 
@@ -111,7 +111,7 @@ static ATEXIT_ nettoyage = ATEXIT_( false );	/* singleton statique */
 
 void Nettoyage( void )
 {
-  cerr << "Nettoyage()" << endl;
+  //cerr << "Nettoyage()" << endl;
   //if(MYDEBUG) BEGIN_OF("Nettoyage( void )") ;
 	assert(DESTRUCTEUR_GENERIQUE_::Destructeurs) ;
 	//if(MYDEBUG) SCRUTE( DESTRUCTEUR_GENERIQUE_::Destructeurs->size() ) ;

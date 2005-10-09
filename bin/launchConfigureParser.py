@@ -234,7 +234,7 @@ def options_parser(line):
     list = []
     pass
 
-  print "source=",source
+  #print "source=",source
   
   result = {}
   i = 0
@@ -264,7 +264,7 @@ def options_parser(line):
 
 try:
     opts = options_parser(sys.argv[1:])
-    print "opts=",opts
+    #print "opts=",opts
     kernel_root_dir=os.environ["KERNEL_ROOT_DIR"]
 except:
     opts["h"] = 1
@@ -347,4 +347,4 @@ if 't' in opts:
     args[gui_nam] = 0
     pass
 
-print "args=",args
+#print "args=",args

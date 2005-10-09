@@ -123,13 +123,13 @@ public :
     typedef PortableServer::ServantBase TServant;
     if(_PtrObjet){
       if(TServant* aServant = dynamic_cast<TServant*>(_PtrObjet)){
-	cerr << "DESTRUCTEUR_GENERIQUE_::operator() deleting ServantBase's _PtrObjet" << endl;
+	//cerr << "DESTRUCTEUR_GENERIQUE_::operator() deleting ServantBase's _PtrObjet" << endl;
 	PortableServer::POA_var aPOA = aServant->_default_POA();
 	PortableServer::ObjectId_var anObjectId = aPOA->servant_to_id(aServant);
 	aPOA->deactivate_object(anObjectId.in());
 	aServant->_remove_ref();
       }else{
-	cerr << "DESTRUCTEUR_GENERIQUE_::operator() deleting _PtrObjet" << endl;
+	//cerr << "DESTRUCTEUR_GENERIQUE_::operator() deleting _PtrObjet" << endl;
 	TYPE* aPtr = static_cast<TYPE*>(_PtrObjet);
 	delete aPtr;
       }

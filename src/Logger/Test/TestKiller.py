@@ -5,7 +5,7 @@ def killNamingService():
     """
     kills omniORB4 Naming Service on local machine.
     Selects process corresponding to the port used in $OMNIORB_CONFIG file.
-    works only with a single line $OMNIORB_CONFIG like
+    Works only with a single line $OMNIORB_CONFIG like
     InitRef = NameService=corbaname::<hostname>:<port>
     """
     fic=os.environ['OMNIORB_CONFIG']
@@ -31,5 +31,6 @@ def killProcess(process_id):
         except:
             print "  ---- process %s : %s inexistant"% (pid, cmd[0])
             pass
+        del process_id[pid]
         pass
     killNamingService()

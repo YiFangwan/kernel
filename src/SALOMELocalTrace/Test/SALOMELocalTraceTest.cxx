@@ -10,9 +10,6 @@
 
 using namespace std;
 
-// --- Registers the fixture into the 'registry'
-
-CPPUNIT_TEST_SUITE_REGISTRATION( SALOMELocalTraceTest );
 
 // ============================================================================
 /*!
@@ -55,7 +52,7 @@ SALOMELocalTraceTest::testSingletonBufferPool()
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
   ofstream traceFile;
-  traceFile.open(theFileName, ios::out | ios::trunc);
+  traceFile.open(theFileName, ios::out | ios::app);
   CPPUNIT_ASSERT(traceFile); // file created empty, then closed
   traceFile.close();
 

@@ -35,10 +35,12 @@
 #include <qfileinfo.h>
 using namespace std;
 
+#include "utilities.h"
+
 #ifdef _DEBUG_
-static int MYDEBUG = 0;
+static int MYDEBUG = 1;
 #else
-static int MYDEBUG = 0;
+static int MYDEBUG = 1;
 #endif
 
 static const char* SEPARATOR    = ":";
@@ -468,12 +470,12 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
   ParserComponent *C_parser = NULL;
   ParserPathPrefixes *pp = NULL;
 
-  SALOME_ModuleCatalog::Acomponent_ptr compo = NULL;
-  
+  SALOME_ModuleCatalog::Acomponent_ptr compo
+    = SALOME_ModuleCatalog::Acomponent::_nil();
   C_parser = findComponent(s);
   if (C_parser) {
     
-//    DebugParserComponent(*C_parser);
+    //    DebugParserComponent(*C_parser);
 
     SALOME_ModuleCatalog::Component C_corba;
     duplicate(C_corba, *C_parser);
@@ -489,7 +491,6 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
     // return NULL object
     if(MYDEBUG) MESSAGE("Component with name  " << name 
 			<< " not found in catalog");
-    compo = NULL;
   }
   
   return compo;
@@ -520,13 +521,15 @@ SALOME_ModuleCatalogImpl::findComponent(const string & name)
 
   if (!C_parser)
     for (unsigned int ind=0; ind < _personal_module_list.size();ind++)
-      if (name.compare(_personal_module_list[ind].name) == 0)
-        {
-          if(MYDEBUG) MESSAGE("Component named " << name 
-			      << " found in the personal catalog");
-	  C_parser = &(_personal_module_list[ind]);
-	  break;
-	}
+      {
+	if (name.compare(_personal_module_list[ind].name) == 0)
+	  {
+	    if(MYDEBUG) MESSAGE("Component named " << name 
+				<< " found in the personal catalog");
+	    C_parser = &(_personal_module_list[ind]);
+	    break;
+	  }
+      }
 
   if (!C_parser)
     for (unsigned int ind=0; ind < _general_module_list.size();ind++)

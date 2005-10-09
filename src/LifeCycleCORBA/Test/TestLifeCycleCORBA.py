@@ -53,7 +53,7 @@ clt.waitNS("/ContainerManager")
 
 # execute Unit Test
 
-command = ['UnitTests']
+command = ['TestLifeCycleCORBA']
 ret = os.spawnvp(os.P_WAIT, command[0], command)
 
 # kill containers created by the Container Manager

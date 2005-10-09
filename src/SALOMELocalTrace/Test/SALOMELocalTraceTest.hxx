@@ -10,7 +10,6 @@ class SALOMELocalTraceTest : public CppUnit::TestFixture
   CPPUNIT_TEST( testSingletonBufferPool );
   CPPUNIT_TEST( testLoadBufferPoolLocal );
   CPPUNIT_TEST( testLoadBufferPoolFile );
-  CPPUNIT_TEST( testLoadBufferPoolFile );
   CPPUNIT_TEST_SUITE_END();
 
 public:

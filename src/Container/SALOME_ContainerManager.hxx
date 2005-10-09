@@ -29,6 +29,7 @@ class CONTAINER_EXPORT SALOME_ContainerManager:
   public POA_Engines::ContainerManager,
   public PortableServer::RefCountServantBase
 {
+
 public:
   SALOME_ContainerManager(CORBA::ORB_ptr orb);
   ~SALOME_ContainerManager();
@@ -36,6 +37,7 @@ public:
   Engines::Container_ptr
   FindOrStartContainer(const Engines::MachineParameters& params,
 		       const Engines::MachineList& possibleComputer);
+
   Engines::MachineList *
   GetFittingResources(const Engines::MachineParameters& params,
 		      const char *componentName);

@@ -96,6 +96,8 @@ public:
 
   int NbProc(const Engines::MachineParameters& params);
 
+  void preSet(Engines::MachineParameters& params);
+
 protected:
 
   /*! Establish if a component called "componentName" in a container called

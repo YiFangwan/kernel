@@ -201,7 +201,6 @@ GetFittingResources(const Engines::MachineParameters& params,
   catch(const SALOME_Exception &ex)
     {
       INFOS("Caught exception.");
-      cerr << ex.what() <<endl;
       THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
       //return ret;
     }

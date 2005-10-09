@@ -30,7 +30,6 @@
 #ifndef MODULECATALOG_IMPL_H
 #define MODULECATALOG_IMPL_H
 
-#include "utilities.h"
 #include <string>
 #include <map>
 

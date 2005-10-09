@@ -129,26 +129,14 @@ def set_env(args, modules_list, modules_root_dir):
 
     os.environ["SALOMEPATH"]=":".join(modules_root_dir_list)
     
-    # special path for logger lib if needeed
+    # set trace environment variable
     
-    os.environ["SALOME_trace"]="local"
+    if not os.environ.has_key("SALOME_trace"):
+        os.environ["SALOME_trace"]="local"
     if args['file']:
         os.environ["SALOME_trace"]="file:"+args['file'][0]
     if args['logger']:
         os.environ["SALOME_trace"]="with_logger"
-        locdir=os.environ['PWD']
-        libtracedir=os.path.join(locdir,"libSalomeTrace")
-        libtrace = os.path.join(modules_root_dir["KERNEL"],"lib",
-                                salome_subdir,
-                                "libSALOMELoggerClient.so.0.0.0")
-        libtraceln = os.path.join(libtracedir,"libSALOMELocalTrace.so")
-        aCommand = 'rm -rf ' + libtracedir + "; "
-        aCommand += 'mkdir ' + libtracedir + "; "
-        aCommand += 'ln -s ' + libtrace + " " + libtraceln + "; "
-        aCommand += 'ln -s ' + libtrace + " " + libtraceln + ".0; "
-        aCommand += 'ln -s ' + libtrace + " " + libtraceln + ".0.0.0; "
-        os.system(aCommand)
-        add_path(libtracedir, "LD_LIBRARY_PATH")
 
     # set environment for SMESH plugins
 
@@ -184,6 +172,23 @@ def set_env(args, modules_list, modules_root_dir):
     # set environment for SUPERV module
     os.environ["ENABLE_MACRO_NODE"]="1"
    
+
+    os.environ["CSF_PluginDefaults"] \
+    = os.path.join(modules_root_dir["KERNEL"],"share",
+                   salome_subdir,"resources")
+    os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
+    = os.path.join(modules_root_dir["KERNEL"],"share",
+                   salome_subdir,"resources")
+
+    if "GEOM" in modules_list:
+        print "GEOM OCAF Resources"
+        os.environ["CSF_GEOMDS_ResourcesDefaults"] \
+        = os.path.join(modules_root_dir["GEOM"],"share",
+                       salome_subdir,"resources")
+	print "GEOM Shape Healing Resources"
+        os.environ["CSF_ShHealingDefaults"] \
+        = os.path.join(modules_root_dir["GEOM"],"share",
+                       salome_subdir,"resources")
 
 # -----------------------------------------------------------------------------
 
@@ -274,7 +279,7 @@ class InterpServer(Server):
     def run(self):
         global process_id
         command = self.CMD
-        print "command = ", command
+        #print "command = ", command
         pid = os.spawnvp(os.P_NOWAIT, command[0], command)
         process_id[pid]=self.CMD
 
@@ -297,7 +302,7 @@ class CatalogServer(Server):
         for module in ["KERNEL", "GUI"] + list_modules:
             module_root_dir=modules_root_dir[module]
             module_cata=module+"Catalog.xml"
-            print "   ", module_cata
+            #print "   ", module_cata
             cata_path.extend(
                 glob.glob(os.path.join(module_root_dir,
                                        "share",salome_subdir,
@@ -354,26 +359,6 @@ class LoggerServer(Server):
 
 # ---
 
-# class SessionLoader(Server):
-#     def __init__(self,args):
-#         self.args=args
-#         self.initArgs()
-#         self.CMD=['SALOME_Session_Loader']
-#         if "cppContainer" in self.args['standalone'] \
-#         or "cppContainer" in self.args['embedded']:
-#             self.CMD=self.CMD+['CPP']
-#         if "pyContainer" in self.args['standalone'] \
-#         or "pyContainer" in self.args['embedded']:
-#             self.CMD=self.CMD+['PY']
-#         if "supervContainer" in self.args['containers'] \
-#         or "supervContainer" in self.args['standalone']:
-#             self.CMD=self.CMD+['SUPERV']
-#         if self.args['gui']:
-#             self.CMD=self.CMD+['GUI']
-#         print self.CMD
-
-# ---
-
 class SessionServer(Server):
     def __init__(self,args):
         self.args=args
@@ -414,7 +399,7 @@ class SessionServer(Server):
         for module in ["KERNEL", "GUI"] + list_modules:
             module_root_dir=modules_root_dir[module]
             module_cata=module+"Catalog.xml"
-            print "   ", module_cata
+            #print "   ", module_cata
             cata_path.extend(
                 glob.glob(os.path.join(module_root_dir,"share",
                                        salome_subdir,"resources",
@@ -451,7 +436,7 @@ class ContainerManagerServer(Server):
         for module in ["KERNEL", "GUI"] + list_modules:
             module_root_dir=modules_root_dir[module]
             module_cata=module+"Catalog.xml"
-            print "   ", module_cata
+            #print "   ", module_cata
             cata_path.extend(
                 glob.glob(os.path.join(module_root_dir,"share",
                                        self.args['appname'],"resources",
@@ -544,24 +529,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # attente de la disponibilite du SalomeDS dans le Naming Service
     #
 
-    os.environ["CSF_PluginDefaults"] \
-    = os.path.join(modules_root_dir["KERNEL"],"share",
-                   salome_subdir,"resources")
-    os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
-    = os.path.join(modules_root_dir["KERNEL"],"share",
-                   salome_subdir,"resources")
-
-    if "GEOM" in modules_list:
-        print "GEOM OCAF Resources"
-        os.environ["CSF_GEOMDS_ResourcesDefaults"] \
-        = os.path.join(modules_root_dir["GEOM"],"share",
-                       salome_subdir,"resources")
-	print "GEOM Shape Healing Resources"
-        os.environ["CSF_ShHealingDefaults"] \
-        = os.path.join(modules_root_dir["GEOM"],"share",
-                       salome_subdir,"resources")
-
-    print "ARGS = ",args
+    #print "ARGS = ",args
     if 'study' not in args['embedded']:
         print "RunStudy"
         myServer=SalomeDSServer(args)

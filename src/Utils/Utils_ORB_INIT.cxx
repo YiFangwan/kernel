@@ -40,9 +40,9 @@ ORB_INIT::~ORB_INIT()
 {
   if ( ! CORBA::is_nil( _orb ) )
   {
-    std::cerr << "appel _orb->destroy()" << std::endl;
+    //std::cerr << "appel _orb->destroy()" << std::endl;
     _orb->destroy() ;
-    std::cerr << "retour _orb->destroy()" << std::endl;
+    //std::cerr << "retour _orb->destroy()" << std::endl;
   }
 }
 

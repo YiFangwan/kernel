@@ -21,9 +21,10 @@
 #endif
 
 class RESOURCESMANAGER_EXPORT SALOME_LoadRateManager
-{
-public:
-  std::string FindBest(const Engines::MachineList& hosts);
-};
+  {
+
+  public:
+    std::string FindBest(const Engines::MachineList& hosts);
+  };
 
 #endif

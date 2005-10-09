@@ -66,6 +66,7 @@ SUBDIRS = \
  Logger/Test \
  SALOMETraceCollector/Test \
  Utils/Test \
+ LifeCycleCORBA/Test \
  UnitTests
 
 ifeq (@mpi_ok@,yes)

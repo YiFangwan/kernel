@@ -46,7 +46,7 @@ LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
 		 SALOME_ModuleCatalog.idl SALOME_ContainerManager.idl SALOME_Exception.idl
 
 # Executables targets
-BIN = TestLifeCycleCORBA
+BIN = Test_LifeCycleCORBA
 BIN_SRC =
 BIN_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
 		 SALOME_ModuleCatalog.idl SALOME_ContainerManager.idl

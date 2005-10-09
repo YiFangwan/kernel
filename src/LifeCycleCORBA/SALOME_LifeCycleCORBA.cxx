@@ -207,7 +207,7 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
  *  component instance on a container defined by name
  *  \param containerName  the name of container, under one of the forms
  *           - 1 aContainer (local container)
- *           - 2 /machine/aContainer (container on hostnme = machine)
+ *           - 2 machine/aContainer (container on hostname = machine)
  *  \param componentName  the name of component class
  *  \return a CORBA reference of the component instance, or _nil if problem
  */
@@ -229,9 +229,10 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
   int rg=st2Container.find("/");
 
   Engines::MachineParameters_var params=new Engines::MachineParameters;
+  preSet(params);
   if (rg<0)
     {
-      //containerName doesn't contain "/" => Local container
+      // containerName doesn't contain "/" => Local container
       params->container_name=CORBA::string_dup(stContainer);
       params->hostname=CORBA::string_dup(GetHostname().c_str());
     }
@@ -271,6 +272,7 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
       CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
       SALOME_ModuleCatalog::ModuleCatalog_var Catalog = 
 	SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
+      ASSERT(! CORBA::is_nil(Catalog));
       SALOME_ModuleCatalog::Acomponent_ptr compoInfo = 
 	Catalog->GetComponent(componentName);
       if (CORBA::is_nil (compoInfo)) 
@@ -305,6 +307,34 @@ SALOME_LifeCycleCORBA::isMpiContainer(const Engines::MachineParameters& params)
     return true;
   else
     return false;
+}
+
+
+//=============================================================================
+/*! Public -
+ *  Pre initialisation of a given Engines::MachineParameters with default
+ *  values.
+ *  - container_name = ""  : not relevant
+ *  - hostname = ""        : not relevant
+ *  - OS = ""              : not relevant
+ *  - mem_mb = 0           : not relevant
+ *  - cpu_clock = 0        : not relevant
+ *  - nb_proc_per_node = 0 : not relevant
+ *  - nb_node = 0          : not relevant
+ *  - isMPI = false        : standard components
+ */
+//=============================================================================
+
+void SALOME_LifeCycleCORBA::preSet( Engines::MachineParameters& params)
+{
+  params.container_name = "";
+  params.hostname = "";
+  params.OS = "";
+  params.mem_mb = 0;
+  params.cpu_clock = 0;
+  params.nb_proc_per_node = 0;
+  params.nb_node = 0;
+  params.isMPI = false;
 }
 
 //=============================================================================
