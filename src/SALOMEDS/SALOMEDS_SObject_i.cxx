@@ -35,15 +35,15 @@ using namespace std;
 SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const Handle(SALOMEDSImpl_SObject)& theImpl, CORBA::ORB_ptr theORB)
 {
   SALOMEDS_SObject_i* so_servant = new SALOMEDS_SObject_i(theImpl, theORB);
-  SALOMEDS::SObject_var so  = SALOMEDS::SObject::_narrow(so_servant->_this()); 
+  SALOMEDS::SObject_var so  = SALOMEDS::SObject::_narrow(so_servant->_this());
 
-  return so;
-}     
+  return so._retn();
+}
 
 
 //============================================================================
 /*! Function : constructor
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 SALOMEDS_SObject_i::SALOMEDS_SObject_i(const Handle(SALOMEDSImpl_SObject)& impl, CORBA::ORB_ptr orb)
@@ -52,20 +52,20 @@ SALOMEDS_SObject_i::SALOMEDS_SObject_i(const Handle(SALOMEDSImpl_SObject)& impl,
   _orb = CORBA::ORB::_duplicate(orb);
    //SALOME::GenericObj_i::myPOA = SALOMEDS_StudyManager_i::GetPOA(GetStudy());
 }
-  
+
 
 //============================================================================
 /*! Function : destructor
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 SALOMEDS_SObject_i::~SALOMEDS_SObject_i()
 {}
-  
-  
+
+
 //============================================================================
 /*! Function :GetID
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 char* SALOMEDS_SObject_i::GetID()
@@ -73,10 +73,10 @@ char* SALOMEDS_SObject_i::GetID()
   SALOMEDS::Locker lock;
   return CORBA::string_dup(_impl->GetID().ToCString());
 }
-  
+
 //============================================================================
 /*! Function : GetFatherComponent
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 SALOMEDS::SComponent_ptr SALOMEDS_SObject_i::GetFatherComponent()
@@ -85,10 +85,10 @@ SALOMEDS::SComponent_ptr SALOMEDS_SObject_i::GetFatherComponent()
   SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (_impl->GetFatherComponent(), _orb);
   return sco._retn();
 }
-  
+
 //============================================================================
 /*! Function : GetFather
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 SALOMEDS::SObject_ptr SALOMEDS_SObject_i::GetFather()
@@ -100,7 +100,7 @@ SALOMEDS::SObject_ptr SALOMEDS_SObject_i::GetFather()
 
 //============================================================================
 /*! Function :
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 SALOMEDS::Study_ptr SALOMEDS_SObject_i::GetStudy()
@@ -111,12 +111,12 @@ SALOMEDS::Study_ptr SALOMEDS_SObject_i::GetStudy()
     MESSAGE("Problem GetStudy");
     return SALOMEDS::Study::_nil();
   }
-  
+
   TCollection_AsciiString IOR = aStudy->GetTransientReference();
   CORBA::Object_var obj = _orb->string_to_object(IOR.ToCString());
   SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(obj) ;
   ASSERT(!CORBA::is_nil(Study));
-  return SALOMEDS::Study::_duplicate(Study); 
+  return SALOMEDS::Study::_duplicate(Study);
 }
 
 //============================================================================
@@ -124,7 +124,7 @@ SALOMEDS::Study_ptr SALOMEDS_SObject_i::GetStudy()
  *  Purpose  : Find attribute of given type on this SObject
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_SObject_i::FindAttribute (SALOMEDS::GenericAttribute_out anAttribute, 
+CORBA::Boolean SALOMEDS_SObject_i::FindAttribute (SALOMEDS::GenericAttribute_out anAttribute,
 						  const char* aTypeOfAttribute)
 {
   SALOMEDS::Locker lock;
@@ -168,7 +168,7 @@ SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
 
 //============================================================================
 /*! Function : ReferencedObject
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_SObject_i::ReferencedObject(SALOMEDS::SObject_out obj)
@@ -183,7 +183,7 @@ CORBA::Boolean SALOMEDS_SObject_i::ReferencedObject(SALOMEDS::SObject_out obj)
 
 //============================================================================
 /*! Function : FindSubObject
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(long atag, SALOMEDS::SObject_out obj)
@@ -194,8 +194,8 @@ CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(long atag, SALOMEDS::SObject_ou
 
   obj = SALOMEDS_SObject_i::New (aSubObj, _orb);
   return true;
-    
-}  
+
+}
 
 //============================================================================
 /*! Function : Name
@@ -207,7 +207,7 @@ char* SALOMEDS_SObject_i::Name()
   SALOMEDS::Locker lock;
   return CORBA::string_dup(_impl->Name().ToCString());
 }
-  
+
 //============================================================================
 /*! Function : Name
  *  Purpose  : sets a name
@@ -219,10 +219,10 @@ void  SALOMEDS_SObject_i::Name(const char* name)
   TCollection_AsciiString aName((char*)name);
   _impl->Name(aName);
 }
-  
+
 //============================================================================
 /*! Function : Tag
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 CORBA::Short SALOMEDS_SObject_i::Tag()
@@ -233,7 +233,7 @@ CORBA::Short SALOMEDS_SObject_i::Tag()
 
 //============================================================================
 /*! Function : Depth
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 CORBA::Short SALOMEDS_SObject_i::Depth()
@@ -244,7 +244,7 @@ CORBA::Short SALOMEDS_SObject_i::Depth()
 
 //============================================================================
 /*! Function : GetObject
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
 CORBA::Object_ptr SALOMEDS_SObject_i::GetObject()
@@ -262,10 +262,10 @@ CORBA::Object_ptr SALOMEDS_SObject_i::GetObject()
 
 //============================================================================
 /*! Function : GetName
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
-char* SALOMEDS_SObject_i::GetName() 
+char* SALOMEDS_SObject_i::GetName()
 {
   SALOMEDS::Locker lock;
   CORBA::String_var aStr = CORBA::string_dup(_impl->GetName().ToCString());
@@ -274,10 +274,10 @@ char* SALOMEDS_SObject_i::GetName()
 
 //============================================================================
 /*! Function : GetComment
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
-char* SALOMEDS_SObject_i::GetComment() 
+char* SALOMEDS_SObject_i::GetComment()
 {
   SALOMEDS::Locker lock;
   CORBA::String_var aStr = CORBA::string_dup(_impl->GetComment().ToCString());
@@ -286,10 +286,10 @@ char* SALOMEDS_SObject_i::GetComment()
 
 //============================================================================
 /*! Function : GetIOR
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
-char* SALOMEDS_SObject_i::GetIOR() 
+char* SALOMEDS_SObject_i::GetIOR()
 {
   SALOMEDS::Locker lock;
   CORBA::String_var aStr = CORBA::string_dup(_impl->GetIOR().ToCString());
@@ -305,7 +305,7 @@ long SALOMEDS_SObject_i::GetLocalImpl(const char* theHostname, CORBA::Long thePI
   long pid = (long)_getpid();
 #else
   long pid = (long)getpid();
-#endif  
+#endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   SALOMEDSImpl_SObject* local_impl = _impl.operator->();
   return ((long)local_impl);

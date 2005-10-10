@@ -76,6 +76,8 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 
 int LocalTraceBufferPool::insert(int traceType, const char* msg)
 {
+  cout<<msg;
+  return 1;
 
   // get immediately a message number to control sequence (mutex protected)
 

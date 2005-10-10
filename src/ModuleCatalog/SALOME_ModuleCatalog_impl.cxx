@@ -468,7 +468,8 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
   ParserComponent *C_parser = NULL;
   ParserPathPrefixes *pp = NULL;
 
-  SALOME_ModuleCatalog::Acomponent_ptr compo = NULL;
+  //mkr : fix for bug IPAL10056
+  SALOME_ModuleCatalog::Acomponent_ptr compo = SALOME_ModuleCatalog::Acomponent::_nil();
   
   C_parser = findComponent(s);
   if (C_parser) {
@@ -489,7 +490,6 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
     // return NULL object
     if(MYDEBUG) MESSAGE("Component with name  " << name 
 			<< " not found in catalog");
-    compo = NULL;
   }
   
   return compo;

@@ -21,7 +21,7 @@ SALOMEDS_AttributeReal::~SALOMEDS_AttributeReal()
 double SALOMEDS_AttributeReal::Value()
 {
   double aValue;
-  if(_isLocal) aValue = (bool)Handle(SALOMEDSImpl_AttributeReal)::DownCast(_local_impl)->Value();
+  if(_isLocal) aValue = Handle(SALOMEDSImpl_AttributeReal)::DownCast(_local_impl)->Value();
   else aValue = SALOMEDS::AttributeReal::_narrow(_corba_impl)->Value();
   return aValue;
 }
