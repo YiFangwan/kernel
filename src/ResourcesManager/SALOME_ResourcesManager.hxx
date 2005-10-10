@@ -51,7 +51,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     std::string FindBest(const Engines::MachineList& listOfMachines);
 
-    std::string BuildTempFileToLaunchRemoteContainer
+    std::string BuildCommandToLaunchRemoteContainer
     (const std::string& machine,
      const Engines::MachineParameters& params);
 
@@ -84,7 +84,9 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
   private:
     SALOME_NamingService *_NS;
 
-    bool _verify_resources(MapOfParserResourcesType resourceslist);
+    std::string BuildTempFileToLaunchRemoteContainer
+    (const std::string& machine,
+     const Engines::MachineParameters& params);
 
     void SelectOnlyResourcesWithOS(std::vector<std::string>& hosts,
 				   const char *OS) const
@@ -115,6 +117,9 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
     MapOfParserResourcesType _resourcesList;
 
     SALOME_LoadRateManager _dynamicResourcesSelecter;
+
+    //! different behaviour if $APPLI exists (SALOME Application) 
+    bool _isAppliSalomeDefined;
   };
 
 #endif // RESSOURCESCATALOG_IMPL_H

@@ -34,10 +34,13 @@
 
 using namespace std;
 
-//----------------------------------------------------------------------
-//Function : SALOME_ResourcesCatalog_Handler
-//Purpose: Constructor
-//----------------------------------------------------------------------
+//=============================================================================
+/*!
+ *  Constructor
+ *  \param listOfResources: map of ParserResourcesType to fill when parsing
+ */ 
+//=============================================================================
+
 SALOME_ResourcesCatalog_Handler::
 SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources):
     _resources_list(listOfResources)
@@ -52,6 +55,7 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources):
   test_protocol = "protocol";
   test_mode = "mode";
   test_user_name = "userName";
+  test_appli_path = "appliPath";
   test_modules = "modules";
   test_module_name = "moduleName";
   test_module_path = "modulePath";
@@ -63,41 +67,59 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources):
   test_nb_of_proc_per_node = "nbOfProcPerNode";
 }
 
-//----------------------------------------------------------------------
-//Function : ~SALOME_ResourcesCatalog_Handler
-//Purpose: Destructor
-//----------------------------------------------------------------------
+//=============================================================================
+/*!
+ *  Destructor
+ */ 
+//=============================================================================
+
 SALOME_ResourcesCatalog_Handler::~SALOME_ResourcesCatalog_Handler()
 {
   MESSAGE("SALOME_ResourcesCatalog_Handler destruction");
 }
 
-//----------------------------------------------------------------------
-//Function : GetResourcesAfterParsing
-//Purpose: Retrieves DS after the file parse.
-//----------------------------------------------------------------------
+//=============================================================================
+/*!
+ *  Retrieves DS after the file parse.
+ */ 
+//=============================================================================
+
 const MapOfParserResourcesType&
 SALOME_ResourcesCatalog_Handler::GetResourcesAfterParsing() const
   {
     return _resources_list;
   }
 
-//----------------------------------------------------------------------
-//Function : startDocument
-//Purpose: overload handler function
-//----------------------------------------------------------------------
+//=============================================================================
+/*!
+ *  Overload handler function startDocument.
+ *  Called before an xml file is parsed.
+ *  Clears the list of resources.
+ *  \return true (if no error detected...)
+ */ 
+//=============================================================================
+
 bool SALOME_ResourcesCatalog_Handler::startDocument()
 {
   MESSAGE("Begin parse document");
-  // Empty private elements
+
+  // --- Empty private elements
+
   _resources_list.clear();
   return true;
 }
 
-//----------------------------------------------------------------------
-//Function : startElement
-//Purpose: overload handler function
-//----------------------------------------------------------------------
+//=============================================================================
+/*!
+ *  Overload handler function startElement.
+ *    \param QString argument by reference (not used here ?)
+ *    \param QString argument by reference (not used here ?)
+ *    \param name                          (not used here ?)
+ *    \param atts
+ *    \return true if no error was detected
+ */ 
+//=============================================================================
+
 bool
 SALOME_ResourcesCatalog_Handler::
 startElement( const QString&,
@@ -159,6 +181,9 @@ startElement( const QString&,
       if ((qName.compare(QString(test_user_name)) == 0))
         _resource.UserName = content;
 
+      if ((qName.compare(QString(test_appli_path)) == 0))
+        _resource.AppliPath = content;
+
       if ((qName.compare(QString(test_module_name)) == 0))
         previous_module_name = content;
 
@@ -187,10 +212,16 @@ startElement( const QString&,
   return true;
 }
 
-//----------------------------------------------------------------------
-//Function : endElement
-//Purpose: overload handler function
-//----------------------------------------------------------------------
+//=============================================================================
+/*!
+ *  Overload handler function endElement.
+ *     \param QString argument by reference  (not used here ?)
+ *     \param QString argument by reference  (not used here ?)
+ *     \param qName 
+ *     \return true (if no error detected ...)
+ */ 
+//=============================================================================
+
 bool SALOME_ResourcesCatalog_Handler::
 endElement(const QString&,
            const QString&,
@@ -205,56 +236,71 @@ endElement(const QString&,
   return true;
 }
 
-//----------------------------------------------------------------------
-//Function : characters
-//Purpose: overload handler function
-//----------------------------------------------------------------------
+//=============================================================================
+/*!
+ *  Overload handler function characters.
+ *  fills the private attribute string 'content'.
+ *     \param chars  
+ *     \return true (if no error detected ...)
+ */ 
+//=============================================================================
+
 bool SALOME_ResourcesCatalog_Handler::characters(const QString& chars)
 {
   content = (const char *)chars ;
   return true;
 }
 
-//----------------------------------------------------------------------
-//Function : endDocument
-//Purpose: overload handler function
-//----------------------------------------------------------------------
+//=============================================================================
+/*!
+ *  Overload handler function endDocument.
+ *  Called after the document has been parsed.
+ *     \return true (if no error detected ...)
+ */ 
+//=============================================================================
+
 bool SALOME_ResourcesCatalog_Handler::endDocument()
 {
-  //_resources_list
-  //   for (unsigned int ind = 0; ind < _resources_list.size(); ind++)
-  //     {
-  //       MESSAGE("Resources name :"<<_resources_list[ind].Parsername);
-  //       MESSAGE("OS :"<<_resources_list[ind].ParserOS);
-  //       MESSAGE("OS version :"<<_resources_list[ind].ParserOS_version);
-  //       for (unsigned int i = 0; i < _resources_list[ind].Parserprocs.size(); i++)
-  //  {
-  //    MESSAGE("Proc number :" << _resources_list[ind].Parserprocs[i].Parsernumber);
-  //    MESSAGE("Model name :" << _resources_list[ind].Parserprocs[i].Parsermodel_name);
-  //    MESSAGE("CPU(MHz) :" << _resources_list[ind].Parserprocs[i].Parsercpu_mhz);
-  //    MESSAGE("Cache :" << _resources_list[ind].Parserprocs[i].Parsercache_size);
-  //  }
-  //       for (unsigned int j = 0; j < _resources_list[ind].Parsercontainertype.size(); j++)
-  //  MESSAGE("Container Type :" << _resources_list[ind].Parsercontainertype[j]);
-  //     }
+  for (map<string, ParserResourcesType>::const_iterator iter =
+         _resources_list.begin();
+       iter != _resources_list.end();
+       iter++)
+    {
+      SCRUTE((*iter).second.Alias);
+      SCRUTE((*iter).second.UserName);
+      SCRUTE((*iter).second.AppliPath);
+      SCRUTE((*iter).second.PreReqFilePath);
+      SCRUTE((*iter).second.OS);
+      SCRUTE((*iter).second.Protocol);
+      SCRUTE((*iter).second.Mode);
+   }
+  
   MESSAGE("This is the end of document");
   return true;
 }
 
-//----------------------------------------------------------------------
-//Function : errorProtocol
-//Purpose: overload handler function
-//----------------------------------------------------------------------
+//=============================================================================
+/*!
+ *  Overload handler function errorProtocol.
+ *  \return the error message.
+ */ 
+//=============================================================================
+
 QString SALOME_ResourcesCatalog_Handler::errorProtocol()
 {
-  INFOS(" ------------- error protocole !");
+  INFOS(" ------------- error protocol !");
   return errorProt;
 }
 
-//----------------------------------------------------------------------
-//Function : fatalError
-//Purpose: overload handler function
-//----------------------------------------------------------------------
+//=============================================================================
+/*!
+ *  Overload handler function fatalError.
+ *  Fills the private string errorProt with details on error.
+ *     \param exception from parser
+ *     \return boolean (meaning ?)
+ */
+//=============================================================================
+
 bool
 SALOME_ResourcesCatalog_Handler::fatalError
 (const QXmlParseException& exception)
@@ -268,10 +314,13 @@ SALOME_ResourcesCatalog_Handler::fatalError
   return QXmlDefaultHandler::fatalError( exception );
 }
 
-//----------------------------------------------------------------------
-//Function : FillDocument
-//Purpose: Fill the document tree in xml file, used to write in xml file.
-//----------------------------------------------------------------------
+//=============================================================================
+/*!
+ *  Fill the document tree in xml file, used to write in an xml file.
+ *  \param doc document to fill.
+ */ 
+//=============================================================================
+
 void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(QDomDocument& doc)
 {
   QDomElement root = doc.createElement("resources");

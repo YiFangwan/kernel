@@ -137,7 +137,7 @@ FindOrStartContainer(const Engines::MachineParameters& params,
     }
   else
     command =
-      _ResManager->BuildTempFileToLaunchRemoteContainer(theMachine,params);
+      _ResManager->BuildCommandToLaunchRemoteContainer(theMachine,params);
 
   _ResManager->RmTmpFile();
   int status=system(command.c_str());

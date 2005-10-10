@@ -75,6 +75,7 @@ struct ParserResourcesType
     AccessProtocolType Protocol;
     AccessModeType Mode;
     std::string UserName;
+    std::string AppliPath;
     MapOfModulesPath ModulesPath;
     std::string PreReqFilePath;
     std::string OS;

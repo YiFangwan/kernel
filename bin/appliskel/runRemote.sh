@@ -44,6 +44,8 @@ export APPLI
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
 
 export OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_$1_$2.cfg
+export NSHOST=$1
+export NSPORT=$2
 initref="NameService=corbaname::"$1":$2"
 echo "ORBInitRef $initref" > $OMNIORB_CONFIG
 
