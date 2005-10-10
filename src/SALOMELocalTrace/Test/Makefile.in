@@ -49,11 +49,14 @@ LIB_SRC = SALOMELocalTraceTest.cxx
 BIN = TestSALOMELocalTrace
 BIN_SRC = 
 
-LIBS= @LIBS@ 
+CXXFLAGS += @CPPUNIT_INCLUDES@
+CPPFLAGS += @CPPUNIT_INCLUDES@
+
+LIBS= @LIBS@ @CPPUNIT_LIBS@
+
 LDFLAGS+= -lSALOMELocalTrace
 
 LDFLAGSFORBIN+= \
- -lSALOMELocalTraceTest -lSALOMELocalTrace -lSALOMEBasics \
- -lcppunit
+ -lSALOMELocalTraceTest -lSALOMELocalTrace -lSALOMEBasics 
 
 @CONCLUDE@

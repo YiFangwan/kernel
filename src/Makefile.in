@@ -59,15 +59,7 @@ SUBDIRS = \
  SALOMEDS \
  KERNEL_PY \
  ModuleGenerator \
- Communication \
- \
- Basics/Test \
- SALOMELocalTrace/Test \
- Logger/Test \
- SALOMETraceCollector/Test \
- Utils/Test \
- LifeCycleCORBA/Test \
- UnitTests
+ Communication 
 
 ifeq (@mpi_ok@,yes)
   SUBDIRS+= MPIContainer TestMPIContainer
@@ -75,6 +67,17 @@ endif
 
 ifeq (@WITH_BATCH@,yes)
   SUBDIRS += Batch Batch_SWIG
+endif
+
+ifeq (@cppunit_ok@,yes)
+ SUBDIRS+= \
+ Basics/Test \
+ SALOMELocalTrace/Test \
+ Logger/Test \
+ SALOMETraceCollector/Test \
+ Utils/Test \
+ LifeCycleCORBA/Test \
+ UnitTests
 endif
 
 @MODULE@

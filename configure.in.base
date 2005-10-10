@@ -212,8 +212,6 @@ WITH_BATCH=no
 test x$openpbs_ok = xyes || test x$lsf_ok = xyes && WITH_BATCH=yes
 AC_SUBST(WITH_BATCH)
 
-
-
 echo
 echo ---------------------------------------------
 echo testing LEX \& YACC
@@ -286,6 +284,14 @@ echo ---------------------------------------------
 echo
 
 CHECK_QT
+
+echo
+echo ----------------------------------------------
+echo testing CPPUNIT only required for unit testing
+echo ----------------------------------------------
+echo
+
+CHECK_CPPUNIT
 
 if test "X$WITHIHM" = "Xyes"; then
 	echo
@@ -371,7 +377,7 @@ do
    fi
 done
 echo "---Optional:"
-variables="openpbs_ok lsf_ok"
+variables="cppunit_ok openpbs_ok lsf_ok"
  
 for var in $variables
 do

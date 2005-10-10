@@ -50,8 +50,11 @@ BIN_SRC =
 BIN_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
 		 SALOME_Exception.idl
 
+CXXFLAGS += @CPPUNIT_INCLUDES@
+CPPFLAGS += @CPPUNIT_INCLUDES@
 
-LIBS= @LIBS@ 
+LIBS= @LIBS@ @CPPUNIT_LIBS@
+
 LDFLAGSFORBIN+= \
  -lSALOMELocalTraceTest -lSALOMELocalTrace -lSALOMEBasics \
  -lSALOMETraceCollectorTest \
@@ -59,7 +62,7 @@ LDFLAGSFORBIN+= \
  -lSalomeNS -lSalomeContainer -lSalomeResourcesManager \
  -lRegistry -lSalomeNotification \
  -lLifeCycleCORBATest -lSalomeLifeCycleCORBA \
- -lcppunit
+
 
 
 @CONCLUDE@

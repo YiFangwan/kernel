@@ -51,7 +51,11 @@ LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
 BIN = TestLifeCycleCORBA
 BIN_SRC = 
 
-LIBS= @LIBS@ 
+CXXFLAGS += @CPPUNIT_INCLUDES@
+CPPFLAGS += @CPPUNIT_INCLUDES@
+
+LIBS= @LIBS@ @CPPUNIT_LIBS@
+
 LDFLAGS+=
 
 LDFLAGSFORBIN+= \
@@ -60,7 +64,7 @@ LDFLAGSFORBIN+= \
  -lUtilsTest -lOpUtil \
  -lSalomeNS -lSalomeContainer -lSalomeResourcesManager \
  -lRegistry -lSalomeNotification \
- -lLifeCycleCORBATest -lSalomeLifeCycleCORBA \
- -lcppunit
+ -lLifeCycleCORBATest -lSalomeLifeCycleCORBA
+
 
 @CONCLUDE@

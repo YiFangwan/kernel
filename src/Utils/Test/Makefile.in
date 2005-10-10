@@ -49,13 +49,16 @@ LIB_SRC = UtilsTest.cxx
 BIN = TestUtils
 BIN_SRC = 
 
-LIBS= @LIBS@ 
+CXXFLAGS += @CPPUNIT_INCLUDES@
+CPPFLAGS += @CPPUNIT_INCLUDES@
+
+LIBS= @LIBS@ @CPPUNIT_LIBS@
+
 LDFLAGS+=
 
 LDFLAGSFORBIN+= \
  -lSALOMELocalTraceTest -lSALOMELocalTrace -lSALOMEBasics \
  -lSALOMETraceCollectorTest \
- -lUtilsTest -lOpUtil \
- -lcppunit
+ -lUtilsTest -lOpUtil
 
 @CONCLUDE@
