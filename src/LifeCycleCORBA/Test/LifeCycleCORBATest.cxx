@@ -49,6 +49,7 @@ LifeCycleCORBATest::setUp()
   string s = "file:";
   s += theFileName;
   //s="local";
+  //s="with_logger";
   CPPUNIT_ASSERT(! setenv("SALOME_trace",s.c_str(),1)); // 1: overwrite
 
   ofstream traceFile;
@@ -431,7 +432,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsLocalContainer()
   Engines::TestComponent_var m1;
   m1 = Engines::TestComponent::_narrow(mycompo);
 
-  // --- check container is on local computer
+  // --- check that container is on local computer
 
   CPPUNIT_ASSERT(!CORBA::is_nil(m1));
   Engines::Container_var c1 = m1->GetContainerRef();
@@ -465,7 +466,7 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsContainerName()
   Engines::TestComponent_var m1;
   m1 = Engines::TestComponent::_narrow(mycompo);
 
-  // --- check container has good name
+  // --- check that container has good name
 
   CPPUNIT_ASSERT(!CORBA::is_nil(m1));
   Engines::Container_var c1 = m1->GetContainerRef();
@@ -475,6 +476,114 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsContainerName()
   string cname1 = c1->name();
   CPPUNIT_ASSERT(cname1.find(containerName) != string::npos);
 }
+
+// ============================================================================
+/*!
+ * Check FindOrLoad_Component on remote computer
+ */
+// ============================================================================
+
+void
+LifeCycleCORBATest::testFindOrLoad_Component_RemoteComputer()
+{
+  SALOME_LifeCycleCORBA _LCC(&_NS);
+
+  string remoteHost = GetRemoteHost();
+
+  string containerName = remoteHost;
+  containerName += "/aContainer";
+  DEVTRACE("containerName = " << containerName);
+  Engines::Component_var mycompo1 =
+    _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
+  CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
+
+  // --- check narrow
+
+  Engines::TestComponent_var m1;
+  m1 = Engines::TestComponent::_narrow(mycompo1);
+
+  // --- check that container is on good computer
+
+  CPPUNIT_ASSERT(!CORBA::is_nil(m1));
+  Engines::Container_var c1 = m1->GetContainerRef();
+  CPPUNIT_ASSERT(!CORBA::is_nil(c1));
+  string hostname1 = c1->getHostName();
+  CPPUNIT_ASSERT_EQUAL(hostname1, remoteHost);
+}
+
+// ============================================================================
+/*!
+ * Check FindOrLoad_Component with params on remote computer
+ * params empty except hostname 
+ */
+// ============================================================================
+
+void
+LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer()
+{
+  SALOME_LifeCycleCORBA _LCC(&_NS);
+
+  string remoteHost = GetRemoteHost();
+
+  Engines::MachineParameters params;
+  _LCC.preSet(params); 
+  params.hostname = remoteHost.c_str();
+
+  Engines::Component_var mycompo1 =
+    _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
+  CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
+
+  // --- check narrow
+
+  Engines::TestComponent_var m1;
+  m1 = Engines::TestComponent::_narrow(mycompo1);
+
+  // --- check that container is on good computer
+
+  CPPUNIT_ASSERT(!CORBA::is_nil(m1));
+  Engines::Container_var c1 = m1->GetContainerRef();
+  CPPUNIT_ASSERT(!CORBA::is_nil(c1));
+  string hostname1 = c1->getHostName();
+  CPPUNIT_ASSERT_EQUAL(hostname1, remoteHost);
+}
+
+// ============================================================================
+/*!
+ * Check FindOrLoad_Component with params on remote computer
+ * params empty except hostname and container_name
+ */
+// ============================================================================
+
+void
+LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer2()
+{
+  SALOME_LifeCycleCORBA _LCC(&_NS);
+
+  string remoteHost = GetRemoteHost();
+
+  Engines::MachineParameters params;
+  _LCC.preSet(params); 
+  params.hostname = remoteHost.c_str();
+  params.container_name = "anotherContainer";
+
+  Engines::Component_var mycompo1 =
+    _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
+  CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
+
+  // --- check narrow
+
+  Engines::TestComponent_var m1;
+  m1 = Engines::TestComponent::_narrow(mycompo1);
+
+  // --- check that container is on good computer
+
+  CPPUNIT_ASSERT(!CORBA::is_nil(m1));
+  Engines::Container_var c1 = m1->GetContainerRef();
+  CPPUNIT_ASSERT(!CORBA::is_nil(c1));
+  string hostname1 = c1->getHostName();
+  CPPUNIT_ASSERT_EQUAL(hostname1, remoteHost);
+}
+
 
 
 // ============================================================================
@@ -488,3 +597,48 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsContainerName()
 // {
 // }
 
+
+
+
+
+
+
+
+// ============================================================================
+/*!
+ *  Get a remote HostName in the Resource Catalog
+ */
+// ============================================================================
+
+string LifeCycleCORBATest::GetRemoteHost()
+{
+  SALOME_LifeCycleCORBA _LCC(&_NS);
+
+  CORBA::Object_var obj = _NS.Resolve("/ContainerManager");
+  CPPUNIT_ASSERT(!CORBA::is_nil(obj));
+  Engines::ContainerManager_var containerManager =
+    Engines::ContainerManager::_narrow(obj);
+  CPPUNIT_ASSERT(!CORBA::is_nil(containerManager));
+
+  Engines::MachineParameters params;
+  _LCC.preSet(params);               // empty params to get all the machines
+
+  Engines::MachineList_var hostList =
+    containerManager->GetFittingResources(params,"SalomeTestComponent");
+  CPPUNIT_ASSERT(hostList->length() > 1);
+
+  string localHost = GetHostname();
+  string remoteHost;
+  for (unsigned int i=0; i < hostList->length(); i++)
+    {
+      const char* aMachine = hostList[i];
+      string machine(aMachine);
+      if (machine != localHost)
+	{
+	  remoteHost = machine;
+	  break;
+	}
+    }
+  CPPUNIT_ASSERT(remoteHost != "");
+  return remoteHost;
+}

@@ -23,6 +23,10 @@ class LifeCycleCORBATest : public CppUnit::TestFixture
   CPPUNIT_TEST( testFindOrLoad_Component_ParamsEmpty );
   CPPUNIT_TEST( testFindOrLoad_Component_ParamsLocalContainer );
   CPPUNIT_TEST( testFindOrLoad_Component_ParamsContainerName );
+  CPPUNIT_TEST( testFindOrLoad_Component_RemoteComputer );
+  CPPUNIT_TEST( testFindOrLoad_Component_ParamsRemoteComputer );
+  CPPUNIT_TEST( testFindOrLoad_Component_ParamsRemoteComputer2 );
+//   CPPUNIT_TEST( testFindOrLoad_Component_ );
 //   CPPUNIT_TEST( testFindOrLoad_Component_ );
 //   CPPUNIT_TEST(  );
 //   CPPUNIT_TEST(  );
@@ -44,9 +48,14 @@ public:
   void testFindOrLoad_Component_ParamsEmpty();
   void testFindOrLoad_Component_ParamsLocalContainer();
   void testFindOrLoad_Component_ParamsContainerName();
+  void testFindOrLoad_Component_RemoteComputer();
+  void testFindOrLoad_Component_ParamsRemoteComputer();
+  void testFindOrLoad_Component_ParamsRemoteComputer2();
+//   void testFindOrLoad_Component_();
 //   void testFindOrLoad_Component_();
 
 protected:
+  std::string GetRemoteHost();
   CORBA::ORB_var _orb;
   SALOME_NamingService _NS;
 };
