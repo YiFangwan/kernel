@@ -47,19 +47,19 @@ static std::map<int, PortableServer::POA_ptr> _mapOfPOA;
 
 //============================================================================
 /*! Function : SALOMEDS_StudyManager_i
- *  Purpose  : SALOMEDS_StudyManager_i constructor 
+ *  Purpose  : SALOMEDS_StudyManager_i constructor
  */
 //============================================================================
-SALOMEDS_StudyManager_i::SALOMEDS_StudyManager_i(CORBA::ORB_ptr orb, PortableServer::POA_ptr thePOA) 
-{ 
+SALOMEDS_StudyManager_i::SALOMEDS_StudyManager_i(CORBA::ORB_ptr orb, PortableServer::POA_ptr thePOA)
+{
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(thePOA);
   _name_service = new SALOME_NamingService(_orb);
   // Study directory creation in the naming service : to register all
   // open studies in the session
   _name_service->Create_Directory("/Study");
-  _impl = new SALOMEDSImpl_StudyManager; 
-  _factory = new SALOMEDS_DriverFactory_i(_orb);  
+  _impl = new SALOMEDSImpl_StudyManager;
+  _factory = new SALOMEDS_DriverFactory_i(_orb);
 }
 
 //============================================================================
@@ -76,11 +76,11 @@ SALOMEDS_StudyManager_i::~SALOMEDS_StudyManager_i()
 
 //============================================================================
 /*! Function : register_name
- *  Purpose  : Register the study Manager in the naming service under the  
+ *  Purpose  : Register the study Manager in the naming service under the
  *             context name
  */
 //============================================================================
-void SALOMEDS_StudyManager_i::register_name(char * name) 
+void SALOMEDS_StudyManager_i::register_name(char * name)
 {
   SALOMEDS::StudyManager_var aManager(_this());
   _name_service->Register(aManager.in(), name);
@@ -92,7 +92,7 @@ void SALOMEDS_StudyManager_i::register_name(char * name)
  *  Purpose  : Create a New Study of name study_name
  */
 //============================================================================
-SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name) 
+SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
 {
   SALOMEDS::Locker lock;
 
@@ -104,12 +104,12 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
 
   MESSAGE("NewStudy : Creating the CORBA servant holding it... ");
 
-  SALOMEDS_Study_i *Study_servant = new SALOMEDS_Study_i(aStudyImpl, _orb); 
+  SALOMEDS_Study_i *Study_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);
   SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(Study_servant->_this());
 
   // Register study in the naming service
   // Path to acces the study
-  if(!_name_service->Change_Directory("/Study")) 
+  if(!_name_service->Change_Directory("/Study"))
       MESSAGE( "Unable to access the study directory" )
   else
       _name_service->Register(Study, study_name);
@@ -133,7 +133,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
      throw(SALOME::SALOME_Exception)
 {
   SALOMEDS::Locker lock;
-  
+
   Unexpect aCatch(SalomeException);
   MESSAGE("Begin of SALOMEDS_StudyManager_i::Open");
 
@@ -142,13 +142,13 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   MESSAGE("Open : Creating the CORBA servant holding it... ");
 
   // Temporary aStudyUrl in place of study name
-  SALOMEDS_Study_i * Study_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);  
-  SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(Study_servant->_this()); 
+  SALOMEDS_Study_i * Study_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);
+  SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(Study_servant->_this());
 
   // Assign the value of the IOR in the study->root
   CORBA::String_var IORStudy = _orb->object_to_string(Study);
   aStudyImpl->SetTransientReference((char*)IORStudy);
-  
+
   // Register study in the naming service
   // Path to acces the study
   if(!_name_service->Change_Directory("/Study")) MESSAGE( "Unable to access the study directory" )
@@ -163,7 +163,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 /*! Function : Close
  *  Purpose  : Close a study.
  *             If the study hasn't been saved, ask the user to confirm the
- *             close action without saving 
+ *             close action without saving
  */
 //============================================================================
 void SALOMEDS_StudyManager_i::Close(SALOMEDS::Study_ptr aStudy)
@@ -171,12 +171,12 @@ void SALOMEDS_StudyManager_i::Close(SALOMEDS::Study_ptr aStudy)
   SALOMEDS::Locker lock;
 
   if(aStudy->_is_nil()) return;
-    
+
   // Destroy study name in the naming service
   if(_name_service->Change_Directory("/Study")){
     CORBA::String_var aString(aStudy->Name());
     _name_service->Destroy_Name(aString.in());
-  }    
+  }
 
   SALOMEDS::unlock();
   aStudy->Close();
@@ -253,7 +253,7 @@ void SALOMEDS_StudyManager_i::SaveAsASCII(const char* aUrl, SALOMEDS::Study_ptr 
 SALOMEDS::ListOfOpenStudies*  SALOMEDS_StudyManager_i::GetOpenStudies()
 {
   SALOMEDS::Locker lock;
-  
+
   Handle(TColStd_HSequenceOfTransient) anOpened = _impl->GetOpenStudies();
   int aLength = anOpened->Length();
 
@@ -281,22 +281,23 @@ SALOMEDS::ListOfOpenStudies*  SALOMEDS_StudyManager_i::GetOpenStudies()
  *  Purpose  : Get a study from its name
  */
 //============================================================================
-SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByName(const char* aStudyName) 
+SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByName(const char* aStudyName)
 {
   SALOMEDS::Locker lock;
-  
-  Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByName(TCollection_AsciiString((char*)aStudyName));
 
-  if(aStudyImpl.IsNull())
-    {
-      MESSAGE("No active study in this session");
-      ASSERT(false); // Stop here...
-    }
-  
-  SALOMEDS_Study_i * Study_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);  
-  SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(Study_servant->_this()); 
-  
-  return Study;
+  Handle(SALOMEDSImpl_Study) aStudyImpl =
+    _impl->GetStudyByName(TCollection_AsciiString((char*)aStudyName));
+
+  if (aStudyImpl.IsNull())
+  {
+    MESSAGE(_impl->GetErrorCode().ToCString());
+    return SALOMEDS::Study::_nil();
+  }
+
+  SALOMEDS_Study_i* aStudy_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);
+  SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow(aStudy_servant->_this());
+
+  return aStudy._retn();
 }
 
 //============================================================================
@@ -304,31 +305,31 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByName(const char* aStudyNa
  *  Purpose  : Get a study from its ID
  */
 //============================================================================
-SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByID(CORBA::Short aStudyID) 
+SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByID(CORBA::Short aStudyID)
 {
   SALOMEDS::Locker lock;
-  
+
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudyID);
 
-  if(aStudyImpl.IsNull())
-    {
-      MESSAGE("No active study in this session");
-      ASSERT(false); // Stop here...
-    }
-  
-  SALOMEDS_Study_i * Study_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);  
-  SALOMEDS::Study_var Study = SALOMEDS::Study::_narrow(Study_servant->_this()); 
-  
-  return Study;
+  if (aStudyImpl.IsNull())
+  {
+    MESSAGE(_impl->GetErrorCode().ToCString());
+    return SALOMEDS::Study::_nil();
+  }
+
+  SALOMEDS_Study_i* aStudy_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);
+  SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow(aStudy_servant->_this());
+
+  return aStudy._retn();
 }
 
 
 //============================================================================
 /*! Function : CanCopy
- *  Purpose  : 
+ *  Purpose  :
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_StudyManager_i::CanCopy(SALOMEDS::SObject_ptr theObject) 
+CORBA::Boolean SALOMEDS_StudyManager_i::CanCopy(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
 
@@ -347,7 +348,7 @@ CORBA::Boolean SALOMEDS_StudyManager_i::CanCopy(SALOMEDS::SObject_ptr theObject)
  *  Purpose  :
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_StudyManager_i::Copy(SALOMEDS::SObject_ptr theObject) 
+CORBA::Boolean SALOMEDS_StudyManager_i::Copy(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
 
@@ -366,7 +367,7 @@ CORBA::Boolean SALOMEDS_StudyManager_i::Copy(SALOMEDS::SObject_ptr theObject)
  *  Purpose  :
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_StudyManager_i::CanPaste(SALOMEDS::SObject_ptr theObject) 
+CORBA::Boolean SALOMEDS_StudyManager_i::CanPaste(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
 
@@ -396,7 +397,7 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
   Handle(SALOMEDSImpl_SObject) anObject = aStudyImpl->GetSObject((char*)theObject->GetID());
   Handle(SALOMEDSImpl_SObject) aNewSO;
-  
+
   try {
     SALOMEDS_Driver_i* aDriver = GetDriver(anObject, _orb);
     aNewSO =  _impl->Paste(anObject, aDriver);
@@ -414,7 +415,7 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
 SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb)
 {
   SALOMEDS_Driver_i* driver = NULL;
-  
+
   Handle(SALOMEDSImpl_SComponent) aSCO = theObject->GetFatherComponent();
   if(!aSCO.IsNull()) {
     TCollection_AsciiString IOREngine = aSCO->GetIOR();
@@ -423,7 +424,7 @@ SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORB
       SALOMEDS::Driver_var Engine = SALOMEDS::Driver::_narrow(obj) ;
       driver = new SALOMEDS_Driver_i(Engine, orb);
     }
-  }  
+  }
 
   return driver;
 }
@@ -442,7 +443,7 @@ long SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, CORBA::Long 
   long pid = (long)_getpid();
 #else
   long pid = (long)getpid();
-#endif  
+#endif
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   SALOMEDSImpl_StudyManager* aManager = _impl.operator->();
   return ((long)aManager);
@@ -479,4 +480,4 @@ namespace SALOMEDS
 
 }
 
-//===========================================================================  
+//===========================================================================

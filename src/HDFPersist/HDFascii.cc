@@ -516,8 +516,10 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
   fscanf(fp, "%i\n", &nbDim);
 
   hdf_size* sizeArray = new hdf_size[nbDim];
+  int dim = 0;
   for(i = 0; i<nbDim; i++) {
-    fscanf(fp, "%i\n", &(sizeArray[i]));
+    fscanf(fp, "%i\n", &dim);
+    sizeArray[i] = dim;
   }
  
   HDFdataset* hdf_dataset = new HDFdataset(new_name, father,type, sizeArray, nbDim);

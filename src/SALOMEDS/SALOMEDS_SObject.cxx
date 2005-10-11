@@ -234,7 +234,8 @@ CORBA::Object_ptr SALOMEDS_SObject::GetObject()
   CORBA::Object_var obj;
   if(_isLocal) {
     std::string anIOR = GetIOR();
-    obj = _orb->string_to_object(anIOR.c_str());
+    if (!anIOR.empty())
+      obj = _orb->string_to_object(anIOR.c_str());
     return obj._retn();
   }
   else {

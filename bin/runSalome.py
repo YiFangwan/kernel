@@ -171,7 +171,11 @@ def set_env(args, modules_list, modules_root_dir):
 
     # set environment for SUPERV module
     os.environ["ENABLE_MACRO_NODE"]="1"
-   
+    # set resources variables if not yet set
+    if os.getenv("GUI_ROOT_DIR"):
+        if not os.getenv("SUITRoot"): os.environ["SUITRoot"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome"
+        if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources"
+        pass   
 
     os.environ["CSF_PluginDefaults"] \
     = os.path.join(modules_root_dir["KERNEL"],"share",
