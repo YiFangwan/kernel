@@ -163,7 +163,7 @@ void* LocalTraceCollector::run(void *bid)
       // Loop until there is no more buffer to print,
       // and no ask for end from destructor.
 
-      while ((!_threadToClose) || myTraceBuffer->toCollect() )
+      while ((!_threadToClose) && myTraceBuffer->toCollect() )
 	{
 	  int fullBuf = myTraceBuffer->retrieve(myTrace);
 	  if (myTrace.traceType == ABORT_MESS)
