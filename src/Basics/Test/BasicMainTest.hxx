@@ -10,6 +10,9 @@
 #include <cppunit/TestRunner.h>
 #include <stdexcept>
 
+#include <iostream>
+#include <fstream>
+
 // ============================================================================
 /*!
  *  Main program source for Unit Tests with cppunit package does not depend
@@ -47,12 +50,16 @@ int main(int argc, char* argv[])
 
   // ---  Print test in a compiler compatible format.
 
-  CPPUNIT_NS::CompilerOutputter outputter( &result, std::cerr );
+  std::ofstream testFile;
+  testFile.open("UnitTestsResult", std::ios::out |  std::ios::trunc);
+  //CPPUNIT_NS::CompilerOutputter outputter( &result, std::cerr );
+  CPPUNIT_NS::CompilerOutputter outputter( &result, testFile );
   outputter.write(); 
 
   // ---  Run the tests.
 
   bool wasSucessful = result.wasSuccessful();
+  testFile.close();
 
   // ---  Return error code 1 if the one of test failed.
 
