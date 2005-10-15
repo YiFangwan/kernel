@@ -18,27 +18,34 @@ the unit tests.
 -----------------------------------
 
 KERNEL_SRC
+   Some README files and configuration tools for build
 
 KERNEL_SRC/adm_local
+   Part of the configuration files
 
 KERNEL_SRC/bin
+   Python and shell scripts used at run time.
 
 KERNEL_SRC/doc
+   Kit for end user documentation production: public interfaces, graphic,
+   Python, CORBA. Developper documentation.
 
 KERNEL_SRC/examples
+   To be removed.
 
 KERNEL_SRC/idl
+   All CORBA interfaces from KERNEL are regrouped here.
 
 KERNEL_SRC/resources
+   Configuration files for servers (examples). Icons for Graphic interface
+   (to be removed ?)
 
 KERNEL_SRC/salome_adm
-
-KERNEL_SRC/share
+   Makefile includes and configuration files (M4 macros)
 
 KERNEL_SRC/src
-
-KERNEL_SRC/tests
-
+   The source code (C++ and Python)
+   
 
 1.2 Directory src: C++ and Python source code
 ---------------------------------------------
@@ -75,7 +82,7 @@ Utils
   exception system.
 
 NamingService
-  C++ and Python interfaces to name, store and retreive CORBA objects
+  C++ and Python interfaces to name, store and retrieve CORBA objects
 
 GenericObj
   A generic CORBA interface for CORBA objects, to count distributed references,
@@ -125,11 +132,11 @@ SALOMEDS
 
 **TO BE COMPLETED**
 
-Unit Testing rely on cppunit package for C++ testing, and on unitest module
+Unit Testing rely on cppunit package for C++ testing, and on unittest module
 for Python. See these products for general principles of unit testing.
 
 The cppunit package is optional. When the prerequisite is detected, the unit
-test are compiled.
+tests are compiled.
 
 Unit Tests sources are in directories Test under the src/directories
 containing the classes to test.

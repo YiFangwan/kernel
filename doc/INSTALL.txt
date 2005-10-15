@@ -285,7 +285,7 @@ instructions as given for the KERNEL, replacing KERNEL by
 You just have to be aware of the dependencies between components:
 
 - MED    depends on KERNEL
-- GEOM   depends on KERNE
+- GEOM   depends on KERNEL
 - SMESH  depends on KERNEL, MED, GEOM
 - VISU   depends on KERNEL, MED
 - SUPERV depends on KERNEL
@@ -309,7 +309,7 @@ building process of the SMESH component (STEP 3).
 See SALOME_Application_ to define your own configuration of SALOME and run it
 on one or several computers. This is the recommended way of configuration.
 
-../SALOME_Application: ./SALOME_Application.html
+.. _SALOME_Application: ./SALOME_Application.html
 
 The following explains the general principles.
 

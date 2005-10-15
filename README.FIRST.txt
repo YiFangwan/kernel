@@ -26,7 +26,7 @@ How to run SALOME on one or more computers, SALOME Application concept
 See SALOME_Application_ to define your own configuration of SALOME and run it
 on one or several computers. This is the recommended way of configuration.
 
-../SALOME_Application: ./doc/SALOME_Application.html
+.. _SALOME_Application: ./doc/SALOME_Application.html
 
 
 Source code structuration and Unit Tests
