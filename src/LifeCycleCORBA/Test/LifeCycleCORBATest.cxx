@@ -495,7 +495,9 @@ LifeCycleCORBATest::testFindOrLoad_Component_RemoteComputer()
   DEVTRACE("containerName = " << containerName);
   Engines::Component_var mycompo1 =
     _LCC.FindOrLoad_Component(containerName.c_str(),"SalomeTestComponent");
-  CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
+  CPPUNIT_ASSERT_MESSAGE("Test validity requires connection to remote "\
+			 "computers from ResourcesCatalog",
+			 !CORBA::is_nil(mycompo1));
 
   // --- check narrow
 
@@ -531,7 +533,9 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer()
 
   Engines::Component_var mycompo1 =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
-  CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
+  CPPUNIT_ASSERT_MESSAGE("Test validity requires connection to remote "\
+			 "computers from ResourcesCatalog",
+			 !CORBA::is_nil(mycompo1));
 
   // --- check narrow
 
@@ -568,7 +572,9 @@ LifeCycleCORBATest::testFindOrLoad_Component_ParamsRemoteComputer2()
 
   Engines::Component_var mycompo1 =
     _LCC.FindOrLoad_Component(params,"SalomeTestComponent");
-  CPPUNIT_ASSERT(!CORBA::is_nil(mycompo1));
+  CPPUNIT_ASSERT_MESSAGE("Test validity requires connection to remote "\
+			 "computers from ResourcesCatalog",
+			 !CORBA::is_nil(mycompo1));
 
   // --- check narrow
 
