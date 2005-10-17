@@ -92,7 +92,10 @@ void* LocalTraceCollector::run(void *bid)
   while ((!_threadToClose) || myTraceBuffer->toCollect() )
     {
       if (_threadToClose)
-	DEVTRACE("FileTraceCollector _threadToClose");
+	{
+	  DEVTRACE("FileTraceCollector _threadToClose");
+	  //break;
+	}
 
       int fullBuf = myTraceBuffer->retrieve(myTrace);
       if (myTrace.traceType == ABORT_MESS)

@@ -123,7 +123,10 @@ void* SALOMETraceCollector::run(void *bid)
   while ((!_threadToClose) || myTraceBuffer->toCollect() )
     {
       if (_threadToClose)
-	DEVTRACE("SALOMETraceCollector _threadToClose");
+	{
+	  DEVTRACE("SALOMETraceCollector _threadToClose");
+	  //break;
+	}
 
       int fullBuf = myTraceBuffer->retrieve(myTrace);
       if (!CORBA::is_nil(_orb))
