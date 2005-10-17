@@ -261,7 +261,11 @@ void Engines_Container_i::Shutdown()
   //_remove_ref();
   //_poa->deactivate_object(*_id);
   if(_isServantAloneInProcess)
-    _orb->shutdown(0);
+    {
+      LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
+      bp1->deleteInstance(bp1);
+      _orb->shutdown(0);
+    }
 }
 
 

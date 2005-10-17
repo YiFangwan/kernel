@@ -152,8 +152,9 @@ int main(int argc, char* argv[])
   MPI_Finalize();
 #endif
 
-  END_OF(argv[0]);
-  //  delete myThreadTrace;
+  //END_OF(argv[0]);
+  //LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
+  //bp1->deleteInstance(bp1);
   return 0 ;
 }
 
