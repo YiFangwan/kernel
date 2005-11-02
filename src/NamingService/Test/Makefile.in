@@ -35,20 +35,20 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 @COMMENCE@
 
 # header files  
-EXPORT_HEADERS= LifeCycleCORBATest.hxx
+EXPORT_HEADERS= NamingServiceTest.hxx
 
-EXPORT_PYSCRIPTS = TestLifeCycleCORBA.py
+EXPORT_PYSCRIPTS = TestNamingService.py
 
 # Libraries targets
 
-LIB = libLifeCycleCORBATest.la 
-LIB_SRC = LifeCycleCORBATest.cxx
+LIB = libNamingServiceTest.la 
+LIB_SRC = NamingServiceTest.cxx
 LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
 		 SALOME_Exception.idl
 
 # Executables targets
 
-BIN = TestLifeCycleCORBA
+BIN = TestNamingService
 BIN_SRC = 
 
 CXXFLAGS += @CPPUNIT_INCLUDES@
@@ -62,10 +62,6 @@ LDFLAGSFORBIN+= \
  -lSALOMELocalTraceTest -lSALOMELocalTrace -lSALOMEBasics \
  -lSALOMETraceCollectorTest \
  -lUtilsTest -lOpUtil \
- -lNamingServiceTest -lSalomeNS \
- -lSalomeContainer -lSalomeResourcesManager \
- -lRegistry -lSalomeNotification \
- -lLifeCycleCORBATest -lSalomeLifeCycleCORBA
-
+ -lSalomeNS
 
 @CONCLUDE@

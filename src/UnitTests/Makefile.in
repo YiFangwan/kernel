@@ -59,7 +59,8 @@ LDFLAGSFORBIN+= \
  -lSALOMELocalTraceTest -lSALOMELocalTrace -lSALOMEBasics \
  -lSALOMETraceCollectorTest \
  -lUtilsTest -lOpUtil \
- -lSalomeNS -lSalomeContainer -lSalomeResourcesManager \
+ -lNamingServiceTest -lSalomeNS \
+ -lSalomeContainer -lSalomeResourcesManager \
  -lRegistry -lSalomeNotification \
  -lLifeCycleCORBATest -lSalomeLifeCycleCORBA \
 

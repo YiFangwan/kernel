@@ -76,6 +76,7 @@ ifeq (@cppunit_ok@,yes)
  Logger/Test \
  SALOMETraceCollector/Test \
  Utils/Test \
+ NamingService/Test \
  LifeCycleCORBA/Test \
  UnitTests
 endif
