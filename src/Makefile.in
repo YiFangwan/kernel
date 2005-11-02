@@ -59,7 +59,8 @@ SUBDIRS = \
  SALOMEDS \
  KERNEL_PY \
  ModuleGenerator \
- Communication 
+ Communication \
+ Communication_SWIG
 
 ifeq (@mpi_ok@,yes)
   SUBDIRS+= MPIContainer TestMPIContainer
