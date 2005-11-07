@@ -43,6 +43,9 @@ EXPORT_PYSCRIPTS = TestNamingService.py
 
 LIB = libNamingServiceTest.la 
 LIB_SRC = NamingServiceTest.cxx
+
+LIB_SERVER_IDL = nstest.idl
+
 LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
 		 SALOME_Exception.idl
 
