@@ -71,6 +71,7 @@ LIB_SRC =  \
 	HDFdatasetGetSize.c \
 	HDFdatasetGetType.c \
 	HDFdatasetGetnDim.c \
+	HDFdatasetGetOrder.c \
 	HDFattrOpen.c \
 	HDFattrClose.c \
 	HDFattrWrite.c \
