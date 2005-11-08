@@ -27,7 +27,7 @@ using namespace std;
 
 // ============================================================================
 /*!
- *
+ * a basic CORBA object implementation for use with namingService tests
  */
 // ============================================================================
 
@@ -49,6 +49,12 @@ CORBA::Long NSTEST_echo_i::getId()
 {
   return _num;
 }
+
+// ============================================================================
+/*!
+ * a factory of CORBA objects for use with namingService tests
+ */
+// ============================================================================
 
 NSTEST_aFactory_i::NSTEST_aFactory_i()
 {
@@ -199,6 +205,32 @@ NamingServiceTest::testRegisterResolveAbsNoPath()
 
 // ============================================================================
 /*!
+ * Test Register and resolve of a single CORBA object with relative pathname,
+ * without subdirectories
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testRegisterResolveRelativeNoPath()
+{
+  CORBA::Object_var obj = _NS.Resolve("/nstest_factory");
+  CPPUNIT_ASSERT(!CORBA::is_nil(obj));
+  NSTEST::aFactory_var myFactory = NSTEST::aFactory::_narrow(obj);
+  CPPUNIT_ASSERT(!CORBA::is_nil(myFactory));
+  _NS.Create_Directory("/myContext");
+  _NS.Change_Directory("/myContext");
+  NSTEST::echo_var anEchoRef = myFactory->createInstance();
+  _NS.Register(anEchoRef,"echo_0");
+  CORBA::Object_var obj2 = _NS.Resolve("echo_0");
+  CPPUNIT_ASSERT(!CORBA::is_nil(obj2));
+  NSTEST::echo_var anEchoRef2 = NSTEST::echo::_narrow(obj2);
+  CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRef2));
+  CORBA::Object_var obj3 = _NS.Resolve("/myContext/echo_0");
+  CPPUNIT_ASSERT(!CORBA::is_nil(obj3));
+}
+
+// ============================================================================
+/*!
  * Test Register and resolve of a single CORBA object with absolute pathname,
  * in a subdirectory
  */
@@ -213,10 +245,38 @@ NamingServiceTest::testRegisterResolveAbsWithPath()
   CPPUNIT_ASSERT(!CORBA::is_nil(myFactory));
   NSTEST::echo_var anEchoRef = myFactory->createInstance();
   _NS.Register(anEchoRef,"/nstest/echo_0");
-  obj = _NS.Resolve("/nstest/echo_0");
-  CPPUNIT_ASSERT(!CORBA::is_nil(obj));
-  NSTEST::echo_var anEchoRef2 = NSTEST::echo::_narrow(obj);
+  CORBA::Object_var obj2 = _NS.Resolve("/nstest/echo_0");
+  CPPUNIT_ASSERT(!CORBA::is_nil(obj2));
+  NSTEST::echo_var anEchoRef2 = NSTEST::echo::_narrow(obj2);
   CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRef2));
+}
+
+// ============================================================================
+/*!
+ * Test Register and resolve of a single CORBA object with relative pathname,
+ * in a subdirectory.
+ * Relative Path is changed to the created subdirectory when Register()
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testRegisterResolveRelativeWithPath()
+{
+  CORBA::Object_var obj = _NS.Resolve("/nstest_factory");
+  CPPUNIT_ASSERT(!CORBA::is_nil(obj));
+  NSTEST::aFactory_var myFactory = NSTEST::aFactory::_narrow(obj);
+  CPPUNIT_ASSERT(!CORBA::is_nil(myFactory));
+  _NS.Create_Directory("/myContext");
+  _NS.Change_Directory("/myContext");
+  NSTEST::echo_var anEchoRef = myFactory->createInstance();
+  _NS.Register(anEchoRef,"subdir/echo_0");
+  //CORBA::Object_var obj2 = _NS.Resolve("subdir/echo_0");
+  CORBA::Object_var obj2 = _NS.Resolve("echo_0");
+  CPPUNIT_ASSERT(!CORBA::is_nil(obj2));
+  NSTEST::echo_var anEchoRef2 = NSTEST::echo::_narrow(obj2);
+  CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRef2));
+  CORBA::Object_var obj3 = _NS.Resolve("/myContext/subdir/echo_0");
+  CPPUNIT_ASSERT(!CORBA::is_nil(obj3));
 }
 
 // ============================================================================
@@ -230,12 +290,33 @@ NamingServiceTest::testResolveBadName()
 {
   CORBA::Object_var obj = _NS.Resolve("/notRegisteredName");
   CPPUNIT_ASSERT(CORBA::is_nil(obj));
-  obj = _NS.Resolve("/nstest/notRegisteredName");
+  CORBA::Object_var obj2 = _NS.Resolve("/nstest/notRegisteredName");
+  CPPUNIT_ASSERT(CORBA::is_nil(obj2));
+  CORBA::Object_var obj3 = _NS.Resolve("/unknownPath/notRegisteredName");
+  CPPUNIT_ASSERT(CORBA::is_nil(obj3));
+  CORBA::Object_var obj4 =
+    _NS.Resolve("/anUnknown/ComplicatedPath/notRegisteredName");
+  CPPUNIT_ASSERT(CORBA::is_nil(obj4));
+}
+
+// ============================================================================
+/*!
+ * Test resolve with a name not known, with a relative path
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testResolveBadNameRelative()
+{
+  _NS.Create_Directory("/myContext");
+  _NS.Change_Directory("/myContext");
+  CORBA::Object_var obj = _NS.Resolve("notRegisteredName");
   CPPUNIT_ASSERT(CORBA::is_nil(obj));
-  obj = _NS.Resolve("/unknownPath/notRegisteredName");
-  CPPUNIT_ASSERT(CORBA::is_nil(obj));
-  obj = _NS.Resolve("/anUnknown/ComplicatedPath/notRegisteredName");
-  CPPUNIT_ASSERT(CORBA::is_nil(obj));
+  CORBA::Object_var obj2 = _NS.Resolve("unknownPath/notRegisteredName");
+  CPPUNIT_ASSERT(CORBA::is_nil(obj2));
+  CORBA::Object_var obj3 =
+    _NS.Resolve("anUnknown/ComplicatedPath/notRegisteredName");
+  CPPUNIT_ASSERT(CORBA::is_nil(obj3));
 }
 
 // ============================================================================
@@ -270,16 +351,391 @@ NamingServiceTest::testResolveFirst()
 	char anum[10];
 	sprintf(anum,"%d",ref[i]);
 	name += anum;
-	CORBA::Object_var obj = _NS.Resolve(name.c_str());
-	CPPUNIT_ASSERT(!CORBA::is_nil(obj));
-	NSTEST::echo_var anEchoRef = NSTEST::echo::_narrow(obj);
+	CORBA::Object_var obj2 = _NS.Resolve(name.c_str());
+	CPPUNIT_ASSERT(!CORBA::is_nil(obj2));
+	NSTEST::echo_var anEchoRef = NSTEST::echo::_narrow(obj2);
 	CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRef));
 	CPPUNIT_ASSERT(anEchoRef->getId() == ref[i]);
       }
     string name = "/nstestfirst/echo";
-    obj = _NS.ResolveFirst(name.c_str());
-    CPPUNIT_ASSERT(!CORBA::is_nil(obj));
-    NSTEST::echo_var anEchoRef = NSTEST::echo::_narrow(obj);
-    CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRef));
-    CPPUNIT_ASSERT(anEchoRef->getId() == ref[0]);
+    CORBA::Object_var obj3 = _NS.ResolveFirst(name.c_str());
+    CPPUNIT_ASSERT(!CORBA::is_nil(obj3));
+    NSTEST::echo_var anEchoRef2 = NSTEST::echo::_narrow(obj3);
+    CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRef2));
+    CPPUNIT_ASSERT(anEchoRef2->getId() == ref[0]);
 }
+
+// ============================================================================
+/*!
+ * Test register and resolve multiple objects, test resolveFirst, relative path
+ * Result not guaranteed
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testResolveFirstRelative()
+{
+  CORBA::Object_var obj = _NS.Resolve("/nstest_factory");
+  CPPUNIT_ASSERT(!CORBA::is_nil(obj));
+  NSTEST::aFactory_var myFactory = NSTEST::aFactory::_narrow(obj);
+  CPPUNIT_ASSERT(!CORBA::is_nil(myFactory));
+  int ref[NB_OBJS];
+    for (int i=0; i<NB_OBJS; i++)
+      {
+	NSTEST::echo_var anEchoRef = myFactory->createInstance();
+	ref[i] = anEchoRef->getId();
+	string name = "/nstestfirstrel/echo_";
+	char anum[10];
+	sprintf(anum,"%d",ref[i]);
+	name += anum;
+	_NS.Register(anEchoRef,name.c_str());
+      }
+    for (int i=0; i<NB_OBJS; i++)
+      {
+	_NS.Change_Directory("/nstestfirstrel");
+	string name = "echo_";
+	char anum[10];
+	sprintf(anum,"%d",ref[i]);
+	name += anum;
+	CORBA::Object_var obj2 = _NS.Resolve(name.c_str());
+	CPPUNIT_ASSERT(!CORBA::is_nil(obj2));
+	NSTEST::echo_var anEchoRef = NSTEST::echo::_narrow(obj2);
+	CPPUNIT_ASSERT(!CORBA::is_nil(anEchoRef));
+	CPPUNIT_ASSERT(anEchoRef->getId() == ref[i]);
+      }
+    _NS.Change_Directory("/nstestfirstrel");
+    string name = "echo";
+    CORBA::Object_var obj3 = _NS.ResolveFirst(name.c_str());
+    CPPUNIT_ASSERT(CORBA::is_nil(obj3));
+}
+
+// ============================================================================
+/*!
+ * Test resolveFirst with unknown name
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testResolveFirstUnknown()
+{
+  string name = "/notYeyRegistered";
+  CORBA::Object_var obj2 = _NS.ResolveFirst(name.c_str());
+  CPPUNIT_ASSERT(CORBA::is_nil(obj2));
+  name = "/nstestfirst/notYeyRegistered";
+  CORBA::Object_var obj3 = _NS.ResolveFirst(name.c_str());
+  CPPUNIT_ASSERT(CORBA::is_nil(obj3));
+  name = "/rrr/sss/ttt/notYeyRegistered";
+  CORBA::Object_var obj4 = _NS.ResolveFirst(name.c_str());
+  CPPUNIT_ASSERT(CORBA::is_nil(obj4));
+}
+
+// ============================================================================
+/*!
+ * Test resolveFirst with unknown name, relative Path
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testResolveFirstUnknownRelative()
+{
+  _NS.Create_Directory("/myContext");
+  _NS.Change_Directory("/myContext");
+  string name = "RelnotYeyRegistered";
+  CORBA::Object_var obj2 = _NS.ResolveFirst(name.c_str());
+  CPPUNIT_ASSERT(CORBA::is_nil(obj2));
+  name = "Relnstestfirst/notYeyRegistered";
+  CORBA::Object_var obj3 = _NS.ResolveFirst(name.c_str());
+  CPPUNIT_ASSERT(CORBA::is_nil(obj3));
+  name = "Relrrr/sss/ttt/notYeyRegistered";
+  CORBA::Object_var obj4 = _NS.ResolveFirst(name.c_str());
+  CPPUNIT_ASSERT(CORBA::is_nil(obj4));
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testResolveComponentOK()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testResolveComponentEmptyHostname()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testResolveComponentUnknownHostname()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testResolveComponentEmptyContainerName()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testResolveComponentUnknownContainerName()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testResolveComponentEmptyComponentName()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testResolveComponentUnknownComponentName()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testResolveComponentFalseNbproc()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testContainerName()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testContainerNameParams()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testBuildContainerNameForNS()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testBuildContainerNameForNSParams()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testFind()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testCreateDirectory()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testChangeDirectory()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testCurrentDirectory()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testList()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testListDirectory()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testListDirectoryRecurs()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testDestroyName()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testDestroyDirectory()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testDestroyFullDirectory()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+void
+NamingServiceTest::testGetIorAddr()
+{
+  CPPUNIT_ASSERT(0);
+}
+
+// ============================================================================
+/*!
+ * Test 
+ */
+// ============================================================================
+
+// void
+// NamingServiceTest::()
+// {
+//   CPPUNIT_ASSERT(0);
+// }
+

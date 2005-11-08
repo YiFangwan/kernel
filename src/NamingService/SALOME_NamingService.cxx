@@ -109,7 +109,7 @@ void SALOME_NamingService::init_orb(CORBA::ORB_ptr orb)
  * \param ObjRef CORBA object reference to associate to the path.
  * \param Path   A relative or absolute pathname to store the object reference.
  *               If the pathname begins with a '/', pathname is taken
- *               as an absolute oathname. Else, pathname is taken as a relative
+ *               as an absolute pathname. Else, pathname is taken as a relative
  *               path, to current context. Prefer absolute pathname, relative
  *               pathname are not safe, when SALOME_NamingService object is
  *               shared or use in multithreaded context.   
@@ -334,12 +334,12 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 }
 
 // ============================================================================
-/*! \brief get the CORBA object reference associated to a name
+/*! \brief get the CORBA object reference associated to a name.
  * 
  *  get the CORBA object reference associated to a complete name with a path.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown 
  * \param Path pathname. If the pathname begins with a '/', pathname is taken
- *             as an absolute oathname. Else, pathname is taken as a relative
+ *             as an absolute pathname. Else, pathname is taken as a relative
  *             path, to current context. Prefer absolute pathname, relative
  *             pathname are not safe, when SALOME_NamingService object is
  *             shared or use in multithreaded context.
@@ -447,7 +447,7 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
 }
 
 // ============================================================================
-/*! \brief get the CORBA object reference associated to an uncomplete name
+/*! \brief get the CORBA object reference associated to an uncomplete name.
  *
  *  get the CORBA object reference associated to an uncomplete name with a
  *  path. Look for the first occurence of name*.
@@ -508,7 +508,7 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
 
 // ============================================================================
 /*! \brief find a component instance from hostname, containername,
- *         componentName and number of processors
+ *         componentName and number of processors.
  *
  *  find a component instance from hostname, containername, componentName and
  *  number of processors.
@@ -582,7 +582,7 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
 }
 
 // ============================================================================
-/*! \brief provide a default container name if empty
+/*! \brief provide a default container name if empty.
  *
  *  the given container name is returned unchanged, unless it is empty.
  * \param  containerName
