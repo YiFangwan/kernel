@@ -65,6 +65,7 @@ class NamingServiceTest : public CppUnit::TestFixture
   CPPUNIT_TEST( testList );
   CPPUNIT_TEST( testListDirectory );
   CPPUNIT_TEST( testListDirectoryRecurs );
+  CPPUNIT_TEST( testListSubdirs );
   CPPUNIT_TEST( testDestroyName );
   CPPUNIT_TEST( testDestroyDirectory );
   CPPUNIT_TEST( testDestroyFullDirectory );
@@ -111,6 +112,7 @@ public:
   void testList();
   void testListDirectory();
   void testListDirectoryRecurs();
+  void testListSubdirs();
   void testDestroyName();
   void testDestroyDirectory();
   void testDestroyFullDirectory();
