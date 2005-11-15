@@ -217,8 +217,8 @@ else
   CAS_KERNEL="$CAS_LDPATH -lTKernel"
   CAS_MATH="$CAS_LDPATH -lTKMath"
 
-  CAS_OCAF="$CAS_LDPATH -lTKernel -lTKCDF -lTKLCAF"
-  CAS_OCAFVIS="$CAS_LDPATH -lTKCAF -lStdPlugin"
+  CAS_OCAF="$CAS_LDPATH -lPTKernel -lTKernel -lTKCDF -lTKLCAF -lTKPCAF -lTKStdSchema"
+  CAS_OCAFVIS="$CAS_LDPATH -lTKCAF -lStdPlugin -lStdLPlugin -lTKPLCAF -lTKPShape -lTKStdLSchema -lTKShapeSchema"
   
   CAS_TKV3d="$CAS_LDPATH -lTKV3d"
   CAS_VIEWER="$CAS_TKV3d -lTKService"
