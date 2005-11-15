@@ -93,6 +93,8 @@ public:
     throw(ServiceUnreachable);
   std::vector<std::string> list_directory()
     throw(ServiceUnreachable);
+  std::vector<std::string> list_subdirs()
+    throw(ServiceUnreachable);
   std::vector<std::string> list_directory_recurs()
     throw(ServiceUnreachable);
   void Destroy_Name(const char* Path)
@@ -109,21 +111,18 @@ protected:
   CosNaming::NamingContext_var _root_context, _current_context;
 
   void _initialize_root_context();
-  char* _resolve_Path(char* Path);
-  void _result_resolve_Path(const char* Path,
-			    int& j,
-			    char ** resultat_resolve_Path);
+  int _createContextNameDir(std::string path,
+			    CosNaming::Name& context_name,
+			    std::vector<std::string>& splitPath,
+			    bool onlyDir);
   void _Find(const char* name, CORBA::Long& occurence_number);
-  void _create_context_name_dir(char** resultat_resolve_Path,
-				int length_copy,
-				CosNaming::Name& _context_name);
-  void _current_directory(char** result_path,
-			  int& length_result,
-			  CosNaming::NamingContext_var context_to_found,
-			  CORBA::Boolean& _continue);
+  void _current_directory(std::vector<std::string>& splitPath,
+			  int& lengthResult,
+			  CosNaming::NamingContext_var contextToFind,
+			  bool& notFound);
   void _list_directory_recurs(std::vector<std::string>& myList,
-			      const char *relativeSubDir,
-			      const char *absCurDirectory);
+			      std::string relativeSubDir,
+			      std::string absCurDirectory);
 
 };
 
