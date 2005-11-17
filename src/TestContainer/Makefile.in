@@ -46,7 +46,7 @@ BIN = TestContainer TestLogger
 BIN_SRC = 
 
 LDFLAGS+= -lSalomeNotification -lSalomeNS -lSalomeContainer -lRegistry -lOpUtil -lSALOMELocalTrace -lSalomeResourcesManager
-LDFLAGSFORBIN+= $(QT_MT_LIBS) -lSalomeNotification -lSalomeNS -lSalomeContainer -lRegistry -lOpUtil -lSALOMELocalTrace -lSalomeResourcesManager -lSALOMEBasics
+LDFLAGSFORBIN+= -lSalomeNotification -lSalomeNS -lSalomeContainer -lRegistry -lOpUtil -lSALOMELocalTrace -lSalomeResourcesManager -lSALOMEBasics
 
 
 @CONCLUDE@

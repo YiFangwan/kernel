@@ -54,7 +54,7 @@ BIN_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl \
 CPPFLAGS += $(PYTHON_INCLUDES) $(QT_MT_INCLUDES)
 
 LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSalomeContainer -lSalomeResourcesManager
-LDFLAGSFORBIN= $(QT_MT_LIBS) $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMEBasics
+LDFLAGSFORBIN= $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMEBasics
 LIBS += $(PYTHON_LIBS)
 
 @CONCLUDE@
