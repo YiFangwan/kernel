@@ -1,0 +1,473 @@
+#
+# ================================================================
+# Process this file with autoconf to produce a configure script
+# ================================================================
+#
+#AC_PREREQ(2.59)
+AC_INIT(src)
+#AM_INIT_AUTOMAKE
+
+# AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
+# scripts such as config.guess, install-sh, ...
+AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
+AC_CANONICAL_HOST
+
+PACKAGE=salome
+AC_SUBST(PACKAGE)
+
+VERSION=3.1.0
+AC_SUBST(VERSION)
+
+
+echo
+echo ---------------------------------------------
+echo Initialize source and build root directories
+echo ---------------------------------------------
+echo
+
+#
+# This function return on stdout the absolute path of the filename in
+# argument. Exemple:
+# $ filename="../KERNEL_SRC/configure
+# $ absfilename=`absolute_path $filename`
+function absolute_path {
+    filename=$1
+    here=`pwd`
+    apath=`dirname $filename`
+    cd $apath
+    apath=`pwd`
+    cd $here
+    echo $apath
+}
+
+# Build directory, where the configure script is executed.
+ROOT_BUILDDIR=`pwd`
+# Source directory, where the configure script is located.
+ROOT_SRCDIR=`absolute_path $0`
+
+AC_SUBST(ROOT_SRCDIR)
+AC_SUBST(ROOT_BUILDDIR)
+
+echo
+echo Source root directory : $ROOT_SRCDIR
+echo Build  root directory : $ROOT_BUILDDIR
+echo
+echo
+
+dnl Modification B. Secher portage sur osf
+AC_CHECK_PROG(SHELL,sh)
+AC_SUBST(SHELL)
+
+if test -z "$AR"; then
+   AC_CHECK_PROGS(AR,ar xar,:,$PATH)
+fi
+AC_SUBST(AR)
+
+echo
+echo ---------------------------------------------
+echo testing make
+echo ---------------------------------------------
+echo
+AC_PROG_MAKE_SET
+AC_PROG_INSTALL
+
+echo
+echo ---------------------------------------------
+echo Configuring production
+echo ---------------------------------------------
+echo
+# production.m4
+AC_ENABLE_DEBUG(yes)
+AC_DISABLE_PRODUCTION
+
+echo ---------------------------------------------
+echo testing libtool
+echo ---------------------------------------------
+
+dnl first, we set static to no!
+dnl if we want it, use --enable-static
+AC_ENABLE_STATIC(no)
+AC_LIBTOOL_DLOPEN
+AC_PROG_LIBTOOL
+
+# _CS_gbo_ Concerning libtool, I observe a default in the libtool
+# script generated whith standard libtool.m4. The LTCONFIG_VERSION is
+# not defined and then a test interrupts the execution:
+# libtool: ltconfig version `' does not match ltmain.sh version
+# `1.3.5'. I keep the custom libtool.m4 while solving the problem.
+
+
+dnl Fix up the INSTALL macro if it s a relative path. We want the
+dnl full-path to the binary instead.
+#case "$INSTALL" in
+#   *install-sh*)
+#      INSTALL="${ROOT_SRCDIR}/salome_adm/unix/config_files/install-sh -c"
+#      ;;
+#esac
+
+echo
+echo ---------------------------------------------
+echo testing C/C++
+echo ---------------------------------------------
+echo
+
+cc_ok=no
+AC_PROG_CC
+AC_PROG_CXX
+AC_CXX_WARNINGS
+AC_CXX_TEMPLATE_OPTIONS
+AC_DEPEND_FLAG
+# AC_CC_WARNINGS([ansi])
+cc_ok=yes
+
+dnl Library libdl :
+AC_CHECK_LIB(dl,dlopen)
+
+dnl Library librt : for alpha/osf
+AC_CHECK_LIB(rt,nanosleep)
+
+dnl add library libm :
+AC_CHECK_LIB(m,ceil)
+
+# _CS_gbo We should add all dependent libraries
+
+AC_CXX_USE_STD_IOSTREAM
+
+# _CS_gbo doit pouvoir être substitué à la macro standard. Dans cecas,
+# il faut mettre à jour le Makefile.in principal et supprimer le fichier
+# sstream embarqué avec SALOME (obsolète).
+AC_CXX_HAVE_SSTREAM
+
+# Testing linker
+AC_LINKER_OPTIONS
+
+echo
+echo ---------------------------------------------
+echo testing threads
+echo ---------------------------------------------
+echo
+
+ENABLE_PTHREADS
+
+
+echo
+echo ---------------------------------------------
+echo BOOST Library
+echo ---------------------------------------------
+echo
+
+CHECK_BOOST
+
+dnl
+dnl ---------------------------------------------
+dnl testing MPI
+dnl ---------------------------------------------
+dnl
+
+# _CS_gbo Is there a real dependency to 
+CHECK_MPI
+
+dnl
+dnl ---------------------------------------------
+dnl testing sockets
+dnl ---------------------------------------------
+dnl
+
+CHECK_SOCKETS
+
+echo
+echo ---------------------------------------------
+echo Testing Batch
+echo ---------------------------------------------
+echo
+
+dnl Several batch systems (OpenPBS, LSF, ...) can be operated using
+dnl the Batch classe library integrated in the KERNEL module. The
+dnl checking process tests here the presence of underlying batch
+dnl softwares. If none is detected, the KERNEL is declared to be
+dnl "without batch". 
+
+echo testing OpenPBS
+echo ---------------
+openpbs_ok=no
+CHECK_OPENPBS
+dnl openpbs_ok is set to yes by CHECK_OPENPBS
+
+echo testing LSF
+echo -----------
+lsf_ok=no
+CHECK_LSF
+dnl lsf_ok is set to yes by CHECK_LSF
+echo lsf = $lsf_ok
+
+WITH_BATCH=no
+test x$openpbs_ok = xyes || test x$lsf_ok = xyes && WITH_BATCH=yes
+AC_SUBST(WITH_BATCH)
+
+
+echo
+echo ---------------------------------------------
+echo testing python
+echo ---------------------------------------------
+echo
+
+CHECK_PYTHON
+
+echo
+echo ---------------------------------------------
+echo testing swig
+echo ---------------------------------------------
+echo
+
+CHECK_SWIG
+
+echo
+echo ---------------------------------------------
+echo Configuration of the ORB
+echo ---------------------------------------------
+echo
+
+echo Testing OMNIORB ...
+CHECK_OMNIORB
+
+echo Selecting the default ORB
+DEFAULT_ORB=omniORB
+echo DEFAULT_ORB : $DEFAULT_ORB
+CHECK_CORBA
+
+CORBA_RULES=salome_adm/unix/make_$ORB
+AC_SUBST_FILE(CORBA_RULES)
+
+# The CORBA_RULES variable defines the file name that
+# implements the building rules to be included by Makefile to process
+# idl files and CORBA specific dependencies (ex: the file
+# salome_adm/unix/make_omniorb is the default for SALOME). The value
+# of ORB is defined by CHECK_CORBA.
+
+# Note that this checking process is no longer relevant for SALOME
+# because the possibility of changing the ORB as a plugin is probably
+# deprecated. The software configuration is clearly omniorb for CORBA
+# communication. This could be simplify in a near futur.
+
+echo
+echo ----------------------------------------------
+echo testing CPPUNIT only required for unit testing
+echo ----------------------------------------------
+echo
+
+CHECK_CPPUNIT
+
+echo
+echo ---------------------------------------------
+echo testing HDF5
+echo ---------------------------------------------
+echo
+
+CHECK_HDF5
+
+echo
+echo ---------------------------------------------
+echo Testing OpenCascade
+echo ---------------------------------------------
+echo
+
+CHECK_CAS
+
+
+echo
+echo ---------------------------------------------
+echo Testing QT
+echo ---------------------------------------------
+echo
+# Qt must be kept because kernel makes use of qxml and some other
+# non-graphical stuff.
+CHECK_QT
+
+
+echo
+echo ---------------------------------------------
+echo Testing html generators
+echo ---------------------------------------------
+echo
+
+CHECK_HTML_GENERATORS
+
+echo
+echo ---------------------------------------------
+echo Summary
+echo ---------------------------------------------
+echo
+
+# This function displays the values of each variable given in arguments 
+function summary {
+  variables=$*
+  for var in $variables
+  do
+    eval toto=\$$var
+    if test x$toto != "x"; then
+      printf "   %10s : " `echo \$var | sed -e "s,_ok,,"`
+      eval echo \$$var
+    fi
+  done
+}
+
+function check_fatal_error {
+  variables=$*
+  for var in $variables
+  do
+    eval toto=\$$var
+    if test x$toto != "xyes"; then
+        echo "FATAL ERROR: some mandatory products are missing."
+	echo "Installing the missing products is required before running the configure script".
+    	exit 1
+    fi
+  done  
+}
+
+echo Configure
+echo
+
+mandatory_products="cc_ok boost_ok python_ok swig_ok threads_ok hdf5_ok omniORB_ok occ_ok qt_ok"
+echo --- Mandatory products:
+summary $mandatory_products
+check_fatal_error $mandatory_products
+echo
+
+htmldoc_products="doxygen_ok graphviz_ok rst2html_ok"
+echo --- Html documentation products:
+summary $htmldoc_products
+echo
+
+optional_products="mpi_ok cppunit_ok openpbs_ok lsf_ok"
+echo --- Optional products:
+echo These products are optional because the KERNEL functions using them are built
+echo only if the products are detected.
+summary $optional_products
+echo
+
+echo
+echo "Default ORB   : $DEFAULT_ORB"
+echo
+
+dnl generals files which could be included in every makefile
+
+AC_SUBST_FILE(COMMENCE) COMMENCE=salome_adm/unix/make_commence
+AC_SUBST_FILE(CONCLUDE) CONCLUDE=salome_adm/unix/make_conclude
+AC_SUBST_FILE(MODULE) MODULE=salome_adm/unix/make_module
+
+dnl les dependences
+AC_SUBST_FILE(DEPEND) DEPEND=salome_adm/unix/depend
+
+dnl We don t need to say when we re entering directories if we re using
+dnl GNU make becuase make does it for us.
+if test "X$GMAKE" = "Xyes"; then
+   AC_SUBST(SETX) SETX=":"
+else
+   AC_SUBST(SETX) SETX="set -x"
+fi
+
+# make other build directories
+for rep in salome_adm adm_local doc bin/salome include/salome lib/salome share/salome/resources idl
+do
+    $INSTALL -d $rep
+done
+
+echo 
+echo ---------------------------------------------
+echo copying resource files, shell scripts, and 
+echo xml files
+echo ---------------------------------------------
+echo
+
+
+mkdir -p bin/salome
+cd bin/salome
+for i in  `find $ROOT_SRCDIR/bin`
+do
+  local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR/bin,.,"`
+  case "$local_bin" in
+        *.in | *~) ;;
+        . | */CVS | */CVS/* | ./salome) ;;
+        ./appliskel |./appliskel/env.d) $INSTALL -d $local_bin ; echo $local_bin ;;
+        *) $INSTALL $i $local_bin; echo $local_bin ;;
+  esac
+done
+cd $ROOT_BUILDDIR
+
+AC_SUBST_FILE(ENVSCRIPT) ENVSCRIPT=salome_adm/unix/envScript
+
+echo
+echo ---------------------------------------------
+echo generating Makefiles and configure files
+echo ---------------------------------------------
+echo
+
+AC_OUTPUT_COMMANDS([ \
+	chmod +x ./bin/*; \
+	chmod +x ./bin/salome/* \
+])
+
+# This list is initiated using autoscan and must be updated manually
+# when adding a new file <filename>.in to manage. When you execute
+# autoscan, the Makefile list is generated in the output file configure.scan.
+# This could be helpfull to update de configuration.
+AC_OUTPUT([ \
+	./salome_adm/unix/SALOMEconfig.h \
+	./salome_adm/unix/depend \
+	./salome_adm/unix/make_omniorb \
+	./salome_adm/unix/make_commence \
+	./salome_adm/unix/make_conclude \
+	./salome_adm/unix/make_module \
+	./salome_adm/Makefile \
+	./Makefile \
+	./bin/salome/runIDLparser \
+	./doc/Makefile \
+	./doc/salome/Makefile \
+	./doc/salome/DevelopersGuide/DevelopersGuide.tex \
+	./doc/salome/DevelopersGuide/Makefile \
+	./doc/salome/gui/Makefile \
+	./doc/salome/tui/Makefile \
+	./idl/Makefile \
+	./resources/Plugin \
+	./src/Makefile \
+	./src/Basics/Makefile \
+	./src/Basics/Test/Makefile \
+	./src/Batch/Makefile \
+	./src/Batch_SWIG/Makefile \
+	./src/CASCatch/Makefile \
+	./src/Communication/Makefile \
+	./src/Container/Makefile \
+	./src/DataTypeCatalog/Makefile \
+	./src/GenericObj/Makefile \
+	./src/HDFPersist/Makefile \
+	./src/KERNEL_PY/Makefile \
+	./src/LifeCycleCORBA/Makefile \
+	./src/LifeCycleCORBA/Test/Makefile \
+	./src/LifeCycleCORBA_SWIG/Makefile \
+	./src/Logger/Makefile \
+	./src/Logger/Test/Makefile \
+	./src/ModuleCatalog/Makefile \
+	./src/ModuleGenerator/Makefile \
+	./src/ModuleGenerator/testIDLparser \
+	./src/MPIContainer/Makefile \
+	./src/NamingService/Makefile \
+	./src/Notification/Makefile \
+	./src/NOTIFICATION_SWIG/Makefile \
+	./src/Registry/Makefile \
+	./src/ResourcesManager/Makefile \
+	./src/RessourcesCatalog/Makefile \
+	./src/SALOMEDS/Makefile \
+	./src/SALOMEDSClient/Makefile \
+	./src/SALOMEDSImpl/Makefile \
+	./src/SALOMELocalTrace/Makefile \
+	./src/SALOMELocalTrace/Test/Makefile \
+	./src/SALOMETraceCollector/Makefile \
+	./src/SALOMETraceCollector/Test/Makefile \
+	./src/TestContainer/Makefile \
+	./src/TestMPIContainer/Makefile \
+	./src/TOOLSDS/Makefile \
+	./src/UnitTests/Makefile \
+	./src/Utils/Makefile \
+	./src/Utils/Test/Makefile \
+])
+
