@@ -49,6 +49,7 @@ def get_config():
     
     import launchConfigureParser
     args = launchConfigureParser.args
+    cmd_opts = launchConfigureParser.cmd_opts
     
     # Check variables <module>_ROOT_DIR
     # and set list of used modules (without KERNEL)
@@ -94,7 +95,7 @@ def get_config():
         args['standalone'].append("superv")
         pass
    
-    return args, modules_list, modules_root_dir
+    return args, modules_list, modules_root_dir, cmd_opts
 
 # -----------------------------------------------------------------------------
 
@@ -377,7 +378,7 @@ class LoggerServer(Server):
 # ---
 
 class SessionServer(Server):
-    def __init__(self,args):
+    def __init__(self,args,cmd_opts):
         self.args=args
         self.initArgs()
         self.SCMD1=['SALOME_Session_Server']
@@ -408,6 +409,11 @@ class SessionServer(Server):
             self.SCMD2+=['GUI']
         if self.args['splash']:
             self.SCMD2+=['SPLASH']
+        if cmd_opts.has_key("m"):
+            self.SCMD2+=['--modules (']
+            for mod in cmd_opts["m"]:
+                self.SCMD2+=[mod + ':']
+            self.SCMD2+=[')']    
 
     def setpath(self,modules_list,modules_root_dir):
         cata_path=[]
@@ -492,7 +498,7 @@ def startGUI():
   
 # -----------------------------------------------------------------------------
 
-def startSalome(args, modules_list, modules_root_dir):
+def startSalome(args, modules_list, modules_root_dir, cmd_opts):
     """Launch all SALOME servers requested by args"""
     init_time = os.times()
 
@@ -610,7 +616,8 @@ def startSalome(args, modules_list, modules_root_dir):
     #
     # Lancement Session Server
     #
-    mySessionServ = SessionServer(args)
+
+    mySessionServ = SessionServer(args, cmd_opts)
     mySessionServ.setpath(modules_list,modules_root_dir)
     mySessionServ.run()
 ##----------------        
@@ -658,7 +665,7 @@ def startSalome(args, modules_list, modules_root_dir):
 
 # -----------------------------------------------------------------------------
 
-def useSalome(args, modules_list, modules_root_dir):
+def useSalome(args, modules_list, modules_root_dir, cmd_opts):
     """
     Launch all SALOME servers requested by args,
     save list of process, give info to user,
@@ -667,7 +674,7 @@ def useSalome(args, modules_list, modules_root_dir):
     
     clt=None
     try:
-        clt = startSalome(args, modules_list, modules_root_dir)
+        clt = startSalome(args, modules_list, modules_root_dir, cmd_opts)
     except:
         import traceback
         traceback.print_exc()
@@ -748,10 +755,10 @@ def no_main():
 
 def main():
     """Salome launch as a main application"""
-    args, modules_list, modules_root_dir = get_config()
+    args, modules_list, modules_root_dir, cmd_opts = get_config()
     kill_salome(args)
     set_env(args, modules_list, modules_root_dir)
-    clt = useSalome(args, modules_list, modules_root_dir)
+    clt = useSalome(args, modules_list, modules_root_dir, cmd_opts)
     return clt,args
 
 # -----------------------------------------------------------------------------
