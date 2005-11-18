@@ -60,12 +60,6 @@ LSF_LIBS     = @LSF_LIBS@
 CPPUNIT_INCLUDES = @CPPUNIT_INCLUDES@
 CPPUNIT_LIBS = @CPPUNIT_LIBS@
 
-# JAVA
-
-#JAVA_INCLUDES = @JAVA_INCLUDES@
-#JAVA_LIBS = @JAVA_LIBS@
-#JAVA_LDPATH = @JAVA_LDPATH@
-
 # PYTHON
 
 PYTHON = @PYTHON@
@@ -75,8 +69,8 @@ PYTHON_LIBS = @PYTHON_LIBS@
 PYTHON_VERSION = @PYTHON_VERSION@
 PYTHON_SITE = $(prefix)/lib/python$(PYTHON_VERSION)/site-packages
 PYTHON_SITE_INSTALL = $(prefix)/lib/python$(PYTHON_VERSION)/site-packages/salome
-# QT
 
+# QT
 QT_ROOT = @QT_ROOT@
 QT_INCLUDES = @QT_INCLUDES@
 QT_MT_INCLUDES = @QT_INCLUDES@ -DQT_THREAD_SUPPORT
@@ -254,33 +248,11 @@ all:
 # add target to build administrative files
 #
 
-Makefile: $(top_builddir)/config.status $(srcdir)/Makefile.in
-	cd $(top_builddir) ; ./config.status
+# Building html from restructured text files
+STYLESHEET=rst.css
+RST2HTML=@RST2HTML@
+#RSTOPTS=--output-encoding=latin1 --stylesheet=$(STYLESHEET)
+RSTOPTS=--output-encoding=latin1
 
-$(top_builddir)/config.status: $(top_srcdir)/configure
-	cd $(top_builddir) ; ./config.status --recheck
-
-# VPATH contain $(srcdir), so make configure is good in top_srcdir and we must add target configure otherwise :-)
-ifneq ($(top_srcdir),$(srcdir))
-configure: $(top_srcdir)/configure
-endif
-
-$(top_srcdir)/configure: $(top_srcdir)/configure.in $(top_srcdir)/aclocal.m4
-	cd $(top_srcdir) ; autoconf
-
-$(top_srcdir)/configure.in: $(top_srcdir)/configure.in.base
-	cd $(top_srcdir) && ./build_configure
-
-
-ACLOCAL_SRC = \
-ac_cxx_bool.m4                    check_corba.m4     check_vtk.m4	\
-ac_cxx_depend_flag.m4             check_hdf5.m4      enable_pthreads.m4	\
-ac_cxx_mutable.m4                 check_mico.m4      libtool.m4		\
-ac_cxx_namespaces.m4              check_omniorb.m4   pyembed.m4		\
-ac_cxx_partial_specialization.m4  check_opengl.m4    python.m4		\
-ac_cxx_typename.m4                check_pthreads.m4  check_cas.m4	\
-ac_cc_warnings.m4                 check_qt.m4        check_swig.m4      \
-check_boost.m4 
-
-$(top_srcdir)/aclocal.m4: $(ACLOCAL_SRC:%=@KERNEL_ROOT_DIR@/salome_adm/unix/config_files/%)
-	cd $(top_srcdir) ; aclocal --acdir=adm_local/unix/config_files -I @KERNEL_ROOT_DIR@/salome_adm/unix/config_files
+%.html: $(srcdir)/%.txt
+	$(RST2HTML) $(RSTOPTS) $< $@

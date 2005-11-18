@@ -15,7 +15,17 @@ SUBDIRS= salome
 
 @COMMENCE@
 
-docs:
+DOCFILES=\
+	index.html \
+	UnitTests.html \
+	SALOME_Application.html \
+	INSTALL.html
+
+# The production rule for creating html from restructured text txt is
+# defined in the makefile header @COMMENCE@.
+rstdoc: $(DOCFILES)
+
+docs: rstdoc
 	@@SETX@; for d in $(SUBDIRS); do 	\
 	   (cd $$d && $(MAKE) $@) || exit 1; 	\
 	done

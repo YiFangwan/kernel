@@ -30,6 +30,7 @@ AC_ARG_WITH(mpi,
 
 MPI_INCLUDES=""
 MPI_LIBS=""
+mpi_ok=no
 if test "$WITHMPI" = yes; then
 
   echo

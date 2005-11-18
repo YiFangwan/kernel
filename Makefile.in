@@ -44,21 +44,8 @@ showNS.py \
 addToKillList.py
 
 # copy header files in common directory
-OWN_CONFIG_H=@OWN_CONFIG_H@
-
-ifeq ($(OWN_CONFIG_H),yes)
-    ifeq ($(HAVE_SSTREAM),yes)
-	include_list=include/salome/SALOMEconfig.h include/salome/config.h
-    else
-	include_list=include/salome/SALOMEconfig.h include/salome/config.h include/salome/sstream
-    endif
-else
-    ifeq ($(HAVE_SSTREAM),yes)
-	include_list=include/salome/SALOMEconfig.h
-    else
-	include_list=include/salome/SALOMEconfig.h include/salome/sstream
-    endif
-endif
+include_list=\
+	include/salome/SALOMEconfig.h
 
 inc: idl $(include_list)
 
@@ -75,22 +62,20 @@ salome_adm/unix/SALOMEconfig.ref: salome_adm/unix/SALOMEconfig.h
 	  cp -p $< $@;        \
 	fi;		      \
 
-include/salome/config.h: salome_adm/unix/config.h
-	-$(RM) $@
-	$(LN_S) ../../$< $@
-
-include/salome/sstream: salome_adm/unix/sstream
-	-$(RM) $@
-	$(LN_S) ../../$< $@
-
 depend: depend_idl
 
 depend_idl:
 	(cd idl ; $(MAKE) $@) || exit 1
 
 # doc is already build : if you want to had documents, go manually to doc and run 'make doc'
-#doc:
-#	(cd doc && $(MAKE) $@) || exit 1
+
+
+DOCFILES=\
+	README.FIRST.html
+
+rstdoc: $(DOCFILES)
+	(cd doc && $(MAKE) $@) || exit 1
+
 
 # Install make_commence make_conclude ... for other modules
 install-make:
@@ -136,7 +121,7 @@ distclean: distclean-other
 distclean-other:
 	-$(RM) salome_adm/unix/*~ salome_adm/unix/*% salome_adm/unix/*.bak salome_adm/unix/*.new salome_adm/unix/*.old
 	-$(RM) salome_adm/unix/make_* 
-	-$(RM) salome_adm/unix/depend salome_adm/unix/SALOMEconfig.h salome_adm/unix/config.h 
+	-$(RM) salome_adm/unix/depend salome_adm/unix/SALOMEconfig.h 
 	-$(RM) config.cache config.log config.status 
 
 @MODULE@
