@@ -1,3 +1,5 @@
+#  SALOMELocalTrace : log on local machine
+#
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 # 
@@ -20,65 +22,21 @@
 #
 #
 #  File   : Makefile.in
-#  Author : Patrick GOLDBRONN (CEA)
+#  Author : Paul RASCLE (EDF)
 #  Module : SALOME
-# $Header$
+#  $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=..
-srcdir=@srcdir@
-VPATH=.:@srcdir@
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
+salomeinclude_HEADERS      = utilities.h \
+                             LocalTraceBufferPool.hxx \
+                             BaseTraceCollector.hxx
 
-@COMMENCE@
-
-SUBDIRS = \
- Basics \
- SALOMELocalTrace \
- CASCatch \
- HDFPersist \
- Logger \
- SALOMETraceCollector \
- Utils \
- NamingService \
- GenericObj \
- Registry \
- ModuleCatalog \
- DataTypeCatalog \
- RessourcesCatalog \
- ResourcesManager \
- Notification \
- NOTIFICATION_SWIG \
- Container \
- TestContainer \
- LifeCycleCORBA \
- LifeCycleCORBA_SWIG \
- SALOMEDSClient \
- TOOLSDS \
- SALOMEDSImpl \
- SALOMEDS \
- KERNEL_PY \
- ModuleGenerator \
- Communication 
-
-ifeq (@mpi_ok@,yes)
-  SUBDIRS+= MPIContainer TestMPIContainer
-endif
-
-ifeq (@WITH_BATCH@,yes)
-  SUBDIRS += Batch Batch_SWIG
-endif
-
-ifeq (@cppunit_ok@,yes)
- SUBDIRS+= \
- Basics/Test \
- SALOMELocalTrace/Test \
- Logger/Test \
- SALOMETraceCollector/Test \
- Utils/Test \
- LifeCycleCORBA/Test \
- UnitTests
-endif
-
-@MODULE@
-
+lib_LTLIBRARIES                 = libSALOMELocalTrace.la
+libSALOMELocalTrace_la_SOURCES  = BaseTraceCollector.cxx BaseTraceCollector.hxx \
+                                  LocalTraceCollector.cxx \
+                                  FileTraceCollector.cxx \
+                                  LocalTraceBufferPool.cxx LocalTraceBufferPool.hxx
+libSALOMELocalTrace_la_LDFLAGS  = -no-undefined -version-info=0:0:0
+libSALOMELocalTrace_la_CPPFLAGS = -I$(srcdir)/../Basics
+libSALOMELocalTrace_la_LIBADD   = ../Basics/libSALOMEBasics.la

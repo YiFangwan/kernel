@@ -26,15 +26,9 @@
 #  Module : SALOME
 #  $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-
-@COMMENCE@
-
-EXPORT_HEADERS = \
+salomeinclude_HEADERS      = \
 	HDFattribute.hxx \
 	HDFcontainerObject.hxx \
 	HDFdataset.hxx \
@@ -51,9 +45,8 @@ EXPORT_HEADERS = \
 	HDFascii.hxx
 
 # Libraries targets
-
-LIB = libSalomeHDFPersist.la 
-LIB_SRC =  \
+lib_LTLIBRARIES                 = libSalomeHDFPersist.la
+libSalomeHDFPersist_la_SOURCES  =\
 	HDFfileCreate.c \
 	HDFfileClose.c \
 	HDFfileOpen.c \
@@ -93,10 +86,8 @@ LIB_SRC =  \
 	HDFconvert.cc \
 	HDFascii.cc
 
-#BIN = test9 test8
-
-CPPFLAGS+=$(OCC_INCLUDES) $(HDF5_INCLUDES) -DPCLINUX
-LDFLAGS+= $(CAS_LDPATH) -lTKernel $(HDF5_LIBS)
-
-
-@CONCLUDE@
+libSalomeHDFPersist_la_LDFLAGS  = -no-undefined -version-info=0:0:0
+libSalomeHDFPersist_la_CPPFLAGS = @CAS_CPPFLAGS@ @HDF5_INCLUDES@ -DPCLINUX \
+                                  -I$(srcdir)/../SALOMELocalTrace \
+                                  -I$(srcdir)/../Basics
+libSalomeHDFPersist_la_LIBADD   = @CAS_LDPATH@ -lTKernel @HDF5_LIBS@

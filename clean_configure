@@ -2,13 +2,14 @@
 
 rm -rf autom4te.cache aclocal.m4 configure make_config
 rm -f *~
-exit
+#exit
+# ==================== ON SORT AVANT
 
 here=`pwd`
 libdir=salome_adm/unix/config_files
-#cd $libdir
+cd $libdir
 # Files created by libtoolize
-#rm -f config.guess config.sub ltmain.sh
+rm -f config.guess config.sub ltmain.sh
 # Files created by automake
-#rm -rf install-sh missing
-#cd $here
+rm -rf install-sh missing
+cd $here

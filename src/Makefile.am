@@ -1,5 +1,3 @@
-#  Basics: General purpose C++ 
-#
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 # 
@@ -22,31 +20,39 @@
 #
 #
 #  File   : Makefile.in
-#  Author : Paul RASCLE (EDF)
+#  Author : Patrick GOLDBRONN (CEA)
 #  Module : SALOME
-#  $Header$
+# $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
+SUBDIRS = \
+ Basics \
+ SALOMELocalTrace \
+ CASCatch \
+ HDFPersist
 
+# EN COURS Logger
 
-@COMMENCE@
+#
+# SALOMETraceCollector \
+# Utils \
+# NamingService \
+# GenericObj \
+# Registry \
+# ModuleCatalog \
+# DataTypeCatalog \
+# RessourcesCatalog \
+# ResourcesManager \
+# Notification \
+# NOTIFICATION_SWIG \
+# Container \
+# TestContainer \
+# LifeCycleCORBA \
+# LifeCycleCORBA_SWIG \
+# SALOMEDSClient \
+# TOOLSDS \
+# SALOMEDSImpl \
+# SALOMEDS \
+# KERNEL_PY \
+# ModuleGenerator \
+# Communication 
 
-# header files  
-EXPORT_HEADERS= \
- BasicsGenericDestructor.hxx 
-
-EXPORT_PYSCRIPTS = 
-
-# Libraries targets
-
-LIB = libSALOMEBasics.la 
-LIB_SRC = BasicsGenericDestructor.cxx
-
-LIBS= @LIBS@ 
-#LDFLAGS+= 
-
-
-@CONCLUDE@

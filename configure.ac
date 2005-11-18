@@ -4,13 +4,15 @@
 # ================================================================
 #
 #AC_PREREQ(2.59)
-AC_INIT(src)
-#AM_INIT_AUTOMAKE
+#AC_INIT(src)
+AC_INIT([Salome2 Project], [3.1.0], [gboulant@CS], [salome])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
 AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
 AC_CANONICAL_HOST
+AC_CANONICAL_TARGET
+AM_INIT_AUTOMAKE
 
 PACKAGE=salome
 AC_SUBST(PACKAGE)

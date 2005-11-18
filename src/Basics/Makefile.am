@@ -1,4 +1,4 @@
-#  SALOMELocalTrace : log on local machine
+#  Basics: General purpose C++ 
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -26,31 +26,10 @@
 #  Module : SALOME
 #  $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
+salomeincludedir           = $(includedir)/@PACKAGE@
+salomeinclude_HEADERS      = BasicsGenericDestructor.hxx
 
-
-@COMMENCE@
-
-# header files  
-EXPORT_HEADERS= utilities.h \
-		LocalTraceBufferPool.hxx \
-		BaseTraceCollector.hxx
-
-EXPORT_PYSCRIPTS = 
-
-# Libraries targets
-
-LIB = libSALOMELocalTrace.la 
-LIB_SRC = BaseTraceCollector.cxx \
-	  LocalTraceCollector.cxx \
-	  FileTraceCollector.cxx \
-	  LocalTraceBufferPool.cxx
-
-LIBS= @LIBS@ 
-LDFLAGS+= -lSALOMEBasics
-
-
-@CONCLUDE@
+libdir                     = $(prefix)/lib/@PACKAGE@
+lib_LTLIBRARIES            = libSALOMEBasics.la
+libSALOMEBasics_la_SOURCES = BasicsGenericDestructor.cxx BasicsGenericDestructor.hxx
+libSALOMEBasics_la_LDFLAGS = -no-undefined -version-info=0:0:0

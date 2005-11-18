@@ -1,0 +1,10 @@
+#
+# ============================================================
+# This file defines the common definitions used in several
+# Makefile. This file must be included, if needed, by the file
+# Makefile.am.
+# ============================================================
+#
+
+salomeincludedir           = $(includedir)/@PACKAGE@
+libdir                     = $(prefix)/lib/@PACKAGE@
