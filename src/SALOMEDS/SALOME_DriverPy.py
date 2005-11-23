@@ -3,11 +3,13 @@ import SALOMEDS__POA
 class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
     """
     """
+    # class variable = default if instance variable is not found
     _ComponentDataType = None
 
     def __init__ (self, componentDataType):
         print "SALOME_DriverPy.__init__: ",componentDataType
-        _ComponentDataType = componentDataType
+        # instance variable : need self.
+        self._ComponentDataType = componentDataType
 
     def IORToLocalPersistentID(self, theSObject, IORString, isMultiFile, isASCII):
         return theSObject.GetID()
