@@ -118,6 +118,10 @@ SALOME_ContainerManager::
 FindOrStartContainer(const Engines::MachineParameters& params,
 		     const Engines::MachineList& possibleComputers)
 {
+  long id;
+  string containerNameInNS;
+  char idc[64];
+
   Engines::Container_ptr ret = FindContainer(params,possibleComputers);
   if(!CORBA::is_nil(ret))
     return ret;
@@ -128,6 +132,14 @@ FindOrStartContainer(const Engines::MachineParameters& params,
   string theMachine=_ResManager->FindBest(possibleComputers);
   MESSAGE("try to launch it on " << theMachine);
 
+  // Get Id for container: a parallel container register in Naming Service
+  // on the machine where is process 0. ContainerManager does'nt know the name
+  // of this machine before the launch of the parallel container. So to get
+  // the IOR of the parallel container in Naming Service, ContainerManager
+  // give an Id. The parallel container register his name under
+  // /ContainerManager/Id directory in NamingService
+  id = GetIdForContainer();
+
   string command;
   if(theMachine=="")
     {
@@ -137,11 +149,11 @@ FindOrStartContainer(const Engines::MachineParameters& params,
     }
   else if(theMachine==GetHostname())
     {
-      command=_ResManager->BuildCommandToLaunchLocalContainer(params);
+      command=_ResManager->BuildCommandToLaunchLocalContainer(params,id);
     }
   else
     command =
-      _ResManager->BuildCommandToLaunchRemoteContainer(theMachine,params);
+      _ResManager->BuildCommandToLaunchRemoteContainer(theMachine,params,id);
 
   _ResManager->RmTmpFile();
   int status=system(command.c_str());
@@ -170,8 +182,14 @@ FindOrStartContainer(const Engines::MachineParameters& params,
 	  count-- ;
 	  if ( count != 10 )
 	    MESSAGE( count << ". Waiting for FactoryServer on " << theMachine);
-	  string containerNameInNS =
-	    _NS->BuildContainerNameForNS(params,theMachine.c_str());
+	  if(params.isMPI){
+	    containerNameInNS = "/ContainerManager/id";
+	    sprintf(idc,"%ld",id);
+	    containerNameInNS += idc;
+	  }
+	  else
+	    containerNameInNS =
+	      _NS->BuildContainerNameForNS(params,theMachine.c_str());
 	  SCRUTE(containerNameInNS);
 	  CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
 	  ret=Engines::Container::_narrow(obj);
@@ -273,3 +291,12 @@ FindContainer(const Engines::MachineParameters& params,
   MESSAGE("FindContainer: not found");
   return Engines::Container::_nil();
 }
+
+
+long SALOME_ContainerManager::GetIdForContainer(void)
+{
+  long id;
+  id = rand();
+  return id;
+}
+

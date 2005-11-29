@@ -58,6 +58,8 @@ private:
   FindContainer(const Engines::MachineParameters& params,
 		const char *theMachine);
 
+  long  GetIdForContainer(void);
+
   SALOME_ResourcesManager *_ResManager;
   SALOME_NamingService *_NS;
 };
