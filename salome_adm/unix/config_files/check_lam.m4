@@ -59,8 +59,15 @@ if test "$WITHLAM" = yes; then
     LIBS_old="$LIBS"
     LDFLAGS_old="$LDFLAGS"
     LDFLAGS="$MPI_LIBS $LDFLAGS"
-    AC_CHECK_LIB(lam,lam_mp_init,,WITHLAM="no")
+    AC_CHECK_LIB(lam,lam_mp_init,WITHLAM="yes",WITHLAM="no")
+    if test "$WITHLAM" = "yes";then
+      MPI_LIBS="-llam $MPI_LIBS"
+      LIBS="$LIBS -llam"
+    fi
     AC_CHECK_LIB(mpi,MPI_Init,WITHLAM="yes",WITHLAM="no")
+    if test "$WITHLAM" = "yes";then
+      MPI_LIBS="-lmpi $MPI_LIBS"
+    fi
     AC_CHECK_LIB(mpi,MPI_Publish_name,WITHMPI2="yes",WITHMPI2="no")
     LDFLAGS="$LDFLAGS_old"
     LIBS="$LIBS_old"
@@ -69,7 +76,6 @@ if test "$WITHLAM" = yes; then
   if test "$WITHLAM" = "yes";then
      WITHMPI="yes"
      mpi_ok=yes
-     MPI_LIBS="$MPI_LIBS -lmpi -llam"
      CPPFLAGS="-DWITHLAM $CPPFLAGS"
   else
      mpi_ok=no
