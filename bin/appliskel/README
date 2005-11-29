@@ -17,13 +17,13 @@ SALOME Application concept
 See SALOME_Application_ to define your own configuration of SALOME and run it
 on one or several computers. This is the recommended way of configuration.
 
-.. _SALOME_Application: ./doc/SALOME_Application.html
+.. _SALOME_Application: ../../doc/SALOME_Application.html
 
 
 User run scripts
 ----------------
 
-The SALOME user can use 4 scripts:
+The SALOME user can use the following scripts:
 
 runAppli
    Launches a SALOME Session
@@ -41,10 +41,15 @@ runConsole
    It is also possible to use runSession, then python.
 
 runTests
-   Similar to runSession, used for unit testing. runSession tries to use an
-   already existing naming service definition from a running session (hostname
-   and port number), runTests defines a new configuration for naming service
-   (new port number).
+   Similar to runSession, used for unit testing. runTests defines a new 
+   configuration for naming service (new port number) to avoid interferences
+   with a running SALOME session. runSession tries to use an already existing
+   naming service definition from a running session (hostname & port number).
+
+killCurrentPort
+   Kills the last SALOME session corresponding to this application, and 
+   intially launched from this computer.
+   Cleans associated config files.
 
 SALOME internal run scripts
 ---------------------------
@@ -52,12 +57,19 @@ SALOME internal run scripts
 envd
    Sets SALOME application environment, envd is sourced by other scripts.
 
+setAppliPath.sh
+   Used by other scripts to define the Application Path.
+
+searchFreePort.sh
+   Used by other scripts to find a free port for naming service.
+
 For remote calls, SALOME uses one script.
 
 runRemote.sh
    This script is mainly used to launch containers. The first 2 arguments
    define the hostname and port userd for naming service, the remaining
    arguments define the command to execute.
+
 
 The following files must be adapted to your environment and SALOME Application
 ------------------------------------------------------------------------------
