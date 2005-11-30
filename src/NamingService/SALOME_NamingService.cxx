@@ -1543,7 +1543,7 @@ SALOME_NamingService::_createContextNameDir(string path,
       if (endIdx == string::npos)
 	endIdx = path.length();
       int lsub = endIdx - begIdx;
-      if (lsub > 1)
+      if (lsub >= 1)
 	splitPath.push_back(path.substr(begIdx, lsub));
       begIdx = path.find_first_not_of(delims, endIdx);
     }
