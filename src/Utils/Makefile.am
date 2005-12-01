@@ -21,21 +21,16 @@
 #
 #
 #
-#  File   : Makefile.in
-#  Author : Marc Tajchman (CEA)
+#  File   : Makefile.am
+#  Author : Guillaume Boulant (CSSI)
 #  Module : SALOME
 #  $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
 
-
-@COMMENCE@
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 # header files  
-EXPORT_HEADERS= \
+salomeinclude_HEADERS =\
 	OpUtil.hxx \
 	Utils_Timer.hxx \
 	Utils_CorbaException.hxx \
@@ -49,23 +44,38 @@ EXPORT_HEADERS= \
 	Utils_SignalsHandler.h \
 	Utils_Mutex.hxx
 
-EXPORT_PYSCRIPTS = Utils_Identity.py SALOME_utilities.py
-# Libraries targets
+# Scripts to be exported
+salomescript_DATA =\
+	Utils_Identity.py \
+	SALOME_utilities.py
 
-LIB = libOpUtil.la 
-LIB_SRC = OpUtil.cxx Utils_Timer.cxx duplicate.cxx \
+# The BUILT_SOURCES defines the list of files generated from the idl
+# interface (SALOME_Exception.idl in this case).
+BUILT_SOURCES = $(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
+
+# Libraries targets
+lib_LTLIBRARIES = libOpUtil.la
+libOpUtil_la_SOURCES =\
+	OpUtil.cxx Utils_Timer.cxx duplicate.cxx \
 	Utils_CommException.cxx \
 	Utils_SALOME_Exception.cxx \
 	Utils_Identity.cxx Utils_ORB_INIT.cxx \
 	Utils_DESTRUCTEUR_GENERIQUE.cxx \
 	Utils_ExceptHandlers.cxx \
 	Utils_SignalsHandler.cxx \
-	Utils_Mutex.cxx
+	Utils_Mutex.cxx \
+	$(BUILT_SOURCES)
 
-LIB_SERVER_IDL = SALOME_Exception.idl
+libOpUtil_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 
-LDFLAGS+= -lSALOMELocalTrace
+libOpUtil_la_CPPFLAGS = \
+	-I$(srcdir)/../Basics \
+	-I$(srcdir)/../SALOMELocalTrace \
+	-I$(top_builddir)/salome_adm/unix \
+	-I$(top_builddir)/idl \
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
-@CONCLUDE@
+libOpUtil_la_LIBADD   = ../SALOMELocalTrace/libSALOMELocalTrace.la
+
 
 

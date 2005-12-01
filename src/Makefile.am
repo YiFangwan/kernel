@@ -28,24 +28,23 @@ SUBDIRS = \
  Basics \
  SALOMELocalTrace \
  CASCatch \
- HDFPersist
+ HDFPersist \
+ Logger \
+ SALOMETraceCollector \
+ Utils \
+ NamingService \
+ GenericObj \
+ Registry \
+ ModuleCatalog \
+ DataTypeCatalog \
+ RessourcesCatalog \
+ ResourcesManager \
+ Notification \
+ NOTIFICATION_SWIG \
+ Container
 
-# EN COURS Logger
+# TestContainer
 
-#
-# SALOMETraceCollector \
-# Utils \
-# NamingService \
-# GenericObj \
-# Registry \
-# ModuleCatalog \
-# DataTypeCatalog \
-# RessourcesCatalog \
-# ResourcesManager \
-# Notification \
-# NOTIFICATION_SWIG \
-# Container \
-# TestContainer \
 # LifeCycleCORBA \
 # LifeCycleCORBA_SWIG \
 # SALOMEDSClient \

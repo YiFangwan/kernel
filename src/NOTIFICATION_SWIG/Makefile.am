@@ -1,0 +1,81 @@
+#  SALOME NOTIFICATION_SWIG : wrapping of Notification sevices in order to be available in Python
+#
+#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+# 
+#  This library is free software; you can redistribute it and/or 
+#  modify it under the terms of the GNU Lesser General Public 
+#  License as published by the Free Software Foundation; either 
+#  version 2.1 of the License. 
+# 
+#  This library is distributed in the hope that it will be useful, 
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+#  Lesser General Public License for more details. 
+# 
+#  You should have received a copy of the GNU Lesser General Public 
+#  License along with this library; if not, write to the Free Software 
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+# 
+#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+#
+#
+#
+#  File   : Makefile.am
+#  Author : Guillaume Boulant (CSSI)
+#  Module : KERNEL
+#  $Header$
+
+# Libraries targets
+
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
+
+#
+# ===============================================================
+# Libraries targets
+# ===============================================================
+#
+
+lib_LTLIBRARIES = libNOTIFICATIONcmodule.la
+libNOTIFICATIONcmodule_la_SOURCES  = NOTIFICATION_Swig.cxx
+libNOTIFICATIONcmodule_la_CPPFLAGS =\
+	@PYTHON_INCLUDES@ -DHAVE_CONFIG_H \
+	-I$(srcdir)/../Basics \
+	-I$(srcdir)/../SALOMELocalTrace \
+	-I$(srcdir)/../Notification \
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+
+libNOTIFICATIONcmodule_la_LIBADD =\
+	@PYTHON_LIBS@ \
+	../Notification/libSalomeNotification.la
+
+
+#
+# ===============================================================
+# Swig targets
+# ===============================================================
+# (cf. http://www.geocities.com/foetsch/python/swig_linux.htm)
+#
+BUILT_SOURCES = swig_wrap.cpp
+
+SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../Notification
+SWIG_SOURCES  = NOTIFICATION.i
+
+pkgpython_PYTHON = libNOTIFICATION.py
+pkgpyexec_LTLIBRARIES = _libNOTIFICATION.la
+_libNOTIFICATION_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES)
+_libNOTIFICATION_la_CPPFLAGS =\
+	@PYTHON_INCLUDES@ \
+	-I$(srcdir) -I$(srcdir)/../Notification \
+	-I$(srcdir)/../Basics \
+	-I$(srcdir)/../SALOMELocalTrace \
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+
+
+_libNOTIFICATION_la_LDFLAGS  = -module
+_libNOTIFICATION_la_LIBADD   = libNOTIFICATIONcmodule.la
+
+swig_wrap.cpp : $(SWIG_SOURCES)
+	$(SWIG) $(SWIG_FLAGS) -o $@ $<
+
+CLEANFILES = swig_wrap.cpp

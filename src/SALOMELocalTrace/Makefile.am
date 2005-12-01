@@ -21,8 +21,8 @@
 #
 #
 #
-#  File   : Makefile.in
-#  Author : Paul RASCLE (EDF)
+#  File   : Makefile.am
+#  Author : Guillaume BOULANT (CSSI)
 #  Module : SALOME
 #  $Header$
 

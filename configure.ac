@@ -221,7 +221,9 @@ echo testing swig
 echo ---------------------------------------------
 echo
 
+AM_PATH_PYTHON(2.3)
 CHECK_SWIG
+
 
 echo
 echo ---------------------------------------------

@@ -6,5 +6,8 @@
 # ============================================================
 #
 
-salomeincludedir           = $(includedir)/@PACKAGE@
-libdir                     = $(prefix)/lib/@PACKAGE@
+salomeincludedir  = $(includedir)/@PACKAGE@
+libdir            = $(prefix)/lib/@PACKAGE@
+bindir            = $(prefix)/bin/@PACKAGE@
+salomescriptdir   = $(bindir)
+
