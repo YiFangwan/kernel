@@ -47,7 +47,7 @@ Engines_MPIContainer_i::Engines_MPIContainer_i(int nbproc, int numproc,
 {
   long id=0;
   string IdContainerinNS;
-  char idc[sizeof(long)+1];
+  char idc[3*sizeof(long)];
 
   MESSAGE("[" << numproc << "] activate object");
   _id = _poa->activate_object(this);

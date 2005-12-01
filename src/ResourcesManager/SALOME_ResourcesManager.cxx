@@ -361,7 +361,7 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
 {
   string command;
   int nbproc;
-  char idc[sizeof(long)+1];
+  char idc[3*sizeof(long)];
 	  
   if ( ! _isAppliSalomeDefined )
     command = BuildTempFileToLaunchRemoteContainer(machine, params);
@@ -466,7 +466,7 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer
   _TmpFileName = "";
   string command;
   int nbproc = 0;
-  char idc[sizeof(long)+1];
+  char idc[3*sizeof(long)];
 
   if (params.isMPI)
     {

@@ -121,7 +121,7 @@ FindOrStartContainer(const Engines::MachineParameters& params,
 {
   long id;
   string containerNameInNS;
-  char idc[sizeof(long)+1];
+  char idc[3*sizeof(long)];
 
   Engines::Container_ptr ret = FindContainer(params,possibleComputers);
   if(!CORBA::is_nil(ret))
