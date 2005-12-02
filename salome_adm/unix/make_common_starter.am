@@ -11,3 +11,6 @@ libdir            = $(prefix)/lib/@PACKAGE@
 bindir            = $(prefix)/bin/@PACKAGE@
 salomescriptdir   = $(bindir)
 
+# Shared modules installation directory
+sharedpkgpythondir=${pkgpythondir}/shared_modules
+

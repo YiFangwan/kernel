@@ -1,4 +1,4 @@
-#  SALOME Container : implementation of container and engine for Kernel
+#  SALOME TestContainer : test of container creation and its life cycle
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -21,9 +21,9 @@
 #
 #
 #
-#  File   : Makefile.am
-#  Author : Guillaume Boulant (CSSI)
-#  Module : KERNEL
+#  File   : Makefile.in
+#  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
+#  Module : SALOME
 #  $Header$
 
 
@@ -31,21 +31,12 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 #
 # ===============================================================
-# Header to be installed
+# Files to be installed
 # ===============================================================
 #
 # header files  
-salomeinclude_HEADERS = \
-	SALOME_Component_i.hxx \
-	SALOME_Container_i.hxx \
-	SALOME_ContainerManager.hxx \
-	Container_init_python.hxx
-
 # Scripts to be installed
-salomescript_DATA =\
-	SALOME_ComponentPy.py \
-	SALOME_ContainerPy.py \
-	SALOME_Container.py
+salomescript_DATA = SALOME_TestComponentPy.py TestComponentPy.py
 
 #
 # ===============================================================
@@ -53,17 +44,8 @@ salomescript_DATA =\
 # ===============================================================
 #
 
-# Sources built from idl files
-BUILT_SOURCES =\
-	$(top_builddir)/idl/SALOME_Component.hh $(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_ContainerManager.hh $(top_builddir)/idl/SALOME_ContainerManagerSK.cc
-
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
-	@PYTHON_INCLUDES@ \
-	@MPI_INCLUDES@ \
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
-	@QT_MT_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../SALOMETraceCollector \
@@ -72,74 +54,51 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Registry \
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
+	-I$(srcdir)/../Container \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
+
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
+	../Container/libSalomeContainer.la \
 	../Registry/libRegistry.la \
 	../Notification/libSalomeNotification.la \
 	../ResourcesManager/libSalomeResourcesManager.la \
 	../NamingService/libSalomeNS.la \
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
-	../Basics/libSALOMEBasics.la \
-	@PYTHON_LIBS@ \
-	@MPI_LIBS@ \
-	@CORBA_LIBS@
+	../Basics/libSALOMEBasics.la
+
+# Sources built from idl files and required for building
+BUILT_SOURCES =\
+	$(top_builddir)/idl/SALOME_TestComponent.hh $(top_builddir)/idl/SALOME_TestComponentSK.cc \
+	$(top_builddir)/idl/SALOME_Component.hh $(top_builddir)/idl/SALOME_ComponentSK.cc \
+	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
 
 #
 # ===============================================================
 # Libraries targets
 # ===============================================================
 #
-lib_LTLIBRARIES = libSalomeContainer.la
-libSalomeContainer_la_SOURCES=\
-	Component_i.cxx \
-	Container_i.cxx \
-	SALOME_ContainerManager.cxx \
-	Container_init_python.cxx \
-	$(BUILT_SOURCES)
+lib_LTLIBRARIES = libSalomeTestComponentEngine.la
+libSalomeTestComponentEngine_la_SOURCES  = SALOME_TestComponent_i.cxx $(BUILT_SOURCES)
+libSalomeTestComponentEngine_la_CPPFLAGS = $(COMMON_CPPFLAGS)
+libSalomeTestComponentEngine_la_LIBADD   = $(COMMON_LIBS)
 
-libSalomeContainer_la_CPPFLAGS =\
-	$(COMMON_CPPFLAGS)
-
-libSalomeContainer_la_LDFLAGS  =\
-	-no-undefined -version-info=0:0:0 \
-	@LDEXPDYNFLAGS@
-
-libSalomeContainer_la_LIBADD =\
-	$(COMMON_LIBS)
-
+#LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl SALOME_Exception.idl
 
 #
 # ===============================================================
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = SALOME_Container SALOME_ContainerManagerServer
-SALOME_Container_SOURCES =\
-	SALOME_Container.cxx \
-	SALOME_Container_SignalsHandler.cxx
+bin_PROGRAMS = TestContainer TestLogger
+TestContainer_SOURCES  = TestContainer.cxx
+TestContainer_CPPFLAGS = $(COMMON_CPPFLAGS)
+TestContainer_LDADD    = $(COMMON_LIBS) libSalomeTestComponentEngine.la
 
-SALOME_Container_CPPFLAGS =\
-	$(COMMON_CPPFLAGS)
-
-
-SALOME_Container_LDADD =\
-	libSalomeContainer.la \
-	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la
-
-
-SALOME_ContainerManagerServer_SOURCES =\
-	SALOME_ContainerManagerServer.cxx
-
-SALOME_ContainerManagerServer_CPPFLAGS=\
-	$(COMMON_CPPFLAGS)
-
-SALOME_ContainerManagerServer_LDADD =\
-	libSalomeContainer.la \
-	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la
+TestLogger_SOURCES     = TestLogger.cxx
+TestLogger_CPPFLAGS    = $(COMMON_CPPFLAGS)
+TestLogger_LDADD       = $(COMMON_LIBS) libSalomeTestComponentEngine.la

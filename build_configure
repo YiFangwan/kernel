@@ -4,9 +4,8 @@
 # the configure process. It creates configuration files (ex:
 # ltmain.sh) using libtoolize, the aclocal macro, the configure script
 # using autoconf and some scripts used in building process (ex:
-# install-sh) using automake. Note that automake is not used here to
-# creates the files Makefile.in from the files Makefile.am (a next
-# step probably).
+# install-sh) using automake. Automake is used here to creates the
+# files Makefile.in from the files Makefile.am.
 # ====================================================================
 #
 
@@ -14,24 +13,36 @@
 # This creates the aclocal.m4 file from the standard macro and the
 # custom macro embedded in the directory salome_adm/unix/config_files.
 echo "====================================================== aclocal"
-aclocal -I salome_adm/unix/config_files
+aclocal -I salome_adm/unix/config_files || exit 1
 
 # This instruction creates some configuration files (ltmain.sh,
 # config.guess and config.sub). It only depends on the libtool
 # version. The files are created in the directory specified with the
 # AC_CONFIG_AUX_DIR(<mydir>) tag (see configure.ac).
 echo "====================================================== libtoolize"
-libtoolize --force --copy --automake
+libtoolize --force --copy --automake || exit 1
+
+# This instruction creates some scripts used in building process
+# (install-sh, missing, ...). It only depends on the automake
+# version. The files are created in the directory specified with the
+# AC_CONFIG_AUX_DIR(<mydir>) tag (see configure.ac). This step also
+# creates the Makefile.in files from the Makefile.am files.
+echo "====================================================== automake"
+automake --add-missing --copy --gnu
 
 # This creates the configure script from the file configure.ac (or
 # configure.in if configure.ac doesn't exist)
 echo "====================================================== autoconf"
 autoconf
 
-# This instruction creates some scripts used in building process
-# (install-sh, missing, ...). It only depends on the automake
-# version. The files are created in the directory specified with the
-# AC_CONFIG_AUX_DIR(<mydir>) tag (see configure.ac).
-echo "====================================================== automake"
-automake --add-missing --copy --gnu
-
+#
+# Note that automake could be executed at last after autoconf. The
+# order doesn't matter.
+#
+# When modifying a Makefile.am file, after a first step of
+# configure+make, you just have to :
+# - go to the top source directory and run automake, to rebuild the Makefile.in,
+# - go to the top build directory and run config.status to rebuild the
+#   Makefile from the Makefile.in,
+# - go to the source directory being modified, and then run make.
+#

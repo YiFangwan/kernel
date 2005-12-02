@@ -1,16 +1,13 @@
-#  File   : Makefile.in
-#  Author : Sergey RUIN
-#  Module : SALOME
+#  SALOMEDSClient: client interface of SALOMEDS
+# 
+#  File   : Makefile.am
+#  Author : Guillaume Boulant (CSSI)
+#  Module : KERNEL
 
-top_srcdir=@top_srcdir@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl:$(top_srcdir)/idl
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-
-@COMMENCE@ 
-
-EXPORT_HEADERS= SALOMEDSClient_definitions.hxx \
+salomeinclude_HEADERS=\
+	        SALOMEDSClient_definitions.hxx \
                 SALOMEDSClient_AttributeComment.hxx \
 	        SALOMEDSClient_AttributeDrawable.hxx \
                 SALOMEDSClient_AttributeExpandable.hxx \
@@ -50,6 +47,3 @@ EXPORT_HEADERS= SALOMEDSClient_definitions.hxx \
                 SALOMEDSClient_UseCaseBuilder.hxx \
                 SALOMEDSClient_UseCaseIterator.hxx \
 		SALOMEDSClient.hxx
-
-@CONCLUDE@
-

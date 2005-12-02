@@ -1,4 +1,4 @@
-#  SALOME Container : implementation of container and engine for Kernel
+#  SALOME LifeCycleCORBA : implementation of containers and engines life cycle both in Python and C++
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -22,30 +22,24 @@
 #
 #
 #  File   : Makefile.am
-#  Author : Guillaume Boulant (CSSI)
+#  Author : Guillaume Boulant
 #  Module : KERNEL
 #  $Header$
-
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 #
 # ===============================================================
-# Header to be installed
+# Files to be installed
 # ===============================================================
 #
 # header files  
 salomeinclude_HEADERS = \
-	SALOME_Component_i.hxx \
-	SALOME_Container_i.hxx \
-	SALOME_ContainerManager.hxx \
-	Container_init_python.hxx
+	SALOME_LifeCycleCORBA.hxx
 
 # Scripts to be installed
 salomescript_DATA =\
-	SALOME_ComponentPy.py \
-	SALOME_ContainerPy.py \
-	SALOME_Container.py
+	Launchers.py
 
 #
 # ===============================================================
@@ -56,21 +50,18 @@ salomescript_DATA =\
 # Sources built from idl files
 BUILT_SOURCES =\
 	$(top_builddir)/idl/SALOME_Component.hh $(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_ContainerManager.hh $(top_builddir)/idl/SALOME_ContainerManagerSK.cc
+	$(top_builddir)/idl/SALOME_TestComponent.hh $(top_builddir)/idl/SALOME_TestComponentSK.cc \
+	$(top_builddir)/idl/SALOME_ContainerManager.hh $(top_builddir)/idl/SALOME_ContainerManagerSK.cc \
+	$(top_builddir)/idl/SALOME_ModuleCatalog.hh $(top_builddir)/idl/SALOME_ModuleCatalogSK.cc \
+	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
-	@PYTHON_INCLUDES@ \
-	@MPI_INCLUDES@ \
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
-	@QT_MT_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../SALOMETraceCollector \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../Utils \
-	-I$(srcdir)/../Registry \
-	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
@@ -78,68 +69,55 @@ COMMON_CPPFLAGS=\
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
-	../Registry/libRegistry.la \
-	../Notification/libSalomeNotification.la \
+	../Container/libSalomeContainer.la \
 	../ResourcesManager/libSalomeResourcesManager.la \
 	../NamingService/libSalomeNS.la \
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
-	../Basics/libSALOMEBasics.la \
-	@PYTHON_LIBS@ \
-	@MPI_LIBS@ \
-	@CORBA_LIBS@
+	../Basics/libSALOMEBasics.la
 
 #
 # ===============================================================
 # Libraries targets
 # ===============================================================
 #
-lib_LTLIBRARIES = libSalomeContainer.la
-libSalomeContainer_la_SOURCES=\
-	Component_i.cxx \
-	Container_i.cxx \
-	SALOME_ContainerManager.cxx \
-	Container_init_python.cxx \
-	$(BUILT_SOURCES)
+lib_LTLIBRARIES = libSalomeLifeCycleCORBA.la
+libSalomeLifeCycleCORBA_la_SOURCES  = SALOME_LifeCycleCORBA.cxx Launchers.cxx $(BUILT_SOURCES)
+libSalomeLifeCycleCORBA_la_CPPFLAGS = \
+	$(COMMON_CPPFLAGS) \
+	@PYTHON_INCLUDES@ \
+	@QT_MT_INCLUDES@ \
+	-I$(srcdir)/../Container \
+	-I$(srcdir)/../Notification
 
-libSalomeContainer_la_CPPFLAGS =\
-	$(COMMON_CPPFLAGS)
-
-libSalomeContainer_la_LDFLAGS  =\
-	-no-undefined -version-info=0:0:0 \
-	@LDEXPDYNFLAGS@
-
-libSalomeContainer_la_LIBADD =\
-	$(COMMON_LIBS)
-
+libSalomeLifeCycleCORBA_la_LIBADD   = $(COMMON_LIBS)
+# _CS_gbo Check whether Python lib or Qt lib is not required here.
+# For better understanding, it could be better to specified
+# explicitely all libraries even those that are implicitly given
+# throught a library mentionned in COMMON_LIBS.
 
 #
 # ===============================================================
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = SALOME_Container SALOME_ContainerManagerServer
-SALOME_Container_SOURCES =\
-	SALOME_Container.cxx \
-	SALOME_Container_SignalsHandler.cxx
-
-SALOME_Container_CPPFLAGS =\
+bin_PROGRAMS = Test_LifeCycleCORBA
+Test_LifeCycleCORBA_SOURCES  = Test_LifeCycleCORBA.cxx
+Test_LifeCycleCORBA_CPPFLAGS =\
+	-I$(srcdir)/../Registry \
+	-I$(srcdir)/../Notification \
 	$(COMMON_CPPFLAGS)
 
-
-SALOME_Container_LDADD =\
-	libSalomeContainer.la \
+Test_LifeCycleCORBA_LDADD    = \
+	libSalomeLifeCycleCORBA.la \
+	../Registry/libRegistry.la \
+	../Notification/libSalomeNotification.la \
+	../Container/libSalomeContainer.la \
 	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la
+	@CORBA_LIBS@
 
+#CPPFLAGS += $(PYTHON_INCLUDES) $(QT_MT_INCLUDES)
 
-SALOME_ContainerManagerServer_SOURCES =\
-	SALOME_ContainerManagerServer.cxx
-
-SALOME_ContainerManagerServer_CPPFLAGS=\
-	$(COMMON_CPPFLAGS)
-
-SALOME_ContainerManagerServer_LDADD =\
-	libSalomeContainer.la \
-	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la
+#LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSalomeContainer -lSalomeResourcesManager
+#LDFLAGSFORBIN= $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMEBasics
+#LIBS += $(PYTHON_LIBS)

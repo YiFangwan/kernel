@@ -26,8 +26,6 @@
 #  Module : KERNEL
 #  $Header$
 
-# Libraries targets
-
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 #

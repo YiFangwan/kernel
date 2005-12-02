@@ -19,9 +19,9 @@
 #
 #
 #
-#  File   : Makefile.in
-#  Author : Patrick GOLDBRONN (CEA)
-#  Module : SALOME
+#  File   : Makefile.am
+#  Author : Guillaume Boulant (CSSI)
+#  Module : KERNEL
 # $Header$
 
 SUBDIRS = \
@@ -41,17 +41,15 @@ SUBDIRS = \
  ResourcesManager \
  Notification \
  NOTIFICATION_SWIG \
- Container
-
-# TestContainer
-
-# LifeCycleCORBA \
-# LifeCycleCORBA_SWIG \
-# SALOMEDSClient \
-# TOOLSDS \
-# SALOMEDSImpl \
-# SALOMEDS \
-# KERNEL_PY \
-# ModuleGenerator \
-# Communication 
+ Container \
+ TestContainer \
+ LifeCycleCORBA \
+ LifeCycleCORBA_SWIG \
+ SALOMEDSClient \
+ TOOLSDS \
+ SALOMEDSImpl \
+ SALOMEDS \
+ KERNEL_PY \
+ ModuleGenerator \
+ Communication 
 

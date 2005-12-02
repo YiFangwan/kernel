@@ -19,20 +19,11 @@
 #
 #
 #
-#  File   : Makefile.in
-#  Author : Sergey RUIN, OCC
-#  Module : SALOME
+#  File   : Makefile.am
+#  Author : Guillaume Boulant (CSSI)
+#  Module : KERNEL
+#  $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-
-@COMMENCE@
-
-EXPORT_PYSCRIPTS = Help.py PyInterp.py salome.py salome_shared_modules.py batchmode_salome.py import_hook.py salome_test.py salome_kernel.py salome_study.py salome_iapp.py salome_ComponentGUI.py
-
-EXPORT_SHAREDPYSCRIPTS=kernel_shared_modules.py
-
-@CONCLUDE@
+salomescript_DATA = IDLparser.py

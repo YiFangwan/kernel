@@ -19,34 +19,25 @@
 #
 #
 #
-#  File   : Makefile.in
-#  Author : Paul RASCLE, EDF
-#  Module : SALOME
-#  $Header$
+#  File   : Makefile.am
+#  Author : Guillaume Boulant (CSSI)
+#  Module : KERNEL
 
-top_srcdir=@top_srcdir@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
+# Scripts to be installed (pkgpython is an automake keyword for python targets)
+pkgpython_PYTHON = \
+	Help.py \
+	PyInterp.py \
+	salome.py \
+	salome_shared_modules.py \
+	batchmode_salome.py \
+	import_hook.py \
+	salome_test.py \
+	salome_kernel.py \
+	salome_study.py \
+	salome_iapp.py \
+	salome_ComponentGUI.py
 
-@COMMENCE@
+sharedpkgpython_PYTHON = kernel_shared_modules.py
 
-# Libraries targets
-
-LIB = libSALOME_LifeCycleCORBAcmodule.la
-LIB_SRC = 
-
-LIB_CLIENT_IDL = SALOME_Component.idl SALOME_ContainerManager.idl SALOME_Exception.idl
-
-SWIG_DEF = libSALOME_LifeCycleCORBA.i
-
-EXPORT_PYSCRIPTS = libSALOME_LifeCycleCORBA.py LifeCycleCORBA.py TestLifeCycleCORBA.py
-
-CPPFLAGS+= $(PYTHON_INCLUDES)
-
-LIBS+= $(PYTHON_LIBS) -lSalomeLifeCycleCORBA
-
-LDFLAGS+= -lSalomeLifeCycleCORBA
-
-@CONCLUDE@
