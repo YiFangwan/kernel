@@ -6,7 +6,6 @@ class SALOME_DriverPy_i(SALOMEDS__POA.Driver):
     Should be inherited by any Python module's engine
     to provide persistence mechanism.
     """
-
     def __init__ (self, componentDataType):
         print "SALOME_DriverPy.__init__: ",componentDataType
         self._ComponentDataType = componentDataType
