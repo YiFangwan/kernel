@@ -411,6 +411,8 @@ class SessionServer(Server):
             self.SCMD2+=['GUI']
         if self.args['splash']:
             self.SCMD2+=['SPLASH']
+        if self.args['noexcepthandler']:
+            self.SCMD2+=['noexcepthandler']
         if self.args.has_key('modules'):
             self.SCMD2+=['--modules (']
             for mod in self.args['modules']:
