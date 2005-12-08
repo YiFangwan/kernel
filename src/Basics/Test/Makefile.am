@@ -1,4 +1,4 @@
-#  SALOMELocalTrace : log on local machine
+#  Basics:  General purpose C++
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -21,42 +21,19 @@
 #
 #
 #
-#  File   : Makefile.in
-#  Author : Paul RASCLE (EDF)
-#  Module : SALOME
+#  File   : Makefile.am
+#  Author : Guillaume Boulant (CSSI)
+#  Module : KERNEL
 #  $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=../../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-
-@COMMENCE@
-
+#
+# ===============================================================
+# Files to be installed
+# ===============================================================
+#
 # header files  
-EXPORT_HEADERS= SALOMELocalTraceTest.hxx
-
-EXPORT_PYSCRIPTS = TestSALOMELocalTrace.py
-
-# Libraries targets
-
-LIB = libSALOMELocalTraceTest.la 
-LIB_SRC = SALOMELocalTraceTest.cxx
-
-# Executables targets
-
-BIN = TestSALOMELocalTrace
-BIN_SRC = 
-
-CXXFLAGS += @CPPUNIT_INCLUDES@
-CPPFLAGS += @CPPUNIT_INCLUDES@
-
-LIBS= @LIBS@ @CPPUNIT_LIBS@
-
-LDFLAGS+= -lSALOMELocalTrace
-
-LDFLAGSFORBIN+= \
- -lSALOMELocalTraceTest -lSALOMELocalTrace -lSALOMEBasics 
-
-@CONCLUDE@
+salomeinclude_HEADERS = BasicMainTest.hxx
+# This include file defines the minimal source file for all test
+# program. It provides the common main function. 

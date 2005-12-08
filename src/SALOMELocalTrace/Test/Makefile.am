@@ -1,4 +1,4 @@
-#  SALOME Notification : wrapping of Notification service services
+#  SALOMELocalTrace : log on local machine
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 #  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -26,19 +26,22 @@
 #  Module : KERNEL
 #  $Header$
 
+
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
+
+# This directory defines the subdirectory src in the top source directory.
+SRCROOT=$(srcdir)/../..
 
 #
 # ===============================================================
-# Header to be installed
+# Files to be installed
 # ===============================================================
 #
 # header files  
-salomeinclude_HEADERS = \
-	NOTIFICATION.hxx          \
-	NOTIFICATION_Supplier.hxx \
-	NOTIFICATION_Consumer.hxx \
-	CosNotifyShorthands.h
+salomeinclude_HEADERS = SALOMELocalTraceTest.hxx
+
+# Executable scripts to be installed
+salomescript_SCRIPTS = TestSALOMELocalTrace.py
 
 #
 # ===============================================================
@@ -46,27 +49,30 @@ salomeinclude_HEADERS = \
 # ===============================================================
 #
 
-lib_LTLIBRARIES = libSalomeNotification.la
-libSalomeNotification_la_SOURCES =\
-	NOTIFICATION.cxx          \
-	NOTIFICATION_Supplier.cxx \
-	NOTIFICATION_Consumer.cxx
+lib_LTLIBRARIES = libSALOMELocalTraceTest.la
+libSALOMELocalTraceTest_la_SOURCES  = SALOMELocalTraceTest.cxx
+libSALOMELocalTraceTest_la_CPPFLAGS = \
+	@CPPUNIT_INCLUDES@ \
+	-I$(SRCROOT)/SALOMELocalTrace \
+	-I$(SRCROOT)/Basics
 
-libSalomeNotification_la_CPPFLAGS =\
-	-I$(srcdir)/../Basics \
-	-I$(srcdir)/../SALOMELocalTrace \
-	-I$(srcdir)/../Utils \
-	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+libSALOMELocalTraceTest_la_LIBADD = \
+	@CPPUNIT_LIBS@ \
+	../../SALOMELocalTrace/libSALOMELocalTrace.la
 
+#
+# ===============================================================
+# Executables targets
+# ===============================================================
+#
+bin_PROGRAMS = TestSALOMELocalTrace
+TestSALOMELocalTrace_SOURCES  = TestSALOMELocalTrace.cxx
+TestSALOMELocalTrace_CPPFLAGS = \
+	@CPPUNIT_INCLUDES@ \
+	-I$(SRCROOT)/Basics/Test
 
-libSalomeNotification_la_LDFLAGS  = -no-undefined -version-info=0:0:0
-
-libSalomeNotification_la_LIBADD =\
-	../Utils/libOpUtil.la \
-	../SALOMELocalTrace/libSALOMELocalTrace.la \
-	../Basics/libSALOMEBasics.la \
-	@CORBA_LIBS@
-
-
-#LDFLAGS+= -lOpUtil -lSALOMELocalTrace
-#OMNIORB_IDLCXXFLAGS+= -Wbtp
+TestSALOMELocalTrace_LDADD = \
+	@CPPUNIT_LIBS@ \
+	libSALOMELocalTraceTest.la \
+	../../SALOMELocalTrace/libSALOMELocalTrace.la \
+	../../Basics/libSALOMEBasics.la

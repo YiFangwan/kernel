@@ -5,5 +5,6 @@
 # $Header$
 #
 
-SUBDIRS = idl src doc salome_adm
+#SUBDIRS = idl src doc salome_adm bin resources
+SUBDIRS = idl src
 

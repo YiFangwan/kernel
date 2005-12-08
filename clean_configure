@@ -11,5 +11,6 @@ cd $libdir
 # Files created by libtoolize
 rm -f config.guess config.sub ltmain.sh
 # Files created by automake
-rm -rf install-sh missing
+rm -rf install-sh missing compile depcomp py-compile
 cd $here
+find src -name Makefile.in | grep -v '/Test/' | xargs rm

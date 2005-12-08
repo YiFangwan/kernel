@@ -26,6 +26,8 @@
 #  Module : SALOME
 #  $Header$
 
+SUBDIRS = Test
+
 salomeincludedir           = $(includedir)/@PACKAGE@
 salomeinclude_HEADERS      = BasicsGenericDestructor.hxx
 

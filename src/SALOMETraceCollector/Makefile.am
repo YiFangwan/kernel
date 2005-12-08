@@ -23,7 +23,8 @@ lib_LTLIBRARIES = libwith_loggerTraceCollector.la
 
 libwith_loggerTraceCollector_la_SOURCES  =\
 	SALOMETraceCollector.cxx \
-	TraceCollector_WaitForServerReadiness.cxx
+	TraceCollector_WaitForServerReadiness.cxx \
+	$(BUILT_SOURCES)
 
 libwith_loggerTraceCollector_la_CPPFLAGS =\
 	-I$(srcdir)/../Basics \

@@ -258,7 +258,7 @@ echo ----------------------------------------------
 echo testing CPPUNIT only required for unit testing
 echo ----------------------------------------------
 echo
-
+AM_CONDITIONAL(CPPUNIT_IS_OK, [test x"$cppunit_ok" = xyes])
 CHECK_CPPUNIT
 
 echo
@@ -370,12 +370,6 @@ else
    AC_SUBST(SETX) SETX="set -x"
 fi
 
-# make other build directories
-for rep in salome_adm adm_local doc bin/salome include/salome lib/salome share/salome/resources idl
-do
-    $INSTALL -d $rep
-done
-
 echo 
 echo ---------------------------------------------
 echo copying resource files, shell scripts, and 
@@ -423,8 +417,11 @@ AC_OUTPUT([ \
 	./salome_adm/unix/make_conclude \
 	./salome_adm/unix/make_module \
 	./salome_adm/Makefile \
+	./salome_adm/unix/Makefile \
+	./salome_adm/unix/config_files/Makefile \
 	./Makefile \
-	./bin/salome/runIDLparser \
+	./bin/Makefile \
+	./bin/runIDLparser \
 	./doc/Makefile \
 	./doc/salome/Makefile \
 	./doc/salome/DevelopersGuide/DevelopersGuide.tex \
@@ -432,7 +429,7 @@ AC_OUTPUT([ \
 	./doc/salome/gui/Makefile \
 	./doc/salome/tui/Makefile \
 	./idl/Makefile \
-	./resources/Plugin \
+	./resources/Makefile \
 	./src/Makefile \
 	./src/Basics/Makefile \
 	./src/Basics/Test/Makefile \

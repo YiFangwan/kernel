@@ -6,11 +6,23 @@
 # ============================================================
 #
 
-salomeincludedir  = $(includedir)/@PACKAGE@
-libdir            = $(prefix)/lib/@PACKAGE@
-bindir            = $(prefix)/bin/@PACKAGE@
-salomescriptdir   = $(bindir)
+# Standard directory for installation
+salomeincludedir   = $(includedir)/@PACKAGE@
+libdir             = $(prefix)/lib/@PACKAGE@
+bindir             = $(prefix)/bin/@PACKAGE@
+salomescriptdir    = $(bindir)
+
+# Directory for installing idl files
+salomeidldir       = $(prefix)/idl/@PACKAGE@
+
+# Directory for installing resource files
+salomeresdir       = $(prefix)/share/@PACKAGE@/resources
+
+# Directories for installing admin files
+salomeadmdir       = $(prefix)/salome_adm
+salomeadmuxdir     = $(salomeadmdir)/unix
+salomem4dir        = $(salomeadmdir)/unix/config_files
 
 # Shared modules installation directory
-sharedpkgpythondir=${pkgpythondir}/shared_modules
+sharedpkgpythondir =$(pkgpythondir)/shared_modules
 
