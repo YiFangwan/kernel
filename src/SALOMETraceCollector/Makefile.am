@@ -34,4 +34,4 @@ libwith_loggerTraceCollector_la_CPPFLAGS =\
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 libwith_loggerTraceCollector_la_LDFLAGS  = -no-undefined -version-info=0:0:0
-libwith_loggerTraceCollector_la_LIBADD   = ../SALOMELocalTrace/libSALOMELocalTrace.la
+libwith_loggerTraceCollector_la_LIBADD   = ../SALOMELocalTrace/libSALOMELocalTrace.la @CORBA_LIBS@

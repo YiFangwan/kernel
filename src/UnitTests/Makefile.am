@@ -1,0 +1,83 @@
+#
+#  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+# 
+#  This library is free software; you can redistribute it and/or 
+#  modify it under the terms of the GNU Lesser General Public 
+#  License as published by the Free Software Foundation; either 
+#  version 2.1 of the License. 
+# 
+#  This library is distributed in the hope that it will be useful, 
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+#  Lesser General Public License for more details. 
+# 
+#  You should have received a copy of the GNU Lesser General Public 
+#  License along with this library; if not, write to the Free Software 
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+# 
+#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+#
+#
+#
+#  File   : Makefile.am
+#  Author : Guillaume Boulant (CSSI)
+#  Module : KERNEL
+#  $Header$
+
+
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
+
+#
+# ===============================================================
+# Files to be installed
+# ===============================================================
+#
+
+# Executable scripts to be installed
+salomescript_SCRIPTS = UnitTests.py
+
+#
+# ===============================================================
+# Executables targets
+# ===============================================================
+#
+
+BUILT_SOURCES = \
+	$(top_builddir)/idl/SALOME_Component.hh $(top_builddir)/idl/SALOME_ComponentSK.cc \
+	$(top_builddir)/idl/SALOME_TestComponent.hh $(top_builddir)/idl/SALOME_TestComponentSK.cc \
+	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
+
+bin_PROGRAMS = UnitTests
+UnitTests_SOURCES  = UnitTests.cxx $(BUILT_SOURCES)
+UnitTests_CPPFLAGS =\
+	@CPPUNIT_INCLUDES@ \
+	-I$(srcdir)/../Basics -I$(srcdir)/../Basics/Test \
+	-I$(srcdir)/../SALOMELocalTrace -I$(srcdir)/../SALOMELocalTrace/Test \
+	-I$(srcdir)/../SALOMETraceCollector -I$(srcdir)/../SALOMETraceCollector/Test \
+	-I$(srcdir)/../NamingService \
+	-I$(srcdir)/../Utils -I$(srcdir)/../Utils/Test \
+	-I$(srcdir)/../Registry \
+	-I$(srcdir)/../Notification \
+	-I$(srcdir)/../ResourcesManager \
+	-I$(srcdir)/../LifeCycleCORBA -I$(srcdir)/../LifeCycleCORBA/Test \
+	-I$(top_builddir)/salome_adm/unix \
+	-I$(top_builddir)/idl \
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+
+
+UnitTests_LDADD    =\
+	@CPPUNIT_LIBS@ \
+	../Basics/libSALOMEBasics.la \
+	../SALOMELocalTrace/libSALOMELocalTrace.la ../SALOMELocalTrace/Test/libSALOMELocalTraceTest.la \
+	../Registry/libRegistry.la \
+	../Notification/libSalomeNotification.la \
+	../ResourcesManager/libSalomeResourcesManager.la \
+	../NamingService/libSalomeNS.la \
+	../Container/libSalomeContainer.la \
+	../SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la \
+	../Utils/libOpUtil.la ../Utils/Test/libUtilsTest.la \
+	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la ../LifeCycleCORBA/Test/libLifeCycleCORBATest.la \
+	@CORBA_LIBS@
+
+

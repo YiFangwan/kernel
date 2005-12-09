@@ -258,7 +258,6 @@ echo ----------------------------------------------
 echo testing CPPUNIT only required for unit testing
 echo ----------------------------------------------
 echo
-AM_CONDITIONAL(CPPUNIT_IS_OK, [test x"$cppunit_ok" = xyes])
 CHECK_CPPUNIT
 
 echo

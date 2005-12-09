@@ -16,14 +16,14 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 # These files are data, module or lib files
 salomescript_DATA= \
-VERSION \
-orbmodule.py \
-salome.launch \
-envSalome.py \
-salomeConsole.py
+	VERSION \
+	orbmodule.py \
+	salome.launch \
+	salomeConsole.py
 
 # These files are executable scripts
 salomescript_SCRIPTS=\
+	envSalome.py \
 	runIDLparser \
 	runSalome.py \
 	killSalome.py \
@@ -35,4 +35,12 @@ salomescript_SCRIPTS=\
 	launchConfigureParser.py \
 	showNS.py \
 	addToKillList.py
+
+
+install: install-am install-appliskel
+
+install-appliskel:
+	$(INSTALL) -d $(salomescriptdir)
+	cp -r $(srcdir)/appliskel $(salomescriptdir)
+	find $(salomescriptdir) -name CVS | xargs rm -rf
 

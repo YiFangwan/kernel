@@ -28,8 +28,6 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-SUBDIRS = Test
-
 salomeinclude_HEADERS      = utilities.h \
                              LocalTraceBufferPool.hxx \
                              BaseTraceCollector.hxx

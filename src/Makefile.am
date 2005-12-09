@@ -25,22 +25,6 @@
 # $Header$
 
 SUBDIRS = \
-	Basics \
-	SALOMELocalTrace
-
-if CPPUNIT_IS_OK
- SUBDIRS+= \
- Basics/Test \
- SALOMELocalTrace/Test \
- Logger/Test \
- SALOMETraceCollector/Test \
- Utils/Test \
- LifeCycleCORBA/Test \
- UnitTests
-endif
-
-
-TMPSUBDIRS = \
  Basics \
  SALOMELocalTrace \
  CASCatch \
@@ -69,3 +53,14 @@ TMPSUBDIRS = \
  ModuleGenerator \
  Communication 
 
+
+if CPPUNIT_IS_OK
+ SUBDIRS+= \
+ Basics/Test \
+ SALOMELocalTrace/Test \
+ Logger/Test \
+ SALOMETraceCollector/Test \
+ Utils/Test \
+ LifeCycleCORBA/Test \
+ UnitTests
+endif

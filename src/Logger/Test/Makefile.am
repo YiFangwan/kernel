@@ -21,41 +21,19 @@
 #
 #
 #
-#  File   : Makefile.in
-#  Author : Paul RASCLE (EDF)
-#  Module : SALOME
+#  File   : Makefile.am
+#  Author : Guillaume Boulant (CSSI)
+#  Module : KERNEL
 #  $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=../../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
 
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-@COMMENCE@
+#
+# ===============================================================
+# Files to be installed
+# ===============================================================
+#
 
-# header files  
-EXPORT_HEADERS=
-
-EXPORT_PYSCRIPTS = TestKiller.py 
-
-# Libraries targets
-
-LIB =
-LIB_SRC =
-
-# Executables targets
-
-BIN =
-BIN_SRC = 
-
-CXXFLAGS += @CPPUNIT_INCLUDES@
-CPPFLAGS += @CPPUNIT_INCLUDES@
-
-LIBS= @LIBS@ @CPPUNIT_LIBS@
-
-LDFLAGS+=
-
-LDFLAGSFORBIN+=
-
-@CONCLUDE@
+# Executable scripts to be installed
+salomescript_SCRIPTS = TestKiller.py 
