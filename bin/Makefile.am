@@ -39,8 +39,8 @@ salomescript_SCRIPTS=\
 
 install: install-am install-appliskel
 
+# This is an ugly target to avoid exploring the appliskel subdirectory.
 install-appliskel:
 	$(INSTALL) -d $(salomescriptdir)
 	cp -r $(srcdir)/appliskel $(salomescriptdir)
 	find $(salomescriptdir) -name CVS | xargs rm -rf
-
