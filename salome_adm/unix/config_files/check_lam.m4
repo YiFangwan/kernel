@@ -52,7 +52,6 @@ if test "$WITHLAM" = yes; then
   CPPFLAGS_old="$CPPFLAGS"
   CPPFLAGS="$MPI_INCLUDES $CPPFLAGS"
   AC_CHECK_HEADER(mpi.h,WITHLAM="yes",WITHLAM="no")
-  CPPFLAGS="$CPPFLAGS_old"
 
   if test "$WITHLAM" = "yes";then
     AC_CHECK_LIB(util,openpty,,WITHLAM="no")
@@ -63,7 +62,6 @@ if test "$WITHLAM" = yes; then
 
   if test "$WITHLAM" = "yes";then
 
-    CPPFLAGS="$MPI_INCLUDES $CPPFLAGS"
     LIBS="$LIBS -lmpi++"
     AC_MSG_CHECKING(for MPI_Init in -lmpi++)
     AC_TRY_LINK([
@@ -71,7 +69,6 @@ if test "$WITHLAM" = yes; then
   	  ], [int argc=0; char **argv=0; MPI_Init(&argc,&argv);],
   	  WITHLAM="yes",WITHLAM="no")
 
-    CPPFLAGS="$CPPFLAGS_old"
     if test "$WITHLAM" = "yes";then
 
       AC_MSG_RESULT(yes)
@@ -98,6 +95,7 @@ if test "$WITHLAM" = yes; then
     fi
   fi
 
+  CPPFLAGS="$CPPFLAGS_old"
   LDFLAGS="$LDFLAGS_old"
   LIBS="$LIBS_old"
 
