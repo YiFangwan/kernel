@@ -14,7 +14,7 @@ register_pattern(lambda(x):x.endswith("_idl"))
 register_pattern(lambda(x):x.endswith("_Swig"))
 
 register_name("CORBA")
-import CORBA
+from omniORB import CORBA
 
 register_name("omniORB")
 import omniORB
