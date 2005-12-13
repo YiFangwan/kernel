@@ -1,3 +1,4 @@
+####################################### library
 #  SALOME Container : implementation of container and engine for Kernel
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -26,15 +27,10 @@
 #  Module : SALOME
 #  $Header$
 
-top_srcdir=@top_srcdir@
-top_builddir=../..
-srcdir=@srcdir@
-VPATH=.:@srcdir@:@top_srcdir@/idl
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-
-@COMMENCE@
-
-EXPORT_HEADERS = \
+# header files  
+LIB_INCLUDES = \
 	Batch_APIInternalFailureException.hxx \
 	Batch_BatchManager.hxx \
 	Batch_BatchManagerCatalog.hxx \
@@ -63,13 +59,9 @@ EXPORT_HEADERS = \
 	Batch_PyVersatile.hxx \
 	Batch_RunTimeException.hxx \
 	Batch_StringType.hxx \
-	Batch_TypeMismatchException.hxx \
-	Batch_Versatile.hxx
+	Batch_TypeMismatchException.hxx
 
 
-# Libraries targets
-
-LIB = libSalomeBatch.la 
 LIB_SRC = \
 	Batch_APIInternalFailureException.cxx \
 	Batch_BatchManager.cxx \
@@ -99,45 +91,87 @@ LIB_SRC = \
 	Batch_PyVersatile.cxx \
 	Batch_RunTimeException.cxx \
 	Batch_StringType.cxx \
-	Batch_TypeMismatchException.cxx \
-	Batch_Versatile.cxx
-
-LIB_SERVER_IDL = 
+	Batch_TypeMismatchException.cxx
 
 
-CPPFLAGS += $(PYTHON_INCLUDES)
-CXXFLAGS += $(PYTHON_INCLUDES)
-LDFLAGS  += 
-LIBS     += -lSALOMELocalTrace
+LIB_CPPFLAGS = \
+	@PYTHON_INCLUDES@ \
+	-I$(srcdir)/../Basics \
+	-I$(srcdir)/../SALOMELocalTrace
+
+LIB_LIBADD   = \
+	../SALOMELocalTrace/libSALOMELocalTrace.la \
+	../Basics/libSALOMEBasics.la
 
 
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Special add for local batch system
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+if WITH_LOCAL
+LIB_INCLUDES +=\
+	Batch_Versatile.hxx \
+	Batch_BatchManager_Local.hxx \
+	Batch_BatchManager_Local_RSH.hxx \
+	Batch_BatchManager_Local_SH.hxx \
+	Batch_BatchManager_Local_SSH.hxx \
+	Batch_FactBatchManager_Local.hxx \
+	Batch_FactBatchManager_Local_RSH.hxx \
+	Batch_FactBatchManager_Local_SH.hxx \
+	Batch_FactBatchManager_Local_SSH.hxx \
+	Batch_JobInfo_Local.hxx \
+	Batch_Job_Local.hxx \
+	Batch_IOMutex.hxx
 
-# Specialisation pour OpenPBS
-ifeq (@WITHOPENPBS@,yes)
-EXPORT_HEADERS += \
+LIB_SRC +=\
+	Batch_Versatile.cxx \
+	Batch_BatchManager_Local.cxx \
+	Batch_BatchManager_Local_RSH.cxx \
+	Batch_BatchManager_Local_SH.cxx \
+	Batch_BatchManager_Local_SSH.cxx \
+	Batch_FactBatchManager_Local.cxx \
+	Batch_FactBatchManager_Local_RSH.cxx \
+	Batch_FactBatchManager_Local_SH.cxx \
+	Batch_FactBatchManager_Local_SSH.cxx \
+	Batch_JobInfo_Local.cxx \
+	Batch_Job_Local.cxx \
+	Batch_IOMutex.cxx
+
+LIB_CPPFLAGS += -DHAVE_CONFIG_H
+
+endif
+
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Special add for openpbs batch system
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+if WITH_OPENPBS
+LIB_INCLUDES += \
 	Batch_BatchManager_PBS.hxx \
 	Batch_FactBatchManager_PBS.hxx \
 	Batch_JobInfo_PBS.hxx \
 	Batch_Job_PBS.hxx
 
-LIB_SRC += \
+LIB_SRC +=\
 	Batch_BatchManager_PBS.cxx \
 	Batch_FactBatchManager_PBS.cxx \
 	Batch_JobInfo_PBS.cxx \
 	Batch_Job_PBS.cxx
 
-CPPFLAGS += $(OPENPBS_INCLUDES)
-CXXFLAGS += $(OPENPBS_INCLUDES)
-LDFLAGS  += $(OPENPBS_LIBDIR)
-LIBS     += $(OPENPBS_LIBS)
+LIB_CPPFLAGS += @OPENPBS_INCLUDES@
+LIB_LIBADD   += @OPENPBS_LIBDIR@ @OPENPBS_LIBS@
+
 endif
 
-
-
-
-# Specialisation pour LSF
-ifeq (@WITH_LSF@,yes)
-EXPORT_HEADERS += \
+#
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Special add for lsf batch system
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#
+if WITH_LSF
+LIB_INCLUDES += \
 	Batch_BatchManager_LSF.hxx \
 	Batch_FactBatchManager_LSF.hxx \
 	Batch_JobInfo_LSF.hxx \
@@ -149,11 +183,31 @@ LIB_SRC += \
 	Batch_JobInfo_LSF.cxx \
 	Batch_Job_LSF.cxx
 
-CPPFLAGS += $(LSF_INCLUDES)
-CXXFLAGS += $(LSF_INCLUDES)
-LDFLAGS  += $(LSF_LIBDIR)
-LIBS     += $(LSF_LIBS)
+LIB_CPPFLAGS += @LSF_INCLUDES@
+LIB_LIBADD   += @LSF_LIBDIR@ @LSF_LIBS@
 endif
 
 
-@CONCLUDE@
+
+
+salomeinclude_HEADERS = $(LIB_INCLUDES)
+
+#
+# ===============================================================
+# Libraries targets
+# ===============================================================
+#
+lib_LTLIBRARIES = libSalomeBatch.la 
+libSalomeBatch_la_SOURCES = $(LIB_SRC)
+libSalomeBatch_la_CPPFLAGS = \
+	@PYTHON_INCLUDES@ \
+	-I$(srcdir)/../Basics \
+	-I$(srcdir)/../SALOMELocalTrace \
+	-I$(top_builddir)/salome_adm/unix \
+	$(LIB_CPPFLAGS)
+
+libSalomeBatch_la_LDFLAGS  = -no-undefined -version-info=0:0:0
+libSalomeBatch_la_LIBADD   = \
+	../SALOMELocalTrace/libSALOMELocalTrace.la \
+	../Basics/libSALOMEBasics.la \
+	$(LIB_LIBADD)

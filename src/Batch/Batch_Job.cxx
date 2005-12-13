@@ -49,13 +49,13 @@ namespace Batch {
   }
 
   // Accesseur
-  Parametre Job::getParametre() const
+  Batch::Parametre Job::getParametre() const
   {
     return _param;
   }
 
   // Accesseur
-  void Job::setParametre(const Parametre & param)
+  void Job::setParametre(const Batch::Parametre & param)
   {
     _param = param;
   }
