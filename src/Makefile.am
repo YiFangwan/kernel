@@ -53,6 +53,11 @@ SUBDIRS = \
  ModuleGenerator \
  Communication 
 
+#
+# The following packages are built under conditions.
+# A condition is defined using the macro AM_CONDITIONAL (see the
+# check_cppunit for example with CPPUNIT_IS_OK.
+#
 
 if CPPUNIT_IS_OK
  SUBDIRS+= \
@@ -64,3 +69,14 @@ if CPPUNIT_IS_OK
  LifeCycleCORBA/Test \
  UnitTests
 endif
+
+
+if MPI_IS_OK
+  SUBDIRS+= MPIContainer TestMPIContainer
+endif
+
+if WITH_BATCH
+  SUBDIRS += Batch Batch_SWIG
+endif
+
+

@@ -202,10 +202,16 @@ CHECK_LSF
 dnl lsf_ok is set to yes by CHECK_LSF
 echo lsf = $lsf_ok
 
-WITH_BATCH=no
-test x$openpbs_ok = xyes || test x$lsf_ok = xyes && WITH_BATCH=yes
-AC_SUBST(WITH_BATCH)
+echo testing Local batch system
+echo --------------------------
+localbatch_ok=no
+CHECK_LOCAL
+dnl localbatch_ok is set to yes by CHECK_LOCAL
 
+WITH_BATCH=no
+test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes
+AC_SUBST(WITH_BATCH)
+AM_CONDITIONAL(WITH_BATCH, [test x"$WITH_BATCH" = xyes])
 
 echo
 echo ---------------------------------------------
