@@ -220,7 +220,7 @@ char* Engines_Container_i::name()
 char* Engines_Container_i::getHostName()
 {
   string s = GetHostname();
-  MESSAGE("Engines_Container_i::getHostName " << s);
+  //  MESSAGE("Engines_Container_i::getHostName " << s);
   return CORBA::string_dup(s.c_str()) ;
 }
 
