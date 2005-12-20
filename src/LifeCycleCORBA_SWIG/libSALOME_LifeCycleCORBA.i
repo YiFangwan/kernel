@@ -37,7 +37,7 @@
 
   PyObject* pdict = PyDict_New();
   PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
-  PyRun_String("import CORBA", Py_single_input, pdict, pdict);
+  PyRun_String("from omniORB import CORBA", Py_single_input, pdict, pdict);
   PyRun_String("o = CORBA.ORB_init([''], CORBA.ORB_ID);", Py_single_input,
                    pdict, pdict);
   PyObject* orb = PyDict_GetItemString(pdict, "o");
