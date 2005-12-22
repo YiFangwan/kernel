@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# --- retrieve APPLI path, relative to $HOME, set ${APPLI}
+
+. `dirname $0`/setAppliPath.sh
+
+# --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
+
+. ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
+
+# --- define port for CORBA naming service
+
+searchFreePort() {
+    echo -n "Searching for a free port for naming service: "
+    export NSPORT=2810
+    local limit=$NSPORT
+    let limit=limit+100
+    while [ 1 ]
+    do
+        aRes=`netstat -ltn | grep -E :${NSPORT}`
+        if [ -z "$aRes" ]; then
+            echo ${NSPORT} - Ok
+	    local myhost=`hostname`
+            export OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_${NSPORT}.cfg
+	    export NSPORT
+            export NSHOST=${myhost}
+            local initref="NameService=corbaname::"`hostname`":$NSPORT"
+            #echo "ORBInitRef $initref" > $OMNIORB_CONFIG
+            echo "InitRef = $initref" > $OMNIORB_CONFIG
+            export LAST_RUNNING_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_test.cfg
+	    rm ${LAST_RUNNING_CONFIG}
+            ln -s ${OMNIORB_CONFIG} ${LAST_RUNNING_CONFIG}
+            break
+        fi
+        echo -n "${NSPORT} "
+        if [[ $NSPORT -eq $limit ]] ; then
+            echo
+            echo "Can't find a free port to launch omniNames"
+            echo "Try to kill the running servers and then launch SALOME again."
+            exit
+        fi
+        let NSPORT=NSPORT+1
+    done
+}
+
+# --- if mpi lam, start lam (seems safe to be done several times)
+#     arret manuel avec lamhalt
+
+if [ "$LAMBHOST" ]; then
+  lamboot
+fi
+
+# --- invoque shell with or without args
+
+searchFreePort
+
+if [ $# -ne 0 ] ; then
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc -c "$*"
+else
+
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile ${HOME}/${APPLI}/.bashrc
+fi
+
+rm ${OMNIORB_CONFIG}
+rm ${LAST_RUNNING_CONFIG}

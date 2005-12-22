@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# --- retrieve APPLI path, relative to $HOME, set ${APPLI}
+
+. `dirname $0`/setAppliPath.sh
+
+# --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
+
+. ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
+
+# --- open a Python interpreter with SALOME environment
+
+${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python -i ${KERNEL_ROOT_DIR}/bin/salome/salomeConsole.py $*

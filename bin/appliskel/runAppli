@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# --- retrieve APPLI path, relative to $HOME, set ${APPLI}
+
+. `dirname $0`/setAppliPath.sh
+
+# --- set the SALOME environment (prerequisites, MODULES_ROOT_DIR...)
+
+. ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
+
+# --- define port for CORBA naming service
+
+. `dirname $0`/searchFreePort.sh
+searchFreePort
+
+# --- if mpi lam, start lam (seems safe to be done several times)
+#     arret manuel avec lamhalt
+
+if [ "$LAMBHOST" ]; then
+  lamboot
+fi
+
+# --- run SALOME
+#    (default arguments defined in local salome.launch could be completed
+#     by arguments to this command)
+
+if [ $# -ne 0 ] ; then
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $*
+
+else
+    ${KERNEL_ROOT_DIR}/bin/salome/envSalome.py python ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py 
+fi
