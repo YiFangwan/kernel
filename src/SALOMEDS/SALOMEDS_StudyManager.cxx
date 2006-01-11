@@ -133,32 +133,32 @@ void SALOMEDS_StudyManager::Close(const _PTR(Study)& theStudy)
   _corba_impl->Close(aStudy);
 }
  
-void SALOMEDS_StudyManager::Save(const _PTR(Study)& theStudy, bool theMultiFile)
+bool SALOMEDS_StudyManager::Save(const _PTR(Study)& theStudy, bool theMultiFile)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case 
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
-  _corba_impl->Save(aStudy, theMultiFile);
+  return _corba_impl->Save(aStudy, theMultiFile);
 }
  
-void SALOMEDS_StudyManager::SaveASCII(const _PTR(Study)& theStudy, bool theMultiFile)
+bool SALOMEDS_StudyManager::SaveASCII(const _PTR(Study)& theStudy, bool theMultiFile)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case 
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
-  _corba_impl->SaveASCII(aStudy, theMultiFile);
+  return _corba_impl->SaveASCII(aStudy, theMultiFile);
 }
  
-void SALOMEDS_StudyManager::SaveAs(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile)
+bool SALOMEDS_StudyManager::SaveAs(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case 
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
-  _corba_impl->SaveAs((char*)theUrl.c_str(), aStudy, theMultiFile);
+  return _corba_impl->SaveAs((char*)theUrl.c_str(), aStudy, theMultiFile);
 }
  
-void SALOMEDS_StudyManager::SaveAsASCII(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile)
+bool SALOMEDS_StudyManager::SaveAsASCII(const std::string& theUrl,  const _PTR(Study)& theStudy, bool theMultiFile)
 {
   //SRN: Pure CORBA save as the save operation require CORBA in any case 
   SALOMEDS::Study_var aStudy = _corba_impl->GetStudyByID(theStudy->StudyId());
-  _corba_impl->SaveAsASCII((char*)theUrl.c_str(), aStudy, theMultiFile);
+  return _corba_impl->SaveAsASCII((char*)theUrl.c_str(), aStudy, theMultiFile);
 }
 
 std::vector<std::string> SALOMEDS_StudyManager::GetOpenStudies()
