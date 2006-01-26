@@ -70,6 +70,7 @@ LIB_SRC = 	\
 		  SALOMEDS_AttributeTableOfString_i.cxx \
 		  SALOMEDS_AttributeStudyProperties_i.cxx \
 		  SALOMEDS_AttributePythonObject_i.cxx \
+		  SALOMEDS_AttributeParameter_i.cxx \
 		  SALOMEDS_SObject.cxx \
 		  SALOMEDS_SComponent.cxx \
 		  SALOMEDS_GenericAttribute.cxx \
@@ -107,7 +108,8 @@ LIB_SRC = 	\
 		  SALOMEDS_AttributeTextColor.cxx \
 		  SALOMEDS_AttributeTextHighlightColor.cxx \
 		  SALOMEDS_AttributeTreeNode.cxx \
-		  SALOMEDS_AttributeUserID.cxx
+		  SALOMEDS_AttributeUserID.cxx \
+		  SALOMEDS_AttributeParameter.cxx
 
 
 # Executables targets

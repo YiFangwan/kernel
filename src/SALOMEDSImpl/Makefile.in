@@ -47,6 +47,7 @@ EXPORT_HEADERS= \
 	SALOMEDSImpl_AttributeName.hxx \
 	SALOMEDSImpl_AttributeComment.hxx \
 	SALOMEDSImpl_AttributeReference.hxx \
+	SALOMEDSImpl_AttributeParameter.hxx \
 	SALOMEDSImpl_UseCaseBuilder.hxx \
 	SALOMEDSImpl_UseCaseIterator.hxx \
 	SALOMEDSImpl_SComponentIterator.hxx \
@@ -105,6 +106,7 @@ LIB_SRC =	  SALOMEDSImpl_Tool.cxx \
 		  SALOMEDSImpl_AttributeName.cxx \
 		  SALOMEDSImpl_AttributeComment.cxx \
 		  SALOMEDSImpl_AttributeReference.cxx \
+		  SALOMEDSImpl_AttributeParameter.cxx \
 		  SALOMEDSImpl_ChildNodeIterator.cxx \
 		  SALOMEDSImpl_UseCaseBuilder.cxx \
 		  SALOMEDSImpl_UseCaseIterator.cxx \
