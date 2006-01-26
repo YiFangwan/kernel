@@ -26,12 +26,11 @@
 #  Module : SALOME
 #  $Header$
 
-SUBDIRS = Test
+salomeincludedir            = $(includedir)/@PACKAGE@
+salomeinclude_HEADERS       = BasicsGenericDestructor.hxx
 
-salomeincludedir           = $(includedir)/@PACKAGE@
-salomeinclude_HEADERS      = BasicsGenericDestructor.hxx
-
-libdir                     = $(prefix)/lib/@PACKAGE@
-lib_LTLIBRARIES            = libSALOMEBasics.la
-libSALOMEBasics_la_SOURCES = BasicsGenericDestructor.cxx BasicsGenericDestructor.hxx
-libSALOMEBasics_la_LDFLAGS = -no-undefined -version-info=0:0:0
+libdir                      = $(prefix)/lib/@PACKAGE@
+lib_LTLIBRARIES             = libSALOMEBasics.la
+libSALOMEBasics_la_SOURCES  = BasicsGenericDestructor.cxx BasicsGenericDestructor.hxx
+libSALOMEBasics_la_LDFLAGS  = -no-undefined -version-info=0:0:0
+libSALOMEBasics_la_CPPFLAGS = @CPPFLAGS@ 
