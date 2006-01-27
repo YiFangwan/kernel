@@ -30,6 +30,7 @@ AC_ARG_WITH(mpi,
 
 MPI_INCLUDES=""
 MPI_LIBS=""
+mpi_ok=no
 if test "$WITHMPI" = yes; then
 
   echo
@@ -106,4 +107,5 @@ AC_SUBST(WITHMPI)
 AC_SUBST(MPI_INCLUDES)
 AC_SUBST(MPI_LIBS)
 AC_SUBST(mpi_ok)
+AM_CONDITIONAL(MPI_IS_OK, [test x"$mpi_ok" = xyes])
 ])dnl

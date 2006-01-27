@@ -11,7 +11,7 @@
 #
 
 # ORB Specifics rules
-@CORBA@
+@CORBA_RULES@
 
 # transform idl reference in appropriate obj file
 LIB_CLIENT_SRC = $(LIB_CLIENT_IDL:%.idl=%$(IDL_CLN_CXX))
@@ -371,6 +371,8 @@ distclean: clean
 .ui.cxx:
 	$(UIC) -o $@ -i $*.h $<
 
+
+
 #pattern rules
 %_moc.cxx : %.h
 	$(MOC) $< -o $@
@@ -380,6 +382,7 @@ distclean: clean
 
 $(top_builddir)/share/salome/resources/%.qm: %.po
 	$(MSG2QM) $< $@ ; \
+
 
 #------------------------------------------------------------------------------
 # The following section of this makefile contains dependencies between the
