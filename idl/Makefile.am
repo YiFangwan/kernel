@@ -24,7 +24,8 @@ IDL_FILES = \
   SALOME_MPIContainer.idl \
   Logger.idl \
   SALOME_GenericObj.idl \
-  SALOME_TestModuleCatalog.idl
+  SALOME_TestModuleCatalog.idl \
+  nstest.idl
 
 # This variable defines the files to be installed
 salomeidl_DATA = $(IDL_FILES)

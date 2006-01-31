@@ -1,4 +1,3 @@
-####################################### library
 #  SALOMELocalTrace : log on local machine
 #
 #  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -23,8 +22,8 @@
 #
 #
 #  File   : Makefile.am
-#  Author : Guillaume Boulant (CSSI)
-#  Module : KERNEL
+#  Author : Guillaume BOULANT (CSSI)
+#  Module : SALOME
 #  $Header$
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
@@ -35,10 +34,11 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # ===============================================================
 #
 # header files  
-salomeinclude_HEADERS= LifeCycleCORBATest.hxx
+salomeinclude_HEADERS= NamingServiceTest.hxx
 
 # Scripts to be installed
-salomescript_SCRIPTS = TestLifeCycleCORBA.py
+salomescript_SCRIPTS = TestNamingService.py
+
 
 #
 # ===============================================================
@@ -55,55 +55,46 @@ BUILT_SOURCES =\
 	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc \
 	$(top_builddir)/idl/nstest.hh $(top_builddir)/idl/nstestSK.cc
 
-
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
-	@CPPUNIT_INCLUDES@ \
-	-I$(srcdir)/$(RPATH)/Basics -I$(srcdir)/$(RPATH)/Basics/Test \
-	-I$(srcdir)/$(RPATH)/SALOMELocalTrace -I$(srcdir)/$(RPATH)/SALOMELocalTrace/Test \
-	-I$(srcdir)/$(RPATH)/SALOMETraceCollector -I$(srcdir)/$(RPATH)/SALOMETraceCollector/Test \
-	-I$(srcdir)/$(RPATH)/NamingService -I$(srcdir)/$(RPATH)/NamingService/Test \
-	-I$(srcdir)/$(RPATH)/Utils -I$(srcdir)/$(RPATH)/Utils/Test \
-	-I$(srcdir)/$(RPATH)/ResourcesManager \
-	-I$(srcdir)/$(RPATH)/LifeCycleCORBA \
+	@CPPUNIT_INCLUDES@ -I$(srcdir)/$(RPATH)/NamingService \
+	-I$(srcdir)/$(RPATH)/Basics \
+	-I$(srcdir)/$(RPATH)/SALOMELocalTrace \
+	-I$(srcdir)/$(RPATH)/Utils \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
-
-# This local variable defines the list of dependant libraries common to all target in this package.
-COMMON_LIBS =\
-	@CPPUNIT_LIBS@ \
-	$(RPATH)/Basics/libSALOMEBasics.la \
-	$(RPATH)/ResourcesManager/libSalomeResourcesManager.la \
-	$(RPATH)/Container/libSalomeContainer.la \
-	$(RPATH)/NamingService/libSalomeNS.la \
-	$(RPATH)/Registry/libRegistry.la \
-	$(RPATH)/Notification/libSalomeNotification.la \
-	$(RPATH)/Utils/Test/libUtilsTest.la $(RPATH)/Utils/libOpUtil.la \
-	$(RPATH)/SALOMELocalTrace/Test/libSALOMELocalTraceTest.la $(RPATH)/SALOMELocalTrace/libSALOMELocalTrace.la \
-	$(RPATH)/SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la
 
 #
 # ===============================================================
 # Libraries targets
 # ===============================================================
 #
-lib_LTLIBRARIES = libLifeCycleCORBATest.la 
-libLifeCycleCORBATest_la_SOURCES = LifeCycleCORBATest.cxx $(BUILT_SOURCES)
-libLifeCycleCORBATest_la_CPPFLAGS = $(COMMON_CPPFLAGS)
-libLifeCycleCORBATest_la_LDFLAGS  = -no-undefined -version-info=0:0:0
-libLifeCycleCORBATest_la_LIBADD    = $(COMMON_LIBS)
+lib_LTLIBRARIES = libNamingServiceTest.la
+libNamingServiceTest_la_SOURCES = NamingServiceTest.cxx $(BUILT_SOURCES)
+libNamingServiceTest_la_CPPFLAGS = $(COMMON_CPPFLAGS)
+libNamingServiceTest_la_LDFLAGS  = -no-undefined -version-info=0:0:0
+libNamingServiceTest_la_LIBADD   = @CPPUNIT_LIBS@
+
 
 #
 # ===============================================================
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = TestLifeCycleCORBA
-TestLifeCycleCORBA_SOURCES  = TestLifeCycleCORBA.cxx
-TestLifeCycleCORBA_CPPFLAGS = $(COMMON_CPPFLAGS)
-TestLifeCycleCORBA_LDADD    = \
-	libLifeCycleCORBATest.la ../libSalomeLifeCycleCORBA.la \
-	$(RPATH)/NamingService/Test/libNamingServiceTest.la \
-	$(COMMON_LIBS)
+bin_PROGRAMS = TestNamingService
+TestNamingService_SOURCES  = TestNamingService.cxx
+TestNamingService_CPPFLAGS = \
+	$(COMMON_CPPFLAGS) \
+	-I$(srcdir)/$(RPATH)/SALOMELocalTrace/Test \
+	-I$(srcdir)/$(RPATH)/SALOMETraceCollector/Test \
+	-I$(srcdir)/$(RPATH)/Utils/Test \
+	-I$(srcdir)/$(RPATH)/Basics/Test
 
+
+TestNamingService_LDADD    = \
+	libNamingServiceTest.la ../libSalomeNS.la \
+	$(RPATH)/SALOMELocalTrace/Test/libSALOMELocalTraceTest.la $(RPATH)/SALOMELocalTrace/libSALOMELocalTrace.la \
+	$(RPATH)/SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la \
+	$(RPATH)/Utils/Test/libUtilsTest.la $(RPATH)/Utils/libOpUtil.la \
+	$(RPATH)/Basics/libSALOMEBasics.la

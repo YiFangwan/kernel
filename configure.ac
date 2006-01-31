@@ -92,21 +92,6 @@ AC_ENABLE_STATIC(no)
 AC_LIBTOOL_DLOPEN
 AC_PROG_LIBTOOL
 
-# _CS_gbo_ Concerning libtool, I observe a default in the libtool
-# script generated whith standard libtool.m4. The LTCONFIG_VERSION is
-# not defined and then a test interrupts the execution:
-# libtool: ltconfig version `' does not match ltmain.sh version
-# `1.3.5'. I keep the custom libtool.m4 while solving the problem.
-
-
-dnl Fix up the INSTALL macro if it s a relative path. We want the
-dnl full-path to the binary instead.
-#case "$INSTALL" in
-#   *install-sh*)
-#      INSTALL="${ROOT_SRCDIR}/salome_adm/unix/config_files/install-sh -c"
-#      ;;
-#esac
-
 echo
 echo ---------------------------------------------
 echo testing C/C++
@@ -135,9 +120,6 @@ AC_CHECK_LIB(m,ceil)
 
 AC_CXX_USE_STD_IOSTREAM
 
-# _CS_gbo doit pouvoir être substitué à la macro standard. Dans cecas,
-# il faut mettre à jour le Makefile.in principal et supprimer le fichier
-# sstream embarqué avec SALOME (obsolète).
 AC_CXX_HAVE_SSTREAM
 
 # Testing linker
@@ -166,7 +148,6 @@ dnl testing MPI
 dnl ---------------------------------------------
 dnl
 
-# _CS_gbo Is there a real dependency to 
 CHECK_MPI
 
 dnl
@@ -184,7 +165,7 @@ echo ---------------------------------------------
 echo
 
 dnl Several batch systems (OpenPBS, LSF, ...) can be operated using
-dnl the Batch classe library integrated in the KERNEL module. The
+dnl the Batch classes library integrated in the KERNEL module. The
 dnl checking process tests here the presence of underlying batch
 dnl softwares. If none is detected, the KERNEL is declared to be
 dnl "without batch". 
@@ -227,6 +208,7 @@ echo testing swig
 echo ---------------------------------------------
 echo
 
+dnl _CS_gbo We should use here a variable given from the CHECK_PYTHON
 AM_PATH_PYTHON(2.3)
 CHECK_SWIG
 
@@ -248,6 +230,7 @@ CHECK_CORBA
 CORBA_RULES=salome_adm/unix/make_$ORB
 AC_SUBST_FILE(CORBA_RULES)
 
+# _CS_gbo:
 # The CORBA_RULES variable defines the file name that
 # implements the building rules to be included by Makefile to process
 # idl files and CORBA specific dependencies (ex: the file
@@ -397,6 +380,7 @@ do
 done
 cd $ROOT_BUILDDIR
 
+# _CS_gbo Check wether it's used or not!!
 AC_SUBST_FILE(ENVSCRIPT) ENVSCRIPT=salome_adm/unix/envScript
 
 echo
@@ -442,6 +426,7 @@ AC_OUTPUT([ \
 	./src/Batch_SWIG/Makefile \
 	./src/CASCatch/Makefile \
 	./src/Communication/Makefile \
+	./src/Communication_SWIG/Makefile \
 	./src/Container/Makefile \
 	./src/DataTypeCatalog/Makefile \
 	./src/GenericObj/Makefile \
@@ -457,6 +442,7 @@ AC_OUTPUT([ \
 	./src/ModuleGenerator/testIDLparser \
 	./src/MPIContainer/Makefile \
 	./src/NamingService/Makefile \
+	./src/NamingService/Test/Makefile \
 	./src/Notification/Makefile \
 	./src/NOTIFICATION_SWIG/Makefile \
 	./src/Registry/Makefile \

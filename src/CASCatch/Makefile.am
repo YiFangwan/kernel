@@ -18,4 +18,4 @@ libCASCatch_la_SOURCES  = CASCatch_Failure.cxx \
 libCASCatch_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libCASCatch_la_CPPFLAGS = @CAS_CPPFLAGS@
 libCASCatch_la_CXXFLAGS = @CAS_CXXFLAGS@
-libCASCatch_la_LIBADD   = @CAS_KERNEL@
+libCASCatch_la_LIBADD   = @CAS_KERNEL@ @CAS_MATH@

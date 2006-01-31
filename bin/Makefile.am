@@ -34,7 +34,8 @@ salomescript_SCRIPTS=\
 	createAppli.sh \
 	launchConfigureParser.py \
 	showNS.py \
-	addToKillList.py
+	addToKillList.py \
+	NSparam.py
 
 
 install: install-am install-appliskel

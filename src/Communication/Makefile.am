@@ -10,7 +10,8 @@ salomeinclude_HEADERS = \
 	ReceiverFactory.hxx \
 	SenderFactory.hxx \
 	SALOMEMultiComm.hxx \
-	MultiCommException.hxx
+	MultiCommException.hxx \
+	SALOME_Comm_i.hxx
 
 # Scripts to be installed
 

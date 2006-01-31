@@ -73,7 +73,7 @@ COMMON_LIBS =\
 	../SALOMEDSImpl/libSalomeDSImpl.la \
 	../GenericObj/libSalomeGenericObj.la \
 	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
-	@CAS_LDPATH@ -lTKernel -lTKCAF -lTKBO -lTKStdSchema \
+	@CAS_KERNEL@ \
 	@HDF5_LIBS@ \
 	$(LDXMUFLAGS)
 
@@ -183,7 +183,7 @@ SALOMEDS_Server_CPPFLAGS = $(COMMON_CPPFLAGS)
 SALOMEDS_Server_LDADD    = \
 	libSalomeDS.la $(COMMON_LIBS) \
 	../ResourcesManager/libSalomeResourcesManager.la \
-	-lTKLCAF -lTKMath \
+	@CAS_OCAF@ \
 	@CORBA_LIBS@
 
 SALOMEDS_Client_SOURCES  = SALOMEDS_Client.cxx
@@ -193,8 +193,4 @@ SALOMEDS_Client_LDADD    = \
 	../ResourcesManager/libSalomeResourcesManager.la \
 	-lTKLCAF -lTKMath \
 	@CORBA_LIBS@
-
-
-################
-#LDFLAGSFORBIN= $(LDFLAGS)  -lRegistry -lSalomeNotification -lSalomeContainer -lSalomeResourcesManager -lSALOMEBasics
 

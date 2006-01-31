@@ -37,7 +37,8 @@ pkgpython_PYTHON = \
 	salome_kernel.py \
 	salome_study.py \
 	salome_iapp.py \
-	salome_ComponentGUI.py
+	salome_ComponentGUI.py \
+	omnipatch.py
 
 sharedpkgpython_PYTHON = kernel_shared_modules.py
 

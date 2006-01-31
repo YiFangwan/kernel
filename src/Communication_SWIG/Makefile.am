@@ -35,32 +35,33 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # Step 1: build the wrapping source files with swig
 #
-# libSALOME_LifeCycleCORBA.i -- swig --> swig_wrap.cpp
-#                                        libSALOME_LifeCycleCORBA.py
+# libSALOME_Comm.i -- swig --> swig_wrap.cpp
+#                              libSALOME_Comm.py
 #
 # Step 2: build the dynamic library from cpp built source files and
 #         dependant libraries.
 #
-# swig_wrap.cpp -- gcc --> swig_wrap.o    |-- link --> _libSALOME_LifeCycleCORBA.la
+# swig_wrap.cpp -- gcc --> swig_wrap.o    |-- link --> _libSALOME_Comm.la
 #                          +              |
 #                          dependant libs |
 #
-# The file libSALOME_LifeCycleCORBA.py will be installed in
+# The file libSALOME_Comm.py will be installed in
 # <prefix>/lib/python<version>/site-package/salome.
 # The library will be installed in the common place.
 #
 
 BUILT_SOURCES = swig_wrap.cpp
 
-SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../LifeCycleCORBA
-SWIG_SOURCES  = libSALOME_LifeCycleCORBA.i
+SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../Communication
+SWIG_SOURCES  = libSALOME_Comm.i
 
-pkgpython_PYTHON = libSALOME_LifeCycleCORBA.py
-pkgpyexec_LTLIBRARIES = _libSALOME_LifeCycleCORBA.la
-_libSALOME_LifeCycleCORBA_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES)
-_libSALOME_LifeCycleCORBA_la_CPPFLAGS =\
+
+pkgpython_PYTHON = libSALOME_Comm.py
+pkgpyexec_LTLIBRARIES = _libSALOME_Comm.la
+_libSALOME_Comm_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES)
+_libSALOME_Comm_la_CPPFLAGS =\
 	@PYTHON_INCLUDES@ \
-	-I$(srcdir) -I$(srcdir)/../LifeCycleCORBA \
+	-I$(srcdir) -I$(srcdir)/../Communication \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../Utils \
@@ -68,10 +69,18 @@ _libSALOME_LifeCycleCORBA_la_CPPFLAGS =\
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
-_libSALOME_LifeCycleCORBA_la_LDFLAGS  = -module
-_libSALOME_LifeCycleCORBA_la_LIBADD   = \
-	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
+_libSALOME_Comm_la_LDFLAGS  = -module
+_libSALOME_Comm_la_LIBADD   = \
+	../Communication/libSalomeCommunication.la \
 	@PYTHON_LIBS@
+
+# _CS_gbo Actually, there's no need to get these flags optional. If
+# the check mpi is not ok, the variables will be simply null.
+if MPI_IS_OK
+_libSALOME_Comm_la_CPPFLAGS+=@MPI_INCLUDES@
+_libSALOME_Comm_la_LIBADD+=@MPI_LIBS@
+endif
+
 
 swig_wrap.cpp : $(SWIG_SOURCES)
 	$(SWIG) $(SWIG_FLAGS) -o $@ $<
@@ -85,10 +94,7 @@ CLEANFILES = swig_wrap.cpp
 # ===============================================================
 #
 
-# Scripts to be installed.
-salomescript_DATA =\
-	LifeCycleCORBA.py \
-	TestLifeCycleCORBA.py
+# (see LifeCycleCORBA_SWIG for an example)
 
-# It's not needed to specify libSALOME_LifeCycleCORBA.py. It is
+# It's not needed to specify libSALOME_Comm.py. It is
 # automaticaly installed through the swig target pkgpython_PYTHON.

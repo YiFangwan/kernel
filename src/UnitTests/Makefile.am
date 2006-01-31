@@ -46,7 +46,8 @@ salomescript_SCRIPTS = UnitTests.py
 BUILT_SOURCES = \
 	$(top_builddir)/idl/SALOME_Component.hh $(top_builddir)/idl/SALOME_ComponentSK.cc \
 	$(top_builddir)/idl/SALOME_TestComponent.hh $(top_builddir)/idl/SALOME_TestComponentSK.cc \
-	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
+	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc \
+	$(top_builddir)/idl/nstest.hh $(top_builddir)/idl/nstestSK.cc
 
 bin_PROGRAMS = UnitTests
 UnitTests_SOURCES  = UnitTests.cxx $(BUILT_SOURCES)
@@ -55,7 +56,7 @@ UnitTests_CPPFLAGS =\
 	-I$(srcdir)/../Basics -I$(srcdir)/../Basics/Test \
 	-I$(srcdir)/../SALOMELocalTrace -I$(srcdir)/../SALOMELocalTrace/Test \
 	-I$(srcdir)/../SALOMETraceCollector -I$(srcdir)/../SALOMETraceCollector/Test \
-	-I$(srcdir)/../NamingService \
+	-I$(srcdir)/../NamingService -I$(srcdir)/../NamingService/Test \
 	-I$(srcdir)/../Utils -I$(srcdir)/../Utils/Test \
 	-I$(srcdir)/../Registry \
 	-I$(srcdir)/../Notification \
@@ -73,7 +74,7 @@ UnitTests_LDADD    =\
 	../Registry/libRegistry.la \
 	../Notification/libSalomeNotification.la \
 	../ResourcesManager/libSalomeResourcesManager.la \
-	../NamingService/libSalomeNS.la \
+	../NamingService/libSalomeNS.la ../NamingService/Test/libNamingServiceTest.la \
 	../Container/libSalomeContainer.la \
 	../SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la \
 	../Utils/libOpUtil.la ../Utils/Test/libUtilsTest.la \

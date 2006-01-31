@@ -51,7 +51,9 @@ SUBDIRS = \
  SALOMEDS \
  KERNEL_PY \
  ModuleGenerator \
- Communication 
+ Communication \
+ Communication_SWIG
+
 
 #
 # The following packages are built under conditions.
@@ -66,6 +68,7 @@ if CPPUNIT_IS_OK
  Logger/Test \
  SALOMETraceCollector/Test \
  Utils/Test \
+ NamingService/Test \
  LifeCycleCORBA/Test \
  UnitTests
 endif

@@ -64,6 +64,7 @@ libSalomeHDFPersist_la_SOURCES  =\
 	HDFdatasetGetSize.c \
 	HDFdatasetGetType.c \
 	HDFdatasetGetnDim.c \
+	HDFdatasetGetOrder.c \
 	HDFattrOpen.c \
 	HDFattrClose.c \
 	HDFattrWrite.c \
@@ -90,4 +91,4 @@ libSalomeHDFPersist_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSalomeHDFPersist_la_CPPFLAGS = @CAS_CPPFLAGS@ @HDF5_INCLUDES@ -DPCLINUX \
                                   -I$(srcdir)/../SALOMELocalTrace \
                                   -I$(srcdir)/../Basics
-libSalomeHDFPersist_la_LIBADD   = @CAS_LDPATH@ -lTKernel @HDF5_LIBS@
+libSalomeHDFPersist_la_LIBADD   = @CAS_KERNEL@ @HDF5_LIBS@
