@@ -48,7 +48,6 @@ salomescript_DATA = SALOME_TestComponentPy.py TestComponentPy.py
 COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
-	-I$(srcdir)/../SALOMETraceCollector \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../Utils \
 	-I$(srcdir)/../Registry \

@@ -40,7 +40,6 @@
 #include "Utils_SINGLETON.hxx"
 #include "Utils_SALOME_Exception.hxx"
 #include "Utils_CommException.hxx"
-#include "SALOMETraceCollector.hxx"
 using namespace std;
 
 static ostream& operator<<(ostream& os, const CORBA::Exception& e)

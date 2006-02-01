@@ -105,8 +105,7 @@ bin_PROGRAMS = SALOME_ModuleCatalog_Server SALOME_ModuleCatalog_Client
 # SALOME_ModuleCatalog_Server
 SALOME_ModuleCatalog_Server_SOURCES  = SALOME_ModuleCatalog_Server.cxx
 SALOME_ModuleCatalog_Server_CPPFLAGS =\
-	$(COMMON_CPPFLAGS) \
-	-I$(srcdir)/../SALOMETraceCollector
+	$(COMMON_CPPFLAGS) 
 
 SALOME_ModuleCatalog_Server_LDADD   =\
 	libSalomeCatalog.la \

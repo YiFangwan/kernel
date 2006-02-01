@@ -38,7 +38,6 @@
 #include <ServiceUnreachable.hxx>
 
 #include "SALOME_LifeCycleCORBA.hxx"
-#include "SALOMETraceCollector.hxx"
 #ifndef WNT
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
 #else

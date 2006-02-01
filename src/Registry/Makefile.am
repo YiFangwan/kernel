@@ -74,5 +74,4 @@ SALOME_Registry_Server_CPPFLAGS =\
 	-I$(srcdir)/../Utils \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
-	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ \
-	-I$(srcdir)/../SALOMETraceCollector
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@

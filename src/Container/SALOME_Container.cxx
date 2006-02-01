@@ -43,7 +43,6 @@
 #include "utilities.h"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
-#include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
 
 #ifdef CHECKTIME

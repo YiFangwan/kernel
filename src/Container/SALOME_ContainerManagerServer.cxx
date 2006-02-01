@@ -18,7 +18,6 @@
 // See http://www.salome-platform.org/
 //
 #include "SALOME_ContainerManager.hxx"
-#include "SALOMETraceCollector.hxx"
 #include "utilities.h"
 
 int main(int argc, char* argv[])
