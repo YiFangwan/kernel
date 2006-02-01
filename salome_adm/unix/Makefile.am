@@ -15,4 +15,5 @@ salomeadmux_DATA=\
 	make_conclude.in \
 	make_module.in \
 	make_omniorb.in \
+	pythonbe.py \
 	$(DEPRECATED_FILES)

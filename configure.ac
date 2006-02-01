@@ -227,11 +227,11 @@ DEFAULT_ORB=omniORB
 echo DEFAULT_ORB : $DEFAULT_ORB
 CHECK_CORBA
 
-CORBA_RULES=salome_adm/unix/make_$ORB
-AC_SUBST_FILE(CORBA_RULES)
+CORBA=salome_adm/unix/make_$ORB
+AC_SUBST_FILE(CORBA)
 
 # _CS_gbo:
-# The CORBA_RULES variable defines the file name that
+# The CORBA variable defines the file name that
 # implements the building rules to be included by Makefile to process
 # idl files and CORBA specific dependencies (ex: the file
 # salome_adm/unix/make_omniorb is the default for SALOME). The value
