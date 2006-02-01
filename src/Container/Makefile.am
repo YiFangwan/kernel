@@ -44,8 +44,11 @@ salomeinclude_HEADERS = \
 # Scripts to be installed
 salomescript_DATA =\
 	SALOME_ComponentPy.py \
-	SALOME_ContainerPy.py \
 	SALOME_Container.py
+
+# These files are executable scripts
+salomescript_SCRIPTS=\
+	SALOME_ContainerPy.py
 
 #
 # ===============================================================
@@ -66,7 +69,6 @@ COMMON_CPPFLAGS=\
 	@QT_MT_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
-	-I$(srcdir)/../SALOMETraceCollector \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../Utils \
 	-I$(srcdir)/../Registry \
