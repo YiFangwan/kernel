@@ -66,12 +66,12 @@ COMMON_CPPFLAGS=\
 	@MPI_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
-	-I$(srcdir)/../SALOMETraceCollector \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../Utils \
 	-I$(srcdir)/../Registry \
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
+	-I$(srcdir)/../Container \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@

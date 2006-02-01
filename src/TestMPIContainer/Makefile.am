@@ -53,7 +53,6 @@ salomeinclude_HEADERS = TestMPIComponentEngine.hxx
 # Sources built from idl files
 BUILT_SOURCES =\
 	$(top_builddir)/idl/SALOME_Component.hh $(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_Logger.hh $(top_builddir)/idl/SALOME_LoggerSK.cc \
 	$(top_builddir)/idl/SALOME_MPIObject.hh $(top_builddir)/idl/SALOME_MPIObjectSK.cc \
 	$(top_builddir)/idl/SALOME_TestMPIComponent.hh $(top_builddir)/idl/SALOME_TestMPIComponentSK.cc
 
@@ -64,12 +63,13 @@ COMMON_CPPFLAGS=\
 	@MPI_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
-	-I$(srcdir)/../SALOMETraceCollector \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../Utils \
 	-I$(srcdir)/../Registry \
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
+	-I$(srcdir)/../Container \
+	-I$(srcdir)/../MPIContainer \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
@@ -84,6 +84,7 @@ COMMON_LIBS =\
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
 	../Container/libSalomeContainer.la \
+	../MPIContainer/libSalomeMPIContainer.la \
 	@CORBA_LIBS@
 
 #
@@ -105,6 +106,6 @@ libSalomeTestMPIComponentEngine_la_LIBADD   = $(COMMON_LIBS)
 # ===============================================================
 #
 bin_PROGRAMS = TestMPIContainer
-SALOME_TestMPIContainer_SOURCES = TestMPIContainer.cxx
-SALOME_TestMPIContainer_LDADD   = libSalomeTestMPIComponentEngine.la $(COMMON_LIBS) @MPI_LIBS@
-SALOME_TestMPIContainer_CPPFLAGS = $(COMMON_CPPFLAGS)
+TestMPIContainer_SOURCES = TestMPIContainer.cxx
+TestMPIContainer_LDADD   = libSalomeTestMPIComponentEngine.la $(COMMON_LIBS) @MPI_LIBS@
+TestMPIContainer_CPPFLAGS = $(COMMON_CPPFLAGS)

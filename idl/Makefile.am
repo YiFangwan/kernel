@@ -20,12 +20,16 @@ IDL_FILES = \
   SALOME_ContainerManager.idl \
   SALOME_TestComponent.idl \
   SALOME_Registry.idl \
-  SALOME_MPIObject.idl \
-  SALOME_MPIContainer.idl \
   Logger.idl \
   SALOME_GenericObj.idl \
   SALOME_TestModuleCatalog.idl \
   nstest.idl
+
+if MPI_IS_OK
+  IDL_FILES+= SALOME_MPIObject.idl \
+  SALOME_MPIContainer.idl \
+  SALOME_TestMPIComponent.idl  
+endif
 
 # This variable defines the files to be installed
 salomeidl_DATA = $(IDL_FILES)
