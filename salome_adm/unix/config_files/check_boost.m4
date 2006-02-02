@@ -32,6 +32,9 @@ BOOST_CPPFLAGS=""
 AC_SUBST(BOOST_LIBS)
 BOOST_LIBS=""
 
+AC_SUBST(BOOST_LIBTHREAD)
+BOOST_LIBTHREAD=""
+
 boost_ok=no
 
 if test -z ${BOOSTDIR}; then
@@ -60,6 +63,17 @@ else
     if test "x${boost_ok}" = "xyes" ; then
       BOOST_LIBS="-L${BOOSTDIR}/lib"
       AC_MSG_RESULT(\$BOOST_LIBS = ${BOOST_LIBS})
+      BOOST_LIBTHREAD="libboost_thread-mt.so"
+      AC_MSG_RESULT(\$BOOST_LIBTHREAD = ${BOOST_LIBTHREAD})
+    else
+      AC_CHECKING(for libboost_thread.so library file)
+      AC_CHECK_FILE(${BOOSTDIR}/lib/libboost_thread.so,boost_ok=yes,boost_ok=no)
+      if test "x${boost_ok}" = "xyes" ; then
+        BOOST_LIBS="-L${BOOSTDIR}/lib"
+        AC_MSG_RESULT(\$BOOST_LIBS = ${BOOST_LIBS})
+        BOOST_LIBTHREAD="libboost_thread.so"
+        AC_MSG_RESULT(\$BOOST_LIBTHREAD = ${BOOST_LIBTHREAD})
+      fi
     fi
   fi
 fi
