@@ -97,6 +97,7 @@ during each working session.
   interface ChildIterator;
   interface Driver;
   interface AttributeStudyProperties;
+  interface AttributeParameter;
   interface UseCaseIterator;
   interface UseCaseBuilder;
 
@@ -369,6 +370,21 @@ during each working session.
     void UndoPostponed(in long theWay);
 
     boolean DumpStudy(in string thePath, in string theBaseName, in boolean isPublished);
+
+/*!
+    Returns an AttributeParameter used to store common parameters for given %theSavePoint.
+    \param theID identifies a common parameters set (Example: "Interface Applicative")
+    \param theSavePoint is number of a set of parameters as there can be several sets
+*/
+    AttributeParameter GetCommonParameters(in string theID, in long theSavePoint);
+
+/*!
+    Returns an AttributeParameter used to store parameters for given %theModuleName.
+    \param theID identifies a common parameters set (Example: "Interface Applicative")
+    \param theModuleName is a name of the module (Example: "Geometry")
+    \param theSavePoint is number of a set of parameters as there can be several sets
+*/
+    AttributeParameter GetModuleParameters(in string theID, in string theModuleName, in long theSavePoint);
 
 /*!
     Private method, returns an implementation of this Study.

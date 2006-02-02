@@ -40,6 +40,8 @@
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
 #include "SALOMEDS_UseCaseBuilder.hxx"
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
+#include "SALOMEDS_AttributeParameter.hxx"
+#include "SALOMEDSImpl_AttributeParameter.hxx"
 
 #include "SALOMEDS_Driver_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
@@ -549,6 +551,28 @@ bool SALOMEDS_Study::DumpStudy(const std::string& thePath, const std::string& th
   return ret;
 }     
 
+_PTR(AttributeParameter) SALOMEDS_Study::GetCommonParameters(const string& theID, int theSavePoint)
+{
+  SALOMEDSClient_AttributeParameter* AP = NULL;
+  if(_isLocal) AP = new SALOMEDS_AttributeParameter(_local_impl->GetCommonParameters(theID.c_str(), theSavePoint));
+  else AP = new SALOMEDS_AttributeParameter(_corba_impl->GetCommonParameters(theID.c_str(), theSavePoint));
+  return _PTR(AttributeParameter)(AP);
+}
+
+_PTR(AttributeParameter) SALOMEDS_Study::GetModuleParameters(const string& theID, 
+							     const string& theModuleName, 
+							     int theSavePoint)
+{
+  SALOMEDSClient_AttributeParameter* AP = NULL;
+  if(_isLocal) AP = new SALOMEDS_AttributeParameter(_local_impl->GetModuleParameters(theID.c_str(), 
+										     theModuleName.c_str(),
+										     theSavePoint));
+  else AP = new SALOMEDS_AttributeParameter(_corba_impl->GetModuleParameters(theID.c_str(), 
+									     theModuleName.c_str(), 
+									     theSavePoint));
+  return _PTR(AttributeParameter)(AP); 
+}
+
 std::string SALOMEDS_Study::ConvertObjectToIOR(CORBA::Object_ptr theObject) 
 {
   return _orb->object_to_string(theObject); 
@@ -588,3 +612,4 @@ SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
    
   return SALOMEDS::Study::_nil();
 }
+

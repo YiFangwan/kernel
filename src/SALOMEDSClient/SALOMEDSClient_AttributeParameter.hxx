@@ -34,30 +34,30 @@ class SALOMEDSClient_AttributeParameter : public virtual SALOMEDSClient_GenericA
 
 public:
 
-  virtual void SetInt(const int theID, const int& theValue) = 0;
-  virtual int GetInt(const int theID) = 0;
+  virtual void SetInt(const std::string& theID, const int theValue) = 0;
+  virtual int GetInt(const std::string& theID) = 0;
 
-  virtual void SetReal(const int theID, const double& theValue) = 0;
-  virtual double GetReal(const int theID) = 0;
+  virtual void SetReal(const std::string& theID, const double& theValue) = 0;
+  virtual double GetReal(const std::string& theID) = 0;
 
-  virtual void SetString(const int theID, const std::string& theValue) = 0;
-  virtual std::string GetString(const int theID) = 0;
+  virtual void SetString(const std::string& theID, const std::string& theValue) = 0;
+  virtual std::string GetString(const std::string& theID) = 0;
   
-  virtual void SetBool(const int theID, const bool& theValue) = 0;
-  virtual bool GetBool(const int theID) = 0;
+  virtual void SetBool(const std::string& theID, const bool& theValue) = 0;
+  virtual bool GetBool(const std::string& theID) = 0;
   
-  virtual void SetRealArray(const int theID, const std::vector<double>& theArray) = 0;
-  virtual std::vector<double> GetRealArray(const int theID) = 0;
+  virtual void SetRealArray(const std::string& theID, const std::vector<double>& theArray) = 0;
+  virtual std::vector<double> GetRealArray(const std::string& theID) = 0;
   
-  virtual void SetIntArray(const int theID, const std::vector<int>& theArray) = 0;
-  virtual std::vector<int> GetIntArray(const int theID) = 0;
+  virtual void SetIntArray(const std::string& theID, const std::vector<int>& theArray) = 0;
+  virtual std::vector<int> GetIntArray(const std::string& theID) = 0;
 
-  virtual void SetStrArray(const int theID, const std::vector<std::string>& theArray) = 0;
-  virtual std::vector<std::string> GetStrArray(const int theID) = 0;
+  virtual void SetStrArray(const std::string& theID, const std::vector<std::string>& theArray) = 0;
+  virtual std::vector<std::string> GetStrArray(const std::string& theID) = 0;
 
-  virtual bool IsSet(const int theID, const int theType) = 0;
+  virtual bool IsSet(const std::string& theID, const int theType) = 0;
   
-  virtual bool RemoveID(const int theID, const int theType) = 0;
+  virtual bool RemoveID(const std::string& theID, const int theType) = 0;
 
   virtual _PTR(AttributeParameter) GetFather() = 0;
   virtual bool HasFather() = 0;
@@ -65,7 +65,7 @@ public:
   
   virtual void Clear() = 0;
 
-  virtual std::vector<int> GetIDs(const int theType) = 0;
+  virtual std::vector<std::string> GetIDs(const int theType) = 0;
 };
 
 #endif

@@ -61,14 +61,14 @@ SALOMEDS_AttributeParameter::~SALOMEDS_AttributeParameter()
  * Purpose  : Associates a integer value with the ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetInt(const int theID, const int& theValue) 
+void SALOMEDS_AttributeParameter::SetInt(const string& theID, const int theValue) 
 {
   CheckLocked();
 
   if(_isLocal)
     Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->SetInt(theID, theValue);
   else
-    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetInt(theID, theValue);
+    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetInt(theID.c_str(), theValue);
 }
 
 //=======================================================================
@@ -77,13 +77,13 @@ void SALOMEDS_AttributeParameter::SetInt(const int theID, const int& theValue)
  * Purpose  : Returns a int value associated with the given ID
  */
 //=======================================================================
-int SALOMEDS_AttributeParameter::GetInt(const int theID) 
+int SALOMEDS_AttributeParameter::GetInt(const string& theID) 
 {
   int aValue;
   if(_isLocal) 
     aValue = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->GetInt(theID);
   else
-    aValue = SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetInt(theID);
+    aValue = SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetInt(theID.c_str());
   return aValue;
 }
 
@@ -93,14 +93,14 @@ int SALOMEDS_AttributeParameter::GetInt(const int theID)
  * Purpose  : Associates a double value with the ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetReal(const int theID, const double& theValue) 
+void SALOMEDS_AttributeParameter::SetReal(const string& theID, const double& theValue) 
 {
   CheckLocked();
 
   if(_isLocal)
     Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->SetReal(theID, theValue);
   else
-    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetReal(theID, theValue);
+    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetReal(theID.c_str(), theValue);
 }
  
 //=======================================================================
@@ -109,13 +109,13 @@ void SALOMEDS_AttributeParameter::SetReal(const int theID, const double& theValu
  * Purpose  : Returns a double value associated with the given ID
  */
 //=======================================================================
-double SALOMEDS_AttributeParameter::GetReal(const int theID) 
+double SALOMEDS_AttributeParameter::GetReal(const string& theID) 
 {
   double aValue;
   if(_isLocal) 
     aValue = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->GetReal(theID);
   else
-    aValue = SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetReal(theID);
+    aValue = SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetReal(theID.c_str());
   return aValue;
 }
 
@@ -125,14 +125,14 @@ double SALOMEDS_AttributeParameter::GetReal(const int theID)
  * Purpose  : Associates a string with the ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetString(const int theID, const string& theValue) 
+void SALOMEDS_AttributeParameter::SetString(const string& theID, const string& theValue) 
 {
   CheckLocked();
 
   if(_isLocal)
-    Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->SetString(theID, (char*)theValue.c_str());
+    Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->SetString(theID, theValue);
   else
-    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetString(theID, theValue.c_str());
+    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetString(theID.c_str(), theValue.c_str());
 }
  
 //=======================================================================
@@ -141,13 +141,13 @@ void SALOMEDS_AttributeParameter::SetString(const int theID, const string& theVa
  * Purpose  : Returns a string associated with the given ID
  */
 //=======================================================================
-string SALOMEDS_AttributeParameter::GetString(const int theID) 
+string SALOMEDS_AttributeParameter::GetString(const string& theID) 
 {
   string aValue;
   if(_isLocal) 
-    aValue = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->GetString(theID).ToCString();
+    aValue = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->GetString(theID);
   else
-    aValue = SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetString(theID);
+    aValue = SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetString(theID.c_str());
   return aValue;
 }
   
@@ -157,14 +157,14 @@ string SALOMEDS_AttributeParameter::GetString(const int theID)
  * Purpose  : Associates a bool value with the ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetBool(const int theID, const bool& theValue) 
+void SALOMEDS_AttributeParameter::SetBool(const string& theID, const bool& theValue) 
 {
   CheckLocked();
 
   if(_isLocal)
     Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->SetBool(theID, theValue);
   else
-    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetBool(theID, theValue);
+    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetBool(theID.c_str(), theValue);
 }
 
 //=======================================================================
@@ -173,12 +173,12 @@ void SALOMEDS_AttributeParameter::SetBool(const int theID, const bool& theValue)
  * Purpose  : Returns a bool value associated with the ID
  */
 //=======================================================================
-bool SALOMEDS_AttributeParameter::GetBool(const int theID) 
+bool SALOMEDS_AttributeParameter::GetBool(const string& theID) 
 {
   if(_isLocal) 
     return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->GetBool(theID);
   else
-    return SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetBool(theID);
+    return SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetBool(theID.c_str());
 }
   
 //=======================================================================
@@ -187,7 +187,7 @@ bool SALOMEDS_AttributeParameter::GetBool(const int theID)
  * Purpose  : Associates an array of double values with the given ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetRealArray(const int theID, const vector<double>& theArray) 
+void SALOMEDS_AttributeParameter::SetRealArray(const string& theID, const vector<double>& theArray) 
 {
   CheckLocked();
 
@@ -200,7 +200,7 @@ void SALOMEDS_AttributeParameter::SetRealArray(const int theID, const vector<dou
       aSeq->length(length);
       for(int i = 0; i<length; i++) aSeq[i] = theArray[i];
     }
-    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetRealArray(theID, aSeq);
+    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetRealArray(theID.c_str(), aSeq);
   }
 }
  
@@ -210,13 +210,13 @@ void SALOMEDS_AttributeParameter::SetRealArray(const int theID, const vector<dou
  * Purpose  : Returns an array of double values associated with the ID
  */
 //=======================================================================
-vector<double> SALOMEDS_AttributeParameter::GetRealArray(const int theID) 
+vector<double> SALOMEDS_AttributeParameter::GetRealArray(const string& theID) 
 {
   vector<double> v;
   if(_isLocal) 
     return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->GetRealArray(theID);
   else {
-    SALOMEDS::DoubleSeq_var aSeq = SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetRealArray(theID);    
+    SALOMEDS::DoubleSeq_var aSeq = SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetRealArray(theID.c_str());    
     int length = aSeq->length();
     if(length) {
       v.resize(length);
@@ -232,7 +232,7 @@ vector<double> SALOMEDS_AttributeParameter::GetRealArray(const int theID)
  * Purpose  : Associates an array of int values with the given ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetIntArray(const int theID, const vector<int>& theArray) 
+void SALOMEDS_AttributeParameter::SetIntArray(const string& theID, const vector<int>& theArray) 
 {
   CheckLocked();
 
@@ -245,7 +245,7 @@ void SALOMEDS_AttributeParameter::SetIntArray(const int theID, const vector<int>
       aSeq->length(length);
       for(int i = 0; i<length; i++) aSeq[i] = theArray[i];
     }
-    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetIntArray(theID, aSeq);
+    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetIntArray(theID.c_str(), aSeq);
   }
 }
  
@@ -255,13 +255,13 @@ void SALOMEDS_AttributeParameter::SetIntArray(const int theID, const vector<int>
  * Purpose  : Returns an array of int values associated with the ID
  */
 //=======================================================================
-vector<int> SALOMEDS_AttributeParameter::GetIntArray(const int theID) 
+vector<int> SALOMEDS_AttributeParameter::GetIntArray(const string& theID) 
 {
   vector<int> v;
   if(_isLocal) 
     return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->GetIntArray(theID);
   else {
-    SALOMEDS::LongSeq_var aSeq = SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetIntArray(theID);    
+    SALOMEDS::LongSeq_var aSeq = SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetIntArray(theID.c_str());    
     int length = aSeq->length();
     if(length) {
       v.resize(length);
@@ -277,7 +277,7 @@ vector<int> SALOMEDS_AttributeParameter::GetIntArray(const int theID)
  * Purpose  : Associates an array of string values with the given ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter::SetStrArray(const int theID, const vector<string>& theArray) 
+void SALOMEDS_AttributeParameter::SetStrArray(const string& theID, const vector<string>& theArray) 
 {
   CheckLocked();
 
@@ -290,7 +290,7 @@ void SALOMEDS_AttributeParameter::SetStrArray(const int theID, const vector<stri
       aSeq->length(length);
       for(int i = 0; i<length; i++) aSeq[i] = CORBA::string_dup(theArray[i].c_str());
     }
-    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetStrArray(theID, aSeq);
+    SALOMEDS::AttributeParameter::_narrow(_corba_impl)->SetStrArray(theID.c_str(), aSeq);
   }
 }
  
@@ -300,13 +300,13 @@ void SALOMEDS_AttributeParameter::SetStrArray(const int theID, const vector<stri
  * Purpose  : Returns an array of string values associated with the ID
  */
 //=======================================================================
-vector<string> SALOMEDS_AttributeParameter::GetStrArray(const int theID) 
+vector<string> SALOMEDS_AttributeParameter::GetStrArray(const string& theID) 
 {
   vector<string> v;
   if(_isLocal) 
     return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->GetStrArray(theID);
   else {
-    SALOMEDS::StringSeq_var aSeq = SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetStrArray(theID);    
+    SALOMEDS::StringSeq_var aSeq = SALOMEDS::AttributeParameter::_narrow(_corba_impl)->GetStrArray(theID.c_str());    
     int length = aSeq->length();
     if(length) {
       v.resize(length);
@@ -324,12 +324,12 @@ vector<string> SALOMEDS_AttributeParameter::GetStrArray(const int theID)
  *            a value in the attribute
  */
 //======================================================================= 
-bool SALOMEDS_AttributeParameter::IsSet(const int theID, const int theType) 
+bool SALOMEDS_AttributeParameter::IsSet(const string& theID, const int theType) 
 {
   if(_isLocal) 
     return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->IsSet(theID, (Parameter_Types)theType);
   else 
-    return SALOMEDS::AttributeParameter::_narrow(_corba_impl)->IsSet(theID, theType);
+    return SALOMEDS::AttributeParameter::_narrow(_corba_impl)->IsSet(theID.c_str(), theType);
 }
 
 //=======================================================================
@@ -338,14 +338,14 @@ bool SALOMEDS_AttributeParameter::IsSet(const int theID, const int theType)
  * Purpose  : Removes a parameter with given ID
  */
 //======================================================================= 
-bool SALOMEDS_AttributeParameter::RemoveID(const int theID, const int theType) 
+bool SALOMEDS_AttributeParameter::RemoveID(const string& theID, const int theType) 
 {
   CheckLocked();
 
   if(_isLocal)
     return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl)->RemoveID(theID, (Parameter_Types)theType);
   else
-    return SALOMEDS::AttributeParameter::_narrow(_corba_impl)->RemoveID(theID, theType);
+    return SALOMEDS::AttributeParameter::_narrow(_corba_impl)->RemoveID(theID.c_str(), theType);
 }
 
 //=======================================================================
@@ -419,20 +419,20 @@ void SALOMEDS_AttributeParameter::Clear()
  * Purpose  : Returns an array of all ID's of the given type
  */
 //=======================================================================
-vector<int> SALOMEDS_AttributeParameter::GetIDs(const int theType)
+vector<string> SALOMEDS_AttributeParameter::GetIDs(const int theType)
 {
-  vector<int> v;
+  vector<string> v;
   if(_isLocal) {
     Handle(SALOMEDSImpl_AttributeParameter) AP_impl = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_local_impl);
     return AP_impl->GetIDs((Parameter_Types)theType);
   }
   else {
     SALOMEDS::AttributeParameter_var AP_impl = SALOMEDS::AttributeParameter::_narrow(_corba_impl);
-    SALOMEDS::LongSeq_var CorbaSeq = AP_impl->GetIDs(theType);
+    SALOMEDS::StringSeq_var CorbaSeq = AP_impl->GetIDs(theType);
     int length = CorbaSeq->length();
     if(length) {
       v.resize(length);
-      for(int i = 0; i <length; i++) v[i] = CorbaSeq[i];
+      for(int i = 0; i <length; i++) v[i] = string(CorbaSeq[i].in());
     }
   }
 

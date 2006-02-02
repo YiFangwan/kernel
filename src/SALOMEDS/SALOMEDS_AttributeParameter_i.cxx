@@ -36,7 +36,7 @@ using namespace std;
  * Purpose  : Associates a integer value with the ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter_i::SetInt(CORBA::Long theID, CORBA::Long theValue)
+void SALOMEDS_AttributeParameter_i::SetInt(const char* theID, CORBA::Long theValue)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
@@ -49,7 +49,7 @@ void SALOMEDS_AttributeParameter_i::SetInt(CORBA::Long theID, CORBA::Long theVal
  * Purpose  : Returns a int value associated with the given ID
  */
 //=======================================================================
-CORBA::Long SALOMEDS_AttributeParameter_i::GetInt(CORBA::Long theID)
+CORBA::Long SALOMEDS_AttributeParameter_i::GetInt(const char* theID)
 {
   SALOMEDS::Locker lock; 
   return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->GetInt(theID);
@@ -61,7 +61,7 @@ CORBA::Long SALOMEDS_AttributeParameter_i::GetInt(CORBA::Long theID)
  * Purpose  : Associates a double value with the ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter_i::SetReal(CORBA::Long theID, const CORBA::Double theValue)
+void SALOMEDS_AttributeParameter_i::SetReal(const char* theID, const CORBA::Double theValue)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
@@ -74,7 +74,7 @@ void SALOMEDS_AttributeParameter_i::SetReal(CORBA::Long theID, const CORBA::Doub
  * Purpose  : Returns a double value associated with the given ID
  */
 //=======================================================================
-CORBA::Double SALOMEDS_AttributeParameter_i::GetReal(CORBA::Long theID)
+CORBA::Double SALOMEDS_AttributeParameter_i::GetReal(const char* theID)
 {
   SALOMEDS::Locker lock; 
   return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->GetReal(theID);
@@ -86,12 +86,12 @@ CORBA::Double SALOMEDS_AttributeParameter_i::GetReal(CORBA::Long theID)
  * Purpose  : Associates a string with the ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter_i::SetString(CORBA::Long theID, const char* theValue)
+void SALOMEDS_AttributeParameter_i::SetString(const char* theID, const char* theValue)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
   Handle(SALOMEDSImpl_AttributeParameter) impl = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl);
-  impl->SetString(theID, TCollection_AsciiString((char*)theValue));
+  impl->SetString(theID, theValue);
 }
 
 //=======================================================================
@@ -100,11 +100,11 @@ void SALOMEDS_AttributeParameter_i::SetString(CORBA::Long theID, const char* the
  * Purpose  : Returns a string associated with the given ID
  */
 //=======================================================================
-char* SALOMEDS_AttributeParameter_i::GetString(CORBA::Long theID)
+char* SALOMEDS_AttributeParameter_i::GetString(const char* theID)
 {
   SALOMEDS::Locker lock; 
   Handle(SALOMEDSImpl_AttributeParameter) impl = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl);
-  CORBA::String_var c_s = CORBA::string_dup(TCollection_AsciiString(impl->GetString(theID)).ToCString());
+  CORBA::String_var c_s = CORBA::string_dup(impl->GetString(theID).c_str());
   return c_s._retn();
 }
 
@@ -114,7 +114,7 @@ char* SALOMEDS_AttributeParameter_i::GetString(CORBA::Long theID)
  * Purpose  : Associates a bool value with the ID
  */
 //=======================================================================  
-void SALOMEDS_AttributeParameter_i::SetBool(CORBA::Long theID, CORBA::Boolean theValue)
+void SALOMEDS_AttributeParameter_i::SetBool(const char* theID, CORBA::Boolean theValue)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
@@ -127,7 +127,7 @@ void SALOMEDS_AttributeParameter_i::SetBool(CORBA::Long theID, CORBA::Boolean th
  * Purpose  : Returns a bool value associated with the ID
  */
 //=======================================================================
-CORBA::Boolean SALOMEDS_AttributeParameter_i::GetBool(CORBA::Long theID)
+CORBA::Boolean SALOMEDS_AttributeParameter_i::GetBool(const char* theID)
 {
   SALOMEDS::Locker lock; 
   return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->GetBool(theID);
@@ -139,7 +139,7 @@ CORBA::Boolean SALOMEDS_AttributeParameter_i::GetBool(CORBA::Long theID)
  * Purpose  : Associates an array of double values with the given ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter_i::SetRealArray(CORBA::Long theID, const SALOMEDS::DoubleSeq& theArray)
+void SALOMEDS_AttributeParameter_i::SetRealArray(const char* theID, const SALOMEDS::DoubleSeq& theArray)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
@@ -158,7 +158,7 @@ void SALOMEDS_AttributeParameter_i::SetRealArray(CORBA::Long theID, const SALOME
  * Purpose  : Returns an array of double values associated with the ID
  */
 //=======================================================================
-SALOMEDS::DoubleSeq* SALOMEDS_AttributeParameter_i::GetRealArray(CORBA::Long theID)
+SALOMEDS::DoubleSeq* SALOMEDS_AttributeParameter_i::GetRealArray(const char* theID)
 {
   SALOMEDS::Locker lock; 
   SALOMEDS::DoubleSeq_var aSeq = new SALOMEDS::DoubleSeq;
@@ -177,7 +177,7 @@ SALOMEDS::DoubleSeq* SALOMEDS_AttributeParameter_i::GetRealArray(CORBA::Long the
  * Purpose  : Associates an array of int values with the given ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter_i::SetIntArray(CORBA::Long theID, const SALOMEDS::LongSeq& theArray)
+void SALOMEDS_AttributeParameter_i::SetIntArray(const char* theID, const SALOMEDS::LongSeq& theArray)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
@@ -196,7 +196,7 @@ void SALOMEDS_AttributeParameter_i::SetIntArray(CORBA::Long theID, const SALOMED
  * Purpose  : Returns an array of int values associated with the ID
  */
 //=======================================================================
-SALOMEDS::LongSeq* SALOMEDS_AttributeParameter_i::GetIntArray(CORBA::Long theID)
+SALOMEDS::LongSeq* SALOMEDS_AttributeParameter_i::GetIntArray(const char* theID)
 {
   SALOMEDS::Locker lock; 
   SALOMEDS::LongSeq_var aSeq = new SALOMEDS::LongSeq;
@@ -215,7 +215,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeParameter_i::GetIntArray(CORBA::Long theID)
  * Purpose  : Associates an array of string values with the given ID
  */
 //=======================================================================
-void SALOMEDS_AttributeParameter_i::SetStrArray(CORBA::Long theID, const SALOMEDS::StringSeq& theArray)
+void SALOMEDS_AttributeParameter_i::SetStrArray(const char* theID, const SALOMEDS::StringSeq& theArray)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
@@ -234,7 +234,7 @@ void SALOMEDS_AttributeParameter_i::SetStrArray(CORBA::Long theID, const SALOMED
  * Purpose  : Returns an array of string values associated with the ID
  */
 //=======================================================================
-SALOMEDS::StringSeq* SALOMEDS_AttributeParameter_i::GetStrArray(CORBA::Long theID)
+SALOMEDS::StringSeq* SALOMEDS_AttributeParameter_i::GetStrArray(const char* theID)
 {
   SALOMEDS::Locker lock; 
   SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq;
@@ -255,7 +255,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeParameter_i::GetStrArray(CORBA::Long theI
  *            a value in the attribute
  */
 //=======================================================================
-CORBA::Boolean SALOMEDS_AttributeParameter_i::IsSet(CORBA::Long theID, CORBA::Long theType)
+CORBA::Boolean SALOMEDS_AttributeParameter_i::IsSet(const char* theID, CORBA::Long theType)
 {
   SALOMEDS::Locker lock; 
   return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->IsSet(theID, (Parameter_Types)theType);
@@ -267,7 +267,7 @@ CORBA::Boolean SALOMEDS_AttributeParameter_i::IsSet(CORBA::Long theID, CORBA::Lo
  * Purpose  : Removes a parameter with given ID
  */
 //=======================================================================  
-CORBA::Boolean SALOMEDS_AttributeParameter_i::RemoveID(CORBA::Long theID, CORBA::Long theType)
+CORBA::Boolean SALOMEDS_AttributeParameter_i::RemoveID(const char* theID, CORBA::Long theType)
 {
   SALOMEDS::Locker lock; 
   CheckLocked();
@@ -331,16 +331,16 @@ void SALOMEDS_AttributeParameter_i::Clear()
  * Purpose  : Returns an array of all ID's of the given type
  */
 //=======================================================================
-SALOMEDS::LongSeq* SALOMEDS_AttributeParameter_i::GetIDs(CORBA::Long theType)
+SALOMEDS::StringSeq* SALOMEDS_AttributeParameter_i::GetIDs(CORBA::Long theType)
 {
   SALOMEDS::Locker lock; 
-  SALOMEDS::LongSeq_var CorbaSeq = new SALOMEDS::LongSeq;
-  vector<int> A = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->GetIDs((Parameter_Types)theType);
+  SALOMEDS::StringSeq_var CorbaSeq = new SALOMEDS::StringSeq;
+  vector<string> A = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(_impl)->GetIDs((Parameter_Types)theType);
 
   if(A.size()) {
     int length = A.size();
     CorbaSeq->length(length);
-    for (int i = 0; i < length; i++) CorbaSeq[i] = A[i];;
+    for (int i = 0; i < length; i++) CorbaSeq[i] = CORBA::string_dup(A[i].c_str());;
   }
 
   return CorbaSeq._retn();

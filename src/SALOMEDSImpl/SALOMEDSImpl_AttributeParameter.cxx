@@ -115,7 +115,7 @@ Handle(SALOMEDSImpl_AttributeParameter) SALOMEDSImpl_AttributeParameter::Set (co
  * Purpose  : Associates a integer value with the ID
  */
 //=======================================================================
-void SALOMEDSImpl_AttributeParameter::SetInt(const int theID, const int& theValue)
+void SALOMEDSImpl_AttributeParameter::SetInt(const string& theID, const int& theValue)
 {
   CheckLocked();
 
@@ -132,7 +132,7 @@ void SALOMEDSImpl_AttributeParameter::SetInt(const int theID, const int& theValu
  * Purpose  : Returns a int value associated with the given ID
  */
 //=======================================================================
-int SALOMEDSImpl_AttributeParameter::GetInt(const int theID)
+int SALOMEDSImpl_AttributeParameter::GetInt(const string& theID)
 {
   if(!IsSet(theID, PT_INTEGER)) Standard_Failure::Raise("Invalid ID");
   return _ints[theID];
@@ -144,7 +144,7 @@ int SALOMEDSImpl_AttributeParameter::GetInt(const int theID)
  * Purpose  : Associates a double value with the ID
  */
 //=======================================================================
-void SALOMEDSImpl_AttributeParameter::SetReal(const int theID, const double& theValue)
+void SALOMEDSImpl_AttributeParameter::SetReal(const string& theID, const double& theValue)
 {
   CheckLocked();
 
@@ -161,7 +161,7 @@ void SALOMEDSImpl_AttributeParameter::SetReal(const int theID, const double& the
  * Purpose  : Returns a double value associated with the given ID
  */
 //=======================================================================
-double SALOMEDSImpl_AttributeParameter::GetReal(const int theID)
+double SALOMEDSImpl_AttributeParameter::GetReal(const string& theID)
 {
   if(!IsSet(theID, PT_REAL)) Standard_Failure::Raise("Invalid ID");
   return _reals[theID];
@@ -173,14 +173,13 @@ double SALOMEDSImpl_AttributeParameter::GetReal(const int theID)
  * Purpose  : Associates a string with the ID
  */
 //=======================================================================
-void SALOMEDSImpl_AttributeParameter::SetString(const int theID, const TCollection_AsciiString& theValue)
+void SALOMEDSImpl_AttributeParameter::SetString(const string& theID, const string& theValue)
 {
   CheckLocked();
 
   Backup();
 
-  string s(theValue.ToCString());
-  _strings[theID] = s;
+  _strings[theID] = theValue;
 
   SetModifyFlag(); 
 }
@@ -191,11 +190,10 @@ void SALOMEDSImpl_AttributeParameter::SetString(const int theID, const TCollecti
  * Purpose  : Returns a string associated with the given ID
  */
 //=======================================================================
-TCollection_AsciiString SALOMEDSImpl_AttributeParameter::GetString(const int theID)
+string SALOMEDSImpl_AttributeParameter::GetString(const string& theID)
 {
   if(!IsSet(theID, PT_STRING)) Standard_Failure::Raise("Invalid ID");
-  string s = _strings[theID];
-  return TCollection_AsciiString((char*)s.c_str());
+  return _strings[theID];
 }
 
 //=======================================================================
@@ -204,7 +202,7 @@ TCollection_AsciiString SALOMEDSImpl_AttributeParameter::GetString(const int the
  * Purpose  : Associates a bool value with the ID
  */
 //=======================================================================
-void SALOMEDSImpl_AttributeParameter::SetBool(const int theID, const bool& theValue)
+void SALOMEDSImpl_AttributeParameter::SetBool(const string& theID, const bool& theValue)
 {
   CheckLocked();
 
@@ -221,7 +219,7 @@ void SALOMEDSImpl_AttributeParameter::SetBool(const int theID, const bool& theVa
  * Purpose  : Returns a bool value associated with the ID
  */
 //=======================================================================
-bool SALOMEDSImpl_AttributeParameter::GetBool(const int theID)
+bool SALOMEDSImpl_AttributeParameter::GetBool(const string& theID)
 {
   if(!IsSet(theID, PT_BOOLEAN)) Standard_Failure::Raise("Invalid ID");
   return _bools[theID];
@@ -233,7 +231,7 @@ bool SALOMEDSImpl_AttributeParameter::GetBool(const int theID)
  * Purpose  : Associates an array of double values with the given ID
  */
 //=======================================================================
-void SALOMEDSImpl_AttributeParameter::SetRealArray(const int theID, const vector<double>& theArray)
+void SALOMEDSImpl_AttributeParameter::SetRealArray(const string& theID, const vector<double>& theArray)
 {
   CheckLocked();
 
@@ -250,7 +248,7 @@ void SALOMEDSImpl_AttributeParameter::SetRealArray(const int theID, const vector
  * Purpose  : Returns double values associated with the ID
  */
 //=======================================================================
-vector<double> SALOMEDSImpl_AttributeParameter::GetRealArray(const int theID)
+vector<double> SALOMEDSImpl_AttributeParameter::GetRealArray(const string& theID)
 {
   if(!IsSet(theID, PT_REALARRAY)) Standard_Failure::Raise("Invalid ID");
   return _realarrays[theID];
@@ -263,7 +261,7 @@ vector<double> SALOMEDSImpl_AttributeParameter::GetRealArray(const int theID)
  * Purpose  : Associates an array of int values with the given ID
  */
 //=======================================================================
-void SALOMEDSImpl_AttributeParameter::SetIntArray(const int theID, const vector<int>& theArray)
+void SALOMEDSImpl_AttributeParameter::SetIntArray(const string& theID, const vector<int>& theArray)
 {
   CheckLocked();
 
@@ -280,7 +278,7 @@ void SALOMEDSImpl_AttributeParameter::SetIntArray(const int theID, const vector<
  * Purpose  : Returns int values associated with the ID
  */
 //=======================================================================
-vector<int> SALOMEDSImpl_AttributeParameter::GetIntArray(const int theID)
+vector<int> SALOMEDSImpl_AttributeParameter::GetIntArray(const string& theID)
 {
   if(!IsSet(theID, PT_INTARRAY)) Standard_Failure::Raise("Invalid ID");
   return _intarrays[theID];
@@ -293,7 +291,7 @@ vector<int> SALOMEDSImpl_AttributeParameter::GetIntArray(const int theID)
  * Purpose  : Associates an array of string values with the given ID
  */
 //=======================================================================
-void SALOMEDSImpl_AttributeParameter::SetStrArray(const int theID, const vector<string>& theArray)
+void SALOMEDSImpl_AttributeParameter::SetStrArray(const string& theID, const vector<string>& theArray)
 {
   CheckLocked();
 
@@ -310,7 +308,7 @@ void SALOMEDSImpl_AttributeParameter::SetStrArray(const int theID, const vector<
  * Purpose  : Returns string values associated with the ID
  */
 //=======================================================================
-vector<string> SALOMEDSImpl_AttributeParameter::GetStrArray(const int theID)
+vector<string> SALOMEDSImpl_AttributeParameter::GetStrArray(const string& theID)
 {
   if(!IsSet(theID, PT_STRARRAY)) Standard_Failure::Raise("Invalid ID");
   return _strarrays[theID];
@@ -324,7 +322,7 @@ vector<string> SALOMEDSImpl_AttributeParameter::GetStrArray(const int theID)
  *            a value in the attribute
  */
 //=======================================================================
-bool SALOMEDSImpl_AttributeParameter::IsSet(const int theID, const Parameter_Types theType)
+bool SALOMEDSImpl_AttributeParameter::IsSet(const string& theID, const Parameter_Types theType)
 {
   switch(theType) {
   case PT_INTEGER: {
@@ -367,7 +365,7 @@ bool SALOMEDSImpl_AttributeParameter::IsSet(const int theID, const Parameter_Typ
  * Purpose  : Removes a parameter with given ID
  */
 //=======================================================================
-bool SALOMEDSImpl_AttributeParameter::RemoveID(const int theID, const Parameter_Types theType)
+bool SALOMEDSImpl_AttributeParameter::RemoveID(const string& theID, const Parameter_Types theType)
 {
   Backup();
   SetModifyFlag(); 
@@ -485,17 +483,17 @@ void SALOMEDSImpl_AttributeParameter::Clear()
  * Purpose  : Returns an array of all ID's of the given type
  */
 //=======================================================================
-vector<int> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types theType)
+vector<string> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types theType)
 {
   
-  vector<int> anArray;
+  vector<string> anArray;
   int i = 0;
 
   switch(theType) {
   case PT_INTEGER: {
     if(_ints.size()) {
       anArray.resize(_ints.size());
-      for(map<int,int>::const_iterator p = _ints.begin(); p != _ints.end(); p++, i++) 
+      for(map<string,int>::const_iterator p = _ints.begin(); p != _ints.end(); p++, i++) 
 	anArray[i] =  p->first;
     }
     break;
@@ -503,7 +501,7 @@ vector<int> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types theTyp
   case PT_REAL: {
     if(_reals.size()) {
       anArray.resize(_reals.size());
-      for(map<int,double>::const_iterator p = _reals.begin(); p != _reals.end(); p++, i++) 
+      for(map<string,double>::const_iterator p = _reals.begin(); p != _reals.end(); p++, i++) 
 	anArray[i] = p->first;
     }
     break;
@@ -511,7 +509,7 @@ vector<int> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types theTyp
   case PT_BOOLEAN: {
     if(_bools.size()) {
       anArray.resize(_bools.size());
-      for(map<int,bool>::const_iterator p = _bools.begin(); p != _bools.end(); p++, i++) 
+      for(map<string,bool>::const_iterator p = _bools.begin(); p != _bools.end(); p++, i++) 
 	anArray[i] = p->first;
     }
     break;
@@ -519,7 +517,7 @@ vector<int> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types theTyp
   case PT_STRING: {
     if(_strings.size()) {
       anArray.resize(_strings.size());
-      for(map<int,string>::const_iterator p = _strings.begin(); p!= _strings.end(); p++) 
+      for(map<string,string>::const_iterator p = _strings.begin(); p!= _strings.end(); p++) 
 	anArray[i] = p->first;
     }
     break;
@@ -527,7 +525,7 @@ vector<int> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types theTyp
   case PT_REALARRAY: {
     if(_realarrays.size()) {
       anArray.resize(_realarrays.size());
-      for(map< int, vector<double> >::const_iterator p = _realarrays.begin(); p!= _realarrays.end(); p++) 
+      for(map< string, vector<double> >::const_iterator p = _realarrays.begin(); p!= _realarrays.end(); p++) 
 	anArray[i] = p->first;
     }
     break;
@@ -535,7 +533,7 @@ vector<int> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types theTyp
   case PT_INTARRAY: {
     if(_intarrays.size()) {
       anArray.resize(_intarrays.size());
-      for(map< int, vector<int> >::const_iterator p = _intarrays.begin(); p!= _intarrays.end(); p++) 
+      for(map< string, vector<int> >::const_iterator p = _intarrays.begin(); p!= _intarrays.end(); p++) 
 	anArray[i] = p->first;
     }
     break;
@@ -543,7 +541,7 @@ vector<int> SALOMEDSImpl_AttributeParameter::GetIDs(const Parameter_Types theTyp
   case PT_STRARRAY: {
     if(_strarrays.size()) {
       anArray.resize(_strarrays.size());
-      for(map< int, vector<string> >::const_iterator p = _strarrays.begin(); p!= _strarrays.end(); p++) 
+      for(map< string, vector<string> >::const_iterator p = _strarrays.begin(); p!= _strarrays.end(); p++) 
 	anArray[i] = p->first;
     }
     break;
@@ -585,16 +583,16 @@ void SALOMEDSImpl_AttributeParameter::Restore(const Handle(TDF_Attribute)& with)
   _intarrays.clear();
   _strarrays.clear();
   
-  for(map<int,int>::const_iterator p = A->_ints.begin(); p!= A->_ints.end(); p++) _ints[p->first] = p->second;
-  for(map<int,double>::const_iterator p = A->_reals.begin(); p!= A->_reals.end(); p++) _reals[p->first] = p->second;
-  for(map<int,bool>::const_iterator p = A->_bools.begin(); p!= A->_bools.end(); p++) _bools[p->first] = p->second;
-  for(map<int,string>::const_iterator p = A->_strings.begin(); p!= A->_strings.end(); p++) 
+  for(map<string,int>::const_iterator p = A->_ints.begin(); p!= A->_ints.end(); p++) _ints[p->first] = p->second;
+  for(map<string,double>::const_iterator p = A->_reals.begin(); p!= A->_reals.end(); p++) _reals[p->first] = p->second;
+  for(map<string,bool>::const_iterator p = A->_bools.begin(); p!= A->_bools.end(); p++) _bools[p->first] = p->second;
+  for(map<string,string>::const_iterator p = A->_strings.begin(); p!= A->_strings.end(); p++) 
     _strings[p->first] = p->second;
-  for(map< int,vector<double> >::const_iterator p = A->_realarrays.begin(); p!= A->_realarrays.end(); p++) 
+  for(map< string,vector<double> >::const_iterator p = A->_realarrays.begin(); p!= A->_realarrays.end(); p++) 
     _realarrays[p->first] = p->second;  
-  for(map< int,vector<int> >::const_iterator p = A->_intarrays.begin(); p!= A->_intarrays.end(); p++) 
+  for(map< string,vector<int> >::const_iterator p = A->_intarrays.begin(); p!= A->_intarrays.end(); p++) 
     _intarrays[p->first] = p->second;  
-  for(map< int,vector<string> >::const_iterator p = A->_strarrays.begin(); p!= A->_strarrays.end(); p++) 
+  for(map< string,vector<string> >::const_iterator p = A->_strarrays.begin(); p!= A->_strarrays.end(); p++) 
     _strarrays[p->first] = p->second; 
 }
 
@@ -623,30 +621,30 @@ TCollection_AsciiString SALOMEDSImpl_AttributeParameter::Save()
 
   buffer << _ints.size() << " ";
 
-  for(map<int,int>::const_iterator p = _ints.begin(); p != _ints.end(); p++) {
-    buffer << p->first << " " << p->second << " ";
+  for(map<string,int>::const_iterator p = _ints.begin(); p != _ints.end(); p++) {
+    buffer << convertString(p->first) << " " << p->second << " ";
   }
 
   buffer << _reals.size() << " ";
-  for(map<int,double>::const_iterator p =_reals.begin(); p != _reals.end(); p++) {
+  for(map<string,double>::const_iterator p =_reals.begin(); p != _reals.end(); p++) {
     sprintf(tmpBuffer, "%.64e", p->second);
-    buffer << p->first << " " << tmpBuffer << " ";
+    buffer << convertString(p->first) << " " << tmpBuffer << " ";
   }
 
   buffer << _bools.size() << " ";
-  for(map<int,bool>::const_iterator p = _bools.begin(); p != _bools.end(); p++) {
-     buffer << p->first << " " << p->second << " ";
+  for(map<string,bool>::const_iterator p = _bools.begin(); p != _bools.end(); p++) {
+     buffer << convertString(p->first) << " " << p->second << " ";
   }
 
   buffer << _strings.size() << " ";
-  for(map<int,string>::const_iterator p = _strings.begin(); p != _strings.end(); p++) {
-    buffer << p->first << " " <<  convertString(p->second) << " ";
+  for(map<string,string>::const_iterator p = _strings.begin(); p != _strings.end(); p++) {
+    buffer << convertString(p->first) << " " <<  convertString(p->second) << " ";
   }
 
   buffer << _realarrays.size() << " ";
-  for(map< int,vector<double> >::const_iterator p = _realarrays.begin(); p != _realarrays.end(); p++) {
+  for(map< string,vector<double> >::const_iterator p = _realarrays.begin(); p != _realarrays.end(); p++) {
     vector<double> v(p->second);
-    sprintf(tmpBuffer, " %d %d ", p->first, v.size());
+    sprintf(tmpBuffer, " %s %d ", convertString(p->first).c_str(), v.size());
     buffer << tmpBuffer;
     for(int i = 0; i<v.size(); i++) {
       sprintf(tmpBuffer, " %.64e ", v[i]);
@@ -655,9 +653,9 @@ TCollection_AsciiString SALOMEDSImpl_AttributeParameter::Save()
   }
 
   buffer << _intarrays.size() << " ";
-  for(map< int,vector<int> >::const_iterator p = _intarrays.begin(); p != _intarrays.end(); p++) {
+  for(map< string,vector<int> >::const_iterator p = _intarrays.begin(); p != _intarrays.end(); p++) {
     vector<int> v(p->second);
-    sprintf(tmpBuffer, " %d %d ", p->first, v.size());
+    sprintf(tmpBuffer, " %s %d ", convertString(p->first).c_str(), v.size());
     buffer << tmpBuffer;
     for(int i = 0; i<v.size(); i++) {
       sprintf(tmpBuffer, " %d ", v[i]);
@@ -666,9 +664,9 @@ TCollection_AsciiString SALOMEDSImpl_AttributeParameter::Save()
   }
 
   buffer << _strarrays.size() << " ";
-  for(map< int,vector<string> >::const_iterator p = _strarrays.begin(); p != _strarrays.end(); p++) {
+  for(map< string,vector<string> >::const_iterator p = _strarrays.begin(); p != _strarrays.end(); p++) {
     vector<string> v(p->second);
-    sprintf(tmpBuffer, " %d %d ", p->first, v.size());
+    sprintf(tmpBuffer, " %s %d ", convertString(p->first).c_str(), v.size());
     buffer << tmpBuffer;
     for(int i = 0; i<v.size(); i++) {
       buffer << " " << convertString(v[i]) << " ";
@@ -701,32 +699,32 @@ void SALOMEDSImpl_AttributeParameter::Load(const TCollection_AsciiString& theVal
 
   istrstream buffer(theValue.ToCString(), strlen(theValue.ToCString()));
 
-  int size, id, val, ival;
+  int size, val, ival;
   double val2;
-  string s;
+  string s, id;
 
   buffer >> size;
   for(int i = 1; i<=size; i++) {
     buffer >> id >> val;
-    _ints[id] = val;
+    _ints[restoreString(id)] = val;
   }
 
   buffer >> size;
   for(int i = 1; i<=size; i++) {
     buffer >> id >> val2;
-    _reals[id] = val2;
+    _reals[restoreString(id)] = val2;
   }
 
   buffer >> size;
   for(int i = 1; i<=size; i++) {
     buffer >> id >> val;
-    _bools[id] = val;
+    _bools[restoreString(id)] = val;
   }
 
   buffer >> size;
   for(int i = 1; i<=size; i++) {
     buffer >> id >> s;
-    _strings[id] = restoreString(s);
+    _strings[restoreString(id)] = restoreString(s);
   }
   
   buffer >> size;
@@ -738,7 +736,7 @@ void SALOMEDSImpl_AttributeParameter::Load(const TCollection_AsciiString& theVal
       buffer >> val2;
       v[j] = val2;
     }
-    _realarrays[id] = v;
+    _realarrays[restoreString(id)] = v;
   }
 
   buffer >> size;
@@ -750,7 +748,7 @@ void SALOMEDSImpl_AttributeParameter::Load(const TCollection_AsciiString& theVal
       buffer >> ival;
       v[j] = ival;
     }
-    _intarrays[id] = v;
+    _intarrays[restoreString(id)] = v;
   }
   
   buffer >> size;
@@ -762,6 +760,6 @@ void SALOMEDSImpl_AttributeParameter::Load(const TCollection_AsciiString& theVal
       buffer >> s;
       v[j] = restoreString(s);
     }
-    _strarrays[id] = v;
+    _strarrays[restoreString(id)] = v;
   }
 } 

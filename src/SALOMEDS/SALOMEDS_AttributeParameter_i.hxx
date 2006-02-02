@@ -48,30 +48,30 @@ public:
   ~SALOMEDS_AttributeParameter_i() {};
 
 
-  virtual void SetInt(CORBA::Long theID, CORBA::Long theValue);
-  virtual CORBA::Long GetInt(CORBA::Long theID);
+  virtual void SetInt(const char* theID, CORBA::Long theValue);
+  virtual CORBA::Long GetInt(const char* theID);
 
-  virtual void SetReal(CORBA::Long theID, const CORBA::Double theValue);
-  virtual CORBA::Double GetReal(CORBA::Long theID);
+  virtual void SetReal(const char* theID, const CORBA::Double theValue);
+  virtual CORBA::Double GetReal(const char* theID);
 
-  virtual void SetString(CORBA::Long theID, const char* theValue);
-  virtual char* GetString(CORBA::Long theID);
+  virtual void SetString(const char* theID, const char* theValue);
+  virtual char* GetString(const char* theID);
   
-  virtual void SetBool(CORBA::Long theID, CORBA::Boolean theValue);
-  virtual CORBA::Boolean GetBool(CORBA::Long theID);
+  virtual void SetBool(const char* theID, CORBA::Boolean theValue);
+  virtual CORBA::Boolean GetBool(const char* theID);
   
-  virtual void SetRealArray(CORBA::Long theID, const SALOMEDS::DoubleSeq& theArray);
-  virtual SALOMEDS::DoubleSeq* GetRealArray(CORBA::Long theID);
+  virtual void SetRealArray(const char* theID, const SALOMEDS::DoubleSeq& theArray);
+  virtual SALOMEDS::DoubleSeq* GetRealArray(const char* theID);
 
-  virtual void SetIntArray(CORBA::Long theID, const SALOMEDS::LongSeq& theArray);
-  virtual SALOMEDS::LongSeq* GetIntArray(CORBA::Long theID);
+  virtual void SetIntArray(const char* theID, const SALOMEDS::LongSeq& theArray);
+  virtual SALOMEDS::LongSeq* GetIntArray(const char* theID);
 
-  virtual void SetStrArray(CORBA::Long theID, const SALOMEDS::StringSeq& theArray);
-  virtual SALOMEDS::StringSeq* GetStrArray(CORBA::Long theID);
+  virtual void SetStrArray(const char* theID, const SALOMEDS::StringSeq& theArray);
+  virtual SALOMEDS::StringSeq* GetStrArray(const char* theID);
   
-  virtual CORBA::Boolean IsSet(CORBA::Long theID, CORBA::Long theType);
+  virtual CORBA::Boolean IsSet(const char* theID, CORBA::Long theType);
   
-  virtual CORBA::Boolean RemoveID(CORBA::Long theID, CORBA::Long theType);
+  virtual CORBA::Boolean RemoveID(const char* theID, CORBA::Long theType);
 
   virtual SALOMEDS::AttributeParameter_ptr GetFather();
   virtual CORBA::Boolean HasFather();
@@ -79,7 +79,7 @@ public:
 
   virtual void Clear();
 
-  virtual SALOMEDS::LongSeq* GetIDs(CORBA::Long theType);
+  virtual SALOMEDS::StringSeq* GetIDs(CORBA::Long theType);
 
 };
 

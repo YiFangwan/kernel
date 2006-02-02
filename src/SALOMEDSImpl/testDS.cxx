@@ -105,33 +105,35 @@ int main (int argc, char * argv[])
 
   cout << "AttributeParameter with type : " << AP->Type() << endl;
   
-  AP->SetInt(1, 123);
-  cout << "IsSet for int: " << AP->IsSet(1, PT_INTEGER) << " value : " << AP->GetInt(1) << endl;
-  for(int i = 2; i < 5; i++) AP->SetInt(i, i*i);
+  AP->SetInt("1", 123);
+  cout << "IsSet for int: " << AP->IsSet("1", PT_INTEGER) << " value : " << AP->GetInt("1") << endl;
+  //for(int i = 2; i < 5; i++) AP->SetInt(i, i*i);
 
-  AP->SetReal(1, 123.123);
-  cout << "IsSet for real: " << AP->IsSet(1, PT_REAL) << " value : " << AP->GetReal(1) << endl;
-  for(int i = 2; i < 5; i++) AP->SetReal(i, 0.1);
+  AP->SetReal("1", 123.123);
+  cout << "IsSet for real: " << AP->IsSet("1", PT_REAL) << " value : " << AP->GetReal("1") << endl;
+  //for(int i = 2; i < 5; i++) AP->SetReal(i, 0.1);
 
-  AP->SetString(1, "value is 123.123!");
-  cout << "IsSet for string: " << AP->IsSet(1, PT_STRING) << " value : " << AP->GetString(1) << endl; 
+  AP->SetString("1", "value is 123.123!");
+  cout << "IsSet for string: " << AP->IsSet("1", PT_STRING) << " value : " << AP->GetString("1") << endl; 
+  /*
   for(int i = 2; i < 5; i++) {
     TCollection_AsciiString s((double)(1.0/i));
     cout << "Setting for " << i << " value : " << s  << endl;
     AP->SetString(i, s); 
   }
+  */
 
-  AP->SetBool(1, true);
-  cout << "IsSet for bool: " << AP->IsSet(1, PT_BOOLEAN) << " value : " << AP->GetBool(1) << endl;
-  for(int i = 2; i < 5; i++) AP->SetBool(i, 0);
+  AP->SetBool("1", true);
+  cout << "IsSet for bool: " << AP->IsSet("1", PT_BOOLEAN) << " value : " << AP->GetBool("1") << endl;
+  //for(int i = 2; i < 5; i++) AP->SetBool(i, 0);
   
   vector<double> v;
   v.push_back(111.111);
   v.push_back(222.22222);
   v.push_back(333.3333333);
-  AP->SetRealArray(1, v);
-  cout << "IsSet for array: " << AP->IsSet(1, PT_REALARRAY);
-  vector<double> v2 = AP->GetRealArray(1);
+  AP->SetRealArray("1", v);
+  cout << "IsSet for array: " << AP->IsSet("1", PT_REALARRAY);
+  vector<double> v2 = AP->GetRealArray("1");
   cout.precision(10);
   cout << " values :  "; 
   for(int i = 0; i<v2.size(); i++) cout << v2[i] << " ";
@@ -140,45 +142,45 @@ int main (int argc, char * argv[])
   v[0] = 211.111;
   v[1] = 422.22222;
   v[2] = 633.3333333;
-  AP->SetRealArray(2, v);
+  AP->SetRealArray("2", v);
 
   vector<int> vi;
   vi.push_back(1);
   vi.push_back(2);
-  AP->SetIntArray(2, vi);
+  AP->SetIntArray("2", vi);
   
   vector<string> vs;
   vs.push_back("hello, ");
   vs.push_back("world!");
-  AP->SetStrArray(3, vs);        
+  AP->SetStrArray("3", vs);        
 
   TCollection_AsciiString as = AP->Save();
   cout << "AS = " << as << endl;
   AP->Load(as);
   
-  cout << "Restored string with id = 1 is: " << AP->GetString(1) << endl;
-  cout << "Restored int with id = 2 is: " << AP->GetInt(2)  << endl;
-  cout << "Restored real with id = 3 is: " << AP->GetReal(3)  << endl;
-  cout << "Restored bool with id = 1 is: " << AP->GetBool(1)  << endl;
+  cout << "Restored string with id = 1 is: " << AP->GetString("1") << endl;
+  cout << "Restored int with id = 2 is: " << AP->GetInt("1")  << endl;
+  cout << "Restored real with id = 3 is: " << AP->GetReal("1")  << endl;
+  cout << "Restored bool with id = 1 is: " << AP->GetBool("1")  << endl;
   
-  v2 = AP->GetRealArray(2);
+  v2 = AP->GetRealArray("2");
   cout << "Restored real array with id = 2 is: ";
   for(int i = 0; i<v2.size(); i++) cout << v2[i] << " ";
   cout << endl;
 
-  vi = AP->GetIntArray(2);
+  vi = AP->GetIntArray("2");
   cout << "Restored int array with id = 2 is: ";
   for(int i = 0; i<vi.size(); i++) cout << vi[i] << " ";
   cout << endl;
   
-  vs = AP->GetStrArray(3);
+  vs = AP->GetStrArray("3");
   cout << "Restored string array with id = 2 is: ";
   for(int i = 0; i<vs.size(); i++) cout << vs[i] << " ";
   cout << endl;
 
   cout << "Check RemoveID 1 with type PT_INTEGER" << endl;
-  AP->RemoveID(1, PT_INTEGER);
-  cout << "IsSet with id = 1, type = PT_INTEGER : " << AP->IsSet(1, PT_INTEGER)  << endl;
+  AP->RemoveID("1", PT_INTEGER);
+  cout << "IsSet with id = 1, type = PT_INTEGER : " << AP->IsSet("1", PT_INTEGER)  << endl;
   cout << "Check RemoveID is done" << endl;
   
   cout << "Check AttributeParameter : done"   << endl;

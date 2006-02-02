@@ -1318,12 +1318,10 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
 
 	  if (aDriver != NULL) {
 	    Handle(SALOMEDSImpl_StudyBuilder) SB = NewBuilder();
-	    cout << "Before SB" << endl;
 	    if(!SB->LoadWith(sco, aDriver)) {
 	      _errorCode = SB->GetErrorCode();
 	      return false;
 	    }
-	    cout << "After SB" << endl;
 	  }
 	  else continue;
 	}
@@ -1492,4 +1490,50 @@ void SALOMEDSImpl_Study::Modify()
 {
   _errorCode = "";
   _doc->Modify();
+}
+
+//============================================================================
+/*! Function : 
+ *  Purpose  :
+ */
+//============================================================================
+Handle(SALOMEDSImpl_AttributeParameter) SALOMEDSImpl_Study::GetCommonParameters(const char* theID, int theSavePoint)
+{
+  Handle(SALOMEDSImpl_StudyBuilder) builder = NewBuilder();
+  Handle(SALOMEDSImpl_SObject) so = FindComponent((char*)theID);
+  if(so.IsNull()) so = builder->NewComponent((char*)theID); 
+  Handle(SALOMEDSImpl_SObject) newSO = builder->NewObjectToTag(so, theSavePoint);
+  return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(builder->FindOrCreateAttribute(newSO, "AttributeParameter"));
+}
+
+//============================================================================
+/*! Function : 
+ *  Purpose  :
+ */
+//============================================================================
+Handle(SALOMEDSImpl_AttributeParameter) SALOMEDSImpl_Study::GetModuleParameters(const char* theID, 
+										const char* theModuleName,
+										int theSavePoint)
+{
+  Handle(SALOMEDSImpl_AttributeParameter) main_ap = GetCommonParameters(theID, theSavePoint);
+  Handle(SALOMEDSImpl_SObject) main_so = main_ap->GetSObject();
+  Handle(SALOMEDSImpl_AttributeParameter) par;
+
+  Handle(SALOMEDSImpl_ChildIterator) it = NewChildIterator(main_so);
+  string moduleName(theModuleName);
+  for(; it->More(); it->Next()) {
+    Handle(SALOMEDSImpl_SObject) so(it->Value());
+    Handle(SALOMEDSImpl_GenericAttribute) ga;
+    if(so->FindAttribute(ga, "AttributeParameter")) {
+      par = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(ga);
+      if(!par->IsSet("AP_MODULE_NAME", (Parameter_Types)3)) continue; //3 -> PT_STRING
+      if(par->GetString("AP_MODULE_NAME") == moduleName) return par;
+    }
+  }
+
+  Handle(SALOMEDSImpl_StudyBuilder) builder = NewBuilder();
+  Handle(SALOMEDSImpl_SObject) so = builder->NewObject(main_so);
+  par  = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(builder->FindOrCreateAttribute(so, "AttributeParameter"));
+  par->SetString("AP_MODULE_NAME", moduleName);
+  return par;
 }

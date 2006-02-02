@@ -279,6 +279,11 @@ public:
                                                 // theWay = -1: get back to the list of postponed
 #endif
 
+  virtual SALOMEDS::AttributeParameter_ptr GetCommonParameters(const char* theID, CORBA::Long theSavePoint);
+  virtual SALOMEDS::AttributeParameter_ptr GetModuleParameters(const char* theID, 
+							       const char* theModuleName, 
+							       CORBA::Long theSavePoint);
+
   virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished); 
 
   virtual Handle(SALOMEDSImpl_Study) GetImpl() { return _impl; }

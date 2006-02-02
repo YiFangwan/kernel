@@ -54,13 +54,13 @@ class SALOMEDSImpl_AttributeParameter : public SALOMEDSImpl_GenericAttribute
 
 private:
   
-  std::map<int, int>                     _ints;
-  std::map<int, double>                  _reals;
-  std::map<int, std::string>             _strings;
-  std::map<int, bool>                    _bools;
-  std::map< int, vector<double> >        _realarrays;
-  std::map< int, vector<int> >           _intarrays;
-  std::map< int, vector<std::string> >   _strarrays;
+  std::map<std::string, int>                     _ints;
+  std::map<std::string, double>                  _reals;
+  std::map<std::string, std::string>             _strings;
+  std::map<std::string, bool>                    _bools;
+  std::map< std::string, vector<double> >        _realarrays;
+  std::map< std::string, vector<int> >           _intarrays;
+  std::map< std::string, vector<std::string> >   _strarrays;
 
 public:
   Standard_EXPORT static const Standard_GUID& GetID() ;
@@ -69,36 +69,36 @@ public:
   Standard_EXPORT  static Handle(SALOMEDSImpl_AttributeParameter) Set (const TDF_Label& L);
 
 
-  Standard_EXPORT void SetInt(const int theID, const int& theValue);
-  Standard_EXPORT int GetInt(const int theID);
+  Standard_EXPORT void SetInt(const std::string& theID, const int& theValue);
+  Standard_EXPORT int GetInt(const std::string& theID);
 
-  Standard_EXPORT void SetReal(const int theID, const double& theValue);
-  Standard_EXPORT double GetReal(const int theID);
+  Standard_EXPORT void SetReal(const std::string& theID, const double& theValue);
+  Standard_EXPORT double GetReal(const std::string& theID);
 
-  Standard_EXPORT void SetString(const int theID, const TCollection_AsciiString& theValue);
-  Standard_EXPORT TCollection_AsciiString GetString(const int theID);
+  Standard_EXPORT void SetString(const std::string& theID, const std::string& theValue);
+  Standard_EXPORT std::string GetString(const std::string& theID);
   
-  Standard_EXPORT void SetBool(const int theID, const bool& theValue);
-  Standard_EXPORT bool GetBool(const int theID);
+  Standard_EXPORT void SetBool(const std::string& theID, const bool& theValue);
+  Standard_EXPORT bool GetBool(const std::string& theID);
   
-  Standard_EXPORT void SetRealArray(const int theID, const std::vector<double>& theArray);
-  Standard_EXPORT std::vector<double> GetRealArray(const int theID);
+  Standard_EXPORT void SetRealArray(const std::string& theID, const std::vector<double>& theArray);
+  Standard_EXPORT std::vector<double> GetRealArray(const std::string& theID);
   
-  Standard_EXPORT void SetIntArray(const int theID, const std::vector<int>& theArray);
-  Standard_EXPORT std::vector<int> GetIntArray(const int theID);
+  Standard_EXPORT void SetIntArray(const std::string& theID, const std::vector<int>& theArray);
+  Standard_EXPORT std::vector<int> GetIntArray(const std::string& theID);
 
-  Standard_EXPORT void SetStrArray(const int theID, const std::vector<std::string>& theArray);
-  Standard_EXPORT std::vector<std::string> GetStrArray(const int theID);
+  Standard_EXPORT void SetStrArray(const std::string& theID, const std::vector<std::string>& theArray);
+  Standard_EXPORT std::vector<std::string> GetStrArray(const std::string& theID);
 
-  Standard_EXPORT bool IsSet(const int theID, const Parameter_Types theType);
+  Standard_EXPORT bool IsSet(const std::string& theID, const Parameter_Types theType);
   
-  Standard_EXPORT bool RemoveID(const int theID, const Parameter_Types theType);
+  Standard_EXPORT bool RemoveID(const std::string& theID, const Parameter_Types theType);
 
   Standard_EXPORT Handle(SALOMEDSImpl_AttributeParameter) GetFather();
   Standard_EXPORT bool HasFather();
   Standard_EXPORT bool IsRoot();
 
-  Standard_EXPORT std::vector<int> GetIDs(const Parameter_Types theType);
+  Standard_EXPORT std::vector<std::string> GetIDs(const Parameter_Types theType);
 
   Standard_EXPORT void Clear();
 
