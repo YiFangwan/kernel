@@ -24,7 +24,8 @@ EXPORT_HEADERS= \
 	SALOMEDS_SComponent_i.hxx \
 	SALOMEDS_SComponent.hxx \
 	SALOMEDS_GenericAttribute_i.hxx \
-	SALOMEDS_GenericAttribute.hxx
+	SALOMEDS_GenericAttribute.hxx \
+	SALOMEDS_IParameters.hxx
 
 # Libraries targets
 
@@ -109,7 +110,8 @@ LIB_SRC = 	\
 		  SALOMEDS_AttributeTextHighlightColor.cxx \
 		  SALOMEDS_AttributeTreeNode.cxx \
 		  SALOMEDS_AttributeUserID.cxx \
-		  SALOMEDS_AttributeParameter.cxx
+		  SALOMEDS_AttributeParameter.cxx \
+		  SALOMEDS_IParameters.cxx
 
 
 # Executables targets
