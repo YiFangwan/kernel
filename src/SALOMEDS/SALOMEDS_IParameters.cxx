@@ -19,6 +19,8 @@
 #include "SALOMEDS_IParameters.hxx"
 #include <utilities.h>
 
+#include <TCollection_AsciiString.hxx>
+
 using namespace std;
 
 #define PT_INTEGER   0
@@ -41,46 +43,132 @@ SALOMEDS_IParameters::SALOMEDS_IParameters(const _PTR(AttributeParameter)& ap)
 
 int SALOMEDS_IParameters::append(const string& listName, const string& value)
 {
-  return -1;
+  if(!_ap) return -1;
+  vector<string> v;
+  if(!_ap->IsSet(listName, PT_STRARRAY)) _ap->SetStrArray(listName, v);
+  v = _ap->GetStrArray(listName);
+  v.push_back(value);
+  _ap->SetStrArray(listName, v);
+  return (v.size()-1);
 }
 
 int SALOMEDS_IParameters::nbValues(const string& listName)
 {
-  return -1;
+  if(!_ap) return -1;
+  if(!_ap->IsSet(listName, PT_STRARRAY)) return 0;
+  vector<string> v = _ap->GetStrArray(listName);
+  return v.size();
 }
 
 vector<string> SALOMEDS_IParameters::getValues(const string& listName)
 {
   vector<string> v;
-  return v;
+  if(!_ap) return v;
+  if(!_ap->IsSet(listName, PT_STRARRAY)) return v;
+  return _ap->GetStrArray(listName);
 }
 
 
 string SALOMEDS_IParameters::getValue(const string& listName, int index)
 {
-  return "";
+  if(!_ap) return "";
+  if(!_ap->IsSet(listName, PT_STRARRAY)) return "";
+  vector<string> v = _ap->GetStrArray(listName);
+  if(index >= v.size()) return ""; 
+  return v[index];
 }
 
 
 void SALOMEDS_IParameters::setParameter(const string& entry, const string& parameterName, const string& value)
 {
-  
+  if(!_ap) return;
+  vector<string> v;
+  if(!_ap->IsSet(entry, PT_STRARRAY)) _ap->SetStrArray(entry, v);
+  v = _ap->GetStrArray(entry);
+  v.push_back(parameterName);
+  v.push_back(value);
+  _ap->SetStrArray(entry, v);
 }
 
 
 string SALOMEDS_IParameters::getParameter(const string& entry, const string& parameterName)
 {
+  if(!_ap) return "";
+  if(!_ap->IsSet(entry, PT_STRARRAY)) return "";
+  vector<string> v = _ap->GetStrArray(entry);
+  int length = v.size();
+  for(int i = 0; i<length; i+=1) {
+    if(v[i] == parameterName) return v[i+1];
+  }
   return "";
 }
 
 
-void SALOMEDS_IParameters::getAllParameters(const string& entry,  vector<string>& names, vector<string>& values)
+vector<string> SALOMEDS_IParameters::getAllParameterNames(const string& entry)
 {
+  vector<string> v, names;
+  if(!_ap) return v; 
+  if(!_ap->IsSet(entry, PT_STRARRAY)) return v;
+  v = _ap->GetStrArray(entry);
+  int length = v.size();
+  for(int i = 0; i<length; i+=1) {
+    names.push_back(v[i]);
+  }
+  return names;
+}
+
+vector<string> SALOMEDS_IParameters::getAllParameterValues(const string& entry)
+{
+  vector<string> v, values;
+  if(!_ap) return v; 
+  if(!_ap->IsSet(entry, PT_STRARRAY)) return v;
+  v = _ap->GetStrArray(entry);
+  int length = v.size();
+  for(int i = 1; i<length; i+=1) {
+    values.push_back(v[i]);
+  }
+  return values; 
 }
 
 
 int SALOMEDS_IParameters::getNbParameters(const string& entry)
 {
-  return  -1;
+  if(!_ap) return -1;
+  if(!_ap->IsSet(entry, PT_STRARRAY)) return -1;
+  return  _ap->GetStrArray(entry).size();
 }
 
+void SALOMEDS_IParameters::setProperty(const string& name, const std::string& value)
+{
+  if(!_ap) return;
+  _ap->SetString(name, value);
+}
+
+string SALOMEDS_IParameters::getProperty(const string& name)
+{
+  if(!_ap) return "";
+  if(!_ap->IsSet(name, PT_STRING)) return "";
+  return _ap->GetString(name);
+}
+
+
+vector<string> SALOMEDS_IParameters::parseValue(const string& value, const char separator, bool fromEnd)
+{
+  TCollection_AsciiString val((char*)value.c_str());
+  vector<string> v;
+  int pos;
+  if(fromEnd) pos = val.SearchFromEnd(separator);
+  else pos = val.Search(separator);
+
+  if(pos < 0) {
+    v.push_back(value);
+    return v;
+  }
+
+  TCollection_AsciiString part1, part2;
+  part1 = val.SubString(1, pos-1);
+  part2 = val.SubString(pos+1, val.Length());
+  v.push_back(part1.ToCString());
+  v.push_back(part2.ToCString());
+  return v;
+}

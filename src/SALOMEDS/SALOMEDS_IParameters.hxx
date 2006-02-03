@@ -50,7 +50,7 @@ public:
   std::vector<std::string> getValues(const std::string& listName);
 
   /*!
-    Returns a value with given index
+    Returns a value with given %index, where %index is in range [0:nbValues-1]
    */
   std::string getValue(const std::string& listName, int index);
 
@@ -65,14 +65,35 @@ public:
   std::string getParameter(const std::string& entry, const std::string& parameterName);
 
   /*!
-    Returns all parameter names and their values of the given entry
+    Returns all parameter names of the given entry
    */
-  void getAllParameters(const std::string& entry,  std::vector<std::string>& names, std::vector<std::string>& values);
+  std::vector<std::string> SALOMEDS_IParameters::getAllParameterNames(const std::string& entry);
+
+  /*!
+    Returns all parameter  values of the given entry
+   */
+  std::vector<std::string> SALOMEDS_IParameters::getAllParameterValues(const std::string& entry);
 
   /*!
     Returns a number of parameters of the given entry
    */
   int getNbParameters(const std::string& entry);
+
+  /*!
+    Sets a global named property value
+   */
+  void setProperty(const std::string& name, const std::string& value);
+
+  /*!
+    Gets a value of global named property
+   */
+  std::string getProperty(const std::string& name);
+
+  /*!
+    Breaks a value string in two parts which is divided %separator.
+    If fromEnd is True the search of separator starts from the end of the string
+   */
+  std::vector<std::string> parseValue(const std::string& value, const char separator, bool fromEnd = true);
 
 private:
   _PTR(AttributeParameter) _ap;
