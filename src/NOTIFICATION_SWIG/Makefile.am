@@ -30,29 +30,10 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 #
 # ===============================================================
-# Libraries targets
-# ===============================================================
-#
-
-lib_LTLIBRARIES = libNOTIFICATIONcmodule.la
-libNOTIFICATIONcmodule_la_SOURCES  = NOTIFICATION_Swig.cxx
-libNOTIFICATIONcmodule_la_CPPFLAGS =\
-	@PYTHON_INCLUDES@ -DHAVE_CONFIG_H \
-	-I$(srcdir)/../Basics \
-	-I$(srcdir)/../SALOMELocalTrace \
-	-I$(srcdir)/../Notification \
-	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
-
-libNOTIFICATIONcmodule_la_LIBADD =\
-	@PYTHON_LIBS@ \
-	../Notification/libSalomeNotification.la
-
-
-#
-# ===============================================================
 # Swig targets
 # ===============================================================
 # (cf. http://www.geocities.com/foetsch/python/swig_linux.htm)
+# see also LifeCycleCORBA_SWIG 
 #
 BUILT_SOURCES = swig_wrap.cpp
 
@@ -63,15 +44,16 @@ pkgpython_PYTHON = libNOTIFICATION.py
 pkgpyexec_LTLIBRARIES = _libNOTIFICATION.la
 _libNOTIFICATION_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES)
 _libNOTIFICATION_la_CPPFLAGS =\
-	@PYTHON_INCLUDES@ \
-	-I$(srcdir) -I$(srcdir)/../Notification \
+	@PYTHON_INCLUDES@ -DHAVE_CONFIG_H \
+	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 
 _libNOTIFICATION_la_LDFLAGS  = -module
-_libNOTIFICATION_la_LIBADD   = libNOTIFICATIONcmodule.la
+_libNOTIFICATION_la_LIBADD   = ../Notification/libSalomeNotification.la \
+	@PYTHON_LIBS@
 
 swig_wrap.cpp : $(SWIG_SOURCES)
 	$(SWIG) $(SWIG_FLAGS) -o $@ $<
