@@ -47,7 +47,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # The file libSALOME_LifeCycleCORBA.py will be installed in
 # <prefix>/lib/python<version>/site-package/salome.
-# The library will be installed in the common place.
+# The library will be installed in the same place.
 #
 
 BUILT_SOURCES = swig_wrap.cpp
