@@ -55,6 +55,11 @@ public:
   std::string getValue(const std::string& listName, int index);
 
   /*!
+    Returns a list all entries lists
+   */
+  std::vector<std::string> getLists();
+
+  /*!
     Sets a new named parameter value for the given entry
    */
   void setParameter(const std::string& entry, const std::string& parameterName, const std::string& value);
@@ -80,6 +85,11 @@ public:
   int getNbParameters(const std::string& entry);
 
   /*!
+    Returns a list all entries entry
+   */
+  std::vector<std::string> getEntries();
+
+  /*!
     Sets a global named property value
    */
   void setProperty(const std::string& name, const std::string& value);
@@ -94,6 +104,7 @@ public:
     If fromEnd is True the search of separator starts from the end of the string
    */
   std::vector<std::string> parseValue(const std::string& value, const char separator, bool fromEnd = true);
+
 
 private:
   _PTR(AttributeParameter) _ap;
