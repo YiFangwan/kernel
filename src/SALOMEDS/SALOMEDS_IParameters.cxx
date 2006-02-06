@@ -154,7 +154,7 @@ int SALOMEDS_IParameters::getNbParameters(const string& entry)
 {
   if(!_ap) return -1;
   if(!_ap->IsSet(entry, PT_STRARRAY)) return -1;
-  return  _ap->GetStrArray(entry).size();
+  return  _ap->GetStrArray(entry).size()/2;
 }
 
 vector<string> SALOMEDS_IParameters::getEntries()
