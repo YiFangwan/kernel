@@ -8,7 +8,7 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-IDL_FILES = \
+BASEIDL_FILES = \
   SALOME_Exception.idl \
   SALOME_Comm.idl \
   SALOME_ModuleCatalog.idl \
@@ -25,11 +25,17 @@ IDL_FILES = \
   SALOME_TestModuleCatalog.idl \
   nstest.idl
 
-if MPI_IS_OK
-  IDL_FILES+= SALOME_MPIObject.idl \
+MPIIDL_FILES = \
+  SALOME_MPIObject.idl \
   SALOME_MPIContainer.idl \
   SALOME_TestMPIComponent.idl  
+
+IDL_FILES = $(BASEIDL_FILES)
+if MPI_IS_OK
+  IDL_FILES += $(MPIIDL_FILES)
 endif
+
+EXTRA_DIST= $(BASEIDL_FILES) $(MPIIDL_FILES)
 
 # This variable defines the files to be installed
 salomeidl_DATA = $(IDL_FILES)
