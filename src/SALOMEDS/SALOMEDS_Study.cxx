@@ -34,6 +34,7 @@
 #include "SALOMEDS_ChildIterator.hxx"
 #include "SALOMEDS_SComponentIterator.hxx"
 #include "SALOMEDS_AttributeStudyProperties.hxx"
+#include "SALOMEDS_AttributeParameter.hxx"
 #include "SALOMEDS_UseCaseBuilder.hxx"
 
 #include "SALOMEDSImpl_SComponent.hxx"
@@ -42,6 +43,7 @@
 #include "SALOMEDSImpl_ChildIterator.hxx"
 #include "SALOMEDSImpl_SComponentIterator.hxx"
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
+#include "SALOMEDSImpl_AttributeParameter.hxx"
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 
 #include "SALOMEDS_Driver_i.hxx"
@@ -681,4 +683,33 @@ SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
   }
 
   return SALOMEDS::Study::_nil();
+}
+
+_PTR(AttributeParameter) SALOMEDS_Study::GetCommonParameters(const string& theID, int theSavePoint)
+{
+  SALOMEDSClient_AttributeParameter* AP = NULL;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    AP = new SALOMEDS_AttributeParameter(_local_impl->GetCommonParameters(theID.c_str(), theSavePoint));
+  }
+  else {
+    AP = new SALOMEDS_AttributeParameter(_corba_impl->GetCommonParameters(theID.c_str(), theSavePoint));
+  }
+
+  return _PTR(AttributeParameter)(AP);
+}
+
+_PTR(AttributeParameter) SALOMEDS_Study::GetModuleParameters(const string& theID, 
+							     const string& theModuleName, int theSavePoint)
+{
+  SALOMEDSClient_AttributeParameter* AP = NULL;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    AP = new SALOMEDS_AttributeParameter(_local_impl->GetModuleParameters(theID.c_str(), theModuleName.c_str(), theSavePoint));
+  }
+  else {
+    AP = new SALOMEDS_AttributeParameter(_corba_impl->GetModuleParameters(theID.c_str(), theModuleName.c_str(), theSavePoint));
+  }
+
+  return _PTR(AttributeParameter)(AP);
 }
