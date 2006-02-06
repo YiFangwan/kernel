@@ -105,7 +105,7 @@ public:
   std::vector<std::string> getProperties();
 
   /*!
-    Breaks a value string in two parts which is divided %separator.
+    Breaks a value string in two parts which is divided by %separator.
     If fromEnd is True the search of separator starts from the end of the string
    */
   std::vector<std::string> parseValue(const std::string& value, const char separator, bool fromEnd = true);

@@ -160,6 +160,7 @@ int SALOMEDS_IParameters::getNbParameters(const string& entry)
 vector<string> SALOMEDS_IParameters::getEntries()
 {
   vector<string> v;
+  if(!_ap) return v;
   if(!_ap->IsSet(_AP_ENTRIES_LIST_, PT_STRARRAY)) return v;
   return _ap->GetStrArray(_AP_ENTRIES_LIST_);
 }
@@ -183,6 +184,7 @@ string SALOMEDS_IParameters::getProperty(const string& name)
 vector<string> SALOMEDS_IParameters::getProperties()
 {
   vector<string> v;
+  if(!_ap) return v;
   if(!_ap->IsSet(_AP_PROPERTIES_LIST_, PT_STRARRAY)) return v;
   return _ap->GetStrArray(_AP_PROPERTIES_LIST_);
 }
