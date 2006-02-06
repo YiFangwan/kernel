@@ -400,11 +400,6 @@ AC_OUTPUT_COMMANDS([ \
 # This could be helpfull to update de configuration.
 AC_OUTPUT([ \
 	./salome_adm/unix/SALOMEconfig.h \
-	./salome_adm/unix/depend \
-	./salome_adm/unix/make_omniorb \
-	./salome_adm/unix/make_commence \
-	./salome_adm/unix/make_conclude \
-	./salome_adm/unix/make_module \
 	./salome_adm/Makefile \
 	./salome_adm/unix/Makefile \
 	./salome_adm/unix/config_files/Makefile \

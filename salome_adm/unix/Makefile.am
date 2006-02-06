@@ -6,14 +6,16 @@ SUBDIRS = config_files
 DEPRECATED_FILES=\
 	DEPRECATED/F77config.h.in \
 	DEPRECATED/sstream.in \
-	DEPRECATED/envScript.in
+	DEPRECATED/envScript.in \
+	DEPRECATED/depend.in \
+	DEPRECATED/make_commence.in \
+	DEPRECATED/make_conclude.in \
+	DEPRECATED/make_module.in \
+	DEPRECATED/make_omniorb.in
 
+# The deprecated files are deprecated for the KERNEL but not for the
+# related modules (GUI, MED, ...), for now. Some files have to be installed.
 salomeadmux_DATA=\
 	SALOMEconfig.h.in \
-	depend.in \
-	make_commence.in \
-	make_conclude.in \
-	make_module.in \
-	make_omniorb.in \
 	pythonbe.py \
 	$(DEPRECATED_FILES)

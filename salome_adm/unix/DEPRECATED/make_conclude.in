@@ -11,7 +11,7 @@
 #
 
 # ORB Specifics rules
-@CORBA@
+@CORBA_RULES@
 
 # transform idl reference in appropriate obj file
 LIB_CLIENT_SRC = $(LIB_CLIENT_IDL:%.idl=%$(IDL_CLN_CXX))
