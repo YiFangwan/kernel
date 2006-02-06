@@ -31,6 +31,10 @@ using namespace std;
 #define PT_INTARRAY  5
 #define PT_STRARRAY  6
 
+#define _AP_LISTS_LIST_ "AP_LISTS_LIST"
+#define _AP_ENTRIES_LIST_ "AP_ENTRIES_LIST"
+#define _AP_PROPERTIES_LIST_ "AP_PROPERTIES_LIST"
+
 
 /*!
   Constructor
@@ -46,8 +50,11 @@ int SALOMEDS_IParameters::append(const string& listName, const string& value)
   if(!_ap) return -1;
   vector<string> v;
   if(!_ap->IsSet(listName, PT_STRARRAY)) {
-    if(!_ap->IsSet("AP_LISTS_LIST", PT_STRARRAY)) _ap->SetStrArray("AP_LISTS_LIST", v);
-    append("AP_LISTS_LIST", listName);
+    if(!_ap->IsSet(_AP_LISTS_LIST_, PT_STRARRAY)) _ap->SetStrArray(_AP_LISTS_LIST_, v);
+    if(listName != _AP_ENTRIES_LIST_ && 
+       listName != _AP_PROPERTIES_LIST_) {
+      append(_AP_LISTS_LIST_, listName);
+    }
     _ap->SetStrArray(listName, v);
   }
   v = _ap->GetStrArray(listName);
@@ -85,8 +92,8 @@ string SALOMEDS_IParameters::getValue(const string& listName, int index)
 vector<string> SALOMEDS_IParameters::getLists()
 {
   vector<string> v;
-  if(!_ap->IsSet("AP_LISTS_LIST", PT_STRARRAY)) return v;
-  return _ap->GetStrArray("AP_LISTS_LIST");
+  if(!_ap->IsSet(_AP_LISTS_LIST_, PT_STRARRAY)) return v;
+  return _ap->GetStrArray(_AP_LISTS_LIST_);
 }
 
 void SALOMEDS_IParameters::setParameter(const string& entry, const string& parameterName, const string& value)
@@ -94,7 +101,7 @@ void SALOMEDS_IParameters::setParameter(const string& entry, const string& param
   if(!_ap) return;
   vector<string> v;
   if(!_ap->IsSet(entry, PT_STRARRAY)) {
-    append("AP_ENTRIES_LIST", entry); //Add the entry to the internal list of entries
+    append(_AP_ENTRIES_LIST_, entry); //Add the entry to the internal list of entries
     _ap->SetStrArray(entry, v);
   }
   v = _ap->GetStrArray(entry);
@@ -143,7 +150,6 @@ vector<string> SALOMEDS_IParameters::getAllParameterValues(const string& entry)
   return values; 
 }
 
-
 int SALOMEDS_IParameters::getNbParameters(const string& entry)
 {
   if(!_ap) return -1;
@@ -154,13 +160,16 @@ int SALOMEDS_IParameters::getNbParameters(const string& entry)
 vector<string> SALOMEDS_IParameters::getEntries()
 {
   vector<string> v;
-  if(!_ap->IsSet("AP_ENTRIES_LIST", PT_STRARRAY)) return v;
-  return _ap->GetStrArray("AP_ENTRIES_LIST");
+  if(!_ap->IsSet(_AP_ENTRIES_LIST_, PT_STRARRAY)) return v;
+  return _ap->GetStrArray(_AP_ENTRIES_LIST_);
 }
 
 void SALOMEDS_IParameters::setProperty(const string& name, const std::string& value)
 {
   if(!_ap) return;
+  if(!_ap->IsSet(name, PT_STRING)) {
+    append(_AP_PROPERTIES_LIST_, name); //Add the property to the internal list of properties
+  }
   _ap->SetString(name, value);
 }
 
@@ -169,6 +178,13 @@ string SALOMEDS_IParameters::getProperty(const string& name)
   if(!_ap) return "";
   if(!_ap->IsSet(name, PT_STRING)) return "";
   return _ap->GetString(name);
+}
+
+vector<string> SALOMEDS_IParameters::getProperties()
+{
+  vector<string> v;
+  if(!_ap->IsSet(_AP_PROPERTIES_LIST_, PT_STRARRAY)) return v;
+  return _ap->GetStrArray(_AP_PROPERTIES_LIST_);
 }
 
 

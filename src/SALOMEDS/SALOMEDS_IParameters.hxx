@@ -85,7 +85,7 @@ public:
   int getNbParameters(const std::string& entry);
 
   /*!
-    Returns a list all entries entry
+    Returns a list all entries 
    */
   std::vector<std::string> getEntries();
 
@@ -98,6 +98,11 @@ public:
     Gets a value of global named property
    */
   std::string getProperty(const std::string& name);
+
+  /*!
+    Returns a list all properties 
+   */
+  std::vector<std::string> getProperties();
 
   /*!
     Breaks a value string in two parts which is divided %separator.
