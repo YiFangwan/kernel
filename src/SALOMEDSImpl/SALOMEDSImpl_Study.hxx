@@ -255,9 +255,10 @@ public:
   Standard_EXPORT virtual bool HasCurrentContext() { return !_current.IsNull(); }
 
   Standard_EXPORT virtual bool DumpStudy(const TCollection_AsciiString& thePath, 
-		         const TCollection_AsciiString& theBaseName, 
-		         bool isPublished,
-			 SALOMEDSImpl_DriverFactory* theFactory);
+					 const TCollection_AsciiString& theBaseName, 
+					 bool isPublished,
+					 SALOMEDSImpl_DriverFactory* theFactory,
+					 const TCollection_AsciiString& thePrefix = "");
 
   Standard_EXPORT static TCollection_AsciiString GetDumpStudyComment(const char* theComponentName = 0);
 

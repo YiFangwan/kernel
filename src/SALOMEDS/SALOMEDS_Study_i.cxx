@@ -739,13 +739,16 @@ void SALOMEDS_Study_i::UndoPostponed(CORBA::Long theWay)
  *  Purpose  : 
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished)
+CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath, 
+					   const char* theBaseName, 
+					   CORBA::Boolean isPublished,
+					   const char* thePrefix)
 {
   SALOMEDS::Locker lock; 
 
-  TCollection_AsciiString aPath((char*)thePath), aBaseName((char*)theBaseName);
+  TCollection_AsciiString aPath((char*)thePath), aBaseName((char*)theBaseName), aPrefix((char*)thePrefix);
   SALOMEDS_DriverFactory_i* factory = new SALOMEDS_DriverFactory_i(_orb);
-  CORBA::Boolean ret = _impl->DumpStudy(aPath, aBaseName, isPublished, factory);
+  CORBA::Boolean ret = _impl->DumpStudy(aPath, aBaseName, isPublished, factory, aPrefix);
   delete factory;
   return ret;
 }

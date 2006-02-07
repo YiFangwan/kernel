@@ -15,6 +15,7 @@ PT_STRARRAY = 6
 _AP_LISTS_LIST_ = "AP_LISTS_LIST"
 _AP_ENTRIES_LIST_ = "AP_ENTRIES_LIST"
 _AP_PROPERTIES_LIST_ = "AP_PROPERTIES_LIST"
+_AP_DUMP_PYTHON_ = "AP_DUMP_PYTHON"
 
 vp_session = None
 
@@ -182,5 +183,17 @@ class IParameters:
         v.append(part1)
         v.append(part2)
         return v
+
+    def setDumpPython(self, isDumping):
+        """Enables/Disables the dumping to Python"""
+        if self._ap is None: return
+        _ap.SetBool(_AP_DUMP_PYTHON_, isDumping)
+        pass
+
+    def isDumpPython(self):
+        """Returns whether there is the dumping to Python"""
+        if self._ap is None: return 0
+        if self._ap.IsSet(_AP_DUMP_PYTHON_, PT_BOOLEAN) == 0: return 0
+        return self._ap.GetBool(_AP_DUMP_PYTHON_)
 
     pass

@@ -1246,7 +1246,8 @@ Handle(TDF_Attribute) SALOMEDSImpl_Study::GetAttribute(const TCollection_AsciiSt
 bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
 				   const TCollection_AsciiString& theBaseName,
 				   bool isPublished,
-				   SALOMEDSImpl_DriverFactory* theFactory)
+				   SALOMEDSImpl_DriverFactory* theFactory,
+				   const TCollection_AsciiString& thePrefix)
 {
   _errorCode = "";
 
@@ -1297,6 +1298,12 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
   fp << "import sys" << endl;
   fp << "import " << aBatchModeScript << "\n" << endl;
   fp << "sys.path.insert( 0, \'" << thePath << "\')\n" << endl;
+
+  //Output the prefix if there is any 
+  if(thePrefix.Length() > 0) {
+    fp << thePrefix;
+    fp << "\n" << endl;
+  }
 
   Handle(TColStd_HSequenceOfAsciiString) aSeqOfFileNames = new TColStd_HSequenceOfAsciiString;
 

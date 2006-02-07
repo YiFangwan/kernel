@@ -636,10 +636,10 @@ void SALOMEDS_Study::EnableUseCaseAutoFilling(bool isEnabled)
   else _corba_impl->EnableUseCaseAutoFilling(isEnabled);
 }
 
-bool SALOMEDS_Study::DumpStudy(const std::string& thePath, const std::string& theBaseName, bool isPublished)
+bool SALOMEDS_Study::DumpStudy(const string& thePath, const string& theBaseName, bool isPublished, const string& thePrefix)
 {
   //SRN: Pure CORBA DumpStudy as it does more cleaning than the local one
-  bool ret = _corba_impl->DumpStudy((char*)thePath.c_str(), (char*)theBaseName.c_str(), isPublished);
+  bool ret = _corba_impl->DumpStudy(thePath.c_str(), theBaseName.c_str(), isPublished, thePrefix.c_str());
   return ret;
 }     
 

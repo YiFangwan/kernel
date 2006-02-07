@@ -111,6 +111,17 @@ public:
   std::vector<std::string> parseValue(const std::string& value, const char separator, bool fromEnd = true);
 
 
+  /*!
+    Enables/Disables the dumping visual parameters
+   */
+  void setDumpPython(bool isDumping);
+
+  /*!
+    Returns whether there is the dumping visual parameters
+   */
+  bool isDumpPython();  
+
+
 private:
   _PTR(AttributeParameter) _ap;
 

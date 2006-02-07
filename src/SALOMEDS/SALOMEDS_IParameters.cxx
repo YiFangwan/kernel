@@ -34,7 +34,7 @@ using namespace std;
 #define _AP_LISTS_LIST_ "AP_LISTS_LIST"
 #define _AP_ENTRIES_LIST_ "AP_ENTRIES_LIST"
 #define _AP_PROPERTIES_LIST_ "AP_PROPERTIES_LIST"
-
+#define _AP_DUMP_PYTHON_ "AP_DUMP_PYTHON"
 
 /*!
   Constructor
@@ -209,4 +209,17 @@ vector<string> SALOMEDS_IParameters::parseValue(const string& value, const char 
   v.push_back(part1.ToCString());
   v.push_back(part2.ToCString());
   return v;
+}
+
+void SALOMEDS_IParameters::setDumpPython(bool isDumping)
+{
+  if(!_ap) return;
+  _ap->SetBool(_AP_DUMP_PYTHON_, isDumping);
+}
+
+bool SALOMEDS_IParameters::isDumpPython()
+{
+  if(!_ap) return false;
+  if(!_ap->IsSet(_AP_DUMP_PYTHON_, PT_BOOLEAN)) return false;
+  return (bool)_ap->GetBool(_AP_DUMP_PYTHON_);
 }
