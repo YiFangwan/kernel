@@ -125,7 +125,7 @@ public:
   /*!
     Returns an ID of the last save point
   */
-  int getLastSavePoint(const std::string& theID);
+  static int getLastSavePoint(_PTR(Study) study, const std::string&  theID);
 
 private:
   _PTR(AttributeParameter) _ap;

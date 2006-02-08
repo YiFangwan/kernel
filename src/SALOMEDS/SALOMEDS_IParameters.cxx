@@ -224,11 +224,8 @@ bool SALOMEDS_IParameters::isDumpPython()
   return (bool)_ap->GetBool(_AP_DUMP_PYTHON_);
 }
 
-int SALOMEDS_IParameters::getLastSavePoint(const string& theID)
+int SALOMEDS_IParameters::getLastSavePoint(_PTR(Study) study, const string& theID)
 {
-  if(!_ap) return -1;
-  _PTR(SObject) main_so = _ap->GetSObject();
-  _PTR(Study) study = main_so->GetStudy();
   _PTR(SObject) so = study->FindComponent(theID);
   if(!so) return -1;
 
