@@ -223,3 +223,24 @@ bool SALOMEDS_IParameters::isDumpPython()
   if(!_ap->IsSet(_AP_DUMP_PYTHON_, PT_BOOLEAN)) return false;
   return (bool)_ap->GetBool(_AP_DUMP_PYTHON_);
 }
+
+int SALOMEDS_IParameters::getLastSavePoint(const string& theID)
+{
+  if(!_ap) return -1;
+  _PTR(SObject) main_so = _ap->GetSObject();
+  _PTR(Study) study = main_so->GetStudy();
+  _PTR(SObject) so = study->FindComponent(theID);
+  if(!so) return -1;
+
+  _PTR(StudyBuilder) builder = study->NewBuilder();
+  _PTR(ChildIterator) anIter ( study->NewChildIterator( so ) );
+  int tag = -1;
+  for(; anIter->More(); anIter->Next())
+  {
+    _PTR(SObject) val( anIter->Value() );
+    _PTR(GenericAttribute) genAttr;
+    if(builder->FindAttribute(val, genAttr, "AttributeParameter")) tag = val->Tag();
+  }
+
+  return tag;
+}

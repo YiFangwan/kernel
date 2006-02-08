@@ -22,7 +22,7 @@
 #include <string>
 #include <vector>
 
-#include "SALOMEDSClient_AttributeParameter.hxx"
+#include "SALOMEDSClient.hxx"
 
 /*! 
   Class which an interface to store the parameters of the objects
@@ -121,6 +121,11 @@ public:
    */
   bool isDumpPython();  
 
+
+  /*!
+    Returns an ID of the last save point
+  */
+  int getLastSavePoint(const std::string& theID);
 
 private:
   _PTR(AttributeParameter) _ap;
