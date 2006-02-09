@@ -116,7 +116,7 @@ install-include: $(include_list)
 install-appliskel:
 	$(INSTALL) -d  $(bindir)
 	if test -d $(top_builddir)/bin/salome/appliskel; then		\
-	    cp -rp $(top_builddir)/bin/salome/appliskel $(bindir);	\
+	    cp -rpf $(top_builddir)/bin/salome/appliskel $(bindir);	\
 	fi;
 
 install-bin: $(BIN_SCRIPT)
