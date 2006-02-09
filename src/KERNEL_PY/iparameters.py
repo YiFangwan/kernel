@@ -45,7 +45,7 @@ class IParameters:
             self._ap.SetStrArray(listName, v)
             pass
         
-        v = _ap.GetStrArray(listName)
+        v = self._ap.GetStrArray(listName)
         v.append(value)
         self._ap.SetStrArray(listName, v)
         return (len(v)-1)
@@ -111,7 +111,7 @@ class IParameters:
         i = 0
         while i<length:
             names.append(v[i])
-            i+=1
+            i+=2
             pass
         
         return names
@@ -127,7 +127,7 @@ class IParameters:
         i = 1
         while i<length:
             values.append(v[i]+1)
-            i+=1
+            i+=2
             pass
         
         return values

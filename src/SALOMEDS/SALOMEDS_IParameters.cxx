@@ -131,7 +131,7 @@ vector<string> SALOMEDS_IParameters::getAllParameterNames(const string& entry)
   if(!_ap->IsSet(entry, PT_STRARRAY)) return v;
   v = _ap->GetStrArray(entry);
   int length = v.size();
-  for(int i = 0; i<length; i+=1) {
+  for(int i = 0; i<length; i+=2) {
     names.push_back(v[i]);
   }
   return names;
@@ -144,7 +144,7 @@ vector<string> SALOMEDS_IParameters::getAllParameterValues(const string& entry)
   if(!_ap->IsSet(entry, PT_STRARRAY)) return v;
   v = _ap->GetStrArray(entry);
   int length = v.size();
-  for(int i = 1; i<length; i+=1) {
+  for(int i = 1; i<length; i+=2) {
     values.push_back(v[i]);
   }
   return values; 
