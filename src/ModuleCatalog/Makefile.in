@@ -51,9 +51,9 @@ LIB_SRC = \
 		  SALOME_ModuleCatalog_impl.cxx \
 		  SALOME_ModuleCatalog_Acomponent_impl.cxx
 
-LIB_SERVER_IDL = SALOME_ModuleCatalog.idl SALOME_Exception.idl
+LIB_SERVER_IDL = SALOME_ModuleCatalog.idl SALOME_Exception.idl SALOME_ContainerManager.idl SALOME_Component.idl
 
-CXXFLAGS+=-ftemplate-depth-32
+#CXXFLAGS+=-ftemplate-depth-32
 
 # Executables targets
 # trouble we have client and serveur and build don't known about this with rule
