@@ -125,7 +125,15 @@ public:
   /*!
     Returns an ID of the last save point
   */
-  static int getLastSavePoint(_PTR(Study) study, const std::string&  theID);
+  static int getLastSavePoint(_PTR(Study) study, const std::string& theID);
+
+  /*!
+    Returns a default Python script that set ups visual parameters for the given module
+  */
+  static std::string getDefaultScript(_PTR(Study) study, 
+				      const std::string& theID, 
+				      const std::string& moduleName, 
+				      const std::string& shift);
 
 private:
   _PTR(AttributeParameter) _ap;

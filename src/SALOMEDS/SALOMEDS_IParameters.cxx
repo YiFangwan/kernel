@@ -241,3 +241,60 @@ int SALOMEDS_IParameters::getLastSavePoint(_PTR(Study) study, const string& theI
 
   return tag;
 }
+
+
+string SALOMEDS_IParameters::getDefaultScript(_PTR(Study) study, 
+					      const string& theID, 
+					      const string& moduleName, 
+					      const string& shift)
+{
+
+  string dump("");
+
+  int savePoint = SALOMEDS_IParameters::getLastSavePoint(study, theID);
+  if(savePoint < 0) return dump;
+  SALOMEDS_IParameters ip = SALOMEDS_IParameters(study->GetCommonParameters(theID, savePoint));
+  if(!ip.isDumpPython()) return dump;
+
+  _PTR(AttributeParameter) ap = study->GetModuleParameters(theID, moduleName,savePoint);
+  ip = SALOMEDS_IParameters(ap);
+
+
+  dump += shift +"import iparameters\n";
+  dump += shift + "ipar = iparameters.IParameters(salome.myStudy.GetModuleParameters(\""+theID+"\", \""+moduleName+"\", 1))\n\n";
+  
+  vector<string> v = ip.getProperties();
+  if(v.size() > 0) {
+    dump += shift +"#Set up visual properties:\n";
+    for(int i = 0; i<v.size(); i++) {
+      string prp = ip.getProperty(v[i]);
+      dump += shift +"ipar.setProperty(\""+v[i]+"\", \""+prp+"\")\n";
+    }
+  }
+
+  v = ip.getLists();
+  if(v.size() > 0) {
+    dump +=  shift +"#Set up lists:\n";
+    for(int i = 0; i<v.size(); i++) {
+      vector<string> lst = ip.getValues(v[i]);
+      dump += shift +"# fill list "+v[i]+"\n";
+      for(int j = 0; j < lst.size(); j++)
+	dump += shift +"ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
+    }
+  }
+
+  v = ip.getEntries();
+  if(v.size() > 0) {
+    dump += shift + "#Set up entries:\n";
+    for(int i = 0; i<v.size(); i++) {
+      vector<string> names = ip.getAllParameterNames(v[i]);
+      vector<string> values = ip.getAllParameterValues(v[i]);
+      dump += shift + "# set up entity " + v[i] + " parameters" + "\n";
+      for(int j = 0; j < names.size() && j < values.size(); j++)
+	dump += shift + "ipar.setParameter(\"" + v[i] + "\", \"" + names[j] + "\", \"" + values[j] + "\")\n";
+    }
+  }
+  
+  return dump;  
+}
+
