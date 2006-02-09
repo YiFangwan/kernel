@@ -741,6 +741,16 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
       _errorCode = "HDFexception ! ";
       return false;
     }
+  catch(std::exception& exc)
+    {
+      _errorCode = const_cast<char*>(exc.what());
+      return false;
+    }
+  catch(...)
+    {
+      _errorCode = "Unknown exception ! ";
+      return false;
+    }
   if (theASCII) { // save file in ASCII format
     HDFascii::ConvertFromHDFToASCII(aUrl.ToCString(), true);
   }
