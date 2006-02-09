@@ -212,16 +212,18 @@ WITH_BATCH=no
 test x$openpbs_ok = xyes || test x$lsf_ok = xyes && WITH_BATCH=yes
 AC_SUBST(WITH_BATCH)
 
-echo
-echo ---------------------------------------------
-echo testing LEX \& YACC
-echo ---------------------------------------------
-echo
+if test "X$WITHIHM" = "Xyes"; then
+	echo
+	echo ---------------------------------------------
+	echo testing LEX \& YACC
+	echo ---------------------------------------------
+	echo
 
-lex_yacc_ok=no
-AC_PROG_YACC
-AC_PROG_LEX
-lex_yacc_ok=yes
+	lex_yacc_ok=no
+	AC_PROG_YACC
+	AC_PROG_LEX
+	lex_yacc_ok=yes
+fi
 
 echo
 echo ---------------------------------------------
@@ -366,8 +368,13 @@ echo ---------------------------------------------
 echo
 
 echo Configure
-variables="cc_ok boost_ok lex_yacc_ok mpi_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok doxygen_ok graphviz_ok"
- 
+if test "X$WITHIHM" = "Xyes"; then
+variables="cc_ok lex_yacc_ok mpi_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok vtk_ok hdf5_ok med2_ok omniORB_ok occ_ok sip_ok pyqt_ok qwt_ok"
+fi
+if test "X$WITHIHM" = "Xno"; then
+variables="cc_ok mpi_ok python_ok swig_ok threads_ok OpenGL_ok qt_ok hdf5_ok med2_ok omniORB_ok occ_ok "
+fi
+
 for var in $variables
 do
    eval toto=\$$var
@@ -377,7 +384,7 @@ do
    fi
 done
 echo "---Optional:"
-variables="cppunit_ok openpbs_ok lsf_ok"
+variables="cppunit_ok openpbs_ok lsf_ok doxygen_ok graphviz_ok"
  
 for var in $variables
 do
