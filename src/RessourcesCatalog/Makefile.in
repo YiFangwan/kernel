@@ -50,7 +50,7 @@ LIB_SRC = \
 # in fact client is a test ! So it may go away BIN !
 BIN = SALOME_RessourcesCatalog_Server SALOME_RessourcesCatalog_Client
 BIN_SRC = 
-BIN_SERVER_IDL = SALOME_RessourcesCatalog.idl SALOME_Exception.idl
+BIN_SERVER_IDL = SALOME_RessourcesCatalog.idl SALOME_Exception.idl SALOME_ContainerManager.idl SALOME_Component.idl
 
 CPPFLAGS+= $(QT_MT_INCLUDES) 
 CXXFLAGS+= 

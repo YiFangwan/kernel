@@ -46,12 +46,12 @@ LIB = libRegistry.la
 LIB_SRC = \
 	RegistryConnexion.cxx \
 	RegistryService.cxx
-LIB_CLIENT_IDL = SALOME_Registry.idl SALOME_Exception.idl
+LIB_CLIENT_IDL = SALOME_Registry.idl SALOME_Exception.idl SALOME_ContainerManager.idl SALOME_Component.idl
 
 # Executables targets
 BIN = SALOME_Registry_Server
 BIN_SRC = 
-BIN_SERVER_IDL = SALOME_Registry.idl
+BIN_SERVER_IDL = SALOME_Registry.idl SALOME_ContainerManager.idl SALOME_Component.idl
 
 LDFLAGS+= -lSalomeNS -lOpUtil -lSALOMELocalTrace
 
