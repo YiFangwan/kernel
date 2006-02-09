@@ -135,6 +135,11 @@ public:
 				      const std::string& moduleName, 
 				      const std::string& shift);
 
+  /*!
+    Returns a Python script for the study, which sets up visual parameters
+  */
+  static std::string getStudyScript(_PTR(Study) study, const std::string& theID, int savePoint);
+
 private:
   _PTR(AttributeParameter) _ap;
 

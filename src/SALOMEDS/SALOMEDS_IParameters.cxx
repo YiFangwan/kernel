@@ -261,7 +261,7 @@ string SALOMEDS_IParameters::getDefaultScript(_PTR(Study) study,
 
 
   dump += shift +"import iparameters\n";
-  dump += shift + "ipar = iparameters.IParameters(salome.myStudy.GetModuleParameters(\""+theID+"\", \""+moduleName+"\", 1))\n\n";
+  dump += shift + "ipar = iparameters.IParameters(theStudy.GetModuleParameters(\""+theID+"\", \""+moduleName+"\", 1))\n\n";
   
   vector<string> v = ip.getProperties();
   if(v.size() > 0) {
@@ -298,3 +298,37 @@ string SALOMEDS_IParameters::getDefaultScript(_PTR(Study) study,
   return dump;  
 }
 
+string SALOMEDS_IParameters::getStudyScript(_PTR(Study) study, const std::string& theID, int savePoint)
+{
+  _PTR(AttributeParameter) ap = study->GetCommonParameters(theID, savePoint);
+  SALOMEDS_IParameters ip(ap);
+
+  ip.setDumpPython(true); //Enable DumpPython of visual parameters for modules.
+  string dump("");
+
+  dump += "import iparameters\n";
+  dump += "ipar = iparameters.IParameters(salome.myStudy.GetCommonParameters(\""+theID+"\", 1))\n\n";
+  
+  
+  vector<string> v = ip.getProperties();
+  if(v.size() > 0) {
+    dump += "#Set up visual properties:\n";
+    for(int i = 0; i<v.size(); i++) {
+      string prp = ip.getProperty(v[i]);
+      dump += "ipar.setProperty(\""+v[i]+"\", \""+prp+"\")\n";
+    }
+  }
+
+  v = ip.getLists();
+  if(v.size() > 0) {
+    dump += "#Set up lists:\n";
+    for(int i = 0; i<v.size(); i++) {
+      vector<string> lst = ip.getValues(v[i]);
+      dump += "# fill list "+v[i]+"\n";
+      for(int j = 0; j < lst.size(); j++)
+	dump += "ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
+    }
+  }
+
+  return dump;
+}
