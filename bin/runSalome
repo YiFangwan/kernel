@@ -1,8 +1,9 @@
-#!/bin/bash
+#!/bin/ksh
 
 searchFreePort() {
     echo -n "Searching for a free port for naming service: "
-    export NSPORT=2810
+    NSPORT=2810
+    export NSPORT
     local limit=$NSPORT
     let limit=limit+100
     while [ 1 ]
@@ -11,10 +12,11 @@ searchFreePort() {
         if [ -z "$aRes" ]; then
             echo ${NSPORT} - Ok
 	    local myhost=`hostname`
-            export OMNIORB_CONFIG=${HOME}/.omniORB_${myhost}_${NSPORT}.cfg
+            OMNIORB_CONFIG=${HOME}/.omniORB_${myhost}_${NSPORT}.cfg
+            export OMNIORB_CONFIG
 	    local initref="NameService=corbaname::"`hostname`":$NSPORT"
 	    export NSPORT
-	    if [[ `python -c "import CORBA; print CORBA.ORB_ID"` == "omniORB4" ]]; then
+	    if [[ `python -c "import CORBA; print CORBA.ORB_ID"` = "omniORB4" ]]; then
                 echo "InitRef = $initref" > $OMNIORB_CONFIG
     	    else
 	        echo "ORBInitRef $initref" > $OMNIORB_CONFIG
@@ -34,7 +36,7 @@ searchFreePort() {
 
 searchFreePort
 
-if [[ "$*" == "-nothing" ]]; then
+if [[ "$*" = "-nothing" ]]; then
     echo "port:$NSPORT"
 elif [ $# -ne 0 ] ; then
     python -i ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py $* 
@@ -71,3 +73,5 @@ fi
 # le serveur Logger n'est pas obligatoire (commenté dans runSalome.py)
 # 
 # -----------------------------------------------------------------------------
+# Example on CCRT (without ihm) :
+# ${KERNEL_ROOT_DIR}/bin/salome/runSalome.py --terminal --modules=MED,CALCULATOR,COMPONENT --standalone=registry,study,moduleCatalog,cppContainer,pyContainer,supervContainer --killall
