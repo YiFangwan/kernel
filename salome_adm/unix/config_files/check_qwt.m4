@@ -21,7 +21,7 @@ AC_ARG_WITH(qwt_inc,
       AC_MSG_RESULT("select $withval as path to QWT includes")
     ])
 
-if test -z $QWTHOME; then
+if test -z "$QWTHOME"; then
   AC_MSG_RESULT(QWTHOME not defined)
   exits_ok=no	
   if test "x$exits_ok" = "xno"; then
@@ -45,7 +45,7 @@ if test -z $QWTHOME; then
      done
   fi
   if test "x$exits_ok" = "xyes"; then
-     if test -z $QWT_INCLUDES; then
+     if test -z "$QWT_INCLUDES"; then
         QWT_INCLUDES=$QWTHOME"/include/qwt"
         if test ! -f $QWT_INCLUDES/qwt.h ; then
           QWT_INCLUDES=$QWTHOME"/include"
@@ -56,7 +56,7 @@ if test -z $QWTHOME; then
      fi
   fi
 else
-  if test -z $QWT_INCLUDES; then
+  if test -z "$QWT_INCLUDES"; then
      QWT_INCLUDES="$QWTHOME/include"
   fi   	
 fi

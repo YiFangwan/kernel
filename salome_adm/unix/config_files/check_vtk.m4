@@ -74,7 +74,7 @@ LOCAL_INCLUDES="$OGL_INCLUDES"
 LOCAL_LIBS="-lvtkCommon -lvtkGraphics -lvtkImaging -lvtkFiltering -lvtkIO -lvtkRendering -lvtkHybrid $OGL_LIBS $LXLIB -lX11 -lXt"
 TRY_LINK_LIBS="-lvtkCommon $OGL_LIBS $LXLIB -lX11 -lXt"
 
-if test -z $VTKHOME
+if test -z "$VTKHOME"
 then 
    AC_MSG_WARN(undefined VTKHOME variable which specify where vtk was compiled)
    if test -f /usr/include/vtk/vtkPlane.h ; then
@@ -83,7 +83,7 @@ then
    fi
 fi
 
-if test ! -z $VTKHOME
+if test ! -z "$VTKHOME"
 then
    LOCAL_INCLUDES="-I$VTKHOME/include/vtk $LOCAL_INCLUDES"
    LOCAL_LIBS="-L$VTKHOME/lib/vtk $LOCAL_LIBS"
