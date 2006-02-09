@@ -33,19 +33,20 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 
 @COMMENCE@
 
-EXPORT_PYSCRIPTS = SALOME_TestComponentPy.py TestComponentPy.py
+EXPORT_PYSCRIPTS = SALOME_TestComponentPy.py TestComponentPy.py TestLogger.py
 
 # Libraries targets
 
 LIB = libSalomeTestComponentEngine.la 
 LIB_SRC = SALOME_TestComponent_i.cxx
-LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl SALOME_Exception.idl
+LIB_CLIENT_IDL = SALOME_Component.idl SALOME_TestComponent.idl SALOME_Exception.idl SALOME_ContainerManager.idl
 
 # Executables targets
 BIN = TestContainer TestLogger
 BIN_SRC = 
 
 LDFLAGS+= -lSalomeNotification -lSalomeNS -lSalomeContainer -lRegistry -lOpUtil -lSALOMELocalTrace -lSalomeResourcesManager
+
 LDFLAGSFORBIN+= -lSalomeNotification -lSalomeNS -lSalomeContainer -lRegistry -lOpUtil -lSALOMELocalTrace -lSalomeResourcesManager -lSALOMEBasics
 
 
