@@ -38,9 +38,15 @@ if test $flag = no; then
   AC_CHECK_LIB(posix4,nanosleep, LIBS_PTHREADS="-lposix4",LIBS_PTHREADS="")
   AC_CHECK_LIB(pthread,pthread_mutex_lock, 
                LIBS_PTHREADS="-lpthread $LIBS_PTHREADS",LIBS_PTHREADS="")
+else
+    case $host_os in
+      osf*)
+        LIBS_PTHREADS="-lpthread $LIBS_PTHREADS"
+        ;;
+    esac
 fi
 
-if test $flag = no && x$LIBS_PTHREADS = x; then
+if test $flag = no && test x$LIBS_PTHREADS = x; then
   threads_ok=no
 else
   threads_ok=yes
