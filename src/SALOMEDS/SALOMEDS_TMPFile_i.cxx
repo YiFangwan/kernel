@@ -43,7 +43,7 @@ size_t
 SALOMEDS_TMPFile_i
 ::Size()
 {
-  if(&myStream.in())
+  if(!&myStream.in())
     return 0;
 
   return myStream->length();
@@ -53,8 +53,8 @@ SALOMEDSImpl_TMPFile::TOctet&
 SALOMEDS_TMPFile_i
 ::Get(size_t theIndex)
 {
-  if(&myStream.in())
-    throw std::out_of_range("SALOMEDS_TMPFile_i::Get(size_t) const - &myStream.in()");
+  if(!&myStream.in())
+    throw std::out_of_range("SALOMEDS_TMPFile_i::Get(size_t) const - !&myStream.in()");
 
   if(theIndex < 0 || theIndex >= myStream->length())
     throw std::out_of_range("SALOMEDS_TMPFile_i::Get(size_t) const - theIndex < 0 || theIndex >= myStream->length()");
@@ -76,7 +76,7 @@ size_t
 Engines_TMPFile_i
 ::Size()
 {
-  if(&myStream.in())
+  if(!&myStream.in())
     return 0;
 
   return myStream->length();
@@ -86,8 +86,8 @@ SALOMEDSImpl_TMPFile::TOctet&
 Engines_TMPFile_i
 ::Get(size_t theIndex)
 {
-  if(&myStream.in())
-    throw std::out_of_range("Engines_TMPFile_i::Get(size_t) const - &myStream.in()");
+  if(!&myStream.in())
+    throw std::out_of_range("Engines_TMPFile_i::Get(size_t) const - !&myStream.in()");
 
   if(theIndex < 0 || theIndex >= myStream->length())
     throw std::out_of_range("Engines_TMPFile_i::Get(size_t) const - theIndex < 0 || theIndex >= myStream->length()");
