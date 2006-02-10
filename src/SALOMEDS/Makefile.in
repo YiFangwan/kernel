@@ -107,8 +107,8 @@ LIB_SRC = 	\
 		  SALOMEDS_AttributeTextColor.cxx \
 		  SALOMEDS_AttributeTextHighlightColor.cxx \
 		  SALOMEDS_AttributeTreeNode.cxx \
-		  SALOMEDS_AttributeUserID.cxx
-
+		  SALOMEDS_AttributeUserID.cxx \
+                  SALOMEDS_TMPFile_i.cxx
 
 # Executables targets
 BIN = SALOMEDS_Server SALOMEDS_Client

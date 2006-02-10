@@ -624,7 +624,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 
 	      if (Engine != NULL)
 		{
-		  unsigned char* aStream;
+		  Handle(SALOMEDSImpl_TMPFile) aStream;
 		  long length;
 
                   if (theASCII) aStream = Engine->SaveASCII(sco,
@@ -643,7 +643,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 
 		    HDFdataset *hdf_dataset = new HDFdataset("FILE_STREAM", hdf_sco_group, HDF_STRING, aHDFSize, 1);
 		    hdf_dataset->CreateOnDisk();
-		    hdf_dataset->WriteOnDisk(aStream);  //Save the stream in the HDF file
+		    hdf_dataset->WriteOnDisk(aStream->Data());  //Save the stream in the HDF file
 		    hdf_dataset->CloseOnDisk();
 		  }
 
@@ -663,8 +663,6 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const TCollection_AsciiString& aUrl,
 		  hdf_dataset=0; //will be deleted by hdf_sco_AuxFiles destructor
 		  // Creation of the persistance reference  attribute
 		  Translate_IOR_to_persistentID (sco, Engine, theMultiFile, theASCII);
-
-		  if(aStream != NULL) delete [] aStream;
 		}
 	    }
 	  hdf_sco_group->CloseOnDisk();
@@ -902,12 +900,11 @@ bool SALOMEDSImpl_StudyManager::CopyLabel(const Handle(SALOMEDSImpl_Study)& theS
       Handle(SALOMEDSImpl_SObject) aSO = theSourceStudy->FindObjectID(anEntry.ToCString());
       int anObjID;
       long aLen;
-      unsigned char* aStream = theEngine->CopyFrom(aSO, anObjID, aLen);
+      Handle(SALOMEDSImpl_TMPFile) aStream = theEngine->CopyFrom(aSO, anObjID, aLen);
       TCollection_ExtendedString aResStr("");
       for(a = 0; a < aLen; a++) {
-	aResStr += TCollection_ExtendedString(ToExtCharacter((Standard_Character)aStream[a]));
+	aResStr += TCollection_ExtendedString(ToExtCharacter(Standard_Character(aStream->Get(a))));
       }
-      if(aStream != NULL) delete [] aStream;
       SALOMEDSImpl_AttributeInteger::Set(aAuxTargetLabel, anObjID);
       SALOMEDSImpl_AttributeName::Set(aAuxTargetLabel, aResStr);
       continue;

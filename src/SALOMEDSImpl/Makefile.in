@@ -55,6 +55,7 @@ EXPORT_HEADERS= \
 	SALOMEDSImpl_StudyManager.hxx \
 	SALOMEDSImpl_OCAFApplication.hxx \
 	SALOMEDSImpl_ChildNodeIterator.hxx \
+	SALOMEDSImpl_TMPFile.hxx
 
 LIB_CLIENT_IDL =
 LIB_SERVER_IDL =
@@ -111,7 +112,8 @@ LIB_SRC =	  SALOMEDSImpl_Tool.cxx \
 		  SALOMEDSImpl_SComponentIterator.cxx \
 		  SALOMEDSImpl_StudyBuilder.cxx \
 		  SALOMEDSImpl_Study.cxx \
-		  SALOMEDSImpl_StudyManager.cxx
+		  SALOMEDSImpl_StudyManager.cxx \
+                  SALOMEDSImpl_TMPFile.cxx
 
 
 
