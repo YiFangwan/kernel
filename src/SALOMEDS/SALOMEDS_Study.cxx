@@ -688,14 +688,15 @@ SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
 _PTR(AttributeParameter) SALOMEDS_Study::GetCommonParameters(const string& theID, int theSavePoint)
 {
   SALOMEDSClient_AttributeParameter* AP = NULL;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    AP = new SALOMEDS_AttributeParameter(_local_impl->GetCommonParameters(theID.c_str(), theSavePoint));
+  if(theSavePoint > 0) {
+    if (_isLocal) {
+      SALOMEDS::Locker lock;
+      AP = new SALOMEDS_AttributeParameter(_local_impl->GetCommonParameters(theID.c_str(), theSavePoint));
+    }
+    else {
+      AP = new SALOMEDS_AttributeParameter(_corba_impl->GetCommonParameters(theID.c_str(), theSavePoint));
+    }
   }
-  else {
-    AP = new SALOMEDS_AttributeParameter(_corba_impl->GetCommonParameters(theID.c_str(), theSavePoint));
-  }
-
   return _PTR(AttributeParameter)(AP);
 }
 
@@ -703,13 +704,14 @@ _PTR(AttributeParameter) SALOMEDS_Study::GetModuleParameters(const string& theID
 							     const string& theModuleName, int theSavePoint)
 {
   SALOMEDSClient_AttributeParameter* AP = NULL;
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    AP = new SALOMEDS_AttributeParameter(_local_impl->GetModuleParameters(theID.c_str(), theModuleName.c_str(), theSavePoint));
+  if(theSavePoint > 0) {
+    if (_isLocal) {
+      SALOMEDS::Locker lock;
+      AP = new SALOMEDS_AttributeParameter(_local_impl->GetModuleParameters(theID.c_str(), theModuleName.c_str(), theSavePoint));
+    }
+    else {
+      AP = new SALOMEDS_AttributeParameter(_corba_impl->GetModuleParameters(theID.c_str(), theModuleName.c_str(), theSavePoint));
+    }
   }
-  else {
-    AP = new SALOMEDS_AttributeParameter(_corba_impl->GetModuleParameters(theID.c_str(), theModuleName.c_str(), theSavePoint));
-  }
-
   return _PTR(AttributeParameter)(AP);
 }

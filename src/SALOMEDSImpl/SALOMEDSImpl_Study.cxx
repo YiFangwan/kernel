@@ -1389,6 +1389,10 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
     fp << aScriptName << ".RebuildData(" << aBatchModeScript << ".myStudy)" << endl;
   }
 
+  if(thePrefix.Length() > 0) { //Output the call to Session's method restoreVisualState
+    fp << "iparameters.getSession().restoreVisualState(1)" << endl;
+  }
+
   fp << "salome.sg.updateObjBrowser(1)" << endl;
 
   fp.close();
@@ -1508,6 +1512,7 @@ void SALOMEDSImpl_Study::Modify()
 //============================================================================
 Handle(SALOMEDSImpl_AttributeParameter) SALOMEDSImpl_Study::GetCommonParameters(const char* theID, int theSavePoint)
 {
+  if(theSavePoint <= 0) return NULL;
   Handle(SALOMEDSImpl_StudyBuilder) builder = NewBuilder();
   Handle(SALOMEDSImpl_SObject) so = FindComponent((char*)theID);
   if(so.IsNull()) so = builder->NewComponent((char*)theID); 
@@ -1524,6 +1529,7 @@ Handle(SALOMEDSImpl_AttributeParameter) SALOMEDSImpl_Study::GetModuleParameters(
 										const char* theModuleName,
 										int theSavePoint)
 {
+  if(theSavePoint <= 0) return NULL;
   Handle(SALOMEDSImpl_AttributeParameter) main_ap = GetCommonParameters(theID, theSavePoint);
   Handle(SALOMEDSImpl_SObject) main_so = main_ap->GetSObject();
   Handle(SALOMEDSImpl_AttributeParameter) par;
