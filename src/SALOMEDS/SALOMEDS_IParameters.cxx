@@ -289,7 +289,10 @@ string SALOMEDS_IParameters::getDefaultScript(_PTR(Study) study,
     for(int i = 0; i<v.size(); i++) {
       vector<string> names = ip.getAllParameterNames(v[i]);
       vector<string> values = ip.getAllParameterValues(v[i]);
-      dump += shift + "# set up entity " + v[i] + " parameters" + "\n";
+      _PTR(SObject) so = study->FindObjectID(v[i]);
+      string so_name("");
+      if(so) so_name = so->GetName();
+      dump += shift + "# set up entry " + v[i] +" ("+so_name+")" + " parameters" + "\n";
       for(int j = 0; j < names.size() && j < values.size(); j++)
 	dump += shift + "ipar.setParameter(\"" + v[i] + "\", \"" + names[j] + "\", \"" + values[j] + "\")\n";
     }
