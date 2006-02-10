@@ -121,6 +121,16 @@ public:
    */
   bool isDumpPython();  
 
+  /*!
+    Returns encoded entry that is a relative entry for the component
+   */
+  std::string encodeEntry(const std::string& entry, const std::string& compName);
+
+  /*!
+    Returns decoded entry that is an absolute entry
+   */
+  std::string decodeEntry(const std::string& entry);
+
 
   /*!
     Returns an ID of the last save point

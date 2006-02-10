@@ -224,6 +224,17 @@ bool SALOMEDS_IParameters::isDumpPython()
   return (bool)_ap->GetBool(_AP_DUMP_PYTHON_);
 }
 
+string encodeEntry(const string& entry, const string& compName)
+{
+  return entry;
+}
+
+string decodeEntry(const string& entry)
+{
+  return entry;
+}
+
+
 int SALOMEDS_IParameters::getLastSavePoint(_PTR(Study) study, const string& theID)
 {
   _PTR(SObject) so = study->FindComponent(theID);
