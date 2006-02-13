@@ -41,9 +41,16 @@ using namespace std;
 */
 SALOMEDS_IParameters::SALOMEDS_IParameters(const _PTR(AttributeParameter)& ap)
 {
+  if(!ap) return;
   _ap = ap;
+  _PTR(SObject) so = _ap->GetSObject();
+  _study = so->GetStudy();
 }
 
+SALOMEDS_IParameters::~SALOMEDS_IParameters()
+{
+  _compNames.clear();
+}
 
 int SALOMEDS_IParameters::append(const string& listName, const string& value)
 {
@@ -224,14 +231,34 @@ bool SALOMEDS_IParameters::isDumpPython()
   return (bool)_ap->GetBool(_AP_DUMP_PYTHON_);
 }
 
-string encodeEntry(const string& entry, const string& compName)
+string SALOMEDS_IParameters::encodeEntry(const string& entry, const string& compName)
 {
-  return entry;
+  string tail(entry, 6, entry.length()-1);
+  string newEntry(compName);
+  newEntry+=("_"+tail);
+  return newEntry;
 }
 
-string decodeEntry(const string& entry)
+string SALOMEDS_IParameters::decodeEntry(const string& entry)
 {
-  return entry;
+  if(!_study) return entry;
+  int pos = entry.rfind("_");
+  if(pos < 0 || pos >= entry.length()) return entry;
+
+  string compName(entry, 0, pos), compID, tail(entry, pos+1, entry.length()-1);
+  
+  if(_compNames.find(compName) == _compNames.end()) {
+    _PTR(SObject) so = _study->FindComponent(compName);
+    if(!so) return entry;
+    compID = so->GetID();
+    _compNames[compName] = compID;
+  }
+  else compID = _compNames[compName];
+ 
+  string newEntry(compID);
+  newEntry += (":"+tail);
+  
+  return newEntry;
 }
 
 

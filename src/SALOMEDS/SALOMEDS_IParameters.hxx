@@ -21,6 +21,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "SALOMEDSClient.hxx"
 
@@ -31,6 +32,8 @@ class SALOMEDS_IParameters
 {
 public:
   SALOMEDS_IParameters(const _PTR(AttributeParameter)& ap); 
+
+  virtual ~SALOMEDS_IParameters();
 
   /*!
     Appends a string value to a named list. 
@@ -152,7 +155,8 @@ public:
 
 private:
   _PTR(AttributeParameter) _ap;
-
+  _PTR(Study) _study;
+  std::map<std::string, std::string> _compNames;
 };
 
 
