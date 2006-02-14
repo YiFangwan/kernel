@@ -124,21 +124,6 @@ public:
    */
   virtual std::string decodeEntry(const std::string& entry);
 
-
-  /*!
-    Returns an ID of the last save point
-  */
-  static int getLastSavePoint(_PTR(Study) study, const std::string& theID = "");
-
-  /*!
-    Returns a default Python script that set ups visual parameters for the given module
-    shift is a string that contain spaces to make valid Python script indentaion
-  */
-  static std::string getDefaultScript(_PTR(Study) study, 
-				      const std::string& moduleName, 
-				      const std::string& shift,
-				      const std::string& theID = "");
-
   /*!
     Enables/Disables the dumping visual parameters
    */

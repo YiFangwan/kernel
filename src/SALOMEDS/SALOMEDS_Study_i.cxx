@@ -38,6 +38,7 @@
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
 #include "SALOMEDSImpl_AttributeParameter.hxx"
 #include "SALOMEDSImpl_ChildIterator.hxx"
+#include "SALOMEDSImpl_IParameters.hxx"
 
 #include <TColStd_SequenceOfExtendedString.hxx>
 #include <TColStd_HSequenceOfAsciiString.hxx>
@@ -780,6 +781,19 @@ SALOMEDS::AttributeParameter_ptr SALOMEDS_Study_i::GetModuleParameters(const cha
   Handle(SALOMEDSImpl_AttributeParameter) anAttr = _impl->GetModuleParameters(theID, theModuleName, theSavePoint);
   SALOMEDS_AttributeParameter_i* SP = new SALOMEDS_AttributeParameter_i(anAttr, _orb);
   return SP->AttributeParameter::_this();
+}
+
+//============================================================================
+/*! Function : GetDefaultScript
+ *  Purpose  : 
+ */
+//============================================================================
+char* SALOMEDS_Study_i::GetDefaultScript(const char* theModuleName, const char* theShift)
+{
+  SALOMEDS::Locker lock; 
+
+  string script = SALOMEDSImpl_IParameters::getDefaultScript(_impl, theModuleName, theShift);
+  return CORBA::string_dup(script.c_str());
 }
 
 //===========================================================================

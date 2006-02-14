@@ -386,6 +386,14 @@ during each working session.
 */
     AttributeParameter GetModuleParameters(in string theID, in string theModuleName, in long theSavePoint);
 
+
+/*!
+    Returns a default Python script to restore visual parameters for given %theModuleName.
+    \param theID identifies a common parameters set (Example: "Interface Applicative")
+    \param theModuleName is a name of the module (Example: "Geometry")
+*/
+    string GetDefaultScript(in string theID, in string theModuleName);
+
 /*!
     Private method, returns an implementation of this Study.
    \param theHostname is a hostname of the caller
