@@ -33,24 +33,11 @@ salomeinclude_HEADERS =\
 	RegistryConnexion.hxx \
 	RegistryService.hxx
 
-nodist_include_HEADERS = \
-	$(top_builddir)/idl/SALOME_Registry.hh \
-	$(top_builddir)/idl/SALOME_Exception.hh
-
-nodist_prog_SOURCES = \
-	$(top_builddir)/idl/SALOME_RegistrySK.cc \
-	$(top_builddir)/idl/SALOME_ExceptionSK.cc
-
-IDL_SOURCES = \
-	$(nodist_include_HEADERS) \
-	$(nodist_prog_SOURCES)
-
 # Libraries targets
 lib_LTLIBRARIES = libRegistry.la
 libRegistry_la_SOURCES =\
 	RegistryConnexion.cxx \
-	RegistryService.cxx \
-	$(IDL_SOURCES)
+	RegistryService.cxx 
 
 libRegistry_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libRegistry_la_CPPFLAGS =\
@@ -65,7 +52,8 @@ libRegistry_la_CPPFLAGS =\
 libRegistry_la_LIBADD   =\
 	../NamingService/libSalomeNS.la \
 	../Utils/libOpUtil.la \
-	../SALOMELocalTrace/libSALOMELocalTrace.la
+	../SALOMELocalTrace/libSALOMELocalTrace.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la
 
 
 # Executables targets

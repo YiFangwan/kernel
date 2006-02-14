@@ -43,24 +43,8 @@ dist_salomescript_SCRIPTS = UnitTests.py
 # ===============================================================
 #
 
-nodist_include_HEADERS = \
-	$(top_builddir)/idl/SALOME_Component.hh \
-	$(top_builddir)/idl/SALOME_TestComponent.hh \
-	$(top_builddir)/idl/SALOME_Exception.hh \
-	$(top_builddir)/idl/nstest.hh
-
-nodist_prog_SOURCES = \
-	$(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_TestComponentSK.cc \
-	$(top_builddir)/idl/SALOME_ExceptionSK.cc \
-	$(top_builddir)/idl/nstestSK.cc
-
-IDL_SOURCES = \
-	$(nodist_include_HEADERS) \
-	$(nodist_prog_SOURCES)
-
 bin_PROGRAMS = UnitTests
-UnitTests_SOURCES  = UnitTests.cxx $(IDL_SOURCES)
+UnitTests_SOURCES  = UnitTests.cxx
 UnitTests_CPPFLAGS =\
 	@CPPUNIT_INCLUDES@ \
 	-I$(srcdir)/../Basics -I$(srcdir)/../Basics/Test \
@@ -89,6 +73,7 @@ UnitTests_LDADD    =\
 	../SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la \
 	../Utils/libOpUtil.la ../Utils/Test/libUtilsTest.la \
 	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la ../LifeCycleCORBA/Test/libLifeCycleCORBATest.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@CORBA_LIBS@
 
 

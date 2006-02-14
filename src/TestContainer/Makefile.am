@@ -68,22 +68,8 @@ COMMON_LIBS =\
 	../NamingService/libSalomeNS.la \
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
-	../Basics/libSALOMEBasics.la
-
-# Sources built from idl files and required for building
-nodist_include_HEADERS = \
-	$(top_builddir)/idl/SALOME_TestComponent.hh \
-	$(top_builddir)/idl/SALOME_Component.hh \
-	$(top_builddir)/idl/SALOME_Exception.hh
-
-nodist_prog_SOURCES = \
-	$(top_builddir)/idl/SALOME_TestComponentSK.cc \
-	$(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_ExceptionSK.cc
-
-IDL_SOURCES = \
-	$(nodist_include_HEADERS) \
-	$(nodist_prog_SOURCES)
+	../Basics/libSALOMEBasics.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la
 
 #
 # ===============================================================
@@ -93,8 +79,8 @@ IDL_SOURCES = \
 lib_LTLIBRARIES = libSalomeTestComponentEngine.la
 libSalomeTestComponentEngine_la_SOURCES  = \
 	SALOME_TestComponent_i.cxx \
-	SALOME_TestComponent_i.hxx \
-	$(IDL_SOURCES)
+	SALOME_TestComponent_i.hxx
+
 libSalomeTestComponentEngine_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeTestComponentEngine_la_LIBADD   = $(COMMON_LIBS)
 

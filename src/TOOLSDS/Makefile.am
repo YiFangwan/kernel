@@ -14,23 +14,6 @@ salomeinclude_HEADERS = SALOMEDS_Tool.hxx
 # ===============================================================
 #
 
-# Sources built from idl files
-nodist_include_HEADERS = \
-	$(top_builddir)/idl/SALOMEDS.hh \
-	$(top_builddir)/idl/SALOMEDS_Attributes.hh \
-	$(top_builddir)/idl/SALOME_GenericObj.hh \
-	$(top_builddir)/idl/SALOME_Exception.hh
-
-nodist_prog_SOURCES = \
-	$(top_builddir)/idl/SALOMEDSSK.cc \
-	$(top_builddir)/idl/SALOMEDS_AttributesSK.cc \
-	$(top_builddir)/idl/SALOME_GenericObjSK.cc \
-	$(top_builddir)/idl/SALOME_ExceptionSK.cc
-
-IDL_SOURCES = \
-	$(nodist_include_HEADERS) \
-	$(nodist_prog_SOURCES)
-
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Basics \
@@ -46,6 +29,7 @@ COMMON_CPPFLAGS=\
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
 	../Utils/libOpUtil.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@CAS_KERNEL@
 
 #
@@ -55,8 +39,7 @@ COMMON_LIBS =\
 #
 lib_LTLIBRARIES = libTOOLSDS.la
 libTOOLSDS_la_SOURCES = 	\
-	SALOMEDS_Tool.cxx \
-	$(IDL_SOURCES)
+	SALOMEDS_Tool.cxx
 
 libTOOLSDS_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libTOOLSDS_la_LDFLAGS  = -no-undefined -version-info=0:0:0

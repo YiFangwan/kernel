@@ -46,17 +46,6 @@ salomeinclude_HEADERS = \
 # ===============================================================
 #
 
-# Sources built from idl files
-nodist_include_HEADERS = \
-	$(top_builddir)/idl/SALOME_ContainerManager.hh
-
-nodist_prog_SOURCES = \
-	$(top_builddir)/idl/SALOME_ContainerManagerSK.cc
-
-IDL_SOURCES = \
-	$(nodist_include_HEADERS) \
-	$(nodist_prog_SOURCES)
-
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Basics \
@@ -70,7 +59,8 @@ COMMON_CPPFLAGS=\
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
 	../NamingService/libSalomeNS.la \
-	../Utils/libOpUtil.la
+	../Utils/libOpUtil.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la
 
 #
 # ===============================================================
@@ -82,8 +72,7 @@ libSalomeResourcesManager_la_SOURCES =\
 	SALOME_ResourcesCatalog_Parser.cxx \
 	SALOME_ResourcesCatalog_Handler.cxx  \
 	SALOME_LoadRateManager.cxx \
-	SALOME_ResourcesManager.cxx \
-	$(IDL_SOURCES)
+	SALOME_ResourcesManager.cxx
 
 libSalomeResourcesManager_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS) \

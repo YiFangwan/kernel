@@ -39,23 +39,12 @@ dist_salomescript_DATA =\
 	SALOME_NamingServicePy.py
 
 
-# The IDL_SOURCES defines the list of files generated from the idl
-# interface (SALOME_Exception.idl in this case).
-#IDL_SOURCES = $(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
-
-
 # Libraries targets
 lib_LTLIBRARIES        = libSalomeNS.la
 libSalomeNS_la_SOURCES =\
 	SALOME_NamingService.cxx \
 	ServiceUnreachable.cxx \
 	NamingService_WaitForServerReadiness.cxx
-#	$(IDL_SOURCES)
-# _CS_gbo We don't need to add the IDL_SOURCES files because the
-# symbols needed from this sources are given by the linked libraries
-# (libOptUtil.la). Meanwhile, the symbols could be duplicated here and
-# no error would occur. An other reason to add it is that the
-# dependencies could lose the symbols needed
 
 libSalomeNS_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 

@@ -45,16 +45,43 @@ salomeidl_DATA = $(IDL_FILES)
 # BUILT_SOURCE = first thing done on make all
 # idl dependencies are checked and rebuilt first
 
-BUILT_SOURCES =\
-	.depidl $(IDL_FILES:%.idl=%SK.cc) $(IDL_FILES:%.idl=%.hh)
+BASEIDL_SOURCES =\
+  SALOME_ExceptionSK.cc \
+  SALOME_CommSK.cc \
+  SALOME_ModuleCatalogSK.cc \
+  SALOME_DataTypeCatalogSK.cc \
+  SALOME_RessourcesCatalogSK.cc \
+  SALOMEDSSK.cc \
+  SALOMEDS_AttributesSK.cc \
+  SALOME_ComponentSK.cc \
+  SALOME_ContainerManagerSK.cc \
+  SALOME_TestComponentSK.cc \
+  SALOME_RegistrySK.cc \
+  LoggerSK.cc \
+  SALOME_GenericObjSK.cc \
+  SALOME_TestModuleCatalogSK.cc \
+  nstestSK.cc
 
-nodist_include_HEADERS = $(IDL_FILES:%.idl=%.hh)
-nodist_prog_SOURCES = $(IDL_FILES:%.idl=%SK.cc)
+MPIIDL_SOURCES = \
+  SALOME_MPIObjectSK.cc \
+  SALOME_MPIContainerSK.cc \
+  SALOME_TestMPIComponentSK.cc  
 
-dist_hook:
-	echo "menage final -----------------------------------------"
-	rm -f $(distdir)/*.hh $(distdir)/*SK.cc $(distdir)/.depidl
-	echo "menage final -----------------------------------------"
+IDL_SOURCES = $(BASEIDL_SOURCES)
+if MPI_IS_OK
+  IDL_SOURCES += $(MPIIDL_SOURCES)
+endif
+
+BUILT_SOURCES = $(IDL_SOURCES)
+
+lib_LTLIBRARIES = libSalomeIDLKernel.la
+nodist_libSalomeIDLKernel_la_SOURCES = $(BUILT_SOURCES)
+libSalomeIDLKernel_la_CPPFLAGS =\
+	-I$(top_builddir)/salome_adm/unix \
+	-I$(top_builddir)/idl \
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+libSalomeIDLKernel_la_LDFLAGS = -no-undefined -version-info=0:0:0
+libSalomeIDLKernel_la_LIBADD  = @CORBA_LIBS@
 
 # These variables defines the building process of CORBA files
 OMNIORB_IDL         = @OMNIORB_IDL@
@@ -70,8 +97,6 @@ SUFFIXES = .idl .hh SK.cc
 .idl.hh:
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
 
-#%SK.cc %.hh : %.idl
-#	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
 
 # This target overload the standard definition of install. The target
 # install-pyidl is added to process python corba stubs for SALOME.

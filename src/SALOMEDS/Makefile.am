@@ -33,25 +33,6 @@ dist_salomescript_DATA = SALOME_DriverPy.py
 # ===============================================================
 #
 
-# Sources built from idl files
-nodist_include_HEADERS = \
-	$(top_builddir)/idl/SALOMEDS.hh \
-	$(top_builddir)/idl/SALOMEDS_Attributes.hh \
-	$(top_builddir)/idl/SALOME_GenericObj.hh \
-	$(top_builddir)/idl/SALOME_Component.hh \
-	$(top_builddir)/idl/SALOME_Exception.hh
-
-nodist_prog_SOURCES = \
-	$(top_builddir)/idl/SALOMEDSSK.cc \
-	$(top_builddir)/idl/SALOMEDS_AttributesSK.cc \
-	$(top_builddir)/idl/SALOME_GenericObjSK.cc \
-	$(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_ExceptionSK.cc
-
-IDL_SOURCES = \
-	$(nodist_include_HEADERS) \
-	$(nodist_prog_SOURCES)
-
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
 	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
@@ -84,6 +65,7 @@ COMMON_LIBS =\
 	../SALOMEDSImpl/libSalomeDSImpl.la \
 	../GenericObj/libSalomeGenericObj.la \
 	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@CAS_KERNEL@ \
 	@HDF5_LIBS@ \
 	$(LDXMUFLAGS)
@@ -314,8 +296,7 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_UseCaseBuilder.hxx \
 	SALOMEDS_UseCaseBuilder_i.hxx \
 	SALOMEDS_UseCaseIterator.hxx \
-	SALOMEDS_UseCaseIterator_i.hxx \
-	$(IDL_SOURCES)
+	SALOMEDS_UseCaseIterator_i.hxx 
 
 libSalomeDS_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeDS_la_LDFLAGS  = -no-undefined -version-info=0:0:0

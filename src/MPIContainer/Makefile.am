@@ -52,21 +52,6 @@ salomeinclude_HEADERS = \
 # Local definitions
 # ===============================================================
 #
-# Sources built from idl files
-nodist_include_HEADERS = \
-	$(top_builddir)/idl/SALOME_Component.hh \
-	$(top_builddir)/idl/SALOME_MPIObject.hh \
-	$(top_builddir)/idl/SALOME_MPIContainer.hh
-
-nodist_prog_SOURCES = \
-	$(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_MPIObjectSK.cc \
-	$(top_builddir)/idl/SALOME_MPIContainerSK.cc
-
-IDL_SOURCES = \
-	$(nodist_include_HEADERS) \
-	$(nodist_prog_SOURCES)
-
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 # _CS_gbo See wether it can be shared by all packages in a common include!!
@@ -95,6 +80,7 @@ COMMON_LIBS =\
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
 	../Container/libSalomeContainer.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@CORBA_LIBS@
 
 #
@@ -103,7 +89,7 @@ COMMON_LIBS =\
 # ===============================================================
 #
 lib_LTLIBRARIES = libSalomeMPIContainer.la
-libSalomeMPIContainer_la_SOURCES = MPIObject_i.cxx  MPIContainer_i.cxx $(IDL_SOURCES)
+libSalomeMPIContainer_la_SOURCES = MPIObject_i.cxx  MPIContainer_i.cxx
 libSalomeMPIContainer_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeMPIContainer_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSalomeMPIContainer_la_LIBADD   = $(COMMON_LIBS)

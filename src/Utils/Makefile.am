@@ -49,18 +49,6 @@ dist_salomescript_DATA =\
 	Utils_Identity.py \
 	SALOME_utilities.py
 
-# The IDL_SOURCES defines the list of files generated from the idl
-# interface (SALOME_Exception.idl in this case).
-nodist_include_HEADERS = \
-	$(top_builddir)/idl/SALOME_Exception.hh
-
-nodist_prog_SOURCES = \
-	$(top_builddir)/idl/SALOME_ExceptionSK.cc
-
-IDL_SOURCES = \
-	$(nodist_include_HEADERS) \
-	$(nodist_prog_SOURCES)
-
 # Libraries targets
 lib_LTLIBRARIES = libOpUtil.la
 libOpUtil_la_SOURCES =\
@@ -71,8 +59,7 @@ libOpUtil_la_SOURCES =\
 	Utils_DESTRUCTEUR_GENERIQUE.cxx \
 	Utils_ExceptHandlers.cxx \
 	Utils_SignalsHandler.cxx \
-	Utils_Mutex.cxx \
-	$(IDL_SOURCES)
+	Utils_Mutex.cxx
 
 libOpUtil_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 
@@ -83,7 +70,10 @@ libOpUtil_la_CPPFLAGS = \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
-libOpUtil_la_LIBADD   = ../SALOMELocalTrace/libSALOMELocalTrace.la @CORBA_LIBS@
+libOpUtil_la_LIBADD   = \
+	../SALOMELocalTrace/libSALOMELocalTrace.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la\
+	@CORBA_LIBS@
 
 
 

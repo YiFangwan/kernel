@@ -49,13 +49,6 @@ dist_salomescript_SCRIPTS = TestLifeCycleCORBA.py
 # This directory defines the subdirectory src in the top source directory.
 RPATH=../..
 
-BUILT_SOURCES =\
-	$(top_builddir)/idl/SALOME_Component.hh $(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_TestComponent.hh $(top_builddir)/idl/SALOME_TestComponentSK.cc \
-	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc \
-	$(top_builddir)/idl/nstest.hh $(top_builddir)/idl/nstestSK.cc
-
-
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
 	@CPPUNIT_INCLUDES@ \
@@ -81,7 +74,8 @@ COMMON_LIBS =\
 	$(RPATH)/Notification/libSalomeNotification.la \
 	$(RPATH)/Utils/Test/libUtilsTest.la $(RPATH)/Utils/libOpUtil.la \
 	$(RPATH)/SALOMELocalTrace/Test/libSALOMELocalTraceTest.la $(RPATH)/SALOMELocalTrace/libSALOMELocalTrace.la \
-	$(RPATH)/SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la
+	$(RPATH)/SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la
 
 #
 # ===============================================================
@@ -89,7 +83,7 @@ COMMON_LIBS =\
 # ===============================================================
 #
 lib_LTLIBRARIES = libLifeCycleCORBATest.la 
-libLifeCycleCORBATest_la_SOURCES = LifeCycleCORBATest.cxx $(BUILT_SOURCES)
+libLifeCycleCORBATest_la_SOURCES = LifeCycleCORBATest.cxx
 libLifeCycleCORBATest_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libLifeCycleCORBATest_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libLifeCycleCORBATest_la_LIBADD    = $(COMMON_LIBS)

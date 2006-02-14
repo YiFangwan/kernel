@@ -50,21 +50,6 @@ salomeinclude_HEADERS = TestMPIComponentEngine.hxx
 # Local definitions
 # ===============================================================
 #
-# Sources built from idl files
-nodist_include_HEADERS = \
-	$(top_builddir)/idl/SALOME_Component.hh \
-	$(top_builddir)/idl/SALOME_MPIObject.hh \
-	$(top_builddir)/idl/SALOME_TestMPIComponent.hh
-
-nodist_prog_SOURCES = \
-	$(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_MPIObjectSK.cc \
-	$(top_builddir)/idl/SALOME_TestMPIComponentSK.cc
-
-IDL_SOURCES = \
-	$(nodist_include_HEADERS) \
-	$(nodist_prog_SOURCES)
-
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 # _CS_gbo See wether it can be shared by all packages in a common include!!
@@ -94,6 +79,7 @@ COMMON_LIBS =\
 	../Basics/libSALOMEBasics.la \
 	../Container/libSalomeContainer.la \
 	../MPIContainer/libSalomeMPIContainer.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@CORBA_LIBS@
 
 #
@@ -102,7 +88,7 @@ COMMON_LIBS =\
 # ===============================================================
 #
 lib_LTLIBRARIES = libSalomeTestMPIComponentEngine.la
-libSalomeTestMPIComponentEngine_la_SOURCES = TestMPIComponentEngine.cxx $(IDL_SOURCES)
+libSalomeTestMPIComponentEngine_la_SOURCES = TestMPIComponentEngine.cxx
 libSalomeTestMPIComponentEngine_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeTestMPIComponentEngine_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSalomeTestMPIComponentEngine_la_LIBADD   = $(COMMON_LIBS)

@@ -37,6 +37,11 @@ dist_salomescript_SCRIPTS=\
 	addToKillList.py \
 	NSparam.py
 
+EXTRA_DIST = appliskel
+
+dist-hook:
+	rm -rf `find $(distdir)/appliskel -name CVS`
+
 
 install: install-am install-appliskel
 

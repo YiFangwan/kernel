@@ -56,19 +56,6 @@ dist_salomescript_SCRIPTS=\
 # ===============================================================
 #
 
-# Sources built from idl files
-nodist_include_HEADERS = \
-	$(top_builddir)/idl/SALOME_Component.hh \
-	$(top_builddir)/idl/SALOME_ContainerManager.hh
-
-nodist_prog_SOURCES = \
-	$(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_ContainerManagerSK.cc
-
-IDL_SOURCES = \
-	$(nodist_include_HEADERS) \
-	$(nodist_prog_SOURCES)
-
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
@@ -95,6 +82,7 @@ COMMON_LIBS =\
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
+	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@PYTHON_LIBS@ \
 	@MPI_LIBS@ \
 	@CORBA_LIBS@
@@ -109,8 +97,7 @@ libSalomeContainer_la_SOURCES=\
 	Component_i.cxx \
 	Container_i.cxx \
 	SALOME_ContainerManager.cxx \
-	Container_init_python.cxx \
-	$(IDL_SOURCES)
+	Container_init_python.cxx 
 
 libSalomeContainer_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
