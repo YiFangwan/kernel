@@ -53,7 +53,26 @@ AC_SUBST(ROOT_BUILDDIR)
 echo
 echo Source root directory : $ROOT_SRCDIR
 echo Build  root directory : $ROOT_BUILDDIR
+
+# ----------------------------------------------------------------------------
+# --- test options
+
+AC_ARG_ENABLE(corba_gen,
+  [AC_HELP_STRING([--enable-corba-gen],[Generate CORBA stuff [default=yes]])],
+  [case "${enableval}" in
+     yes) corba_gen=true ;;
+     no)  corba_gen=false ;;
+     *) AC_MSG_ERROR(bad value ${enableval} for --enable-corba-gen) ;;
+  esac],[corba_gen=true])
+AM_CONDITIONAL(CORBA_GEN, test x$corba_gen = xtrue)
+
+# ----------------------------------------------------------------------------
+
 echo
+echo
+echo ============================================================
+echo testing general mandatory products - for all configurations
+echo ============================================================
 echo
 
 dnl Modification B. Secher portage sur osf
@@ -82,9 +101,11 @@ echo
 AC_ENABLE_DEBUG(yes)
 AC_DISABLE_PRODUCTION
 
+echo
 echo ---------------------------------------------
 echo testing libtool
 echo ---------------------------------------------
+echo
 
 dnl first, we set static to no!
 dnl if we want it, use --enable-static
@@ -133,6 +154,96 @@ echo
 
 ENABLE_PTHREADS
 
+echo
+echo ---------------------------------------------
+echo testing python
+echo ---------------------------------------------
+echo
+
+CHECK_PYTHON
+
+echo
+echo ---------------------------------------------
+echo testing swig
+echo ---------------------------------------------
+echo
+
+dnl _CS_gbo We should use here a variable given from the CHECK_PYTHON
+AM_PATH_PYTHON(2.3)
+CHECK_SWIG
+
+echo
+echo ---------------------------------------------
+echo testing HDF5
+echo ---------------------------------------------
+echo
+
+CHECK_HDF5
+
+echo
+echo ---------------------------------------------
+echo Testing OpenCascade
+echo ---------------------------------------------
+echo
+
+CHECK_CAS
+
+# ----------------------------------------------------------------------------
+# --- test corba
+
+if test x$corba_gen = xtrue; then
+
+echo
+echo ============================================================
+echo testing mandatory products for CORBA configurations
+echo ============================================================
+echo
+
+dnl
+dnl ---------------------------------------------
+dnl testing sockets
+dnl ---------------------------------------------
+dnl
+
+CHECK_SOCKETS
+
+echo
+echo ---------------------------------------------
+echo Configuration of the ORB
+echo ---------------------------------------------
+echo
+
+echo Testing OMNIORB ...
+CHECK_OMNIORB
+
+echo Selecting the default ORB
+DEFAULT_ORB=omniORB
+echo DEFAULT_ORB : $DEFAULT_ORB
+CHECK_CORBA
+
+CORBA=salome_adm/unix/make_$ORB
+AC_SUBST_FILE(CORBA)
+
+# _CS_gbo:
+# The CORBA variable defines the file name that
+# implements the building rules to be included by Makefile to process
+# idl files and CORBA specific dependencies (ex: the file
+# salome_adm/unix/make_omniorb is the default for SALOME). The value
+# of ORB is defined by CHECK_CORBA.
+
+# Note that this checking process is no longer relevant for SALOME
+# because the possibility of changing the ORB as a plugin is probably
+# deprecated. The software configuration is clearly omniorb for CORBA
+# communication. This could be simplify in a near futur.
+
+echo
+echo ---------------------------------------------
+echo Testing QT
+echo ---------------------------------------------
+echo
+# Qt must be kept because kernel makes use of qxml and some other
+# non-graphical stuff.
+CHECK_QT
 
 echo
 echo ---------------------------------------------
@@ -142,21 +253,23 @@ echo
 
 CHECK_BOOST
 
-dnl
-dnl ---------------------------------------------
-dnl testing MPI
-dnl ---------------------------------------------
-dnl
+fi 
+# --- end test corba
+# ----------------------------------------------------------------------------
+
+echo
+echo ============================================================
+echo testing optionnal products
+echo ============================================================
+echo
+
+echo
+echo ---------------------------------------------
+echo checking if MPI is requested by user
+echo ---------------------------------------------
+echo
 
 CHECK_MPI
-
-dnl
-dnl ---------------------------------------------
-dnl testing sockets
-dnl ---------------------------------------------
-dnl
-
-CHECK_SOCKETS
 
 echo
 echo ---------------------------------------------
@@ -195,54 +308,6 @@ AC_SUBST(WITH_BATCH)
 AM_CONDITIONAL(WITH_BATCH, [test x"$WITH_BATCH" = xyes])
 
 echo
-echo ---------------------------------------------
-echo testing python
-echo ---------------------------------------------
-echo
-
-CHECK_PYTHON
-
-echo
-echo ---------------------------------------------
-echo testing swig
-echo ---------------------------------------------
-echo
-
-dnl _CS_gbo We should use here a variable given from the CHECK_PYTHON
-AM_PATH_PYTHON(2.3)
-CHECK_SWIG
-
-
-echo
-echo ---------------------------------------------
-echo Configuration of the ORB
-echo ---------------------------------------------
-echo
-
-echo Testing OMNIORB ...
-CHECK_OMNIORB
-
-echo Selecting the default ORB
-DEFAULT_ORB=omniORB
-echo DEFAULT_ORB : $DEFAULT_ORB
-CHECK_CORBA
-
-CORBA=salome_adm/unix/make_$ORB
-AC_SUBST_FILE(CORBA)
-
-# _CS_gbo:
-# The CORBA variable defines the file name that
-# implements the building rules to be included by Makefile to process
-# idl files and CORBA specific dependencies (ex: the file
-# salome_adm/unix/make_omniorb is the default for SALOME). The value
-# of ORB is defined by CHECK_CORBA.
-
-# Note that this checking process is no longer relevant for SALOME
-# because the possibility of changing the ORB as a plugin is probably
-# deprecated. The software configuration is clearly omniorb for CORBA
-# communication. This could be simplify in a near futur.
-
-echo
 echo ----------------------------------------------
 echo testing CPPUNIT only required for unit testing
 echo ----------------------------------------------
@@ -250,31 +315,10 @@ echo
 CHECK_CPPUNIT
 
 echo
-echo ---------------------------------------------
-echo testing HDF5
-echo ---------------------------------------------
+echo ============================================================
+echo testing products required only for documentation generation
+echo ============================================================
 echo
-
-CHECK_HDF5
-
-echo
-echo ---------------------------------------------
-echo Testing OpenCascade
-echo ---------------------------------------------
-echo
-
-CHECK_CAS
-
-
-echo
-echo ---------------------------------------------
-echo Testing QT
-echo ---------------------------------------------
-echo
-# Qt must be kept because kernel makes use of qxml and some other
-# non-graphical stuff.
-CHECK_QT
-
 
 echo
 echo ---------------------------------------------
@@ -285,9 +329,9 @@ echo
 CHECK_HTML_GENERATORS
 
 echo
-echo ---------------------------------------------
+echo ============================================================
 echo Summary
-echo ---------------------------------------------
+echo ============================================================
 echo
 
 # This function displays the values of each variable given in arguments 
@@ -303,6 +347,8 @@ function summary {
   done
 }
 
+# --------------------------------------
+
 function check_fatal_error {
   variables=$*
   for var in $variables
@@ -316,25 +362,43 @@ function check_fatal_error {
   done  
 }
 
-echo Configure
+# --------------------------------------
+
+basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok occ_ok"
+echo --- General mandatory products - Light configuration:
+summary $basic_mandatory_products
+check_fatal_error $basic_mandatory_products
 echo
 
-mandatory_products="cc_ok boost_ok python_ok swig_ok threads_ok hdf5_ok omniORB_ok occ_ok qt_ok"
-echo --- Mandatory products:
-summary $mandatory_products
-check_fatal_error $mandatory_products
+corba_mandatory_products="omniORB_ok qt_ok boost_ok"
+if test x$corba_gen = xtrue; then
+  echo --- CORBA mandatory products - default configuration:
+  summary $corba_mandatory_products
+  check_fatal_error $corba_mandatory_products
+else
+  echo --- CORBA products not required - option --disable-corba-gen
+fi
+echo
+
+if test x$MPIREQUESTED = xyes; then
+  requested_products="mpi_ok"
+  echo --- products requested by user
+  summary $requested_products
+  check_fatal_error $requested_products
+  echo
+fi
+
+optional_products="cppunit_ok openpbs_ok lsf_ok"
+echo --- Optional products:
+echo ["    These products are optional because the KERNEL functions"]
+echo ["    using them are built only if the products are detected."]
+summary $optional_products
 echo
 
 htmldoc_products="doxygen_ok graphviz_ok rst2html_ok"
-echo --- Html documentation products:
-summary $htmldoc_products
-echo
 
-optional_products="mpi_ok cppunit_ok openpbs_ok lsf_ok"
-echo --- Optional products:
-echo These products are optional because the KERNEL functions using them are built
-echo only if the products are detected.
-summary $optional_products
+echo --- Html documentation products: only required for doc production
+summary $htmldoc_products
 echo
 
 echo
@@ -379,9 +443,6 @@ do
   esac
 done
 cd $ROOT_BUILDDIR
-
-# _CS_gbo Check wether it's used or not!!
-AC_SUBST_FILE(ENVSCRIPT) ENVSCRIPT=salome_adm/unix/envScript
 
 echo
 echo ---------------------------------------------
