@@ -218,19 +218,6 @@ vector<string> SALOMEDS_IParameters::parseValue(const string& value, const char 
   return v;
 }
 
-void SALOMEDS_IParameters::setDumpPython(bool isDumping)
-{
-  if(!_ap) return;
-  _ap->SetBool(_AP_DUMP_PYTHON_, isDumping);
-}
-
-bool SALOMEDS_IParameters::isDumpPython()
-{
-  if(!_ap) return false;
-  if(!_ap->IsSet(_AP_DUMP_PYTHON_, PT_BOOLEAN)) return false;
-  return (bool)_ap->GetBool(_AP_DUMP_PYTHON_);
-}
-
 string SALOMEDS_IParameters::encodeEntry(const string& entry, const string& compName)
 {
   string tail(entry, 6, entry.length()-1);
@@ -261,10 +248,35 @@ string SALOMEDS_IParameters::decodeEntry(const string& entry)
   return newEntry;
 }
 
+void SALOMEDS_IParameters::setDumpPython(_PTR(Study) study, const string& theID)
+{
+  string anID;
+  if(theID == "") anID = getDefaultVisualComponent();
+  else anID = theID;
+
+  _PTR(AttributeParameter) ap = study->GetCommonParameters(anID, 0);
+  ap->SetBool(_AP_DUMP_PYTHON_, true);
+}
+
+bool SALOMEDS_IParameters::isDumpPython(_PTR(Study) study, const string& theID)
+{
+  string anID;
+  if(theID == "") anID = getDefaultVisualComponent();
+  else anID = theID;
+
+  _PTR(AttributeParameter) ap = study->GetCommonParameters(anID, 0);
+  if(!ap) return false;
+  if(!ap->IsSet(_AP_DUMP_PYTHON_, PT_BOOLEAN)) return false;
+  return (bool)ap->GetBool(_AP_DUMP_PYTHON_);
+}
 
 int SALOMEDS_IParameters::getLastSavePoint(_PTR(Study) study, const string& theID)
 {
-  _PTR(SObject) so = study->FindComponent(theID);
+  string anID;
+  if(theID == "") anID = getDefaultVisualComponent();
+  else anID = theID;
+
+  _PTR(SObject) so = study->FindComponent(anID);
   if(!so) return -1;
 
   _PTR(StudyBuilder) builder = study->NewBuilder();
@@ -282,24 +294,27 @@ int SALOMEDS_IParameters::getLastSavePoint(_PTR(Study) study, const string& theI
 
 
 string SALOMEDS_IParameters::getDefaultScript(_PTR(Study) study, 
-					      const string& theID, 
 					      const string& moduleName, 
-					      const string& shift)
+					      const string& shift, 
+					      const string& theID)
 {
+  string anID;
+  if(theID == "") anID = getDefaultVisualComponent();
+  else anID = theID;
 
   string dump("");
 
-  int savePoint = SALOMEDS_IParameters::getLastSavePoint(study, theID);
+  int savePoint = SALOMEDS_IParameters::getLastSavePoint(study, anID);
   if(savePoint < 0) return dump;
-  SALOMEDS_IParameters ip = SALOMEDS_IParameters(study->GetCommonParameters(theID, savePoint));
-  if(!ip.isDumpPython()) return dump;
+  SALOMEDS_IParameters ip = SALOMEDS_IParameters(study->GetCommonParameters(anID, savePoint));
+  if(!isDumpPython(study)) return dump;
 
-  _PTR(AttributeParameter) ap = study->GetModuleParameters(theID, moduleName,savePoint);
+  _PTR(AttributeParameter) ap = study->GetModuleParameters(anID, moduleName,savePoint);
   ip = SALOMEDS_IParameters(ap);
 
 
   dump += shift +"import iparameters\n";
-  dump += shift + "ipar = iparameters.IParameters(theStudy.GetModuleParameters(\""+theID+"\", \""+moduleName+"\", 1))\n\n";
+  dump += shift + "ipar = iparameters.IParameters(theStudy.GetModuleParameters(\""+anID+"\", \""+moduleName+"\", 1))\n\n";
   
   vector<string> v = ip.getProperties();
   if(v.size() > 0) {
@@ -339,37 +354,11 @@ string SALOMEDS_IParameters::getDefaultScript(_PTR(Study) study,
   return dump;  
 }
 
-string SALOMEDS_IParameters::getStudyScript(_PTR(Study) study, const std::string& theID, int savePoint)
+
+string SALOMEDS_IParameters::getDefaultVisualComponent()
 {
-  _PTR(AttributeParameter) ap = study->GetCommonParameters(theID, savePoint);
-  SALOMEDS_IParameters ip(ap);
-
-  ip.setDumpPython(true); //Enable DumpPython of visual parameters for modules.
-  string dump("");
-
-  dump += "import iparameters\n";
-  dump += "ipar = iparameters.IParameters(salome.myStudy.GetCommonParameters(\""+theID+"\", 1))\n\n";
-  
-  
-  vector<string> v = ip.getProperties();
-  if(v.size() > 0) {
-    dump += "#Set up visual properties:\n";
-    for(int i = 0; i<v.size(); i++) {
-      string prp = ip.getProperty(v[i]);
-      dump += "ipar.setProperty(\""+v[i]+"\", \""+prp+"\")\n";
-    }
-  }
-
-  v = ip.getLists();
-  if(v.size() > 0) {
-    dump += "#Set up lists:\n";
-    for(int i = 0; i<v.size(); i++) {
-      vector<string> lst = ip.getValues(v[i]);
-      dump += "# fill list "+v[i]+"\n";
-      for(int j = 0; j < lst.size(); j++)
-	dump += "ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
-    }
-  }
-
-  return dump;
+  return "Interface Applicative";
 }
+
+
+

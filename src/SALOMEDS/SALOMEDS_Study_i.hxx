@@ -284,7 +284,7 @@ public:
 							       const char* theModuleName, 
 							       CORBA::Long theSavePoint);
 
-  virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished, const char* thePrefix);
+  virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished);
 
   virtual Handle(SALOMEDSImpl_Study) GetImpl() { return _impl; }
 

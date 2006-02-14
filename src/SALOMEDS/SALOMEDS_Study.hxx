@@ -86,7 +86,7 @@ public:
   virtual _PTR(UseCaseBuilder) GetUseCaseBuilder();
   virtual void Close();
   virtual void EnableUseCaseAutoFilling(bool isEnabled);
-  virtual bool DumpStudy(const std::string& thePath,const std::string& theBaseName,bool isPublished,const std::string& thePrefix); 
+  virtual bool DumpStudy(const std::string& thePath,const std::string& theBaseName,bool isPublished); 
   virtual _PTR(AttributeParameter) GetCommonParameters(const std::string& theID, int theSavePoint);
   virtual _PTR(AttributeParameter) GetModuleParameters(const std::string& theID, 
 						       const std::string& theModuleName, int theSavePoint);

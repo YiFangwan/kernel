@@ -40,118 +40,119 @@ public:
     Returns a number of the added value.
     Note: the name of the list MUST be unique
    */
-  int append(const std::string& listName, const std::string& value); 
+  virtual int append(const std::string& listName, const std::string& value); 
 
   /*!
     Returns a number elements in the list
    */
-  int nbValues(const std::string& listName);
+  virtual int nbValues(const std::string& listName);
 
   /*!
     Returns a list of values in the list
    */
-  std::vector<std::string> getValues(const std::string& listName);
+  virtual std::vector<std::string> getValues(const std::string& listName);
 
   /*!
     Returns a value with given %index, where %index is in range [0:nbValues-1]
    */
-  std::string getValue(const std::string& listName, int index);
+  virtual std::string getValue(const std::string& listName, int index);
 
   /*!
     Returns a list all entries lists
    */
-  std::vector<std::string> getLists();
+  virtual std::vector<std::string> getLists();
 
   /*!
     Sets a new named parameter value for the given entry
    */
-  void setParameter(const std::string& entry, const std::string& parameterName, const std::string& value);
+  virtual void setParameter(const std::string& entry, const std::string& parameterName, const std::string& value);
 
   /*!
     Gets a named parameter value for the given entry
    */
-  std::string getParameter(const std::string& entry, const std::string& parameterName);
+  virtual std::string getParameter(const std::string& entry, const std::string& parameterName);
 
   /*!
     Returns all parameter names of the given entry
    */
-  std::vector<std::string> SALOMEDS_IParameters::getAllParameterNames(const std::string& entry);
+  virtual std::vector<std::string> getAllParameterNames(const std::string& entry);
 
   /*!
     Returns all parameter  values of the given entry
    */
-  std::vector<std::string> SALOMEDS_IParameters::getAllParameterValues(const std::string& entry);
+  virtual std::vector<std::string> getAllParameterValues(const std::string& entry);
 
   /*!
     Returns a number of parameters of the given entry
    */
-  int getNbParameters(const std::string& entry);
+  virtual int getNbParameters(const std::string& entry);
 
   /*!
     Returns a list all entries 
    */
-  std::vector<std::string> getEntries();
+  virtual std::vector<std::string> getEntries();
 
   /*!
     Sets a global named property value
    */
-  void setProperty(const std::string& name, const std::string& value);
+  virtual void setProperty(const std::string& name, const std::string& value);
 
   /*!
     Gets a value of global named property
    */
-  std::string getProperty(const std::string& name);
+  virtual std::string getProperty(const std::string& name);
 
   /*!
     Returns a list all properties 
    */
-  std::vector<std::string> getProperties();
+  virtual std::vector<std::string> getProperties();
 
   /*!
     Breaks a value string in two parts which is divided by %separator.
     If fromEnd is True the search of separator starts from the end of the string
    */
-  std::vector<std::string> parseValue(const std::string& value, const char separator, bool fromEnd = true);
+  virtual std::vector<std::string> parseValue(const std::string& value, const char separator, bool fromEnd = true);
 
-
-  /*!
-    Enables/Disables the dumping visual parameters
-   */
-  void setDumpPython(bool isDumping);
-
-  /*!
-    Returns whether there is the dumping visual parameters
-   */
-  bool isDumpPython();  
 
   /*!
     Returns encoded entry that is a relative entry for the component
    */
-  std::string encodeEntry(const std::string& entry, const std::string& compName);
+  virtual std::string encodeEntry(const std::string& entry, const std::string& compName);
 
   /*!
     Returns decoded entry that is an absolute entry
    */
-  std::string decodeEntry(const std::string& entry);
+  virtual std::string decodeEntry(const std::string& entry);
 
 
   /*!
     Returns an ID of the last save point
   */
-  static int getLastSavePoint(_PTR(Study) study, const std::string& theID);
+  static int getLastSavePoint(_PTR(Study) study, const std::string& theID = "");
 
   /*!
     Returns a default Python script that set ups visual parameters for the given module
+    shift is a string that contain spaces to make valid Python script indentaion
   */
   static std::string getDefaultScript(_PTR(Study) study, 
-				      const std::string& theID, 
 				      const std::string& moduleName, 
-				      const std::string& shift);
+				      const std::string& shift,
+				      const std::string& theID = "");
 
   /*!
-    Returns a Python script for the study, which sets up visual parameters
+    Enables/Disables the dumping visual parameters
+   */
+  static void setDumpPython(_PTR(Study) study, const std::string& theID = "");
+
+  /*!
+    Returns whether there is the dumping visual parameters
+   */
+  static bool isDumpPython(_PTR(Study) study, const std::string& theID = "");  
+
+  /*!
+    Returns a default name of the component where the visula parameters are stored.
   */
-  static std::string getStudyScript(_PTR(Study) study, const std::string& theID, int savePoint);
+  static std::string getDefaultVisualComponent();
 
 private:
   _PTR(AttributeParameter) _ap;

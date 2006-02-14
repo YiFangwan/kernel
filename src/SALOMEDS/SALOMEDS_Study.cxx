@@ -636,10 +636,10 @@ void SALOMEDS_Study::EnableUseCaseAutoFilling(bool isEnabled)
   else _corba_impl->EnableUseCaseAutoFilling(isEnabled);
 }
 
-bool SALOMEDS_Study::DumpStudy(const string& thePath, const string& theBaseName, bool isPublished, const string& thePrefix)
+bool SALOMEDS_Study::DumpStudy(const string& thePath, const string& theBaseName, bool isPublished)
 {
   //SRN: Pure CORBA DumpStudy as it does more cleaning than the local one
-  bool ret = _corba_impl->DumpStudy(thePath.c_str(), theBaseName.c_str(), isPublished, thePrefix.c_str());
+  bool ret = _corba_impl->DumpStudy(thePath.c_str(), theBaseName.c_str(), isPublished);
   return ret;
 }     
 
@@ -688,7 +688,7 @@ SALOMEDS::Study_ptr SALOMEDS_Study::GetStudy()
 _PTR(AttributeParameter) SALOMEDS_Study::GetCommonParameters(const string& theID, int theSavePoint)
 {
   SALOMEDSClient_AttributeParameter* AP = NULL;
-  if(theSavePoint > 0) {
+  if(theSavePoint >= 0) {
     if (_isLocal) {
       SALOMEDS::Locker lock;
       AP = new SALOMEDS_AttributeParameter(_local_impl->GetCommonParameters(theID.c_str(), theSavePoint));
