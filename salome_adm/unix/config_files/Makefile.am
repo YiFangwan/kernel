@@ -17,7 +17,7 @@ DEPRECATED_FILES=\
 	DEPRECATED/ac_cxx_typename.m4 \
 	DEPRECATED/ac_cc_warnings.m4
 
-salomem4_DATA=\
+dist_salomem4_DATA=\
 ac_cxx_depend_flag.m4 \
 ac_cxx_have_sstream.m4 \
 ac_cxx_namespaces.m4 \

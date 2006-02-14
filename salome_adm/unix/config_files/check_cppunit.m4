@@ -8,13 +8,13 @@ cppunit_ok=yes
 dnl were is cppunit ?
 
 AC_ARG_WITH(cppunit,
-    [  --with-cppunit=DIR     directory path to CPPUNIT installation ],
+    [AC_HELP_STRING([--with-cppunit=DIR],[directory path to CPPUNIT installation])],
     [CPPUNITHOME="$withval"
       AC_MSG_RESULT("select $withval as path to CPPUNIT")
     ])
 
 AC_ARG_WITH(cppunit_inc,
-    [  --with-cppunit_inc=DIR   directory path to CPPUNIT includes ],
+    [AC_HELP_STRING([--with-cppunit_inc=DIR],[directory path to CPPUNIT includes])],
     [CPPUNIT_INCLUDES="$withval"
       AC_MSG_RESULT("select $withval as path to CPPUNIT includes")
     ])
