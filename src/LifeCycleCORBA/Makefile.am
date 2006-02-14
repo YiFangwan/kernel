@@ -38,7 +38,7 @@ salomeinclude_HEADERS = \
 	SALOME_LifeCycleCORBA.hxx
 
 # Scripts to be installed
-salomescript_DATA =\
+dist_salomescript_DATA =\
 	Launchers.py
 
 #
@@ -48,12 +48,23 @@ salomescript_DATA =\
 #
 
 # Sources built from idl files
-BUILT_SOURCES =\
-	$(top_builddir)/idl/SALOME_Component.hh $(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_TestComponent.hh $(top_builddir)/idl/SALOME_TestComponentSK.cc \
-	$(top_builddir)/idl/SALOME_ContainerManager.hh $(top_builddir)/idl/SALOME_ContainerManagerSK.cc \
-	$(top_builddir)/idl/SALOME_ModuleCatalog.hh $(top_builddir)/idl/SALOME_ModuleCatalogSK.cc \
-	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
+nodist_include_HEADERS = \
+	$(top_builddir)/idl/SALOME_Component.hh \
+	$(top_builddir)/idl/SALOME_TestComponent.hh \
+	$(top_builddir)/idl/SALOME_ContainerManager.hh \
+	$(top_builddir)/idl/SALOME_ModuleCatalog.hh \
+	$(top_builddir)/idl/SALOME_Exception.hh
+
+nodist_prog_SOURCES = \
+	$(top_builddir)/idl/SALOME_ComponentSK.cc \
+	$(top_builddir)/idl/SALOME_TestComponentSK.cc \
+	$(top_builddir)/idl/SALOME_ContainerManagerSK.cc \
+	$(top_builddir)/idl/SALOME_ModuleCatalogSK.cc \
+	$(top_builddir)/idl/SALOME_ExceptionSK.cc
+
+IDL_SOURCES = \
+	$(nodist_include_HEADERS) \
+	$(nodist_prog_SOURCES)
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
@@ -82,7 +93,11 @@ COMMON_LIBS =\
 # ===============================================================
 #
 lib_LTLIBRARIES = libSalomeLifeCycleCORBA.la
-libSalomeLifeCycleCORBA_la_SOURCES  = SALOME_LifeCycleCORBA.cxx Launchers.cxx $(BUILT_SOURCES)
+libSalomeLifeCycleCORBA_la_SOURCES  = \
+	SALOME_LifeCycleCORBA.cxx \
+	Launchers.cxx \
+	Launchers.hxx \
+	$(IDL_SOURCES)
 libSalomeLifeCycleCORBA_la_CPPFLAGS = \
 	$(COMMON_CPPFLAGS) \
 	@PYTHON_INCLUDES@ \

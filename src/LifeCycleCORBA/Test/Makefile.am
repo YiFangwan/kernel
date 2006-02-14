@@ -38,7 +38,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS= LifeCycleCORBATest.hxx
 
 # Scripts to be installed
-salomescript_SCRIPTS = TestLifeCycleCORBA.py
+dist_salomescript_SCRIPTS = TestLifeCycleCORBA.py
 
 #
 # ===============================================================

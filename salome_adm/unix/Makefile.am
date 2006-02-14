@@ -15,7 +15,7 @@ DEPRECATED_FILES=\
 
 # The deprecated files are deprecated for the KERNEL but not for the
 # related modules (GUI, MED, ...), for now. Some files have to be installed.
-salomeadmux_DATA=\
+dist_salomeadmux_DATA=\
 	SALOMEconfig.h.in \
 	pythonbe.py \
 	$(DEPRECATED_FILES)

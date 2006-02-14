@@ -86,7 +86,7 @@ CLEANFILES = swig_wrap.cpp
 #
 
 # Scripts to be installed.
-salomescript_DATA =\
+dist_salomescript_DATA =\
 	LifeCycleCORBA.py \
 	TestLifeCycleCORBA.py
 

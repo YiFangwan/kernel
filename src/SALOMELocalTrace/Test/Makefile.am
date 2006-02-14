@@ -41,7 +41,7 @@ SRCROOT=$(srcdir)/../..
 salomeinclude_HEADERS = SALOMELocalTraceTest.hxx
 
 # Executable scripts to be installed
-salomescript_SCRIPTS = TestSALOMELocalTrace.py
+dist_salomescript_SCRIPTS = TestSALOMELocalTrace.py
 
 #
 # ===============================================================

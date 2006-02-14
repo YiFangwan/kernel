@@ -5,6 +5,10 @@
 # $Header$
 #
 
-SUBDIRS = idl src doc salome_adm bin resources
-#SUBDIRS = idl src
+if CORBA_GEN
+  IDLDIR = idl
+endif
 
+SUBDIRS = $(IDLDIR) src doc salome_adm bin resources
+
+DIST_SUBDIRS=   idl src doc salome_adm bin resources

@@ -46,8 +46,15 @@ salomeinclude_HEADERS = \
 #
 
 # Sources built from idl files
-BUILT_SOURCES =\
-	$(top_builddir)/idl/SALOME_DataTypeCatalog.hh $(top_builddir)/idl/SALOME_DataTypeCatalogSK.cc
+nodist_include_HEADERS = \
+	$(top_builddir)/idl/SALOME_DataTypeCatalog.hh
+
+nodist_prog_SOURCES = \
+	$(top_builddir)/idl/SALOME_DataTypeCatalogSK.cc
+
+IDL_SOURCES = \
+	$(nodist_include_HEADERS) \
+	$(nodist_prog_SOURCES)
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
@@ -76,7 +83,7 @@ lib_LTLIBRARIES = libSalomeDataTypeCatalog.la
 libSalomeDataTypeCatalog_la_SOURCES=\
 	SALOME_DataTypeCatalog_Handler.cxx  \
 	SALOME_DataTypeCatalog_impl.cxx \
-	$(BUILT_SOURCES)
+	$(IDL_SOURCES)
 
 libSalomeDataTypeCatalog_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS) \

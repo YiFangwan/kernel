@@ -80,7 +80,7 @@ CLEANFILES = swig_wrap.cpp
 #
 
 # Scripts to be installed.
-salomescript_SCRIPTS = Batch_test.py
+dist_salomescript_SCRIPTS = Batch_test.py
 
 # You don't need to specify libBatch_Swig.py. It is automatically
 # installed by means of the swig target pkgpython_PYTHON.

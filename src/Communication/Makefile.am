@@ -21,9 +21,17 @@ salomeinclude_HEADERS = \
 # ===============================================================
 #
 # Sources built from idl files
-BUILT_SOURCES =\
-	$(top_builddir)/idl/SALOME_Comm.hh $(top_builddir)/idl/SALOME_CommSK.cc \
-	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
+nodist_include_HEADERS = \
+	$(top_builddir)/idl/SALOME_Comm.hh \
+	$(top_builddir)/idl/SALOME_Exception.hh
+
+nodist_prog_SOURCES = \
+	$(top_builddir)/idl/SALOME_CommSK.cc \
+	$(top_builddir)/idl/SALOME_ExceptionSK.cc
+
+IDL_SOURCES = \
+	$(nodist_include_HEADERS) \
+	$(nodist_prog_SOURCES)
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
@@ -58,7 +66,18 @@ libSalomeCommunication_la_SOURCES =\
 	MultiCommException.cxx \
 	SALOMEMultiComm.cxx \
 	ReceiverFactory.cxx \
-	$(BUILT_SOURCES)
+	\
+	MultiCommException.hxx \
+	SALOME_Comm_i.hxx \
+	SenderFactory.hxx \
+	ReceiverFactory.hxx \
+	SALOMEMultiComm.hxx \
+	Receivers.hxx \
+	Receiver.hxx \
+	$(IDL_SOURCES)
+
+# the following file is needed by an include file (VERY DIRTY!)
+EXTRA_DIST = Receivers.cxx
 
 libSalomeCommunication_la_CPPFLAGS = $(COMMON_CPPFLAGS) $(OPT_CPPFLAGS)
 libSalomeCommunication_la_LDFLAGS  = -no-undefined -version-info=0:0:0 $(OPT_LDFLAGS)

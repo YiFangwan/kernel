@@ -35,20 +35,26 @@ if MPI_IS_OK
   IDL_FILES += $(MPIIDL_FILES)
 endif
 
+# all the idl files are needed for make dist
 EXTRA_DIST= $(BASEIDL_FILES) $(MPIIDL_FILES)
 
 # This variable defines the files to be installed
 salomeidl_DATA = $(IDL_FILES)
 
-# These variables defines the file extentions for clt and srv CORBA
-# files generated from the IDL files.
-OMNIORB_IDL_CLN_H   = @OMNIORB_IDL_CLN_H@
-OMNIORB_IDL_CLN_CXX = @OMNIORB_IDL_CLN_CXX@
-OMNIORB_IDL_CLN_OBJ = @OMNIORB_IDL_CLN_OBJ@
+# Sources built from idl files
+# BUILT_SOURCE = first thing done on make all
+# idl dependencies are checked and rebuilt first
 
-OMNIORB_IDL_SRV_H   = @OMNIORB_IDL_SRV_H@
-OMNIORB_IDL_SRV_CXX = @OMNIORB_IDL_SRV_CXX@
-OMNIORB_IDL_SRV_OBJ = @OMNIORB_IDL_SRV_OBJ@
+BUILT_SOURCES =\
+	.depidl $(IDL_FILES:%.idl=%SK.cc) $(IDL_FILES:%.idl=%.hh)
+
+nodist_include_HEADERS = $(IDL_FILES:%.idl=%.hh)
+nodist_prog_SOURCES = $(IDL_FILES:%.idl=%SK.cc)
+
+dist_hook:
+	echo "menage final -----------------------------------------"
+	rm -f $(distdir)/*.hh $(distdir)/*SK.cc $(distdir)/.depidl
+	echo "menage final -----------------------------------------"
 
 # These variables defines the building process of CORBA files
 OMNIORB_IDL         = @OMNIORB_IDL@
@@ -57,14 +63,15 @@ OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@ -I$(top_builddir)/salome/idl
 IDLCXXFLAGS = -bcxx @IDLCXXFLAGS@ -I$(top_builddir)/salome/idl
 IDLPYFLAGS  = @IDLPYFLAGS@
 
-
-# Target for generating the stub from the IDL files. The stubs are
-# created in the current build directory.
-%$(OMNIORB_IDL_CLN_CXX) %$(OMNIORB_IDL_CLN_H): ${top_srcdir}/idl/%.idl
+# potential problem on parallel make on the following - multiple outputs
+SUFFIXES = .idl .hh SK.cc
+.idlSK.cc:
+	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
+.idl.hh:
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
 
-
-all: $(IDL_FILES:%.idl=%$(OMNIORB_IDL_CLN_CXX)) $(IDL_FILES:%.idl=%$(OMNIORB_IDL_CLN_H))
+#%SK.cc %.hh : %.idl
+#	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
 
 # This target overload the standard definition of install. The target
 # install-pyidl is added to process python corba stubs for SALOME.
@@ -75,3 +82,23 @@ install-pyidl: $(IDL_FILES:%=$(top_srcdir)/idl/%)
 	ls $^ | while read file; do \
 	  $(OMNIORB_IDL) $(IDLPYFLAGS) -C$(pkgpythondir) $$file ; \
 	done
+
+mostlyclean-local:
+	-rm -f *.hh *.cc .depidl
+
+# we use cpp to generate dependencies between idl files.
+# option x c tells the preprocessor to consider idl as a c file.
+# if an idl is modified, all idl dependencies are rebuilt
+
+.depidl: $(IDL_FILES)
+	@echo "" > $@
+	@for dep in $^ dummy; do \
+	  if [ $$dep != "dummy" ]; then \
+	    echo Building dependencies for $$dep; \
+	    $(CPP) $(C_DEPEND_FLAG) -x c -I$(srcdir) $$dep 2>/dev/null | \
+	    sed 's/\.o/\SK.cc/' >>$@; \
+	  fi; \
+	done ;
+
+-include .depidl
+

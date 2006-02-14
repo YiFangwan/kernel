@@ -15,14 +15,14 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 
 # These files are data, module or lib files
-salomescript_DATA= \
+dist_salomescript_DATA= \
 	VERSION \
 	orbmodule.py \
 	salome.launch \
 	salomeConsole.py
 
 # These files are executable scripts
-salomescript_SCRIPTS=\
+dist_salomescript_SCRIPTS=\
 	envSalome.py \
 	runIDLparser \
 	runSalome.py \

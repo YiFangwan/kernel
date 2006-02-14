@@ -26,4 +26,4 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-salomescript_DATA = IDLparser.py
+dist_salomescript_DATA = IDLparser.py

@@ -42,12 +42,12 @@ salomeinclude_HEADERS = \
 	Container_init_python.hxx
 
 # Scripts to be installed
-salomescript_DATA =\
+dist_salomescript_DATA =\
 	SALOME_ComponentPy.py \
 	SALOME_Container.py
 
 # These files are executable scripts
-salomescript_SCRIPTS=\
+dist_salomescript_SCRIPTS=\
 	SALOME_ContainerPy.py
 
 #
@@ -57,9 +57,17 @@ salomescript_SCRIPTS=\
 #
 
 # Sources built from idl files
-BUILT_SOURCES =\
-	$(top_builddir)/idl/SALOME_Component.hh $(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_ContainerManager.hh $(top_builddir)/idl/SALOME_ContainerManagerSK.cc
+nodist_include_HEADERS = \
+	$(top_builddir)/idl/SALOME_Component.hh \
+	$(top_builddir)/idl/SALOME_ContainerManager.hh
+
+nodist_prog_SOURCES = \
+	$(top_builddir)/idl/SALOME_ComponentSK.cc \
+	$(top_builddir)/idl/SALOME_ContainerManagerSK.cc
+
+IDL_SOURCES = \
+	$(nodist_include_HEADERS) \
+	$(nodist_prog_SOURCES)
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
@@ -102,7 +110,7 @@ libSalomeContainer_la_SOURCES=\
 	Container_i.cxx \
 	SALOME_ContainerManager.cxx \
 	Container_init_python.cxx \
-	$(BUILT_SOURCES)
+	$(IDL_SOURCES)
 
 libSalomeContainer_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)

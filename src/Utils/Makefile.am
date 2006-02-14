@@ -45,13 +45,21 @@ salomeinclude_HEADERS =\
 	Utils_Mutex.hxx
 
 # Scripts to be exported
-salomescript_DATA =\
+dist_salomescript_DATA =\
 	Utils_Identity.py \
 	SALOME_utilities.py
 
-# The BUILT_SOURCES defines the list of files generated from the idl
+# The IDL_SOURCES defines the list of files generated from the idl
 # interface (SALOME_Exception.idl in this case).
-BUILT_SOURCES = $(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
+nodist_include_HEADERS = \
+	$(top_builddir)/idl/SALOME_Exception.hh
+
+nodist_prog_SOURCES = \
+	$(top_builddir)/idl/SALOME_ExceptionSK.cc
+
+IDL_SOURCES = \
+	$(nodist_include_HEADERS) \
+	$(nodist_prog_SOURCES)
 
 # Libraries targets
 lib_LTLIBRARIES = libOpUtil.la
@@ -64,7 +72,7 @@ libOpUtil_la_SOURCES =\
 	Utils_ExceptHandlers.cxx \
 	Utils_SignalsHandler.cxx \
 	Utils_Mutex.cxx \
-	$(BUILT_SOURCES)
+	$(IDL_SOURCES)
 
 libOpUtil_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 

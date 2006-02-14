@@ -33,16 +33,24 @@ salomeinclude_HEADERS =\
 	RegistryConnexion.hxx \
 	RegistryService.hxx
 
-BUILT_SOURCES =\
-	$(top_builddir)/idl/SALOME_Registry.hh $(top_builddir)/idl/SALOME_RegistrySK.cc \
-	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
+nodist_include_HEADERS = \
+	$(top_builddir)/idl/SALOME_Registry.hh \
+	$(top_builddir)/idl/SALOME_Exception.hh
+
+nodist_prog_SOURCES = \
+	$(top_builddir)/idl/SALOME_RegistrySK.cc \
+	$(top_builddir)/idl/SALOME_ExceptionSK.cc
+
+IDL_SOURCES = \
+	$(nodist_include_HEADERS) \
+	$(nodist_prog_SOURCES)
 
 # Libraries targets
 lib_LTLIBRARIES = libRegistry.la
 libRegistry_la_SOURCES =\
 	RegistryConnexion.cxx \
 	RegistryService.cxx \
-	$(BUILT_SOURCES)
+	$(IDL_SOURCES)
 
 libRegistry_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libRegistry_la_CPPFLAGS =\

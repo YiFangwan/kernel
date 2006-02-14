@@ -36,4 +36,4 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 
 # Executable scripts to be installed
-salomescript_SCRIPTS = TestKiller.py 
+dist_salomescript_SCRIPTS = TestKiller.py 

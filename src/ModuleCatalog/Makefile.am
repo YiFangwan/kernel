@@ -43,7 +43,7 @@ salomeinclude_HEADERS = \
                 SALOME_ModuleCatalog_Handler.hxx 
 
 # Scripts to be installed
-salomescript_DATA = SALOME_TestModuleCatalog.py
+dist_salomescript_DATA = SALOME_TestModuleCatalog.py
 
 
 #
@@ -54,10 +54,17 @@ salomescript_DATA = SALOME_TestModuleCatalog.py
 lib_LTLIBRARIES = libSalomeCatalog.la
 
 # Sources built from idl files
-BUILT_SOURCES =\
-	$(top_builddir)/idl/SALOME_ModuleCatalog.hh $(top_builddir)/idl/SALOME_ModuleCatalogSK.cc \
-	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
+nodist_include_HEADERS = \
+	$(top_builddir)/idl/SALOME_ModuleCatalog.hh \
+	$(top_builddir)/idl/SALOME_Exception.hh
 
+nodist_prog_SOURCES = \
+	$(top_builddir)/idl/SALOME_ModuleCatalogSK.cc \
+	$(top_builddir)/idl/SALOME_ExceptionSK.cc
+
+IDL_SOURCES = \
+	$(nodist_include_HEADERS) \
+	$(nodist_prog_SOURCES)
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
@@ -82,7 +89,7 @@ libSalomeCatalog_la_SOURCES =\
 	SALOME_ModuleCatalog_Parser_IO.cxx \
 	SALOME_ModuleCatalog_impl.cxx \
 	SALOME_ModuleCatalog_Acomponent_impl.cxx \
-	$(BUILT_SOURCES)
+	$(IDL_SOURCES)
 
 libSalomeCatalog_la_CPPFLAGS =\
 	-ftemplate-depth-32 \

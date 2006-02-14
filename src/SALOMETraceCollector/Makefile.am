@@ -14,9 +14,17 @@ salomeinclude_HEADERS = \
 	SALOMETraceCollector.hxx \
 	TraceCollector_WaitForServerReadiness.hxx
 
-# The BUILT_SOURCES defines the list of files generated from the idl
+# The IDL_SOURCES defines the list of files generated from the idl
 # interface (Logger.idl in this case).
-BUILT_SOURCES = $(top_builddir)/idl/Logger.hh $(top_builddir)/idl/LoggerSK.cc
+nodist_include_HEADERS = \
+	$(top_builddir)/idl/Logger.hh
+
+nodist_prog_SOURCES = \
+	$(top_builddir)/idl/LoggerSK.cc
+
+IDL_SOURCES = \
+	$(nodist_include_HEADERS) \
+	$(nodist_prog_SOURCES)
 
 # Libraries targets
 lib_LTLIBRARIES = libwith_loggerTraceCollector.la
@@ -24,7 +32,7 @@ lib_LTLIBRARIES = libwith_loggerTraceCollector.la
 libwith_loggerTraceCollector_la_SOURCES  =\
 	SALOMETraceCollector.cxx \
 	TraceCollector_WaitForServerReadiness.cxx \
-	$(BUILT_SOURCES)
+	$(IDL_SOURCES)
 
 libwith_loggerTraceCollector_la_CPPFLAGS =\
 	-I$(srcdir)/../Basics \

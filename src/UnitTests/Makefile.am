@@ -35,7 +35,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 
 # Executable scripts to be installed
-salomescript_SCRIPTS = UnitTests.py
+dist_salomescript_SCRIPTS = UnitTests.py
 
 #
 # ===============================================================
@@ -43,14 +43,24 @@ salomescript_SCRIPTS = UnitTests.py
 # ===============================================================
 #
 
-BUILT_SOURCES = \
-	$(top_builddir)/idl/SALOME_Component.hh $(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_TestComponent.hh $(top_builddir)/idl/SALOME_TestComponentSK.cc \
-	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc \
-	$(top_builddir)/idl/nstest.hh $(top_builddir)/idl/nstestSK.cc
+nodist_include_HEADERS = \
+	$(top_builddir)/idl/SALOME_Component.hh \
+	$(top_builddir)/idl/SALOME_TestComponent.hh \
+	$(top_builddir)/idl/SALOME_Exception.hh \
+	$(top_builddir)/idl/nstest.hh
+
+nodist_prog_SOURCES = \
+	$(top_builddir)/idl/SALOME_ComponentSK.cc \
+	$(top_builddir)/idl/SALOME_TestComponentSK.cc \
+	$(top_builddir)/idl/SALOME_ExceptionSK.cc \
+	$(top_builddir)/idl/nstestSK.cc
+
+IDL_SOURCES = \
+	$(nodist_include_HEADERS) \
+	$(nodist_prog_SOURCES)
 
 bin_PROGRAMS = UnitTests
-UnitTests_SOURCES  = UnitTests.cxx $(BUILT_SOURCES)
+UnitTests_SOURCES  = UnitTests.cxx $(IDL_SOURCES)
 UnitTests_CPPFLAGS =\
 	@CPPUNIT_INCLUDES@ \
 	-I$(srcdir)/../Basics -I$(srcdir)/../Basics/Test \

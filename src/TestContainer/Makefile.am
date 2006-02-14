@@ -36,7 +36,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # header files  
 # Scripts to be installed
-salomescript_DATA = SALOME_TestComponentPy.py TestComponentPy.py
+dist_salomescript_DATA = SALOME_TestComponentPy.py TestComponentPy.py
 
 #
 # ===============================================================
@@ -71,10 +71,19 @@ COMMON_LIBS =\
 	../Basics/libSALOMEBasics.la
 
 # Sources built from idl files and required for building
-BUILT_SOURCES =\
-	$(top_builddir)/idl/SALOME_TestComponent.hh $(top_builddir)/idl/SALOME_TestComponentSK.cc \
-	$(top_builddir)/idl/SALOME_Component.hh $(top_builddir)/idl/SALOME_ComponentSK.cc \
-	$(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
+nodist_include_HEADERS = \
+	$(top_builddir)/idl/SALOME_TestComponent.hh \
+	$(top_builddir)/idl/SALOME_Component.hh \
+	$(top_builddir)/idl/SALOME_Exception.hh
+
+nodist_prog_SOURCES = \
+	$(top_builddir)/idl/SALOME_TestComponentSK.cc \
+	$(top_builddir)/idl/SALOME_ComponentSK.cc \
+	$(top_builddir)/idl/SALOME_ExceptionSK.cc
+
+IDL_SOURCES = \
+	$(nodist_include_HEADERS) \
+	$(nodist_prog_SOURCES)
 
 #
 # ===============================================================
@@ -82,7 +91,10 @@ BUILT_SOURCES =\
 # ===============================================================
 #
 lib_LTLIBRARIES = libSalomeTestComponentEngine.la
-libSalomeTestComponentEngine_la_SOURCES  = SALOME_TestComponent_i.cxx $(BUILT_SOURCES)
+libSalomeTestComponentEngine_la_SOURCES  = \
+	SALOME_TestComponent_i.cxx \
+	SALOME_TestComponent_i.hxx \
+	$(IDL_SOURCES)
 libSalomeTestComponentEngine_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeTestComponentEngine_la_LIBADD   = $(COMMON_LIBS)
 

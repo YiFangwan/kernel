@@ -14,7 +14,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 
 
-salomeres_DATA=\
+dist_salomeres_DATA=\
 	CatalogDataType.xml \
 	KERNELCatalog.xml \
 	CatalogResources.xml \

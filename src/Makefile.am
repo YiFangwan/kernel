@@ -24,36 +24,68 @@
 #  Module : KERNEL
 # $Header$
 
-SUBDIRS = \
- Basics \
- SALOMELocalTrace \
- CASCatch \
- HDFPersist \
- Logger \
- SALOMETraceCollector \
- Utils \
- NamingService \
- GenericObj \
- Registry \
- ModuleCatalog \
- DataTypeCatalog \
- RessourcesCatalog \
- ResourcesManager \
- Notification \
- NOTIFICATION_SWIG \
- Container \
- TestContainer \
- LifeCycleCORBA \
- LifeCycleCORBA_SWIG \
- SALOMEDSClient \
- TOOLSDS \
- SALOMEDSImpl \
- SALOMEDS \
- KERNEL_PY \
- ModuleGenerator \
- Communication \
- Communication_SWIG
+SUBDIR_BASE = \
+  Basics \
+  SALOMELocalTrace \
+  CASCatch \
+  HDFPersist
 
+SUBDIR_CORBA = \
+  Logger \
+  SALOMETraceCollector \
+  Utils \
+  NamingService \
+  GenericObj \
+  Registry \
+  ModuleCatalog \
+  DataTypeCatalog \
+  RessourcesCatalog \
+  ResourcesManager \
+  Notification \
+  NOTIFICATION_SWIG \
+  Container \
+  TestContainer \
+  LifeCycleCORBA \
+  LifeCycleCORBA_SWIG \
+  SALOMEDSClient \
+  TOOLSDS \
+  SALOMEDSImpl \
+  SALOMEDS \
+  KERNEL_PY \
+  ModuleGenerator \
+  Communication \
+  Communication_SWIG
+
+SUBDIR_CPPUNIT_BASE= \
+  Basics/Test \
+  SALOMELocalTrace/Test
+
+SUBDIR_CPPUNIT_CORBA = \
+  Logger/Test \
+  SALOMETraceCollector/Test \
+  Utils/Test \
+  NamingService/Test \
+  LifeCycleCORBA/Test
+
+SUBDIR_CPPUNIT_GENERAL = \
+  UnitTests
+
+SUBDIR_MPI = \
+  MPIContainer \
+  TestMPIContainer
+
+SUBDIR_BATCH= \
+  Batch \
+  Batch_SWIG
+
+DIST_SUBDIRS = \
+  $(SUBDIR_BASE) \
+  $(SUBDIR_CORBA) \
+  $(SUBDIR_MPI) \
+  $(SUBDIR_BATCH) \
+  $(SUBDIR_CPPUNIT_BASE) \
+  $(SUBDIR_CPPUNIT_CORBA) \
+  $(SUBDIR_CPPUNIT_GENERAL)
 
 #
 # The following packages are built under conditions.
@@ -61,25 +93,28 @@ SUBDIRS = \
 # check_cppunit for example with CPPUNIT_IS_OK.
 #
 
-if CPPUNIT_IS_OK
- SUBDIRS+= \
- Basics/Test \
- SALOMELocalTrace/Test \
- Logger/Test \
- SALOMETraceCollector/Test \
- Utils/Test \
- NamingService/Test \
- LifeCycleCORBA/Test \
- UnitTests
+SUBDIRS = $(SUBDIR_BASE)
+
+if CORBA_GEN
+  SUBDIRS += $(SUBDIR_CORBA)
 endif
 
-
 if MPI_IS_OK
-  SUBDIRS+= MPIContainer TestMPIContainer
+  SUBDIRS += $(SUBDIR_MPI)
 endif
 
 if WITH_BATCH
-  SUBDIRS += Batch Batch_SWIG
+  SUBDIRS += $(SUBDIR_BATCH)
 endif
 
+if CPPUNIT_IS_OK
+  SUBDIRS += $(SUBDIR_CPPUNIT_BASE)
+endif
 
+if CORBA_GEN
+  SUBDIRS += $(SUBDIR_CPPUNIT_CORBA)
+endif
+
+if CPPUNIT_IS_OK
+  SUBDIRS += $(SUBDIR_CPPUNIT_GENERAL)
+endif

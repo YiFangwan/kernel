@@ -35,13 +35,13 @@ salomeinclude_HEADERS =\
 	NamingService_WaitForServerReadiness.hxx
 
 # Scripts to be exported
-salomescript_DATA =\
+dist_salomescript_DATA =\
 	SALOME_NamingServicePy.py
 
 
-# The BUILT_SOURCES defines the list of files generated from the idl
+# The IDL_SOURCES defines the list of files generated from the idl
 # interface (SALOME_Exception.idl in this case).
-BUILT_SOURCES = $(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
+#IDL_SOURCES = $(top_builddir)/idl/SALOME_Exception.hh $(top_builddir)/idl/SALOME_ExceptionSK.cc
 
 
 # Libraries targets
@@ -50,8 +50,8 @@ libSalomeNS_la_SOURCES =\
 	SALOME_NamingService.cxx \
 	ServiceUnreachable.cxx \
 	NamingService_WaitForServerReadiness.cxx
-	$(BUILT_SOURCES)
-# _CS_gbo We don't need to add the BUILT_SOURCES files because the
+#	$(IDL_SOURCES)
+# _CS_gbo We don't need to add the IDL_SOURCES files because the
 # symbols needed from this sources are given by the linked libraries
 # (libOptUtil.la). Meanwhile, the symbols could be duplicated here and
 # no error would occur. An other reason to add it is that the
