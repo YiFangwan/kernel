@@ -46,6 +46,7 @@ using namespace std;
 #include "SALOMEDSImpl_AttributeReference.hxx"
 #include "SALOMEDSImpl_StudyHandle.hxx"
 #include "SALOMEDSImpl_Tool.hxx"
+#include "SALOMEDSImpl_IParameters.hxx"
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_Study, MMgt_TShared )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_Study, MMgt_TShared )
@@ -1246,8 +1247,7 @@ Handle(TDF_Attribute) SALOMEDSImpl_Study::GetAttribute(const TCollection_AsciiSt
 bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
 				   const TCollection_AsciiString& theBaseName,
 				   bool isPublished,
-				   SALOMEDSImpl_DriverFactory* theFactory,
-				   const TCollection_AsciiString& thePrefix)
+				   SALOMEDSImpl_DriverFactory* theFactory)
 {
   _errorCode = "";
 
@@ -1299,11 +1299,18 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
   fp << "import " << aBatchModeScript << "\n" << endl;
   fp << "sys.path.insert( 0, \'" << thePath << "\')\n" << endl;
 
-  //Output the prefix if there is any 
-  if(thePrefix.Length() > 0) {
-    fp << thePrefix;
-    fp << "\n" << endl;
+
+  //Check if it's necessary to dump visual parameters
+  bool isDumpVisuals = SALOMEDSImpl_IParameters::isDumpPython(this);
+  int lastSavePoint = -1;
+  if(isDumpVisuals) {
+    lastSavePoint = SALOMEDSImpl_IParameters::getLastSavePoint(this);
+    if(lastSavePoint > 0) {
+      fp << SALOMEDSImpl_IParameters::getStudyScript(this, lastSavePoint);
+      fp << "\n" << endl;
+    }
   }
+  
 
   Handle(TColStd_HSequenceOfAsciiString) aSeqOfFileNames = new TColStd_HSequenceOfAsciiString;
 
@@ -1389,7 +1396,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
     fp << aScriptName << ".RebuildData(" << aBatchModeScript << ".myStudy)" << endl;
   }
 
-  if(thePrefix.Length() > 0) { //Output the call to Session's method restoreVisualState
+  if(isDumpVisuals) { //Output the call to Session's method restoreVisualState
     fp << "iparameters.getSession().restoreVisualState(1)" << endl;
   }
 
@@ -1512,11 +1519,15 @@ void SALOMEDSImpl_Study::Modify()
 //============================================================================
 Handle(SALOMEDSImpl_AttributeParameter) SALOMEDSImpl_Study::GetCommonParameters(const char* theID, int theSavePoint)
 {
-  if(theSavePoint <= 0) return NULL;
+  if(theSavePoint < 0) return NULL;
   Handle(SALOMEDSImpl_StudyBuilder) builder = NewBuilder();
   Handle(SALOMEDSImpl_SObject) so = FindComponent((char*)theID);
   if(so.IsNull()) so = builder->NewComponent((char*)theID); 
-  Handle(SALOMEDSImpl_SObject) newSO = builder->NewObjectToTag(so, theSavePoint);
+  Handle(SALOMEDSImpl_SObject) newSO;
+  if(theSavePoint == 0) //Get an attribute that is placed on the component itself.
+    newSO = so;
+  else
+    newSO = builder->NewObjectToTag(so, theSavePoint);
   return Handle(SALOMEDSImpl_AttributeParameter)::DownCast(builder->FindOrCreateAttribute(newSO, "AttributeParameter"));
 }
 
