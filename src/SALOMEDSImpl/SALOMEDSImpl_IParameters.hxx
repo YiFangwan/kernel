@@ -124,6 +124,15 @@ public:
   static std::string getStudyScript(const Handle(SALOMEDSImpl_Study)& study, int savePoint, const std::string& theID = "");
 
   /*!
+    Returns a default Python script that set ups visual parameters for the given module
+    shift is a string that contain spaces to make valid Python script indentaion
+  */
+  static std::string getDefaultScript(const Handle(SALOMEDSImpl_Study)& study, 
+				      const std::string& moduleName, 
+				      const std::string& shift,
+				      const std::string& theID = "");
+
+  /*!
     Returns a default name of the component where the visula parameters are stored.
   */
   static std::string getDefaultVisualComponent();

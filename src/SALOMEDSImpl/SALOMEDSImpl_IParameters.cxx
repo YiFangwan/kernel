@@ -264,6 +264,68 @@ string SALOMEDSImpl_IParameters::getStudyScript(const Handle(SALOMEDSImpl_Study)
   return dump;
 }
 
+string SALOMEDSImpl_IParameters::getDefaultScript(const Handle(SALOMEDSImpl_Study)& study, 
+					      const string& moduleName, 
+					      const string& shift, 
+					      const string& theID)
+{
+  string anID;
+  if(theID == "") anID = getDefaultVisualComponent();
+  else anID = theID;
+
+  string dump("");
+
+  int savePoint = SALOMEDSImpl_IParameters::getLastSavePoint(study, anID);
+  if(savePoint < 0) return dump;
+  SALOMEDSImpl_IParameters ip = SALOMEDSImpl_IParameters(study->GetCommonParameters(anID.c_str(), savePoint));
+  if(!isDumpPython(study)) return dump;
+
+  Handle(SALOMEDSImpl_AttributeParameter) ap = study->GetModuleParameters(anID.c_str(), moduleName.c_str(), savePoint);
+  ip = SALOMEDSImpl_IParameters(ap);
+
+
+  dump += shift +"import iparameters\n";
+  dump += shift + "ipar = iparameters.IParameters(theStudy.GetModuleParameters(\""+anID+"\", \""+moduleName+"\", 1))\n\n";
+  
+  vector<string> v = ip.getProperties();
+  if(v.size() > 0) {
+    dump += shift +"#Set up visual properties:\n";
+    for(int i = 0; i<v.size(); i++) {
+      string prp = ip.getProperty(v[i]);
+      dump += shift +"ipar.setProperty(\""+v[i]+"\", \""+prp+"\")\n";
+    }
+  }
+
+  v = ip.getLists();
+  if(v.size() > 0) {
+    dump +=  shift +"#Set up lists:\n";
+    for(int i = 0; i<v.size(); i++) {
+      vector<string> lst = ip.getValues(v[i]);
+      dump += shift +"# fill list "+v[i]+"\n";
+      for(int j = 0; j < lst.size(); j++)
+	dump += shift +"ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
+    }
+  }
+
+  v = ip.getEntries();
+  if(v.size() > 0) {
+    dump += shift + "#Set up entries:\n";
+    for(int i = 0; i<v.size(); i++) {
+      vector<string> names = ip.getAllParameterNames(v[i]);
+      vector<string> values = ip.getAllParameterValues(v[i]);
+      Handle(SALOMEDSImpl_SObject) so = study->FindObjectID((char*)v[i].c_str());
+      string so_name("");
+      if(!so.IsNull()) so_name = so->GetName().ToCString();
+      dump += shift + "# set up entry " + v[i] +" ("+so_name+")" + " parameters" + "\n";
+      for(int j = 0; j < names.size() && j < values.size(); j++)
+	dump += shift + "ipar.setParameter(\"" + v[i] + "\", \"" + names[j] + "\", \"" + values[j] + "\")\n";
+    }
+  }
+  
+  return dump;  
+}
+
+
 string SALOMEDSImpl_IParameters::getDefaultVisualComponent()
 {
   return "Interface Applicative";
