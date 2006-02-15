@@ -63,12 +63,14 @@ else
     if test "x${boost_ok}" = "xyes" ; then
       BOOST_LIBTHREAD="libboost_thread-mt.so"
       AC_MSG_RESULT(\$BOOST_LIBTHREAD = ${BOOST_LIBTHREAD})
+      BOOST_LIBTHREAD="-mt"
     else
       AC_CHECKING(for libboost_thread.so library file)
       AC_CHECK_FILE(${BOOSTDIR}/lib/libboost_thread.so,boost_ok=yes,boost_ok=no)
       if test "x${boost_ok}" = "xyes" ; then
         BOOST_LIBTHREAD="libboost_thread.so"
         AC_MSG_RESULT(\$BOOST_LIBTHREAD = ${BOOST_LIBTHREAD})
+	BOOST_LIBTHREAD=""
       fi
     fi
     if test "x${boost_ok}" = "xyes" ; then
