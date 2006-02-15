@@ -38,10 +38,14 @@ SALOMEDSImpl_IParameters::SALOMEDSImpl_IParameters(const Handle(SALOMEDSImpl_Att
 {
   if(ap.IsNull()) return;
   _ap = ap;
+  Handle(SALOMEDSImpl_SObject) so = _ap->GetSObject();
+  _study = so->GetStudy();
 }
 
 SALOMEDSImpl_IParameters::~SALOMEDSImpl_IParameters()
-{}
+{
+  _compNames.clear();
+}
 
 int SALOMEDSImpl_IParameters::append(const string& listName, const string& value)
 {
@@ -187,6 +191,28 @@ vector<string> SALOMEDSImpl_IParameters::getProperties()
   return _ap->GetStrArray(_AP_PROPERTIES_LIST_);
 }
 
+string SALOMEDSImpl_IParameters::decodeEntry(const string& entry)
+{
+  if(!_study) return entry;
+  int pos = entry.rfind("_");
+  if(pos < 0 || pos >= entry.length()) return entry;
+
+  string compName(entry, 0, pos), compID, tail(entry, pos+1, entry.length()-1);
+  
+  if(_compNames.find(compName) == _compNames.end()) {
+    Handle(SALOMEDSImpl_SObject) so = _study->FindComponent((char*)compName.c_str());
+    if(!so) return entry;
+    compID = so->GetID().ToCString();
+    _compNames[compName] = compID;
+  }
+  else compID = _compNames[compName];
+ 
+  string newEntry(compID);
+  newEntry += (":"+tail);
+  
+  return newEntry;
+}
+
 
 bool SALOMEDSImpl_IParameters::isDumpPython(const Handle(SALOMEDSImpl_Study)& study, const string& theID)
 {
@@ -313,7 +339,8 @@ string SALOMEDSImpl_IParameters::getDefaultScript(const Handle(SALOMEDSImpl_Stud
     for(int i = 0; i<v.size(); i++) {
       vector<string> names = ip.getAllParameterNames(v[i]);
       vector<string> values = ip.getAllParameterValues(v[i]);
-      Handle(SALOMEDSImpl_SObject) so = study->FindObjectID((char*)v[i].c_str());
+      string decodedEntry = ip.decodeEntry(v[i]);
+      Handle(SALOMEDSImpl_SObject) so = study->FindObjectID((char*)decodedEntry.c_str());
       string so_name("");
       if(!so.IsNull()) so_name = so->GetName().ToCString();
       dump += shift + "# set up entry " + v[i] +" ("+so_name+")" + " parameters" + "\n";

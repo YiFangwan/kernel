@@ -21,6 +21,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "SALOMEDSImpl_AttributeParameter.hxx"
 #include "SALOMEDSImpl_Study.hxx"
@@ -107,6 +108,11 @@ public:
    */
   virtual std::vector<std::string> getProperties();
 
+  /*!
+    Returns decoded entry that is an absolute entry
+   */
+  virtual std::string decodeEntry(const std::string& entry);
+
 
   /*!
     Returns whether there is the dumping visual parameters
@@ -139,6 +145,8 @@ public:
 
 private:
   Handle(SALOMEDSImpl_AttributeParameter) _ap;
+  Handle(SALOMEDSImpl_Study) _study;
+  std::map<std::string, std::string> _compNames;
 };
 
 
