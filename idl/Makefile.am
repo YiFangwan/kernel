@@ -98,15 +98,15 @@ SUFFIXES = .idl .hh SK.cc
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
 
 
-# This target overload the standard definition of install. The target
-# install-pyidl is added to process python corba stubs for SALOME.
-install: install-am install-pyidl
-
-install-pyidl: $(IDL_FILES:%=$(top_srcdir)/idl/%)
+install-exec-local: $(IDL_FILES:%=$(top_srcdir)/idl/%)
 	$(INSTALL) -d  $(pkgpythondir)
 	ls $^ | while read file; do \
 	  $(OMNIORB_IDL) $(IDLPYFLAGS) -C$(pkgpythondir) $$file ; \
 	done
+
+# uninstall-local removes too much, but it works in distcheck
+uninstall-local:
+	rm -rf $(pkgpythondir)/*
 
 mostlyclean-local:
 	-rm -f *.hh *.cc .depidl

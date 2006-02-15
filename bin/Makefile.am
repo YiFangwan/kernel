@@ -42,11 +42,19 @@ EXTRA_DIST = appliskel
 dist-hook:
 	rm -rf `find $(distdir)/appliskel -name CVS`
 
+DISTCLEANFILES = $(top_builddir)/bin/@PACKAGE@/Makefile.am
 
-install: install-am install-appliskel
+clean-local:
+	rm -rf $(top_builddir)/bin/@PACKAGE@/appliskel
+	cd $(top_builddir)/bin/@PACKAGE@; \
+	rm -f $(dist_salomescript_DATA) $(dist_salomescript_SCRIPTS)
 
 # This is an ugly target to avoid exploring the appliskel subdirectory.
-install-appliskel:
+install-exec-local:
 	$(INSTALL) -d $(salomescriptdir)
 	cp -r $(srcdir)/appliskel $(salomescriptdir)
 	find $(salomescriptdir) -name CVS | xargs rm -rf
+
+uninstall-local:
+	find $(salomescriptdir)/appliskel -exec chmod +w {} \;
+	rm -rf $(salomescriptdir)/appliskel
