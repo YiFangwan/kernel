@@ -92,3 +92,15 @@ libSalomeHDFPersist_la_CPPFLAGS = @CAS_CPPFLAGS@ @HDF5_INCLUDES@ -DPCLINUX \
                                   -I$(srcdir)/../SALOMELocalTrace \
                                   -I$(srcdir)/../Basics
 libSalomeHDFPersist_la_LIBADD   = @CAS_KERNEL@ @HDF5_LIBS@
+
+
+EXTRA_DIST = \
+  test1.c \
+  test2.c \
+  test3.cxx \
+  test4.cxx \
+  test5.cxx \
+  test6.cxx \
+  test7.cxx \
+  test8.cxx \
+  test9.cxx

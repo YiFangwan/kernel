@@ -10,31 +10,67 @@
 #
 
 
-# This creates the aclocal.m4 file from the standard macro and the
+# ____________________________________________________________________
+# aclocal creates the aclocal.m4 file from the standard macro and the
 # custom macro embedded in the directory salome_adm/unix/config_files.
+# output:
+#   aclocal.m4
+#   autom4te.cache (directory)
 echo "====================================================== aclocal"
+
 aclocal -I salome_adm/unix/config_files || exit 1
 
-# This instruction creates some configuration files (ltmain.sh,
+
+# ____________________________________________________________________
+# libtoolize creates some configuration files (ltmain.sh,
 # config.guess and config.sub). It only depends on the libtool
 # version. The files are created in the directory specified with the
 # AC_CONFIG_AUX_DIR(<mydir>) tag (see configure.ac).
+# output:
+#   salome_adm/unix/config_files/config.guess
+#   salome_adm/unix/config_files/config.sub
+#   salome_adm/unix/config_files/ltmain.sh
 echo "====================================================== libtoolize"
+
 libtoolize --force --copy --automake || exit 1
 
-# This instruction creates some scripts used in building process
+
+# ____________________________________________________________________
+# autoconf creates the configure script from the file configure.ac (or
+# configure.in if configure.ac doesn't exist)
+# output:
+#   configure
+echo "====================================================== autoconf"
+
+autoconf
+
+# ____________________________________________________________________
+# autoheader creates config.h.in
+# output:
+#   configure
+#echo "====================================================== autoheader"
+
+#autoheader
+
+# ____________________________________________________________________
+# automake creates some scripts used in building process
 # (install-sh, missing, ...). It only depends on the automake
 # version. The files are created in the directory specified with the
 # AC_CONFIG_AUX_DIR(<mydir>) tag (see configure.ac). This step also
 # creates the Makefile.in files from the Makefile.am files.
+# output:
+#   salome_adm/unix/config_files/compile
+#   salome_adm/unix/config_files/depcomp
+#   salome_adm/unix/config_files/install-sh
+#   salome_adm/unix/config_files/missing
+#   salome_adm/unix/config_files/py-compile
+#   Makefile.in (from Makefile.am)
 echo "====================================================== automake"
+
 automake --add-missing --copy --gnu
 
-# This creates the configure script from the file configure.ac (or
-# configure.in if configure.ac doesn't exist)
-echo "====================================================== autoconf"
-autoconf
 
+# ____________________________________________________________________
 #
 # Note that automake could be executed at last after autoconf. The
 # order doesn't matter.

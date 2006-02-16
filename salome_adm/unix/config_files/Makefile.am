@@ -4,18 +4,14 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # The deprecated files are deprecated for the KERNEL but not for the
 # related modules (GUI, MED, ...). Some files have to be installed.
 DEPRECATED_FILES=\
-	DEPRECATED/ltconfig \
-	DEPRECATED/install-sh \
-	DEPRECATED/config.sub \
-	DEPRECATED/config.guess \
-	DEPRECATED/ltmain.sh \
-	DEPRECATED/libtool.m4 \
+	DEPRECATED/ac_cc_warnings.m4 \
 	DEPRECATED/ac_cxx_bool.m4 \
 	DEPRECATED/ac_cxx_mutable.m4 \
 	DEPRECATED/ac_cxx_partial_specialization.m4 \
-	DEPRECATED/check_mico.m4 \
 	DEPRECATED/ac_cxx_typename.m4 \
-	DEPRECATED/ac_cc_warnings.m4
+	DEPRECATED/check_mico.m4 \
+	DEPRECATED/libtool.m4 \
+	DEPRECATED/ltconfig
 
 dist_salomem4_DATA=\
 ac_cxx_depend_flag.m4 \
@@ -26,6 +22,7 @@ ac_cxx_template_options.m4 \
 ac_cxx_use_std_iostream.m4 \
 ac_cxx_warnings.m4 \
 ac_linker_options.m4 \
+acx_pthread.m4 \
 check_Kernel.m4 \
 check_boost.m4 \
 check_cas.m4 \
@@ -42,7 +39,6 @@ check_msg2qm.m4 \
 check_omniorb.m4 \
 check_opengl.m4 \
 check_openpbs.m4 \
-check_pthreads.m4 \
 check_pyqt.m4 \
 check_qt.m4 \
 check_qwt.m4 \
