@@ -26,3 +26,5 @@ salomem4dir        = $(salomeadmdir)/unix/config_files
 # Shared modules installation directory
 sharedpkgpythondir =$(pkgpythondir)/shared_modules
 
+# Documentation directory
+docdir             = $(datadir)/doc/@PACKAGE@

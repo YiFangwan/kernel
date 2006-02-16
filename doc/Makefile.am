@@ -5,9 +5,10 @@
 # $Header$
 #
 
-#SUBDIRS = salome
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-docdir   = $(datadir)/doc
+SUBDIRS = salome
+
 doc_DATA = \
 	index.html \
 	UnitTests.html \
@@ -20,8 +21,11 @@ EXTRA_DIST=$(doc_DATA)
 # Building html from restructured text files
 STYLESHEET=rst.css
 RST2HTML=@RST2HTML@
-#RSTOPTS=--output-encoding=latin1 --stylesheet=$(STYLESHEET)
-RSTOPTS=--output-encoding=latin1
+RSTOPTS=--output-encoding=latin1 --stylesheet=$(STYLESHEET)
+#RSTOPTS=--output-encoding=latin1
 
 %.html: $(srcdir)/%.txt
 	$(RST2HTML) $(RSTOPTS) $< $@
+
+userdoc:
+	(cd salome && $(MAKE) $(AM_MAKEFLAGS) userdoc)
