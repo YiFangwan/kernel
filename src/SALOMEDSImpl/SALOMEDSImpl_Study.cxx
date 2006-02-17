@@ -1266,14 +1266,18 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
     Handle(SALOMEDSImpl_SComponent) sco = itcomponent.Value();
     aCompType = sco->ComponentDataType();
     //GEOM and MED are independent components
-    if(aCompType == "GEOM" || aCompType == "MED") aSeq.Prepend(TCollection_ExtendedString(aCompType));
-    else aSeq.Append(TCollection_ExtendedString(aCompType));
+    if (aCompType == "GEOM" || aCompType == "MED")
+      aSeq.Prepend(TCollection_ExtendedString(aCompType));
+    else
+      aSeq.Append(TCollection_ExtendedString(aCompType));
   }
 
 #ifdef WIN32
-  TCollection_AsciiString aFileName=thePath+TCollection_AsciiString("\\")+theBaseName+TCollection_AsciiString(".py");
+  TCollection_AsciiString aFileName =
+    thePath + TCollection_AsciiString("\\") + theBaseName + TCollection_AsciiString(".py");
 #else
-  TCollection_AsciiString aFileName=thePath+TCollection_AsciiString("/")+theBaseName+TCollection_AsciiString(".py");
+  TCollection_AsciiString aFileName =
+    thePath + TCollection_AsciiString("/")  + theBaseName + TCollection_AsciiString(".py");
 #endif
 
   //Create a file that will contain a main Study script
@@ -1293,7 +1297,8 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
 
   TCollection_AsciiString aBatchModeScript = "salome";
 
-  //Output to the main Study script required Python modules import, set sys.path and add a creation of the study.
+  //Output to the main Study script required Python modules import,
+  //set sys.path and add a creation of the study.
   fp << GetDumpStudyComment().ToCString() << endl << endl;
   fp << "import sys" << endl;
   fp << "import " << aBatchModeScript << "\n" << endl;
@@ -1374,9 +1379,9 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
     fp2.open(aFileName.ToCString(), ios::out);
 
 #ifdef WIN32
-    isOpened = fp.is_open();
+    isOpened = fp2.is_open();
 #else
-    isOpened = fp.rdbuf()->is_open();
+    isOpened = fp2.rdbuf()->is_open();
 #endif
 
     if(!isOpened) {
