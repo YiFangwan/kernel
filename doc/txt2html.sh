@@ -18,12 +18,12 @@
 # This must be updated manually in this script (for source usage only)
 RST2HTML=rst2html
 
-FILELIST="\
-	index \
-	UnitTests \
-	SALOME_Application \
-	INSTALL\
-	userguide"
+FILELIST="index
+	  UnitTests
+	  SALOME_Application
+	  INSTALL
+	  kernel_resources
+	  userguide"
 
 STYLESHEET=rst.css
 RSTOPTS="--output-encoding=latin1 --stylesheet=$STYLESHEET"
