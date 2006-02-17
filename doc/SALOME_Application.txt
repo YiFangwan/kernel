@@ -5,7 +5,7 @@ SALOME Application Concept. Configuration for one or more computers
 
 *html version of this document is produced with docutils*::
 
-  rest2html < doc.txt > doc.html
+  rst2html doc.txt > doc.html
 
 This document corresponds to SALOME2 3.1. (alpha version)
 

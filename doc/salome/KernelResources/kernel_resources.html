@@ -1,56 +1,496 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">
-<HTML>
-<HEAD>
- <META NAME="GENERATOR" CONTENT="LinuxDoc-Tools 0.9.20">
- <TITLE>SALOME Kernel resources for developer</TITLE>
- <LINK HREF="kernel_resources-1.html" REL=next>
-
-
-</HEAD>
-<BODY>
-<A HREF="kernel_resources-1.html">Next</A>
-Previous
-Contents
-<HR>
-<H1>SALOME Kernel resources for developer</H1>
-
-<H2>Antoine Yessayan, Paul Rascle </H2>Version 0.2 January 28, 2005
-<HR>
-<EM>ABSTRACT </EM>
-<HR>
-<HR>
-<EM>This document describes the development environment for C++ and
- Python. Makefiles generation and usage are introduced in another
- document: "using the SALOME configuration and building system environment".
- Development environment is intended here as: trace and debug macros
- usage; SALOME exceptions usage, in C++ and Python; user CORBA exceptions
- usage, in C++ and Python, with and without Graphical User Interface;
- some general purpose services such as singleton, used for CORBA connection
- and disconnection.</EM>
-<HR>
-<P>
-<H2><A NAME="toc1">1.</A> <A HREF="kernel_resources-1.html">Trace and debug Utilities</A></H2>
-
-<UL>
-<LI><A NAME="toc1.1">1.1</A> <A HREF="kernel_resources-1.html#ss1.1">Two modes: debug and release</A>
-<LI><A NAME="toc1.2">1.2</A> <A HREF="kernel_resources-1.html#ss1.2">C++ Macros for trace and debug</A>
-</UL>
-<P>
-<H2><A NAME="toc2">2.</A> <A HREF="kernel_resources-2.html">Exceptions</A></H2>
-
-<UL>
-<LI><A NAME="toc2.1">2.1</A> <A HREF="kernel_resources-2.html#ss2.1">C++ exceptions: class SALOME_Exception</A>
-<LI><A NAME="toc2.2">2.2</A> <A HREF="kernel_resources-2.html#ss2.2">CORBA exceptions</A>
-</UL>
-<P>
-<H2><A NAME="toc3">3.</A> <A HREF="kernel_resources-3.html">Miscellaneous tools</A></H2>
-
-<UL>
-<LI><A NAME="toc3.1">3.1</A> <A HREF="kernel_resources-3.html#ss3.1">Singleton</A>
-</UL>
-<HR>
-<A HREF="kernel_resources-1.html">Next</A>
-Previous
-Contents
-</BODY>
-</HTML>
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="Docutils 0.3.7: http://docutils.sourceforge.net/" />
+<title></title>
+<link rel="stylesheet" href="default.css" type="text/css" />
+</head>
+<body>
+<div class="document">
+<p>SALOME Kernel resources for developer</p>
+<p>Antoine Yessayan, Paul Rascle</p>
+<p>Version 0.2 January 28, 2005</p>
+<p>Abstract</p>
+<p>ABSTRACT</p>
+<p>Abstract</p>
+<p>This document describes the development environment for 
+C++ and Python. Makefiles generation and usage are 
+introduced in another document: &quot;using the SALOME 
+configuration and building system environment&quot;. 
+Development environment is intended here as: trace and 
+debug macros usage; SALOME exceptions usage, in C++ and 
+Python; user CORBA exceptions usage, in C++ and Python, 
+with and without Graphical User Interface; some general 
+purpose services such as singleton, used for CORBA 
+connection and disconnection.</p>
+<p>Table des Matières</p>
+<dl class="docutils">
+<dt>Trace and debug Utilities</dt>
+<dd><p class="first">Two modes: debug and release
+C++ Macros for trace and debug</p>
+<div class="system-message">
+<p class="system-message-title">System Message: ERROR/3 (<tt class="docutils">kernel_resources.txt</tt>, line 29)</p>
+Unexpected indentation.</div>
+<blockquote class="last">
+Macros defined in debug and release modes
+Macros defined only in debug mode</blockquote>
+</dd>
+<dt>Exceptions</dt>
+<dd><dl class="first last docutils">
+<dt>C++ exceptions: class SALOME_Exception</dt>
+<dd>definition
+usage</dd>
+<dt>CORBA exceptions</dt>
+<dd>definition
+usage</dd>
+</dl>
+</dd>
+<dt>Miscellaneous tools</dt>
+<dd><blockquote class="first">
+<dl class="docutils">
+<dt>Singleton</dt>
+<dd>Definition
+Usage
+Design description</dd>
+</dl>
+</blockquote>
+<p class="last">Trace and debug Utilities</p>
+</dd>
+</dl>
+<p>During the development process, an execution log is 
+useful to identify problems. This log contains 
+messages, variables values, source files names and line 
+numbers. It is recommended to verify assertions on 
+variables values and if necessary, to stop the 
+execution at debug time, in order to validate all parts 
+of code.</p>
+<blockquote>
+Two modes: debug and release</blockquote>
+<p>The goal of debug mode is to check as many features as 
+possible during the early stages of the development 
+process. The purpose of the utilities provided in 
+SALOME is to help the developer to add detailed traces 
+and check variables values, without writing a lot of code.</p>
+<p>When the code is assumed to be valid, the release mode 
+optimizes execution, in terms of speed, memory, and 
+display only user level messages.</p>
+<p>But, some informations must always be displayed in both 
+modes: especially messages concerning environment or 
+internal errors, with version identification. When an 
+end user is confronted to such a message, he may refer 
+to a configuration documentation or send the message to 
+the people in charge of SALOME installation, or to the 
+development team, following the kind of error.</p>
+<blockquote>
+C++ Macros for trace and debug</blockquote>
+<p>SALOME provides C++ macros for trace and debug. These 
+macros are in SALOME/src/SALOMELocalTrace/utilities.h 
+and this file must be included in C++ source. Some 
+macros are activated only in debug mode, others are 
+always activated. To activate the debug mode, _DEBUG_ 
+must be defined, which is the case when SALOME 
+Makefiles are generated from configure, without 
+options. When _DEBUG_ is undefined (release mode: 
+configure --disable-debug --enable-production), the 
+debug mode macros are defined empty (they do nothing). 
+So, when switching from debug to release, it is 
+possible (and recommended) to let the macro calls 
+unchanged in the source.</p>
+<p>All the macros generate trace messages, stored in a 
+circular buffer pool. A separate thread reads the 
+messages in the buffer pool, and, depending on options 
+given at SALOME start, writes the messages on the 
+standard output, a file, or send them via CORBA, in 
+case of a multi machine configuration.</p>
+<p>Three informations are systematically added in front of 
+the information displayed:</p>
+<ul class="simple">
+<li>the thread number from which the message come from;</li>
+<li>the name of the source file in which the macros is set;</li>
+<li>the line number of the source file at which the macro 
+is set.</li>
+</ul>
+<blockquote>
+<p>Macros defined in debug and release modes</p>
+<blockquote>
+INFOS_COMPILATION</blockquote>
+</blockquote>
+<p>The C++ macro INFOS_COMPILATION writes on the trace 
+buffer pool informations about the compiling process:</p>
+<ul class="simple">
+<li>the name of the compiler : g++, KCC, CC, pgCC;</li>
+<li>the date and the time of the compiling processing process.</li>
+</ul>
+<p>This macro INFOS_COMPILATION does not have any 
+argument. Moreover, it is defined in both compiling 
+mode : _DEBUG_ and _RELEASE_.</p>
+<p>Example :</p>
+<p>#include &quot;utilities.h&quot;</p>
+<p>int main(int argc , char <a href="#id1" name="id2"><span class="problematic" id="id2">**</span></a>argv)</p>
+<div class="system-message" id="id1">
+<p class="system-message-title">System Message: <a name="id1">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 128); <em><a href="#id2">backlink</a></em></p>
+Inline strong start-string without end-string.</div>
+<p>{</p>
+<blockquote>
+<p>INFOS_COMPILATION;</p>
+<p>...</p>
+</blockquote>
+<p>}</p>
+<blockquote>
+INFOS(str)</blockquote>
+<p>In both compiling mode _DEBUG_ and _RELEASE_, The C++ 
+macro INFOS writes on the trace buffer pool the string 
+which has been passed in argument by the user.</p>
+<p>Example :</p>
+<p>#include &quot;utilities.h&quot;</p>
+<p>int main(int argc , char <a href="#id3" name="id4"><span class="problematic" id="id4">**</span></a>argv)</p>
+<div class="system-message" id="id3">
+<p class="system-message-title">System Message: <a name="id3">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 148); <em><a href="#id4">backlink</a></em></p>
+Inline strong start-string without end-string.</div>
+<p>{</p>
+<blockquote>
+<p>...</p>
+<p>INFOS(&quot;NORMAL END OF THE PROCESS&quot;);</p>
+<p>return 0;</p>
+</blockquote>
+<p>}</p>
+<p>displays :</p>
+<p>main.cxx [5] : NORMAL END OF THE PROCESS</p>
+<blockquote>
+INTERRUPTION(str)</blockquote>
+<p>In both compiling mode _DEBUG_ and _RELEASE_, The C++ 
+macro INTERRUPTION writes on the trace buffer pool the 
+string, with a special ABORT type. When the thread in 
+charge of collecting messages finds this message, it 
+terminates the application, after message treatment.</p>
+<blockquote>
+IMMEDIATE_ABORT(str)</blockquote>
+<p>In both compiling mode _DEBUG_ and _RELEASE_, The C++ 
+macro IMMEDIATE_ABORT writes the message immediately on 
+standard error and exits the application. Remaining 
+messages not treated by the message collector thread 
+are lost.</p>
+<blockquote>
+<p>Macros defined only in debug mode</p>
+<blockquote>
+MESSAGE(str)</blockquote>
+</blockquote>
+<p>In _DEBUG_ compiling mode only, the C++ macro MESSAGE 
+writes on the trace buffer pool the string which has 
+been passed in argument by the user. In _RELEASE_ 
+compiling mode, this macro is blank.</p>
+<p>Example :</p>
+<p>#include &quot;utilities.h&quot;</p>
+<p>#include &lt;string&gt;</p>
+<p>using namespace std;</p>
+<p>int main(int argc , char <a href="#id5" name="id6"><span class="problematic" id="id6">**</span></a>argv)</p>
+<div class="system-message" id="id5">
+<p class="system-message-title">System Message: <a name="id5">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 199); <em><a href="#id6">backlink</a></em></p>
+Inline strong start-string without end-string.</div>
+<p>{</p>
+<blockquote>
+<p>...</p>
+<p>const char <a href="#id7" name="id8"><span class="problematic" id="id8">*</span></a>str = &quot;Salome&quot;;</p>
+<div class="system-message" id="id7">
+<p class="system-message-title">System Message: <a name="id7">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 205); <em><a href="#id8">backlink</a></em></p>
+Inline emphasis start-string without end-string.</div>
+<p>MESSAGE(str);</p>
+<p>... const string st;</p>
+<p>st = &quot;Aster&quot;;</p>
+<p>MESSAGE(c_str(st+&quot; and CASTEM&quot;));</p>
+<p>return 0;</p>
+</blockquote>
+<p>}</p>
+<p>displays :</p>
+<ul>
+<li><p class="first">Trace main.cxx [8] : Salome</p>
+</li>
+<li><p class="first">Trace main.cxx [12] : Aster and CASTEM</p>
+<p>BEGIN_OF(func_name)</p>
+</li>
+</ul>
+<p>In _DEBUG_ compiling mode, The C++ macro BEGIN_OF 
+appends the string &quot;Begin of &quot; to the one passed in 
+argument by the user and displays the result on the 
+trace buffer pool. In _RELEASE_ compiling mode, this 
+macro is blank.</p>
+<p>Example :</p>
+<p>#include &quot;utilities.h&quot;</p>
+<p>int main(int argc , char <a href="#id9" name="id10"><span class="problematic" id="id10">**</span></a>argv)</p>
+<div class="system-message" id="id9">
+<p class="system-message-title">System Message: <a name="id9">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 237); <em><a href="#id10">backlink</a></em></p>
+Inline strong start-string without end-string.</div>
+<p>{</p>
+<blockquote>
+<p>BEGIN_OF(argv[0]);</p>
+<p>return 0;</p>
+</blockquote>
+<p>}</p>
+<p>displays :</p>
+<ul>
+<li><p class="first">Trace main.cxx [3] : Begin of a.out</p>
+<p>END_OF(func_name)</p>
+</li>
+</ul>
+<p>In _DEBUG_ compiling mode, The C++ macro END_OF appends 
+the string &quot;Normal end of &quot; to the one passed in 
+argument by the user and displays the result on the 
+trace buffer pool. In _RELEASE_ compiling mode, this 
+macro is blank.</p>
+<p>Example :</p>
+<p>#include &quot;utilities.h&quot;</p>
+<p>int main(int argc , char <a href="#id11" name="id12"><span class="problematic" id="id12">**</span></a>argv)</p>
+<div class="system-message" id="id11">
+<p class="system-message-title">System Message: <a name="id11">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 263); <em><a href="#id12">backlink</a></em></p>
+Inline strong start-string without end-string.</div>
+<p>{</p>
+<blockquote>
+<p>END_OF(argv[0]);</p>
+<p>return 0;</p>
+</blockquote>
+<p>}</p>
+<p>displays :</p>
+<ul>
+<li><p class="first">Trace main.cxx [4] : Normal end of a.out</p>
+<p>SCRUTE(var)</p>
+</li>
+</ul>
+<p>In _DEBUG_ compiling mode, The C++ macro SCRUTE 
+displays its argument which is an application variable 
+followed by the value of the variable. In _RELEASE_ 
+compiling mode, this macro is blank.</p>
+<p>Example :</p>
+<p>#include &quot;utilities.h&quot;</p>
+<p>int main(int argc , char <a href="#id13" name="id14"><span class="problematic" id="id14">**</span></a>argv)</p>
+<div class="system-message" id="id13">
+<p class="system-message-title">System Message: <a name="id13">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 288); <em><a href="#id14">backlink</a></em></p>
+Inline strong start-string without end-string.</div>
+<p>{</p>
+<blockquote>
+<p>const int i=999;</p>
+<p>if( i &gt; 0 ) SCRUTE(i) ; i=i+1;</p>
+<p>return 0;</p>
+</blockquote>
+<p>}</p>
+<p>displays :</p>
+<ul>
+<li><p class="first">Trace main.cxx [5] : i=999</p>
+<p>ASSERT(condition)</p>
+</li>
+</ul>
+<p>In _DEBUG_ compiling mode only, The C++ macro ASSERT 
+checks the expression passed in argument to be not 
+NULL. If it is NULL the condition is written with the 
+macro INTERRUPTION (see above). The process exits after 
+trace of this last message. In _RELEASE_ compiling 
+mode, this macro is blank. N.B. : if ASSERT is already 
+defined, this macro is ignored.</p>
+<p>Example :</p>
+<p>#include &quot;utilities.h&quot;</p>
+<p>...</p>
+<p>const char <a href="#id15" name="id16"><span class="problematic" id="id16">*</span></a>ptrS = fonc();</p>
+<div class="system-message" id="id15">
+<p class="system-message-title">System Message: <a name="id15">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 320); <em><a href="#id16">backlink</a></em></p>
+Inline emphasis start-string without end-string.</div>
+<p>ASSERT(ptrS!=NULL);</p>
+<p>cout &lt;&lt; strlen(ptrS);</p>
+<p>float table[10];</p>
+<p>int k;</p>
+<p>...</p>
+<p>ASSERT(k&lt;10);</p>
+<p>cout &lt;&lt; table[k];</p>
+<blockquote>
+<p>Exceptions</p>
+<p>C++ exceptions: class SALOME_Exception</p>
+<p>definition</p>
+</blockquote>
+<p>The class SALOME_Exception provides a generic method to 
+send a message, with optional source file name and line 
+number. This class is intended to serve as a base class 
+for all kinds of exceptions SALOME code. All the 
+exceptions derived from SALOME_Exception could be 
+handled in a single catch, in which the message 
+associated to the exception is displayed, or sent to a 
+log file.</p>
+<p>The class SALOME_Exception inherits its behavior from 
+the STL class exception.</p>
+<blockquote>
+usage</blockquote>
+<p>The header SALOME/src/utils/utils_SALOME_Exception.hxx 
+must be included in the C++ source, when raised or trapped:</p>
+<p>#include &quot;utils_SALOME_Exception.hxx&quot;</p>
+<p>The SALOME_Exception constructor is:</p>
+<p>SALOME_Exception( const char <a href="#id17" name="id18"><span class="problematic" id="id18">*</span></a>text,</p>
+<div class="system-message" id="id17">
+<p class="system-message-title">System Message: <a name="id17">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 363); <em><a href="#id18">backlink</a></em></p>
+Inline emphasis start-string without end-string.</div>
+<blockquote>
+<p>const char <a href="#id19" name="id20"><span class="problematic" id="id20">*</span></a>fileName=0,</p>
+<div class="system-message" id="id19">
+<p class="system-message-title">System Message: <a name="id19">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 365); <em><a href="#id20">backlink</a></em></p>
+Inline emphasis start-string without end-string.</div>
+<p>const unsigned int lineNumber=0 );</p>
+</blockquote>
+<p>The exception is raised like this:</p>
+<p>throw SALOME_Exception(&quot;my pertinent message&quot;);</p>
+<p>or like this:</p>
+<p>throw SALOME_Exception(LOCALIZED(&quot;my pertinent message&quot;));</p>
+<p>where LOCALIZED is a macro provided with 
+utils_SALOME_Exception.hxx which gives file name and 
+line number.</p>
+<p>The exception is handled like this:</p>
+<p>try</p>
+<blockquote>
+<p>{</p>
+<blockquote>
+...</blockquote>
+<p>}</p>
+</blockquote>
+<p>catch (const SALOME_Exception &amp;ex)</p>
+<blockquote>
+<p>{</p>
+<blockquote>
+cerr &lt;&lt; ex.what() &lt;&lt;endl;</blockquote>
+<p>}</p>
+</blockquote>
+<p>The what() method overrides the one defined in the STL 
+exception class.</p>
+<blockquote>
+<p>CORBA exceptions</p>
+<p>definition</p>
+</blockquote>
+<p>The idl SALOME_Exception provides a generic CORBA 
+exception for SALOME, with an attribute that gives an 
+exception type,a message, plus optional source file 
+name and line number.</p>
+<p>This idl is intended to serve for all user CORBA 
+exceptions raised in SALOME code, as IDL specification 
+does not support exception inheritance. So, all the 
+user CORBA exceptions from SALOME could be handled in a 
+single catch.</p>
+<p>The exception types defined in idl are:</p>
+<blockquote>
+<p>COMM CORBA communication problem,</p>
+<p>BAD_PARAM Bad User parameters,</p>
+<p>INTERNAL_ERROR application level problem (often irrecoverable).</p>
+</blockquote>
+<p>CORBA system and user exceptions already defined in the 
+packages used within SALOME, such as OmniORB 
+exceptions, must be handled separately.</p>
+<blockquote>
+<p>usage</p>
+<blockquote>
+CORBA servant, C++</blockquote>
+</blockquote>
+<p>The CORBA Server header for SALOME_Exception and a 
+macro to throw the exception are provided with the 
+header SALOME/src/Utils/Utils_CorbaException.hxx:</p>
+<p>#include &quot;Utils_CorbaException.hxx&quot;</p>
+<p>The exception is raised with a macro which appends file 
+name and line number.</p>
+<p>if (myStudyName.size() == 0)</p>
+<blockquote>
+<blockquote>
+<p>THROW_SALOME_CORBA_EXCEPTION(&quot;No Study Name given&quot;, </p>
+<blockquote>
+SALOME::BAD_PARAM);</blockquote>
+</blockquote>
+<p>CORBA Client, GUI Qt C++</p>
+</blockquote>
+<p>The CORBA Client header for SALOME_Exception and a Qt 
+function header that displays a message box are 
+provided in 
+SALOME/src/SALOMEGUI/SALOMEGUI_QtCatchCorbaException.hxx:</p>
+<p>#include &quot;SALOMEGUI_QtCatchCorbaException.hxx&quot;</p>
+<p>A typical exchange with a CORBA Servant will be:</p>
+<p>try</p>
+<blockquote>
+<p>{</p>
+<blockquote>
+... // one ore more CORBA calls</blockquote>
+<p>}</p>
+</blockquote>
+<p>catch (const SALOME::SALOME_Exception &amp; S_ex)</p>
+<blockquote>
+<p>{</p>
+<blockquote>
+QtCatchCorbaException(S_ex);</blockquote>
+<p>}</p>
+<p>CORBA Client, C++, without GUI</p>
+</blockquote>
+<p>Nothing specific has been provided to the developer 
+yet. See the idl or the Qt function 
+SALOMEGUI_QtCatchCorbaException.hxx to see how to get 
+the information given by the exception object.</p>
+<blockquote>
+<p>Miscellaneous tools</p>
+<p>Singleton</p>
+<p>Definition</p>
+</blockquote>
+<p>A singleton is an application data which is created and 
+deleted only once at the end of the application 
+process. The C++ compiler allows the user to create a 
+static singleton data before the first executable 
+statement. They are deleted after the last statement execution.</p>
+<p>The <a href="#id27" name="id28"><span class="problematic" id="id28">SINGLETON_</span></a> template class deals with dynamic 
+singleton. It is useful for functor objects. For 
+example, an object that connects the application to a 
+system at creation and disconnects the application at deletion.</p>
+<blockquote>
+Usage</blockquote>
+<p>To create a single instance a POINT object :</p>
+<p># include &quot;Utils_SINGLETON.hxx&quot;</p>
+<p>...</p>
+<p>POINT <a href="#id21" name="id22"><span class="problematic" id="id22">*</span></a>ptrPoint=SINGLETON_&lt;POINT&gt;::Instance() ;</p>
+<div class="system-message" id="id21">
+<p class="system-message-title">System Message: <a name="id21">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 509); <em><a href="#id22">backlink</a></em></p>
+Inline emphasis start-string without end-string.</div>
+<p>assert(ptrPoint!=NULL) ;</p>
+<p>No need to delete ptrPoint. Deletion is achieved 
+automatically at exit. If the user tries to create more 
+than one singleton by using the class method 
+SINGLETON_&lt;TYPE&gt;::Instance(), the pointer is returned 
+with the same value even if this is done in different 
+functions (threads ?).</p>
+<p>POINT <a href="#id23" name="id24"><span class="problematic" id="id24">*</span></a>p1=SINGLETON_&lt;POINT&gt;::Instance() ;</p>
+<div class="system-message" id="id23">
+<p class="system-message-title">System Message: <a name="id23">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 520); <em><a href="#id24">backlink</a></em></p>
+Inline emphasis start-string without end-string.</div>
+<p>...</p>
+<p>POINT <a href="#id25" name="id26"><span class="problematic" id="id26">*</span></a>p2=SINGLETON_&lt;POINT&gt;::Instance() ;</p>
+<div class="system-message" id="id25">
+<p class="system-message-title">System Message: <a name="id25">WARNING/2</a> (<tt class="docutils">kernel_resources.txt</tt>, line 524); <em><a href="#id26">backlink</a></em></p>
+Inline emphasis start-string without end-string.</div>
+<p>assert(p1==p2)</p>
+<blockquote>
+Design description</blockquote>
+<p>Here are the principles features of the singleton 
+design :</p>
+<ul class="simple">
+<li>the user creates an object of class TYPE by using the 
+class method SINGLETON_&lt;TYPE&gt;::Instance() which 
+returns a pointer to the single object ;</li>
+<li>to create an object, SINGLETON_&lt;TYPE&gt;::Instance() 
+uses the default constructor of class TYPE ;</li>
+<li>at the same time, this class method creates a 
+destructor object which is added to the generic list 
+of destructor objects to be executed at the end of 
+the application (atexit) ;</li>
+<li>at the end of the application process all the 
+deletions are performed by the Nettoyage() C function 
+which executes the destruction objects end then 
+deletes the destructions objects themselves ;</li>
+<li>the Nettoyage() C  function using atexit() C  function 
+is embedded in a static single object ATEXIT_().</li>
+</ul>
+<div class="system-messages section">
+<h1><a>Docutils System Messages</a></h1>
+<div class="system-message" id="id27">
+<p class="system-message-title">System Message: <a name="id27">ERROR/3</a> (<tt class="docutils">kernel_resources.txt</tt>, line 496); <em><a href="#id28">backlink</a></em></p>
+Unknown target name: &quot;singleton&quot;.</div>
+</div>
+</div>
+</body>
+</html>

@@ -13,7 +13,8 @@ doc_DATA = \
 	index.html \
 	UnitTests.html \
 	SALOME_Application.html \
-	INSTALL.html
+	INSTALL.html \
+	kernel_resources.html
 
 EXTRA_DIST=$(doc_DATA)
 
