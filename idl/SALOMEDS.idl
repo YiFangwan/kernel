@@ -876,14 +876,14 @@ Gets the list of open studies
     ListOfAttributes     GetAllAttributes();
 /*! Gets the study of a given %SObject.
 
-    /return The study containing the given %SObject.
+    \return The study containing the given %SObject.
 */
     Study GetStudy();
 
 /*! Gets the CORBA object by its own IOR attribute.
     Returns nil, if can't.
 
-    /return The CORBA object of the %SObject.
+    \return The CORBA object of the %SObject.
 */
     Object GetObject();
 
