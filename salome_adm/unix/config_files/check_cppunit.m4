@@ -96,12 +96,11 @@ else
     AC_SUBST(CPPUNIT_INCLUDES)
     AC_SUBST(CPPUNIT_LIBS)
     AC_SUBST(cppunit_ok)
-    AM_CONDITIONAL(CPPUNIT_IS_OK, [test x"$cppunit_ok" = xyes])
-
     AC_MSG_RESULT(yes)
   fi
-
 fi
+
+AM_CONDITIONAL(CPPUNIT_IS_OK, [test x"$cppunit_ok" = xyes])
 
 AC_LANG_RESTORE
 
