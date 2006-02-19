@@ -10,8 +10,24 @@ DEPRECATED_FILES=\
 	DEPRECATED/ac_cxx_partial_specialization.m4 \
 	DEPRECATED/ac_cxx_typename.m4 \
 	DEPRECATED/check_mico.m4 \
+	DEPRECATED/check_pthreads.m4 \
+	DEPRECATED/config.sub \
+	DEPRECATED/config.guess \
+	DEPRECATED/install-sh \
 	DEPRECATED/libtool.m4 \
-	DEPRECATED/ltconfig
+	DEPRECATED/ltconfig \
+	DEPRECATED/ltmain.sh
+
+## The following scripts are required for modules not built with autotools
+#dist_salomem4_SCRIPTS=\
+#	compile \
+#	config.guess \
+#	config.sub \
+#	depcomp \
+#	install-sh \
+#	ltmain.sh \
+#	missing \
+#	py-compile
 
 dist_salomem4_DATA=\
 ac_cxx_depend_flag.m4 \
