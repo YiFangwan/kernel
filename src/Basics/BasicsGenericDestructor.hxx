@@ -82,11 +82,11 @@
 class PROTECTED_DELETE
 {
 public:
-  static void deleteInstance(PROTECTED_DELETE *anObject);
-  static void addObj(PROTECTED_DELETE *anObject);
+  BASICS_EXPORT static void deleteInstance(PROTECTED_DELETE *anObject);
+  BASICS_EXPORT static void addObj(PROTECTED_DELETE *anObject);
 
 protected:
-  virtual ~PROTECTED_DELETE();
+  BASICS_EXPORT virtual ~PROTECTED_DELETE();
   static std::list<PROTECTED_DELETE*> _objList;
 
 private:
@@ -142,7 +142,6 @@ public :
 
 template <class TYPE> class DESTRUCTOR_OF : public GENERIC_DESTRUCTOR
 {
-
 public:
   /*!
     Programs the destruction at the end of the process, of the object anObject.
