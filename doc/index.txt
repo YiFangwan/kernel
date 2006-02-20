@@ -20,21 +20,30 @@ This document corresponds to SALOME2 3.1. (alpha version)
 Developpers and users, which documentation ?
 ============================================
 
-From module development to end users.
-A SALOME Application is built from a set of SALOME modules.
-
+Following your kind of usage of SALOME, you will find some specific 
+introductory documentation, listed below.
 
 Module maintainer
 -----------------
-The result of development and debug is stored in the CVS base of the module.
+Module maintainers are in charge of the development and debug of the SALOME
+modules. Each SALOME module is stored in a CVS base. CVS bases are organised
+in separate branches for developments and debug. All official or development
+releases are identified by a CVS tag.
 
 
 Application Integrator
 ----------------------
 
+Applications integrators are in charge of configuration and installation of
+specific SALOME applications over a local network. Application Integrators 
+built SALOME modules binaries from sources tarballs.
 
 End user
 --------
+
+The end user may have to configure his own SALOME applicatin by selection of a
+subset of availables SALOME modules. He also may want to install his
+application on several computers. 
 
 
 Documentation for developpers and module maintainers
