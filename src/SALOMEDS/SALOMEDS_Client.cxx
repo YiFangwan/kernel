@@ -26,12 +26,14 @@
 //  Module : SALOME
 //  $Header$
 
-#include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS)
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "utilities.h"
 #include "SALOMEDS_AttributeName_i.hxx"
 #include "HDFOI.hxx"
+
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS)
+
 using namespace std;
 
 //============================================================================
