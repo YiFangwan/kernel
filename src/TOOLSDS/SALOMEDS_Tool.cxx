@@ -49,6 +49,7 @@
 #endif
 #include <stdlib.h>
 
+#include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
 
 using namespace std;

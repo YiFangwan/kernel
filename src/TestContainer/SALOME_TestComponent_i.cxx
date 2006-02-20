@@ -26,7 +26,7 @@
 //  Module : SALOME
 //  $Header$
 
-#define private protected
+//#define private protected
 #include "utilities.h"
 #include "SALOME_TestComponent_i.hxx"
 #include <stdio.h>
