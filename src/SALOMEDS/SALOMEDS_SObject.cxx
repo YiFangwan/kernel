@@ -21,8 +21,6 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-
-
 #include <string>
 #include <TCollection_AsciiString.hxx> 
 #include <TColStd_HSequenceOfTransient.hxx>
