@@ -45,7 +45,7 @@
 #include <dlfcn.h>
 #include <unistd.h>
 #else
-#include "../../adm/win32/SALOME_WNT.hxx"
+#include <windows.h>
 #include <signal.h>
 #include <process.h>
 int SIGUSR1 = 1000;
@@ -306,23 +306,26 @@ Engines_Container_i::load_component_Library(const char* componentName)
       return true;
     }
   
-  void* handle;
 #ifndef WNT
+  void* handle;
   handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
 #else
-  handle = dlopen( impl_name.c_str() , 0 ) ;
+  HINSTANCE handle;
+  handle = LoadLibrary( impl_name.c_str() );
 #endif
   if ( handle )
-    {
+  {
       _library_map[impl_name] = handle;
       _numInstanceMutex.unlock();
       return true;
-    }
+  }
   else
-    {
-      INFOS("Can't load shared library : " << impl_name);
+  {
+      INFOS( "Can't load shared library: " << impl_name );
+#ifndef WNT
       INFOS("error dlopen: " << dlerror());
-    }
+#endif
+  }
   _numInstanceMutex.unlock();
 
   // --- try import Python component
@@ -690,16 +693,20 @@ Engines_Container_i::createInstance(string genericRegisterName,
      const char *, 
      const char *) ;
 
-  FACTORY_FUNCTION Component_factory
-    = (FACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
+#ifndef WNT
+  FACTORY_FUNCTION Component_factory = (FACTORY_FUNCTION)dlsym( handle, factory_name.c_str() );
+#else
+  FACTORY_FUNCTION Component_factory = (FACTORY_FUNCTION)GetProcAddress( (HINSTANCE)handle, factory_name.c_str() );
+#endif
 
-  char *error ;
-  if ( (error = dlerror() ) != NULL)
-    {
-      INFOS("Can't resolve symbol: " + factory_name);
-      SCRUTE(error);
+  if ( !Component_factory )
+  {
+      INFOS( "Can't resolve symbol: " + factory_name );
+#ifndef WNT
+      SCRUTE( dlerror() );
+#endif
       return Engines::Component::_nil() ;
-    }
+  }
 
   // --- create instance
 
