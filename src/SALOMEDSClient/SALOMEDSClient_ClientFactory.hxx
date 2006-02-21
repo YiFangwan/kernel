@@ -35,7 +35,7 @@
 
 // IDL headers
 #include <SALOMEconfig.h>
-#include CORBA_SERVER_HEADER(SALOMEDS)
+#include CORBA_CLIENT_HEADER(SALOMEDS)
 
 class ClientFactory {
 

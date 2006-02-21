@@ -57,7 +57,9 @@ EXPORT_HEADERS= SALOMEDSClient_definitions.hxx \
 LIB = libSalomeDSClient.la
 LIB_SRC = SALOMEDSClient_ClientFactory.cxx
 
-LIB_SERVER_IDL = SALOMEDS.idl 
+LIB_CLIENT_IDL = SALOMEDS.idl \
+		 SALOME_Exception.idl \
+		 SALOME_GenericObj.idl
 
 CPPFLAGS+=$(BOOST_CPPFLAGS)
 CXXFLAGS+=$(BOOST_CPPFLAGS)
