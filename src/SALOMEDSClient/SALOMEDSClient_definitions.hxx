@@ -41,7 +41,7 @@ public:
   template<class Y>
     clt_shared_ptr & operator=(clt_shared_ptr<Y> const & r)
       {
-	clt_shared_ptr<T>(r,boost::detail::dynamic_cast_tag()).swap(*this);
+	clt_shared_ptr<T>(r).swap(*this);
 	return *this;
       }
   
