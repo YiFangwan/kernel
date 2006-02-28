@@ -38,7 +38,7 @@ _PTR(SObject) ClientFactory::SObject(SALOMEDS::SObject_ptr theSObject)
   if(!_libHandle) _libHandle = ::LoadLibrary(SALOMEDS_LIB_NAME);
   if(!aSObjectFactory) aSObjectFactory = (SOBJECT_FACTORY_FUNCTION)::GetProcAddress(_libHandle, SOBJECT_FACTORY);
 #else
-  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY);
+  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY | RTLD_GLOBAL);
   if(!aSObjectFactory) aSObjectFactory = (SOBJECT_FACTORY_FUNCTION) dlsym(_libHandle, SOBJECT_FACTORY);
 #endif
 
@@ -54,7 +54,7 @@ _PTR(SComponent) ClientFactory::SComponent(SALOMEDS::SComponent_ptr theSComponen
   if(!_libHandle) _libHandle = ::LoadLibrary(SALOMEDS_LIB_NAME);
   if(!aSComponentFactory) aSComponentFactory = (SCOMPONENT_FACTORY_FUNCTION)::GetProcAddress(_libHandle, SCOMPONENT_FACTORY);
 #else
-  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY);
+  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY | RTLD_GLOBAL);
   if(!aSComponentFactory) aSComponentFactory = (SCOMPONENT_FACTORY_FUNCTION) dlsym(_libHandle, SCOMPONENT_FACTORY);
 #endif
 
@@ -70,7 +70,7 @@ _PTR(Study) ClientFactory::Study(SALOMEDS::Study_ptr theStudy)
   if(!_libHandle) _libHandle = ::LoadLibrary(SALOMEDS_LIB_NAME);
   if(!aStudyFactory) aStudyFactory = (STUDY_FACTORY_FUNCTION)::GetProcAddress(_libHandle, STUDY_FACTORY);
 #else
-  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY);
+  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY | RTLD_GLOBAL);
   if(!aStudyFactory) aStudyFactory = (STUDY_FACTORY_FUNCTION) dlsym(_libHandle, STUDY_FACTORY);
 #endif
 
@@ -86,7 +86,7 @@ _PTR(StudyManager) ClientFactory::StudyManager()
   if(!_libHandle) _libHandle = ::LoadLibrary(SALOMEDS_LIB_NAME);
   if(!aManagerFactory) aManagerFactory = (STUDYMANAGER_FACTORY_FUNCTION)::GetProcAddress(_libHandle, STUDYMANAGER_FACTORY);
 #else
-  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY);
+  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY | RTLD_GLOBAL);
   if(!aManagerFactory) aManagerFactory = (STUDYMANAGER_FACTORY_FUNCTION) dlsym(_libHandle, STUDYMANAGER_FACTORY);
 #endif
 
@@ -102,7 +102,7 @@ _PTR(StudyManager) ClientFactory::createStudyManager(CORBA::ORB_ptr orb, Portabl
   if(!_libHandle) _libHandle = ::LoadLibrary(SALOMEDS_LIB_NAME);
   if(!aCreateFactory) aCreateFactory = (STUDYMANAGER_CREATE_FUNCTION)::GetProcAddress(_libHandle, STUDYMANAGER_CREATE);
 #else
-  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY);
+  if(!_libHandle) _libHandle = dlopen(SALOMEDS_LIB_NAME, RTLD_LAZY | RTLD_GLOBAL);
   if(!aCreateFactory) aCreateFactory = (STUDYMANAGER_CREATE_FUNCTION) dlsym(_libHandle, STUDYMANAGER_CREATE);
 #endif
 
