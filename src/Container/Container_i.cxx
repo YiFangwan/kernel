@@ -308,7 +308,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
   
   void* handle;
 #ifndef WNT
-  handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+  handle = dlopen( impl_name.c_str() , RTLD_LAZY | RTLD_GLOBAL) ;
 #else
   handle = dlopen( impl_name.c_str() , 0 ) ;
 #endif
