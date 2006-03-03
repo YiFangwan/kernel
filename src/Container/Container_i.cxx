@@ -417,8 +417,11 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
       SCRUTE(iors);
       Py_RELEASE_NEW_THREAD;
   
-      CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
-      iobject = Engines::Component::_narrow( obj ) ;
+      if( iors!="" )
+      {
+	CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
+	iobject = Engines::Component::_narrow( obj ) ;
+      }
       return iobject._retn();
     }
   
