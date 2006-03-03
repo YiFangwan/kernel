@@ -19,8 +19,6 @@
 //
 #include "CASCatch_CatchSignals.hxx"
 
-#include "CASCatch_Failure.hxx"  
-#include "CASCatch_ErrorHandler.hxx"
 #include <TCollection_AsciiString.hxx>
 
 #define MAX_HANDLER_NUMBER 6
@@ -31,13 +29,15 @@
  * \brief creates a CASCatch_CatchSignals
  */
 //================================================================================ 
-CASCatch_CatchSignals::CASCatch_CatchSignals() 
-     :myIsActivated(Standard_False)
+CASCatch_CatchSignals::CASCatch_CatchSignals(Standard_Boolean theIsActivate):
+  myIsActivated(Standard_False)
 {
-
   Standard_Integer i = 0;
   for(; i<=MAX_HANDLER_NUMBER; i++)
     mySigStates[i] = NULL;
+  
+  if(theIsActivate)
+    Activate();
 }
 
 #ifndef WNT
@@ -112,7 +112,7 @@ static void Handler(const OSD_Signals theSig, const OSD_Signals)
   TCollection_AsciiString aMessage(theSig);  
   aMessage+=" signal detected";
  
-  CASCatch_Failure::Raise(aMessage.ToCString());
+  Standard_Failure::Raise(aMessage.ToCString());
 }
 
 
@@ -129,7 +129,7 @@ static void SegvHandler(const OSD_Signals, const Standard_Address, const Standar
   sigaddset(&set, SIGSEGV);
   sigprocmask (SIG_UNBLOCK, &set, NULL); 
 
-  CASCatch_Failure::Raise("SIGSEGV detected");
+  Standard_Failure::Raise("SIGSEGV detected");
 }
 #endif
 
@@ -234,7 +234,7 @@ static Standard_Integer WntHandler(const Standard_Address theExceptionInfo)
   TCollection_AsciiString aMessage((Standard_Integer)dwExceptionCode);  
   aMessage+=" Exception code - unexpected exception";
 
-  CASCatch_Failure::Raise(aMessage.ToCString());
+  Standard_Failure::Raise(aMessage.ToCString());
 
   return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -260,15 +260,15 @@ static void SIGWntHandler(const int signum , const int theCode)
     OLDSIGWNTHANDLER = signal( signum , SIGWNTHANDLER ); 
 
     if(theCode == _FPE_UNDERFLOW || theCode == _FPE_INEXACT) return;
-    CASCatch_Failure::Raise ("Floating point error"); 
+    Standard_Failure::Raise ("Floating point error"); 
     break;
   case SIGSEGV : 
     OLDSIGWNTHANDLER = signal( signum , SIGWNTHANDLER );
-    CASCatch_Failure::Raise("Access violation"); 
+    Standard_Failure::Raise("Access violation"); 
     break; 
   case SIGILL : 
     OLDSIGWNTHANDLER = signal( signum , SIGWNTHANDLER );
-    CASCatch_Failure::Raise("Illegal instruction" ); 
+    Standard_Failure::Raise("Illegal instruction" ); 
     break; 
   }
 }

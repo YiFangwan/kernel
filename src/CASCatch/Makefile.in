@@ -11,21 +11,19 @@ VPATH=.:@srcdir@:@top_srcdir@/idl:$(top_srcdir)/idl
 @COMMENCE@
 
 # header files  
-EXPORT_HEADERS= CASCatch_Failure.hxx \
-		CASCatch_CatchSignals.hxx \
-		CASCatch_ErrorHandler.hxx
+EXPORT_HEADERS= CASCatch_CatchSignals.hxx
+		# CASCatch_Failure.hxx \
+		# CASCatch_ErrorHandler.hxx
 
 # Libraries targets
 LIB = libCASCatch.la 
 
-LIB_SRC = CASCatch_Failure.cxx \
-          CASCatch_ErrorHandler.cxx \
-          CASCatch_CatchSignals.cxx
+LIB_SRC = CASCatch_CatchSignals.cxx
+	  # CASCatch_Failure.cxx \
+          # CASCatch_ErrorHandler.cxx
 
 CPPFLAGS += $(OCC_INCLUDES)
 CXXFLAGS += $(OCC_CXXFLAGS)
 LDFLAGS+= $(CAS_KERNEL) $(CAS_MATH)
 
 @CONCLUDE@
-
-

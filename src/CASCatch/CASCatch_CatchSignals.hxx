@@ -22,6 +22,8 @@
 #define _CASCatch_CatchSignals_HeaderFile
 
 #include <Standard.hxx>
+#include <Standard_Failure.hxx>
+#include <Standard_ErrorHandler.hxx>
 
 /*!
  * \class CASCatch_CatchSignals
@@ -34,7 +36,7 @@ public:
 
  // Methods PUBLIC
  // 
-Standard_EXPORT CASCatch_CatchSignals();
+Standard_EXPORT CASCatch_CatchSignals(Standard_Boolean theIsActivate = Standard_True);
 Standard_EXPORT void Destroy() ;
 ~CASCatch_CatchSignals() { Destroy(); }
 Standard_EXPORT void Activate() ;
@@ -58,6 +60,33 @@ Standard_Integer myFloatOpWord;
 Standard_Boolean myIsActivated;
 
 };
+
+
+#ifdef try
+#  undef try
+#endif
+
+#ifdef catch
+#  undef catch
+#endif
+
+#ifdef NO_CXX_EXCEPTION
+#  if defined(DO_ABORT)
+#    define CASCatch_TRY \
+       Standard_ErrorHandler _Function; \
+       K_SETJMP = 1 ; \
+       if(DoesNotAbort(_Function))
+#   else  //If DO_ABORT is not defined
+#     define CASCatch_TRY \
+        Standard_ErrorHandler _Function; \
+        if(DoesNotAbort(_Function))
+#   endif //DO_ABORT
+#   define CASCatch_CATCH(Error)   \
+      else if(_Function.Catches(STANDARD_TYPE(Error)))
+#else
+#  define CASCatch_TRY try
+#  define CASCatch_CATCH catch
+#endif //NO_CXX_EXCEPTION
 
 
 #endif
