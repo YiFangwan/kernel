@@ -75,7 +75,7 @@ esac
 
 AC_MSG_CHECKING(for OpenCascade directories)
 
-if test -z $CASROOT; then
+if test -z "$CASROOT"; then
   AC_MSG_RESULT(CASROOT not defined)
   for d in `echo $LD_LIBRARY_PATH | sed -e "s/:/ /g"` ; do
     if test -f $d/libTKernel.so ; then
@@ -101,7 +101,7 @@ fi
 
 
 dnl were is OCC ?
-if test -z $CASROOT; then
+if test -z "$CASROOT"; then
   AC_MSG_WARN(You must provide CASROOT variable : see OCC installation manual)
 else
   occ_ok=yes

@@ -53,33 +53,33 @@ else
     if test "x$SIPDIR" != "x" ; then
         dnl look for sip.h in ${SIPDIR}
         AC_CHECK_FILE(${SIPDIR}/sip.h,sip_ok=yes,sip_ok=no)
-	if test "x$sip_ok" == "xyes" ; then
+	if test "x$sip_ok" = "xyes" ; then
 	    SIP_INCLUDES="-I${SIPDIR}"
 	fi
-        if test "x$sip_ok" == "xno" ; then
+        if test "x$sip_ok" = "xno" ; then
             dnl look for sip.h in ${SIPDIR}/include/python${PYTHON_VERSION}
 	    if test -d ${SIPDIR}/include/python${PYTHON_VERSION} ; then
 		AC_CHECK_FILE(${SIPDIR}/include/python${PYTHON_VERSION}/sip.h,sip_ok=yes,sip_ok=no)
-      	        if test "x$sip_ok" == "xyes" ; then
+      	        if test "x$sip_ok" = "xyes" ; then
 	            SIP_INCLUDES="-I${SIPDIR}/include/python${PYTHON_VERSION}"
 		fi
 	    fi
 	fi
     fi
-    if test "x$sip_ok" == "xno" ; then
+    if test "x$sip_ok" = "xno" ; then
         dnl look for sip.h in ${PYTHON_PREFIX}/include/python${PYTHON_VERSION}
 	if test -d ${PYTHON_PREFIX}/include/python${PYTHON_VERSION} ; then
             AC_CHECK_FILE(${PYTHON_PREFIX}/include/python${PYTHON_VERSION}/sip.h,sip_ok=yes,sip_ok=no)
-	    if test "x$sip_ok" == "xyes" ; then
+	    if test "x$sip_ok" = "xyes" ; then
 	        SIP_INCLUDES="${PYTHON_INCLUDES}"
             fi
 	fi
     fi
-    if test "x$sip_ok" == "xno" ; then
+    if test "x$sip_ok" = "xno" ; then
         dnl look for sip.h in /usr/include/python${PYTHON_VERSION}
 	if test -d /usr/include/python${PYTHON_VERSION} ; then
             AC_CHECK_FILE(/usr/include/python${PYTHON_VERSION}/sip.h,sip_ok=yes,sip_ok=no)
-	    if test "x$sip_ok" == "xyes" ; then
+	    if test "x$sip_ok" = "xyes" ; then
 	        SIP_INCLUDES="/usr/include/python${PYTHON_VERSION}"
             fi
 	fi
@@ -90,7 +90,7 @@ else
     if test "x$SIPDIR" != "x" ; then
         dnl look for (lib)sip.so in ${SIPDIR}
         AC_CHECK_FILE(${SIPDIR}/libsip.so,sip_lib_ok=yes,sip_lib_ok=no)
-	if test "x$sip_lib_ok" == "xyes" ; then
+	if test "x$sip_lib_ok" = "xyes" ; then
             if test "x${SIPDIR}" = "x/usr/lib"
             then
               SIP_LIBS="-lsip"
@@ -99,7 +99,7 @@ else
             fi
 	else
 	    AC_CHECK_FILE(${SIPDIR}/sip.so,sip_lib_ok=yes,sip_lib_ok=no)
-	    if test "x$sip_lib_ok" == "xyes" ; then
+	    if test "x$sip_lib_ok" = "xyes" ; then
               if test "x${SIPDIR}" = "x/usr/lib"
               then
                 SIP_LIBS=""
@@ -109,50 +109,50 @@ else
 	    fi
 	fi
 
-        if test "x$sip_lib_ok" == "xno" ; then
+        if test "x$sip_lib_ok" = "xno" ; then
             dnl look for (lib)sip.so in ${SIPDIR}/lib/python${PYTHON_VERSION}/site-packages
 	    if test -d ${SIPDIR}/lib/python${PYTHON_VERSION}/site-packages ; then
 		AC_CHECK_FILE(${SIPDIR}/lib/python${PYTHON_VERSION}/site-packages/libsip.so,sip_lib_ok=yes,sip_lib_ok=no)
-      	        if test "x$sip_lib_ok" == "xyes" ; then
+      	        if test "x$sip_lib_ok" = "xyes" ; then
 	            SIP_LIBS="-L${SIPDIR}/lib/python${PYTHON_VERSION}/site-packages -lsip"
 	        else
 	            AC_CHECK_FILE(${SIPDIR}/lib/python${PYTHON_VERSION}/site-packages/sip.so,sip_lib_ok=yes,sip_lib_ok=no)
-	            if test "x$sip_lib_ok" == "xyes" ; then
+	            if test "x$sip_lib_ok" = "xyes" ; then
 	                SIP_LIBS="-L${SIPDIR}/lib/python${PYTHON_VERSION}/site-packages"
 	            fi
 		fi
 	    fi
 	fi
     fi
-    if test "x$sip_lib_ok" == "xno" ; then
+    if test "x$sip_lib_ok" = "xno" ; then
         dnl look for (lib)sip.so in ${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/site-packages
 	if test -d ${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/site-packages ; then
             AC_CHECK_FILE(${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/site-packages/libsip.so,sip_lib_ok=yes,sip_lib_ok=no)
-	    if test "x$sip_lib_ok" == "xyes" ; then
+	    if test "x$sip_lib_ok" = "xyes" ; then
 	        SIP_LIBS="-L${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/site-packages -lsip"
 	    else
 	        AC_CHECK_FILE(${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/site-packages/sip.so,sip_lib_ok=yes,sip_lib_ok=no)
-                if test "x$sip_lib_ok" == "xyes" ; then
+                if test "x$sip_lib_ok" = "xyes" ; then
 	            SIP_LIBS="-L${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/site-packages"
                 fi
 	    fi
 	fi
     fi
-    if test "x$sip_lib_ok" == "xno" ; then
+    if test "x$sip_lib_ok" = "xno" ; then
         dnl look for (lib)sip.so in /usr/lib/python${PYTHON_VERSION}/site-packages
 	if test -d /usr/lib/python${PYTHON_VERSION}/site-packages ; then
             AC_CHECK_FILE(/usr/lib/python${PYTHON_VERSION}/site-packages/libsip.so,sip_lib_ok=yes,sip_lib_ok=no)
-	    if test "x$sip_lib_ok" == "xyes" ; then
+	    if test "x$sip_lib_ok" = "xyes" ; then
 	        SIP_LIBS="-L$/usr/lib/python${PYTHON_VERSION}/site-packages -lsip"
 	    else
 	        AC_CHECK_FILE(/usr/lib/python${PYTHON_VERSION}/site-packages/sip.so,sip_lib_ok=yes,sip_lib_ok=no)
-                if test "x$sip_lib_ok" == "xyes" ; then
+                if test "x$sip_lib_ok" = "xyes" ; then
 	            SIP_LIBS="-L/usr/lib/python${PYTHON_VERSION}/site-packages"
 	        fi
             fi
 	fi
     fi
-    if test "x$sip_lib_ok" == "xno" ; then
+    if test "x$sip_lib_ok" = "xno" ; then
         sip_ok=no
     fi
 fi

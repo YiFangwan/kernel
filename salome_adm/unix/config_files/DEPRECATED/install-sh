@@ -33,7 +33,7 @@ done
 if test x$dirParams = "xyes"; then
 mkdir -p $dirPath
 else
-cp $args $dirPath
+cp -f $args $dirPath
 for arg in $args; do
 myArg=`basename $arg`
 if test x$chmodParams != x; then

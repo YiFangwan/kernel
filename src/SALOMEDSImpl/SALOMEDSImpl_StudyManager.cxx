@@ -23,8 +23,6 @@
 
 #include "SALOMEDSImpl_StudyManager.hxx"
 
-using namespace std;
-
 #include <CDF_Session.hxx>
 #include <CDF_DirectoryIterator.hxx>
 #include <TDF_Label.hxx>
@@ -51,6 +49,8 @@ using namespace std;
 #include "HDFOI.hxx"
 #include <iostream>
 #include <stdlib.h>
+
+using namespace std;
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_StudyManager, MMgt_TShared )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_StudyManager, MMgt_TShared )
@@ -153,16 +153,16 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::Open(const TCollection_Asc
   }
   catch (HDFexception)
     {
-#ifndef WNT
-      char eStr[strlen(aUrl.ToCString())+17];
-#else
+//#ifndef WNT
+//      char eStr[strlen(aUrl.ToCString())+17];
+//#else
 	  char *eStr;
 	  eStr = new char[strlen(aUrl.ToCString())+17];
-#endif
+//#endif
       sprintf(eStr,"Can't open file %s",aUrl.ToCString());
-#ifdef WNT
+//#ifdef WNT
 	  delete [] eStr;
-#endif
+//#endif
       _errorCode = TCollection_AsciiString(eStr);
       return NULL;
     }
@@ -195,11 +195,11 @@ Handle(SALOMEDSImpl_Study) SALOMEDSImpl_StudyManager::Open(const TCollection_Asc
   }
   catch (HDFexception)
     {
-#ifndef WNT
-      char eStr[strlen(aUrl.ToCString())+17];
-#else
+//#ifndef WNT
+//      char eStr[strlen(aUrl.ToCString())+17];
+//#else
 	  char *eStr = new char [strlen(aUrl.ToCString())+17];
-#endif
+//#endif
       sprintf(eStr,"Can't open file %s", aUrl.ToCString());
       _errorCode = TCollection_AsciiString(eStr);
       return NULL;

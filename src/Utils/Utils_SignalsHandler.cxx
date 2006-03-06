@@ -82,7 +82,9 @@ Utils_SignalsHandler::Utils_SignalsHandler()
   StoreSignalHandler(mySigHandlerCont,SIGHUP); // floating point exception
   StoreSignalHandler(mySigHandlerCont,SIGQUIT); // quit
   StoreSignalHandler(mySigHandlerCont,SIGBUS); // bus error
+#ifndef __osf1__
   StoreSignalHandler(mySigHandlerCont,SIGSTKFLT); // stack fault.
+#endif
 #endif
   StoreSignalHandler(mySigHandlerCont,SIGFPE); // floating point exception  
   StoreSignalHandler(mySigHandlerCont,SIGINT); // interrupt

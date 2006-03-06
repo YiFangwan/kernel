@@ -13,7 +13,7 @@ AC_ARG_WITH(msg2qm,
 	    [  --with-msg2qm=DIR               root directory path of MSG2QM installation],
 	    MSG2QM_DIR="$withval",MSG2QM_DIR="")
 
-if test "x$MSG2QM_DIR" == "x" ; then
+if test "x$MSG2QM_DIR" = "x" ; then
 
 # no --with-MSG2QM-dir option used
 

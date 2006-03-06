@@ -36,7 +36,10 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # header files  
 # Scripts to be installed
-dist_salomescript_DATA = SALOME_TestComponentPy.py TestComponentPy.py
+dist_salomescript_DATA = \
+	SALOME_TestComponentPy.py \
+	TestComponentPy.py \
+	TestLogger.py
 
 #
 # ===============================================================

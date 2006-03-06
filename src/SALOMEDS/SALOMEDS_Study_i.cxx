@@ -751,7 +751,7 @@ CORBA::Boolean SALOMEDS_Study_i::DumpStudy(const char* thePath, const char* theB
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================
-long SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+CORBA::Long SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
 #ifdef WIN32
   long pid = (long)_getpid();

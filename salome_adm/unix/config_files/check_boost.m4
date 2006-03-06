@@ -37,7 +37,7 @@ BOOST_LIBTHREAD=""
 
 boost_ok=no
 
-if test -z ${BOOSTDIR}; then
+if test -z "${BOOSTDIR}"; then
   AC_CHECK_HEADER(boost/shared_ptr.hpp,boost_ok=yes,boost_ok=no)
   if test boost_ok = no ; then
     AC_MSG_WARN(You must provide BOOSTDIR variable)

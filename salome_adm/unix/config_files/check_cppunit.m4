@@ -19,7 +19,7 @@ AC_ARG_WITH(cppunit_inc,
       AC_MSG_RESULT("select $withval as path to CPPUNIT includes")
     ])
 
-if test -z $CPPUNITHOME; then
+if test -z "$CPPUNITHOME"; then
   AC_MSG_RESULT(CPPUNITHOME not defined)
   exits_ok=no	
   if test "x$exits_ok" = "xno"; then
@@ -43,12 +43,12 @@ if test -z $CPPUNITHOME; then
      done
   fi
   if test "x$exits_ok" = "xyes"; then
-     if test -z $CPPUNIT_INCLUDES; then
+     if test -z "$CPPUNIT_INCLUDES"; then
         CPPUNIT_INCLUDES=$CPPUNITHOME"/include"
      fi
   fi
 else
-  if test -z $CPPUNIT_INCLUDES; then
+  if test -z "$CPPUNIT_INCLUDES"; then
      CPPUNIT_INCLUDES="$CPPUNITHOME/include"
   fi   	
 fi

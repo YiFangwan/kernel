@@ -79,7 +79,6 @@ libSalomeCatalog_la_SOURCES =\
 	SALOME_ModuleCatalog_Acomponent_impl.cxx
 
 libSalomeCatalog_la_CPPFLAGS =\
-	-ftemplate-depth-32 \
 	$(COMMON_CPPFLAGS)
 
 libSalomeCatalog_la_LDFLAGS = -no-undefined -version-info=0:0:0
