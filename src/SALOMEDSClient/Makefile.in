@@ -50,7 +50,35 @@ EXPORT_HEADERS= SALOMEDSClient_definitions.hxx \
                 SALOMEDSClient_StudyManager.hxx \
                 SALOMEDSClient_UseCaseBuilder.hxx \
                 SALOMEDSClient_UseCaseIterator.hxx \
+		SALOMEDSClient_ClientFactory.hxx \
 		SALOMEDSClient.hxx
+
+# Libraries targets
+
+LIB = libSalomeDSClient.la
+LIB_SRC = SALOMEDSClient_ClientFactory.cxx
+
+LIB_CLIENT_IDL = SALOMEDS.idl \
+		 SALOME_Exception.idl \
+		 SALOME_GenericObj.idl
+
+CPPFLAGS+=$(BOOST_CPPFLAGS)
+CXXFLAGS+=$(BOOST_CPPFLAGS)
+#LDFLAGS+= -lSalomeNS
+
+# _CS_gbo_090604 Ajout Spécifique Calibre 3, pour l'utilisation de la version 5.12 de la bibliothèque OCC.
+# La bibliothèque OCC5.12 a été compilée sur Calibre 3 avec l'extention Xmu (impossible de compiler sans).
+# On est donc obligé ici, pour permettre l'édition de lien avec les bibliothèques OCC, de spécifier le
+# chemin d'accès aux bibliothèques Xmu
+#
+
+# _CS_gbo_090604 Ajout Sp.cifique Calibre 3, pour l'utilisation de la version 5.12 de la biblioth.que OCC.
+# La biblioth.que OCC5.12 a .t. compil.e sur Calibre 3 avec l'extention Xmu (impossible de compiler sans).
+# On est donc oblig. ici, pour permettre l'.dition de lien avec les biblioth.ques OCC, de sp.cifier le
+# chemin d'acc.s aux biblioth.ques Xmu
+#
+LDXMUFLAGS= -L/usr/X11R6/lib -lXmu
+LDFLAGS+=$(LDXMUFLAGS)
 
 @CONCLUDE@
 
