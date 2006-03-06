@@ -1,5 +1,3 @@
-//  SALOME Notification : wrapping of Notification service services
-//
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
@@ -21,31 +19,29 @@
 //
 //
 //
-//  File   : NOTIFICATION.hxx
-//  Author : Laurent DADA / Francis KLOSS
+//  File   : SALOME_Container.hxx
+//  Author : Alexander A. BORODIN
 //  Module : SALOME
 
-#ifndef NOTIFICATION_HXX
-#define NOTIFICATION_HXX
+#ifndef _SALOME_Container_HXX_
+#define _SALOME_Container_HXX_
 
-#include <SALOME_NOTIFICATION.hxx>
-
-#define NOTIF_WARNING "Warning"
-#define NOTIF_STEP    "Step"
-#define NOTIF_TRACE   "Trace"
-#define NOTIF_VERBOSE "Verbose"
-
-#define NOTIFICATION_ChannelName "EventChannel"
-
-#include "utilities.h"
-
-// kloss #include <omnithread.h>
-#include "CosNotifyShorthands.h"
-
-#include "NOTIFICATION_Supplier.hxx"
-#include "NOTIFICATION_Consumer.hxx"
-
-NOTIFICATION_EXPORT char* NOTIFICATION_date();
-NOTIFICATION_EXPORT CosNA_EventChannel_ptr NOTIFICATION_channel();
+#ifdef WNT
+ #if defined CONTAINER_EXPORTS
+  #if defined WIN32
+   #define CONTAINER_EXPORT __declspec( dllexport )
+  #else
+   #define CONTAINER_EXPORT
+  #endif
+ #else
+  #if defined WIN32
+   #define CONTAINER_EXPORT __declspec( dllimport )
+  #else
+   #define CONTAINER_EXPORT
+  #endif
+ #endif
+#else
+ #define CONTAINER_EXPORT
+#endif
 
 #endif

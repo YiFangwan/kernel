@@ -29,24 +29,12 @@
 #ifndef SALOME_DATA_CATALOG_HANDLER_H
 #define SALOME_DATA_CATALOG_HANDLER_H
 
+#include <SALOME_DataTypeCatalog.hxx>
+
 #include "SALOME_DataTypeCatalog_Parser.hxx"
 #include <qxml.h>
 #include <string>
 #include <vector>
-
-#if defined DATATYPECATALOG_EXPORTS
-#if defined WIN32
-#define DATATYPECATALOG_EXPORT __declspec( dllexport )
-#else
-#define DATATYPECATALOG_EXPORT
-#endif
-#else
-#if defined WNT
-#define DATATYPECATALOG_EXPORT __declspec( dllimport )
-#else
-#define DATATYPECATALOG_EXPORT
-#endif
-#endif
 
 class DATATYPECATALOG_EXPORT SALOME_DataTypeCatalog_Handler : public QXmlDefaultHandler 
 {
