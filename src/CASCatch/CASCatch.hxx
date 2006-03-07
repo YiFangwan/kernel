@@ -18,46 +18,38 @@
 // See http://www.salome-platform.org/
 //
 
-#ifndef _CASCatch_CatchSignals_HeaderFile
-#define _CASCatch_CatchSignals_HeaderFile
+#ifndef _CASCatch_HeaderFile
+#define _CASCatch_HeaderFile
 
-#include <Standard.hxx>
+#include <Standard_Failure.hxx>
+#include <Standard_ErrorHandler.hxx>
 
-/*!
- * \class CASCatch_CatchSignals
- * \brief This class controls an exception handling
- *
- */ 
-class CASCatch_CatchSignals  {
 
-public:
+#ifdef try
+#  undef try
+#endif
 
- // Methods PUBLIC
- // 
-Standard_EXPORT CASCatch_CatchSignals();
-Standard_EXPORT void Destroy() ;
-~CASCatch_CatchSignals() { Destroy(); }
-Standard_EXPORT void Activate() ;
-Standard_EXPORT void Deactivate() ;
+#ifdef catch
+#  undef catch
+#endif
 
-private:
-
-/*!\var mySigStates[7], private
- * \brief stores signals' handler functions
- */ 
-Standard_Address mySigStates[7];
-
-/*!\var myFloatOpWord
- * \brief stores a float operation word, private
- */ 
-Standard_Integer myFloatOpWord;
-
-/*!\var myIsActivated
- * \brief stores a flag whether a catcher is activated, private]
- */
-Standard_Boolean myIsActivated;
-
-};
+#ifdef NO_CXX_EXCEPTION
+#  if defined(DO_ABORT)
+#    define CASCatch_TRY \
+       Standard_ErrorHandler _Function; \
+       K_SETJMP = 1 ; \
+       if(DoesNotAbort(_Function))
+#   else  //If DO_ABORT is not defined
+#     define CASCatch_TRY \
+        Standard_ErrorHandler _Function; \
+        if(DoesNotAbort(_Function))
+#   endif //DO_ABORT
+#   define CASCatch_CATCH(Error)   \
+      else if(_Function.Catches(STANDARD_TYPE(Error)))
+#else
+#  define CASCatch_TRY try
+#  define CASCatch_CATCH catch
+#endif //NO_CXX_EXCEPTION
 
 
 #endif
