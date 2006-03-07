@@ -24,7 +24,8 @@ EXPORT_HEADERS= \
 	SALOMEDS_SComponent_i.hxx \
 	SALOMEDS_SComponent.hxx \
 	SALOMEDS_GenericAttribute_i.hxx \
-	SALOMEDS_GenericAttribute.hxx
+	SALOMEDS_GenericAttribute.hxx \
+	SALOMEDS_IParameters.hxx
 
 # Libraries targets
 
@@ -70,6 +71,7 @@ LIB_SRC = 	\
 		  SALOMEDS_AttributeTableOfString_i.cxx \
 		  SALOMEDS_AttributeStudyProperties_i.cxx \
 		  SALOMEDS_AttributePythonObject_i.cxx \
+		  SALOMEDS_AttributeParameter_i.cxx \
 		  SALOMEDS_SObject.cxx \
 		  SALOMEDS_SComponent.cxx \
 		  SALOMEDS_GenericAttribute.cxx \
@@ -108,7 +110,9 @@ LIB_SRC = 	\
 		  SALOMEDS_AttributeTextHighlightColor.cxx \
 		  SALOMEDS_AttributeTreeNode.cxx \
 		  SALOMEDS_AttributeUserID.cxx \
-                  SALOMEDS_TMPFile_i.cxx
+                  SALOMEDS_TMPFile_i.cxx \
+		  SALOMEDS_AttributeParameter.cxx \
+		  SALOMEDS_IParameters.cxx
 
 # Executables targets
 BIN = SALOMEDS_Server SALOMEDS_Client
