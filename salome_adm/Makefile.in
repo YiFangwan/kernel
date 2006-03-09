@@ -43,5 +43,7 @@ distclean:
 
 clean:
 
+tests:
+
 distclean-other:
 
