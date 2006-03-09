@@ -79,6 +79,8 @@ ifeq (@cppunit_ok@,yes)
  Utils/Test \
  NamingService/Test \
  LifeCycleCORBA/Test \
+ SALOMEDSImpl/Test \
+ SALOMEDS/Test \
  UnitTests
 endif
 
