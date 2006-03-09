@@ -420,7 +420,7 @@ class SessionServer(Server):
             self.SCMD2+=['SUPERV']
         if self.args['gui']:
             self.SCMD2+=['GUI']
-        if self.args['splash']:
+        if self.args['splash'] and self.args['gui']:
             self.SCMD2+=['SPLASH']
         if self.args['noexcepthandler']:
             self.SCMD2+=['noexcepthandler']
