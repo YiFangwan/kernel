@@ -27,8 +27,8 @@
 
 %module libNOTIFICATION
 
-%{
 #define _declspec(a)
+
+%{
 #include "NOTIFICATION_Swig.hxx"
-#undef _declspec
 %}
