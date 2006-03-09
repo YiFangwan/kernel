@@ -296,43 +296,11 @@ CHECK_CPPUNIT
 if test "X$WITHIHM" = "Xyes"; then
 	echo
 	echo ---------------------------------------------
-	echo Testing sip
-	echo ---------------------------------------------
-	echo
-
-	CHECK_SIP
-
-	echo
-	echo ---------------------------------------------
 	echo testing openGL
 	echo ---------------------------------------------
 	echo
 
 	CHECK_OPENGL
-
-	echo
-	echo ---------------------------------------------
-	echo testing VTK
-	echo ---------------------------------------------
-	echo
-
-	CHECK_VTK
-
-	echo
-	echo ---------------------------------------------
-	echo Testing pyqt
-	echo ---------------------------------------------
-	echo
-
-	CHECK_PYQT
-
-	echo
-	echo ---------------------------------------------
-	echo Testing qwt
-	echo ---------------------------------------------
-	echo
-
-	CHECK_QWT
 fi
 
 echo

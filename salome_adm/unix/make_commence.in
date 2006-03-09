@@ -278,7 +278,7 @@ $(top_srcdir)/configure.in: $(top_srcdir)/configure.in.base
 
 
 ACLOCAL_SRC = \
-ac_cxx_bool.m4                    check_corba.m4     check_vtk.m4	\
+ac_cxx_bool.m4                    check_corba.m4     \
 ac_cxx_depend_flag.m4             check_hdf5.m4      enable_pthreads.m4	\
 ac_cxx_mutable.m4                 check_mico.m4      libtool.m4		\
 ac_cxx_namespaces.m4              check_omniorb.m4   pyembed.m4		\
