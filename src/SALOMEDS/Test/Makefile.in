@@ -56,7 +56,26 @@ LIBS= @LIBS@ @CPPUNIT_LIBS@
 
 LDFLAGS+= -lSalomeDSClient 
 
-LDFLAGSFORBIN+= -L$(KERNEL_ROOT_DIR)/lib/salome -lSalomeDSClient -lSalomeDS -lSalomeDSImpl -lSALOMELocalTrace $(LDFLAGS) -lSALOMELocalTraceTest -lSALOMEDSTest -lSALOMEDSImplTest	
+LDFLAGSFORBIN+= $(LDFLAGS) \
+	-L$(KERNEL_ROOT_DIR)/lib/salome \
+	-lSalomeDSClient \
+	-lSalomeDS \
+	-lSalomeDSImpl \
+	-lTOOLSDS \
+	-lSalomeNS \
+	-lOpUtil \
+	-lRegistry \
+	-lSalomeContainer \
+	-lSalomeGenericObj \
+	-lSalomeNotification \
+	-lSalomeLifeCycleCORBA \
+	-lSalomeResourcesManager \
+	-lSalomeHDFPersist \
+	-lSALOMEBasics \
+	-lSALOMELocalTrace \
+	-lSALOMELocalTraceTest \
+	-lSALOMEDSTest \
+	-lSALOMEDSImplTest	
 
 UNIT_TEST_PROG = TestSALOMEDS
 

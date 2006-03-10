@@ -55,7 +55,12 @@ LIBS= @LIBS@ @CPPUNIT_LIBS@
 
 LDFLAGS+=$(CAS_OCAF)
 
-LDFLAGSFORBIN+= -L$(KERNEL_ROOT_DIR)/lib/salome -lSalomeDSImpl $(LDFLAGS) -lSALOMEDSImplTest	
+LDFLAGSFORBIN+=$(LDFLAGS) \
+	$(HDF5_LIBS) \
+	-L$(KERNEL_ROOT_DIR)/lib/salome \
+	-lSalomeDSImpl \
+	-lSalomeHDFPersist \
+	-lSALOMEDSImplTest	
 
 UNIT_TEST_PROG = TestSALOMEDSImpl
 
