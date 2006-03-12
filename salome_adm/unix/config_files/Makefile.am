@@ -51,17 +51,12 @@ check_lam.m4 \
 check_lsf.m4 \
 check_mpi.m4 \
 check_mpich.m4 \
-check_msg2qm.m4 \
 check_omniorb.m4 \
 check_opengl.m4 \
 check_openpbs.m4 \
-check_pyqt.m4 \
 check_qt.m4 \
-check_qwt.m4 \
-check_sip.m4 \
 check_sockets.m4 \
 check_swig.m4 \
-check_vtk.m4 \
 check_withihm.m4 \
 enable_pthreads.m4 \
 production.m4 \

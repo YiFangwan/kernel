@@ -139,10 +139,14 @@ $(DEST_SHAREDPYSCRIPTS): $(PYTHON_SHARED_SITE)/%: %
 
 check: test
 
-tests: test
+tests: unittest
 
 test: $(LIB) $(TEST_PROGS:%=$(top_builddir)/bin/salome/%) 
 
+unittest: 
+	@if test "x$(UNIT_TEST_PROG)" != "x"; then      \
+	   $(top_builddir)/bin/salome/$(UNIT_TEST_PROG); \
+	fi;
 
 # copy header file in $(inc_builddir)
 #

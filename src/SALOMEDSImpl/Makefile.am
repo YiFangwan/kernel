@@ -47,6 +47,7 @@ salomeinclude_HEADERS= \
 	SALOMEDSImpl_AttributeName.hxx \
 	SALOMEDSImpl_AttributeComment.hxx \
 	SALOMEDSImpl_AttributeReference.hxx \
+	SALOMEDSImpl_AttributeParameter.hxx \
 	SALOMEDSImpl_UseCaseBuilder.hxx \
 	SALOMEDSImpl_UseCaseIterator.hxx \
 	SALOMEDSImpl_SComponentIterator.hxx \
@@ -54,7 +55,9 @@ salomeinclude_HEADERS= \
 	SALOMEDSImpl_Study.hxx \
 	SALOMEDSImpl_StudyManager.hxx \
 	SALOMEDSImpl_OCAFApplication.hxx \
-	SALOMEDSImpl_ChildNodeIterator.hxx
+	SALOMEDSImpl_ChildNodeIterator.hxx \
+	SALOMEDSImpl_IParameters.hxx \
+	SALOMEDSImpl_TMPFile.hxx
 
 #
 # ===============================================================
@@ -65,6 +68,8 @@ salomeinclude_HEADERS= \
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
 	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
+	-I$(srcdir)/../Basics \
+	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../HDFPersist \
 	@HDF5_INCLUDES@
 
@@ -123,6 +128,7 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_AttributeName.cxx \
 	SALOMEDSImpl_AttributeComment.cxx \
 	SALOMEDSImpl_AttributeReference.cxx \
+	SALOMEDSImpl_AttributeParameter.cxx \
 	SALOMEDSImpl_ChildNodeIterator.cxx \
 	SALOMEDSImpl_UseCaseBuilder.cxx \
 	SALOMEDSImpl_UseCaseIterator.cxx \
@@ -130,6 +136,8 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_StudyBuilder.cxx \
 	SALOMEDSImpl_Study.cxx \
 	SALOMEDSImpl_StudyManager.cxx \
+	SALOMEDSImpl_IParameters.cxx \
+	SALOMEDSImpl_TMPFile.cxx \
 	\
 	SALOMEDSImpl_AttributeComment.hxx \
 	SALOMEDSImpl_AttributeDrawable.hxx \

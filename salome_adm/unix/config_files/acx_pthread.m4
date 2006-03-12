@@ -1,3 +1,5 @@
+dnl Paul RASCLE: modification for Linux: -pthread required by boost...
+dnl
 dnl Available from the GNU Autoconf Macro Archive at:
 dnl http://www.gnu.org/software/ac-archive/htmldoc/acx_pthread.html
 dnl
@@ -62,6 +64,12 @@ acx_pthread_flags="pthreads none -Kthread -kthread lthread -pthread -pthreads -m
 # pthread-config: use pthread-config program (for GNU Pth library)
 
 case "${host_cpu}-${host_os}" in
+        *linux*)
+
+        # On linux "none" works, but boost requires -pthread, so, try first "-pthread"
+acx_pthread_flags="-pthread pthreads none -Kthread -kthread lthread -pthreads -mthreads pthread --thread-safe -mt pthread-config"
+        ;;
+
         *solaris*)
 
         # On Solaris (at least, for some versions), libc contains stubbed

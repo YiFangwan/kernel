@@ -65,7 +65,9 @@ SUBDIR_CPPUNIT_CORBA = \
   SALOMETraceCollector/Test \
   Utils/Test \
   NamingService/Test \
-  LifeCycleCORBA/Test
+  LifeCycleCORBA/Test \
+  SALOMEDSImpl/Test \
+  SALOMEDS/Test
 
 SUBDIR_CPPUNIT_GENERAL = \
   UnitTests

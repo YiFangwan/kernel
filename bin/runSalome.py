@@ -395,7 +395,10 @@ class LoggerServer(Server):
 
 class SessionServer(Server):
     def __init__(self,args):
-        self.args=args
+        self.args = args.copy()
+        # Bug 11512 (Problems with runSalome --xterm on Mandrake and Debian Sarge)
+        self.args['xterm']=0
+        #
         self.initArgs()
         self.SCMD1=['SALOME_Session_Server']
         self.SCMD2=[]
@@ -423,7 +426,7 @@ class SessionServer(Server):
             self.SCMD2+=['SUPERV']
         if self.args['gui']:
             self.SCMD2+=['GUI']
-        if self.args['splash']:
+        if self.args['splash'] and self.args['gui']:
             self.SCMD2+=['SPLASH']
         if self.args['noexcepthandler']:
             self.SCMD2+=['noexcepthandler']

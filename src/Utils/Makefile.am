@@ -41,7 +41,6 @@ salomeinclude_HEADERS =\
 	Utils_SINGLETON.hxx \
 	Utils_DESTRUCTEUR_GENERIQUE.hxx \
 	Utils_ExceptHandlers.hxx \
-	Utils_SignalsHandler.h \
 	Utils_Mutex.hxx
 
 # Scripts to be exported
@@ -58,7 +57,6 @@ libOpUtil_la_SOURCES =\
 	Utils_Identity.cxx Utils_ORB_INIT.cxx \
 	Utils_DESTRUCTEUR_GENERIQUE.cxx \
 	Utils_ExceptHandlers.cxx \
-	Utils_SignalsHandler.cxx \
 	Utils_Mutex.cxx
 
 libOpUtil_la_LDFLAGS  = -no-undefined -version-info=0:0:0

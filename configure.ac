@@ -506,8 +506,10 @@ AC_OUTPUT([ \
 	./src/ResourcesManager/Makefile \
 	./src/RessourcesCatalog/Makefile \
 	./src/SALOMEDS/Makefile \
+	./src/SALOMEDS/Test/Makefile \
 	./src/SALOMEDSClient/Makefile \
 	./src/SALOMEDSImpl/Makefile \
+	./src/SALOMEDSImpl/Test/Makefile \
 	./src/SALOMELocalTrace/Makefile \
 	./src/SALOMELocalTrace/Test/Makefile \
 	./src/SALOMETraceCollector/Makefile \

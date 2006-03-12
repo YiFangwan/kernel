@@ -36,6 +36,7 @@ salomeinclude_HEADERS=\
                 SALOMEDSClient_AttributeTextHighlightColor.hxx \
                 SALOMEDSClient_AttributeTreeNode.hxx \
                 SALOMEDSClient_AttributeUserID.hxx \
+		SALOMEDSClient_AttributeParameter.hxx \
                 SALOMEDSClient_ChildIterator.hxx \
                 SALOMEDSClient_GenericAttribute.hxx \
                 SALOMEDSClient_SComponent.hxx \
@@ -46,4 +47,36 @@ salomeinclude_HEADERS=\
                 SALOMEDSClient_StudyManager.hxx \
                 SALOMEDSClient_UseCaseBuilder.hxx \
                 SALOMEDSClient_UseCaseIterator.hxx \
+		SALOMEDSClient_ClientFactory.hxx \
 		SALOMEDSClient.hxx
+
+#
+# ===============================================================
+# Local definitions
+# ===============================================================
+#
+
+# This local variable defines the list of CPPFLAGS common to all target in this package.
+COMMON_CPPFLAGS= \
+	-I$(top_builddir)/salome_adm/unix \
+	-I$(top_builddir)/idl \
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+
+
+
+# This local variable defines the list of dependant libraries common to all target in this package.
+COMMON_LIBS =
+
+#
+# ===============================================================
+# Libraries targets
+# ===============================================================
+#
+lib_LTLIBRARIES = libSalomeDSClient.la
+libSalomeDSClient_la_SOURCES = 	\
+	SALOMEDSClient_ClientFactory.cxx
+
+
+libSalomeDSClient_la_CPPFLAGS = $(COMMON_CPPFLAGS)
+libSalomeDSClient_la_LDFLAGS  = -no-undefined -version-info=0:0:0
+libSalomeDSClient_la_LIBADD   = $(COMMON_LIBS)

@@ -31,14 +31,16 @@ dnl
 AC_DEFUN([ENABLE_PTHREADS],[
 AC_REQUIRE([ACX_PTHREAD])
 
-if test x"$acx_pthread_ok" = xyes; then
- CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
- CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
- LIBS="$LIBS $PTHREAD_LIBS"
-  threads_ok=yes
-else
-  threads_ok=no
+if test x"$enable_pthreads_done" != xyes; then
+  if test x"$acx_pthread_ok" = xyes; then
+    CFLAGS="$CFLAGS $PTHREAD_CFLAGS"
+    CXXFLAGS="$CXXFLAGS $PTHREAD_CFLAGS"
+    LIBS="$LIBS $PTHREAD_LIBS"
+    threads_ok=yes
+  else
+    threads_ok=no
+  fi
+  enable_pthreads_done=yes
 fi
-enable_pthreads_done=yes
 ])dnl
 dnl

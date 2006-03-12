@@ -22,7 +22,8 @@ salomeinclude_HEADERS= \
 	SALOMEDS_SComponent_i.hxx \
 	SALOMEDS_SComponent.hxx \
 	SALOMEDS_GenericAttribute_i.hxx \
-	SALOMEDS_GenericAttribute.hxx
+	SALOMEDS_GenericAttribute.hxx \
+	SALOMEDS_IParameters.hxx
 
 # Scripts to be installed
 dist_salomescript_DATA = SALOME_DriverPy.py
@@ -120,6 +121,7 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_AttributeTableOfString_i.cxx \
 	SALOMEDS_AttributeStudyProperties_i.cxx \
 	SALOMEDS_AttributePythonObject_i.cxx \
+	SALOMEDS_AttributeParameter_i.cxx \
 	SALOMEDS_SObject.cxx \
 	SALOMEDS_SComponent.cxx \
 	SALOMEDS_GenericAttribute.cxx \
@@ -158,6 +160,9 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_AttributeTextHighlightColor.cxx \
 	SALOMEDS_AttributeTreeNode.cxx \
 	SALOMEDS_AttributeUserID.cxx \
+	SALOMEDS_TMPFile_i.cxx \
+	SALOMEDS_AttributeParameter.cxx \
+	SALOMEDS_IParameters.cxx \
 	\
 	Handle_SALOMEDS_DataMapNodeOfDataMapOfIntegerString.hxx \
 	Handle_SALOMEDS_DataMapNodeOfDataMapStringLabel.hxx \
@@ -296,7 +301,10 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_UseCaseBuilder.hxx \
 	SALOMEDS_UseCaseBuilder_i.hxx \
 	SALOMEDS_UseCaseIterator.hxx \
-	SALOMEDS_UseCaseIterator_i.hxx 
+	SALOMEDS_UseCaseIterator_i.hxx \
+	SALOMEDS_AttributeParameter.hxx \
+	SALOMEDS_AttributeParameter_i.hxx \
+	SALOMEDS_TMPFile_i.hxx
 
 libSalomeDS_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeDS_la_LDFLAGS  = -no-undefined -version-info=0:0:0
