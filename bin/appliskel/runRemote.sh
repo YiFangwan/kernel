@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # --- run command in SALOME environment from remote call, ssh or rsh
 #     - SALOME configuration is defined by :

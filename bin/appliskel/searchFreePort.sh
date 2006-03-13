@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # --- define port for CORBA naming service
 

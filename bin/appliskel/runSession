@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Useful shell to run executable progs or shells under Salome env
 # Use it with args to run a program : runSession python -i myprog.py

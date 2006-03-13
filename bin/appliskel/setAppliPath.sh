@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # --- retrieve APPLI path, relative to $HOME, set ${APPLI}
 #     on sarge, "which" gives not allways the absolute path...
