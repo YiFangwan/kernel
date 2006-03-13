@@ -56,6 +56,8 @@ UnitTests_CPPFLAGS =\
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
 	-I$(srcdir)/../LifeCycleCORBA -I$(srcdir)/../LifeCycleCORBA/Test \
+	-I$(srcdir)/../SALOMDESImpl -I$(srcdir)/../SALOMEDSImpl/Test \
+	-I$(srcdir)/../SALOMDES -I$(srcdir)/../SALOMEDS/Test \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
@@ -73,6 +75,8 @@ UnitTests_LDADD    =\
 	../SALOMETraceCollector/Test/libSALOMETraceCollectorTest.la \
 	../Utils/libOpUtil.la ../Utils/Test/libUtilsTest.la \
 	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la ../LifeCycleCORBA/Test/libLifeCycleCORBATest.la \
+	../SALOMEDSImpl/libSalomeDSImpl.la ../SALOMEDSImpl/Test/libSALOMEDSImplTest.la \
+	../SALOMEDS/libSalomeDS.la ../SALOMEDS/Test/libSALOMEDSTest.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@CORBA_LIBS@
 
