@@ -14,7 +14,8 @@ EXPORT_HEADERS = \
 	SenderFactory.hxx \
 	SALOMEMultiComm.hxx \
 	MultiCommException.hxx \
-	SALOME_Comm_i.hxx
+	SALOME_Comm_i.hxx \
+	SALOME_Communication.hxx
 
 # Libraries targets
 
