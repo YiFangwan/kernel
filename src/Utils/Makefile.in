@@ -47,7 +47,8 @@ EXPORT_HEADERS= \
 	Utils_DESTRUCTEUR_GENERIQUE.hxx \
 	Utils_ExceptHandlers.hxx \
 	Utils_SignalsHandler.h \
-	Utils_Mutex.hxx
+	Utils_Mutex.hxx \
+	SALOME_Utils.hxx
 
 EXPORT_PYSCRIPTS = Utils_Identity.py SALOME_utilities.py
 # Libraries targets

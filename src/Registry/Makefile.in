@@ -38,7 +38,8 @@ EXPORT_PYSCRIPTS =
 
 EXPORT_HEADERS = \
 	RegistryConnexion.hxx \
-	RegistryService.hxx
+	RegistryService.hxx \
+	SALOME_Registry.hxx
 
 # Libraries targets
 

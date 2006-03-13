@@ -37,7 +37,8 @@ VPATH=.:@srcdir@:@top_srcdir@/idl
 EXPORT_HEADERS = \
 		SALOME_DataTypeCatalog_impl.hxx \
 		SALOME_DataTypeCatalog_Parser.hxx \
-                SALOME_DataTypeCatalog_Handler.hxx 
+                SALOME_DataTypeCatalog_Handler.hxx \
+		SALOME_DataTypeCatalog.hxx
 
 # Libraries targets
 LIB = libSalomeDataTypeCatalog.la

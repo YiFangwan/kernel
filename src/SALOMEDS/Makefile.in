@@ -24,7 +24,8 @@ EXPORT_HEADERS= \
 	SALOMEDS_SComponent_i.hxx \
 	SALOMEDS_SComponent.hxx \
 	SALOMEDS_GenericAttribute_i.hxx \
-	SALOMEDS_GenericAttribute.hxx
+	SALOMEDS_GenericAttribute.hxx \
+	SALOMEDS_Defines.hxx
 
 # Libraries targets
 

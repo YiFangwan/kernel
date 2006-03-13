@@ -42,7 +42,8 @@ EXPORT_HEADERS = \
 	SALOME_Component_i.hxx \
 	SALOME_Container_i.hxx \
 	SALOME_ContainerManager.hxx \
-	Container_init_python.hxx
+	Container_init_python.hxx \
+	SALOME_Container.hxx
 
 # Libraries targets
 
