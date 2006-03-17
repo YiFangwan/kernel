@@ -493,6 +493,7 @@ AC_OUTPUT([ \
 	./src/LifeCycleCORBA/Makefile \
 	./src/LifeCycleCORBA/Test/Makefile \
 	./src/LifeCycleCORBA_SWIG/Makefile \
+	./src/LifeCycleCORBA_SWIG/Test/Makefile \
 	./src/Logger/Makefile \
 	./src/Logger/Test/Makefile \
 	./src/ModuleCatalog/Makefile \

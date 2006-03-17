@@ -25,47 +25,71 @@
 #include "utilities.h"
 #include "SALOME_LifeCycleCORBA.hxx"
 
+
   using namespace std;
+
+//--- from omniORBpy.h (not present on Debian Sarge packages)
+
+struct omniORBpyAPI {
+
+  PyObject* (*cxxObjRefToPyObjRef)(const CORBA::Object_ptr cxx_obj,
+				   CORBA::Boolean hold_lock);
+  // Convert a C++ object reference to a Python object reference.
+  // If <hold_lock> is true, caller holds the Python interpreter lock.
+
+  CORBA::Object_ptr (*pyObjRefToCxxObjRef)(PyObject* py_obj,
+					   CORBA::Boolean hold_lock);
+  // Convert a Python object reference to a C++ object reference.
+  // Raises BAD_PARAM if the Python object is not an object reference.
+  // If <hold_lock> is true, caller holds the Python interpreter lock.
+
+
+  omniORBpyAPI();
+  // Constructor for the singleton. Sets up the function pointers.
+};
+
+  omniORBpyAPI* api;
+
 %}
+
+
+%init
+%{
+  // init section
+
+  PyObject* omnipy = PyImport_ImportModule((char*)"_omnipy");
+  if (!omnipy)
+  {
+    PyErr_SetString(PyExc_ImportError,
+		    (char*)"Cannot import _omnipy");
+    return;
+  }
+  PyObject* pyapi = PyObject_GetAttrString(omnipy, (char*)"API");
+  api = (omniORBpyAPI*)PyCObject_AsVoidPtr(pyapi);
+  Py_DECREF(pyapi);
+%}
+
 
 %typemap(python,out) Engines::Container_ptr, Engines::Component_ptr
 {
-  //MESSAGE("typemap out on CORBA object ptr");
-  //SCRUTE($1);
-
-  // --- Get the Python orb
-
-  PyObject* pdict = PyDict_New();
-  PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
-  PyRun_String("from omniORB import CORBA", Py_single_input, pdict, pdict);
-  PyRun_String("o = CORBA.ORB_init([''], CORBA.ORB_ID);", Py_single_input,
-                   pdict, pdict);
-  PyObject* orb = PyDict_GetItemString(pdict, "o");
-
-  // --- Get the C++ orb
-
-  int argc = 0;
-  char *xargv = "";
-  char **argv = &xargv;
-  CORBA::ORB_var ORB = CORBA::ORB_init(argc, argv);
-  string s =  ORB->object_to_string($1);
-  //SCRUTE(s);
-  PyObject * tmp = PyString_FromString(s.c_str());
-  //SCRUTE(tmp);
-  $result = PyObject_CallMethod(orb, "string_to_object", "O", tmp);
-  //SCRUTE($result);
+  MESSAGE("typemap out on CORBA object ptr");
+  SCRUTE($1);
+  $result = api->cxxObjRefToPyObjRef($1, 1);
+  SCRUTE($result);
 }
 
 
-%typemap(typecheck) const Engines::MachineParameters &
+%typemap(typecheck) const Engines::MachineParameters &,
+                    Engines::MachineParameters const &
 {
-  $1 = ($input != 0);
+  $1 = PyDict_Check($input);
 }
+
 
 %typemap(python,in) const Engines::MachineParameters &
 {
-  printf("typemap in on Engines::MachineParameters\n");
-  //MESSAGE("typemap in on Engines::MachineParameters");
+  //printf("typemap in on Engines::MachineParameters\n");
+  MESSAGE("typemap in on Engines::MachineParameters");
   //ASSERT (PyDict_Check($input))
   if (PyDict_Check($input) == 1)
     {
@@ -121,10 +145,13 @@
     }
   else 
     {
-       printf("pas un dico\n");
+       //printf("pas un dico\n");
+       MESSAGE("Not a dictionnary");
+       PyErr_SetString(PyExc_TypeError,"MustBe a Python Dictionnary");
        return NULL;
     }
 }
+
 
 %typemap(python,freearg) const Engines::MachineParameters &
 {

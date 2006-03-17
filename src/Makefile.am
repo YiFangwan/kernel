@@ -66,6 +66,7 @@ SUBDIR_CPPUNIT_CORBA = \
   Utils/Test \
   NamingService/Test \
   LifeCycleCORBA/Test \
+  LifeCycleCORBA_SWIG/Test \
   SALOMEDSImpl/Test \
   SALOMEDS/Test
 
