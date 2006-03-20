@@ -12,10 +12,16 @@ class Server:
    CMD=""
 
    def run(self):
-       commande=self.XTERM+self.CMD
-       print commande
-       ier=os.system(commande)
-       if ier:print "Commande failed"
+       #commande=self.XTERM+self.CMD
+       #print commande
+       #ier=os.system(commande)
+       #try:
+       print "runNS"
+       import runNS
+       runNS.startOmni()
+       #except:
+       #if ier:print "Commande failed"
+       #print "Commande failed"
 
 # -----------------------------------------------------------------------------
 
@@ -24,10 +30,10 @@ class NamingServer(Server):
    USER=os.getenv('USER')
    if USER is None:
       USER='anonymous'
-   os.system("mkdir -m 777 -p /tmp/logs")
+   #os.system("mkdir -m 777 -p /tmp/logs")
    LOGDIR="/tmp/logs/" + USER
-   os.system("mkdir -m 777 -p " + LOGDIR)
-   CMD="runNS.sh > " + LOGDIR + "/salomeNS.log 2>&1"
+   #os.system("mkdir -m 777 -p " + LOGDIR)
+   # CMD="runNS.sh > " + LOGDIR + "/salomeNS.log 2>&1"
 
 # -----------------------------------------------------------------------------
 
@@ -59,8 +65,11 @@ class client:
       while(ncount < 10):
           ncount += 1
           try:
+	      print "1"
               obj = self.orb.resolve_initial_references("NameService")
+	      print "2", obj
               self.rootContext = obj._narrow(CosNaming.NamingContext)
+	      print "3"
               break
           except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
               self.rootContext = None
@@ -141,36 +150,6 @@ class client:
       if nobj is None:
             print "%s exists but is not a %s" % (name,typobj)
       return nobj
-   def waitNSPID(self, theName, thePID, theTypObj = None):
-      aCount = 0
-      aDelta = 0.5
-      anObj = None
-      print "Searching %s in Naming Service " % theName,
-      while(1):
-         try:
-            aPid, aStatus = os.waitpid(thePID,os.WNOHANG)
-         except Exception, exc:
-            raise "Impossible de trouver %s" % theName
-         aCount += 1
-         anObj = self.Resolve(theName)
-         if anObj: 
-            print " found in %s seconds " % ((aCount-1)*aDelta)
-            break
-         else:
-            sys.stdout.write('+')
-            sys.stdout.flush()
-            time.sleep(aDelta)
-            pass
-         pass
-      
-      if theTypObj is None:
-         return anObj
-
-      anObject = anObj._narrow(theTypObj)
-      if anObject is None:
-         print "%s exists but is not a %s" % (theName,theTypObj)
-      return anObject
-
 
    # --------------------------------------------------------------------------
 
@@ -215,3 +194,4 @@ class client:
             print "%s exists but is not a %s" % (name,typobj)
       return nobj
 
+print "888"

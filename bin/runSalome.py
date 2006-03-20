@@ -14,22 +14,31 @@ salome_subdir = "salome"
 
 def add_path(directory, variable_name):
     """Function helper to add environment variables"""
+    if sys.platform == "win32":
+	splitsym = ";"
+    else:
+	splitsym = ":"
     if not os.environ.has_key(variable_name):
         os.environ[variable_name] = ""
         pass
     if os.path.exists(directory):
         newpath=[]
-        for _dir in os.environ[variable_name].split(":"):
+        for _dir in os.environ[variable_name].split(splitsym):
             if os.path.exists(_dir):
-                if not os.path.samefile(_dir, directory):
-                  newpath.append(_dir)
+		try:
+                  if not os.path.samefile(_dir, directory):
+                    newpath.append(_dir)
+		except:
+                  if _dir != directory:
+                    newpath.append(_dir)
+		  
             else:
                 if os.path.abspath(_dir) != os.path.abspath(directory):
                   newpath.append(_dir)
             pass
         import string
         newpath[:0] = [ directory ]
-        newpath = string.join(newpath,":")
+        newpath = string.join(newpath, splitsym)
         os.environ[variable_name] = newpath
         if variable_name == "PYTHONPATH":
             sys.path[:0] = [directory]
@@ -57,7 +66,6 @@ def get_config():
     if args.has_key("modules"):
         modules_list += args["modules"]
     # KERNEL must be last in the list to locate it at the first place in PATH 
-    modules_list[:0] = ["GUI"]
     modules_list[:0] = ["KERNEL"]
     modules_list.reverse()
 
@@ -65,14 +73,14 @@ def get_config():
 
     to_remove_list=[]
     for module in modules_list :
-        module_variable=module+"_ROOT_DIR"
+        module_variable=module.upper()+"_ROOT_DIR"
         if not os.environ.has_key(module_variable):
-            print "*******************************************************"
-            print "*"
-            print "* Environment variable",module_variable,"must be set"
-            print "* Module", module, "will be not available"
-            print "*"
-            print "********************************************************"
+            #print "*******************************************************"
+            #print "*"
+            #print "* Environment variable",module_variable,"must be set"
+            #print "* Module", module, "will be not available"
+            #print "*"
+            #print "********************************************************"
             to_remove_list.append(module)
             continue
             pass
@@ -84,10 +92,6 @@ def get_config():
 
     while "KERNEL" in modules_list:
         modules_list.remove("KERNEL")
-        pass
-
-    while "GUI" in modules_list:
-        modules_list.remove("GUI")
         pass
 
     if "SUPERV" in modules_list and not 'superv' in args['standalone']:
@@ -103,47 +107,51 @@ def set_env(args, modules_list, modules_root_dir):
     
     python_version="python%d.%d" % sys.version_info[0:2]
     modules_root_dir_list = []
-    modules_list = modules_list[:] + ["GUI"] 
     modules_list = modules_list[:] + ["KERNEL"] 
     for module in modules_list :
-        if modules_root_dir.has_key(module):
-            module_root_dir = modules_root_dir[module]
-            modules_root_dir_list[:0] = [module_root_dir]
-            add_path(os.path.join(module_root_dir,"lib",salome_subdir),
-                     "LD_LIBRARY_PATH")
-            add_path(os.path.join(module_root_dir,"bin",salome_subdir),
-                     "PATH")
-            if os.path.exists(module_root_dir + "/examples") :
-                add_path(os.path.join(module_root_dir,"examples"),
-                         "PYTHONPATH")
-                pass
-            add_path(os.path.join(module_root_dir,"bin",salome_subdir),
+        module_root_dir = modules_root_dir[module]
+        modules_root_dir_list[:0] = [module_root_dir]
+        add_path(os.path.join(module_root_dir,"lib",salome_subdir),
+                 "LD_LIBRARY_PATH")
+        add_path(os.path.join(module_root_dir,"bin",salome_subdir),
+                 "PATH")
+        if os.path.exists(module_root_dir + "/examples") :
+            add_path(os.path.join(module_root_dir,"examples"),
                      "PYTHONPATH")
-            add_path(os.path.join(module_root_dir,"lib",
-                                  python_version,"site-packages",
-                                  salome_subdir),
-                     "PYTHONPATH")
-            add_path(os.path.join(module_root_dir,"lib",salome_subdir),
-                     "PYTHONPATH")
-            add_path(os.path.join(module_root_dir,"lib",
-                                  python_version,"site-packages",
-                                  salome_subdir,
-                                  "shared_modules"),
-                     "PYTHONPATH")
-            pass
-        pass
-
+        add_path(os.path.join(module_root_dir,"bin",salome_subdir),
+                 "PYTHONPATH")
+        add_path(os.path.join(module_root_dir,"lib",
+                              python_version,"site-packages",salome_subdir),
+                 "PYTHONPATH")
+        add_path(os.path.join(module_root_dir,"lib",salome_subdir),
+                 "PYTHONPATH")
+        add_path(os.path.join(module_root_dir,"lib",
+                              python_version,"site-packages",salome_subdir,
+                              "shared_modules"),
+                 "PYTHONPATH")
 
     os.environ["SALOMEPATH"]=":".join(modules_root_dir_list)
     
-    # set trace environment variable
+    # special path for logger lib if needeed
     
-    if not os.environ.has_key("SALOME_trace"):
-        os.environ["SALOME_trace"]="local"
+    os.environ["SALOME_trace"]="local"
     if args['file']:
-        os.environ["SALOME_trace"]="file:"+args['file'][0]
+        os.environ["SALOME_trace"]=args['file'][0]
     if args['logger']:
         os.environ["SALOME_trace"]="with_logger"
+        locdir=os.environ['PWD']
+        libtracedir=os.path.join(locdir,"libSalomeTrace")
+        libtrace = os.path.join(modules_root_dir["KERNEL"],"lib",
+                                salome_subdir,
+                                "libSALOMELoggerClient.so.0.0.0")
+        libtraceln = os.path.join(libtracedir,"libSALOMELocalTrace.so")
+        aCommand = 'rm -rf ' + libtracedir + "; "
+        aCommand += 'mkdir ' + libtracedir + "; "
+        aCommand += 'ln -s ' + libtrace + " " + libtraceln + "; "
+        aCommand += 'ln -s ' + libtrace + " " + libtraceln + ".0; "
+        aCommand += 'ln -s ' + libtrace + " " + libtraceln + ".0.0.0; "
+        os.system(aCommand)
+        add_path(libtracedir, "LD_LIBRARY_PATH")
 
     # set environment for SMESH plugins
 
@@ -155,18 +163,10 @@ def set_env(args, modules_list, modules_root_dir):
             pass
         if args.has_key("SMESH_plugins"):
             for plugin in args["SMESH_plugins"]:
-                plugin_root = ""
-                if os.environ.has_key(plugin+"_ROOT_DIR"):
-                    plugin_root = os.environ[plugin+"_ROOT_DIR"]
-                else:
-                    # workaround to avoid modifications of existing environment
-                    if os.environ.has_key(plugin.upper()+"_ROOT_DIR"):
-                        plugin_root = os.environ[plugin.upper()+"_ROOT_DIR"]
-                        pass
-                    pass
-                if plugin_root != "":
+                if os.environ.has_key(plugin.upper()+"_ROOT_DIR"):
                     os.environ["SMESH_MeshersList"] \
                     = os.environ["SMESH_MeshersList"]+":"+plugin
+                    plugin_root = os.environ[plugin.upper()+"_ROOT_DIR"]
                     if not os.environ.has_key("SALOME_"+plugin+"Resources"):
                         os.environ["SALOME_"+plugin+"Resources"] \
                         = plugin_root+"/share/"+args["appname"]+"/resources"
@@ -186,31 +186,7 @@ def set_env(args, modules_list, modules_root_dir):
 
     # set environment for SUPERV module
     os.environ["ENABLE_MACRO_NODE"]="1"
-    # set resources variables if not yet set
-    if os.getenv("GUI_ROOT_DIR"):
-        if not os.getenv("SUITRoot"): os.environ["SUITRoot"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome"
-        if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources"
-        pass   
-
-    # set CSF_PluginDefaults variable only if it is not customized
-    # by the user
-    if not os.getenv("CSF_PluginDefaults"):
-        os.environ["CSF_PluginDefaults"] \
-        = os.path.join(modules_root_dir["KERNEL"],"share",
-                       salome_subdir,"resources")
-    os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
-    = os.path.join(modules_root_dir["KERNEL"],"share",
-                   salome_subdir,"resources")
-
-    if "GEOM" in modules_list:
-        print "GEOM OCAF Resources"
-        os.environ["CSF_GEOMDS_ResourcesDefaults"] \
-        = os.path.join(modules_root_dir["GEOM"],"share",
-                       salome_subdir,"resources")
-	print "GEOM Shape Healing Resources"
-        os.environ["CSF_ShHealingDefaults"] \
-        = os.path.join(modules_root_dir["GEOM"],"share",
-                       salome_subdir,"resources")
+   
 
 # -----------------------------------------------------------------------------
 
@@ -267,7 +243,6 @@ class Server:
     """Generic class for CORBA server launch"""
 
     def initArgs(self):
-        self.PID=None
         self.CMD=[]
         self.ARGS=[]	
         if self.args['xterm']:
@@ -288,9 +263,13 @@ class Server:
             myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
         command = myargs + self.CMD
         print "command = ", command
-        pid = os.spawnvp(os.P_NOWAIT, command[0], command)
+	if sys.platform == "win32":
+          #pid = os.spawnv(os.P_NOWAIT, command[0], command)
+	  os.system("start " + string.join(command, " "))
+	  pid = 0
+	else:
+          pid = os.spawnvp(os.P_NOWAIT, command[0], command)
         process_id[pid]=self.CMD
-        self.PID = pid
 
 
 class InterpServer(Server):
@@ -303,10 +282,9 @@ class InterpServer(Server):
     def run(self):
         global process_id
         command = self.CMD
-        #print "command = ", command
+        print "command = ", command
         pid = os.spawnvp(os.P_NOWAIT, command[0], command)
         process_id[pid]=self.CMD
-        self.PID = pid
 
 # ---
 
@@ -314,7 +292,10 @@ class CatalogServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.SCMD1=['SALOME_ModuleCatalog_Server','-common']
+	if sys.platform == "win32":
+          self.SCMD1=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_ModuleCatalog_Server' + ".exe",'-common']
+	else:
+          self.SCMD1=['SALOME_ModuleCatalog_Server','-common']
         self.SCMD2=[]
         home_dir=os.getenv('HOME')
         if home_dir is not None:
@@ -324,17 +305,14 @@ class CatalogServer(Server):
         cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
-        for module in ["KERNEL", "GUI"] + list_modules:
-            if modules_root_dir.has_key(module):
-                module_root_dir=modules_root_dir[module]
-                module_cata=module+"Catalog.xml"
-                #print "   ", module_cata
-                cata_path.extend(
-                    glob.glob(os.path.join(module_root_dir,
-                                           "share",salome_subdir,
-                                           "resources",module_cata)))
-                pass
-            pass
+        for module in ["KERNEL"] + list_modules:
+            module_root_dir=modules_root_dir[module]
+            module_cata=module+"Catalog.xml"
+            print "   ", module_cata
+            cata_path.extend(
+                glob.glob(os.path.join(module_root_dir,
+                                       "share",salome_subdir,
+                                       "resources",module_cata)))
         self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
 
 # ---
@@ -343,7 +321,10 @@ class SalomeDSServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.CMD=['SALOMEDS_Server']
+	if sys.platform == "win32":
+          self.CMD=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOMEDS_Server' + ".exe"]
+	else:
+          self.CMD=['SALOMEDS_Server']
 
 # ---
 
@@ -351,7 +332,10 @@ class RegistryServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.CMD=['SALOME_Registry_Server', '--salome_session','theSession']
+	if sys.platform == "win32":
+          self.CMD=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_Registry_Server'+ ".exe", '--salome_session','theSession']
+	else:
+          self.CMD=['SALOME_Registry_Server', '--salome_session','theSession']
 
 # ---
 
@@ -359,7 +343,10 @@ class ContainerCPPServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.CMD=['SALOME_Container','FactoryServer']
+	if sys.platform == "win32":
+          self.CMD=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_Container' + ".exe",'FactoryServer']
+	else:
+          self.CMD=['SALOME_Container','FactoryServer']
 
 # ---
 
@@ -367,7 +354,10 @@ class ContainerPYServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.CMD=['SALOME_ContainerPy.py','FactoryServerPy']
+	if sys.platform == "win32":
+          self.CMD=[os.environ["PYTHONDIR"] + "/libs/python.exe ", os.environ["KERNEL_ROOT_DIR"] + "/win32/python/" + 'SALOME_ContainerPy.py','FactoryServerPy']
+	else:
+          self.CMD=['SALOME_ContainerPy.py','FactoryServerPy']
 
 # ---
 
@@ -375,7 +365,10 @@ class ContainerSUPERVServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.CMD=['SALOME_Container','SuperVisionContainer']
+	if sys.platform == "win32":
+          self.CMD=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_Container' + ".exe",'SuperVisionContainer']
+	else:
+          self.CMD=['SALOME_Container','SuperVisionContainer']
 
 # ---
 
@@ -387,11 +380,35 @@ class LoggerServer(Server):
 
 # ---
 
+# class SessionLoader(Server):
+#     def __init__(self,args):
+#         self.args=args
+#         self.initArgs()
+#         self.CMD=['SALOME_Session_Loader']
+#         if "cppContainer" in self.args['standalone'] \
+#         or "cppContainer" in self.args['embedded']:
+#             self.CMD=self.CMD+['CPP']
+#         if "pyContainer" in self.args['standalone'] \
+#         or "pyContainer" in self.args['embedded']:
+#             self.CMD=self.CMD+['PY']
+#         if "supervContainer" in self.args['containers'] \
+#         or "supervContainer" in self.args['standalone']:
+#             self.CMD=self.CMD+['SUPERV']
+#         if self.args['gui']:
+#             self.CMD=self.CMD+['GUI']
+#         print self.CMD
+
+# ---
+
 class SessionServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.SCMD1=['SALOME_Session_Server']
+	if sys.platform == "win32":
+          self.SCMD1=[os.environ["GUI_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_Session_Server' + ".exe"]
+	else:
+          self.SCMD1=['SALOME_Session_Server']
+	
         self.SCMD2=[]
         if 'registry' in self.args['embedded']:
             self.SCMD1+=['--with','Registry',
@@ -419,22 +436,15 @@ class SessionServer(Server):
             self.SCMD2+=['GUI']
         if self.args['splash']:
             self.SCMD2+=['SPLASH']
-        if self.args['noexcepthandler']:
-            self.SCMD2+=['noexcepthandler']
-        if self.args.has_key('modules'):
-            self.SCMD2+=['--modules (']
-            for mod in self.args['modules']:
-                self.SCMD2+=[mod + ':']
-            self.SCMD2+=[')']    
 
     def setpath(self,modules_list,modules_root_dir):
         cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
-        for module in ["KERNEL", "GUI"] + list_modules:
+        for module in ["KERNEL"] + list_modules:
             module_root_dir=modules_root_dir[module]
             module_cata=module+"Catalog.xml"
-            #print "   ", module_cata
+            print "   ", module_cata
             cata_path.extend(
                 glob.glob(os.path.join(module_root_dir,"share",
                                        salome_subdir,"resources",
@@ -450,7 +460,10 @@ class ContainerManagerServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.SCMD1=['SALOME_ContainerManagerServer']
+	if sys.platform == "win32":
+          self.SCMD1=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_ContainerManagerServer' + ".exe"]
+	else:
+          self.SCMD1=['SALOME_ContainerManagerServer']
         self.SCMD2=[]
         if 'registry' in self.args['embedded']:
             self.SCMD1+=['--with','Registry',
@@ -468,17 +481,14 @@ class ContainerManagerServer(Server):
         cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
-        for module in ["KERNEL", "GUI"] + list_modules:
-            if modules_root_dir.has_key(module):
-                module_root_dir=modules_root_dir[module]
-                module_cata=module+"Catalog.xml"
-                #print "   ", module_cata
-                cata_path.extend(
-                    glob.glob(os.path.join(module_root_dir,"share",
-                                           self.args['appname'],"resources",
-                                           module_cata)))
-                pass
-            pass
+        for module in ["KERNEL"] + list_modules:
+            module_root_dir=modules_root_dir[module]
+            module_cata=module+"Catalog.xml"
+            print "   ", module_cata
+            cata_path.extend(
+                glob.glob(os.path.join(module_root_dir,"share",
+                                       self.args['appname'],"resources",
+                                       module_cata)))
         if 'moduleCatalog' in self.args['embedded']:
             self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
         else:
@@ -515,12 +525,20 @@ def startSalome(args, modules_list, modules_root_dir):
     init_time = os.times()
 
     print "startSalome ", args
+    print "sysPATH=",sys.path
     
     #
     # Initialisation ORB et Naming Service
     #
    
     clt=orbmodule.client()
+
+    #
+    # Lancement Session Server
+
+    mySessionServ = SessionServer(args)
+    mySessionServ.setpath(modules_list,modules_root_dir)
+    mySessionServ.run()
 
     # (non obligatoire) Lancement Logger Server
     # et attente de sa disponibilite dans le naming service
@@ -534,10 +552,10 @@ def startSalome(args, modules_list, modules_root_dir):
     # Notify Server launch
     #
 
-    print "Notify Server to launch"
-
-    myServer=NotifyServer(args,modules_root_dir)
-    myServer.run()
+    #print "Notify Server to launch"
+    #mpv
+    #myServer=NotifyServer(args,modules_root_dir)
+    #myServer.run()
 
     #
     # Lancement Registry Server,
@@ -547,32 +565,48 @@ def startSalome(args, modules_list, modules_root_dir):
     if 'registry' not in args['embedded']:
         myServer=RegistryServer(args)
         myServer.run()
-        clt.waitNSPID("/Registry",myServer.PID)
+        clt.waitNS("/Registry")
 
     #
     # Lancement Catalog Server,
     # attente de la disponibilite du Catalog Server dans le Naming Service
     #
     
-
     if 'moduleCatalog' not in args['embedded']:
         cataServer=CatalogServer(args)
         cataServer.setpath(modules_list,modules_root_dir)
         cataServer.run()
         import SALOME_ModuleCatalog
-        clt.waitNSPID("/Kernel/ModulCatalog",cataServer.PID,SALOME_ModuleCatalog.ModuleCatalog)
+        clt.waitNS("/Kernel/ModulCatalog",SALOME_ModuleCatalog.ModuleCatalog)
 
     #
     # Lancement SalomeDS Server,
     # attente de la disponibilite du SalomeDS dans le Naming Service
     #
 
-    #print "ARGS = ",args
+    os.environ["CSF_PluginDefaults"] \
+    = os.path.join(modules_root_dir["KERNEL"],"share",
+                   salome_subdir,"resources")
+    os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
+    = os.path.join(modules_root_dir["KERNEL"],"share",
+                   salome_subdir,"resources")
+
+    if "GEOM" in modules_list:
+        print "GEOM OCAF Resources"
+        os.environ["CSF_GEOMDS_ResourcesDefaults"] \
+        = os.path.join(modules_root_dir["GEOM"],"share",
+                       salome_subdir,"resources")
+	print "GEOM Shape Healing Resources"
+        os.environ["CSF_ShHealingDefaults"] \
+        = os.path.join(modules_root_dir["GEOM"],"share",
+                       salome_subdir,"resources")
+
+    print "ARGS = ",args
     if 'study' not in args['embedded']:
         print "RunStudy"
         myServer=SalomeDSServer(args)
         myServer.run()
-        clt.waitNSPID("/myStudyManager",myServer.PID)
+        clt.waitNS("/myStudyManager")
 
     #
     # Lancement ContainerManagerServer
@@ -601,7 +635,7 @@ def startSalome(args, modules_list, modules_root_dir):
     if 'cppContainer' in args['standalone']:
         myServer=ContainerCPPServer(args)
         myServer.run()
-        clt.waitNSPID("/Containers/" + theComputer + "/FactoryServer",myServer.PID)
+        clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
 
     #
     # Lancement Container Python local,
@@ -612,7 +646,7 @@ def startSalome(args, modules_list, modules_root_dir):
     if 'pyContainer' in args['standalone']:
         myServer=ContainerPYServer(args)
         myServer.run()
-        clt.waitNSPID("/Containers/" + theComputer + "/FactoryServerPy",myServer.PID)
+        clt.waitNS("/Containers/" + theComputer + "/FactoryServerPy")
 
     #
     # Lancement Container Supervision local,
@@ -623,15 +657,7 @@ def startSalome(args, modules_list, modules_root_dir):
     if 'supervContainer' in args['standalone']:
         myServer=ContainerSUPERVServer(args)
         myServer.run()
-        clt.waitNSPID("/Containers/" + theComputer + "/SuperVisionContainer",myServer.PID)
-
-    #
-    # Lancement Session Server
-    #
-
-    mySessionServ = SessionServer(args)
-    mySessionServ.setpath(modules_list,modules_root_dir)
-    mySessionServ.run()
+        clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
 ##----------------        
 
     # Attente de la disponibilite du Session Server dans le Naming Service
@@ -639,7 +665,7 @@ def startSalome(args, modules_list, modules_root_dir):
 
     import SALOME
     import SALOME_Session_idl
-    session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME.Session)
+    session=clt.waitNS("/Kernel/Session",SALOME.Session)
 
     end_time = os.times()
     print
@@ -673,6 +699,7 @@ def startSalome(args, modules_list, modules_root_dir):
             anInterp=InterpServer(args)
             anInterp.run()
     
+    print "sysPATH2=",sys.path
     return clt
 
 # -----------------------------------------------------------------------------
@@ -695,10 +722,12 @@ def useSalome(args, modules_list, modules_root_dir):
         print "--- erreur au lancement Salome ---"
         
     #print process_id
-
-    from killSalomeWithPort import getPiDict
-    filedict = getPiDict(args['port'])
-
+    
+#    filedict = '/tmp/' + os.getenv('USER') + "_" + str(args['port']) \
+#             + '_' + args['appname'].upper() + '_pidict'
+# replaced args['appname'] by "SALOME" because in killSalome.py use of 'SALOME' in file name is hardcoded.
+    filedict = os.getenv("HOME") + '/' + os.getenv('USER') + "_" + str(args['port']) \
+               + '_' + 'SALOME' + '_pidict'   
     process_ids = []
     try:
         fpid=open(filedict, 'r')
