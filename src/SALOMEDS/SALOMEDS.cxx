@@ -53,6 +53,7 @@
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
+#include <SALOME_NamingService.hxx>
 
 using namespace SALOMEDS;
 
@@ -122,10 +123,16 @@ SALOMEDSClient_StudyBuilder* BuilderFactory(SALOMEDS::StudyBuilder_ptr theBuilde
 
 SALOMEDSClient_StudyManager* CreateStudyManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
 {
-  SALOMEDS_StudyManager_i * aStudyManager_i = new  SALOMEDS_StudyManager_i(orb, root_poa);
-  // Activate the objects.  This tells the POA that the objects are ready to accept requests.
-  PortableServer::ObjectId_var aStudyManager_iid =  root_poa->activate_object(aStudyManager_i);
-  aStudyManager_i->register_name("/myStudyManager");
+  cout << "############## CreateStudyManager"   << endl;
+  SALOME_NamingService namingService(orb);
+  CORBA::Object_var obj = namingService.Resolve( "/myStudyManager" );
+  SALOMEDS::StudyManager_var theManager = SALOMEDS::StudyManager::_narrow( obj );
+  if( CORBA::is_nil(theManager) ) {
+    SALOMEDS_StudyManager_i * aStudyManager_i = new  SALOMEDS_StudyManager_i(orb, root_poa);
+    // Activate the objects.  This tells the POA that the objects are ready to accept requests.
+    PortableServer::ObjectId_var aStudyManager_iid =  root_poa->activate_object(aStudyManager_i);
+    aStudyManager_i->register_name("/myStudyManager");
+  }
   return new SALOMEDS_StudyManager();
 }
 

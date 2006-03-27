@@ -307,7 +307,7 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_TMPFile_i.hxx
 
 libSalomeDS_la_CPPFLAGS = $(COMMON_CPPFLAGS)
-libSalomeDS_la_LDFLAGS  = -no-undefined -version-info=0:0:0
+libSalomeDS_la_LDFLAGS  = -Wl,-E -no-undefined -version-info=0:0:0 @LDEXPDYNFLAGS@
 libSalomeDS_la_LIBADD    = $(COMMON_LIBS)
 
 #
