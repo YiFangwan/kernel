@@ -30,7 +30,7 @@ from salome_study import *
 from salome_iapp import *
 
 salome_initial=1
-def salome_init(theStudyId=0):
+def salome_init(theStudyId=0,embedded=0):
     """
     Performs only once SALOME general purpose intialisation for scripts.
     optional argument : theStudyId
@@ -58,7 +58,7 @@ def salome_init(theStudyId=0):
     
     if salome_initial:
         salome_initial=0
-        sg = salome_iapp_init()
+        sg = salome_iapp_init(embedded)
         orb, lcc, naming_service, cm = salome_kernel_init()
         myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init(theStudyId)
 
