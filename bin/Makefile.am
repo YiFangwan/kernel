@@ -19,7 +19,8 @@ dist_salomescript_DATA= \
 	VERSION \
 	orbmodule.py \
 	salome.launch \
-	salomeConsole.py
+	salomeConsole.py \
+	salome_session.py
 
 # These files are executable scripts
 dist_salomescript_SCRIPTS=\
@@ -32,6 +33,9 @@ dist_salomescript_SCRIPTS=\
 	runSalome.csh \
 	runNS.sh \
 	createAppli.sh \
+	appli_install.sh \
+	appli_clean.sh \
+	virtual_salome.py \
 	launchConfigureParser.py \
 	showNS.py \
 	addToKillList.py \
