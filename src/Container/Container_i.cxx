@@ -173,12 +173,20 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
       if (!_isSupervContainer)
 	{
-	  Py_ACQUIRE_NEW_THREAD;
+	  //Py_ACQUIRE_NEW_THREAD;
+    PyEval_AcquireLock();
+    /* It should not be possible for more than one thread state
+	     to be used for a thread.*/
+    PyThreadState *myTstate = PyGILState_GetThisThreadState();
+    // if no thread state defined
+    if ( !myTstate ) myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
+    PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
 #ifdef WNT
 	  // mpv: this is temporary solution: there is a unregular crash if not
-	  Sleep(2000);
-	  PyRun_SimpleString("import sys\n");
-	  // first element is the path to Registry.dll, but it's wrong
+	  //Sleep(2000);
+	  //
+    // first element is the path to Registry.dll, but it's wrong
+    PyRun_SimpleString("import sys\n");
 	  PyRun_SimpleString("sys.path = sys.path[1:]\n");
 #endif
 	  PyRun_SimpleString("import SALOME_Container\n");
