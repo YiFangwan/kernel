@@ -17,6 +17,7 @@ ln -fs bin/salome/appliskel/searchFreePort.sh .
 ln -fs bin/salome/appliskel/runAppli .
 ln -fs bin/salome/appliskel/runConsole .
 ln -fs bin/salome/appliskel/runSession .
+ln -fs bin/salome/appliskel/.bashrc .
 
 # --- prerequisites
 
