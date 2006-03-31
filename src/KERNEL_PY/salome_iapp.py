@@ -70,7 +70,7 @@ class SalomeOutsideGUI:
     global myStudyId, myStudyName
     
     def hasDesktop(self):
-        return false
+        return False
     
     def updateObjBrowser(self, bid):
         print "SalomeOutsideGUI: no objectBrowser update outside GUI"
@@ -126,7 +126,7 @@ class SalomeOutsideGUI:
 
     def IsInCurrentView(self, Entry):
         print "SalomeOutsideGUI.IsIncurentView: not available outside GUI"
-        return false
+        return False
         
     def getComponentName(self, ComponentUserName ):
         print "SalomeOutsideGUI.getComponentName: not available outside GUI"
