@@ -376,7 +376,12 @@ function check_fatal_error {
 
 # --------------------------------------
 
-basic_mandatory_products="cc_ok threads_ok hdf5_ok occ_ok"
+if test x$corba_gen = xtrue; then
+  basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok occ_ok"
+else
+  basic_mandatory_products="cc_ok threads_ok python_ok hdf5_ok occ_ok"
+fi
+
 echo --- General mandatory products - Light configuration:
 summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
