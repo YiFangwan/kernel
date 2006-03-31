@@ -24,7 +24,8 @@
 %{
 #include "utilities.h"
 #include "SALOME_LifeCycleCORBA.hxx"
-
+#include "SALOME_NamingService.hxx"
+#include "ServiceUnreachable.hxx"
 
   using namespace std;
 
@@ -70,6 +71,21 @@ struct omniORBpyAPI {
 %}
 
 
+%exception {
+    try {
+      $action
+    }
+    catch (ServiceUnreachable) {
+      PyErr_SetString(PyExc_RuntimeError,"Naming Service Unreacheable");
+      return NULL;
+    }
+    catch (...) {
+      PyErr_SetString(PyExc_RuntimeError, "unknown exception");
+      return NULL;
+    }
+}
+
+
 %typemap(python,out) Engines::Container_ptr, Engines::Component_ptr
 {
   MESSAGE("typemap out on CORBA object ptr");
@@ -90,7 +106,6 @@ struct omniORBpyAPI {
 {
   //printf("typemap in on Engines::MachineParameters\n");
   MESSAGE("typemap in on Engines::MachineParameters");
-  //ASSERT (PyDict_Check($input))
   if (PyDict_Check($input) == 1)
     {
       Engines::MachineParameters *param = new Engines::MachineParameters ;
@@ -145,9 +160,8 @@ struct omniORBpyAPI {
     }
   else 
     {
-       //printf("pas un dico\n");
        MESSAGE("Not a dictionnary");
-       PyErr_SetString(PyExc_TypeError,"MustBe a Python Dictionnary");
+       PyErr_SetString(PyExc_TypeError,"Must Be a Python Dictionnary");
        return NULL;
     }
 }
