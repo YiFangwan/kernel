@@ -305,6 +305,17 @@ dnl localbatch_ok is set to yes by CHECK_LOCAL
 
 WITH_BATCH=no
 test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes
+
+AC_ARG_ENABLE(batch,
+  [AC_HELP_STRING([--enable-batch],[Batch [default=yes]])],
+  [case "${enableval}" in
+     yes) test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes;;
+     no)  WITH_BATCH=no ;;
+     *) AC_MSG_ERROR(bad value ${enableval} for --enable-batch) ;;
+  esac],[test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes])
+
+echo Batch mode = $WITH_BATCH
+
 AC_SUBST(WITH_BATCH)
 AM_CONDITIONAL(WITH_BATCH, [test x"$WITH_BATCH" = xyes])
 
@@ -365,7 +376,7 @@ function check_fatal_error {
 
 # --------------------------------------
 
-basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok occ_ok"
+basic_mandatory_products="cc_ok threads_ok hdf5_ok occ_ok"
 echo --- General mandatory products - Light configuration:
 summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
