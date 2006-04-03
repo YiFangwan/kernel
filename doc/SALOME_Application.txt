@@ -101,8 +101,8 @@ The ${APPLI} directory contains scripts for environment and runs. Environment
 scripts must be configured (by the user) on each computer. All the environment
 scripts are in the ${APPLI}/env.d directory. 
 
-The script  ${APPLI}/envd sources **all** the files (\*.sh) in ${APPLI}/env.d in
-alphanumeric order (after edition, think to remove backup files). the envd
+The script  ${APPLI}/envd sources **all** the files (\*.sh) in ${APPLI}/env.d
+in alphanumeric order (after edition, think to remove backup files). the envd
 script is used by run scripts.
 
 
@@ -237,7 +237,7 @@ kill all the SALOME servers of **all the sessions** on a given computer::
 
    ./runSession killSalome.py
 
-Remember! it's the same in *Windows (R) operating system* [#]_ :
+Remember! it's the same idea in *Windows (R) operating system* [#]_ :
 use the start menu to stop...
 
 When you use only one session at a time, you don't need more.
@@ -258,6 +258,56 @@ the last launched session with::
 .. [#] Microsoft and Windows are either registered trademarks or trademarks of
        Microsoft Corporation in the United States and/or other countries.
 
+Launch a SALOME session without GUI interface
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This is used to launch a SALOME Python script without GUI
+(no GUI server = SALOME_session_server)
+
+Example of script (test_session_geom.py)::
+
+   import salome_session
+   salome_session.startSession(modules=["GEOM"])
+   import GEOM_usinggeom
+   raw_input("Press a key and the servers will be killed ...")
+
+This script is run in a non interactive way with::
+
+   ./runSession python test_session_geom.py
+
+All the process are automatically killed when Python is closed
+(with salome_session delete).
+
+Add an external Python interpretor to a running session
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+It's often easier to develop and try Python scripts outside the GUI embedded
+Python interpreter. Imagine, for instance, you are writing a script involving
+geometry and mesh modules.
+first, launch a SALOME session with gui, then, on another terminal::
+
+   ./runSession
+   python
+
+Import salome module. salome_init() without arguments creates a new study
+in the running session (note: salome_init(n) attachs to a running session whose
+studyId is n)::
+
+   import salome
+   salome.salome_init()
+
+An example of script given with SMESH::
+
+   import ex01_cube2build
+
+It is possible to connect the GUI interface to the study created in the above
+script with the file/connect menu, then browse study and display objects.
+Further modifications on study can be done either with GUI or external script
+(use refresh popup in GUI object browser to see study modifications generated
+by the external script). **AVOID modifications with GUI when a Python script
+is running**. Not all the modules are protected against concurrent actions...
+
+
 Different uses of the runSession shell interpreter
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -275,4 +325,13 @@ references, hostname and port::
 If there is no running session, prompt looks like::
 
    [NS=:]prascle@cli76cc:~/SALOME2/Run/Virtual$
+
+runSession is useful to launch any script or program which needs the complete
+SALOME environment, with or without a session already running.
+For instance, to launch the ddd debugger interface on the gui server, first
+launch a SALOME session with gui, then, on another terminal::
+
+   ./runSession ddd
+
+Then attach to the running SALOME_Session_Server process.
 
