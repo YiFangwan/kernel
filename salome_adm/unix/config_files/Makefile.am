@@ -11,12 +11,7 @@ DEPRECATED_FILES=\
 	DEPRECATED/ac_cxx_typename.m4 \
 	DEPRECATED/check_mico.m4 \
 	DEPRECATED/check_pthreads.m4 \
-	DEPRECATED/config.sub \
-	DEPRECATED/config.guess \
-	DEPRECATED/install-sh \
-	DEPRECATED/libtool.m4 \
-	DEPRECATED/ltconfig \
-	DEPRECATED/ltmain.sh
+	DEPRECATED/install-sh
 
 ## The following scripts are required for modules not built with autotools
 #dist_salomem4_SCRIPTS=\
@@ -62,4 +57,7 @@ enable_pthreads.m4 \
 production.m4 \
 pyembed.m4 \
 python.m4 \
+config.sub \
+config.guess \
+ltmain.sh \
 $(DEPRECATED_FILES)
