@@ -123,7 +123,6 @@ SALOMEDSClient_StudyBuilder* BuilderFactory(SALOMEDS::StudyBuilder_ptr theBuilde
 
 SALOMEDSClient_StudyManager* CreateStudyManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
 {
-  cout << "############## CreateStudyManager"   << endl;
   SALOME_NamingService namingService(orb);
   CORBA::Object_var obj = namingService.Resolve( "/myStudyManager" );
   SALOMEDS::StudyManager_var theManager = SALOMEDS::StudyManager::_narrow( obj );
