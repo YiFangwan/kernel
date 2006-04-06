@@ -162,7 +162,12 @@ class xml_parser:
 
 config_var = appname+'Config'
 dirs = os.environ[config_var]
-dirs = re.split('[;|:]', dirs )
+#abd error om win32 path like W:\dir\di1
+print 'Search configuration file in dir ', dirs
+if os.sys.platform == 'win32':
+    dirs = re.split('[;]', dirs )
+else:
+    dirs = re.split('[;|:]', dirs )
 dirs.reverse() # reverse order, like in "path" variable - FILO-style processing
 
 _opts = {} # assiciative array of options to be filled
@@ -170,6 +175,9 @@ _opts = {} # assiciative array of options to be filled
 # SalomeApp.xml files in directories specified by SalomeAppConfig env variable
 for dir in dirs:
     filename = dir+'/'+appname+'.xml'
+    #abd test begin
+    print 'Search configuration file ', filename
+    #abd test end
     try:
         p = xml_parser(filename, _opts)
         _opts = p.opts
