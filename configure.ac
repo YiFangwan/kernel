@@ -488,7 +488,6 @@ AC_OUTPUT([ \
 	./doc/salome/Makefile \
 	./doc/salome/DevelopersGuide/DevelopersGuide.tex \
 	./doc/salome/DevelopersGuide/Makefile \
-	./doc/salome/gui/Makefile \
 	./doc/salome/tui/Makefile \
 	./idl/Makefile \
 	./resources/Makefile \
