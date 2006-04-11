@@ -379,7 +379,7 @@ function check_fatal_error {
 if test x$corba_gen = xtrue; then
   basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok occ_ok"
 else
-  basic_mandatory_products="cc_ok threads_ok python_ok hdf5_ok occ_ok"
+  basic_mandatory_products="cc_ok threads_ok hdf5_ok occ_ok"
 fi
 
 echo --- General mandatory products - Light configuration:
@@ -394,6 +394,13 @@ if test x$corba_gen = xtrue; then
   check_fatal_error $corba_mandatory_products
 else
   echo --- CORBA products not required - option --disable-corba-gen
+  if test x"$WITH_BATCH" = xyes; then
+    echo --- BATCH mode mandatory products - default configuration:
+    summary "python_ok"
+    check_fatal_error "python_ok"
+  else 
+    echo --- Python not required - option --enable-batch=no
+  fi
 fi
 echo
 
