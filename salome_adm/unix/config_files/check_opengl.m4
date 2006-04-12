@@ -38,6 +38,9 @@ AC_CHECKING(for OpenGL headers)
 OGL_INCLUDES=""
 OGL_LIBS=""
 
+GL_LIB_PATH=""
+GLU_LIB_PATH=""
+
 OpenGL_ok=no
 OpenGL_libs_ok=no
 OpenGL_headers_ok=no
@@ -105,9 +108,9 @@ if test "x${OpenGL_headers_ok}" = "xyes" ; then
     if test -r "${idir}/libGL.so"; then
       AC_MSG_RESULT(in ${idir})
       if test "x${idir}" = "x/usr/lib${LIB_LOCATION_SUFFIX}" ; then
-        OGL_LIBS=""
+        GL_LIB_PATH=""
       else
-        OGL_LIBS="-L${idir}"
+        GL_LIB_PATH="-L${idir}"
       fi
       break
     fi
@@ -115,15 +118,15 @@ if test "x${OpenGL_headers_ok}" = "xyes" ; then
     if test -r "${idir}/libGL.sl"; then
       AC_MSG_RESULT(in ${idir})
       if test "x${idir}" = "x/usr/lib${LIB_LOCATION_SUFFIX}" ; then
-        OGL_LIBS=""
+        GL_LIB_PATH=""
       else
-        OGL_LIBS="-L${idir}"
+        GL_LIB_PATH="-L${idir}"
       fi
       break
     fi
   done
-  LDFLAGS_old="$LDFLAGS"
-  LDFLAGS="$LDFLAGS $OGL_LIBS"
+  LDFLAGS_old="${LDFLAGS}"
+  LDFLAGS="${LDFLAGS} ${GL_LIB_PATH}"
   AC_CHECK_LIB([GL],
                [glBegin],
                [OpenGL_libs_ok=yes],
@@ -131,7 +134,7 @@ if test "x${OpenGL_headers_ok}" = "xyes" ; then
   if test "x${OpenGL_libs_ok}" = "xyes" ; then
     AC_TRY_LINK([],
                 [],
-                [OpenGL_libs_ok=yes ; OGL_LIBS="$OGL_LIBS -lGL"],
+                [OpenGL_libs_ok=yes ; OGL_LIBS="${OGL_LIBS} ${GL_LIB_PATH} -lGL"],
                 [OpenGL_libs_ok=no])
   fi
   LDFLAGS="$LDFLAGS_old"
@@ -142,9 +145,9 @@ if test "x${OpenGL_libs_ok}" = "xyes" ; then
     if test -r "${idir}/libGLU.so"; then
       AC_MSG_RESULT(in ${idir})
       if test "x${idir}" = "x/usr/lib${LIB_LOCATION_SUFFIX}" ; then
-        OGL_LIBS=""
+        GLU_LIB_PATH=""
       else
-        OGL_LIBS="-L${idir}"
+        GLU_LIB_PATH="-L${idir}"
       fi
       break
     fi
@@ -152,15 +155,15 @@ if test "x${OpenGL_libs_ok}" = "xyes" ; then
     if test -r "${idir}/libGLU.sl"; then
       AC_MSG_RESULT(in ${idir})
       if test "x${idir}" = "x/usr/lib${LIB_LOCATION_SUFFIX}" ; then
-        OGL_LIBS=""
+        GLU_LIB_PATH=""
       else
-        OGL_LIBS="-L${idir}"
+        GLU_LIB_PATH="-L${idir}"
       fi
       break
     fi
   done
-  LDFLAGS_old="$LDFLAGS"
-  LDFLAGS="$LDFLAGS $OGL_LIBS"
+  LDFLAGS_old="${LDFLAGS}"
+  LDFLAGS="${LDFLAGS} ${OGL_LIBS} ${GLU_LIB_PATH}"
   AC_CHECK_LIB([GLU],
                [gluBeginSurface],
                [OpenGL_libs_ok=yes],
@@ -168,7 +171,7 @@ if test "x${OpenGL_libs_ok}" = "xyes" ; then
   if test "x${OpenGL_libs_ok}" = "xyes" ; then
     AC_TRY_LINK([],
                 [],
-                [OpenGL_libs_ok=yes ; OGL_LIBS="$OGL_LIBS -lGLU"],
+                [OpenGL_libs_ok=yes ; OGL_LIBS="${OGL_LIBS} ${GLU_LIB_PATH} -lGLU"],
                 [OpenGL_libs_ok=no])
   fi
   LDFLAGS="$LDFLAGS_old"

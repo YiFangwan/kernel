@@ -27,7 +27,7 @@
 
 #include "SALOME_Component.idl"
 
-module CatalogTest {
+module SALOME_TestModuleCatalog {
 
   interface Adder ;
 
