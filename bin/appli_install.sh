@@ -28,15 +28,15 @@ else
   #     edit and uncomment the following line to set it, and comment the echo and exit lines
   #ln -fs myPathForSalomePrerequisiteScriptToBeSourced env.d/envProducts.sh
   echo "The file to source for SALOME prerequisite definition is not known:"
-  echo "--> Edit the corresponding line in " $0 ",Comment this message and the exit command,"
+  echo "--> Edit the corresponding line in " $0 ",Comment this message and the following exit command,"
   exit 1;
 fi
 
 # --- symbolic links creation, from modules_root_dir
 
-VERSION=BR_PR_V320b1
+VERSION=V3_2_0
 
-for module in KERNEL MED GUI GEOM SMESH VISU SUPERV LIGHT NETGENPLUGIN PYCALCULATOR PYTIX; 
+for module in KERNEL MED GUI GEOM SMESH VISU SUPERV LIGHT NETGENPLUGIN PYCALCULATOR; 
 do 
     echo " ========= " ${module};
     python virtual_salome.py -v --prefix="." --module=$INSTALL_ROOT/${module}_${VERSION}
@@ -59,5 +59,9 @@ echo "export PYHELLO_ROOT_DIR=$APPLI_ROOT" >> env.d/configSalome.sh
 
 echo "export SalomeAppConfig=$APPLI_ROOT:$APPLI_ROOT/share/salome/resources" >> env.d/configGUI.sh
 echo "export SUITRoot=$APPLI_ROOT/share/salome" >> env.d/configGUI.sh
+
+# --- SAMPLES directory
+
+echo "export DATA_DIR=$INSTALL_ROOT/SAMPLES/${VERSION}/SAMPLES_SRC" >> env.d/configSalome.sh
 
 # --- 
