@@ -36,6 +36,8 @@ dnl a `module'.
 
 AC_DEFUN([CHECK_PYTHON],
  [
+  python_ok=yes
+ 
   AC_ARG_WITH(python,
    [AC_HELP_STRING([--with-python=DIR],[root directory path of python installation])],
    [PYTHON="$withval/bin/python"
@@ -62,8 +64,9 @@ AC_DEFUN([CHECK_PYTHON],
 
   PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config/Makefile
   if test ! -f "$PY_MAKEFILE"; then
-     AC_MSG_ERROR([*** Couldn't find ${PY_MAKEFILE}.  Maybe you are
+     AC_MSG_WARN([*** Couldn't find ${PY_MAKEFILE}.  Maybe you are
 *** missing the development portion of the python installation])
+     python_ok=no
   fi
 
   AC_SUBST(PYTHON_INCLUDES)
@@ -162,5 +165,7 @@ dnl python_site_given=no]
      AC_MSG_RESULT(no)
   fi
 
-  python_ok=yes
-  AC_MSG_RESULT(looks good)])
+  if test "$python_ok" == "yes"; then
+      AC_MSG_RESULT(looks good)
+  fi
+])
