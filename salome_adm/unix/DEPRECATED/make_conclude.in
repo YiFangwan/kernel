@@ -127,7 +127,7 @@ $(DEST_UI_PY_FILES): $(top_builddir)/bin/salome/%: %
 
 # copy pyqt files in $(PYTHON_SHARED_SITE)
 #
-PYTHON_SHARED_SITE=$(top_builddir)/lib/python$(PYTHON_VERSION)/site-packages/salome/shared_modules
+PYTHON_SHARED_SITE=$(top_builddir)/lib@LIB_LOCATION_SUFFIX@/python$(PYTHON_VERSION)/site-packages/salome/shared_modules
 
 $(PYTHON_SHARED_SITE):
 	$(INSTALL) -d  $@
