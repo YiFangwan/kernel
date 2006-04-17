@@ -22,8 +22,10 @@ import omniORB
 register_name("CosNaming")
 import CosNaming
 
-register_name("omnipatch")
-import omnipatch
+# On Win32, don't use omnipatch with omniOrb 4.0.7 so far
+if not sys.platform == "win32":
+   register_name("omnipatch")
+   import omnipatch
 
 import Engines
 import SALOME

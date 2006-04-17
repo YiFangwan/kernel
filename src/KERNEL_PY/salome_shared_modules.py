@@ -56,7 +56,11 @@ import glob,os,sys
 import import_hook
 # shared_imported, patterns, register_name, register_pattern
 # will be shared by all Python sub interpretors
-from omnipatch import shared_imported
+
+# On Win32, don't use omnipatch with omniOrb 4.0.7 so far
+if not sys.platform == "win32":
+    from omnipatch import shared_imported
+    
 import_hook.shared_imported=shared_imported
 from import_hook import patterns
 from import_hook import register_name

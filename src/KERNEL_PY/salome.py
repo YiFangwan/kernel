@@ -24,7 +24,11 @@
 #  Module : SALOME
 #  $Header$
 
-import omnipatch
+import sys
+# On Win32, don't use omnipatch with omniOrb 4.0.7 so far
+if not sys.platform == "win32":
+    import omnipatch 
+
 from salome_kernel import *
 from salome_study import *
 from salome_iapp import *
