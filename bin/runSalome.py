@@ -355,7 +355,7 @@ class ContainerPYServer(Server):
         self.args=args
         self.initArgs()
 	if sys.platform == "win32":
-          self.CMD=[os.environ["PYTHONDIR"] + "/libs/python.exe ", os.environ["KERNEL_ROOT_DIR"] + "/win32/python/" + 'SALOME_ContainerPy.py','FactoryServerPy']
+          self.CMD=[os.environ["PYTHONDIR"] + "/libs/python" + os.environ["PYTHON_EXE"] + ".exe ", os.environ["KERNEL_ROOT_DIR"] + "/win32/python/" + 'SALOME_ContainerPy.py','FactoryServerPy']
 	else:
           self.CMD=['SALOME_ContainerPy.py','FactoryServerPy']
 
