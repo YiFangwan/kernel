@@ -18,7 +18,6 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 dist_salomescript_DATA= \
 	VERSION \
 	orbmodule.py \
-	salome.launch \
 	salomeConsole.py \
 	salome_session.py
 

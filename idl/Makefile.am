@@ -12,7 +12,6 @@ BASEIDL_FILES = \
   SALOME_Exception.idl \
   SALOME_Comm.idl \
   SALOME_ModuleCatalog.idl \
-  SALOME_DataTypeCatalog.idl \
   SALOME_RessourcesCatalog.idl \
   SALOMEDS.idl \
   SALOMEDS_Attributes.idl \
