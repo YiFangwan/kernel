@@ -38,8 +38,6 @@ SUBDIR_CORBA = \
   GenericObj \
   Registry \
   ModuleCatalog \
-  DataTypeCatalog \
-  RessourcesCatalog \
   ResourcesManager \
   Notification \
   NOTIFICATION_SWIG \
