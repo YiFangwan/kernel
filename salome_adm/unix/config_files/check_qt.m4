@@ -28,7 +28,7 @@ AC_REQUIRE([AC_PROG_CXXCPP])dnl
 AC_REQUIRE([CHECK_OPENGL])dnl
 AC_REQUIRE([AC_LINKER_OPTIONS])dnl
 
-AC_CHECKING(for QT)
+AC_CHECKING(for Qt)
 
 if test "x$OpenGL_ok" != "xyes" ; then
    AC_MSG_WARN(Qt needs OpenGL correct configuration, check configure output)
@@ -173,7 +173,7 @@ AC_SUBST(QT_VERS)
 
 AC_LANG_RESTORE
 
-AC_MSG_RESULT(for qt: $qt_ok)
+AC_MSG_RESULT(for Qt: $qt_ok)
 
 # Save cache
 AC_CACHE_SAVE
