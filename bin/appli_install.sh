@@ -14,9 +14,11 @@ mkdir -p env.d
 ln -fs bin/salome/appliskel/envd .
 ln -fs bin/salome/appliskel/setAppliPath.sh .
 ln -fs bin/salome/appliskel/searchFreePort.sh .
+ln -fs bin/salome/appliskel/runRemote.sh .
 ln -fs bin/salome/appliskel/runAppli .
 ln -fs bin/salome/appliskel/runConsole .
 ln -fs bin/salome/appliskel/runSession .
+ln -fs bin/salome/appliskel/runTests .
 ln -fs bin/salome/appliskel/.bashrc .
 
 # --- prerequisites
@@ -57,7 +59,7 @@ echo "export PYHELLO_ROOT_DIR=$APPLI_ROOT" >> env.d/configSalome.sh
 
 # --- GUI config
 
-echo "export SalomeAppConfig=$APPLI_ROOT:$APPLI_ROOT/share/salome/resources" >> env.d/configGUI.sh
+echo "export config_var=$APPLI_ROOT:$APPLI_ROOT/share/salome/resources" >> env.d/configGUI.sh
 echo "export SUITRoot=$APPLI_ROOT/share/salome" >> env.d/configGUI.sh
 
 # --- SAMPLES directory
