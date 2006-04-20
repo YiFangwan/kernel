@@ -24,6 +24,7 @@
 %{
 #include "utilities.h"
 #include "SALOME_LifeCycleCORBA.hxx"
+#include "SALOME_FileTransferCORBA.hxx"
 #include "SALOME_NamingService.hxx"
 #include "ServiceUnreachable.hxx"
 
@@ -86,7 +87,7 @@ struct omniORBpyAPI {
 }
 
 
-%typemap(python,out) Engines::Container_ptr, Engines::Component_ptr
+%typemap(python,out) Engines::Container_ptr, Engines::Component_ptr, Engines::fileRef_ptr
 {
   MESSAGE("typemap out on CORBA object ptr");
   SCRUTE($1);
@@ -94,11 +95,43 @@ struct omniORBpyAPI {
   SCRUTE($result);
 }
 
+%typemap(python,out) std::string, 
+		    string
+{
+  MESSAGE("typemap out on std::string");
+  SCRUTE($1);
+  $result = PyString_FromString($1.c_str());
+}
 
 %typemap(typecheck) const Engines::MachineParameters &,
                     Engines::MachineParameters const &
 {
   $1 = PyDict_Check($input);
+}
+
+%typemap(typecheck) std::string, 
+		    string
+{
+  $1 = PyString_Check($input);
+}
+
+%typemap(python,in) std::string, 
+		    string
+{
+  MESSAGE("typemap in on std::string");
+  std::string str;
+  if (PyString_Check($input) == 1)
+    {
+      char* value = PyString_AsString($input);
+      str = value;
+      $1 = str;
+    }
+  else 
+    {
+       MESSAGE("Not a string");
+       PyErr_SetString(PyExc_TypeError,"Must Be a Python string");
+       return NULL;
+    }
 }
 
 
@@ -174,3 +207,4 @@ struct omniORBpyAPI {
 }
 
 %include "SALOME_LifeCycleCORBA.hxx"
+%include "SALOME_FileTransferCORBA.hxx"
