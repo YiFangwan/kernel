@@ -508,7 +508,6 @@ AC_OUTPUT([ \
 	./src/Communication/Makefile \
 	./src/Communication_SWIG/Makefile \
 	./src/Container/Makefile \
-	./src/DataTypeCatalog/Makefile \
 	./src/GenericObj/Makefile \
 	./src/HDFPersist/Makefile \
 	./src/KERNEL_PY/Makefile \
@@ -528,7 +527,6 @@ AC_OUTPUT([ \
 	./src/NOTIFICATION_SWIG/Makefile \
 	./src/Registry/Makefile \
 	./src/ResourcesManager/Makefile \
-	./src/RessourcesCatalog/Makefile \
 	./src/SALOMEDS/Makefile \
 	./src/SALOMEDS/Test/Makefile \
 	./src/SALOMEDSClient/Makefile \

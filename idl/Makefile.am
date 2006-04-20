@@ -49,7 +49,6 @@ BASEIDL_SOURCES =\
   SALOME_ExceptionSK.cc \
   SALOME_CommSK.cc \
   SALOME_ModuleCatalogSK.cc \
-  SALOME_DataTypeCatalogSK.cc \
   SALOME_RessourcesCatalogSK.cc \
   SALOMEDSSK.cc \
   SALOMEDS_AttributesSK.cc \
