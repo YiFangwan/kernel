@@ -61,6 +61,8 @@ def searchFreePort():
             raise msg
         NSPORT=NSPORT+1
         pass
+    os.environ['NSHOST']=hostname
+    os.environ['NSPORT']=str(NSPORT)
     return NSPORT
 
 
