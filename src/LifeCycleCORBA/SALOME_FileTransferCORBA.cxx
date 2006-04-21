@@ -102,7 +102,7 @@ SALOME_FileTransferCORBA::~SALOME_FileTransferCORBA()
 
 string SALOME_FileTransferCORBA::getLocalFile(string localFile)
 {
-  MESSAGE("SALOME_FileTransferCORBA::getLocalFile");
+  MESSAGE("SALOME_FileTransferCORBA::getLocalFile " << localFile);
 
   Engines::Container_var container;
 
@@ -147,9 +147,9 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
   string myMachine = GetHostname();
   string localCopy = _theFileRef->getRef(myMachine.c_str());
 
-  if (localCopy.empty())
+  if (localCopy.empty()) // no existing copy available
     {
-      if (localFile.empty())
+      if (localFile.empty()) // no name provided for local copy
 	{
 	  char bufName[256];
 	  localCopy = tmpnam(bufName);
@@ -187,6 +187,7 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
 	  MESSAGE("end of transfer");
 	  fileTransfer->close(fileId);
 	  _theFileRef->addRef(myMachine.c_str(), localFile.c_str());
+	  localCopy = localFile;
 	}
       else
 	{
