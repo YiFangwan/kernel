@@ -31,7 +31,7 @@
 
 #include <SALOME_Utils.hxx>
 
-# include "CORBA.h" 
+#include "omniORB4/CORBA.h" 
 
 #include "Utils_CommException.hxx"
 

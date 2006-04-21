@@ -40,6 +40,7 @@
 #include "Utils_SINGLETON.hxx" 
 
 #ifdef WIN32
+#include <windows.h>
 #include <process.h>
 #else
 #include <sys/types.h>
