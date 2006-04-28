@@ -1,53 +1,26 @@
 import sys,os,time
 import string
+from nameserver import *
+
 from omniORB import CORBA
 
 # Import the stubs for the Naming service
 import CosNaming
 
-# -----------------------------------------------------------------------------
-
-class Server:
-   XTERM="/usr/bin/X11/xterm -iconic -e "
-   CMD=""
-
-   def run(self):
-       #commande=self.XTERM+self.CMD
-       #print commande
-       #ier=os.system(commande)
-       #try:
-       print "runNS"
-       import runNS
-       runNS.startOmni()
-       #except:
-       #if ier:print "Commande failed"
-       #print "Commande failed"
-
-# -----------------------------------------------------------------------------
-
-class NamingServer(Server):
-   XTERM=""
-   USER=os.getenv('USER')
-   if USER is None:
-      USER='anonymous'
-   #os.system("mkdir -m 777 -p /tmp/logs")
-   LOGDIR="/tmp/logs/" + USER
-   #os.system("mkdir -m 777 -p " + LOGDIR)
-   # CMD="runNS.sh > " + LOGDIR + "/salomeNS.log 2>&1"
 
 # -----------------------------------------------------------------------------
 
 class client:
 
-   def __init__(self):
+   def __init__(self,args):
       # Initialise the ORB
       self.orb=CORBA.ORB_init(sys.argv, CORBA.ORB_ID)
       # Initialise the Naming Service
-      self.initNS()
+      self.initNS(args)
 
    # --------------------------------------------------------------------------
 
-   def initNS(self):
+   def initNS(self,args):
       # Obtain a reference to the root naming context
       obj         = self.orb.resolve_initial_references("NameService")
       try:
@@ -58,18 +31,15 @@ class client:
           print "Lancement du Naming Service",
           
       # On lance le Naming Server (doit etre dans le PATH)
-      NamingServer().run()
+      ns = NamingServer(args).run()
       print "Searching Naming Service ",
       ncount=0
       delta=0.1
       while(ncount < 10):
           ncount += 1
           try:
-	      print "1"
               obj = self.orb.resolve_initial_references("NameService")
-	      print "2", obj
               self.rootContext = obj._narrow(CosNaming.NamingContext)
-	      print "3"
               break
           except (CORBA.TRANSIENT,CORBA.OBJECT_NOT_EXIST,CORBA.COMM_FAILURE):
               self.rootContext = None
@@ -128,7 +98,7 @@ class client:
 
    # --------------------------------------------------------------------------
 
-   def waitNS(self,name,typobj=None,maxcount=60):
+   def waitNS(self,name,typobj=None,maxcount=1000):
       count=0
       delta=0.5
       print "Searching %s in Naming Service " % name,
@@ -150,6 +120,40 @@ class client:
       if nobj is None:
             print "%s exists but is not a %s" % (name,typobj)
       return nobj
+
+   # --------------------------------------------------------------------------
+
+   if sys.platform != "win32":
+     def waitNSPID(self, theName, thePID, theTypObj = None):
+        aCount = 0
+        aDelta = 0.5
+        anObj = None
+        print "Searching %s in Naming Service " % theName,
+        while(1):
+           try:
+              aPid, aStatus = os.waitpid(thePID,os.WNOHANG)
+           except Exception, exc:
+              raise "Impossible de trouver %s" % theName
+           aCount += 1
+           anObj = self.Resolve(theName)
+           if anObj: 
+              print " found in %s seconds " % ((aCount-1)*aDelta)
+              break
+           else:
+              sys.stdout.write('+')
+              sys.stdout.flush()
+              time.sleep(aDelta)
+              pass
+           pass
+      
+        if theTypObj is None:
+           return anObj
+
+        anObject = anObj._narrow(theTypObj)
+        if anObject is None:
+           print "%s exists but is not a %s" % (theName,theTypObj)
+        return anObject
+
 
    # --------------------------------------------------------------------------
 
@@ -194,4 +198,3 @@ class client:
             print "%s exists but is not a %s" % (name,typobj)
       return nobj
 
-print "888"
