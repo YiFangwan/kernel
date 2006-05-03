@@ -105,7 +105,8 @@ std::string SALOMEDS_Tool::GetTmpDir()
 
   MESSAGE("#### TMP" << aTmpDir.ToCString());
 
-  OSD_Protection aProtection(OSD_RW, OSD_RWX, OSD_RX, OSD_RX);
+  //OSD_Protection aProtection(OSD_RW, OSD_RWX, OSD_RX, OSD_RX);
+  OSD_Protection aProtection(OSD_RWXD, OSD_RWX, OSD_RX, OSD_RX );
   aDir.Build(aProtection);
 
   return aTmpDir.ToCString();
@@ -131,7 +132,8 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
     if(!anOSDFile.Exists()) continue;
 
     OSD_Protection aProtection = anOSDFile.Protection();
-    aProtection.SetUser(OSD_RW);
+    aProtection.SetUser(OSD_RWD);
+    //aProtection.SetSystem(OSD_RW);
     anOSDFile.SetProtection(aProtection);
 
     anOSDFile.Remove();
@@ -306,7 +308,11 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
       aCurrentPos += 8;    
       
       TCollection_AsciiString aFullPath = aTmpDir + aFileName;
+#ifdef WNT
+      ofstream aFile(aFullPath.ToCString(), ios::binary);
+#else
       ofstream aFile(aFullPath.ToCString());
+#endif
       aFile.write((char *)(aBuffer+aCurrentPos), aFileSize); 
       aFile.close();  
       aCurrentPos += aFileSize;
