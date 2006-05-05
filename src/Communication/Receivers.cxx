@@ -17,7 +17,7 @@
 //
 // See http://www.salome-platform.org/
 //
-#include "poa.h"
+#include "omniORB4/poa.h"
 #include "utilities.h"
 using namespace std;
 

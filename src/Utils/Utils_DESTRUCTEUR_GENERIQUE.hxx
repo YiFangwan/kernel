@@ -33,7 +33,7 @@
 
 #include <list>
 #include <cassert>
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 //# include "utilities.h"
 
 /*!\class DESTRUCTEUR_GENERIQUE_

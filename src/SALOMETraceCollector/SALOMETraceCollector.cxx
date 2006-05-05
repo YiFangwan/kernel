@@ -28,7 +28,7 @@
 #include <sstream>
 #include <fstream>
 #include <cstdlib>
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 
 using namespace std;
 

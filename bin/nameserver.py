@@ -72,7 +72,10 @@ class NamingServer(Server):
 
    def initArgs(self):
         Server.initArgs(self)
-        env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
+        if sys.platform == "win32":
+          env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("PATH")]
+        else:
+          env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
         self.CMD=['xterm', '-e']+ env_ld_library_path + ['python']
         self.initNSArgs()
 

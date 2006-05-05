@@ -28,7 +28,7 @@
 #define _SALOMETRACECOLLECTOR_HXX_
 
 #include <string>
-#include <CORBA.h>
+#include <omniORB4/CORBA.h>
 #include "BaseTraceCollector.hxx"
 #include "LocalTraceBufferPool.hxx"
 
