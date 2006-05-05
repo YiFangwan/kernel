@@ -73,7 +73,6 @@ list_modules=[]
 # Import all *_shared_modules in the path and store them in list_modules
 path=salome_path.split(":")
 
-print path
 for rep in path:
     # Import all *_shared_modules in rep
     glob_path = os.path.join(rep,"lib","python"+sys.version[:3],"site-packages","salome","shared_modules","*_shared_modules.py")
