@@ -32,9 +32,7 @@ import os
 import sys
 import string
 
-# On Win32, don't use omnipatch with omniOrb 4.0.7 so far
-if not sys.platform == "win32":
-    import omnipatch                     # PAL10310
+import omnipatch                     # PAL10310
     
 from omniORB import CORBA, PortableServer
 import SALOMEDS 

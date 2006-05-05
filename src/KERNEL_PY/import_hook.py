@@ -76,6 +76,7 @@ def set_shared_imported_with_copy(name,module):
 def import_hook(name, globals=None, locals=None, fromlist=None):
     #print "import_hook",name,fromlist
     module=get_shared_imported(name)
+
     if module:
        sys.modules[name]=module
        return module
