@@ -68,6 +68,8 @@ def version_id( fname ):
         if len(mr.group(2)): dev1 = ord(mr.group(2))
         if len(mr.group(3)): dev2 = int(mr.group(3))
         dev = dev1 * 100 + dev2
+    else:
+        return None
     ver = major
     ver = ver * 100 + minor
     ver = ver * 100 + release
@@ -94,7 +96,7 @@ def userFile():
     last_version = 0
     for file in f2v:
         ver = version_id( f2v[file] )
-        if abs(last_version-id0) > abs(ver-id0):
+        if ver and abs(last_version-id0) > abs(ver-id0):
             last_version = ver
             last_file = file
     return last_file
@@ -227,20 +229,26 @@ _opts = {} # assiciative array of options to be filled
 # SalomeApp.xml files in directories specified by SalomeAppConfig env variable
 for dir in dirs:
     filename = dir+'/'+appname+'.xml'
+    if not os.path.exists(filename):
+        print "Configure parser: Warning : could not find configuration file %s" % filename
+    else:
+        try:
+            p = xml_parser(filename, _opts)
+            _opts = p.opts
+        except:
+            print "Configure parser: Error : can not read configuration file %s" % filename
+        pass
+
+# SalomeApprc file in user's catalogue
+filename = userFile()
+if filename and not os.path.exists(filename):
+    print "Configure parser: Warning : could not find user configuration file"
+else:
     try:
         p = xml_parser(filename, _opts)
         _opts = p.opts
     except:
-        print "Configure parser: Error : can not read configuration file %s" % filename
-        continue
-
-# SalomeApprc file in user's catalogue
-filename = userFile()
-try:
-    p = xml_parser(filename, _opts)
-    _opts = p.opts
-except:
-    print 'Configure parser: Error : can not read user configuration file'
+        print 'Configure parser: Error : can not read user configuration file'
 
 args = _opts
 
