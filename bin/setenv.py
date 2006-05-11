@@ -135,11 +135,12 @@ def set_env(args, modules_list, modules_root_dir):
                 pass
             add_path(os.path.join(module_root_dir,"bin",salome_subdir),
                      "PYTHONPATH")
+            # add lib before site-packages to load script instead of dll if any (win32 platform)
+            add_path(os.path.join(module_root_dir,"lib",salome_subdir),
+                     "PYTHONPATH")
             add_path(os.path.join(module_root_dir,"lib",
                                   python_version,"site-packages",
                                   salome_subdir),
-                     "PYTHONPATH")
-            add_path(os.path.join(module_root_dir,"lib",salome_subdir),
                      "PYTHONPATH")
             add_path(os.path.join(module_root_dir,"lib",
                                   python_version,"site-packages",
