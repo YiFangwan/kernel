@@ -16,9 +16,9 @@ salome_subdir = "salome"
 def add_path(directory, variable_name):
     """Function helper to add environment variables"""
     if sys.platform == "win32":
-	splitsym = ";"
+	  splitsym = ";"
     else:
-	splitsym = ":"
+	  splitsym = ":"
     if not os.environ.has_key(variable_name):
         os.environ[variable_name] = ""
         pass
@@ -150,8 +150,10 @@ def set_env(args, modules_list, modules_root_dir):
             pass
         pass
 
-
-    os.environ["SALOMEPATH"]=":".join(modules_root_dir_list)
+    if sys.platform == 'win32':
+        os.environ["SALOMEPATH"]=";".join(modules_root_dir_list)
+    else:
+        os.environ["SALOMEPATH"]=":".join(modules_root_dir_list)
     
     # set trace environment variable
     

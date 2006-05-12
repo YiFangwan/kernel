@@ -429,4 +429,7 @@ else:
 for m in args[modules_nam]:
     if m not in ["KERNEL", "GUI", ""] and os.getenv("%s_ROOT_DIR"%m):
         dirs.append( os.getenv("%s_ROOT_DIR"%m) +  "/share/salome/resources" )
-os.environ[config_var] = ":".join(dirs)
+if os.sys.platform == 'win32':
+  os.environ[config_var] = ";".join(dirs)
+else:
+  os.environ[config_var] = ":".join(dirs)

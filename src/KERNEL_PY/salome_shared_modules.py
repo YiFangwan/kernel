@@ -71,7 +71,10 @@ salome_path=os.environ.get("SALOMEPATH",os.getenv("KERNEL_ROOT_DIR"))
 list_modules=[]
 
 # Import all *_shared_modules in the path and store them in list_modules
-path=salome_path.split(":")
+splitter = ":"
+if sys.platform == "win32":
+  splitter = ";"
+path=salome_path.split(splitter)
 #print "...SALOME_PATH = "
 #print salome_path
 #print "...PATH = "
@@ -98,6 +101,6 @@ for rep in path:
 #
 for name,module in sys.modules.items():
     if import_hook.is_shared(name) and shared_imported.get(name) is None:
-       print "Module shared added to shared_imported: ",name
+       #print "Module shared added to shared_imported: ",name
        shared_imported[name]=module
 
