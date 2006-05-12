@@ -72,19 +72,21 @@ list_modules=[]
 
 # Import all *_shared_modules in the path and store them in list_modules
 path=salome_path.split(":")
+print "...SALOME_PATH = "
+print salome_path
+print "...PATH = "path
+print path
 
 for rep in path:
     # Import all *_shared_modules in rep
     glob_path = os.path.join(rep,"lib","python"+sys.version[:3],"site-packages","salome","shared_modules","*_shared_modules.py")
-    if sys.platform == "win32":
-       glob_path = os.path.join(rep,"win32","python","shared_modules","*_shared_modules.py")
     for f in glob.glob(glob_path):
         try:
            name=os.path.splitext(os.path.basename(f))[0]
            register_name(name)
-           #print name + " REGISTERED"
+           print name + " REGISTERED"
            m=__import__(name)
-           #print name + " IMPORTED"
+           print name + " IMPORTED"
            list_modules.append(m)
         except:
            print "Exception during register and import shared module"
