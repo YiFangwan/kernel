@@ -3,6 +3,7 @@
 #log files localization
 
 import os, commands, sys, re
+from Utils_Identity import getShortHostName
 
 if sys.platform == "win32":
 	# temporarily using home directory for Namning Service logs
@@ -43,7 +44,9 @@ def startOmni():
 	#os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
 
 	print "Name Service... "
-	hname=os.environ["HOST"] #commands.getoutput("hostname")
+	#hname=os.environ["HOST"] #commands.getoutput("hostname")
+        hname=getShortHostName()
+
 	print "hname=",hname
 	
 	f=open(os.environ["OMNIORB_CONFIG"])

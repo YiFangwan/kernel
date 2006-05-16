@@ -4,11 +4,13 @@ import os, sys, pickle, signal, commands
 def getPiDict(port,appname='salome',full=True):
     from Utils_Identity import getShortHostName
 
-    host = os.getenv("HOSTNAME")
+    # get hostname by special function in all cases to
+    # have always same result in lower case at win32
+    host = getShortHostName()
+    if not host:
+        host = os.getenv("HOSTNAME")
     if not host:
         host = os.getenv("HOST")
-    if not host:
-        host = getShortHostName()
 
     filedict = []
     filedict.append( os.getenv('USER') )          # user name

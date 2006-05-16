@@ -428,10 +428,10 @@ def startSalome(args, modules_list, modules_root_dir):
     from Utils_Identity import getShortHostName
     
     if os.getenv("HOSTNAME") == None:
-        if os.getenv("HOST") == None:
+        #if os.getenv("HOST") == None:
             os.environ["HOSTNAME"]=getShortHostName()
-        else:
-            os.environ["HOSTNAME"]=os.getenv("HOST")
+        #else:
+        #    os.environ["HOSTNAME"]=os.getenv("HOST")
 
     theComputer = getShortHostName()
     

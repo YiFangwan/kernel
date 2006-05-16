@@ -3,6 +3,7 @@
 import sys, os, re
 #import commands
 from server import *
+from Utils_Identity import getShortHostName
 
 # -----------------------------------------------------------------------------
 
@@ -45,7 +46,8 @@ class NamingServer(Server):
 	#os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
 
 	print "Name Service... "
-	hname=os.environ["HOST"] #commands.getoutput("hostname")
+	#hname=os.environ["HOST"] #commands.getoutput("hostname")
+        hname=getShortHostName()
 	print "hname=",hname
 	
 	f=open(os.environ["OMNIORB_CONFIG"])
