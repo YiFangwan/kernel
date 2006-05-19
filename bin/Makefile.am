@@ -55,6 +55,7 @@ clean-local:
 # This is an ugly target to avoid exploring the appliskel subdirectory.
 install-exec-local:
 	$(INSTALL) -d $(salomescriptdir)
+	$(RM) -rf $(salomescriptdir)/appliskel 1> /dev/null 2>&1
 	cp -r $(srcdir)/appliskel $(salomescriptdir)
 	find $(salomescriptdir) -name CVS -prune -exec rm -rf {} \;
 
