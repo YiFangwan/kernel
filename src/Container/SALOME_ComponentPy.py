@@ -121,6 +121,12 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
     
     #-------------------------------------------------------------------------
 
+    def _get_interfaceName(self):
+        MESSAGE(  "SALOME_ComponentPy_i::_get_interfaceName" )
+        return self._interfaceName
+
+    #-------------------------------------------------------------------------
+
     def ping(self):
         MESSAGE(  "SALOME_ComponentPy_i::ping() pid " + str(os.getpid()) )
         
