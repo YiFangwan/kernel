@@ -5,7 +5,7 @@
 #
 #AC_PREREQ(2.59)
 #AC_INIT(src)
-AC_INIT([Salome2 Project], [3.1.0], [gboulant@CS], [salome])
+AC_INIT([Salome2 Project], [3.2.0], [gboulant@CS], [salome])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
@@ -18,7 +18,7 @@ AM_INIT_AUTOMAKE
 PACKAGE=salome
 AC_SUBST(PACKAGE)
 
-VERSION=3.1.0
+VERSION=3.2.0
 AC_SUBST(VERSION)
 
 
@@ -484,7 +484,7 @@ AC_OUTPUT_COMMANDS([ \
 # autoscan, the Makefile list is generated in the output file configure.scan.
 # This could be helpfull to update de configuration.
 AC_OUTPUT([ \
-	./salome_adm/unix/SALOMEconfig.h \
+	./salome_adm/unix/SALOMEconfig.ref \
 	./salome_adm/Makefile \
 	./salome_adm/unix/Makefile \
 	./salome_adm/unix/config_files/Makefile \

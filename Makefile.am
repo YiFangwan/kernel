@@ -9,9 +9,9 @@ if CORBA_GEN
   IDLDIR = idl
 endif
 
-SUBDIRS = $(IDLDIR) src doc salome_adm bin resources
+SUBDIRS = $(IDLDIR) salome_adm src doc bin resources
 
-DIST_SUBDIRS=   idl src doc salome_adm bin resources
+DIST_SUBDIRS=   idl salome_adm src doc bin resources
 
 DISTCLEANFILES = a.out
 
