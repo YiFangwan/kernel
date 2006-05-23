@@ -14,8 +14,14 @@ DEPRECATED_FILES=\
 	DEPRECATED/make_omniorb.in
 
 # rules for install and build (see make_common_starter.am)
-salomeadmux_DATA = SALOMEconfig.h
-BUILT_SOURCES=SALOMEconfig.h
+salomeadmux_DATA = SALOMEconfig.h.in
+BUILT_SOURCES=SALOMEconfig.h SALOMEconfig.h.in
+
+mostlyclean-local:
+	-rm -rf SALOMEconfig.h SALOMEconfig.h.in
+
+SALOMEconfig.h.in : SALOMEconfig.ref.in
+	cp -p $< $@;
 
 # test if SALOMEconfig.ref has changed (contents), at build time
 SALOMEconfig.h: $(top_builddir)/salome_adm/unix/SALOMEconfig.ref
@@ -29,6 +35,5 @@ SALOMEconfig.h: $(top_builddir)/salome_adm/unix/SALOMEconfig.ref
 # The deprecated files are deprecated for the KERNEL but not for the
 # related modules (GUI, MED, ...), for now. Some files have to be installed.
 dist_salomeadmux_DATA=\
-	SALOMEconfig.h \
 	pythonbe.py \
 	$(DEPRECATED_FILES)
