@@ -32,7 +32,7 @@ using namespace std;
 
 //=============================================================================
 /*! 
- *  Default constructor, not for use
+ *  Default constructor, not for use.
  */
 //=============================================================================
 
@@ -43,7 +43,7 @@ SALOME_FileTransferCORBA::SALOME_FileTransferCORBA()
 
 //=============================================================================
 /*! 
- *  Constructor to use when we get a fileRef CORBA object from a component
+ *  Constructor to use when we get a fileRef CORBA object from a component.
  *  \param aFileRef file reference CORBA object
  */
 //=============================================================================
@@ -57,8 +57,8 @@ SALOME_FileTransferCORBA::SALOME_FileTransferCORBA(Engines::fileRef_ptr
 
 //=============================================================================
 /*! 
- *  Constructor to use we the file name and machine from which to copy, plus
- *  an optional Container name on the machine
+ *  Constructor to use when we have the file name and machine from which to
+ *  copy, plus an optional Container name on the machine.
  *  \param refMachine    the machine on which is the file to transfer
  *  \param origFileName  abolute file path on refMachine
  *  \param containerName default container name used (FactoryServer) if empty
@@ -93,8 +93,8 @@ SALOME_FileTransferCORBA::~SALOME_FileTransferCORBA()
 
 //=============================================================================
 /*! 
- *  CORBA method: get a local copy of the reference file
- *  \param  localFile optional absolute path to store the copt
+ *  CORBA method: get a local copy of the reference file.
+ *  \param  localFile optional absolute path to store the copy
  *  \return the file name (absolute path) of the copy, may be different from
  *          localFile parameter if the copy was already done before the call
  */
