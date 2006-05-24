@@ -343,4 +343,4 @@ Then attach to the running SALOME_Session_Server process.
 +----------------------------------+------------------------------------------+
 
 .. _`General KERNEL documentation`:           ./index.html
-.. _`End User KERNEL Doxygen documentation`:  ./tui/KERNEL/main.html
+.. _`End User KERNEL Doxygen documentation`:  ./tui/KERNEL/index.html
