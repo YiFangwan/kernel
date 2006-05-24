@@ -17,14 +17,15 @@ if RST2HTML_IS_OK
 	UnitTests.html \
 	SALOME_Application.html \
 	INSTALL.html \
-	kernel_resources.html
+	kernel_resources.html \
+	KERNEL_Services.html
 endif
 
 EXTRA_DIST=$(doc_DATA)
 
 
 # Building html from restructured text files
-STYLESHEET=rst.css
+STYLESHEET=$(srcdir)/rst.css
 RST2HTML=@RST2HTML@
 RSTOPTS=--output-encoding=latin1 --stylesheet=$(STYLESHEET)
 #RSTOPTS=--output-encoding=latin1

@@ -496,6 +496,7 @@ AC_OUTPUT([ \
 	./doc/salome/DevelopersGuide/DevelopersGuide.tex \
 	./doc/salome/DevelopersGuide/Makefile \
 	./doc/salome/tui/Makefile \
+	./doc/salome/tui/KERNEL/doxyuser \
 	./idl/Makefile \
 	./resources/Makefile \
 	./resources/DEPRECATED/Plugin \
