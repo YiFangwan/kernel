@@ -101,9 +101,9 @@ SALOMETraceCollectorTest::testLoadBufferPoolCORBA()
 
 void *PrintHello(void *threadid)
 {
-  int id_thread = (int)threadid;
-  for (int i=0; i<NUM_MESSAGES;i++)
-    MESSAGE("Hello World! This is a trace test : " << id_thread 
-	    << " - iter " << i);
+  long id_thread = (long)threadid;
+      for (int i=0; i<NUM_MESSAGES;i++)	
+	MESSAGE("Hello World! This is a trace test : " << id_thread 
+	        << " - iter " << i);
   pthread_exit(NULL);
 }
