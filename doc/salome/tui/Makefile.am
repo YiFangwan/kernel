@@ -13,8 +13,7 @@ dist-hook:
 	rm -rf `find $(distdir) -name CVS`
 
 userdoc:
-	cp -fr $(srcdir)/KERNEL ./INPUT; \
-	cp -f $(top_builddir)/doc/salome/tui/KERNEL/doxyuser ./INPUT; \
+	cp -fr $(srcdir)/KERNEL/* ./INPUT; \
 	cd ./INPUT; \
         pwd; ls;\
 	echo "DOXYGEN SUPPORT PYTHON - $(DOXYGEN_WITH_PYTHON)"; \

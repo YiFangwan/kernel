@@ -19,8 +19,9 @@ PACKAGE=salome
 AC_SUBST(PACKAGE)
 
 VERSION=3.2.0
+XVERSION=0x030200
 AC_SUBST(VERSION)
-
+AC_SUBST(XVERSION)
 
 echo
 echo ---------------------------------------------
@@ -484,21 +485,26 @@ AC_OUTPUT_COMMANDS([ \
 # autoscan, the Makefile list is generated in the output file configure.scan.
 # This could be helpfull to update de configuration.
 AC_OUTPUT([ \
+	./KERNEL_version.h \
 	./salome_adm/unix/SALOMEconfig.ref \
 	./salome_adm/Makefile \
 	./salome_adm/unix/Makefile \
 	./salome_adm/unix/config_files/Makefile \
 	./Makefile \
 	./bin/Makefile \
+	./bin/VERSION \
 	./bin/runIDLparser \
 	./doc/Makefile \
 	./doc/salome/Makefile \
 	./doc/salome/DevelopersGuide/DevelopersGuide.tex \
 	./doc/salome/DevelopersGuide/Makefile \
 	./doc/salome/tui/Makefile \
-	./doc/salome/tui/KERNEL/doxyuser \
+	./doc/salome/tui/INPUT/doxyuser:./doc/salome/tui/KERNEL/doxyuser.in \
+	./doc/salome/tui/INPUT/sources/static/tree.js:./doc/salome/tui/KERNEL/sources/static/tree.js.in \
 	./idl/Makefile \
 	./resources/Makefile \
+	./resources/KERNELCatalog.xml \
+	./resources/CatalogResources.xml \
 	./resources/DEPRECATED/Plugin \
 	./src/Makefile \
 	./src/Basics/Makefile \

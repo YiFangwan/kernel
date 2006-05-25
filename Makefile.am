@@ -5,6 +5,8 @@
 # $Header$
 #
 
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
+
 if CORBA_GEN
   IDLDIR = idl
 endif
@@ -14,6 +16,8 @@ SUBDIRS = $(IDLDIR) salome_adm src doc bin resources
 DIST_SUBDIRS=   idl salome_adm src doc bin resources
 
 DISTCLEANFILES = a.out
+
+salomeinclude_DATA = KERNEL_version.h
 
 EXTRA_DIST = \
 	build_configure \
