@@ -43,7 +43,7 @@ static int MYDEBUG = 1;
 static int MYDEBUG = 1;
 #endif
 
-static const char* SEPARATOR    = ":";
+static const char* SEPARATOR    = "::";
 
 //----------------------------------------------------------------------
 // Function : SALOME_ModuleCatalogImpl

@@ -105,7 +105,8 @@ class CatalogServer(Server):
                                            "resources",module_cata)))
                 pass
             pass
-        self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
+        self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
+
 
 # ---
 
