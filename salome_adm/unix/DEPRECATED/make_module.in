@@ -48,6 +48,7 @@ depend:
 RESOURCES_FILES_ALL := $(notdir $(wildcard $(srcdir)/resources/*))
 RESOURCES_FILES_ALL := $(filter-out CVS, $(RESOURCES_FILES_ALL))
 RESOURCES_FILES_ALL := $(filter-out %.po, $(RESOURCES_FILES_ALL))
+RESOURCES_FILES_ALL := $(filter-out %.in, $(RESOURCES_FILES_ALL))
 RESOURCES_FILES ?= $(RESOURCES_FILES_ALL)
 
 resources: $(RESOURCES_FILES:%=$(top_builddir)/share/salome/resources/%)
