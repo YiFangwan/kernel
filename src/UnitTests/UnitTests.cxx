@@ -21,22 +21,27 @@
 // --- include all Unit Test from basics until the present directory
 
 #include "SALOMELocalTraceTest.hxx"
+
+#ifdef WITH_CORBA
 #include "SALOMETraceCollectorTest.hxx"
 #include "UtilsTest.hxx"
 #include "NamingServiceTest.hxx"
 #include "LifeCycleCORBATest.hxx"
 #include "SALOMEDSImplTest.hxx"
 #include "SALOMEDSTest.hxx"
+#endif
 
 // --- Registers the fixture into the 'registry'
 
 CPPUNIT_TEST_SUITE_REGISTRATION( SALOMELocalTraceTest );
+#ifdef WITH_CORBA
 CPPUNIT_TEST_SUITE_REGISTRATION( SALOMETraceCollectorTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( UtilsTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( NamingServiceTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( LifeCycleCORBATest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSImplTest );
-CPPUNIT_TEST_SUITE_REGISTRATION(SALOMEDSTest );
+CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest );
+#endif
 
 // --- generic Main program from Basic/Test
 
