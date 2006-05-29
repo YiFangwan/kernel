@@ -26,13 +26,20 @@
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 SUBDIRS= tui DevelopersGuide
+SUBDIRSGUI= DevelopersGuide
+SUBDIRSTUI= tui
 
 index_html:
 	$(INSTALL) -d $(docdir); 
-	cp -f $(srcdir)/KERNEL_index.html $(docdir)
 
-userdoc: index_html
-	list='$(SUBDIRS)'; for subdir in $$list; do \
+docs: index_html
+	list='$(SUBDIRSGUI)'; for subdir in $$list; do \
 	  echo "Making userdoc in $$subdir"; \
-	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) userdoc) \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) docs) \
+	done;
+
+dev_docs: index_html
+	list='$(SUBDIRSTUI)'; for subdir in $$list; do \
+	  echo "Making userdoc in $$subdir"; \
+	  (cd $$subdir && $(MAKE) $(AM_MAKEFLAGS) dev_docs) \
 	done;

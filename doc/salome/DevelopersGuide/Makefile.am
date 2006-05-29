@@ -29,8 +29,8 @@ TEX=DevelopersGuide.tex
 TEX_PS=$(TEX:%.tex=%.ps)
 TEX_PDF=$(TEX:%.tex=%.pdf)
 
-#userdoc: $(TEX_PS) $(TEX_PDF)
-userdoc:
+#docs: $(TEX_PS) $(TEX_PDF)
+docs:
 	@echo document tex a revoir
 
 clean:

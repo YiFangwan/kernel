@@ -51,5 +51,8 @@ RSTOPTS=--output-encoding=latin1 --stylesheet=$(STYLESHEET)
 %.html: $(srcdir)/%.txt
 	$(RST2HTML) $(RSTOPTS) $< $@
 
-userdoc:
-	(cd salome && $(MAKE) $(AM_MAKEFLAGS) userdoc)
+docs:
+	(cd salome && $(MAKE) $(AM_MAKEFLAGS) docs)
+	
+dev_docs:
+	(cd salome && $(MAKE) $(AM_MAKEFLAGS) dev_docs)

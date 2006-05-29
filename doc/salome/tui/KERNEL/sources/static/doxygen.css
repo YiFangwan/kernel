@@ -95,11 +95,32 @@ DIV.groupText {
 }
 
 BODY { 
-   background: url(sources/bg_salome.gif) 
+   background: #FFFFFF;
 }
+
+/*div.div-page { 
+  background-color: #FFFFFF; 
+  margin-left: 1em;
+  margin-right: 1em;
+  margin-top: 1em;
+  margin-bottom: 0.1em;
+
+  padding-left: 1em;
+  padding-right: 1em;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+
+  border: 2px solid #0D299A; 
+  border-width: 2px;
+  border-color: #0D299A; 
+}*/
 
 div.tabs { 
   text-align: justify; 
+  margin-left    : 2px;	 
+  margin-right   : 2px;  
+  margin-top     : 2px; 
+  margin-bottom  : 2px
   font-weight: bold;
   color: #FFFFFF;
 }

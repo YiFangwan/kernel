@@ -30,7 +30,7 @@ EXTRA_DIST = $(srcdir)/KERNEL
 dist-hook:
 	rm -rf `find $(distdir) -name CVS`
 
-userdoc:
+dev_docs:
 	cp -fr $(srcdir)/KERNEL/* ./INPUT; \
 	cd ./INPUT; \
         pwd; ls;\
