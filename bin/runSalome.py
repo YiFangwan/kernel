@@ -107,7 +107,6 @@ class CatalogServer(Server):
             pass
         self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
 
-
 # ---
 
 class SalomeDSServer(Server):
@@ -237,7 +236,8 @@ class SessionServer(Server):
                                        setenv.salome_subdir,"resources",
                                        module_cata)))
         if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
-            self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
+#            self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
+            self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
       
