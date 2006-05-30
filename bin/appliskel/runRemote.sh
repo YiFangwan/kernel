@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
 #           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
 # This library is free software; you can redistribute it and/or
@@ -16,7 +18,6 @@
 # 
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 # 
-#!/bin/bash
 #
 # --- run command in SALOME environment from remote call, ssh or rsh
 #     - SALOME configuration is defined by :
