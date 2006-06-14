@@ -62,7 +62,7 @@ AC_DEFUN([CHECK_PYTHON],
   changequote([, ])dnl
   AC_SUBST(PYTHON_VERSION)
 
-  PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config/Makefile
+  PY_MAKEFILE=${PYTHON_PREFIX}/lib/python$PYTHON_VERSION/config/Makefile
   if test ! -f "$PY_MAKEFILE"; then
      AC_MSG_WARN([*** Couldn't find ${PY_MAKEFILE}.  Maybe you are
 *** missing the development portion of the python installation])
@@ -73,9 +73,9 @@ AC_DEFUN([CHECK_PYTHON],
   AC_SUBST(PYTHON_LIBS)
 
   PYTHON_INCLUDES=-I$PYTHON_PREFIX/include/python$PYTHON_VERSION
-  PYTHON_LIBS="-L${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python${PYTHON_VERSION}/config -lpython${PYTHON_VERSION}"
+  PYTHON_LIBS="-L${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/config -lpython${PYTHON_VERSION}"
   PYTHON_LIB=$PYTHON_LIBS
-  PYTHON_LIBA=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config/libpython$PYTHON_VERSION.a
+  PYTHON_LIBA=${PYTHON_PREFIX}/lib/python$PYTHON_VERSION/config/libpython$PYTHON_VERSION.a
 
   dnl At times (like when building shared libraries) you may want
   dnl to know which OS Python thinks this is.
@@ -97,7 +97,7 @@ dnl python_site_given=no]
 
    [PYTHON_SITE="$withval"
     python_site_given=yes],
-   [PYTHON_SITE=${prefix}"/lib${LIB_LOCATION_SUFFIX}/python"${PYTHON_VERSION}/site-packages
+   [PYTHON_SITE=${prefix}"/lib/python"${PYTHON_VERSION}/site-packages
     python_site_given=no])
 
   AC_SUBST(PYTHON_SITE_PACKAGE)
@@ -115,7 +115,7 @@ dnl python_site_given=no]
     [if test "$python_site_given" = yes; then
        PYTHON_SITE_EXEC=$PYTHON_SITE
      else
-       PYTHON_SITE_EXEC=${PYTHON_EXEC_PREFIX}"/lib${LIB_LOCATION_SUFFIX}/python"${PYTHON_VERSION}/site-packages
+       PYTHON_SITE_EXEC=${PYTHON_EXEC_PREFIX}"/lib/python"${PYTHON_VERSION}/site-packages
      fi])
 
   dnl Set up the install directory
@@ -126,7 +126,7 @@ dnl python_site_given=no]
 
   dnl Also lets automake think PYTHON means something.
 
-  pythondir=${PYTHON_PREFIX}"/lib${LIB_LOCATION_SUFFIX}/python"${PYTHON_VERSION}/
+  pythondir=${PYTHON_PREFIX}"/lib/python"${PYTHON_VERSION}/
   AC_SUBST(pythondir)
 
  AC_MSG_CHECKING([if we need libdb])
