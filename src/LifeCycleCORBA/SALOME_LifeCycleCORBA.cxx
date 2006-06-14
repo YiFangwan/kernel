@@ -17,7 +17,7 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //
 //
@@ -31,14 +31,17 @@
 #include <sstream>
 #include <iomanip>
 
+#include <time.h>
+#ifndef WNT
+  #include <sys/time.h>
+#endif
+
 #include "OpUtil.hxx"
 #include "utilities.h"
-#include "Launchers.hxx"
 
 #include <ServiceUnreachable.hxx>
 
 #include "SALOME_LifeCycleCORBA.hxx"
-#include "SALOMETraceCollector.hxx"
 #ifndef WNT
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
 #else
@@ -47,6 +50,7 @@
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"
+
 using namespace std;
 
 IncompatibleComponent::IncompatibleComponent( void ):
@@ -356,6 +360,20 @@ int SALOME_LifeCycleCORBA::NbProc(const Engines::MachineParameters& params)
   else
     return params.nb_node * params.nb_proc_per_node;
 }
+
+//=============================================================================
+/*! Public -
+ *  \return the container Manager
+ */
+//=============================================================================
+
+Engines::ContainerManager_ptr SALOME_LifeCycleCORBA::getContainerManager()
+{
+ Engines::ContainerManager_var contManager =
+   Engines::ContainerManager::_duplicate(_ContManager);
+ return contManager._retn();
+}
+
 
 //=============================================================================
 /*! Protected -

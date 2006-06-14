@@ -17,7 +17,7 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //
 //
@@ -27,32 +27,37 @@
 //  $Header$
 
 //#define private public
-#include <SALOMEconfig.h>
-#ifndef WNT
-#include CORBA_SERVER_HEADER(SALOME_Component)
-#else
-#include <SALOME_Component.hh>
-#endif
-#include <pthread.h>  // must be before Python.h !
-#include <Python.h>
-#include "SALOME_Container_i.hxx"
-#include "SALOME_Component_i.hxx"
-#include "SALOME_NamingService.hxx"
-#include "OpUtil.hxx"
 #include <string.h>
 #include <stdio.h>
+#include <time.h>
 #ifndef WNT
+#include <sys/time.h>
 #include <dlfcn.h>
 #include <unistd.h>
 #else
-#include <windows.h>
 #include <signal.h>
 #include <process.h>
 int SIGUSR1 = 1000;
 #endif
-#include "Container_init_python.hxx"
 
 #include "utilities.h"
+#include <SALOMEconfig.h>
+//#ifndef WNT
+#include CORBA_SERVER_HEADER(SALOME_Component)
+//#else
+//#include <SALOME_Component.hh>
+//#endif
+#include <pthread.h>  // must be before Python.h !
+#include "SALOME_Container_i.hxx"
+#include "SALOME_Component_i.hxx"
+#include "SALOME_FileRef_i.hxx"
+#include "SALOME_FileTransfer_i.hxx"
+#include "SALOME_NamingService.hxx"
+#include "OpUtil.hxx"
+
+#include <Python.h>
+#include "Container_init_python.hxx"
+
 using namespace std;
 
 bool _Sleeping = false ;
@@ -67,7 +72,7 @@ char ** _ArgV ;
 
 extern "C" {void ActSigIntHandler() ; }
 #ifndef WNT
-extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
+  extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 #else
   extern "C" {void SigIntHandler( int ) ; }
 #endif
@@ -96,7 +101,7 @@ Engines_Container_i::Engines_Container_i () :
 //=============================================================================
 
 Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb, 
-					  PortableServer::POA_ptr poa,
+					  PortableServer::POA_var poa,
 					  char *containerName ,
                                           int argc , char* argv[],
 					  bool activAndRegist,
@@ -193,6 +198,9 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 	  PyRun_SimpleString((char*)myCommand.c_str());
 	  Py_RELEASE_NEW_THREAD;
 	}
+
+      fileTransfer_i* aFileTransfer = new fileTransfer_i();
+      _fileTransfer = Engines::fileTransfer::_narrow(aFileTransfer->_this());
     }
 }
 
@@ -321,6 +329,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
   HINSTANCE handle;
   handle = LoadLibrary( impl_name.c_str() );
 #endif
+
   if ( handle )
   {
       _library_map[impl_name] = handle;
@@ -428,8 +437,11 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
       SCRUTE(iors);
       Py_RELEASE_NEW_THREAD;
   
-      CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
-      iobject = Engines::Component::_narrow( obj ) ;
+      if( iors!="" )
+      {
+	CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
+	iobject = Engines::Component::_narrow( obj ) ;
+      }
       return iobject._retn();
     }
   
@@ -579,6 +591,60 @@ bool Engines_Container_i::Kill_impl()
   ASSERT(0);
   return false;
 }
+
+//=============================================================================
+/*! 
+ *  CORBA method: get or create a fileRef object associated to a local file
+ *  (a file on the computer on which runs the container server), which stores
+ *  a list of (machine, localFileName) corresponding to copies already done.
+ * 
+ *  \param  origFileName absolute path for a local file to copy on other
+ *          computers
+ *  \return a fileRef object associated to the file.
+ */
+//=============================================================================
+
+Engines::fileRef_ptr
+Engines_Container_i::createFileRef(const char* origFileName)
+{
+  string origName(origFileName);
+  Engines::fileRef_var theFileRef = Engines::fileRef::_nil();
+
+  if (origName[0] != '/')
+    {
+      INFOS("path of file to copy must be an absolute path begining with '/'");
+      return Engines::fileRef::_nil();
+    }
+
+  if (CORBA::is_nil(_fileRef_map[origName]))
+    {
+      CORBA::Object_var obj=_poa->id_to_reference(*_id);
+      Engines::Container_var pCont = Engines::Container::_narrow(obj);
+      fileRef_i* aFileRef = new fileRef_i(pCont, origFileName);
+      theFileRef = Engines::fileRef::_narrow(aFileRef->_this());
+      _fileRef_map[origName] = theFileRef;
+    }
+  
+  theFileRef =  Engines::fileRef::_duplicate(_fileRef_map[origName]);
+  ASSERT(! CORBA::is_nil(theFileRef));
+  return theFileRef._retn();
+}
+
+//=============================================================================
+/*! 
+ *  CORBA method:
+ *  \return a reference to the fileTransfer object
+ */
+//=============================================================================
+
+Engines::fileTransfer_ptr
+Engines_Container_i::getFileTransfer()
+{
+  Engines::fileTransfer_var aFileTransfer
+    = Engines::fileTransfer::_duplicate(_fileTransfer);
+  return aFileTransfer._retn();
+}
+
 
 //=============================================================================
 /*! 
@@ -939,4 +1005,3 @@ void SigIntHandler( int what )
     }
 }
 #endif
-

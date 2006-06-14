@@ -17,7 +17,7 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //
 //
@@ -40,18 +40,14 @@
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 
-#if defined LIFECYCLECORBA_EXPORTS
-#if defined WIN32
-#define LIFECYCLECORBA_EXPORT __declspec( dllexport )
+#ifdef WNT
+# if defined LIFECYCLECORBA_EXPORTS
+#  define LIFECYCLECORBA_EXPORT __declspec( dllexport )
+# else
+#  define LIFECYCLECORBA_EXPORT __declspec( dllimport )
+# endif
 #else
-#define LIFECYCLECORBA_EXPORT
-#endif
-#else
-#if defined WNT
-#define LIFECYCLECORBA_EXPORT __declspec( dllimport )
-#else
-#define LIFECYCLECORBA_EXPORT
-#endif
+# define LIFECYCLECORBA_EXPORT
 #endif
 
 
@@ -97,6 +93,8 @@ public:
   int NbProc(const Engines::MachineParameters& params);
 
   void preSet(Engines::MachineParameters& params);
+
+  Engines::ContainerManager_ptr getContainerManager();
 
 protected:
 

@@ -36,8 +36,10 @@ dnl a `module'.
 
 AC_DEFUN([CHECK_PYTHON],
  [
+  python_ok=yes
+ 
   AC_ARG_WITH(python,
-   [  --with-python=DIR root directory path of python installation ],
+   [AC_HELP_STRING([--with-python=DIR],[root directory path of python installation])],
    [PYTHON="$withval/bin/python"
     AC_MSG_RESULT("select python distribution in $withval")
    ], [
@@ -45,6 +47,9 @@ AC_DEFUN([CHECK_PYTHON],
     ])
   
   AC_CHECKING([local Python configuration])
+
+  AC_REQUIRE([AC_LINKER_OPTIONS])dnl
+
   PYTHON_PREFIX=`echo $PYTHON | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
   PYTHON_PREFIX=`echo $PYTHON_PREFIX | sed -e "s,[[^/]]*$,,;s,/$,,;s,^$,.,"`
   PYTHONHOME=$PYTHON_PREFIX
@@ -57,19 +62,20 @@ AC_DEFUN([CHECK_PYTHON],
   changequote([, ])dnl
   AC_SUBST(PYTHON_VERSION)
 
-  PY_MAKEFILE=$PYTHON_PREFIX/lib/python$PYTHON_VERSION/config/Makefile
+  PY_MAKEFILE=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config/Makefile
   if test ! -f "$PY_MAKEFILE"; then
-     AC_MSG_ERROR([*** Couldn't find ${PY_MAKEFILE}.  Maybe you are
+     AC_MSG_WARN([*** Couldn't find ${PY_MAKEFILE}.  Maybe you are
 *** missing the development portion of the python installation])
+     python_ok=no
   fi
 
   AC_SUBST(PYTHON_INCLUDES)
   AC_SUBST(PYTHON_LIBS)
 
   PYTHON_INCLUDES=-I$PYTHON_PREFIX/include/python$PYTHON_VERSION
-  PYTHON_LIBS="-L${PYTHON_PREFIX}/lib/python${PYTHON_VERSION}/config -lpython${PYTHON_VERSION}"
+  PYTHON_LIBS="-L${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python${PYTHON_VERSION}/config -lpython${PYTHON_VERSION}"
   PYTHON_LIB=$PYTHON_LIBS
-  PYTHON_LIBA=$PYTHON_PREFIX/lib/python$PYTHON_VERSION/config/libpython$PYTHON_VERSION.a
+  PYTHON_LIBA=${PYTHON_PREFIX}/lib${LIB_LOCATION_SUFFIX}/python$PYTHON_VERSION/config/libpython$PYTHON_VERSION.a
 
   dnl At times (like when building shared libraries) you may want
   dnl to know which OS Python thinks this is.
@@ -79,20 +85,20 @@ AC_DEFUN([CHECK_PYTHON],
 
   AC_SUBST(PYTHON_SITE)
   AC_ARG_WITH(python-site,
-[  --with-python-site=DIR          Use DIR for installing platform independent
-                                  Python site-packages],
+    [AC_HELP_STRING([--with-python-site=DIR],
+       [Use DIR for installing platform independent Python site-packages])],
 
 dnl modification : by default, we install python script in salome root tree
 
 dnl [PYTHON_SITE="$withval"
 dnl python_site_given=yes],
 dnl [PYTHON_SITE=$PYTHON_PREFIX"/lib/python"$PYTHON_VERSION/site-packages
-dnl python_site_given=no])
+dnl python_site_given=no]
 
-[PYTHON_SITE="$withval"
-python_site_given=yes],
-[PYTHON_SITE=$prefix"/lib/python"$PYTHON_VERSION/site-packages
-python_site_given=no])
+   [PYTHON_SITE="$withval"
+    python_site_given=yes],
+   [PYTHON_SITE=${prefix}"/lib${LIB_LOCATION_SUFFIX}/python"${PYTHON_VERSION}/site-packages
+    python_site_given=no])
 
   AC_SUBST(PYTHON_SITE_PACKAGE)
   PYTHON_SITE_PACKAGE=$PYTHON_SITE/$PACKAGE
@@ -103,14 +109,14 @@ python_site_given=no])
 
   AC_SUBST(PYTHON_SITE_EXEC)
   AC_ARG_WITH(python-site-exec,
-[  --with-python-site-exec=DIR     Use DIR for installing platform dependent
-                                  Python site-packages],
-[PYTHON_SITE_EXEC="$withval"],
-[if test "$python_site_given" = yes; then
-  PYTHON_SITE_EXEC=$PYTHON_SITE
-else
-  PYTHON_SITE_EXEC=$PYTHON_EXEC_PREFIX"/lib/python"$PYTHON_VERSION/site-packages
-fi])
+    [AC_HELP_STRING([--with-python-site-exec=DIR],
+                    [Use DIR for installing platform dependent Python site-packages])],
+    [PYTHON_SITE_EXEC="$withval"],
+    [if test "$python_site_given" = yes; then
+       PYTHON_SITE_EXEC=$PYTHON_SITE
+     else
+       PYTHON_SITE_EXEC=${PYTHON_EXEC_PREFIX}"/lib${LIB_LOCATION_SUFFIX}/python"${PYTHON_VERSION}/site-packages
+     fi])
 
   dnl Set up the install directory
   ifelse($1, classes,
@@ -120,7 +126,7 @@ fi])
 
   dnl Also lets automake think PYTHON means something.
 
-  pythondir=$PYTHON_PREFIX"/lib/python"$PYTHON_VERSION/
+  pythondir=${PYTHON_PREFIX}"/lib${LIB_LOCATION_SUFFIX}/python"${PYTHON_VERSION}/
   AC_SUBST(pythondir)
 
  AC_MSG_CHECKING([if we need libdb])
@@ -159,5 +165,7 @@ fi])
      AC_MSG_RESULT(no)
   fi
 
-  python_ok=yes
-  AC_MSG_RESULT(looks good)])
+  if test "$python_ok" == "yes"; then
+      AC_MSG_RESULT(looks good)
+  fi
+])

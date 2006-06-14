@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #ifndef _LIFECYCLECORBATEST_HXX_
@@ -45,7 +45,8 @@ class LifeCycleCORBATest : public CppUnit::TestFixture
   CPPUNIT_TEST( testFindOrLoad_Component_RemoteComputer );
   CPPUNIT_TEST( testFindOrLoad_Component_ParamsRemoteComputer );
   CPPUNIT_TEST( testFindOrLoad_Component_ParamsRemoteComputer2 );
-//   CPPUNIT_TEST( testFindOrLoad_Component_ );
+  CPPUNIT_TEST( testgetLocalFile_localComputer );
+  CPPUNIT_TEST( testgetLocalFile_remoteComputer );
 //   CPPUNIT_TEST( testFindOrLoad_Component_ );
 //   CPPUNIT_TEST(  );
 //   CPPUNIT_TEST(  );
@@ -70,6 +71,8 @@ public:
   void testFindOrLoad_Component_RemoteComputer();
   void testFindOrLoad_Component_ParamsRemoteComputer();
   void testFindOrLoad_Component_ParamsRemoteComputer2();
+  void testgetLocalFile_localComputer();
+  void testgetLocalFile_remoteComputer();
 //   void testFindOrLoad_Component_();
 //   void testFindOrLoad_Component_();
 

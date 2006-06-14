@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS_SObject.hxx
 //  Author : Sergey RUIN
@@ -33,7 +33,6 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-#include "SALOMEDS_SObject_i.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
 
 class Standard_EXPORT SALOMEDS_SObject: public virtual SALOMEDSClient_SObject

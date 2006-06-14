@@ -29,7 +29,7 @@
 /*! 
   Class which an interface to store the parameters of the objects
 */
-class SALOMEDSImpl_IParameters
+class Standard_EXPORT SALOMEDSImpl_IParameters
 {
 public:
   SALOMEDSImpl_IParameters(const Handle(SALOMEDSImpl_AttributeParameter)& ap); 

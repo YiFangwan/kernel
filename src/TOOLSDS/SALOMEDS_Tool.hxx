@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File      : SALOMEDS_Tool.hxx
 //  Created   : Mon Oct 21 16:24:50 2002
@@ -23,8 +23,6 @@
 
 //  Project   : SALOME
 //  Module    : SALOMEDS
-//  Copyright : Open CASCADE
-
 
 #ifndef __SALOMEDS_Tool_H__
 #define __SALOMEDS_Tool_H__
@@ -74,6 +72,10 @@ public:
   static SALOMEDS::TMPFile* PutFilesToStream(const std::string& theFromDirectory, 
 					     const SALOMEDS::ListOfFileNames& theFiles,
 					     const int theNamesOnly = 0);
+
+  // Converts files listed in <theFiles> which will be named as pointed in the <theFileNames> into a byte sequence TMPFile
+  static SALOMEDS::TMPFile* PutFilesToStream(const SALOMEDS::ListOfFileNames& theFiles,
+					     const SALOMEDS::ListOfFileNames& theFileNames);
 
   // Converts a byte sequence <theStream> to files and places them in <theToDirectory>
   static SALOMEDS::ListOfFileNames_var PutStreamToFiles(const SALOMEDS::TMPFile& theStream,

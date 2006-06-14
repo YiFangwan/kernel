@@ -17,7 +17,7 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //
 //
@@ -54,7 +54,7 @@ class CONTAINER_EXPORT Engines_Container_i:
 public:
   Engines_Container_i();
   Engines_Container_i(CORBA::ORB_ptr orb, 
-		      PortableServer::POA_ptr poa,
+		      PortableServer::POA_var poa,
 		      char * containerName ,
                       int argc, char* argv[],
 		      bool activAndRegist = true,
@@ -87,10 +87,11 @@ public:
   char* getHostName();
   CORBA::Long getPID();
   //! Kill current container
-  bool Kill_impl() ;
+  bool Kill_impl();
 
-  //Engines::Component_ptr instance(const char* nameToRegister,
-  //				   const char* componentName);
+  Engines::fileRef_ptr createFileRef(const char* origFileName);
+  Engines::fileTransfer_ptr getFileTransfer();
+
 
   // --- local C++ methods
 
@@ -129,6 +130,8 @@ protected:
   PortableServer::ObjectId * _id ;
   int _numInstance ;
   std::map<std::string,Engines::Component_var> _listInstances_map;
+  std::map<std::string,Engines::fileRef_var> _fileRef_map;
+  Engines::fileTransfer_var _fileTransfer;
 
   int    _argc ;
   char** _argv ;

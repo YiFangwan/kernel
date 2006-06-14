@@ -16,6 +16,8 @@
 # include <unistd.h>
 #endif
 
+#include "utilities.h" // for compilation type "timespec"
+
 int main(int argc, char **argv)
 {
   if (argc > 2)

@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS_StudyBuilder.hxx
 //  Author : Sergey RUIN
@@ -24,6 +24,8 @@
 #ifndef __SALOMEDS_STUDYBUILDER_H__
 #define __SALOMEDS_STUDYBUILDER_H__
 
+#include "SALOMEDS_defines.hxx"
+
 #include "SALOMEDSClient.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"
 
@@ -31,8 +33,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
-
-class SALOMEDS_StudyBuilder: public SALOMEDSClient_StudyBuilder
+class SALOMEDS_EXPORT SALOMEDS_StudyBuilder: public SALOMEDSClient_StudyBuilder
 {
 private:
   bool _isLocal;
@@ -79,6 +80,8 @@ public:
   virtual void SetName(const _PTR(SObject)& theSO, const std::string& theValue);
   virtual void SetComment(const _PTR(SObject)& theSO, const std::string& theValue);
   virtual void SetIOR(const _PTR(SObject)& theSO, const std::string& theValue);
+
+  SALOMEDS::StudyBuilder_ptr GetBuilder();
 
 private:
   void CheckLocked();

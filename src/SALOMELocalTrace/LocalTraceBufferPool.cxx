@@ -15,7 +15,7 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  Author : Paul RASCLE (EDF)
 //  Module : KERNEL
@@ -52,12 +52,12 @@ using namespace std;
 // Class static attributes initialisation
 
 LocalTraceBufferPool* LocalTraceBufferPool::_singleton = 0;
-#ifndef WNT
-pthread_mutex_t LocalTraceBufferPool::_singletonMutex;
-#else
+//#ifndef WNT
+//pthread_mutex_t LocalTraceBufferPool::_singletonMutex;
+//#else
 pthread_mutex_t LocalTraceBufferPool::_singletonMutex =
   PTHREAD_MUTEX_INITIALIZER;
-#endif
+//#endif
 BaseTraceCollector *LocalTraceBufferPool::_myThreadTrace = 0;
 
 // ============================================================================

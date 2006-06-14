@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS_GenericAttribute_i.hxx
 //  Author : Sergey RUIN
@@ -57,7 +57,7 @@ public:
 
   static SALOMEDS::GenericAttribute_ptr CreateAttribute(const Handle(TDF_Attribute)& theAttr, CORBA::ORB_ptr theOrb);  
 
-  virtual long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+  virtual CORBA::Long GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 };
 
 #endif

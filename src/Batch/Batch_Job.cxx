@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 /*
  * Job.cxx : 
@@ -68,13 +68,13 @@ namespace Batch {
   }
 
   // Accesseur
-  Parametre Job::getParametre() const
+  Batch::Parametre Job::getParametre() const
   {
     return _param;
   }
 
   // Accesseur
-  void Job::setParametre(const Parametre & param)
+  void Job::setParametre(const Batch::Parametre & param)
   {
     _param = param;
   }

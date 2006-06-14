@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS_StudyManager_i.cxx
 //  Author : Sergey RUIN
@@ -456,7 +456,7 @@ PortableServer::POA_ptr SALOMEDS_StudyManager_i::GetPOA(const SALOMEDS::Study_pt
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================
-long SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+CORBA::Long SALOMEDS_StudyManager_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
 #ifdef WIN32
   long pid = (long)_getpid();

@@ -17,7 +17,7 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //
 //
@@ -26,9 +26,15 @@
 //  Module : KERNEL
 //  $Header$
 
-#include "Container_init_python.hxx"
+#include <time.h>
+#ifndef WNT
+  #include <sys/time.h>
+#endif
 
 #include "utilities.h"
+
+#include "Container_init_python.hxx"
+
 using namespace std;
 
 PyThreadState *KERNEL_PYTHON::_gtstate = 0;

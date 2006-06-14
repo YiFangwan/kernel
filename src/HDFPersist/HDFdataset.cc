@@ -17,7 +17,7 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //
 //
@@ -159,7 +159,7 @@ void HDFdataset::GetDim(hdf_size dim[])
       else
 	ndim = _ndim;
       _dim = new hdf_size[ndim];
-      if ((ret == HDFdatasetGetDim(_id,_dim)) < 0)
+      if ((ret = HDFdatasetGetDim(_id,_dim)) < 0)
 	throw HDFexception("Can't determine the size dimensions of the dataset ");
     }
 

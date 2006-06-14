@@ -15,7 +15,7 @@
 #  License along with this library; if not, write to the Free Software 
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 # 
-#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #
 #
@@ -245,11 +245,10 @@ def getActiveStudy(theStudyId=0):
     global salome_study_ID
     
     print "getActiveStudy"
-    sg = salome_iapp.salome_iapp_init()
     if salome_study_ID == -1:
-        if sg.hasDesktop():
+        if salome_iapp.hasDesktop():
             print "---in gui"
-            salome_study_ID = sg.getActiveStudyId()
+            salome_study_ID = salome_iapp.sg.getActiveStudyId()
         else:
             print "---outside gui"
             if theStudyId:

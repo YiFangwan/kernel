@@ -15,7 +15,7 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //
 //
@@ -29,10 +29,10 @@
 #include <fstream>
 #include <cstdlib>
 
-using namespace std;
-
 #include "BaseTraceCollector.hxx"
 #include "LocalTraceBufferPool.hxx"
+
+using namespace std;
 
 // Class attributes initialisation, for class method BaseTraceCollector::run
 

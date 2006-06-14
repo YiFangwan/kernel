@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef  SALOMEDSCLIENT_HXX
 #define  SALOMEDSCLIENT_HXX
@@ -49,6 +49,7 @@
 #include "SALOMEDSClient_AttributeTextHighlightColor.hxx"
 #include "SALOMEDSClient_AttributeTreeNode.hxx"
 #include "SALOMEDSClient_AttributeUserID.hxx"
+#include "SALOMEDSClient_AttributeParameter.hxx"
 #include "SALOMEDSClient_ChildIterator.hxx"
 #include "SALOMEDSClient_GenericAttribute.hxx"
 #include "SALOMEDSClient_SComponent.hxx"

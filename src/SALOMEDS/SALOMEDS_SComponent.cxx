@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS_SComponent.cxx
 //  Author : Sergey RUIN
@@ -76,15 +76,14 @@ bool SALOMEDS_SComponent::ComponentIOR(std::string& theID)
 
 SALOMEDS::SComponent_ptr SALOMEDS_SComponent::GetSComponent()
 {
-  if (_isLocal) {
-    if (!CORBA::is_nil(_corba_impl)) return SALOMEDS::SComponent::_narrow(GetCORBAImpl());
-    SALOMEDS::SComponent_var aSCO =
-      SALOMEDS_SComponent_i::New(Handle(SALOMEDSImpl_SComponent)::DownCast(GetLocalImpl()), _orb);
+  if(_isLocal) {
+    if(!CORBA::is_nil(_corba_impl)) return SALOMEDS::SComponent::_duplicate(SALOMEDS::SComponent::_narrow(GetCORBAImpl()));
+    SALOMEDS::SComponent_var aSCO = SALOMEDS_SComponent_i::New(Handle(SALOMEDSImpl_SComponent)::DownCast(GetLocalImpl()), _orb);
+    _corba_impl = SALOMEDS::SComponent::_duplicate(aSCO);
     return aSCO._retn();
   }
   else {
-    return SALOMEDS::SComponent::_narrow(GetCORBAImpl());
+    return SALOMEDS::SComponent::_duplicate(SALOMEDS::SComponent::_narrow(GetCORBAImpl()));
   }
-
   return SALOMEDS::SComponent::_nil();
 }

@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS_SObject_i.cxx
 //  Author : Sergey RUIN
@@ -205,7 +205,7 @@ CORBA::Boolean SALOMEDS_SObject_i::ReferencedObject(SALOMEDS::SObject_out obj)
  *  Purpose  :
  */
 //============================================================================
-CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(long atag, SALOMEDS::SObject_out obj)
+CORBA::Boolean SALOMEDS_SObject_i::FindSubObject(CORBA::Long atag, SALOMEDS::SObject_out obj)
 {
   SALOMEDS::Locker lock;
   Handle(SALOMEDSImpl_SObject) aSubObj;
@@ -318,7 +318,7 @@ char* SALOMEDS_SObject_i::GetIOR()
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================
-long SALOMEDS_SObject_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+CORBA::Long SALOMEDS_SObject_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
 #ifdef WIN32
   long pid = (long)_getpid();

@@ -1,4 +1,23 @@
 #!/bin/bash
+
+# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
+#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either 
+# version 2.1 of the License.
+# 
+# This library is distributed in the hope that it will be useful 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public  
+# License along with this library; if not, write to the Free Software 
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# 
 #
 # --- run command in SALOME environment from remote call, ssh or rsh
 #     - SALOME configuration is defined by :
@@ -31,9 +50,12 @@
 
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
 
-export OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_$1_$2.cfg
-export NSHOST=$1
-export NSPORT=$2
+OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_$1_$2.cfg
+export OMNIORB_CONFIG
+NSHOST=$1
+export NSHOST
+NSPORT=$2
+export NSPORT
 initref="NameService=corbaname::"$1":$2"
 echo "ORBInitRef $initref" > $OMNIORB_CONFIG
 
@@ -41,4 +63,4 @@ echo "ORBInitRef $initref" > $OMNIORB_CONFIG
 
 shift 2
 
-${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/bash --rcfile $HOME/$APPLI/.bashrc -c "$*"
+${KERNEL_ROOT_DIR}/bin/salome/envSalome.py /bin/sh --rcfile $HOME/$APPLI/.bashrc -c "$*"

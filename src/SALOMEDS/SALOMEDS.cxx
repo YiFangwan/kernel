@@ -17,7 +17,7 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //
 //
@@ -26,12 +26,36 @@
 //  Module : SALOME
 //  $Header$
 
-
-#ifndef WNT
+#ifdef WNT
 #include <SALOMEDS.hxx>
+#include <SALOMEDS_StudyManager.hxx>
+#include <SALOMEDS_Study.hxx>
+#include <SALOMEDS_SObject.hxx>
+#include <SALOMEDS_StudyBuilder.hxx>
+#include <SALOMEDS_SComponent.hxx>
+#include <SALOMEDSClient.hxx>
+#include <SALOMEDSClient_IParameters.hxx>
+#include <SALOMEDS_IParameters.hxx>
+#include <SALOMEDS_StudyManager_i.hxx>
 #else
 #include "SALOMEDS.hxx"
+#include "SALOMEDS_StudyManager.hxx"
+#include "SALOMEDS_Study.hxx"
+#include "SALOMEDS_StudyBuilder.hxx"
+#include "SALOMEDS_SObject.hxx"
+#include "SALOMEDS_SComponent.hxx"
+#include "SALOMEDSClient.hxx"
+#include "SALOMEDSClient_IParameters.hxx"
+#include "SALOMEDS_IParameters.hxx"
+#include "SALOMEDS_StudyManager_i.hxx"
 #endif
+
+#include "SALOMEDS_Defines.hxx  "
+
+// IDL headers
+#include <SALOMEconfig.h>
+#include CORBA_SERVER_HEADER(SALOMEDS)
+#include <SALOME_NamingService.hxx>
 
 using namespace SALOMEDS;
 
@@ -54,4 +78,98 @@ void SALOMEDS::lock()
 void SALOMEDS::unlock()
 {
   Locker::MutexDS.unlock();
+}
+
+
+
+// srn: Added new library methods that create basic SALOMEDS objects (StudyManager, Study, SComponent, SObject)
+
+//=============================================================================
+/*!
+ * C factory, accessible with dlsym, after dlopen
+ */
+//=============================================================================
+
+
+extern "C"
+{
+SALOMEDS_EXPORT
+SALOMEDSClient_StudyManager* StudyManagerFactory()
+{
+  return new SALOMEDS_StudyManager();
+}
+
+SALOMEDS_EXPORT
+SALOMEDSClient_Study* StudyFactory(SALOMEDS::Study_ptr theStudy)
+{
+  if(CORBA::is_nil(theStudy)) return NULL;
+  return new SALOMEDS_Study(theStudy);
+}
+
+SALOMEDS_EXPORT
+SALOMEDSClient_SObject* SObjectFactory(SALOMEDS::SObject_ptr theSObject)
+{
+  if(CORBA::is_nil(theSObject)) return NULL;
+  return new SALOMEDS_SObject(theSObject);
+}
+
+SALOMEDS_EXPORT
+SALOMEDSClient_SComponent* SComponentFactory(SALOMEDS::SComponent_ptr theSComponent)
+{
+  if(CORBA::is_nil(theSComponent)) return NULL;
+  return new SALOMEDS_SComponent(theSComponent);
+}
+
+SALOMEDS_EXPORT
+SALOMEDSClient_StudyBuilder* BuilderFactory(SALOMEDS::StudyBuilder_ptr theBuilder)
+{
+  if(CORBA::is_nil(theBuilder)) return NULL;
+  return new SALOMEDS_StudyBuilder(theBuilder);
+}
+
+SALOMEDS_EXPORT
+SALOMEDSClient_StudyManager* CreateStudyManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr root_poa)
+{
+  SALOME_NamingService namingService(orb);
+  CORBA::Object_var obj = namingService.Resolve( "/myStudyManager" );
+  SALOMEDS::StudyManager_var theManager = SALOMEDS::StudyManager::_narrow( obj );
+  if( CORBA::is_nil(theManager) ) {
+    SALOMEDS_StudyManager_i * aStudyManager_i = new  SALOMEDS_StudyManager_i(orb, root_poa);
+    // Activate the objects.  This tells the POA that the objects are ready to accept requests.
+    PortableServer::ObjectId_var aStudyManager_iid =  root_poa->activate_object(aStudyManager_i);
+    aStudyManager_i->register_name("/myStudyManager");
+  }
+  return new SALOMEDS_StudyManager();
+}
+
+SALOMEDS_EXPORT
+SALOMEDSClient_IParameters* GetIParameters(const _PTR(AttributeParameter)& ap)
+{
+  return new SALOMEDS_IParameters(ap);
+}
+
+SALOMEDS_EXPORT
+SALOMEDS::SObject_ptr ConvertSObject(const _PTR(SObject)& theSObject)
+{
+  
+  SALOMEDS_SObject* so = _CAST(SObject, theSObject);
+  if(!theSObject || !so) return SALOMEDS::SObject::_nil();
+  return so->GetSObject();
+}
+
+SALOMEDS_EXPORT
+SALOMEDS::Study_ptr ConvertStudy(const _PTR(Study)& theStudy)
+{
+  SALOMEDS_Study* study = _CAST(Study, theStudy);
+  if(!theStudy || !study) return SALOMEDS::Study::_nil();
+  return study->GetStudy();
+}
+
+SALOMEDS_EXPORT
+SALOMEDS::StudyBuilder_ptr ConvertBuilder(const _PTR(StudyBuilder)& theBuilder)
+{
+  SALOMEDS_StudyBuilder* builder = _CAST(StudyBuilder, theBuilder);
+  if(!theBuilder || !builder) return SALOMEDS::StudyBuilder::_nil(); 
+  return builder->GetBuilder();
+}
 }

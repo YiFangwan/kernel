@@ -15,7 +15,7 @@
 #  License along with this library; if not, write to the Free Software 
 #  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 # 
-#  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #
 #
@@ -24,15 +24,12 @@
 #  Module : SALOME
 #  $Header$
 
-import sys
-import omnipatch 
-
 from salome_kernel import *
 from salome_study import *
 from salome_iapp import *
 
 salome_initial=1
-def salome_init(theStudyId=0):
+def salome_init(theStudyId=0,embedded=0):
     """
     Performs only once SALOME general purpose intialisation for scripts.
     optional argument : theStudyId
@@ -57,10 +54,26 @@ def salome_init(theStudyId=0):
     global orb, lcc, naming_service, cm
     global sg
     global myStudyManager, myStudyId, myStudy, myStudyName
-    
-    if salome_initial:
-        salome_initial=0
-        sg = salome_iapp_init()
-        orb, lcc, naming_service, cm = salome_kernel_init()
-        myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init(theStudyId)
 
+    try:
+        if salome_initial:
+            salome_initial=0
+            sg = salome_iapp_init(embedded)
+            orb, lcc, naming_service, cm = salome_kernel_init()
+            myStudyManager, myStudyId, myStudy, myStudyName =salome_study_init(theStudyId)
+            pass
+        pass
+    except RuntimeError, inst:
+        # wait a little to avoid trace mix
+        import time
+        time.sleep(0.2)
+        x = inst
+        print "salome.salome_init():", x
+        print """
+        ============================================
+        May be there is no running SALOME session
+        salome.salome_init() is intented to be used
+        within an already running session
+        ============================================
+        """
+        raise

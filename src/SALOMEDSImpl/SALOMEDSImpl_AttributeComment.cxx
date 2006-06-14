@@ -15,16 +15,17 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDSImpl_AttributeComment.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 
+#include "SALOMEDSImpl_AttributeComment.hxx"
+
 #ifndef WNT
 using namespace std;
 #endif
-#include "SALOMEDSImpl_AttributeComment.hxx"
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeComment, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeComment, SALOMEDSImpl_GenericAttribute )

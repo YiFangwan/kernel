@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDSClient_Study.hxx
 //  Author : Sergey RUIN
@@ -30,6 +30,7 @@
 #include "SALOMEDSClient_definitions.hxx"
 #include "SALOMEDSClient_SComponentIterator.hxx"
 #include "SALOMEDSClient_StudyBuilder.hxx"
+#include "SALOMEDSClient_AttributeParameter.hxx"
 #include "SALOMEDSClient_SObject.hxx"
 #include "SALOMEDSClient_SComponent.hxx"
 #include "SALOMEDSClient_UseCaseBuilder.hxx"
@@ -79,7 +80,12 @@ public:
   virtual _PTR(UseCaseBuilder) GetUseCaseBuilder() = 0;
   virtual void Close() = 0;
   virtual void EnableUseCaseAutoFilling(bool isEnabled) = 0;
-  virtual bool DumpStudy(const std::string& thePath, const std::string& theBaseName, bool isPublished) = 0; 
+  virtual bool DumpStudy(const std::string& thePath, 
+			 const std::string& theBaseName, 
+			 bool isPublished) = 0;
+  virtual _PTR(AttributeParameter) GetCommonParameters(const std::string& theID, int theSavePoint) = 0;
+  virtual _PTR(AttributeParameter) GetModuleParameters(const std::string& theID, 
+						       const std::string& theModuleName, int theSavePoint) = 0;
 };
 
 

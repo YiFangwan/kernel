@@ -2,7 +2,7 @@
 //
 //  Copyright (C) 2003  CEA/DEN, EDF R&D
 //
-//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOME_Logger_Server.hxx
 //  Author : Vasily Rusyaev
@@ -20,7 +20,18 @@
 #include <omnithread.h>
 #include "Logger.hh"
 
-class Logger :
+#ifdef WNT
+# if defined LOGGER_EXPORTS
+#  define LOGGER_EXPORT __declspec( dllexport )
+# else
+#  define LOGGER_EXPORT __declspec( dllimport )
+# endif
+#else
+# define LOGGER_EXPORT
+#endif
+
+
+class LOGGER_EXPORT Logger :
   public POA_SALOME_Logger::Logger,
   public PortableServer::RefCountServantBase 
 {

@@ -1,4 +1,24 @@
 #!/usr/bin/env python
+
+# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
+#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either 
+# version 2.1 of the License.
+# 
+# This library is distributed in the hope that it will be useful 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public  
+# License along with this library; if not, write to the Free Software 
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# 
+
 import os, sys, pickle, signal, commands
 
 def getPiDict(port,appname='salome',full=True):
@@ -79,11 +99,11 @@ def killMyPort(port):
                     if field == "omniNames" :
                         if pidfield != "egrep" :
                             print 'stop process '+pidfield+' : omniNames'
-	                    if sys.platform == "win32":
-                              import win32pm
-                              win32pm.killpid(int(pidfield),0)
+                            if sys.platform == "win32":
+                                import win32pm
+                                win32pm.killpid(int(pidfield),0)
                             else:
-                              os.system('kill -9 '+pidfield)
+                                os.system('kill -9 '+pidfield)
                     pidfield = field
         except:
             pass
@@ -96,11 +116,11 @@ def killMyPort(port):
                 for pid, cmd in process_id.items():
                     print "stop process %s : %s"% (pid, cmd[0])
                     try:
-	                if sys.platform == "win32":
+                        if sys.platform == "win32":
                           import win32pm
                           win32pm.killpid(int(pid),0)
                         else:
-                          os.kill(int(pid),signal.SIGKILL)
+                           os.kill(int(pid),signal.SIGKILL)
                     except:
                         print "  ------------------ process %s : %s not found"% (pid, cmd[0])
                         pass

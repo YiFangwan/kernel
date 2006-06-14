@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef __SALOMEDSIMPL_DRIVER_H__
 #define __SALOMEDSIMPL_DRIVER_H__
@@ -23,6 +23,7 @@
 #include <TCollection_AsciiString.hxx>
 #include <SALOMEDSImpl_SComponent.hxx>
 #include <SALOMEDSImpl_SObject.hxx>
+#include <SALOMEDSImpl_TMPFile.hxx>
 
 
 class SALOMEDSImpl_Driver
@@ -31,15 +32,15 @@ public:
 
   virtual TCollection_AsciiString GetIOR() = 0;
 
-  virtual unsigned char* Save(const Handle(SALOMEDSImpl_SComponent)& theComponent,
-			      const TCollection_AsciiString& theURL,
-			      long& theStreamLength,
-			      bool isMultiFile) = 0;
+  virtual Handle(SALOMEDSImpl_TMPFile) Save(const Handle(SALOMEDSImpl_SComponent)& theComponent,
+					    const TCollection_AsciiString& theURL,
+					    long& theStreamLength,
+					    bool isMultiFile) = 0;
 
-  virtual unsigned char* SaveASCII(const Handle(SALOMEDSImpl_SComponent)& theComponent,
-				   const TCollection_AsciiString& theURL,
-				   long& theStreamLength,
-				   bool isMultiFile) = 0;
+  virtual Handle(SALOMEDSImpl_TMPFile) SaveASCII(const Handle(SALOMEDSImpl_SComponent)& theComponent,
+						 const TCollection_AsciiString& theURL,
+						 long& theStreamLength,
+						 bool isMultiFile) = 0;
   
   virtual bool Load(const Handle(SALOMEDSImpl_SComponent)& theComponent,
 		    const unsigned char* theStream,
@@ -70,10 +71,10 @@ public:
 
   virtual bool CanCopy(const Handle(SALOMEDSImpl_SObject)& theObject) = 0;
 
-  virtual unsigned char* CopyFrom(const Handle(SALOMEDSImpl_SObject)& theObject, 
-				  int& theObjectID,
-				  long& theStreamLength) = 0;
-
+  virtual Handle(SALOMEDSImpl_TMPFile) CopyFrom(const Handle(SALOMEDSImpl_SObject)& theObject, 
+						int& theObjectID,
+						long& theStreamLength) = 0;
+  
   virtual bool CanPaste(const TCollection_AsciiString& theComponentName, int theObjectID) = 0;
 
   virtual TCollection_AsciiString PasteInto(const unsigned char* theStream,
@@ -81,10 +82,10 @@ public:
 					    int theObjectID,
 					    const Handle(SALOMEDSImpl_SObject)& theObject) = 0;
 
-  virtual unsigned char* DumpPython(const Handle(SALOMEDSImpl_Study)& theStudy, 
-                                    bool isPublished, 
-		                    bool& isValidScript,
-				    long& theStreamLength) = 0;
+  virtual Handle(SALOMEDSImpl_TMPFile) DumpPython(const Handle(SALOMEDSImpl_Study)& theStudy, 
+						  bool isPublished, 
+						  bool& isValidScript,
+						  long& theStreamLength) = 0;
 };
 
 class SALOMEDSImpl_DriverFactory

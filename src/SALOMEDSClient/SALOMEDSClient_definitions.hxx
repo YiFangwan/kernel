@@ -15,10 +15,20 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef  SALOMEDSCLIENT_DEF_HXX
 #define  SALOMEDSCLIENT_DEF_HXX
+
+#ifdef WIN32
+# ifdef SALOMEDSCLIENT_EXPORTS
+#  define SALOMEDSCLIENT_EXPORT __declspec( dllexport )
+# else
+#  define SALOMEDSCLIENT_EXPORT __declspec( dllimport )
+# endif
+#else
+# define SALOMEDSCLIENT_EXPORT
+#endif
 
 #include <boost/shared_ptr.hpp> 
 

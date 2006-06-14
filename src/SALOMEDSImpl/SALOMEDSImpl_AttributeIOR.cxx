@@ -15,19 +15,20 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDSImpl_AttributeIOR.cxx
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-#ifndef WNT
-using namespace std;
-#endif
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 #include <TCollection_AsciiString.hxx>
 #include "SALOMEDSImpl_Study.hxx"
 #include <Standard_GUID.hxx>
+
+#ifndef WNT
+using namespace std;
+#endif
 
 IMPLEMENT_STANDARD_HANDLE( SALOMEDSImpl_AttributeIOR, SALOMEDSImpl_GenericAttribute )
 IMPLEMENT_STANDARD_RTTIEXT( SALOMEDSImpl_AttributeIOR, SALOMEDSImpl_GenericAttribute )

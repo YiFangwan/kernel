@@ -1,7 +1,7 @@
 #  SALOME SALOME_SWIG : binding of C++ implementation and Python
 #
 #  Copyright (C) 2003  CEA/DEN, EDF R&D
-#
+#  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 #
 #  File   : salome_test.py
@@ -16,6 +16,19 @@ import SALOMEDS
 import os
 
 import SALOME_ModuleCatalog
+
+print "======================================================================"
+print "           Check, that there is no data of MED component in the Study "
+print "======================================================================"
+
+MedComp = salome.myStudy.FindComponent("MED")
+if MedComp is not None:
+	print ""
+	print "This script cannot work properly, because there are"
+	print "some MED component data already exists in the study."
+	print "Execution aborted."
+	print ""
+	raise RuntimeError, "Please, run this script only in a new empty study."
 
 print "======================================================================"
 print "           Get Catalog "

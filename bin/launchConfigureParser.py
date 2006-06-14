@@ -1,3 +1,21 @@
+# Copyright (C) 2005  OPEN CASCADE, CEA, EDF R&D, LEG
+#           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either 
+# version 2.1 of the License.
+# 
+# This library is distributed in the hope that it will be useful 
+# but WITHOUT ANY WARRANTY; without even the implied warranty of 
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+# Lesser General Public License for more details.
+# 
+# You should have received a copy of the GNU Lesser General Public  
+# License along with this library; if not, write to the Free Software 
+# Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+# 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+# 
 import os, glob, string, sys, re
 import xml.sax
 
@@ -20,7 +38,6 @@ file_nam       = "file"
 portkill_nam   = "portkill"
 killall_nam    = "killall"
 modules_nam    = "modules"
-pyModules_nam  = "pyModules"
 embedded_nam   = "embedded"
 standalone_nam = "standalone"
 containers_nam = "containers"
@@ -54,7 +71,6 @@ def version():
     if match :
         return match.group( 1 )
     return ''
-    
 
 # calculate and return configuration file id in order to unically identify it
 # for example: for 3.1.0a1 the id is 301000101
@@ -70,6 +86,8 @@ def version_id( fname ):
         if len(mr.group(2)): dev1 = ord(mr.group(2))
         if len(mr.group(3)): dev2 = int(mr.group(3))
         dev = dev1 * 100 + dev2
+    else:
+        return None
     ver = major
     ver = ver * 100 + minor
     ver = ver * 100 + release
@@ -234,23 +252,26 @@ _opts = {} # assiciative array of options to be filled
 # SalomeApp.xml files in directories specified by SalomeAppConfig env variable
 for dir in dirs:
     filename = dir+'/'+appname+'.xml'
-    #abd test begin
-    print 'Search configuration file ', filename
-    #abd test end
+    if not os.path.exists(filename):
+        print "Configure parser: Warning : could not find configuration file %s" % filename
+    else:
+        try:
+            p = xml_parser(filename, _opts)
+            _opts = p.opts
+        except:
+            print "Configure parser: Error : can not read configuration file %s" % filename
+        pass
+
+# SalomeApprc file in user's catalogue
+filename = userFile()
+if filename and not os.path.exists(filename):
+    print "Configure parser: Warning : could not find user configuration file"
+else:
     try:
         p = xml_parser(filename, _opts)
         _opts = p.opts
     except:
-        print "Configure parser: Error : can not read configuration file %s" % filename
-        continue
-
-# SalomeApprc file in user's catalogue
-filename = userFile()
-try:
-    p = xml_parser(filename, _opts)
-    _opts = p.opts
-except:
-    print 'Configure parser: Error : can not read user configuration file'
+        print 'Configure parser: Error : can not read user configuration file'
 
 args = _opts
 

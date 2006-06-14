@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDS_StudyBuilder_i.hxx
 //  Author : Sergey RUIN
@@ -23,6 +23,8 @@
 
 #ifndef __SALOMEDS_STUDYBUILDER_I_H__
 #define __SALOMEDS_STUDYBUILDER_I_H__
+
+#include "SALOMEDS_defines.hxx"
 
 // std C++ headers
 #include <iostream>
@@ -37,7 +39,7 @@
 // Cascade header
 #include <TDocStd_Document.hxx>
 
-class SALOMEDS_StudyBuilder_i: public POA_SALOMEDS::StudyBuilder,
+class SALOMEDS_EXPORT SALOMEDS_StudyBuilder_i: public POA_SALOMEDS::StudyBuilder,
                                public PortableServer::RefCountServantBase 
 {
 private:

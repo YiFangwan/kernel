@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #ifndef __SALOMEDS_DRIVER_I_H__
 #define __SALOMEDS_DRIVER_I_H__
@@ -52,15 +52,15 @@ public:
       return TCollection_AsciiString(ior);
     }
 
-  virtual unsigned char* Save(const Handle(SALOMEDSImpl_SComponent)& theComponent,
-			      const TCollection_AsciiString& theURL,
-			      long& theStreamLength,
-			      bool isMultiFile);
+  virtual Handle(SALOMEDSImpl_TMPFile) Save(const Handle(SALOMEDSImpl_SComponent)& theComponent,
+					    const TCollection_AsciiString& theURL,
+					    long& theStreamLength,
+					    bool isMultiFile);
 
-  virtual unsigned char* SaveASCII(const Handle(SALOMEDSImpl_SComponent)& theComponent,
-				   const TCollection_AsciiString& theURL,
-				   long& theStreamLength,
-				   bool isMultiFile);
+  virtual Handle(SALOMEDSImpl_TMPFile) SaveASCII(const Handle(SALOMEDSImpl_SComponent)& theComponent,
+						 const TCollection_AsciiString& theURL,
+						 long& theStreamLength,
+						 bool isMultiFile);
   
   virtual bool Load(const Handle(SALOMEDSImpl_SComponent)& theComponent,
 		    const unsigned char* theStream,
@@ -95,10 +95,10 @@ public:
 
   virtual bool CanCopy(const Handle(SALOMEDSImpl_SObject)& theObject);
 
-  virtual unsigned char* CopyFrom(const Handle(SALOMEDSImpl_SObject)& theObject, 
-				  int& theObjectID,
-				  long& theStreamLength);
-
+  virtual Handle(SALOMEDSImpl_TMPFile) CopyFrom(const Handle(SALOMEDSImpl_SObject)& theObject, 
+						int& theObjectID,
+						long& theStreamLength);
+  
   virtual bool CanPaste(const TCollection_AsciiString& theComponentName, int theObjectID);
 
   virtual TCollection_AsciiString PasteInto(const unsigned char* theStream,
@@ -106,10 +106,10 @@ public:
 					    int theObjectID,
 					    const Handle(SALOMEDSImpl_SObject)& theObject);
 
-  virtual unsigned char* DumpPython(const Handle(SALOMEDSImpl_Study)& theStudy, 
-				    bool isPublished, 
-				    bool& isValidScript,
-				    long& theStreamLength);
+  virtual Handle(SALOMEDSImpl_TMPFile) DumpPython(const Handle(SALOMEDSImpl_Study)& theStudy, 
+						  bool isPublished, 
+						  bool& isValidScript,
+						  long& theStreamLength);
 };
 
 #include "SALOME_NamingService.hxx"

@@ -36,7 +36,8 @@ def add_path(directory, variable_name):
             else:
                 if os.path.abspath(_dir) != os.path.abspath(directory):
                   newpath.append(_dir)
-            pass
+
+            pass            
         import string
         newpath[:0] = [ directory ]
         newpath = string.join(newpath, splitsym)
@@ -194,8 +195,14 @@ def set_env(args, modules_list, modules_root_dir):
                              "PYTHONPATH")
                     add_path(os.path.join(plugin_root,"lib",salome_subdir),
                              "PYTHONPATH")
-                    add_path(os.path.join(plugin_root,"lib",salome_subdir),
-                             "LD_LIBRARY_PATH")
+
+
+	            if sys.platform == "win32":
+        	      add_path(os.path.join(plugin_root,"lib",salome_subdir),
+                               "PATH")
+                    else:
+                      add_path(os.path.join(plugin_root,"lib",salome_subdir),
+                               "LD_LIBRARY_PATH")
                     add_path(os.path.join(plugin_root,"bin",salome_subdir),
                              "PYTHONPATH")
                     add_path(os.path.join(plugin_root,"bin",salome_subdir),

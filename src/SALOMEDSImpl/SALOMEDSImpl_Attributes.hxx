@@ -15,7 +15,7 @@
 // License along with this library; if not, write to the Free Software 
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOMEDSImpl_Attributes.hxx
 //  Author : Sergey RUIN
@@ -24,8 +24,18 @@
 #ifndef __SALOMEDSIMPL_ATTRIBUTES__H__
 #define __SALOMEDSIMPL_ATTRIBUTES__H__
 
+#ifdef WNT
+# ifdef SALOMEDSIMPL_EXPORTS
+#  define SALOMEDSIMPL_EXPORT __declspec( dllexport )
+# else
+#  define SALOMEDSIMPL_EXPORT __declspec( dllimport )
+# endif
+#else
+# define SALOMEDSIMPL_EXPORT
+#endif
+
 #include <iostream>
-class LockProtection
+class SALOMEDSIMPL_EXPORT LockProtection
 {
 public :
   LockProtection(const char *message) {
@@ -63,6 +73,7 @@ public :
 #include "SALOMEDSImpl_AttributeFileType.hxx"
 #include "SALOMEDSImpl_AttributeFlags.hxx"
 #include "SALOMEDSImpl_AttributeGraphic.hxx"
+#include "SALOMEDSImpl_AttributeParameter.hxx"
 
 
 #define __AttributeTypeToGUIDForSObject \
@@ -93,7 +104,8 @@ public :
 	if(theType == "AttributeFileType") return SALOMEDSImpl_AttributeFileType::GetID(); \
 	if(theType == "AttributeFlags") return SALOMEDSImpl_AttributeFlags::GetID(); \
         if(theType == "AttributeGraphic") return SALOMEDSImpl_AttributeGraphic::GetID(); \
-	if(theType == "AttributeReference") return SALOMEDSImpl_AttributeReference::GetID();
+	if(theType == "AttributeReference") return SALOMEDSImpl_AttributeReference::GetID(); \
+	if(theType == "AttributeParameter") return SALOMEDSImpl_AttributeParameter::GetID();
 
 
 #define __FindOrCreateAttributeLocked(ClassName) if (strcmp(aTypeOfAttribute.ToCString(), #ClassName) == 0) { \
@@ -129,6 +141,7 @@ __FindOrCreateAttributeLocked(AttributeTableOfInteger) \
 __FindOrCreateAttributeLocked(AttributeTableOfReal) \
 __FindOrCreateAttributeLocked(AttributeTableOfString) \
 __FindOrCreateAttributeLocked(AttributePythonObject) \
+__FindOrCreateAttributeLocked(AttributeParameter) \
 __FindOrCreateAttribute(AttributePersistentRef) \
 __FindOrCreateAttribute(AttributeDrawable) \
 __FindOrCreateAttribute(AttributeSelectable) \
