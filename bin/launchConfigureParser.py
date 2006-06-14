@@ -350,6 +350,8 @@ if cmd_opts.has_key("h"):
     --help or -h                  : print this help
     --gui or -g                   : launching with GUI
     --terminal -t                 : launching without gui (to deny --gui)
+    or -t=PythonScript[,...[,killall]]
+                                  : import of PythonScript(s)
     --logger or -l                : redirect messages in a CORBA collector
     --file=filename or -f=filename: redirect messages in a log file  
     --xterm or -x                 : execute servers in xterm console (messages appear in xterm windows)
@@ -416,7 +418,10 @@ if not cmd_opts.has_key( "m" ) and os.getenv( "SALOME_MODULES" ):
 
 # 'terminal' must be processed in the end: to deny any 'gui' options
 if 't' in cmd_opts:
-    args[gui_nam] = 0
+    #CCRTargs[gui_nam] = 0
+    args[gui_nam] = cmd_opts['t']
+    if args[gui_nam] == 0 :
+        args[gui_nam] = 0
     pass
 
 # now modify SalomeAppConfig environment variable

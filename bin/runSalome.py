@@ -57,7 +57,7 @@ def get_config():
     if args.has_key("modules"):
         modules_list += args["modules"]
     # KERNEL must be last in the list to locate it at the first place in PATH
-    if args["gui"] :
+    if args['gui'] == 1 :
         modules_list[:0] = ["GUI"]
     modules_list[:0] = ["KERNEL"]
     modules_list.reverse()
@@ -104,14 +104,22 @@ def set_env(args, modules_list, modules_root_dir):
     
     python_version="python%d.%d" % sys.version_info[0:2]
     modules_root_dir_list = []
-    if args["gui"] :
+    if args['gui'] == 1 :
         modules_list = modules_list[:] + ["GUI"] 
-    modules_list = modules_list[:] + ["KERNEL"] 
+    modules_list = modules_list[:] + ["KERNEL"]
+    resuname = os.uname()
+    if resuname[4] == "x86_64" :
+        LIB_LOCATION_SUFFIX = "64"
+    else :
+        LIB_LOCATION_SUFFIX = ""
+    salome_libname = "lib" + LIB_LOCATION_SUFFIX
     for module in modules_list :
         if modules_root_dir.has_key(module):
             module_root_dir = modules_root_dir[module]
             modules_root_dir_list[:0] = [module_root_dir]
-            add_path(os.path.join(module_root_dir,"lib",salome_subdir),
+            #add_path(os.path.join(module_root_dir,"lib",salome_subdir),
+            #         "LD_LIBRARY_PATH")
+            add_path(os.path.join(module_root_dir,salome_libname,salome_subdir),
                      "LD_LIBRARY_PATH")
             add_path(os.path.join(module_root_dir,"bin",salome_subdir),
                      "PATH")
@@ -326,7 +334,7 @@ class CatalogServer(Server):
         cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
-        if self.args["gui"] :
+        if self.args['gui'] == 1 :
             list_modules = ["KERNEL", "GUI"] + list_modules
         else :
             list_modules = ["KERNEL"] + list_modules
@@ -424,9 +432,9 @@ class SessionServer(Server):
             self.SCMD2+=['PY']
         if 'supervContainer' in self.args['containers'] or 'supervContainer' in self.args['standalone']:
             self.SCMD2+=['SUPERV']
-        if self.args['gui']:
+        if self.args['gui'] == 1 :
             self.SCMD2+=['GUI']
-        if self.args['splash'] and self.args['gui']:
+        if self.args['splash'] and self.args['gui'] == 1 :
             self.SCMD2+=['SPLASH']
         if self.args['noexcepthandler']:
             self.SCMD2+=['noexcepthandler']
@@ -440,7 +448,7 @@ class SessionServer(Server):
         cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
-        if self.args["gui"] :
+        if self.args['gui'] == 1 :
             list_modules = ["KERNEL", "GUI"] + list_modules
         else :
             list_modules = ["KERNEL"] + list_modules
@@ -452,7 +460,7 @@ class SessionServer(Server):
                 glob.glob(os.path.join(module_root_dir,"share",
                                        salome_subdir,"resources",
                                        module_cata)))
-        if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
+        if (self.args['gui'] == 1) & ('moduleCatalog' in self.args['embedded']):
             self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
@@ -465,7 +473,7 @@ class ContainerManagerServer(Server):
         self.initArgs()
         self.SCMD1=['SALOME_ContainerManagerServer']
         self.SCMD2=[]
-        if args["gui"] :
+        if args['gui'] == 1 :
             if 'registry' in self.args['embedded']:
                 self.SCMD1+=['--with','Registry',
                              '(','--salome_session','theSession',')']
@@ -482,7 +490,7 @@ class ContainerManagerServer(Server):
         cata_path=[]
         list_modules = modules_list[:]
         list_modules.reverse()
-        if self.args["gui"] :
+        if self.args['gui'] == 1 :
             list_modules = ["GUI"] + list_modules
         for module in ["KERNEL"] + list_modules:
             if modules_root_dir.has_key(module):
@@ -495,7 +503,7 @@ class ContainerManagerServer(Server):
                                            module_cata)))
                 pass
             pass
-        if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
+        if (self.args['gui'] == 1) & ('moduleCatalog' in self.args['embedded']):
             self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
@@ -564,7 +572,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # Lancement Session Server (to show splash ASAP)
     #
 
-    if args["gui"]:
+    if args['gui'] == 1 :
         mySessionServ = SessionServer(args)
         mySessionServ.setpath(modules_list,modules_root_dir)
         mySessionServ.run()
@@ -574,7 +582,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # attente de la disponibilite du Registry dans le Naming Service
     #
 
-    if ('registry' not in args['embedded']) | (args["gui"] == 0) :
+    if ('registry' not in args['embedded']) | (args['gui'] != 1) :
         myServer=RegistryServer(args)
         myServer.run()
         clt.waitNSPID("/Registry",myServer.PID)
@@ -585,7 +593,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
     
 
-    if ('moduleCatalog' not in args['embedded']) | (args["gui"] == 0):
+    if ('moduleCatalog' not in args['embedded']) | (args['gui'] != 1):
         cataServer=CatalogServer(args)
         cataServer.setpath(modules_list,modules_root_dir)
         cataServer.run()
@@ -598,7 +606,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
 
     #print "ARGS = ",args
-    if ('study' not in args['embedded']) | (args["gui"] == 0):
+    if ('study' not in args['embedded']) | (args['gui'] != 1):
         print "RunStudy"
         myServer=SalomeDSServer(args)
         myServer.run()
@@ -659,7 +667,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # Attente de la disponibilite du Session Server dans le Naming Service
     #
     
-    if args["gui"]:
+    if args['gui'] == 1 :
 ##----------------        
         import Engines
         import SALOME
@@ -764,6 +772,18 @@ def useSalome(args, modules_list, modules_root_dir):
         print
         print " --- registered objects tree in Naming Service ---"
         clt.showNS()
+        
+        if (args['gui'] != 0) & (args['gui'] != 1) :
+            toimport = args['gui']
+            i = 0
+            while i < len( toimport ) :
+                if toimport[ i ] == 'killall' :
+                    killAllPorts()
+                else :
+                    print 'importing',toimport[ i ]
+                    doimport = 'import ' + toimport[ i ]
+                    exec doimport
+                i = i + 1
 
     return clt
 
