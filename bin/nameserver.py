@@ -54,7 +54,11 @@ class NamingServer(Server):
 	ss=re.findall("NameService=corbaname::" + hname + ":\d+", f.read())
 	print "ss = ", ss
 	f.close()
-	aPort=re.findall("\d+", ss[0])[0]
+        sl=ss[0]
+        ll = sl.split(':')
+        aPort = ll[-1]
+        #aPort=(ss.join().split(':'))[2];
+	#aPort=re.findall("\d+", ss[0])[0]
 	
 	#aSedCommand="s/.*NameService=corbaname::" + hname + ":\([[:digit:]]*\)/\1/"
 	#print "sed command = ", aSedCommand
