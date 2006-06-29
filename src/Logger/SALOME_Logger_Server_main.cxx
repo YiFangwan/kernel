@@ -14,9 +14,9 @@
 #include <sys/types.h>
 #ifndef __WIN32__
 # include <unistd.h>
+#else
+# include "utilities.h" // for compilation type "timespec"
 #endif
-
-#include "utilities.h" // for compilation type "timespec"
 
 int main(int argc, char **argv)
 {
