@@ -24,7 +24,7 @@
 #ifndef __SALOMEDS_STUDYBUILDER_I_H__
 #define __SALOMEDS_STUDYBUILDER_I_H__
 
-#include "SALOMEDS_defines.hxx"
+#include "SALOMEDS_Defines.hxx"
 
 // std C++ headers
 #include <iostream>

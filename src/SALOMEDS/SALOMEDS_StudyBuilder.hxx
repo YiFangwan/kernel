@@ -24,7 +24,7 @@
 #ifndef __SALOMEDS_STUDYBUILDER_H__
 #define __SALOMEDS_STUDYBUILDER_H__
 
-#include "SALOMEDS_defines.hxx"
+#include "SALOMEDS_Defines.hxx"
 
 #include "SALOMEDSClient.hxx"
 #include "SALOMEDSImpl_StudyBuilder.hxx"

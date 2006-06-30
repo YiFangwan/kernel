@@ -50,7 +50,7 @@
 #include "SALOMEDS_StudyManager_i.hxx"
 #endif
 
-#include "SALOMEDS_Defines.hxx  "
+#include "SALOMEDS_Defines.hxx"
 
 // IDL headers
 #include <SALOMEconfig.h>
