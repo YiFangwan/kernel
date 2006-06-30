@@ -87,43 +87,43 @@
 #include "SALOMEDS_AttributeGraphic_i.hxx"
 #include "SALOMEDS_AttributeParameter_i.hxx"
 
-#define __CreateCORBAAttribute(CORBA_Name) if (strcmp(aTypeOfAttribute, #CORBA_Name) == 0) { \
+#define __CreateCORBAAttribute(TypeOfAttr,OutAttribute,CORBA_Name) if (strcmp(TypeOfAttr, #CORBA_Name) == 0) { \
     Handle(SALOMEDSImpl_##CORBA_Name) A = Handle(SALOMEDSImpl_##CORBA_Name)::DownCast(theAttr); \
     SALOMEDS_##CORBA_Name##_i* Attr = new SALOMEDS_##CORBA_Name##_i(A, theOrb); \
     attr_servant = Attr; \
-    anAttribute = Attr->CORBA_Name::_this(); \
+    OutAttribute = Attr->CORBA_Name::_this(); \
   }
 
 
-#define __CreateGenericCORBAAttribute \
-__CreateCORBAAttribute(AttributeReal) \
-__CreateCORBAAttribute(AttributeInteger) \
-__CreateCORBAAttribute(AttributeSequenceOfReal) \
-__CreateCORBAAttribute(AttributeSequenceOfInteger) \
-__CreateCORBAAttribute(AttributeName) \
-__CreateCORBAAttribute(AttributeComment) \
-__CreateCORBAAttribute(AttributeIOR) \
-__CreateCORBAAttribute(AttributePixMap) \
-__CreateCORBAAttribute(AttributeLocalID) \
-__CreateCORBAAttribute(AttributeTableOfInteger) \
-__CreateCORBAAttribute(AttributeTableOfReal) \
-__CreateCORBAAttribute(AttributeTableOfString) \
-__CreateCORBAAttribute(AttributePythonObject) \
-__CreateCORBAAttribute(AttributePersistentRef) \
-__CreateCORBAAttribute(AttributeDrawable) \
-__CreateCORBAAttribute(AttributeSelectable) \
-__CreateCORBAAttribute(AttributeExpandable) \
-__CreateCORBAAttribute(AttributeOpened) \
-__CreateCORBAAttribute(AttributeTextColor) \
-__CreateCORBAAttribute(AttributeTextHighlightColor) \
-__CreateCORBAAttribute(AttributeTarget) \
-__CreateCORBAAttribute(AttributeStudyProperties) \
-__CreateCORBAAttribute(AttributeExternalFileDef) \
-__CreateCORBAAttribute(AttributeFileType) \
-__CreateCORBAAttribute(AttributeFlags) \
-__CreateCORBAAttribute(AttributeGraphic) \
-__CreateCORBAAttribute(AttributeTreeNode) \
-__CreateCORBAAttribute(AttributeUserID) \
-__CreateCORBAAttribute(AttributeParameter)
+#define __CreateGenericCORBAAttribute(TypeOfAttr,OutAttribute) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeReal) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeInteger) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeSequenceOfReal) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeSequenceOfInteger) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeName) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeComment) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeIOR) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributePixMap) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeLocalID) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeTableOfInteger) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeTableOfReal) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeTableOfString) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributePythonObject) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributePersistentRef) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeDrawable) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeSelectable) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeExpandable) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeOpened) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeTextColor) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeTextHighlightColor) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeTarget) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeStudyProperties) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeExternalFileDef) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeFileType) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeFlags) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeGraphic) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeTreeNode) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeUserID) \
+__CreateCORBAAttribute(TypeOfAttr,OutAttribute,AttributeParameter)
 
 #endif

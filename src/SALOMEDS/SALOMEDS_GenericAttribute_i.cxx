@@ -119,11 +119,11 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute
   }
 */
   // mpv: now servants Destroyed by common algos of CORBA
-  char* aTypeOfAttribute = Handle(SALOMEDSImpl_GenericAttribute)::
-    DownCast(theAttr)->GetClassType().ToCString();
+  TCollection_AsciiString aTypeOfAttribute = Handle(SALOMEDSImpl_GenericAttribute)::
+    DownCast(theAttr)->GetClassType();
   SALOMEDS::GenericAttribute_var anAttribute;
   SALOMEDS_GenericAttribute_i* attr_servant = NULL;
-  __CreateGenericCORBAAttribute
+  __CreateGenericCORBAAttribute( aTypeOfAttribute.ToCString(), anAttribute );
 
   return anAttribute._retn(); 
 }
