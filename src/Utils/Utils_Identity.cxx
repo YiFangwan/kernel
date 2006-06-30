@@ -83,8 +83,10 @@ const char* duplicate( const char *const str ) ;
 
 const char* get_uname( void )
 {
-	char* hostName = new char[256];
-	DWORD nSize = 256;
+	char* hostName = new char[MAX_COMPUTERNAME_LENGTH + 1];
+	DWORD nSize = MAX_COMPUTERNAME_LENGTH;
+	// initialisaton
+	hostName[0]='\0';
 	ASSERT(GetComputerName(hostName, &nSize));
 	return hostName;
 }
@@ -98,7 +100,9 @@ const char* const get_pwname( void )
 {
   DWORD                   dwSize = 256 + 1;
   char* retVal = new char[256];
-  ASSERT(GetUserName ( retVal, &dwSize ));
+	// initialisaton
+	retVal[0]='\0';
+  ASSERT(GetUserName` ( retVal, &dwSize ));
   return retVal;
 }
 
