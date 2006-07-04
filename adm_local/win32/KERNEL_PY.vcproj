@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="KERNEL_PY"
+	SccProjectName=""
+	SccLocalPath=""
+	Keyword="MakeFileProj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\lib\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="10"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\..\..\win32\lib/KERNEL_PY.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\lib\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="10"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\..\..\win32\libd/KERNEL_PY.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Python Files"
+			Filter="*.py*">
+			<File
+				RelativePath="..\..\src\KERNEL_PY\batchmode_salome.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\KERNEL_PY\Help.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\KERNEL_PY\import_hook.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\KERNEL_PY\kernel_shared_modules.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\shared_modules\$(InputFileName)
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\shared_modules\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\shared_modules\$(InputFileName)
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\shared_modules\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\Kernel_py\omnipatch.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\KERNEL_PY\PyInterp.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\KERNEL_PY\salome.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\KERNEL_PY\salome_ComponentGUI.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\KERNEL_PY\salome_iapp.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\KERNEL_PY\salome_kernel.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\KERNEL_PY\salome_shared_modules.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\KERNEL_PY\salome_study.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\KERNEL_PY\salome_test.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

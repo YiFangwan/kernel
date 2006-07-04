@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="SALOMELocalTrace"
+	RootNamespace="SALOMELocalTrace"
+	SccProjectName=""
+	SccLocalPath="">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\lib\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include;$(PTHREADSINC)"
+				PreprocessorDefinitions="WNT;WIN32;_DEBUG;_WINDOWS;_USRDLL;SALOMELOCALTRACE_EXPORTS"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\..\..\win32\objd\SALOMELocalTrace/SALOMELocalTrace.pch"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="4"
+				CompileAs="0"
+				DisableSpecificWarnings="4251;4275;4290"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="pthread$(PTVER).lib"
+				OutputFile="$(OutDir)/SALOMELocalTrace.dll"
+				LinkIncremental="2"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(PTHREADSLIBD)"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(OutDir)/SALOMELocalTrace.pdb"
+				ImportLibrary="$(OutDir)/SALOMELocalTrace.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\..\..\win32\libd/SALOMELocalTrace.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1049"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\lib\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include;$(PTHREADSINC)"
+				PreprocessorDefinitions="WNT;WIN32;NDEBUG;_WINDOWS;_USRDLL;SALOMELOCALTRACE_EXPORTS"
+				StringPooling="TRUE"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="TRUE"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\..\..\win32\obj\SALOMELocalTrace/SALOMELocalTrace.pch"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				CompileAs="0"
+				DisableSpecificWarnings="4251;4275;4290"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="pthread$(PTVER).lib"
+				OutputFile="$(OutDir)/SALOMELocalTrace.dll"
+				LinkIncremental="2"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(PTHREADSLIB)"
+				ProgramDatabaseFile=""
+				ImportLibrary="$(OutDir)/SALOMELocalTrace.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\..\..\win32\lib/SALOMELocalTrace.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1049"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath="..\..\src\SALOMELocalTrace\BaseTraceCollector.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMELocalTrace\FileTraceCollector.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMELocalTrace\LocalTraceBufferPool.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMELocalTrace\LocalTraceCollector.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMELocalTrace\SALOME_LocalTrace.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath=".\SALOMEconfig.h">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMELocalTrace\utilities.h">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			<File
+				RelativePath="..\..\src\SALOMELocalTrace\BaseTraceCollector.cxx">
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMELocalTrace\FileTraceCollector.cxx">
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMELocalTrace\LocalTraceBufferPool.cxx">
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMELocalTrace\LocalTraceCollector.cxx">
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

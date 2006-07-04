@@ -1,0 +1,2004 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="SALOMEDSImpl"
+	SccProjectName=""
+	SccLocalPath="">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\lib\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include;$(PTHREADSINC);$(OCCINC);$(HDFINC)"
+				PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_USRDLL;SALOMEDSIMPL_EXPORTS"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\..\..\win32\objd\SALOMEDSImpl/SALOMEDSImpl.pch"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="4"
+				CompileAs="0"
+				DisableSpecificWarnings="4251;4275;4290"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="hdf5_d.lib TKCDF.lib TKCAF.lib TKLCAF.lib TKernel.lib odbc32.lib odbccp32.lib"
+				OutputFile="$(OutDir)/SalomeDSImpl.dll"
+				LinkIncremental="2"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(OCCLIB),$(HDFLIBD)"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(OutDir)/SalomeDSImpl.pdb"
+				ImportLibrary="$(OutDir)/SalomeDSImpl.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\..\..\win32\libd/SALOMEDSImpl.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\lib\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include;$(PTHREADSINC);$(OCCINC);$(HDFINC)"
+				PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_USRDLL;SALOMEDSIMPL_EXPORTS"
+				StringPooling="TRUE"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="TRUE"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\..\..\win32\obj\SALOMEDSImpl/SALOMEDSImpl.pch"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				CompileAs="0"
+				DisableSpecificWarnings="4251;4275;4290"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="hdf5.lib TKCDF.lib TKCAF.lib TKLCAF.lib TKernel.lib odbc32.lib odbccp32.lib"
+				OutputFile="$(OutDir)/SalomeDSImpl.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(OCCLIB),$(HDFLIB)"
+				ProgramDatabaseFile=""
+				ImportLibrary="$(OutDir)/SalomeDSImpl.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\..\..\win32\lib/SALOMEDSImpl.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeComment.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeDrawable.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeExpandable.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeExternalFileDef.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeFileType.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeFlags.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeGraphic.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeInteger.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeIOR.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeLocalID.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeName.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeOpened.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributePersistentRef.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributePixMap.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributePythonObject.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeReal.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeReference.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_Attributes.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeSelectable.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeSequenceOfInteger.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeSequenceOfReal.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeStudyProperties.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTableOfInteger.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTableOfReal.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTableOfString.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTarget.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTextColor.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTextHighlightColor.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTreeNode.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeUserID.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_Callback.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_ChildIterator.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_ChildNodeIterator.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_Driver.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_GenericAttribute.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_OCAFApplication.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_SComponent.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_SComponentIterator.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_SObject.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_Study.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_StudyBuilder.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_StudyHandle.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_StudyManager.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_Tool.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_UseCaseBuilder.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_UseCaseIterator.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeComment.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeDrawable.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeExpandable.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeExternalFileDef.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeFileType.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeFlags.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeGraphic.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeInteger.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeIOR.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeLocalID.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeName.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeOpened.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributePersistentRef.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributePixMap.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributePythonObject.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeReal.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeReference.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeSelectable.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeSequenceOfInteger.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeSequenceOfReal.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeStudyProperties.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTableOfInteger.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTableOfReal.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTableOfString.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTarget.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTextColor.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTextHighlightColor.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeTreeNode.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_AttributeUserID.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_Callback.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_ChildIterator.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_ChildNodeIterator.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_GenericAttribute.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_OCAFApplication.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_SComponent.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_SComponentIterator.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_SObject.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_Study.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_StudyBuilder.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_StudyHandle.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_StudyManager.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_Tool.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_UseCaseBuilder.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\SALOMEDSImpl\SALOMEDSImpl_UseCaseIterator.cxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="0"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"
+						BasicRuntimeChecks="3"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_MBCS;_USRDLL;SALOMEDSIMPL_EXPORTS;$(NoInherit)"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

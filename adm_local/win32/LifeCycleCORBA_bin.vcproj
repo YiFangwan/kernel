@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="LifeCycleCORBA_bin"
+	SccProjectName=""
+	SccLocalPath="">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\bin\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(KERNEL_SRC_DIR)\$(ConfigurationName)\include&quot;;&quot;$(KERNEL_SRC_DIR)\stub&quot;;&quot;$(PYTHONINC)&quot;;&quot;$(QTINC)&quot;;&quot;$(PTHREADSINC)&quot;;&quot;$(OMNIINC)&quot;"
+				PreprocessorDefinitions="_DEBUG_;_DEBUG;_OMNITHREAD_DLL;__x86__;__WIN32__;WNT;WIN32;_CONSOLE"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\..\..\win32\objd\LifeCycleCORBA_bin/LifeCycleCORBA_bin.pch"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="4"
+				CompileAs="0"
+				DisableSpecificWarnings="4251;4275;4290"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="WS2_32.lib omniORB$(OMNIVER)_rtd.lib omnithread$(OMNITHRVER)_rtd.lib omniDynamic$(OMNIVER)_rtd.lib COS$(OMNIVER)_rtd.lib COSDynamic$(OMNIVER)_rtd.lib WSOCK32.LIB odbc32.lib odbccp32.lib"
+				OutputFile="$(OutDir)/TestLifeCycleCORBA.exe"
+				LinkIncremental="2"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(PTHREADSLIBD),$(OMNILIB),$(QTLIBD),$(PYTHONLIB)"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(OutDir)/TestLifeCycleCORBA.pdb"
+				SubSystem="1"
+				ImportLibrary=""
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\..\..\win32\libd/LifeCycleCORBA_bin.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1049"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\bin\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="1"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="&quot;$(KERNEL_SRC_DIR)\$(ConfigurationName)\include&quot;;&quot;$(KERNEL_SRC_DIR)\stub&quot;;&quot;$(PYTHONINC)&quot;;&quot;$(QTINC)&quot;;&quot;$(PTHREADSINC)&quot;;&quot;$(OMNIINC)&quot;"
+				PreprocessorDefinitions="NDEBUG;_OMNITHREAD_DLL;__x86__;__WIN32__;WNT;WIN32;_CONSOLE"
+				StringPooling="TRUE"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="TRUE"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\..\..\win32\obj\LifeCycleCORBA_bin/LifeCycleCORBA_bin.pch"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				CompileAs="0"
+				DisableSpecificWarnings="4251;4275;4290"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="WS2_32.lib omniORB$(OMNIVER)_rt.lib omnithread$(OMNITHRVER)_rt.lib omniDynamic$(OMNIVER)_rt.lib COS$(OMNIVER)_rt.lib COSDynamic$(OMNIVER)_rt.lib WSOCK32.LIB odbc32.lib odbccp32.lib"
+				OutputFile="$(OutDir)/TestLifeCycleCORBA.exe"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(PTHREADSLIB),$(OMNILIB),$(QTLIB),$(PYTHONLIB)"
+				ProgramDatabaseFile=""
+				SubSystem="1"
+				ImportLibrary=""
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\..\..\win32\lib/LifeCycleCORBA_bin.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1049"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			<File
+				RelativePath="..\..\src\LifeCycleCORBA\Test_LifeCycleCORBA.cxx">
+			</File>
+		</Filter>
+		<Filter
+			Name="Interface Files"
+			Filter="*.idl">
+			<File
+				RelativePath="..\..\idl\SALOME_Component.idl">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_ContainerManager.idl">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_Exception.idl">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_ModuleCatalog.idl">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_TestComponent.idl">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Skeleton Files"
+			Filter="*SK.cxx">
+			<File
+				RelativePath="..\..\stub\SALOME_ComponentSK.cxx">
+			</File>
+			<File
+				RelativePath="..\..\stub\SALOME_ContainerManagerSK.cxx">
+			</File>
+			<File
+				RelativePath="..\..\stub\SALOME_ExceptionSK.cxx">
+			</File>
+			<File
+				RelativePath="..\..\stub\SALOME_ModuleCatalogSK.cxx">
+			</File>
+			<File
+				RelativePath="..\..\stub\SALOME_TestComponentSK.cxx">
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

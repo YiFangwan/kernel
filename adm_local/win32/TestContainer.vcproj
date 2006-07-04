@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="TestContainer"
+	SccProjectName=""
+	SccLocalPath="">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\lib\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(KERNEL_SRC_DIR)\$(ConfigurationName)\include&quot;;&quot;$(KERNEL_SRC_DIR)\stub&quot;;$(PTHREADSINC);$(OMNIINC)"
+				PreprocessorDefinitions="_DEBUG;__x86__;__WIN32__;WNT;WIN32;_WINDOWS;_USRDLL;TESTCONTAINER_EXPORTS"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\..\..\win32\objd\TestContainer/TestContainer.pch"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="4"
+				CompileAs="0"
+				DisableSpecificWarnings="4251;4275;4290"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="WS2_32.lib WSOCK32.LIB omniORB$(OMNIVER)_rtd.lib omnithread$(OMNITHRVER)_rtd.lib omniDynamic$(OMNIVER)_rtd.lib COS$(OMNIVER)_rtd.lib COSDynamic$(OMNIVER)_rtd.lib odbc32.lib odbccp32.lib"
+				OutputFile="$(OutDir)/SalomeTestComponentEngine.dll"
+				LinkIncremental="2"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(OMNILIB)"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(OutDir)/SalomeTestComponentEngine.pdb"
+				ImportLibrary="$(OutDir)/SalomeTestComponentEngine.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\..\..\win32\libd/TestContainer.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\lib\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="&quot;$(KERNEL_SRC_DIR)\$(ConfigurationName)\include&quot;;&quot;$(KERNEL_SRC_DIR)\stub&quot;;$(PTHREADSINC);$(OMNIINC)"
+				PreprocessorDefinitions="NDEBUG;__x86__;__WIN32__;WNT;WIN32;_WINDOWS;_USRDLL;TESTCONTAINER_EXPORTS"
+				StringPooling="TRUE"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="TRUE"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\..\..\win32\obj\TestContainer/TestContainer.pch"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				CompileAs="0"
+				DisableSpecificWarnings="4251;4275;4290"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="WS2_32.lib  WSOCK32.LIB omniORB$(OMNIVER)_rt.lib omnithread$(OMNITHRVER)_rt.lib omniDynamic$(OMNIVER)_rt.lib COS$(OMNIVER)_rt.lib COSDynamic$(OMNIVER)_rt.lib odbc32.lib odbccp32.lib"
+				OutputFile="$(OutDir)/SalomeTestComponentEngine.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(OMNILIB)"
+				ProgramDatabaseFile=""
+				ImportLibrary="$(OutDir)/SalomeTestComponentEngine.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\..\..\win32\lib/TestContainer.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl">
+			<File
+				RelativePath="..\..\src\TestContainer\SALOME_TestComponent_i.hxx">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Updating $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
+"
+						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+			<File
+				RelativePath="..\..\src\TestContainer\SALOME_TestComponent_i.cxx">
+			</File>
+		</Filter>
+		<Filter
+			Name="Python Files"
+			Filter="*.py*">
+			<File
+				RelativePath="..\..\src\TestContainer\SALOME_TestComponentPy.py">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Update $(InputName)$(InputExt)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"
+						Outputs="..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Update $(InputName)$(InputExt)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"
+						Outputs="..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\TestContainer\TestComponentPy.py">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Update $(InputName)$(InputExt)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"
+						Outputs="..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Update $(InputName)$(InputExt)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"
+						Outputs="..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Interface Files"
+			Filter="*.idl">
+			<File
+				RelativePath="..\..\idl\SALOME_Component.idl">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_TestComponent.idl">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Skeleton Files"
+			Filter="*SK.cxx">
+			<File
+				RelativePath="..\..\stub\SALOME_ComponentSK.cxx">
+			</File>
+			<File
+				RelativePath="..\..\stub\SALOME_TestComponentSK.cxx">
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

@@ -1,0 +1,320 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="LifeCycleCORBA_SWIG"
+	ProjectGUID="{5EEDFD7E-8CDC-4570-86CF-D73F6E51D7A4}"
+	RootNamespace="NOTIFICATION_SWIG"
+	SccProjectName=""
+	SccLocalPath="">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\lib\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="&quot;$(KERNEL_SRC_DIR)\$(ConfigurationName)\include&quot;;&quot;$(KERNEL_SRC_DIR)\stub&quot;;&quot;$(PYTHONINC)&quot;;&quot;$(PTHREADSINC)&quot;;&quot;$(OMNIINC)&quot;"
+				PreprocessorDefinitions="NDEBUG;_OMNITHREAD_DLL;__x86__;__WIN32__;WNT;WIN32;_WINDOWS;_USRDLL;NOTIFICATION_SWIG_EXPORTS"
+				StringPooling="TRUE"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="TRUE"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\..\..\win32\obj\NOTIFICATION_SWIG/NOTIFICATION_SWIG.pch"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				CompileAs="0"
+				DisableSpecificWarnings="4251;4275;4290"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="WS2_32.lib WSOCK32.LIB omniORB$(OMNIVER)_rt.lib omnithread$(OMNITHRVER)_rt.lib omniDynamic$(OMNIVER)_rt.lib COS$(OMNIVER)_rt.lib COSDynamic$(OMNIVER)_rt.lib odbc32.lib odbccp32.lib"
+				OutputFile="$(OutDir)/_libSALOME_LifeCycleCORBA.dll"
+				LinkIncremental="1"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(PYTHONLIB),$(OMNILIB)"
+				ProgramDatabaseFile=""
+				ImportLibrary="$(OutDir)/_libSALOME_LifeCycleCORBA.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\..\..\win32\lib/NOTIFICATION_SWIG.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\lib\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="2"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE"
+			CharacterSet="2">
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="0"
+				AdditionalIncludeDirectories="&quot;$(KERNEL_SRC_DIR)\$(ConfigurationName)\include&quot;;&quot;$(KERNEL_SRC_DIR)\stub&quot;;&quot;$(PYTHONINC)&quot;;&quot;$(PTHREADSINC)&quot;;&quot;$(OMNIINC)&quot;"
+				PreprocessorDefinitions="_DEBUG;_OMNITHREAD_DLL;__x86__;__WIN32__;WNT;WIN32;_WINDOWS;_USRDLL;NOTIFICATION_SWIG_EXPORTS"
+				BasicRuntimeChecks="3"
+				RuntimeLibrary="3"
+				RuntimeTypeInfo="TRUE"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\..\..\win32\objd\NOTIFICATION_SWIG/NOTIFICATION_SWIG.pch"
+				WarningLevel="3"
+				SuppressStartupBanner="TRUE"
+				DebugInformationFormat="4"
+				CompileAs="0"
+				DisableSpecificWarnings="4251;4275;4290"/>
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalDependencies="WS2_32.lib WSOCK32.LIB omniORB$(OMNIVER)_rtd.lib omnithread$(OMNITHRVER)_rtd.lib omniDynamic$(OMNIVER)_rtd.lib COS$(OMNIVER)_rtd.lib COSDynamic$(OMNIVER)_rtd.lib odbc32.lib odbccp32.lib"
+				OutputFile="$(OutDir)/_libSALOME_LifeCycleCORBA_d.dll"
+				LinkIncremental="2"
+				SuppressStartupBanner="TRUE"
+				AdditionalLibraryDirectories="$(PYTHONLIB),$(OMNILIB)"
+				GenerateDebugInformation="TRUE"
+				ProgramDatabaseFile="$(OutDir)/_libSALOME_LifeCycleCORBA_d.pdb"
+				ImportLibrary="$(OutDir)/_libSALOME_LifeCycleCORBA_d.lib"
+				TargetMachine="1"/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="_DEBUG"
+				MkTypLibCompatible="TRUE"
+				SuppressStartupBanner="TRUE"
+				TargetEnvironment="1"
+				TypeLibraryName=".\..\..\win32\libd/NOTIFICATION_SWIG.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+			<Tool
+				Name="VCPreLinkEventTool"/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="_DEBUG"
+				Culture="1033"/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
+				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Source Files"
+			Filter="cpp;c;cxx;rc;def;r;odl;idl;hpj;bat">
+		</Filter>
+		<Filter
+			Name="Header Files"
+			Filter="h;hpp;hxx;hm;inl">
+		</Filter>
+		<Filter
+			Name="SWIG Interface Files"
+			Filter="*.i">
+			<File
+				RelativePath="..\..\src\LifeCycleCORBA_SWIG\libSALOME_LifeCycleCORBA.i">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Generate swig_$(InputName).cxx..."
+						CommandLine="$(SWIGBIN)\swig -python  -c++ -I$(KERNEL_SRC_DIR)\$(ConfigurationName)\include -I$(InputDir) -outdir ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome -o ..\..\swig\swig_$(InputName).cxx $(InputPath)
+"
+						Outputs="..\..\swig\swig_$(InputName).cxx;..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName).py"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Generate swig_$(InputName).cxx..."
+						CommandLine="$(SWIGBIN)\swig -python  -c++ -I$(KERNEL_SRC_DIR)\$(ConfigurationName)\include -I$(InputDir) -outdir ..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome -o ..\..\swig\swig_$(InputName).cxx $(InputPath)
+"
+						Outputs="..\..\swig\swig_$(InputName).cxx;..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName).py"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="SWIG Wrapper Files"
+			Filter="swig_*.cxx">
+			<File
+				RelativePath="..\..\swig\swig_libSALOME_LifeCycleCORBA.cxx">
+			</File>
+		</Filter>
+		<Filter
+			Name="Python Files"
+			Filter="">
+			<File
+				RelativePath="..\..\src\LifeCycleCORBA_SWIG\LifeCycleCORBA.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Update $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"
+						Outputs="..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Update $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"
+						Outputs="..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\src\LifeCycleCORBA_SWIG\TestLifeCycleCORBA.py">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Update $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"
+						Outputs="..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Update $(InputFileName)..."
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"
+						Outputs="..\..\$(ConfigurationName)\bin\salome\$(inputFileName)"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Interface Files"
+			Filter="*.idl">
+			<File
+				RelativePath="..\..\idl\SALOME_Component.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_ContainerManager.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_Exception.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(inputName)$(InputExt)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -bcxx -Wbs=SK.cxx -I..\..\idl -I$(InputDir). -C..\..\stub $(InputPath)
+"
+						Outputs="..\..\stub\$(inputName).hh;..\..\stub\$(inputName)SK.cxx"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+		<Filter
+			Name="Skeleton Files"
+			Filter="">
+			<File
+				RelativePath="..\..\stub\SALOME_ComponentSK.cxx">
+			</File>
+			<File
+				RelativePath="..\..\stub\SALOME_ContainerManagerSK.cxx">
+			</File>
+			<File
+				RelativePath="..\..\stub\SALOME_ExceptionSK.cxx">
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>

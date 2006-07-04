@@ -1,0 +1,513 @@
+<?xml version="1.0" encoding="windows-1251"?>
+<VisualStudioProject
+	ProjectType="Visual C++"
+	Version="7.10"
+	Name="idlpy"
+	ProjectGUID="{B5EF9F2E-F097-45A5-B55F-D3F836651FD0}"
+	RootNamespace="idlpy"
+	SccProjectName=""
+	SccLocalPath=""
+	Keyword="MakeFileProj">
+	<Platforms>
+		<Platform
+			Name="Win32"/>
+	</Platforms>
+	<Configurations>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\lib\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="10"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\Release/idlpy.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+		</Configuration>
+		<Configuration
+			Name="Debug|Win32"
+			OutputDirectory="..\..\$(ConfigurationName)\lib\salome"
+			IntermediateDirectory="..\..\$(ConfigurationName)\obj\$(TargetName)"
+			ConfigurationType="10"
+			UseOfMFC="0"
+			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			<Tool
+				Name="VCCustomBuildTool"/>
+			<Tool
+				Name="VCMIDLTool"
+				TypeLibraryName=".\idlpy___Win32_Debug/idlpy.tlb"
+				HeaderFileName=""/>
+			<Tool
+				Name="VCPostBuildEventTool"/>
+			<Tool
+				Name="VCPreBuildEventTool"/>
+		</Configuration>
+	</Configurations>
+	<References>
+	</References>
+	<Files>
+		<Filter
+			Name="Interface Files"
+			Filter="*.idl">
+			<File
+				RelativePath="..\..\idl\Logger.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\nstest.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_Comm.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_Component.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_ContainerManager.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_DataTypeCatalog.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_Exception.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_GenericObj.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_ModuleCatalog.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_MPIContainer.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_MPIObject.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_Registry.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_RessourcesCatalog.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_Session.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_TestComponent.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOME_TestModuleCatalog.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOMEDS.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\..\idl\SALOMEDS_Attributes.idl">
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"
+						Description="Mapping $(InputFileName)..."
+						CommandLine="set PATH=$(PYTHONDIR)\libs
+$(OMNIBIN)\omniidl -p$(KERNEL_SRC_DIR)\salome_adm\unix -bpythonbe -I..\..\idl -I$(InputDir). -C..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome $(InputPath)
+type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl
+"
+						Outputs="..\..\$(ConfigurationName)\lib\python$(PYVERSION)\site-packages\salome\$(InputName)_idl.py;$(KERNEL_SRC_DIR)\$(ConfigurationName)\idl\$(inputName).idl"/>
+				</FileConfiguration>
+			</File>
+		</Filter>
+	</Files>
+	<Globals>
+	</Globals>
+</VisualStudioProject>
