@@ -31,6 +31,9 @@
 #ifndef WNT
 #include <dlfcn.h>
 #else
+#include "../../adm_local/win32/SALOME_WNT.hxx"
+#include <signal.h>
+#include <process.h>
 #endif
 
 //#define _DEVDEBUG_
