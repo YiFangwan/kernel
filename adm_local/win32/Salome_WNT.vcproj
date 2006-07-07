@@ -22,7 +22,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(PTHREADROOT)"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="_DEBUG;WNT;WIN32;_WINDOWS;_USRDLL;SALOME_WNT_EXPORTS"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
@@ -88,7 +88,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="$(PTHREADROOT)"
+				AdditionalIncludeDirectories=""
 				PreprocessorDefinitions="NDEBUG;WNT;WIN32;_WINDOWS;_USRDLL;SALOME_WNT_EXPORTS"
 				StringPooling="TRUE"
 				RuntimeLibrary="0"
