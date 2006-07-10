@@ -98,33 +98,13 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\resources\CatalogResources.xml">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Updating $(InputFileName)..."
-						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\share\salome\resources\$(InputFileName)
-"
-						Outputs="..\..\$(ConfigurationName)\share\salome\resources\$(InputFileName)"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Updating $(InputFileName)..."
-						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\share\salome\resources\$(InputFileName)
-"
-						Outputs="..\..\$(ConfigurationName)\share\salome\resources\$(InputFileName)"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\resources\CatalogRessources.xml">
 				<FileConfiguration
 					Name="Release|Win32">
 					<Tool
 						Name="VCCustomBuildTool"
-						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\share\salome\resources\$(InputFileName)"
+						CommandLine="type $(InputPath) &gt; ..\..\$(ConfigurationName)\share\salome\resources\$(InputFileName)
+"
 						Outputs="..\..\$(ConfigurationName)\share\salome\resources\$(InputFileName)"/>
 				</FileConfiguration>
 			</File>

@@ -233,48 +233,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath="..\..\src\SALOMELocalTrace\SALOME_LocalTrace.hxx">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Updating $(InputFileName)..."
-						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
-"
-						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Updating $(InputFileName)..."
-						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
-"
-						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
-				</FileConfiguration>
-			</File>
-			<File
-				RelativePath=".\SALOMEconfig.h">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Updating $(InputFileName)..."
-						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
-"
-						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						Description="Updating $(InputFileName)..."
-						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)
-"
-						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputFileName)"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="..\..\src\SALOMELocalTrace\utilities.h">
 				<FileConfiguration
 					Name="Debug|Win32">
