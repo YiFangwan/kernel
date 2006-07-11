@@ -173,25 +173,6 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl">
 			<File
-				RelativePath=".\NCollection_DataMap1.hxx">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="type $(InputPath) &gt; $(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputName).hxx
-"
-						Outputs="$(KERNEL_SRC_DIR)\$(ConfigurationName)\include\$(InputName).hxx"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCustomBuildTool"
-						CommandLine="type $(InputPath) &gt; ..\..\include\$(InputName).hxx
-"
-						Outputs="..\..\include\$(InputName).hxx"/>
-				</FileConfiguration>
-			</File>
-			<File
 				RelativePath="SALOME_WNT.hxx">
 				<FileConfiguration
 					Name="Debug|Win32">
