@@ -645,7 +645,8 @@ bool SALOMEDS_Study::DumpStudy(const string& thePath, const string& theBaseName,
 
 std::string SALOMEDS_Study::ConvertObjectToIOR(CORBA::Object_ptr theObject) 
 {
-  return _orb->object_to_string(theObject); 
+  CORBA::String_var objStr = _orb->object_to_string(theObject);
+  return string( objStr.in() );
 }
 
 CORBA::Object_ptr SALOMEDS_Study::ConvertIORToObject(const std::string& theIOR) 

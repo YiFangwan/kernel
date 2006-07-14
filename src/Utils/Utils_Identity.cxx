@@ -83,12 +83,11 @@ const char* duplicate( const char *const str ) ;
 
 const char* get_uname( void )
 {
-	char* hostName = new char[MAX_COMPUTERNAME_LENGTH + 1];
-	DWORD nSize = MAX_COMPUTERNAME_LENGTH;
-	// initialisaton
-	hostName[0]='\0';
-	ASSERT(GetComputerName(hostName, &nSize));
-	return hostName;
+	static std::string hostName(MAX_COMPUTERNAME_LENGTH + 1, 0);
+	static DWORD nSize = hostName.length() + 1;
+  static int res = GetComputerName(&hostName[0], &nSize);
+	ASSERT( res );
+	return hostName.c_str();
 }
 
 const char* get_adip( void )
@@ -98,12 +97,11 @@ const char* get_adip( void )
 
 const char* const get_pwname( void )
 {
-  DWORD                   dwSize = 256 + 1;
-  char* retVal = new char[256];
-	// initialisaton
-	retVal[0]='\0';
-  ASSERT(GetUserName` ( retVal, &dwSize ));
-  return retVal;
+  static std::string retVal(256, 0);
+  static DWORD  dwSize = retVal.length() + 1;
+  static int res = GetUserName( &retVal[0], &dwSize );
+  ASSERT( res );
+  return retVal.c_str();
 }
 
 PSID getuid() {
@@ -153,9 +151,14 @@ Identity::~Identity(void)
 	//delete [] (char*)_dir ;
 	//(char*&)_dir = NULL ;
 	free((char*)_dir);
-	
+#ifndef WIN32	
+  // free the memory only on Unix
+  // becasue at Windows it is the same static variable
+  // (function get_adip() returns the same char* as get_uname() )
 	delete [] (char*)_adip ;
+#endif
 	(char*&)_adip = NULL ;
+
 }
 
 /*------------*/

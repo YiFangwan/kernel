@@ -134,9 +134,9 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
       _name_service->Register(Study, study_name);
 
   // Assign the value of the IOR in the study->root
-  const char*  IORStudy = _orb->object_to_string(Study);
+  CORBA::String_var IORStudy = _orb->object_to_string(Study);
 
-  aStudyImpl->SetTransientReference((char*)IORStudy);
+  aStudyImpl->SetTransientReference((char*)IORStudy.in());
 
   _mapOfPOA[Study->StudyId()] = _poa;
 
@@ -166,7 +166,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 
   // Assign the value of the IOR in the study->root
   CORBA::String_var IORStudy = _orb->object_to_string(Study);
-  aStudyImpl->SetTransientReference((char*)IORStudy);
+  aStudyImpl->SetTransientReference((char*)IORStudy.in());
 
   // Register study in the naming service
   // Path to acces the study

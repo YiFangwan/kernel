@@ -275,7 +275,9 @@ char* SALOMEDS_Study_i::GetObjectPath(CORBA::Object_ptr theObject)
     aSO = _impl->FindObjectID(aSObj->GetID());
   }
   else {
-    aSO  = _impl->FindObjectIOR(_orb->object_to_string(theObject));
+    CORBA::String_var objStr = _orb->object_to_string(theObject);
+    TCollection_AsciiString anAscii((char *)objStr.in());
+    aSO  = _impl->FindObjectIOR(anAscii);
   }
    
   if(aSO.IsNull()) return CORBA::string_dup(aPath.ToCString());
