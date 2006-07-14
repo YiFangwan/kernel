@@ -337,7 +337,8 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::GetStudyByID(CORBA::Short aStudyID)
   }
 
   SALOMEDS_Study_i* aStudy_servant = new SALOMEDS_Study_i(aStudyImpl, _orb);
-  SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow(aStudy_servant->_this());
+  CORBA::Object_var obj = aStudy_servant->_this();
+  SALOMEDS::Study_var aStudy = SALOMEDS::Study::_narrow(obj);
 
   return aStudy._retn();
 }
