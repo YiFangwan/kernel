@@ -38,8 +38,8 @@ class Server:
           #cmd_str = "\"" + string.join(command, " ") + "\""
           #print cmd_str
           #pid = win32pm.spawnpid( cmd_str )
-          #pid = win32pm.spawnpid( string.join(command, " "), '-nc' )
-          pid = win32pm.spawnpid( string.join(command, " ") )
+          pid = win32pm.spawnpid( string.join(command, " "), '-nc' )
+          #pid = win32pm.spawnpid( string.join(command, " ") )
 	else:
           pid = os.spawnvp(os.P_NOWAIT, command[0], command)
         process_id[pid]=self.CMD
