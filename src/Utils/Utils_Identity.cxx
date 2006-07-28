@@ -83,16 +83,36 @@ const char* duplicate( const char *const str ) ;
 
 const char* get_uname( void )
 {
-	static std::string hostName(MAX_COMPUTERNAME_LENGTH + 1, 0);
-	static DWORD nSize = hostName.length() + 1;
-  static int res = GetComputerName(&hostName[0], &nSize);
+	static std::string hostName(256, 0);
+	static DWORD nSize = hostName.length();
+	static int res = ::GetComputerNameEx(ComputerNameDnsFullyQualified, &hostName[0], &nSize);
 	ASSERT( res );
 	return hostName.c_str();
 }
 
 const char* get_adip( void )
 {
-  return get_uname();
+	//#include <Nspapi.h>
+	//#include <Svcguid.h>
+	//static GUID sType = SVCID_HOSTNAME;
+	//static CSADDR_INFO* ips = new CSADDR_INFO[8]; // in case multiple IP addresses are returned
+	//static DWORD nSize = 1024;
+	//static std::string uname = get_uname();
+	//static int res = ::GetAddressByName( NS_DEFAULT, &sType, &uname[0], 0, 0, 0, ips, &nSize, 0, 0 );
+	//if ( res )
+	//  return ips[0].LocalAddr.lpSockaddr->sa_data;
+
+	static hostent* he = ::gethostbyname( get_uname() );
+	if ( he && he->h_addr_list && he->h_length >0 ) {
+	  static char str[16];
+      unsigned i1 = (unsigned char)he->h_addr_list[0][0];
+      unsigned i2 = (unsigned char)he->h_addr_list[0][1];
+      unsigned i3 = (unsigned char)he->h_addr_list[0][2];
+      unsigned i4 = (unsigned char)he->h_addr_list[0][3];
+      sprintf ( str, "%03u.%03u.%03u.%03u", i1, i2, i3, i4 );
+		return str;
+	}
+	return "<unknown>";
 }
 
 const char* const get_pwname( void )
