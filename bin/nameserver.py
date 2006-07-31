@@ -66,7 +66,7 @@ class NamingServer(Server):
 	print "port=", aPort
 	if sys.platform == "win32":
 	  #print "start omniNames -start " + aPort + " -logdir " + upath
-          self.CMD=['omniNames -start ' , aPort , ' -logdir ' , upath]
+          self.CMD=['omniNames -start ' , aPort , ' -logdir ' , '\"' + upath + '\"']
 	  #os.system("start omniNames -start " + aPort + " -logdir " + upath)
 	else:
           self.CMD=['omniNames -start ' , aPort , ' -logdir ' , upath , ' &']
