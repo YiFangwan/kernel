@@ -1527,13 +1527,18 @@ void SALOMEDSImpl_Study::Modify()
 //============================================================================
 Handle(SALOMEDSImpl_AttributeParameter) SALOMEDSImpl_Study::GetCommonParameters(const char* theID, int theSavePoint)
 {
-  if(theSavePoint < 0) return NULL;
+if(theSavePoint < 0) return NULL;
   Handle(SALOMEDSImpl_StudyBuilder) builder = NewBuilder();
   Handle(SALOMEDSImpl_SObject) so = FindComponent((char*)theID);
   if(so.IsNull()) so = builder->NewComponent((char*)theID); 
   Handle(SALOMEDSImpl_AttributeParameter) attParam;
-  if(theSavePoint == 0) //Get an attribute that is placed on the component itself.
+  if(theSavePoint == 0) { //Get an attribute that is placed on the component itself.
     builder->FindAttribute(so, attParam, "AttributeParameter");
+	if ( attParam.IsNull() ) { // first call of GetCommonParameters on "Interface Applicative" component
+	  Handle(TDF_Attribute) att = builder->FindOrCreateAttribute(so, "AttributeParameter");
+	  attParam = Handle(SALOMEDSImpl_AttributeParameter)::DownCast( att );
+	}
+  }
   else {  // Try to find SObject that contains attribute parameter ...
     TDF_Label savePointLabel = so->GetLabel().FindChild( theSavePoint, /*create=*/0 );
 	if ( !savePointLabel.IsNull() ) {
