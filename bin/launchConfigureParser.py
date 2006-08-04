@@ -103,7 +103,6 @@ def userFile():
       filename = "%s\%s.xml.%s" % (os.environ['HOME'], appname, v)
     else:
       filename = "%s/.%src.%s" % (os.environ['HOME'], appname, v)
-    print "FILENAME %s" % filename
     if os.path.exists(filename):
         return filename  # user preferences file for the current version exists
     # initial id
