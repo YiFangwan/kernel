@@ -95,17 +95,24 @@ def version_id( fname ):
     return ver
 
 # get user configuration file name
-def userFile():
+def userFile():    
     v = version()
     if not v:
         return ""        # not unknown version
-    filename = "%s/.%src.%s" % (os.environ['HOME'], appname, v)
+    if sys.platform == "win32":
+      filename = "%s\%s.xml.%s" % (os.environ['HOME'], appname, v)
+    else:
+      filename = "%s/.%src.%s" % (os.environ['HOME'], appname, v)
+    print "FILENAME %s" % filename
     if os.path.exists(filename):
         return filename  # user preferences file for the current version exists
     # initial id
     id0 = version_id( v )
     # get all existing user preferences files
-    files = glob.glob( os.environ['HOME'] + "/." + appname + "rc.*" )
+    if sys.platform == "win32":
+      files = glob.glob( os.environ['HOME'] + "\." + appname + ".xml.*" )
+    else:
+      files = glob.glob( os.environ['HOME'] + "/." + appname + "rc.*" )
     f2v = {}
     for file in files:
         match = re.search( r'\.%src\.([a-zA-Z0-9.]+)$'%appname, file )
