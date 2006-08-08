@@ -19,7 +19,7 @@
 //
 //
 //
-//  File   : SALOME_LocalTrace.hxx
+//  File   : SALOME_Utils.hxx
 //  Author : Alexander A. BORODIN
 //  Module : SALOME
 
