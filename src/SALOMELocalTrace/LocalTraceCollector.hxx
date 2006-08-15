@@ -27,7 +27,7 @@
 #ifndef _LOCALTRACECOLLECTOR_HXX_
 #define _LOCALTRACECOLLECTOR_HXX_
 
-#include <SALOME_LocalTrace.hxx>
+#include "SALOME_LocalTrace.hxx"
 
 #include <string>
 #include "LocalTraceBufferPool.hxx"

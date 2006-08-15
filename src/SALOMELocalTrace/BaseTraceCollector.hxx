@@ -27,7 +27,7 @@
 #ifndef _BASETRACECOLLECTOR_HXX_
 #define _BASETRACECOLLECTOR_HXX_
 
-#include <SALOME_LocalTrace.hxx>
+#include "SALOME_LocalTrace.hxx"
 
 #include <pthread.h>
 #include <semaphore.h>
