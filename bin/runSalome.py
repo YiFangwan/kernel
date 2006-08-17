@@ -187,7 +187,10 @@ class LoggerServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.CMD=['SALOME_Logger_Server', 'logger.log']
+        if sys.platform == "win32":
+            self.CMD=['SALOME_Logger_Server', os.environ["HOME"] + "/logger.log"];
+        else:
+            self.CMD=['SALOME_Logger_Server', 'logger.log']
 
 # ---
 
