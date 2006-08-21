@@ -135,7 +135,7 @@ idedge=geompy.addToStudyInFather(face,edge,name)
 
 print "-------------------------- create Hypothesis"
 print "-------------------------- LocalLength"
-hypLen1 = smesh.CreateHypothesis( "LocalLength", "libStdMeshersEngine.so" )
+hypLen1 = smesh.CreateHypothesis( "LocalLength", "StdMeshersEngine" )
 hypLen1.SetLength(100)
 print hypLen1.GetName()
 print hypLen1.GetId()
@@ -144,7 +144,7 @@ print hypLen1.GetLength()
 smeshgui.SetName(salome.ObjectToID(hypLen1), "Local_Length_100")
 
 print "-------------------------- NumberOfSegments"
-hypNbSeg1= smesh.CreateHypothesis( "NumberOfSegments", "libStdMeshersEngine.so" )
+hypNbSeg1= smesh.CreateHypothesis( "NumberOfSegments", "StdMeshersEngine" )
 hypNbSeg1.SetNumberOfSegments(7)
 print hypNbSeg1.GetName()
 print hypNbSeg1.GetId()
@@ -153,7 +153,7 @@ print hypNbSeg1.GetNumberOfSegments()
 smeshgui.SetName(salome.ObjectToID(hypNbSeg1), "NumberOfSegments_7")
 
 print "-------------------------- MaxElementArea"
-hypArea1 = smesh.CreateHypothesis( "MaxElementArea", "libStdMeshersEngine.so" )
+hypArea1 = smesh.CreateHypothesis( "MaxElementArea", "StdMeshersEngine" )
 hypArea1.SetMaxElementArea(2500)
 print hypArea1.GetName()
 print hypArea1.GetId()
@@ -162,7 +162,7 @@ print hypArea1.GetMaxElementArea()
 smeshgui.SetName(salome.ObjectToID(hypArea1), "MaxElementArea_2500")
 
 print "-------------------------- MaxElementArea"
-hypArea2 = smesh.CreateHypothesis( "MaxElementArea", "libStdMeshersEngine.so" )
+hypArea2 = smesh.CreateHypothesis( "MaxElementArea", "StdMeshersEngine" )
 hypArea2.SetMaxElementArea(500)
 print hypArea2.GetName()
 print hypArea2.GetId()
@@ -171,7 +171,7 @@ print hypArea2.GetMaxElementArea()
 smeshgui.SetName(salome.ObjectToID(hypArea2), "MaxElementArea_500")
 
 print "-------------------------- Regular_1D"
-algoReg = smesh.CreateHypothesis( "Regular_1D", "libStdMeshersEngine.so" )
+algoReg = smesh.CreateHypothesis( "Regular_1D", "StdMeshersEngine" )
 listHyp=algoReg.GetCompatibleHypothesis()
 for hyp in listHyp:
     print hyp
@@ -181,7 +181,7 @@ print algoReg.GetId()
 smeshgui.SetName(salome.ObjectToID(algoReg), "Regular_1D" )
 
 print "-------------------------- MEFISTO_2D"
-algoMef = smesh.CreateHypothesis( "MEFISTO_2D", "libStdMeshersEngine.so" )
+algoMef = smesh.CreateHypothesis( "MEFISTO_2D", "StdMeshersEngine" )
 listHyp=algoMef.GetCompatibleHypothesis()
 for hyp in listHyp:
     print hyp
