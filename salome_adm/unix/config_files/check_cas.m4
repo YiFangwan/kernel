@@ -187,11 +187,10 @@ if test "x$occ_ok" = xyes ; then
   
   AC_CACHE_VAL(salome_cv_lib_occ,[
     AC_TRY_LINK(
-#include <Standard_Type.hxx>
+#include <TCollection_AsciiString.hxx>
 ,   size_t size;
-    const Standard_CString aName="toto";
-    Standard_Type myST(aName) ; 
-    myST.Find(aName);,
+    TCollection_AsciiString aStr ("toto");
+    aStr.Capitalize();, 
     eval "salome_cv_lib_occ=yes",eval "salome_cv_lib_occ=no")
   ])
   occ_ok="$salome_cv_lib_occ"
