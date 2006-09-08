@@ -141,11 +141,11 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
   if(IsDirDeleted) {
     OSD_Path aPath(aDirName);
     OSD_Directory aDir(aPath);
-    OSD_FileIterator anIterator(aPath, '*');
+    OSD_FileIterator* anIterator = new OSD_FileIterator(aPath, '*');
 
-    if(aDir.Exists() && !anIterator.More())
+    if(aDir.Exists() && !anIterator->More())
 		{
-			anIterator.Destroy();
+      delete anIterator;
 			aDir.Remove();
 		}
   }
