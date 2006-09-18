@@ -466,9 +466,19 @@ try:
     if os.access(medFile, os.R_OK) :
        if not os.access(medFile, os.W_OK) :
 	       import random
-	       medFileNew = "/tmp/" + str(random.randint(0,1000000)) + "_" + medFileName
+               if sys.platform != "win32":
+                 tmpDir = "/tmp/"
+               else:
+                 tmpDir = os.getenv('TEMP') + '/'
+	       medFileNew = tmpDir + str(random.randint(0,1000000)) + "_" + medFileName
 	       print " -- Copy " + medFile + " to " + medFileNew
-	       os.system("cp "+ medFile + " " + medFileNew)
+
+               if sys.platform != "win32":
+                 copyCommand = "cp"
+               else:
+                 copyCommand = "copy /Y"
+	       os.system(copyCommand + " " + medFile + " " + medFileNew)
+
 	       medFile = medFileNew
 	       os.system("chmod 755 " + medFile)
 

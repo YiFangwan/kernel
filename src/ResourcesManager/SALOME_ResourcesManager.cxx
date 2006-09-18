@@ -551,7 +551,11 @@ void SALOME_ResourcesManager::RmTmpFile()
 {
   if (_TmpFileName != "")
     {
+#ifndef WNT
       string command = "rm ";
+#else
+      string command = "del /F ";
+#endif
       command += _TmpFileName;
       char *temp = strdup(command.c_str());
       int lgthTemp = strlen(temp);
