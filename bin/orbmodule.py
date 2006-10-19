@@ -35,7 +35,8 @@ class Server:
        print commande
        if sys.platform != "win32":
          ier=os.system(commande)
-       if ier:print "Commande failed"
+         if ier:
+           print "Commande failed"
 
 # -----------------------------------------------------------------------------
 
