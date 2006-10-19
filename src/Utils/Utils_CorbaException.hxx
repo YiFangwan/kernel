@@ -29,7 +29,7 @@
 #ifndef _UTILS_CORBAEXCEPTION_HXX_
 #define _UTILS_CORBAEXCEPTION_HXX_
 
-#include <SALOME_Utils.hxx>
+#include "SALOME_Utils.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Exception)

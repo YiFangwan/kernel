@@ -79,6 +79,7 @@ SALOMEDSImpl_Study::SALOMEDSImpl_Study(const Handle(TDocStd_Document)& doc,
   //Put on the root label a StudyHandle attribute to store the address of this object
   //It will be used to retrieve the study object by TDF_Label that belongs to the study
   SALOMEDSImpl_StudyHandle::Set(_doc->Main().Root(), this);
+  _lockers = new TColStd_HSequenceOfAsciiString();
 }
 
 
@@ -577,10 +578,6 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetObjectNames(const 
   Handle(TColStd_HSequenceOfAsciiString) aResultSeq = new TColStd_HSequenceOfAsciiString;
   TDF_Label aLabel;
   if (theContext.IsEmpty()) {
-    if(_current.IsNull()) {
-      _errorCode = "InvalidContext";
-      return aResultSeq;
-    }
     aLabel = _current;
   } else {
     TDF_Label aTmp = _current;
@@ -588,8 +585,13 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetObjectNames(const 
     aLabel = _current;
     _current = aTmp;
   }
-  TDF_ChildIterator anIter(aLabel, Standard_False); // iterate all subchildren at all sublevels
-  for(; anIter.More(); anIter.Next()) {
+  if (aLabel.IsNull()) {
+    _errorCode = "InvalidContext";
+    return aResultSeq;
+  }
+
+  TDF_ChildIterator anIter (aLabel, Standard_False); // iterate all subchildren at all sublevels
+  for (; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
     Handle(SALOMEDSImpl_AttributeName) aName;
     if (aLabel.FindAttribute(SALOMEDSImpl_AttributeName::GetID(), aName)) aResultSeq->Append(aName->Value());
@@ -610,10 +612,6 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetDirectoryNames(con
   Handle(TColStd_HSequenceOfAsciiString) aResultSeq = new TColStd_HSequenceOfAsciiString;
   TDF_Label aLabel;
   if (theContext.IsEmpty()) {
-    if(_current.IsNull()) {
-      _errorCode = "InvalidContext";
-      return aResultSeq;
-    }
     aLabel = _current;
   } else {
     TDF_Label aTmp = _current;
@@ -621,8 +619,13 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetDirectoryNames(con
     aLabel = _current;
     _current = aTmp;
   }
-  TDF_ChildIterator anIter(aLabel, Standard_False); // iterate first-level children at all sublevels
-  for(; anIter.More(); anIter.Next()) {
+  if (aLabel.IsNull()) {
+    _errorCode = "InvalidContext";
+    return aResultSeq;
+  }
+
+  TDF_ChildIterator anIter (aLabel, Standard_False); // iterate first-level children at all sublevels
+  for (; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
     Handle(SALOMEDSImpl_AttributeLocalID) anID;
     if (aLabel.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID(), anID)) {
@@ -650,10 +653,6 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetFileNames(const TC
   Handle(TColStd_HSequenceOfAsciiString) aResultSeq = new TColStd_HSequenceOfAsciiString;
   TDF_Label aLabel;
   if (theContext.IsEmpty()) {
-    if(_current.IsNull()) {
-      _errorCode = "InvalidContext";
-      return aResultSeq;
-    }
     aLabel = _current;
   } else {
     TDF_Label aTmp = _current;
@@ -661,16 +660,21 @@ Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetFileNames(const TC
     aLabel = _current;
     _current = aTmp;
   }
-  TDF_ChildIterator anIter(aLabel, Standard_False); // iterate all subchildren at all sublevels
-  for(; anIter.More(); anIter.Next()) {
+  if (aLabel.IsNull()) {
+    _errorCode = "InvalidContext";
+    return aResultSeq;
+  }
+
+  TDF_ChildIterator anIter (aLabel, Standard_False); // iterate all subchildren at all sublevels
+  for (; anIter.More(); anIter.Next()) {
     TDF_Label aLabel = anIter.Value();
     Handle(SALOMEDSImpl_AttributeLocalID) anID;
     if (aLabel.FindAttribute(SALOMEDSImpl_AttributeLocalID::GetID(), anID)) {
       if (anID->Value() == FILELOCALID) {
 	Handle(SALOMEDSImpl_AttributePersistentRef) aName;
-	if(aLabel.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID(), aName)) {
+	if (aLabel.FindAttribute(SALOMEDSImpl_AttributePersistentRef::GetID(), aName)) {
 	  TCollection_ExtendedString aFileName = aName->Value();
-	  if(aFileName.Length() > 0)
+	  if (aFileName.Length() > 0)
 	    aResultSeq->Append(aFileName.Split(strlen(FILEID)));
 	}
       }
@@ -1357,7 +1361,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const TCollection_AsciiString& thePath,
 
     if(aDriver == NULL) continue;
 
-    bool isValidScript;
+    bool isValidScript = false;
     long aStreamLength  = 0;
     Handle(SALOMEDSImpl_TMPFile) aStream = aDriver->DumpPython(this, isPublished, isValidScript, aStreamLength);
     if ( !isValidScript )
@@ -1582,4 +1586,52 @@ Handle(SALOMEDSImpl_AttributeParameter) SALOMEDSImpl_Study::GetModuleParameters(
   par  = Handle(SALOMEDSImpl_AttributeParameter)::DownCast(builder->FindOrCreateAttribute(so, "AttributeParameter"));
   par->SetString("AP_MODULE_NAME", moduleName);
   return par;
+}
+
+//============================================================================
+/*! Function : SetStudyLock
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::SetStudyLock(const char* theLockerID)
+{
+  _lockers->Append(TCollection_AsciiString((char*)theLockerID));
+}
+
+//============================================================================
+/*! Function : IsStudyLocked
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::IsStudyLocked()
+{
+  return (_lockers->Length() > 0);
+}
+
+//============================================================================
+/*! Function : UnLockStudy
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::UnLockStudy(const char* theLockerID)
+{
+  int length = _lockers->Length(), pos = -1;
+  TCollection_AsciiString id((char*)theLockerID);
+  for(int i = 1; i<=length; i++) {
+    if(id == _lockers->Value(i)) {
+      pos = i;
+      break;
+    }
+  }
+  if(pos > 0) _lockers->Remove(pos);
+}
+  
+//============================================================================
+/*! Function : GetLockerID
+ *  Purpose  :
+ */
+//============================================================================
+Handle(TColStd_HSequenceOfAsciiString) SALOMEDSImpl_Study::GetLockerID()
+{
+  return _lockers;
 }

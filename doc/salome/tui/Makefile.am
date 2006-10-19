@@ -25,7 +25,7 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-EXTRA_DIST = $(srcdir)/KERNEL
+EXTRA_DIST = KERNEL pythfilter.py
 
 dist-hook:
 	rm -rf `find $(distdir) -name CVS`
@@ -54,6 +54,7 @@ usr_docs:
 	cp -fr $(srcdir)/KERNEL/sources/ $(docdir)/tui/KERNEL;
 	cp -fr $(srcdir)/KERNEL/HTML/ $(docdir)/tui/KERNEL;
 	cp -f $(srcdir)/pythfilter.py $(docdir)/tui/KERNEL;
+	cp -fr $(srcdir)/KERNEL/exemple/ $(docdir)/tui/KERNEL;
 
 dev_docs:
 	cp -fr $(srcdir)/KERNEL/* ./INPUT; \

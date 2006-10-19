@@ -74,9 +74,10 @@ private:
   TDF_Label                _current;
   bool                     _autoFill; 
   TCollection_AsciiString  _errorCode;
-  Handle(SALOMEDSImpl_Callback)       _cb;
-  Handle(SALOMEDSImpl_StudyBuilder)   _builder;
-  Handle(SALOMEDSImpl_UseCaseBuilder) _useCaseBuilder;
+  Handle(TColStd_HSequenceOfAsciiString) _lockers;
+  Handle(SALOMEDSImpl_Callback)          _cb;
+  Handle(SALOMEDSImpl_StudyBuilder)      _builder;
+  Handle(SALOMEDSImpl_UseCaseBuilder)    _useCaseBuilder;
 
   DataMapOfAsciiStringTransient _mapOfSO;
   DataMapOfAsciiStringTransient _mapOfSCO;
@@ -209,7 +210,7 @@ public:
   
   Standard_EXPORT virtual Handle(TColStd_HSequenceOfTransient) FindDependances(const Handle(SALOMEDSImpl_SObject)& anObject);
 
-  Standard_EXPORT virtual Handle(SALOMEDSImpl_AttributeStudyProperties) SALOMEDSImpl_Study::GetProperties();
+  Standard_EXPORT virtual Handle(SALOMEDSImpl_AttributeStudyProperties) GetProperties();
 
   Standard_EXPORT virtual TCollection_AsciiString GetLastModificationDate();
 
@@ -265,6 +266,18 @@ public:
   Standard_EXPORT Handle(SALOMEDSImpl_AttributeParameter) GetModuleParameters(const char* theID, 
 									      const char* theModuleName,
 									      int theSavePoint);
+
+  //Locks the study, theLockerID is identificator of the of the one who locked the study for ex. IOR
+  Standard_EXPORT void SetStudyLock(const char* theLockerID);
+
+  //Returns True if the study is locked
+  Standard_EXPORT bool IsStudyLocked();
+
+  //Unlocks the study
+  Standard_EXPORT void UnLockStudy(const char* theLockerID);
+  
+  //Returns an ID of the study locker
+  Standard_EXPORT Handle(TColStd_HSequenceOfAsciiString) GetLockerID();
 
 public:
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_Study )

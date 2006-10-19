@@ -27,7 +27,7 @@
 # ifndef SALOME_STRING
 # define SALOME_STRING
 
-#include <SALOME_Utils.hxx>
+#include "SALOME_Utils.hxx"
 
 # include <string>
 # include <sstream>

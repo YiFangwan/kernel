@@ -51,11 +51,16 @@ dist_salomescript_SCRIPTS=\
 	createAppli.sh \
 	appli_install.sh \
 	appli_clean.sh \
+	appli_gen.py \
 	virtual_salome.py \
+	config_appli.xml \
 	launchConfigureParser.py \
 	showNS.py \
 	addToKillList.py \
-	NSparam.py
+	NSparam.py \
+	setenv.py \
+	launchSalome.py \
+	runNS.py
 
 EXTRA_DIST = appliskel
 

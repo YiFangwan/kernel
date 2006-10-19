@@ -178,20 +178,26 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
       if (!_isSupervContainer)
 	{
+#ifdef WNT
 	  //Py_ACQUIRE_NEW_THREAD;
-    PyEval_AcquireLock();
-    /* It should not be possible for more than one thread state
+	  PyEval_AcquireLock();
+	  /* It should not be possible for more than one thread state
 	     to be used for a thread.*/
-    PyThreadState *myTstate = PyGILState_GetThisThreadState();
-    // if no thread state defined
-    if ( !myTstate ) myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
-    PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
+	  PyThreadState *myTstate = PyGILState_GetThisThreadState();
+	  // if no thread state defined
+	  if ( !myTstate ) 
+	    myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
+	  PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
+#else
+	  Py_ACQUIRE_NEW_THREAD;
+#endif
+
 #ifdef WNT
 	  // mpv: this is temporary solution: there is a unregular crash if not
 	  //Sleep(2000);
 	  //
     // first element is the path to Registry.dll, but it's wrong
-    PyRun_SimpleString("import sys\n");
+	  PyRun_SimpleString("import sys\n");
 	  PyRun_SimpleString("sys.path = sys.path[1:]\n");
 #endif
 	  PyRun_SimpleString("import SALOME_Container\n");
@@ -372,7 +378,9 @@ Engines_Container_i::load_component_Library(const char* componentName)
   
       if (ret) // import possible: Python component
 	{
+	  _numInstanceMutex.lock() ; // lock to be alone (stl container write)
 	  _library_map[aCompName] = (void *)pyCont; // any non O value OK
+	  _numInstanceMutex.unlock() ;
 	  MESSAGE("import Python: "<<aCompName<<" OK");
 	  return true;
 	}
@@ -539,7 +547,9 @@ void Engines_Container_i::remove_impl(Engines::Component_ptr component_i)
   ASSERT(! CORBA::is_nil(component_i));
   string instanceName = component_i->instanceName() ;
   MESSAGE("unload component " << instanceName);
+  _numInstanceMutex.lock() ; // lock to be alone (stl container write)
   _listInstances_map.erase(instanceName);
+  _numInstanceMutex.unlock() ;
   component_i->destroy() ;
   _NS->Destroy_Name(instanceName.c_str());
 }
@@ -622,7 +632,9 @@ Engines_Container_i::createFileRef(const char* origFileName)
       Engines::Container_var pCont = Engines::Container::_narrow(obj);
       fileRef_i* aFileRef = new fileRef_i(pCont, origFileName);
       theFileRef = Engines::fileRef::_narrow(aFileRef->_this());
+      _numInstanceMutex.lock() ; // lock to be alone (stl container write)
       _fileRef_map[origName] = theFileRef;
+      _numInstanceMutex.unlock() ;
     }
   
   theFileRef =  Engines::fileRef::_duplicate(_fileRef_map[origName]);
@@ -816,8 +828,10 @@ Engines_Container_i::createInstance(string genericRegisterName,
       //SCRUTE(servant->pd_refCount);
       servant->_remove_ref(); // compensate previous id_to_reference 
       //SCRUTE(servant->pd_refCount);
+      _numInstanceMutex.lock() ; // lock to be alone (stl container write)
       _listInstances_map[instanceName] = iobject;
       _cntInstances_map[aGenRegisterName] += 1;
+      _numInstanceMutex.unlock() ;
       SCRUTE(aGenRegisterName);
       SCRUTE(_cntInstances_map[aGenRegisterName]);
       //SCRUTE(servant->pd_refCount);
@@ -910,6 +924,11 @@ void ActSigIntHandler()
       perror("SALOME_Container main ") ;
       exit(0) ;
     }
+  if ( sigaction( SIGUSR2 , &SigIntAct, NULL ) )
+    {
+      perror("SALOME_Container main ") ;
+      exit(0) ;
+    }
 
   //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
   //             use of streams (and so on) should never be used because :
@@ -927,6 +946,7 @@ void ActSigIntHandler()
 }
 
 void SetCpuUsed() ;
+void CallCancelThread() ;
 
 #ifndef WNT
 void SigIntHandler(int what ,
@@ -956,6 +976,10 @@ void SigIntHandler(int what ,
       if ( siginfo->si_signo == SIGUSR1 )
 	{
 	  SetCpuUsed() ;
+	}
+      else if ( siginfo->si_signo == SIGUSR2 )
+	{
+	  CallCancelThread() ;
 	}
       else 
 	{

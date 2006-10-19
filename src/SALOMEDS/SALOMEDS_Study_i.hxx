@@ -247,7 +247,7 @@ public:
   
   virtual SALOMEDS::Study::ListOfSObject* FindDependances(SALOMEDS::SObject_ptr anObject);
 
-  virtual SALOMEDS::AttributeStudyProperties_ptr SALOMEDS_Study_i::GetProperties();
+  virtual SALOMEDS::AttributeStudyProperties_ptr GetProperties();
 
   virtual char* GetLastModificationDate();
 
@@ -283,6 +283,14 @@ public:
   virtual SALOMEDS::AttributeParameter_ptr GetModuleParameters(const char* theID, 
 							       const char* theModuleName, 
 							       CORBA::Long theSavePoint);
+
+  virtual void SetStudyLock(const char* theLockerID);
+
+  virtual bool IsStudyLocked();
+
+  virtual void UnLockStudy(const char* theLockerID);
+
+  virtual SALOMEDS::ListOfStrings* GetLockerID();
 
   virtual char* GetDefaultScript(const char* theModuleName, const char* theShift);
 

@@ -21,7 +21,7 @@
 #ifndef _UTILS_SIGNALSHANDLER_H_
 #define _UTILS_SIGNALSHANDLER_H_
 
-#include <SALOME_Utils.hxx>
+#include "SALOME_Utils.hxx"
 
 #include <map>
 typedef void (*TSigHandler)(int);

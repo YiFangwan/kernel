@@ -2,29 +2,29 @@
 #           PRINCIPIA R&D, EADS CCR, Lip6, BV, CEDRAT
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
-# License as published by the Free Software Foundation; either 
+# License as published by the Free Software Foundation; either
 # version 2.1 of the License.
-# 
-# This library is distributed in the hope that it will be useful 
-# but WITHOUT ANY WARRANTY; without even the implied warranty of 
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+#
+# This library is distributed in the hope that it will be useful
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # Lesser General Public License for more details.
-# 
-# You should have received a copy of the GNU Lesser General Public  
-# License along with this library; if not, write to the Free Software 
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
-# 
+#
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-# 
+#
 import os, glob, string, sys, re
 import xml.sax
 
-# names of tags in XML configuration file 
+# names of tags in XML configuration file
 doc_tag = "document"
 sec_tag = "section"
 par_tag = "parameter"
 
-# names of attributes in XML configuration file 
+# names of attributes in XML configuration file
 nam_att = "name"
 val_att = "value"
 
@@ -53,6 +53,7 @@ plugins_nam    = "plugins"
 appname_nam    = "appname"
 port_nam       = "port"
 appname        = "SalomeApp"
+script_nam     = "pyscript"
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
@@ -63,13 +64,21 @@ listKeys = ( containers_nam, embedded_nam, key_nam, modules_nam, standalone_nam,
 
 # return application version (uses GUI_ROOT_DIR (or KERNEL_ROOT_DIR in batch mode) +/bin/salome/VERSION)
 def version():
-    root_dir = os.environ.get( 'KERNEL_ROOT_DIR', '' )     # KERNEL_ROOT_DIR or "" if not found
-    root_dir = os.environ.get( 'GUI_ROOT_DIR', root_dir )  # GUI_ROOT_DIR or KERNEL_ROOT_DIR or "" if both not found
-    filename = root_dir+'/bin/salome/VERSION'
-    str = open( filename, "r" ).readline() # str = "THIS IS SALOME - SALOMEGUI VERSION: 3.0.0"
-    match = re.search( r':\s+([a-zA-Z0-9.]+)\s*$', str )
-    if match :
-        return match.group( 1 )
+    try:
+        filename = None
+        root_dir = os.environ.get( 'KERNEL_ROOT_DIR', '' ) # KERNEL_ROOT_DIR or "" if not found
+        if root_dir and os.path.exists( root_dir + "/bin/salome/VERSION" ):
+            filename = root_dir + "/bin/salome/VERSION"
+        root_dir = os.environ.get( 'GUI_ROOT_DIR', '' )    # GUI_ROOT_DIR "" if not found
+        if root_dir and os.path.exists( root_dir + "/bin/salome/VERSION" ):
+            filename = root_dir + "/bin/salome/VERSION"
+        if filename:
+            str = open( filename, "r" ).readline() # str = "THIS IS SALOME - SALOMEGUI VERSION: 3.0.0"
+            match = re.search( r':\s+([a-zA-Z0-9.]+)\s*$', str )
+            if match :
+                return match.group( 1 )
+    except:
+        pass
     return ''
 
 # calculate and return configuration file id in order to unically identify it
@@ -91,11 +100,12 @@ def version_id( fname ):
     ver = major
     ver = ver * 100 + minor
     ver = ver * 100 + release
-    ver = ver * 10000 + dev
+    ver = ver * 10000
+    if dev > 0: ver = ver - 10000 + dev
     return ver
 
 # get user configuration file name
-def userFile():    
+def userFile():
     v = version()
     if not v:
         return ""        # not unknown version
@@ -120,11 +130,11 @@ def userFile():
     last_version = 0
     for file in f2v:
         ver = version_id( f2v[file] )
-        if abs(last_version-id0) > abs(ver-id0):
+        if ver and abs(last_version-id0) > abs(ver-id0):
             last_version = ver
             last_file = file
     return last_file
-        
+
 # -----------------------------------------------------------------------------
 
 ### xml reader for launch configuration file usage
@@ -133,7 +143,7 @@ section_to_skip = ""
 
 class xml_parser:
     def __init__(self, fileName, _opts ):
-        print "Configure parser: processing %s ..." % fileName 
+        print "Configure parser: processing %s ..." % fileName
         self.space = []
         self.opts = _opts
         self.section = section_to_skip
@@ -232,25 +242,21 @@ class xml_parser:
 
 config_var = appname+'Config'
 # set resources variables if not yet set
-if os.getenv("GUI_ROOT_DIR"):
-    if not os.getenv("SUITRoot"):
-        os.environ["SUITRoot"] = os.getenv("GUI_ROOT_DIR") + "/share/salome"
-    if not os.getenv(config_var):
-        os.environ[config_var] = os.getenv("GUI_ROOT_DIR") + "/share/salome/resources"
-    pass
-else :
-    if not os.getenv("SUITRoot"):
-        os.environ["SUITRoot"] = ""
-    if not os.getenv(config_var):
-        os.environ[config_var] = ""
+dirs = []
+separator = '[;|:]'
+if os.getenv(config_var):
+    if os.sys.platform == 'win32':
+        separator = '[;]'
+    dirs += re.split( separator, os.getenv(config_var))
+    if os.getenv("GUI_ROOT_DIR") and os.path.exists( os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui" ):
+        dirs += [os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"]
 
-dirs = os.environ[config_var]
-#abd error om win32 path like W:\dir\di1
-#print 'Search configuration file in dir ', dirs
-if os.sys.platform == 'win32':
-    dirs = re.split('[;]', dirs )
-else:
-    dirs = re.split('[;|:]', dirs )
+separator = ":"
+if sys.platform == 'win32':
+    separator = ';'
+    
+os.environ[config_var] = separator.join(dirs)
+
 dirs.reverse() # reverse order, like in "path" variable - FILO-style processing
 
 _opts = {} # assiciative array of options to be filled
@@ -270,7 +276,7 @@ for dir in dirs:
 
 # SalomeApprc file in user's catalogue
 filename = userFile()
-if filename and not os.path.exists(filename):
+if not filename or not os.path.exists(filename):
     print "Configure parser: Warning : could not find user configuration file"
 else:
     try:
@@ -285,15 +291,15 @@ args = _opts
 for aKey in listKeys:
     if not args.has_key( aKey ):
         args[aKey]=[]
-        
+
 for aKey in boolKeys:
     if not args.has_key( aKey ):
         args[aKey]=0
-        
+
 if args[file_nam]:
     afile=args[file_nam]
     args[file_nam]=[afile]
-    
+
 args[appname_nam] = appname
 
 ### searching for my port
@@ -339,7 +345,7 @@ def options_parser(line):
     else:
       key = source[i][1]
       pass
-    
+
     result[key] = []
     if key:
       i += 1
@@ -379,8 +385,10 @@ if cmd_opts.has_key("h"):
     --help or -h                  : print this help
     --gui or -g                   : launching with GUI
     --terminal -t                 : launching without gui (to deny --gui)
+    or -t=PythonScript[,...]
+                                  : import of PythonScript(s)
     --logger or -l                : redirect messages in a CORBA collector
-    --file=filename or -f=filename: redirect messages in a log file  
+    --file=filename or -f=filename: redirect messages in a log file
     --xterm or -x                 : execute servers in xterm console (messages appear in xterm windows)
     --modules=module1,module2,... : salome module list (modulen is the name of Salome module to load)
     or -m=module1,module2,...
@@ -398,7 +406,7 @@ if cmd_opts.has_key("h"):
     --interp=n or -i=n            : number of additional xterm to open, with session environment
     -z                            : display splash screen
     -r                            : disable centralized exception handling mechanism
-    
+
     For each Salome module, the environment variable <modulen>_ROOT_DIR must be set.
     The module name (<modulen>) must be uppercase.
     KERNEL_ROOT_DIR is mandatory.
@@ -444,8 +452,14 @@ if not cmd_opts.has_key( "m" ) and os.getenv( "SALOME_MODULES" ):
     pass
 
 # 'terminal' must be processed in the end: to deny any 'gui' options
+args[script_nam] = []
 if 't' in cmd_opts:
     args[gui_nam] = 0
+    args[script_nam] = cmd_opts['t']
+    pass
+
+if args[except_nam] == 1:
+    os.environ["NOT_INTERCEPT_SIGNALS"] = "1"
     pass
 
 # now modify SalomeAppConfig environment variable
@@ -455,8 +469,14 @@ else:
     dirs = re.split('[;|:]', os.environ[config_var] )
 for m in args[modules_nam]:
     if m not in ["KERNEL", "GUI", ""] and os.getenv("%s_ROOT_DIR"%m):
-        dirs.append( os.getenv("%s_ROOT_DIR"%m) +  "/share/salome/resources" )
+        d1 = os.getenv("%s_ROOT_DIR"%m) + "/share/salome/resources/" + m.lower()
+        d2 = os.getenv("%s_ROOT_DIR"%m) + "/share/salome/resources"
+        if os.path.exists( "%s/%s.xml"%(d1, appname) ):
+            dirs.append( d1 )
+        elif os.path.exists( "%s/%s.xml"%(d2, appname) ):
+            dirs.append( d2 )
+separator = ":"
 if os.sys.platform == 'win32':
-  os.environ[config_var] = ";".join(dirs)
-else:
-  os.environ[config_var] = ":".join(dirs)
+    separator = ";"
+
+os.environ[config_var] = separator.join(dirs)

@@ -2,7 +2,7 @@
 
 #log files localization
 
-import os, commands, sys, re
+import os, commands, sys, re, string, socket
 from Utils_Identity import getShortHostName
 
 if sys.platform == "win32":
@@ -45,7 +45,10 @@ def startOmni():
 
 	print "Name Service... "
 	#hname=os.environ["HOST"] #commands.getoutput("hostname")
-        hname=getShortHostName()
+	if sys.platform == "win32":
+          hname=getShortHostName()
+	else:
+	  hname=socket.gethostname()
 
 	print "hname=",hname
 	
@@ -58,10 +61,15 @@ def startOmni():
 	#aSedCommand="s/.*NameService=corbaname::" + hname + ":\([[:digit:]]*\)/\1/"
 	#print "sed command = ", aSedCommand
 	#aPort = commands.getoutput("sed -e\"" + aSedCommand + "\"" + os.environ["OMNIORB_CONFIG"])
+        global process_id
 	print "port=", aPort
-	if sys.platform == "win32":
-	  print "start omniNames -start " + aPort + " -logdir " + upath
-	  os.system("start omniNames -start " + aPort + " -logdir " + upath)
+	if sys.platform == "win32":          
+          #import win32pm
+          #command = ['omniNames -start ' , aPort , ' -logdir ' , '\"' + upath + '\"']
+          os.system("start omniNames -start " + aPort + " -logdir " + "\"" + upath + "\"" )
+          #print command
+          #pid = win32pm.spawnpid( string.join(command, " ") )
+          #process_id[pid]=command
 	else:
 	  os.system("omniNames -start " + aPort + " -logdir " + upath + " &")
 

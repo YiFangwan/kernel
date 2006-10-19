@@ -27,21 +27,13 @@
 #define _SALOME_UTILS_HXX_
 
 #ifdef WNT
- #if defined UTILS_EXPORTS
-  #if defined WIN32
-   #define UTILS_EXPORT __declspec( dllexport )
-  #else
-   #define UTILS_EXPORT
-  #endif
- #else
-  #if defined WIN32
-   #define UTILS_EXPORT __declspec( dllimport )
-  #else
-   #define UTILS_EXPORT
-  #endif
- #endif
+# if defined UTILS_EXPORTS
+#  define UTILS_EXPORT __declspec( dllexport )
+# else
+#  define UTILS_EXPORT __declspec( dllimport )
+# endif
 #else
- #define UTILS_EXPORT
+# define UTILS_EXPORT
 #endif
 
 #endif

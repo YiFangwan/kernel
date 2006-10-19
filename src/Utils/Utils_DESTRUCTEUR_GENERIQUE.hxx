@@ -29,7 +29,7 @@
 # if !defined( __DESTRUCTEUR_GENERIQUE__H__ )
 # define __DESTRUCTEUR_GENERIQUE__H__
 
-#include <SALOME_Utils.hxx>
+#include "SALOME_Utils.hxx"
 
 #include <list>
 #include <cassert>

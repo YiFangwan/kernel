@@ -402,7 +402,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const Handle(SALOMEDSImpl_SComponent)& 
 
       if (isASCII) {
 	Handle(TColStd_HSequenceOfAsciiString) aFilesToRemove = new TColStd_HSequenceOfAsciiString;
-	aFilesToRemove->Append(aHDFUrl);
+	aFilesToRemove->Append("hdf_from_ascii.hdf");
 	SALOMEDSImpl_Tool::RemoveTemporaryFiles(SALOMEDSImpl_Tool::GetDirFromPath(aHDFUrl),
                                                 aFilesToRemove, true);
       }      
@@ -524,8 +524,8 @@ bool SALOMEDSImpl_StudyBuilder::FindAttribute(const Handle(SALOMEDSImpl_SObject)
   }
   TDF_Label Lab = anObject->GetLabel();
   if (Lab.FindAttribute(SALOMEDSImpl_SObject::GetGUID(aTypeOfAttribute), anAttribute)) {
-    //    _doc->Modify();  
-    //    ASV: 26.07.06 : commented out because NO MODIFICATION is done to attributes when calling FindAttribute()..
+    // commented out because NO MODIFICATION is done to attributes when calling FindAttribute()
+    // _doc->Modify();  
     return Standard_True;
   }
   return Standard_False;

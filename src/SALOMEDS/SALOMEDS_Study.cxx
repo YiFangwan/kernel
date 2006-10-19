@@ -83,7 +83,13 @@ SALOMEDS_Study::SALOMEDS_Study(SALOMEDS::Study_ptr theStudy)
   long pid =  (long)getpid();
 #endif  
 
-  long addr = theStudy->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+#if SIZEOF_LONG == 4
+  long addr = 
+#else
+  int addr =
+#endif
+    theStudy->GetLocalImpl(GetHostname().c_str(), pid, _isLocal);
+
   if(_isLocal) {
     _local_impl = ((SALOMEDSImpl_Study*)(addr));
     _corba_impl = SALOMEDS::Study::_duplicate(theStudy);
@@ -639,9 +645,55 @@ void SALOMEDS_Study::EnableUseCaseAutoFilling(bool isEnabled)
 bool SALOMEDS_Study::DumpStudy(const string& thePath, const string& theBaseName, bool isPublished)
 {
   //SRN: Pure CORBA DumpStudy as it does more cleaning than the local one
+  if(CORBA::is_nil(_corba_impl)) GetStudy(); //If CORBA implementation is null then retrieve it
   bool ret = _corba_impl->DumpStudy(thePath.c_str(), theBaseName.c_str(), isPublished);
   return ret;
 }     
+
+void SALOMEDS_Study::SetStudyLock(const string& theLockerID)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->SetStudyLock((char*)theLockerID.c_str());
+  }
+  else _corba_impl->SetStudyLock((char*)theLockerID.c_str());
+}
+ 
+bool SALOMEDS_Study::IsStudyLocked()
+{
+  bool isLocked;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    isLocked = _local_impl->IsStudyLocked();
+  }
+  else isLocked = _corba_impl->IsStudyLocked();
+  return isLocked;
+}
+ 
+void SALOMEDS_Study::UnLockStudy(const string& theLockerID)
+{
+  if(_isLocal) _local_impl->UnLockStudy((char*)theLockerID.c_str());
+  else _corba_impl->UnLockStudy((char*)theLockerID.c_str());
+}
+
+vector<string> SALOMEDS_Study::GetLockerID()
+{
+  std::vector<std::string> aVector;
+  int aLength, i;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
+    Handle(TColStd_HSequenceOfAsciiString) aSeq = _local_impl->GetLockerID();
+    aLength = aSeq->Length();
+    for (i = 1; i <= aLength; i++) aVector.push_back(aSeq->Value(i).ToCString());
+  }
+  else {
+    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetLockerID();
+    aLength = aSeq->length();
+    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
+  }
+  return aVector;
+}
 
 std::string SALOMEDS_Study::ConvertObjectToIOR(CORBA::Object_ptr theObject) 
 {

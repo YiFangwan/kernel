@@ -5,7 +5,7 @@
 #
 #AC_PREREQ(2.59)
 #AC_INIT(src)
-AC_INIT([Salome2 Project], [3.2.0], [gboulant@CS], [salome])
+AC_INIT([Salome2 Project], [3.2.2], [gboulant@CS], [salome])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
@@ -18,10 +18,14 @@ AM_INIT_AUTOMAKE
 PACKAGE=salome
 AC_SUBST(PACKAGE)
 
-VERSION=3.2.0
-XVERSION=0x030200
+VERSION=3.2.2
+XVERSION=0x030202
 AC_SUBST(VERSION)
 AC_SUBST(XVERSION)
+
+# set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
+MODULE_NAME=kernel
+AC_SUBST(MODULE_NAME)
 
 echo
 echo ---------------------------------------------

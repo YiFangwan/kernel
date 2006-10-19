@@ -28,7 +28,7 @@
 #ifndef Utils_Mutex_HeaderFile
 #define Utils_Mutex_HeaderFile
 
-#include <SALOME_Utils.hxx>
+#include "SALOME_Utils.hxx"
 
 #include <pthread.h>
 

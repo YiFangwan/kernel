@@ -20,9 +20,10 @@
 # 
 
 import sys, os, string, glob, time, pickle
-from server import *
 import orbmodule
 import setenv
+
+process_id = {}
 
 # -----------------------------------------------------------------------------
 
@@ -69,6 +70,44 @@ def kill_salome(args):
         killAllPorts()
     elif args['portkill']:
         givenPortKill(str(args['port']))
+
+# -----------------------------------------------------------------------------
+#
+# Definition des classes d'objets pour le lancement des Server CORBA
+#
+
+class Server:
+    """Generic class for CORBA server launch"""
+
+    def initArgs(self):
+        self.PID=None
+        self.CMD=[]
+        self.ARGS=[]	
+        if self.args['xterm']:
+            self.ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-hold']
+
+    def __init__(self,args):
+        self.args=args
+        self.initArgs()
+
+
+    def run(self):
+        global process_id
+        myargs=self.ARGS
+        if self.args['xterm']:
+            # (Debian) send LD_LIBRARY_PATH to children shells (xterm)
+            env_ld_library_path=['env', 'LD_LIBRARY_PATH='
+                                 + os.getenv("LD_LIBRARY_PATH")]
+            myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
+        command = myargs + self.CMD
+        print "SERVER::command = ", command
+	if sys.platform == "win32":
+	  import win32pm
+          pid = win32pm.spawnpid( string.join(command, " "),'-nc' )
+	else:
+          pid = os.spawnvp(os.P_NOWAIT, command[0], command)
+        process_id[pid]=self.CMD
+        self.PID = pid
 	
 
 class InterpServer(Server):
@@ -81,7 +120,7 @@ class InterpServer(Server):
     def run(self):
         global process_id
         command = self.CMD
-        print "command = ", command
+        print "INTERPSERVER::command = ", command
 	if sys.platform == "win32":
           import win32pm
           pid = win32pm.spawnpid( string.join(command, " "),'-nc' )
@@ -118,10 +157,21 @@ class CatalogServer(Server):
                 module_root_dir=modules_root_dir[module]
                 module_cata=module+"Catalog.xml"
                 #print "   ", module_cata
-                cata_path.extend(
-                    glob.glob(os.path.join(module_root_dir,
-                                           "share",setenv.salome_subdir,
-                                           "resources",module_cata)))
+                if os.path.exists(os.path.join(module_root_dir,
+                                               "share",setenv.salome_subdir,
+                                               "resources",module.lower(),
+                                               module_cata)):
+                    cata_path.extend(
+                        glob.glob(os.path.join(module_root_dir,
+                                               "share",setenv.salome_subdir,
+                                               "resources",module.lower(),
+                                               module_cata)))
+                else:
+                    cata_path.extend(
+                        glob.glob(os.path.join(module_root_dir,
+                                               "share",setenv.salome_subdir,
+                                               "resources",
+                                               module_cata)))
                 pass
             pass
         self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
@@ -132,9 +182,6 @@ class SalomeDSServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-#	if sys.platform == "win32":
-#          self.CMD=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOMEDS_Server' + ".exe"]
-#	else:
         self.CMD=['SALOMEDS_Server']
 
 # ---
@@ -143,9 +190,6 @@ class RegistryServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-#	if sys.platform == "win32":
-#          self.CMD=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_Registry_Server'+ ".exe", '--salome_session','theSession']
-#	else:
         self.CMD=['SALOME_Registry_Server', '--salome_session','theSession']
 
 # ---
@@ -154,9 +198,6 @@ class ContainerCPPServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-#	if sys.platform == "win32":
-#          self.CMD=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_Container' + ".exe",'FactoryServer']
-#	else:
         self.CMD=['SALOME_Container','FactoryServer']
 
 # ---
@@ -201,9 +242,6 @@ class SessionServer(Server):
         self.args['xterm']=0
         #
         self.initArgs()
-#	if sys.platform == "win32":
-#          self.SCMD1=[os.environ["GUI_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_Session_Server' + ".exe"]
-#	else:
         self.SCMD1=['SALOME_Session_Server']
 	
         self.SCMD2=[]
@@ -253,12 +291,22 @@ class SessionServer(Server):
             module_root_dir=modules_root_dir[module]
             module_cata=module+"Catalog.xml"
             #print "   ", module_cata
-            cata_path.extend(
-                glob.glob(os.path.join(module_root_dir,"share",
-                                       setenv.salome_subdir,"resources",
-                                       module_cata)))
+            if os.path.exists(os.path.join(module_root_dir,
+                                           "share",setenv.salome_subdir,
+                                           "resources",module.lower(),
+                                           module_cata)):
+                cata_path.extend(
+                    glob.glob(os.path.join(module_root_dir,"share",
+                                           setenv.salome_subdir,"resources",
+                                           module.lower(),module_cata)))
+            else:
+                cata_path.extend(
+                    glob.glob(os.path.join(module_root_dir,"share",
+                                           setenv.salome_subdir,"resources",
+                                           module_cata)))
+            pass
         if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
-#            self.CMD=self.SCMD1 + [string.join(cata_path,':')] + self.SCMD2
+            #Use '::' instead ":" because drive path with "D:\" is invalid on windows platform
             self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
@@ -269,9 +317,6 @@ class ContainerManagerServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-#	if sys.platform == "win32":
-#          self.SCMD1=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_ContainerManagerServer' + ".exe"]
-#	else:
         self.SCMD1=['SALOME_ContainerManagerServer']
         self.SCMD2=[]
         if args["gui"] :
@@ -298,10 +343,19 @@ class ContainerManagerServer(Server):
                 module_root_dir=modules_root_dir[module]
                 module_cata=module+"Catalog.xml"
                 #print "   ", module_cata
-                cata_path.extend(
-                    glob.glob(os.path.join(module_root_dir,"share",
-                                           self.args['appname'],"resources",
-                                           module_cata)))
+                if os.path.exists(os.path.join(module_root_dir,
+                                               "share",setenv.salome_subdir,
+                                               "resources",module.lower(),
+                                               module_cata)):
+                    cata_path.extend(
+                        glob.glob(os.path.join(module_root_dir,"share",
+                                               self.args['appname'],"resources",
+                                               module.lower(),module_cata)))
+                else:
+                    cata_path.extend(
+                        glob.glob(os.path.join(module_root_dir,"share",
+                                               self.args['appname'],"resources",
+                                               module_cata)))
                 pass
             pass
         if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
@@ -316,7 +370,7 @@ class NotifyServer(Server):
         self.modules_root_dir=modules_root_dir
         myLogName = os.environ["LOGNAME"]
         self.CMD=['notifd','-c',
-                  self.modules_root_dir["KERNEL"] +'/share/salome/resources/channel.cfg',
+                  self.modules_root_dir["KERNEL"] +'/share/salome/resources/kernel/channel.cfg',
                   '-DFactoryIORFileName=/tmp/'+myLogName+'_rdifact.ior',
                   '-DChannelIORFileName=/tmp/'+myLogName+'_rdichan.ior',
                   '-DReportLogFile=/tmp/'+myLogName+'_notifd.report',
@@ -351,7 +405,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # Initialisation ORB et Naming Service
     #
    
-    clt=orbmodule.client(args)
+    clt=orbmodule.client()
 
     # (non obligatoire) Lancement Logger Server
     # et attente de sa disponibilite dans le naming service
@@ -365,10 +419,12 @@ def startSalome(args, modules_list, modules_root_dir):
     # Notify Server launch
     #
 
-#    print "Notify Server to launch"
 
-#    myServer=NotifyServer(args,modules_root_dir)
-#    myServer.run()
+    if sys.platform != "win32":
+      print "Notify Server to launch"
+    
+      myServer=NotifyServer(args,modules_root_dir)
+      myServer.run()
 
     # Lancement Session Server (to show splash ASAP)
     #
@@ -412,24 +468,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # attente de la disponibilite du SalomeDS dans le Naming Service
     #
 
-    os.environ["CSF_PluginDefaults"] \
-    = os.path.join(modules_root_dir["KERNEL"],"share",
-                   setenv.salome_subdir,"resources")
-    os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
-    = os.path.join(modules_root_dir["KERNEL"],"share",
-                   setenv.salome_subdir,"resources")
-
-    if "GEOM" in modules_list:
-        print "GEOM OCAF Resources"
-        os.environ["CSF_GEOMDS_ResourcesDefaults"] \
-        = os.path.join(modules_root_dir["GEOM"],"share",
-                       setenv.salome_subdir,"resources")
-	print "GEOM Shape Healing Resources"
-        os.environ["CSF_ShHealingDefaults"] \
-        = os.path.join(modules_root_dir["GEOM"],"share",
-                       setenv.salome_subdir,"resources")
-
-    print "ARGS = ",args
+    #print "ARGS = ",args
     if ('study' not in args['embedded']) | (args["gui"] == 0):
         print "RunStudy"
         myServer=SalomeDSServer(args)
@@ -451,10 +490,10 @@ def startSalome(args, modules_list, modules_root_dir):
     from Utils_Identity import getShortHostName
     
     if os.getenv("HOSTNAME") == None:
-        #if os.getenv("HOST") == None:
+        if os.getenv("HOST") == None:
             os.environ["HOSTNAME"]=getShortHostName()
-        #else:
-        #    os.environ["HOSTNAME"]=os.getenv("HOST")
+        else:
+            os.environ["HOSTNAME"]=os.getenv("HOST")
 
     theComputer = getShortHostName()
     
@@ -517,7 +556,6 @@ def startSalome(args, modules_list, modules_root_dir):
           session=clt.waitNS("/Kernel/Session",SALOME.Session)
         else:
           session=clt.waitNSPID("/Kernel/Session",mySessionServ.PID,SALOME.Session)
-
     end_time = os.times()
     print
     print "Start SALOME, elapsed time : %5.1f seconds"% (end_time[4]
@@ -613,6 +651,19 @@ def useSalome(args, modules_list, modules_root_dir):
         print " --- registered objects tree in Naming Service ---"
         clt.showNS()
 
+        # run python scripts, passed via -t option
+        toimport = args['pyscript']
+        i = 0
+        while i < len( toimport ) :
+            if toimport[ i ] == 'killall':
+                print "killall : option disabled"
+                #killAllPorts()
+            else:
+                print 'importing',toimport[ i ]
+                doimport = 'import ' + toimport[ i ]
+                exec doimport
+                i = i + 1
+
     return clt
 
 # -----------------------------------------------------------------------------
@@ -622,7 +673,12 @@ def registerEnv(args, modules_list, modules_root_dir):
     Register args, modules_list, modules_root_dir in a file
     for further use, when SALOME is launched embedded in an other application.
     """
-    fileEnv = '/tmp/' + os.getenv('USER') + "_" + str(args['port']) \
+    if sys.platform == "win32":
+      fileEnv = os.getenv('TEMP')
+    else:
+      fileEnv = '/tmp/'
+
+    fileEnv += os.getenv('USER') + "_" + str(args['port']) \
             + '_' + args['appname'].upper() + '_env'
     fenv=open(fileEnv,'w')
     pickle.dump((args, modules_list, modules_root_dir),fenv)

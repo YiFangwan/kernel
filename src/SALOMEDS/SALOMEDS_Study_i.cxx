@@ -324,13 +324,21 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetObjectNames(const char* theContext
   SALOMEDS::Locker lock; 
 
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-  if (strlen(theContext) == 0 && !_impl->HasCurrentContext()) throw SALOMEDS::Study::StudyInvalidContext();   
-  Handle(TColStd_HSequenceOfAsciiString) aSeq = _impl->GetObjectNames(TCollection_AsciiString((char*)theContext));
+
+  if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
+    throw SALOMEDS::Study::StudyInvalidContext();
+
+  Handle(TColStd_HSequenceOfAsciiString) aSeq =
+    _impl->GetObjectNames(TCollection_AsciiString((char*)theContext));
+  if (_impl->GetErrorCode() == "InvalidContext")
+    throw SALOMEDS::Study::StudyInvalidContext();
+
   int aLength = aSeq->Length();
   aResult->length(aLength);
-  for(int anIndex = 1; anIndex <= aLength; anIndex++) {
+  for (int anIndex = 1; anIndex <= aLength; anIndex++) {
     aResult[anIndex-1] = CORBA::string_dup(TCollection_AsciiString(aSeq->Value(anIndex)).ToCString());
   }
+
   return aResult._retn();
 }
 
@@ -344,13 +352,21 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetDirectoryNames(const char* theCont
   SALOMEDS::Locker lock; 
 
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-  if (strlen(theContext) == 0 && !_impl->HasCurrentContext()) throw SALOMEDS::Study::StudyInvalidContext();   
-  Handle(TColStd_HSequenceOfAsciiString) aSeq = _impl->GetDirectoryNames(TCollection_AsciiString((char*)theContext));
+
+  if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
+    throw SALOMEDS::Study::StudyInvalidContext();
+
+  Handle(TColStd_HSequenceOfAsciiString) aSeq =
+    _impl->GetDirectoryNames(TCollection_AsciiString((char*)theContext));
+  if (_impl->GetErrorCode() == "InvalidContext")
+    throw SALOMEDS::Study::StudyInvalidContext();
+
   int aLength = aSeq->Length();
   aResult->length(aLength);
-  for(int anIndex = 1; anIndex <= aLength; anIndex++) {
+  for (int anIndex = 1; anIndex <= aLength; anIndex++) {
     aResult[anIndex-1] = CORBA::string_dup(TCollection_AsciiString(aSeq->Value(anIndex)).ToCString());
   }
+
   return aResult._retn();
 }
 
@@ -364,13 +380,21 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetFileNames(const char* theContext)
   SALOMEDS::Locker lock; 
 
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-  if (strlen(theContext) == 0 && !_impl->HasCurrentContext()) throw SALOMEDS::Study::StudyInvalidContext();   
-  Handle(TColStd_HSequenceOfAsciiString) aSeq = _impl->GetFileNames(TCollection_AsciiString((char*)theContext));
+
+  if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
+    throw SALOMEDS::Study::StudyInvalidContext();
+
+  Handle(TColStd_HSequenceOfAsciiString) aSeq =
+    _impl->GetFileNames(TCollection_AsciiString((char*)theContext));
+  if (_impl->GetErrorCode() == "InvalidContext")
+    throw SALOMEDS::Study::StudyInvalidContext();
+
   int aLength = aSeq->Length();
   aResult->length(aLength);
-  for(int anIndex = 1; anIndex <= aLength; anIndex++) {
+  for (int anIndex = 1; anIndex <= aLength; anIndex++) {
     aResult[anIndex-1] = CORBA::string_dup(TCollection_AsciiString(aSeq->Value(anIndex)).ToCString());
   }
+
   return aResult._retn();
 }
 
@@ -384,13 +408,19 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetComponentNames(const char* theCont
   SALOMEDS::Locker lock; 
 
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-  if (strlen(theContext) == 0 && !_impl->HasCurrentContext()) throw SALOMEDS::Study::StudyInvalidContext();   
-  Handle(TColStd_HSequenceOfAsciiString) aSeq = _impl->GetComponentNames(TCollection_AsciiString((char*)theContext));
+
+  if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
+    throw SALOMEDS::Study::StudyInvalidContext();
+
+  Handle(TColStd_HSequenceOfAsciiString) aSeq =
+    _impl->GetComponentNames(TCollection_AsciiString((char*)theContext));
+
   int aLength = aSeq->Length();
   aResult->length(aLength);
   for(int anIndex = 1; anIndex <= aLength; anIndex++) {
     aResult[anIndex-1] = CORBA::string_dup(TCollection_AsciiString(aSeq->Value(anIndex)).ToCString());
   }
+
   return aResult._retn();
 }
 
@@ -783,6 +813,60 @@ SALOMEDS::AttributeParameter_ptr SALOMEDS_Study_i::GetModuleParameters(const cha
   Handle(SALOMEDSImpl_AttributeParameter) anAttr = _impl->GetModuleParameters(theID, theModuleName, theSavePoint);
   SALOMEDS_AttributeParameter_i* SP = new SALOMEDS_AttributeParameter_i(anAttr, _orb);
   return SP->AttributeParameter::_this();
+}
+
+//============================================================================
+/*! Function : SetStudyLock
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::SetStudyLock(const char* theLockerID)
+{
+  SALOMEDS::Locker lock; 
+  _impl->SetStudyLock(theLockerID);
+}
+
+//============================================================================
+/*! Function : IsStudyLocked
+ *  Purpose  : 
+ */
+//============================================================================
+bool SALOMEDS_Study_i::IsStudyLocked()
+{
+  SALOMEDS::Locker lock; 
+  return _impl->IsStudyLocked();
+}
+
+//============================================================================
+/*! Function : UnLockStudy
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::UnLockStudy(const char* theLockerID)
+{
+  SALOMEDS::Locker lock; 
+  _impl->UnLockStudy(theLockerID);
+}
+
+//============================================================================
+/*! Function : GetLockerID
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetLockerID()
+{
+  SALOMEDS::Locker lock; 
+
+  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
+
+  Handle(TColStd_HSequenceOfAsciiString) aSeq = _impl->GetLockerID();
+
+  int aLength = aSeq->Length();
+  aResult->length(aLength);
+  for(int anIndex = 1; anIndex <= aLength; anIndex++) {
+    aResult[anIndex-1] = CORBA::string_dup(TCollection_AsciiString(aSeq->Value(anIndex)).ToCString());
+  }
+  return aResult._retn();
 }
 
 //============================================================================

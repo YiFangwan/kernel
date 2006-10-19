@@ -44,7 +44,7 @@ salomeinclude_HEADERS = \
 		SALOME_ModuleCatalog.hxx
 
 # Scripts to be installed
-dist_salomescript_DATA = SALOME_TestModuleCatalog.py
+dist_salomescript_DATA = TestModuleCatalog.py
 
 
 #

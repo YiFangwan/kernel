@@ -46,6 +46,18 @@ def add_path(directory, variable_name):
             sys.path[:0] = [directory]
 
 # -----------------------------------------------------------------------------
+__lib__dir__ = None
+def get_lib_dir():
+    global __lib__dir__
+    if __lib__dir__: return __lib__dir__
+    import platform
+    if platform.architecture()[0] == "64bit":
+        __lib__dir__ = "lib64"
+    else:
+        __lib__dir__ = "lib"
+    return get_lib_dir()
+
+# -----------------------------------------------------------------------------
 
 def get_config():
     """
@@ -171,7 +183,7 @@ def set_env(args, modules_list, modules_root_dir):
         os.environ["SMESH_MeshersList"]="StdMeshers"
         if not os.environ.has_key("SALOME_StdMeshersResources"):
             os.environ["SALOME_StdMeshersResources"] \
-            = modules_root_dir["SMESH"]+"/share/"+args["appname"]+"/resources"
+            = modules_root_dir["SMESH"]+"/share/"+args["appname"]+"/resources/smesh"
             pass
         if args.has_key("SMESH_plugins"):
             for plugin in args["SMESH_plugins"]:
@@ -189,19 +201,19 @@ def set_env(args, modules_list, modules_root_dir):
                     = os.environ["SMESH_MeshersList"]+":"+plugin
                     if not os.environ.has_key("SALOME_"+plugin+"Resources"):
                         os.environ["SALOME_"+plugin+"Resources"] \
-                        = plugin_root+"/share/"+args["appname"]+"/resources"
-                    add_path(os.path.join(plugin_root,"lib",python_version,
+                        = plugin_root+"/share/"+args["appname"]+"/resources/"+plugin.lower()
+                    add_path(os.path.join(plugin_root,get_lib_dir(),python_version,
                                           "site-packages",salome_subdir),
                              "PYTHONPATH")
-                    add_path(os.path.join(plugin_root,"lib",salome_subdir),
+                    add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir),
                              "PYTHONPATH")
 
 
 	            if sys.platform == "win32":
-        	      add_path(os.path.join(plugin_root,"lib",salome_subdir),
+        	      add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir),
                                "PATH")
                     else:
-                      add_path(os.path.join(plugin_root,"lib",salome_subdir),
+                      add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir),
                                "LD_LIBRARY_PATH")
                     add_path(os.path.join(plugin_root,"bin",salome_subdir),
                              "PYTHONPATH")
@@ -223,20 +235,20 @@ def set_env(args, modules_list, modules_root_dir):
     if not os.getenv("CSF_PluginDefaults"):
         os.environ["CSF_PluginDefaults"] \
         = os.path.join(modules_root_dir["KERNEL"],"share",
-                       salome_subdir,"resources")
+                       salome_subdir,"resources","kernel")
     os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
     = os.path.join(modules_root_dir["KERNEL"],"share",
-                   salome_subdir,"resources")
+                   salome_subdir,"resources","kernel")
 
     if "GEOM" in modules_list:
         print "GEOM OCAF Resources"
         os.environ["CSF_GEOMDS_ResourcesDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
-                       salome_subdir,"resources")
+                       salome_subdir,"resources","geom")
 	print "GEOM Shape Healing Resources"
         os.environ["CSF_ShHealingDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
-                       salome_subdir,"resources")
+                       salome_subdir,"resources","geom")
 
 # -----------------------------------------------------------------------------
 
