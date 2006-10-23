@@ -1,4 +1,4 @@
-from Utils_Identity import getShortHostName
+#!/usr/bin/env python
 
 import socket
 import os
