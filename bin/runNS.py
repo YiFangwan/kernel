@@ -66,10 +66,11 @@ def startOmni():
 	if sys.platform == "win32":          
           #import win32pm
           #command = ['omniNames -start ' , aPort , ' -logdir ' , '\"' + upath + '\"']
-          os.system("start omniNames -start " + aPort + " -logdir " + "\"" + upath + "\"" )
+          #os.system("start omniNames -start " + aPort + " -logdir " + "\"" + upath + "\"" )
+          command = "start omniNames -start " + aPort + " -logdir " + "\"" + upath + "\""
           #print command
-          #pid = win32pm.spawnpid( string.join(command, " ") )
-          #process_id[pid]=command
+          pid = win32pm.spawnpid( string.join(command, " "), -nc )
+          process_id[pid]=command
 	else:
 	  os.system("omniNames -start " + aPort + " -logdir " + upath + " &")
 

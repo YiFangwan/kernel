@@ -22,8 +22,8 @@
 import sys, os, string, glob, time, pickle
 import orbmodule
 import setenv
-
-process_id = {}
+from server import *
+#process_id = {} move to server.py
 
 # -----------------------------------------------------------------------------
 
@@ -75,40 +75,6 @@ def kill_salome(args):
 #
 # Definition des classes d'objets pour le lancement des Server CORBA
 #
-
-class Server:
-    """Generic class for CORBA server launch"""
-
-    def initArgs(self):
-        self.PID=None
-        self.CMD=[]
-        self.ARGS=[]	
-        if self.args['xterm']:
-            self.ARGS=['xterm', '-iconic', '-sb', '-sl', '500', '-hold']
-
-    def __init__(self,args):
-        self.args=args
-        self.initArgs()
-
-
-    def run(self):
-        global process_id
-        myargs=self.ARGS
-        if self.args['xterm']:
-            # (Debian) send LD_LIBRARY_PATH to children shells (xterm)
-            env_ld_library_path=['env', 'LD_LIBRARY_PATH='
-                                 + os.getenv("LD_LIBRARY_PATH")]
-            myargs = myargs +['-T']+self.CMD[:1]+['-e'] + env_ld_library_path
-        command = myargs + self.CMD
-        print "SERVER::command = ", command
-	if sys.platform == "win32":
-	  import win32pm
-          pid = win32pm.spawnpid( string.join(command, " "),'-nc' )
-	else:
-          pid = os.spawnvp(os.P_NOWAIT, command[0], command)
-        process_id[pid]=self.CMD
-        self.PID = pid
-	
 
 class InterpServer(Server):
     def __init__(self,args):
@@ -405,7 +371,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # Initialisation ORB et Naming Service
     #
    
-    clt=orbmodule.client()
+    clt=orbmodule.client(args)
 
     # (non obligatoire) Lancement Logger Server
     # et attente de sa disponibilite dans le naming service
