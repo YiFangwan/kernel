@@ -140,7 +140,8 @@ class CatalogServer(Server):
                                                module_cata)))
                 pass
             pass
-        self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
+        #self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
+        self.CMD=self.SCMD1 + ['\"' + string.join(cata_path,'\"::\"') + '\"'] + self.SCMD2
 
 # ---
 
@@ -273,7 +274,8 @@ class SessionServer(Server):
             pass
         if (self.args["gui"]) & ('moduleCatalog' in self.args['embedded']):
             #Use '::' instead ":" because drive path with "D:\" is invalid on windows platform
-            self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
+            #self.CMD=self.SCMD1 + ['\"']+[string.join(cata_path,'\"::\"')] + ['\"'] + self.SCMD2
+            self.CMD=self.SCMD1 + ['\"' + string.join(cata_path,'\"::\"') + '\"'] + self.SCMD2
         else:
             self.CMD=self.SCMD1 + self.SCMD2
       

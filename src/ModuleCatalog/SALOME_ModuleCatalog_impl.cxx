@@ -115,7 +115,8 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
 			    false ); // skip empty entries
     
     for ( int i = 0; i < dirList.count(); i++ ) {
-      QFileInfo fileInfo( dirList[ i ] );
+      //QFileInfo fileInfo( dirList[ i ] );
+      QFileInfo fileInfo( dirList[ i ].replace( '\"', "" ) ); //remove inverted commas from filename
       if ( fileInfo.isFile() && fileInfo.exists() ) {
 	_parse_xml_file(fileInfo.filePath(), 
 			_general_module_list, 
