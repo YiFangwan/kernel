@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, os, re
+import sys, os, re, socket
 #import commands
 from server import *
 from Utils_Identity import getShortHostName
@@ -47,7 +47,11 @@ class NamingServer(Server):
 
 	print "Name Service... "
 	#hname=os.environ["HOST"] #commands.getoutput("hostname")
-        hname=getShortHostName()
+        if sys.platform == "win32":
+           hname=getShortHostName();
+        else:
+           hname = socket.gethostname();
+        
 	print "hname=",hname
 	
 	f=open(os.environ["OMNIORB_CONFIG"])
@@ -69,7 +73,8 @@ class NamingServer(Server):
           self.CMD=['omniNames -start ' , aPort , ' -logdir ' , '\"' + upath + '\"']
 	  #os.system("start omniNames -start " + aPort + " -logdir " + upath)
 	else:
-          self.CMD=['omniNames -start ' , aPort , ' -logdir ' , upath , ' &']
+          #self.CMD=['omniNames -start ' , aPort , ' -logdir ' , upath , ' &']
+          self.CMD=['omniNames','-start' , aPort, '-logdir' , upath ]
 	  #os.system("omniNames -start " + aPort + " -logdir " + upath + " &")
 
 	print "ok"

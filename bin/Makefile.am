@@ -60,7 +60,9 @@ dist_salomescript_SCRIPTS=\
 	NSparam.py \
 	setenv.py \
 	launchSalome.py \
-	runNS.py
+	nameserver.py \
+        server.py
+
 
 EXTRA_DIST = appliskel
 
