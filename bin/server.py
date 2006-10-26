@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, string
+import os, sys, string
 process_id = {}
 
 # -----------------------------------------------------------------------------
