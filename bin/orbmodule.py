@@ -23,7 +23,7 @@ from omniORB import CORBA
 
 # Import the stubs for the Naming service
 import CosNaming
-from runNS import *
+#from runNS import *
 
 # -----------------------------------------------------------------------------
 
