@@ -29,7 +29,11 @@ class NamingServer(Server):
 	  #print "Can't create " + os.environ["BaseDir"] + "/logs"
 	  pass
 	
-	upath = os.environ["BaseDir"] + "/logs/" + os.environ["Username"]
+	upath = os.environ["BaseDir"] + "/logs/";
+	if sys.platform == "win32":
+	   upath += os.environ["Username"];
+	else:
+	   upath += os.environ["USER"];
 
 	try:
 	  os.mkdir(upath)
