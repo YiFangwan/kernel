@@ -30,6 +30,7 @@ val_att = "value"
 
 # certain values in XML configuration file ("launch" section)
 lanch_nam      = "launch"
+help_nam       = "help"
 gui_nam        = "gui"
 splash_nam     = "splash"
 logger_nam     = "logger"
@@ -42,8 +43,10 @@ embedded_nam   = "embedded"
 standalone_nam = "standalone"
 containers_nam = "containers"
 key_nam        = "key"
+terminal_nam   = "terminal"
 interp_nam     = "interp"
 except_nam     = "noexcepthandler"
+case_nam       = "test"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -341,9 +344,9 @@ def options_parser(line):
     if source[i][0] != '-':
       key = None
     elif source[i][1] == '-':
-      key = source[i][2]
+      key = source[i][2:]
     else:
-      key = source[i][1]
+      key = source[i][1:]
       pass
 
     result[key] = []
@@ -370,16 +373,35 @@ except:
 
 ### check all options are right
 
+
+# vke: commented:
+'''
 opterror=0
 for opt in cmd_opts:
     if not opt in ("h","g","l","f","x","m","e","s","c","p","k","t","i","r"):
         print "Configure parser: Error : command line error : -%s" % opt
         opterror=1
-
+'''
+        
+#vke: inserted:        
+# check if all command line options are correct
+short_opts = ("h","g","l","f","x","m","e","s","c","p","k","t","i","r","z")
+long_opts = (help_nam,gui_nam,logger_nam,file_nam,xterm_nam,modules_nam,
+             embedded_nam,standalone_nam,containers_nam,portkill_nam,
+             killall_nam,terminal_nam,interp_nam,except_nam,splash_nam,
+             case_nam)
+opterror=0
+for opt in cmd_opts:
+    if opt not in short_opts and opt not in long_opts:
+        print "Configure parser: Error : command line error : -%s" % opt
+        opterror=1
+#vke: changes end            
+            
 if opterror == 1:
     cmd_opts["h"] = 1
 
-if cmd_opts.has_key("h"):
+#if cmd_opts.has_key("h"):
+if cmd_opts.has_key("h") or cmd_opts.has_key(help_nam):
     print """USAGE: runSalome.py [options]
     [command line options] :
     --help or -h                  : print this help
@@ -415,6 +437,7 @@ if cmd_opts.has_key("h"):
     pass
 
 ### apply command-line options to the arguments
+'''
 for opt in cmd_opts:
     if opt == 'g':
         args[gui_nam] = 1
@@ -444,7 +467,45 @@ for opt in cmd_opts:
         args[killall_nam] = 1
         pass
     pass
-
+'''
+# apply command-line options to the arguments
+BATCHMODE_FORCED = False
+args[script_nam] = []
+for opt in cmd_opts:
+    if   opt in [ 'g', gui_nam ] :
+        if not BATCHMODE_FORCED: args[gui_nam] = 1
+    elif opt in [ 't', terminal_nam ] :
+        args[gui_nam] = 0
+        args[script_nam] = cmd_opts[opt]
+        BATCHMODE_FORCED = True
+    elif opt in [ 'z', splash_nam ] :
+        args[splash_nam] = 1
+    elif opt in [ 'r', except_nam ] :
+        args[except_nam] = 1
+    elif opt in [ 'l', logger_nam ] :
+        args[logger_nam] = 1
+    elif opt in [ 'f', file_nam ] :
+        args[file_nam] = cmd_opts[opt]
+    elif opt in [ 'x', xterm_nam ] :
+        args[xterm_nam] = 1
+    elif opt in [ 'i', interp_nam ] :
+        args[interp_nam] = cmd_opts[opt]
+    elif opt in [ 'm', modules_nam ] :
+        args[modules_nam] = cmd_opts[opt]
+    elif opt in [ 'e', embedded_nam ] :
+        args[embedded_nam] = cmd_opts[opt]
+    elif opt in [ 's', standalone_nam ] :
+        args[standalone_nam] = cmd_opts[opt]
+    elif opt in [ 'c', containers_nam ] :
+        args[containers_nam] = cmd_opts[opt]
+    elif opt in [ 'p', portkill_nam ] :
+        args[portkill_nam] = 1
+    elif opt in [ 'k', killall_nam ] :
+        args[killall_nam] = 1
+    elif opt in [ case_nam ] :
+       args[case_nam] = cmd_opts[opt]
+    pass
+        
 # if --modules (-m) command line option is not given
 # try SALOME_MODULES environment variable
 if not cmd_opts.has_key( "m" ) and os.getenv( "SALOME_MODULES" ):
