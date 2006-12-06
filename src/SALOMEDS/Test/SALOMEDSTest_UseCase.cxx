@@ -65,10 +65,8 @@ void SALOMEDSTest::testUseCase()
   //Check method GetName
   CPPUNIT_ASSERT(builder->GetName() == "A root use case");
 
-  cout << endl << "THE TEST IS NOT COMPLETE !!!" << endl;
-
+#ifdef SALOMEDS_ALL_TESTS
   //Check method GetUseCaseIterator
-  /*
   builder->SetRootCurrent();
   _PTR(SObject) nullObject;
   _PTR(UseCaseIterator) root_it = builder->GetUseCaseIterator(nullObject); //The iterator on all UseCases
@@ -80,7 +78,9 @@ void SALOMEDSTest::testUseCase()
   CPPUNIT_ASSERT(root_it->Value()->GetID() == root2->GetID());
   root_it->Next();
   CPPUNIT_ASSERT(!root_it->More());
-  */
+#else
+  cout << endl << "THE TEST IS NOT COMPLETE !!!" << endl;
+#endif
 
   builder->SetCurrentObject(root1);
   _PTR(UseCaseIterator) it = builder->GetUseCaseIterator(root1); //The iterator on the given UseCase

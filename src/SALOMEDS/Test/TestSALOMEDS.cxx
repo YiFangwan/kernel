@@ -72,7 +72,9 @@ int main(int argc, char* argv[])
   char hostname[511];
   int size;
   gethostname(hostname, size);
-  string cfg_file = string(getenv("HOME"))+"/.omniORB_"+string(hostname)+"_2810.cfg";
+  string port = getenv("SALOMEDS_UNITTESTS_PORT");
+  if(port.empty()) port = "2810";
+  string cfg_file = string(getenv("HOME"))+"/.omniORB_"+string(hostname)+"_"+port+".cfg";
   setenv("OMNIORB_CONFIG", cfg_file.c_str(), 1);
 
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;

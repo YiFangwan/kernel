@@ -72,10 +72,8 @@ void SALOMEDSTest::testAttributeTreeNode()
   //Check method HasFather
   CPPUNIT_ASSERT(_attr1->HasFather());
 
-  cout << endl << "THE TEST IS NOT COMPLETE !!!" << endl;
-
+#ifdef SALOMEDS_ALL_TESTS
   //Check method GetFather
-  /*
   CPPUNIT_ASSERT(_attr1->GetFather() == _attr);
 
   //Check method Append
@@ -136,7 +134,9 @@ void SALOMEDSTest::testAttributeTreeNode()
   _attr2->SetTreeID(TreeNodeID);
 
   CPPUNIT_ASSERT(_attr2->GetTreeID() == TreeNodeID); 
-  */
+#else 
+  cout << endl << "THE TEST IS NOT COMPLETE !!!" << endl;
+#endif  
 
   sm->Close(study);
 }
