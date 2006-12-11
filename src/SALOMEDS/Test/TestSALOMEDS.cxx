@@ -72,7 +72,9 @@ int main(int argc, char* argv[])
   char hostname[511];
   int size;
   gethostname(hostname, size);
-  string port = getenv("SALOMEDS_UNITTESTS_PORT");
+  char* chr_port = getenv("SALOMEDS_UNITTESTS_PORT");
+  string port;
+  if(chr_port) port = chr_port;
   if(port.empty()) port = "2810";
   string cfg_file = string(getenv("HOME"))+"/.omniORB_"+string(hostname)+"_"+port+".cfg";
   setenv("OMNIORB_CONFIG", cfg_file.c_str(), 1);
@@ -91,7 +93,7 @@ int main(int argc, char* argv[])
      system("killSalome.py");
      return 1;
   }
- 
+
   //Set up the environement for Embedded case
   string kernel_root = getenv("KERNEL_ROOT_DIR");
   CPPUNIT_ASSERT(!kernel_root.empty());
