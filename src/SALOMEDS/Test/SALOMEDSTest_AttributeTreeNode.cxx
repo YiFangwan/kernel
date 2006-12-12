@@ -59,6 +59,9 @@ void SALOMEDSTest::testAttributeTreeNode()
   //Check the attribute creation
   CPPUNIT_ASSERT(_attr1);
 
+  //Check method Label
+  CPPUNIT_ASSERT(_attr1->Label() == "0:1:2");
+
   _PTR(SObject) so2 = study->CreateObjectID("0:1:3");
 
   _PTR(AttributeTreeNode) _attr2 = studyBuilder->FindOrCreateAttribute(so2, "AttributeTreeNode");
@@ -74,7 +77,7 @@ void SALOMEDSTest::testAttributeTreeNode()
 
 #ifdef SALOMEDS_ALL_TESTS
   //Check method GetFather
-  CPPUNIT_ASSERT(_attr1->GetFather() == _attr);
+  CPPUNIT_ASSERT(_attr1->GetFather()->Label() == _attr->Label());
 
   //Check method Append
   _attr->Append(_attr1);
@@ -85,15 +88,16 @@ void SALOMEDSTest::testAttributeTreeNode()
   CPPUNIT_ASSERT(_attr1->HasNext());
 
   //Check method GetNext
-  CPPUNIT_ASSERT(_attr1->GetNext() == _attr2);
+  CPPUNIT_ASSERT(_attr1->GetNext()->Label() == _attr2->Label());
+
+  //Check method HasPrevious
+  CPPUNIT_ASSERT(_attr2->HasPrevious());
 
   //Check method GetPrevious
-  CPPUNIT_ASSERT(_attr2->GetPrevious());
-
-  CPPUNIT_ASSERT(_attr2->GetPrevious() == _attr1);
+  CPPUNIT_ASSERT(_attr2->GetPrevious()->Label() == _attr1->Label());
 
   //Check method Depth
-  CPPUNIT_ASSERT(_attr->Depth() == 2);
+  CPPUNIT_ASSERT(_attr->Depth() == 0 && _attr1->Depth() == 1);
 
   //Check method IsRoot
   CPPUNIT_ASSERT(_attr->IsRoot());
@@ -105,38 +109,41 @@ void SALOMEDSTest::testAttributeTreeNode()
   CPPUNIT_ASSERT(_attr2->IsDescendant(_attr));
 
   //Check method GetFirst
-  CPPUNIT_ASSERT(_attr->GetFirst() == _attr1);
+  CPPUNIT_ASSERT(_attr->GetFirst()->Label() == _attr1->Label());
+
+  _attr2->Remove();
 
   //Check method Prepend
   _attr->Prepend(_attr2);
 
-  CPPUNIT_ASSERT(_attr->GetFirst() == _attr2);
+  CPPUNIT_ASSERT(_attr->GetFirst()->Label() == _attr2->Label());
+
+  _attr1->Remove();
 
   //Check method InsertBefore
   _attr2->InsertBefore(_attr1);
 
-  CPPUNIT_ASSERT(_attr->GetFirst() == _attr1);
+  CPPUNIT_ASSERT(_attr->GetFirst()->Label() == _attr1->Label());
+
+  _attr1->Remove();
 
   //Check method InsertAfter
   _attr2->InsertAfter(_attr1);
 
-  CPPUNIT_ASSERT(_attr->GetFirst() == _attr2);
-
-  //Check method Label
-  CPPUNIT_ASSERT(_attr1->Label() == "0:1:2");
+  CPPUNIT_ASSERT(_attr->GetFirst()->Label() == _attr2->Label());
 
   //Check method Remove
   _attr2->Remove();
 
-  CPPUNIT_ASSERT(_attr->GetFirst() == _attr1);
+  CPPUNIT_ASSERT(_attr->GetFirst()->Label() == _attr1->Label());
 
   //Check method SetTreeID and GetTreeID
   _attr2->SetTreeID(TreeNodeID);
 
   CPPUNIT_ASSERT(_attr2->GetTreeID() == TreeNodeID); 
-#else 
+#else
   cout << endl << "THE TEST IS NOT COMPLETE !!!" << endl;
-#endif  
+#endif
 
   sm->Close(study);
 }

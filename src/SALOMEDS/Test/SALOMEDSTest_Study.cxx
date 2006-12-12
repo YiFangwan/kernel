@@ -89,6 +89,10 @@ void SALOMEDSTest::testStudy()
   CPPUNIT_ASSERT(name_attr_sco1);
   name_attr_sco1->SetValue("sco1");
 
+  //Check method GetComponentNames
+  vector<string> components = study->GetComponentNames(""); //The context doesn't matter
+  CPPUNIT_ASSERT(components.size() == 1 && components[0] == "sco1");
+
   //Check method FindComponentID
   _PTR(SComponent) sco3 = study->FindComponentID(sco1->GetID());
   CPPUNIT_ASSERT(sco3 && sco3->GetID() == sco1->GetID());
@@ -155,7 +159,7 @@ void SALOMEDSTest::testStudy()
   locid_attr_sco1->SetValue(16661); //DIRECTORYID
   _PTR(AttributeLocalID) locid_attr_so1 = studyBuilder->FindOrCreateAttribute(so1, "AttributeLocalID");
   CPPUNIT_ASSERT(locid_attr_so1);
-  locid_attr_sco1->SetValue(16661); //DIRECTORYID
+  locid_attr_so1->SetValue(16661); //DIRECTORYID
   vs = study->GetDirectoryNames(""); //Empty context (the current is taken)
   CPPUNIT_ASSERT(vs.size() == 2);
 
