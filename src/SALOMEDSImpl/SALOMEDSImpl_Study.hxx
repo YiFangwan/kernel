@@ -229,7 +229,7 @@ public:
 
   Standard_EXPORT virtual void Close();
 
-  Standard_EXPORT void EnableUseCaseAutoFilling(bool isEnabled) { _errorCode = ""; _autoFill = isEnabled; }
+  Standard_EXPORT void EnableUseCaseAutoFilling(bool isEnabled);
 
   // postponed destroying of object functionality
   Standard_EXPORT virtual void AddPostponed(const TCollection_AsciiString& theIOR);
@@ -287,6 +287,10 @@ public:
   
   //Returns an ID of the study locker
   Standard_EXPORT Handle(TColStd_HSequenceOfAsciiString) GetLockerID();
+
+  //Returns a callback 
+  Standard_EXPORT Handle(SALOMEDSImpl_Callback) GetCallback() { return _cb; }
+
 
 public:
   DEFINE_STANDARD_RTTI( SALOMEDSImpl_Study )
