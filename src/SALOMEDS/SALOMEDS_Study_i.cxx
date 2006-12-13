@@ -399,6 +399,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetFileNames(const char* theContext)
 //============================================================================
 /*! Function : GetComponentNames
  *  Purpose  : method to get all components names
+ *  SRN:       Note, theContext can be any, it doesn't matter
  */
 //============================================================================
 SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetComponentNames(const char* theContext) 
@@ -406,9 +407,6 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetComponentNames(const char* theCont
   SALOMEDS::Locker lock; 
 
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-
-  if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
-    throw SALOMEDS::Study::StudyInvalidContext();
 
   Handle(TColStd_HSequenceOfAsciiString) aSeq =
     _impl->GetComponentNames(TCollection_AsciiString((char*)theContext));
@@ -878,6 +876,27 @@ char* SALOMEDS_Study_i::GetDefaultScript(const char* theModuleName, const char* 
 
   string script = SALOMEDSImpl_IParameters::getDefaultScript(_impl, theModuleName, theShift);
   return CORBA::string_dup(script.c_str());
+}
+
+//============================================================================
+/*! Function : EnableUseCaseAutoFilling
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::EnableUseCaseAutoFilling(CORBA::Boolean isEnabled) 
+{ 
+  _impl->EnableUseCaseAutoFilling(isEnabled); 
+  Handle(SALOMEDSImpl_StudyBuilder) builder = _builder->GetImpl();
+  if(!builder.IsNull()) {
+    if(isEnabled) {
+      builder->SetOnAddSObject(_impl->GetCallback());
+      builder->SetOnRemoveSObject(_impl->GetCallback());
+    }
+    else {
+      builder->SetOnAddSObject(NULL);
+      builder->SetOnRemoveSObject(NULL);
+    }
+  }
 }
 
 //===========================================================================

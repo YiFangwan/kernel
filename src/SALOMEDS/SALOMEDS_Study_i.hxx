@@ -260,7 +260,7 @@ public:
 
   virtual void Close();
 
-  void EnableUseCaseAutoFilling(CORBA::Boolean isEnabled) { _impl->EnableUseCaseAutoFilling(isEnabled); }
+  void EnableUseCaseAutoFilling(CORBA::Boolean isEnabled); 
 
   // postponed destroying of CORBA object functionality
   virtual void AddPostponed(const char* theIOR);
