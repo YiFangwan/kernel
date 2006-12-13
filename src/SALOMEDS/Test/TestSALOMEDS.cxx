@@ -48,6 +48,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 #include "utilities.h"
 #include "Utils_SINGLETON.hxx"
 #include "Utils_ORB_INIT.hxx"
+#include "OpUtil.hxx"
 #include "SALOME_NamingService.hxx"
 #include "NamingService_WaitForServerReadiness.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
@@ -85,8 +86,15 @@ int main(int argc, char* argv[])
 
   sleep(10);
 
+  string host = GetHostname();
+
   SALOME_NamingService NS(orb);
-  NamingService_WaitForServerReadiness(&NS, "/myStudyManager");
+  if(host.empty())
+    NamingService_WaitForServerReadiness(&NS, "/myStudyManager");
+  else {
+    string serverName = "/Containers/"+host+"/SuperVisionContainer";
+    NamingService_WaitForServerReadiness(&NS, serverName);
+  }
 
   CORBA::Object_var obj = NS.Resolve( "/myStudyManager" );
   if(CORBA::is_nil(obj)) {
