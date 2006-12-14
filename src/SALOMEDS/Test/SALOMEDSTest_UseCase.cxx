@@ -23,6 +23,8 @@
  * Use code of SALOMEDS_UseCaseBuilder.cxx and SALOMEDS_UseCaseIterator.cxx
  */
 
+#define SALOMEDS_ALL_TESTS
+
 void SALOMEDSTest::testUseCase()
 {
   //Create or find the Study manager
@@ -132,6 +134,7 @@ void SALOMEDSTest::testUseCase()
 
   //Check method InsertBefore
   CPPUNIT_ASSERT(builder->InsertBefore(so2, so1));
+
   it->Init(false);
   CPPUNIT_ASSERT(it->More());
   CPPUNIT_ASSERT(it->Value()->GetID() == so2->GetID());
@@ -141,6 +144,6 @@ void SALOMEDSTest::testUseCase()
 
   sm->Close(study);
 }
-
+#undef SALOMEDS_ALL_TESTS
 
 

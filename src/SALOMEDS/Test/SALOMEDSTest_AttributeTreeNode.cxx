@@ -22,6 +22,7 @@
  * Check all methods of SALOMEDS_AttributeTreeNode
  * Use code of SALOMEDS_AttributeTreeNode.cxx
  */
+#define SALOMEDS_ALL_TESTS
 void SALOMEDSTest::testAttributeTreeNode()
 {
   //Create or find the Study manager
@@ -53,7 +54,7 @@ void SALOMEDSTest::testAttributeTreeNode()
   string TreeNodeID = "0e1c36e6-379b-4d90-ab3b-17a14310e648";
 
   _PTR(SObject) so1 = study->CreateObjectID("0:1:2");
- 
+                                                               
   _PTR(AttributeTreeNode) _attr1 = studyBuilder->FindOrCreateAttribute(so1, "AttributeTreeNode");
 
   //Check the attribute creation
@@ -81,6 +82,15 @@ void SALOMEDSTest::testAttributeTreeNode()
 
   //Check method Append
   _attr->Append(_attr1);
+
+  //Check possibility to Append to itself
+  bool isRaised = false;
+  try {
+    _attr->Append(_attr);
+  }catch(...) {
+    isRaised = true;
+  }
+  CPPUNIT_ASSERT(isRaised);
 
   _attr->Append(_attr2);
 
@@ -115,8 +125,16 @@ void SALOMEDSTest::testAttributeTreeNode()
 
   //Check method Prepend
   _attr->Prepend(_attr2);
-
   CPPUNIT_ASSERT(_attr->GetFirst()->Label() == _attr2->Label());
+
+  //Check possibility to Prepend to itself
+  isRaised = false;
+  try {
+    _attr->Prepend(_attr);
+  }catch(...) {
+    isRaised = true;
+  }
+  CPPUNIT_ASSERT(isRaised);
 
   _attr1->Remove();
 
@@ -125,12 +143,30 @@ void SALOMEDSTest::testAttributeTreeNode()
 
   CPPUNIT_ASSERT(_attr->GetFirst()->Label() == _attr1->Label());
 
+  //Check possibility to InsertBefore to itself
+  isRaised = false;
+  try {
+    _attr->InsertBefore(_attr);
+  }catch(...) {
+    isRaised = true;
+  }
+  CPPUNIT_ASSERT(isRaised);
+
   _attr1->Remove();
 
   //Check method InsertAfter
   _attr2->InsertAfter(_attr1);
 
   CPPUNIT_ASSERT(_attr->GetFirst()->Label() == _attr2->Label());
+
+  //Check possibility to InsertAfter to itself
+  isRaised = false;
+  try {
+    _attr->InsertAfter(_attr);
+  }catch(...) {
+    isRaised = true;
+  }
+  CPPUNIT_ASSERT(isRaised);
 
   //Check method Remove
   _attr2->Remove();
@@ -145,8 +181,24 @@ void SALOMEDSTest::testAttributeTreeNode()
   cout << endl << "THE TEST IS NOT COMPLETE !!!" << endl;
 #endif
 
+
+  //Try to create the attribute with given TreeID
+  string value = "0e1c36e6-1111-4d90-ab3b-18a14310e648";
+  _PTR(AttributeTreeNode) _attr_guid = studyBuilder->FindOrCreateAttribute(so, "AttributeTreeNode"+value);
+  CPPUNIT_ASSERT(_attr_guid && _attr_guid->GetTreeID() == value);
+
+  //Try to set invalid GUID
+  isRaised = false;
+  try {
+    _attr->SetTreeID("invalid guid");
+  }
+  catch(...) {
+    isRaised = true;
+  }
+  CPPUNIT_ASSERT(isRaised);
+
   sm->Close(study);
 }
-
+#undef SALOMEDS_ALL_TESTS
 
 

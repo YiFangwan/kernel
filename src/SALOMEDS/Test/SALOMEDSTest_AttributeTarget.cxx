@@ -67,8 +67,6 @@ void SALOMEDSTest::testAttributeTarget()
   //Check method Get
   vector< _PTR(SObject) > v = _attr->Get();
 
- 
-
   CPPUNIT_ASSERT(v.size() == 2);
 
   CPPUNIT_ASSERT(v[0]->GetID() == "0:1:2");

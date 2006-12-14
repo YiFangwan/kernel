@@ -84,9 +84,11 @@ int main(int argc, char* argv[])
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   CORBA::ORB_var orb = init(argc , argv ) ;
 
-  sleep(10);
+  sleep(15);
 
-  string host = GetHostname();
+  string host; // = GetHostname();
+  char* wait_Superv = getenv("SALOMEDS_UNITTESTS_WAIT_SUPERVISOR");
+  if(wait_Superv) host = GetHostname(); 
 
   SALOME_NamingService NS(orb);
   if(host.empty())

@@ -93,6 +93,32 @@ void SALOMEDSTest::testAttributeSequenceOfInteger()
 
   CPPUNIT_ASSERT(_attr->Value(4) == 5);
 
+  //Check processing of invalid indicies
+  bool isRaised = false;
+  try {
+    _attr->Value(-1);
+  }
+  catch(...) {
+    isRaised = true;
+  }
+  CPPUNIT_ASSERT(isRaised);
+  isRaised = false;
+  try {
+    _attr->ChangeValue(12, 1);
+  }
+  catch(...) {
+    isRaised = true;
+  }
+  CPPUNIT_ASSERT(isRaised);
+  isRaised = false;
+  try {
+    _attr->Remove(10);
+  }
+  catch(...) {
+    isRaised = true;
+  }
+  CPPUNIT_ASSERT(isRaised);
+
   sm->Close(study);
 }
 
