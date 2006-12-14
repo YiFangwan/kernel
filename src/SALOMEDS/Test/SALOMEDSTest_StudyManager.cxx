@@ -36,10 +36,19 @@ void SALOMEDSTest::testStudyManager()
   _PTR(Study) study2 = sm->NewStudy("Study2");
   CPPUNIT_ASSERT(study2);
 
-  //Check method FindStudyByName
+  //Check method GetStudyByName
   _PTR(Study) study3 = sm->GetStudyByName("Study1");
   CPPUNIT_ASSERT(study3->StudyId() == study1->StudyId());
   CPPUNIT_ASSERT(study3->Name() == study1->Name());
+
+  //Check method GetStudyByName with empty name
+  CPPUNIT_ASSERT(!sm->GetStudyByName(""));
+
+  //Try to create Study with empty name
+  _PTR(Study) study_empty = sm->NewStudy("");
+  CPPUNIT_ASSERT(study_empty);
+  CPPUNIT_ASSERT(sm->GetStudyByName(""));
+  sm->Close(study_empty);
 
   //Check method FindStudyByID
   _PTR(Study) study4 = sm->GetStudyByID(study2->StudyId());
@@ -54,6 +63,9 @@ void SALOMEDSTest::testStudyManager()
   int id = study2->StudyId();
   sm->Close(study2);
   CPPUNIT_ASSERT(!sm->GetStudyByID(id));
+
+  //Check method GetStudyByID for invalid ID
+  CPPUNIT_ASSERT(!sm->GetStudyByID(-1));
 
   //Check methods CanPaste, CanCopy, Copy, Paste
   _PTR(StudyBuilder) sb1 = study1->NewBuilder();
@@ -87,6 +99,7 @@ void SALOMEDSTest::testStudyManager()
   //Check method Open
   _PTR(Study) study1_opened = sm->Open("srn_UnitTest_Save.hdf");  //Contains Test component
   system("rm -f srn_UnitTest_Save.hdf");
+  url = study1->URL();
   CPPUNIT_ASSERT(study1_opened);
   CPPUNIT_ASSERT(url == "srn_UnitTest_Save.hdf");
 
@@ -145,7 +158,6 @@ void SALOMEDSTest::testStudyManager()
   _PTR(StudyBuilder) sb6 = study4_opened->NewBuilder();
   _PTR(AttributeName) na6 = sb6->FindOrCreateAttribute(so6, "AttributeName");
   CPPUNIT_ASSERT(na6 && na6->Value() == "Saved study ASCII"); //Compare the value of restored attribute with string that has to be saved.
-
 }
 
 

@@ -77,8 +77,10 @@ void SALOMEDSTest::testSObject()
   _PTR(GenericAttribute) ga;
   CPPUNIT_ASSERT(so->FindAttribute(ga, "AttributeIOR"));
 
-  //Check method ReferencedObject
+  //Try to find attribute with empty type
+  CPPUNIT_ASSERT(!so->FindAttribute(ga, ""));
 
+  //Check method ReferencedObject
   studyBuilder->Addreference(so1, so);
   _PTR(SObject) so2; 
   CPPUNIT_ASSERT(so1->ReferencedObject(so2));

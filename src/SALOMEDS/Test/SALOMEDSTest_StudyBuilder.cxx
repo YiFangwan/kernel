@@ -57,6 +57,9 @@ void SALOMEDSTest::testStudyBuilder()
   _PTR(SComponent) sco2 = study->FindComponent("Test");
   CPPUNIT_ASSERT(!sco2);
 
+  //Try to create and find the component with empty type
+  _PTR(SComponent) sco_empty = studyBuilder->NewComponent(""); 
+  CPPUNIT_ASSERT(!sco_empty);
 
   _PTR(SComponent) sco3 = studyBuilder->NewComponent("NewComp");
   CPPUNIT_ASSERT(sco3);
@@ -77,9 +80,23 @@ void SALOMEDSTest::testStudyBuilder()
   _PTR(AttributeName) an3 = studyBuilder->FindOrCreateAttribute(so3, "AttributeName");
   CPPUNIT_ASSERT(an3);
 
+  cout << endl << "########## 1" << endl; 
+
+  //Try to create attribute with invalid type
+  CPPUNIT_ASSERT(!studyBuilder->FindOrCreateAttribute(so3, "invalid type"));
+
+  cout << endl << "########## 2" << endl; 
+
   //Check method FindAttribute
   _PTR(GenericAttribute) ga;
   CPPUNIT_ASSERT(studyBuilder->FindAttribute(so3, ga, "AttributeName"));
+
+  cout << endl << "########## 3" << endl; 
+
+  //Try to find attribute with invalid type
+  CPPUNIT_ASSERT(!studyBuilder->FindAttribute(so3, ga, "invalid type"));
+
+  cout << endl << "########## 4" << endl; 
 
   //Check method RemoveObject
   studyBuilder->RemoveObject(so3);
@@ -103,6 +120,17 @@ void SALOMEDSTest::testStudyBuilder()
   _PTR(SObject) refSO;
   CPPUNIT_ASSERT(so2->ReferencedObject(refSO) && refSO->GetID() == so1->GetID());
 
+  //Try to set reference to NULL SObject
+  bool isRaised = false;
+  _PTR(SObject) empty_so;
+  try {
+    studyBuilder->Addreference(so2, empty_so);
+  }
+  catch(...) {
+    isRaised = true;
+  }
+  CPPUNIT_ASSERT(isRaised);
+
   //Check method RemoveReference
   studyBuilder->RemoveReference(so2);
   CPPUNIT_ASSERT(!so2->ReferencedObject(refSO));
@@ -111,6 +139,16 @@ void SALOMEDSTest::testStudyBuilder()
   string value = "0e1c36e6-379b-4d90-ab3b-17a14310e648";
   studyBuilder->SetGUID(so1, value);
   CPPUNIT_ASSERT(studyBuilder->IsGUID(so1, value));
+
+  //Try to set invalid GUID
+  isRaised = false;
+  try {
+    studyBuilder->SetGUID(so1, "invalid GUID");
+  }
+  catch(...) {
+    isRaised = true;
+  }
+  CPPUNIT_ASSERT(isRaised);
 
   //Check method UndoLimit (set/get)
   studyBuilder->UndoLimit(10);
@@ -145,9 +183,21 @@ void SALOMEDSTest::testStudyBuilder()
   studyBuilder->SetName(so1, "new name");
   CPPUNIT_ASSERT(so1->GetName() == "new name");
 
+  //Try to set empty Name
+  studyBuilder->SetName(so1, "");
+  CPPUNIT_ASSERT(so1->GetName() == "");
+
   //Check method SetComment
   studyBuilder->SetComment(so1, "new comment");
   CPPUNIT_ASSERT(so1->GetComment() == "new comment");
+
+  //Check method empty Comment
+  studyBuilder->SetComment(so1, "");
+  CPPUNIT_ASSERT(so1->GetComment() == "");
+
+  //Try to set empty IOR
+  studyBuilder->SetIOR(so1, "");
+  CPPUNIT_ASSERT(so1->GetIOR() == "");
 
   //Check method SetIOR
   studyBuilder->SetIOR(so1, ior);
@@ -184,7 +234,7 @@ void SALOMEDSTest::testStudyBuilder()
   SALOMEDS::Driver_var drv2 = SALOMEDS::Driver::_narrow(obj2);
   ior = _orb->object_to_string(drv2);
 
-  bool isRaised = false;
+  isRaised = false;
   try {
     sb3->LoadWith(aComp, ior);
   }

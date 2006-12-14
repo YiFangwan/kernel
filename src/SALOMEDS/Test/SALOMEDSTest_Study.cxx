@@ -57,6 +57,8 @@ void SALOMEDSTest::testStudy()
   study->Name("Test");
 
   //Check method URL (get/set)
+  study->URL("");
+  CPPUNIT_ASSERT(study->URL() == "");
   study->URL("some url");
   CPPUNIT_ASSERT(study->URL() == "some url");
 
@@ -72,6 +74,10 @@ void SALOMEDSTest::testStudy()
   //Check method CreateObjectID
   _PTR(SObject) so = study->CreateObjectID("0:2:1:3");
   CPPUNIT_ASSERT(so);
+
+  //Try to create SObject with empty and invalid entries
+  CPPUNIT_ASSERT(!study->CreateObjectID(""));
+  CPPUNIT_ASSERT(!study->CreateObjectID("entry"));
 
   //Check method NewChildIterator
   _PTR(ChildIterator) childIterator = study->NewChildIterator(so);
@@ -89,6 +95,9 @@ void SALOMEDSTest::testStudy()
   CPPUNIT_ASSERT(name_attr_sco1);
   name_attr_sco1->SetValue("sco1");
 
+  //Try to find component with empty type
+  CPPUNIT_ASSERT(!study->FindComponent(""));
+
   //Check method GetComponentNames
   vector<string> components = study->GetComponentNames(""); //The context doesn't matter
   CPPUNIT_ASSERT(components.size() == 1 && components[0] == "sco1");
@@ -96,6 +105,9 @@ void SALOMEDSTest::testStudy()
   //Check method FindComponentID
   _PTR(SComponent) sco3 = study->FindComponentID(sco1->GetID());
   CPPUNIT_ASSERT(sco3 && sco3->GetID() == sco1->GetID());
+
+  //Try to find component with empty id
+  CPPUNIT_ASSERT(!study->FindComponentID(""));
 
   _PTR(SObject) so1 = studyBuilder->NewObject(sco1);
   CPPUNIT_ASSERT(so1);
@@ -120,13 +132,22 @@ void SALOMEDSTest::testStudy()
   _PTR(SObject) so3 = study->FindObject("so1");
   CPPUNIT_ASSERT(so3 && so3->GetID() == so1->GetID());
 
+  //Try to find SObject with empty name
+  CPPUNIT_ASSERT(!study->FindObject(""));
+
   //Check method FindObjectID
   _PTR(SObject) so4 = study->FindObjectID(so1->GetID());
   CPPUNIT_ASSERT(so4 && so4->GetID() == so1->GetID());
 
+  //Try to find SObject with empty ID
+  CPPUNIT_ASSERT(!study->FindObjectID(""));
+
   //Check method FindObjectByName
   vector< _PTR(SObject) > v = study->FindObjectByName("so1", sco1->ComponentDataType());
   CPPUNIT_ASSERT(v.size()==1 && v[0]->GetID() == so1->GetID());
+
+  //Try to find SObject with empty name and empty component type
+  CPPUNIT_ASSERT((study->FindObjectByName("", "")).size() == 0);
 
   //Check method FindObjectByPath
   _PTR(SObject) path_so = study->FindObjectByPath("/"+sco1->GetName()+"/"+so1->GetName());
@@ -136,8 +157,16 @@ void SALOMEDSTest::testStudy()
   _PTR(SObject) so5 = study->FindObjectIOR(ior);
   CPPUNIT_ASSERT(so5 && so5->GetID() == so1->GetID());
 
+  //Try to find SObject with empty IOR
+  CPPUNIT_ASSERT(!study->FindObjectIOR(""));
+
   //Check method GetObjectPath
   string path = study->GetObjectPath(so2);
+
+  //Try to get path of NULL SObject
+  _PTR(SObject) emptySO;
+  path = study->GetObjectPath(emptySO);
+  CPPUNIT_ASSERT(path.empty());
 
   //Check method SetContext
   study->SetContext("/sco1"); 
@@ -146,6 +175,11 @@ void SALOMEDSTest::testStudy()
   //Check method FindObjectByPath
   _PTR(SObject) so6 = study->FindObjectByPath("so1");
   CPPUNIT_ASSERT(so6 && so6->GetID() == so1->GetID());
+
+  
+  //Try to find SObject with empty path
+  _PTR(SObject) tmp = study->FindObjectByPath(""); //Must return the Context SObject
+  CPPUNIT_ASSERT(tmp && tmp->GetID() == sco1->GetID());
 
   study->SetContext("/"); //Root
 
@@ -192,7 +226,6 @@ void SALOMEDSTest::testStudy()
   CPPUNIT_ASSERT(sp);
 
   //Check Lock functionality
-  //_PTR(AttributeName) name_attr_so1 = studyBuilder->FindOrCreateAttribute(so1, "AttributeName");
   sp->SetLocked(true);
   bool isLockRaised = false;
   try {
@@ -253,6 +286,7 @@ void SALOMEDSTest::testStudy()
 
   //Check method GetUseCaseBuilder
   _PTR(UseCaseBuilder) ub = study->GetUseCaseBuilder();
+  CPPUNIT_ASSERT(ub);
 
   //Check method SetStudyLock
   study->SetStudyLock("locker1");
