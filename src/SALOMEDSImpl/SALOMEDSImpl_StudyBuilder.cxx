@@ -81,6 +81,9 @@ Handle(SALOMEDSImpl_SComponent) SALOMEDSImpl_StudyBuilder::NewComponent(const TC
 {
   _errorCode = "";
   CheckLocked();
+
+  if(DataType.Length() == 0) return 0;
+
   //Always create component under main label.
   TDF_Label L  = _doc->Main();
 
