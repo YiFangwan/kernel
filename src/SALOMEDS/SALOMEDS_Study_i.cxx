@@ -194,6 +194,8 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::CreateObjectID(const char* anObjectID)
 {
   SALOMEDS::Locker lock; 
 
+  if(!anObjectID || strlen(anObjectID) == 0) return SALOMEDS::SObject::_nil();
+
   Handle(SALOMEDSImpl_SObject) aSO = _impl->CreateObjectID((char*)anObjectID);
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
 
