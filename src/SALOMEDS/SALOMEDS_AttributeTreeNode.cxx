@@ -21,6 +21,8 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
+#include "utilities.h"
+
 #include "SALOMEDS_AttributeTreeNode.hxx"
 #include "SALOMEDS.hxx"
 
@@ -49,6 +51,9 @@ SALOMEDS_AttributeTreeNode::~SALOMEDS_AttributeTreeNode()
 
 void SALOMEDS_AttributeTreeNode::SetFather(const _PTR(AttributeTreeNode)& value)
 {
+  ASSERT(value);
+  if(!value) return;
+
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
   if (_isLocal) {
     CheckLocked();
@@ -99,6 +104,9 @@ _PTR(AttributeTreeNode) SALOMEDS_AttributeTreeNode::GetFather()
 
 void SALOMEDS_AttributeTreeNode::SetPrevious(const _PTR(AttributeTreeNode)& value)
 {
+  ASSERT(value);
+  if(!value) return;
+
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
   if (_isLocal) {
     CheckLocked();
@@ -149,6 +157,9 @@ _PTR(AttributeTreeNode) SALOMEDS_AttributeTreeNode::GetPrevious()
 
 void SALOMEDS_AttributeTreeNode::SetNext(const _PTR(AttributeTreeNode)& value)
 {
+  ASSERT(value);
+  if(!value) return;
+
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
   if (_isLocal) {
     CheckLocked();
@@ -199,6 +210,9 @@ _PTR(AttributeTreeNode) SALOMEDS_AttributeTreeNode::GetNext()
 
 void SALOMEDS_AttributeTreeNode::SetFirst(const _PTR(AttributeTreeNode)& value)
 {
+  ASSERT(value);
+  if(!value) return;
+
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
   if (_isLocal) {
     CheckLocked();
@@ -285,6 +299,9 @@ std::string SALOMEDS_AttributeTreeNode::GetTreeID()
 
 void SALOMEDS_AttributeTreeNode::Append(const _PTR(AttributeTreeNode)& value)
 {
+  ASSERT(value);
+  if(!value) return;
+
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
   if (_isLocal) {
     CheckLocked();
@@ -303,6 +320,9 @@ void SALOMEDS_AttributeTreeNode::Append(const _PTR(AttributeTreeNode)& value)
 
 void SALOMEDS_AttributeTreeNode::Prepend(const _PTR(AttributeTreeNode)& value)
 {
+  ASSERT(value);
+  if(!value) return;
+
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
   if (_isLocal) {
     CheckLocked();
@@ -321,6 +341,9 @@ void SALOMEDS_AttributeTreeNode::Prepend(const _PTR(AttributeTreeNode)& value)
 
 void SALOMEDS_AttributeTreeNode::InsertBefore(const _PTR(AttributeTreeNode)& value)
 {
+  ASSERT(value);
+  if(!value) return;
+
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
   if (_isLocal) {
     CheckLocked();
@@ -339,6 +362,9 @@ void SALOMEDS_AttributeTreeNode::InsertBefore(const _PTR(AttributeTreeNode)& val
 
 void SALOMEDS_AttributeTreeNode::InsertAfter(const _PTR(AttributeTreeNode)& value)
 {
+  ASSERT(value);
+  if(!value) return;
+
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
   if (_isLocal) {
     CheckLocked();
@@ -389,6 +415,8 @@ bool SALOMEDS_AttributeTreeNode::IsRoot()
 
 bool SALOMEDS_AttributeTreeNode::IsDescendant(const _PTR(AttributeTreeNode)& value)
 {
+  if(!value) return false;
+
   bool ret;
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
   if (_isLocal) {
@@ -408,6 +436,8 @@ bool SALOMEDS_AttributeTreeNode::IsDescendant(const _PTR(AttributeTreeNode)& val
 
 bool SALOMEDS_AttributeTreeNode::IsFather(const _PTR(AttributeTreeNode)& value)
 {
+  if(!value) return false;
+
   bool ret;
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
   if (_isLocal) {
@@ -427,6 +457,8 @@ bool SALOMEDS_AttributeTreeNode::IsFather(const _PTR(AttributeTreeNode)& value)
 
 bool SALOMEDS_AttributeTreeNode::IsChild(const _PTR(AttributeTreeNode)& value)
 {
+  if(!value) return false;
+
   bool ret;
   SALOMEDS_AttributeTreeNode* aTN = dynamic_cast<SALOMEDS_AttributeTreeNode*>(value.get());
   if (_isLocal) {

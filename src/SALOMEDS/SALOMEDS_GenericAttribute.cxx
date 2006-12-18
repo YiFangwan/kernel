@@ -138,6 +138,8 @@ SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute
 {
   SALOMEDS::Locker lock;
 
+  if(theGA.IsNull()) return NULL;
+
   SALOMEDS_GenericAttribute* aGA = NULL;
   std::string aTypeOfAttribute = theGA->GetClassType().ToCString();
   __CreateGenericClientAttributeLocal
@@ -146,6 +148,8 @@ SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute
 
 SALOMEDS_GenericAttribute* SALOMEDS_GenericAttribute::CreateAttribute(SALOMEDS::GenericAttribute_ptr theGA)
 {
+  if(CORBA::is_nil(theGA)) return NULL;
+
   SALOMEDS_GenericAttribute* aGA = NULL;
   std::string aTypeOfAttribute = theGA->GetClassType();
   __CreateGenericClientAttributeCORBA

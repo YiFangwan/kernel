@@ -405,8 +405,14 @@ std::vector<std::string> SALOMEDS_Study::GetComponentNames(const std::string& th
 
 _PTR(ChildIterator) SALOMEDS_Study::NewChildIterator(const _PTR(SObject)& theSO)
 {
+
+  ASSERT(theSO);
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   SALOMEDSClient_ChildIterator* aCI = NULL; 
+
+  if(!theSO) return _PTR(ChildIterator)(aCI);
+
   if (_isLocal) {
     SALOMEDS::Locker lock;
 
@@ -548,7 +554,10 @@ void SALOMEDS_Study::StudyId(int id)
 
 std::vector<_PTR(SObject)> SALOMEDS_Study::FindDependances(const _PTR(SObject)& theSO)
 {
+  ASSERT(theSO);
   std::vector<_PTR(SObject)> aVector;
+  if(!theSO) return aVector;
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   int aLength, i;
   if (_isLocal) {

@@ -352,6 +352,8 @@ CORBA::Boolean SALOMEDS_StudyManager_i::CanCopy(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
 
+  if(CORBA::is_nil(theObject)) return false;
+
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
   Handle(SALOMEDSImpl_SObject) anObject = aStudyImpl->GetSObject((char*)theObject->GetID());
@@ -371,6 +373,8 @@ CORBA::Boolean SALOMEDS_StudyManager_i::Copy(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
 
+  if(CORBA::is_nil(theObject)) return false;
+
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
   Handle(SALOMEDSImpl_SObject) anObject = aStudyImpl->GetSObject((char*)theObject->GetID());
@@ -389,6 +393,8 @@ CORBA::Boolean SALOMEDS_StudyManager_i::Copy(SALOMEDS::SObject_ptr theObject)
 CORBA::Boolean SALOMEDS_StudyManager_i::CanPaste(SALOMEDS::SObject_ptr theObject)
 {
   SALOMEDS::Locker lock;
+
+  if(CORBA::is_nil(theObject)) return false;
 
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
@@ -411,6 +417,9 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
   SALOMEDS::Locker lock;
 
   Unexpect aCatch(LockProtection);
+  
+  if(CORBA::is_nil(theObject)) return SALOMEDS::SObject::_nil();
+  
   SALOMEDS::Study_var aStudy = theObject->GetStudy();
 
   Handle(SALOMEDSImpl_Study) aStudyImpl = _impl->GetStudyByID(aStudy->StudyId());
@@ -434,6 +443,8 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyManager_i::Paste(SALOMEDS::SObject_ptr theOb
 SALOMEDS_Driver_i* GetDriver(const Handle(SALOMEDSImpl_SObject)& theObject, CORBA::ORB_ptr orb)
 {
   SALOMEDS_Driver_i* driver = NULL;
+                                     
+  if(theObject.IsNull()) return driver;
 
   Handle(SALOMEDSImpl_SComponent) aSCO = theObject->GetFatherComponent();
   if(!aSCO.IsNull()) {

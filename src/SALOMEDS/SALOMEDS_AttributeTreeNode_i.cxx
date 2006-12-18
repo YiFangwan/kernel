@@ -55,6 +55,10 @@ void SALOMEDS_AttributeTreeNode_i::SetFather(SALOMEDS::AttributeTreeNode_ptr val
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+
+  ASSERT(!CORBA::is_nil(value));
+  if(CORBA::is_nil(value)) return;
+
   Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl);
   aNode->SetFather(GetNode(value, aNode));
 }
@@ -81,6 +85,10 @@ void SALOMEDS_AttributeTreeNode_i::SetPrevious(SALOMEDS::AttributeTreeNode_ptr v
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+
+  ASSERT(!CORBA::is_nil(value));
+  if(CORBA::is_nil(value)) return;
+
   Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl);
   aNode->SetPrevious(GetNode(value, aNode));
 }
@@ -107,6 +115,10 @@ void SALOMEDS_AttributeTreeNode_i::SetNext(SALOMEDS::AttributeTreeNode_ptr value
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+  
+  ASSERT(!CORBA::is_nil(value));
+  if(CORBA::is_nil(value)) return;
+
   Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl);
   aNode->SetNext(GetNode(value, aNode));
 }
@@ -133,6 +145,10 @@ void SALOMEDS_AttributeTreeNode_i::SetFirst(SALOMEDS::AttributeTreeNode_ptr valu
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+
+  ASSERT(!CORBA::is_nil(value));
+  if(CORBA::is_nil(value)) return;
+  
   Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl);
   aNode->SetFirst(GetNode(value, aNode));
 }
@@ -176,6 +192,10 @@ void SALOMEDS_AttributeTreeNode_i::Append(SALOMEDS::AttributeTreeNode_ptr value)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+
+  ASSERT(!CORBA::is_nil(value));
+  if(CORBA::is_nil(value)) return;
+
   Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl);
   aNode->Append(GetNode(value, aNode));
 }
@@ -184,6 +204,10 @@ void SALOMEDS_AttributeTreeNode_i::Prepend(SALOMEDS::AttributeTreeNode_ptr value
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+
+  ASSERT(!CORBA::is_nil(value));
+  if(CORBA::is_nil(value)) return;
+
   Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl);
   aNode->Prepend(GetNode(value, aNode));
 }
@@ -192,6 +216,10 @@ void SALOMEDS_AttributeTreeNode_i::InsertBefore(SALOMEDS::AttributeTreeNode_ptr 
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+
+  ASSERT(!CORBA::is_nil(value));
+  if(CORBA::is_nil(value)) return;
+
   Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl);
   aNode->InsertBefore(GetNode(value, aNode));
 }
@@ -200,6 +228,10 @@ void SALOMEDS_AttributeTreeNode_i::InsertAfter(SALOMEDS::AttributeTreeNode_ptr v
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+
+  ASSERT(!CORBA::is_nil(value));
+  if(CORBA::is_nil(value)) return;
+
   Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl);
   aNode->InsertAfter(GetNode(value, aNode));
 }
@@ -229,6 +261,9 @@ CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsRoot()
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsDescendant(SALOMEDS::AttributeTreeNode_ptr value) 
 {
   SALOMEDS::Locker lock;
+
+  if(CORBA::is_nil(value)) return false;
+
   Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl);
   return aNode->IsDescendant(GetNode(value, aNode));
 }
@@ -236,6 +271,9 @@ CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsDescendant(SALOMEDS::AttributeTre
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsFather(SALOMEDS::AttributeTreeNode_ptr value) 
 {
   SALOMEDS::Locker lock;
+
+  if(CORBA::is_nil(value)) return false;
+
   Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl);
   return aNode->IsFather(GetNode(value, aNode));
 }
@@ -243,6 +281,9 @@ CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsFather(SALOMEDS::AttributeTreeNod
 CORBA::Boolean SALOMEDS_AttributeTreeNode_i::IsChild(SALOMEDS::AttributeTreeNode_ptr value) 
 {
   SALOMEDS::Locker lock;
+
+  if(CORBA::is_nil(value)) return false;
+
   Handle(SALOMEDSImpl_AttributeTreeNode) aNode = Handle(SALOMEDSImpl_AttributeTreeNode)::DownCast(_impl);
   return aNode->IsChild(GetNode(value, aNode));
 }

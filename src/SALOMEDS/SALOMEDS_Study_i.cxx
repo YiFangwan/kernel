@@ -431,6 +431,9 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
 {
   SALOMEDS::Locker lock; 
 
+  ASSERT(!CORBA::is_nil(theSO));
+  if(CORBA::is_nil(theSO)) return SALOMEDS::ChildIterator::_nil();
+
   Handle(SALOMEDSImpl_SObject) aSO = _impl->GetSObject(theSO->GetID());
   Handle(SALOMEDSImpl_ChildIterator) anItr = new SALOMEDSImpl_ChildIterator(aSO);
 
@@ -567,6 +570,9 @@ SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const TDF_Label theLabel, CORBA::
 {
   SALOMEDS::Locker lock; 
 
+  ASSERT(!theLabel.IsNull());
+  if(theLabel.IsNull()) return SALOMEDS::Study::_nil();
+
   Handle(SALOMEDSImpl_AttributeIOR) Att;
   if (theLabel.Root().FindAttribute(SALOMEDSImpl_AttributeIOR::GetID(),Att)){
     char* IOR = CORBA::string_dup(TCollection_AsciiString(Att->Value()).ToCString());
@@ -590,10 +596,14 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindDependances(SALOMEDS::SObj
 {
   SALOMEDS::Locker lock; 
 
-  SALOMEDS::GenericAttribute_ptr aTarget;
-  if (anObject->FindAttribute(aTarget,"AttributeTarget")) {
-    return SALOMEDS::AttributeTarget::_narrow(aTarget)->Get();
+  ASSERT(!CORBA::is_nil(anObject));
+  if(!CORBA::is_nil(anObject)) {
+    SALOMEDS::GenericAttribute_ptr aTarget;
+    if (anObject->FindAttribute(aTarget,"AttributeTarget")) {
+      return SALOMEDS::AttributeTarget::_narrow(aTarget)->Get();
+    }
   }
+
   SALOMEDS::Study::ListOfSObject* aList = new SALOMEDS::Study::ListOfSObject;
   aList->length(0);
   return aList;

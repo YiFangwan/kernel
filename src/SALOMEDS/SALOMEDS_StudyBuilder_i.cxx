@@ -94,6 +94,10 @@ void SALOMEDS_StudyBuilder_i::DefineComponentInstance(SALOMEDS::SComponent_ptr a
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+
+  ASSERT(!CORBA::is_nil(aComponent));
+  if(CORBA::is_nil(aComponent)) return;
+
   Handle(SALOMEDSImpl_SComponent) aSCO;
   aSCO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSComponent((char*)aComponent->GetID());
 
@@ -110,7 +114,10 @@ void SALOMEDS_StudyBuilder_i::RemoveComponent(SALOMEDS::SComponent_ptr aComponen
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+ 
   ASSERT(!CORBA::is_nil(aComponent));
+  if(CORBA::is_nil(aComponent)) return;
+
   Handle(SALOMEDSImpl_SComponent) aSCO;
   aSCO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSComponent((char*)aComponent->GetID());
   _impl->RemoveComponent(aSCO);
@@ -125,7 +132,10 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyBuilder_i::NewObject(SALOMEDS::SObject_ptr t
 {
   SALOMEDS::Locker lock;
   CheckLocked();
-  
+   
+  ASSERT(!CORBA::is_nil(theFatherObject));
+  if(CORBA::is_nil(theFatherObject)) return SALOMEDS::SObject::_nil();
+
   Handle(SALOMEDSImpl_SObject) aFO, aSO;
   aFO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)theFatherObject->GetID());
   aSO = _impl->NewObject(aFO);
@@ -145,6 +155,10 @@ SALOMEDS::SObject_ptr SALOMEDS_StudyBuilder_i::NewObjectToTag(SALOMEDS::SObject_
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+
+  ASSERT(!CORBA::is_nil(theFatherObject));
+  if(CORBA::is_nil(theFatherObject)) return SALOMEDS::SObject::_nil();
+
   Handle(SALOMEDSImpl_SObject) aFO, aSO;
   aFO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)theFatherObject->GetID());
   aSO = _impl->NewObjectToTag(aFO, atag);
@@ -162,6 +176,10 @@ void SALOMEDS_StudyBuilder_i::RemoveObject(SALOMEDS::SObject_ptr anObject)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+  
+  ASSERT(!CORBA::is_nil(anObject));
+  if(CORBA::is_nil(anObject)) return;
+  
   Handle(SALOMEDSImpl_SObject) aSO;
   aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)anObject->GetID());
   _impl->RemoveObject(aSO);
@@ -176,6 +194,10 @@ void SALOMEDS_StudyBuilder_i::RemoveObjectWithChildren(SALOMEDS::SObject_ptr anO
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+
+  ASSERT(!CORBA::is_nil(anObject));
+  if(CORBA::is_nil(anObject)) return;
+
   Handle(SALOMEDSImpl_SObject) aSO;
   aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)anObject->GetID());
   _impl->RemoveObjectWithChildren(aSO);
@@ -192,11 +214,19 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO,
   SALOMEDS::Locker lock;
   Unexpect aCatch(SBSalomeException);
 
-  Handle(SALOMEDSImpl_SComponent) aSCO;
-  aSCO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSComponent((char*)anSCO->GetID());
-  SALOMEDS_Driver_i* driver = new SALOMEDS_Driver_i(aDriver, _orb);
-   bool isDone = _impl->LoadWith(aSCO, driver); 
-  delete driver;
+  ASSERT(!CORBA::is_nil(anSCO));
+  
+  bool isDone = false;
+
+  if(!CORBA::is_nil(anSCO)) {
+
+    Handle(SALOMEDSImpl_SComponent) aSCO;
+    aSCO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSComponent((char*)anSCO->GetID());
+    SALOMEDS_Driver_i* driver = new SALOMEDS_Driver_i(aDriver, _orb);
+    isDone = _impl->LoadWith(aSCO, driver); 
+    delete driver;
+
+  }
 
   if(!isDone && _impl->IsError()) {
     THROW_SALOME_CORBA_EXCEPTION(_impl->GetErrorCode().ToCString(),SALOME::BAD_PARAM);
@@ -224,9 +254,14 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_StudyBuilder_i::FindOrCreateAttribute(SA
 									      const char* aTypeOfAttribute)
 {
   SALOMEDS::Locker lock;
+  ASSERT(!CORBA::is_nil(anObject));
+
+  if(CORBA::is_nil(anObject)) return SALOMEDS::GenericAttribute::_nil();
+
   Handle(SALOMEDSImpl_SObject) aSO;
   CORBA::String_var anID = anObject->GetID();
   aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject(anID.inout());
+
   Handle(TDF_Attribute) anAttr;
   try {
      anAttr = _impl->FindOrCreateAttribute(aSO, TCollection_AsciiString((char*)aTypeOfAttribute));
@@ -252,7 +287,10 @@ CORBA::Boolean SALOMEDS_StudyBuilder_i::FindAttribute(SALOMEDS::SObject_ptr anOb
 						      const char* aTypeOfAttribute)
 {
   SALOMEDS::Locker lock;
+
   ASSERT(!CORBA::is_nil(anObject));
+  if(CORBA::is_nil(anObject)) return false;
+
   Handle(SALOMEDSImpl_SObject) aSO;
   aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)anObject->GetID());
   Handle(TDF_Attribute) anAttr;
@@ -274,7 +312,10 @@ void SALOMEDS_StudyBuilder_i::RemoveAttribute(SALOMEDS::SObject_ptr anObject,
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+  
   ASSERT(!CORBA::is_nil(anObject));
+  if(CORBA::is_nil(anObject)) return;
+
   Handle(SALOMEDSImpl_SObject) aSO;
   aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)anObject->GetID());
   _impl->RemoveAttribute(aSO, TCollection_AsciiString((char*)aTypeOfAttribute));
@@ -290,9 +331,11 @@ void SALOMEDS_StudyBuilder_i::Addreference(SALOMEDS::SObject_ptr me,
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+
   ASSERT(!CORBA::is_nil(me));
   ASSERT(!CORBA::is_nil(theReferencedObject));
- 
+  if(CORBA::is_nil(me) || CORBA::is_nil(theReferencedObject)) return;
+
   Handle(SALOMEDSImpl_SObject) aSO, aRefSO;
   aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)me->GetID());
   aRefSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)theReferencedObject->GetID());
@@ -308,7 +351,10 @@ void SALOMEDS_StudyBuilder_i::RemoveReference(SALOMEDS::SObject_ptr me)
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+  
   ASSERT(!CORBA::is_nil(me));
+  if(CORBA::is_nil(me)) return;
+
   Handle(SALOMEDSImpl_SObject) aSO;
   aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)me->GetID());
   _impl->RemoveReference(aSO);
@@ -343,7 +389,10 @@ void SALOMEDS_StudyBuilder_i::SetGUID(SALOMEDS::SObject_ptr anObject, const char
 {
   SALOMEDS::Locker lock;
   CheckLocked();
+  
   ASSERT(!CORBA::is_nil(anObject));
+  if(CORBA::is_nil(anObject)) return;
+
   Handle(SALOMEDSImpl_SObject) aSO;
   aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)anObject->GetID());
   _impl->SetGUID(aSO, TCollection_AsciiString((char*)theGUID));
@@ -357,7 +406,10 @@ void SALOMEDS_StudyBuilder_i::SetGUID(SALOMEDS::SObject_ptr anObject, const char
 bool SALOMEDS_StudyBuilder_i::IsGUID(SALOMEDS::SObject_ptr anObject, const char* theGUID)
 {
   SALOMEDS::Locker lock;
+  
   ASSERT(!CORBA::is_nil(anObject));
+  if(CORBA::is_nil(anObject)) return false;
+
   Handle(SALOMEDSImpl_SObject) aSO;
   aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)anObject->GetID());
   return _impl->IsGUID(aSO, TCollection_AsciiString((char*)theGUID));
@@ -524,6 +576,9 @@ void SALOMEDS_StudyBuilder_i::SetName(SALOMEDS::SObject_ptr theSO, const char* t
   SALOMEDS::Locker lock;
   Unexpect aCatch(SBLockProtection);
   CheckLocked();
+
+  ASSERT(!CORBA::is_nil(theSO));
+  if(CORBA::is_nil(theSO)) return;
  
   Handle(SALOMEDSImpl_SObject) aSO;
   aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)theSO->GetID());  
@@ -542,6 +597,9 @@ void SALOMEDS_StudyBuilder_i::SetComment(SALOMEDS::SObject_ptr theSO, const char
   Unexpect aCatch(SBLockProtection);
   CheckLocked();
 
+  ASSERT(!CORBA::is_nil(theSO));
+  if(CORBA::is_nil(theSO)) return;
+
   Handle(SALOMEDSImpl_SObject) aSO;
   aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)theSO->GetID());  
   _impl->SetComment(aSO, TCollection_AsciiString((char*)theValue));
@@ -558,6 +616,9 @@ void SALOMEDS_StudyBuilder_i::SetIOR(SALOMEDS::SObject_ptr theSO, const char* th
   SALOMEDS::Locker lock;
   Unexpect aCatch(SBLockProtection);
   CheckLocked();
+
+  ASSERT(!CORBA::is_nil(theSO));
+  if(CORBA::is_nil(theSO)) return;
 
   Handle(SALOMEDSImpl_SObject) aSO;
   aSO = Handle(SALOMEDSImpl_Study)::DownCast(_impl->GetOwner())->GetSObject((char*)theSO->GetID());  

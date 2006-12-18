@@ -21,7 +21,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
-
+#include "utilities.h"
 
 #include "SALOMEDS_AttributeTarget_i.hxx"
 #include "SALOMEDSImpl_SObject.hxx"
@@ -35,6 +35,10 @@ using namespace std;
 void SALOMEDS_AttributeTarget_i::Add(SALOMEDS::SObject_ptr anObject) 
 {
   SALOMEDS::Locker lock; 
+
+  ASSERT(!CORBA::is_nil(anObject));
+  if(CORBA::is_nil(anObject)) return;
+
   TDF_Label aLabel;
   TDF_Tool::Label(_impl->Label().Data(),anObject->GetID(),aLabel,1);
   (Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_impl))->Add(SALOMEDSImpl_Study::SObject(aLabel));
@@ -58,6 +62,10 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_AttributeTarget_i::Get()
 void SALOMEDS_AttributeTarget_i::Remove(SALOMEDS::SObject_ptr anObject) 
 {
   SALOMEDS::Locker lock; 
+
+  ASSERT(!CORBA::is_nil(anObject));
+  if(CORBA::is_nil(anObject)) return;
+
   TDF_Label aLabel;
   TDF_Tool::Label(_impl->Label().Data(),anObject->GetID(),aLabel,1);
   (Handle(SALOMEDSImpl_AttributeTarget)::DownCast(_impl))->Remove(SALOMEDSImpl_Study::SObject(aLabel));

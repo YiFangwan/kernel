@@ -21,6 +21,9 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 
+
+#include "utilities.h"
+
 #include "SALOMEDS_AttributeTarget.hxx"
 #include "SALOMEDS.hxx"
 
@@ -43,6 +46,9 @@ SALOMEDS_AttributeTarget::~SALOMEDS_AttributeTarget()
 
 void SALOMEDS_AttributeTarget::Add(const _PTR(SObject)& theObject)
 {
+  ASSERT(theObject);
+  if(!theObject) return;
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
 
   if (_isLocal) {
@@ -82,6 +88,9 @@ std::vector<_PTR(SObject)> SALOMEDS_AttributeTarget::Get()
 
 void SALOMEDS_AttributeTarget::Remove(const _PTR(SObject)& theObject)
 {
+  ASSERT(theObject);
+  if(!theObject) return;
+
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theObject.get());
 
   if (_isLocal) {

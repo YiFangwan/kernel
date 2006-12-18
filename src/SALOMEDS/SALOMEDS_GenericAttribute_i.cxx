@@ -118,6 +118,8 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute
     _mapOfAttrib[theAttr.operator->()] = attr_servant;
   }
 */
+  if(theAttr.IsNull()) return SALOMEDS::GenericAttribute::_nil();
+
   // mpv: now servants Destroyed by common algos of CORBA
   char* aTypeOfAttribute = Handle(SALOMEDSImpl_GenericAttribute)::
     DownCast(theAttr)->GetClassType().ToCString();

@@ -98,7 +98,8 @@ _PTR(SComponent) SALOMEDS_StudyBuilder::NewComponent(const std::string& Componen
 void SALOMEDS_StudyBuilder::DefineComponentInstance (const _PTR(SComponent)& theSCO, 
 						     const std::string& ComponentIOR)
 {
-  if(theSCO) return;
+  ASSERT(theSCO);
+  if(!theSCO) return;
 
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO.get());
   if (_isLocal) {
@@ -116,7 +117,9 @@ void SALOMEDS_StudyBuilder::DefineComponentInstance (const _PTR(SComponent)& the
 
 void SALOMEDS_StudyBuilder::RemoveComponent(const _PTR(SComponent)& theSCO)
 {
+  ASSERT(theSCO);
   if(!theSCO) return;
+
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO.get());
   if (_isLocal) {
     CheckLocked();
@@ -130,6 +133,8 @@ void SALOMEDS_StudyBuilder::RemoveComponent(const _PTR(SComponent)& theSCO)
 _PTR(SObject) SALOMEDS_StudyBuilder::NewObject(const _PTR(SObject)& theFatherObject)
 {
   CheckLocked();
+
+  ASSERT(theFatherObject);
 
   SALOMEDSClient_SObject* aSO = NULL;
   SALOMEDS_SObject* father = dynamic_cast< SALOMEDS_SObject*>(theFatherObject.get());
@@ -153,6 +158,9 @@ _PTR(SObject) SALOMEDS_StudyBuilder::NewObject(const _PTR(SObject)& theFatherObj
 _PTR(SObject) SALOMEDS_StudyBuilder::NewObjectToTag(const _PTR(SObject)& theFatherObject, int theTag)
 {  
   CheckLocked();
+
+  ASSERT(theFatherObject);
+  ASSERT(theTag > 0);
 
   SALOMEDSClient_SObject* aSO = NULL;
   SALOMEDS_SObject* father = dynamic_cast< SALOMEDS_SObject*>(theFatherObject.get());
@@ -192,7 +200,9 @@ void SALOMEDS_StudyBuilder::AddDirectory(const std::string& thePath)
 
 void SALOMEDS_StudyBuilder::LoadWith(const _PTR(SComponent)& theSCO, const std::string& theIOR)
 {
-  if(!theSCO) return;
+  ASSERT(theSCO);
+  if(!theSCO) 
+     THROW_SALOME_CORBA_EXCEPTION("Null SComponent", SALOME::BAD_PARAM);
 
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO.get());
   CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
@@ -216,6 +226,10 @@ void SALOMEDS_StudyBuilder::LoadWith(const _PTR(SComponent)& theSCO, const std::
 
 void SALOMEDS_StudyBuilder::Load(const _PTR(SObject)& theSCO)
 {
+  ASSERT(theSCO);
+  if(!theSCO) 
+     THROW_SALOME_CORBA_EXCEPTION("Null SComponent", SALOME::BAD_PARAM);
+
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO.get());
   if (_isLocal) _local_impl->Load(Handle(SALOMEDSImpl_SComponent)::DownCast(aSCO->GetLocalImpl()));
   else _corba_impl->Load(SALOMEDS::SComponent::_narrow(aSCO->GetCORBAImpl()));
@@ -223,6 +237,7 @@ void SALOMEDS_StudyBuilder::Load(const _PTR(SObject)& theSCO)
 
 void SALOMEDS_StudyBuilder::RemoveObject(const _PTR(SObject)& theSO)
 {
+  ASSERT(theSO);
   if(!theSO) return;
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
@@ -237,6 +252,7 @@ void SALOMEDS_StudyBuilder::RemoveObject(const _PTR(SObject)& theSO)
 
 void SALOMEDS_StudyBuilder::RemoveObjectWithChildren(const _PTR(SObject)& theSO)
 {
+  ASSERT(theSO);
   if(!theSO) return;
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
@@ -252,6 +268,8 @@ void SALOMEDS_StudyBuilder::RemoveObjectWithChildren(const _PTR(SObject)& theSO)
 _PTR(GenericAttribute) SALOMEDS_StudyBuilder::FindOrCreateAttribute(const _PTR(SObject)& theSO, 
 								    const std::string& aTypeOfAttribute)
 {  
+  ASSERT(theSO);
+
   SALOMEDSClient_GenericAttribute* anAttr = NULL;
   if(!theSO) return _PTR(GenericAttribute)(anAttr);
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
@@ -304,6 +322,7 @@ bool SALOMEDS_StudyBuilder::FindAttribute(const _PTR(SObject)& theSO,
 
 void SALOMEDS_StudyBuilder::RemoveAttribute(const _PTR(SObject)& theSO, const std::string& aTypeOfAttribute)
 {
+  ASSERT(theSO);
   if(!theSO) return;
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
@@ -318,6 +337,8 @@ void SALOMEDS_StudyBuilder::RemoveAttribute(const _PTR(SObject)& theSO, const st
 
 void SALOMEDS_StudyBuilder::Addreference(const _PTR(SObject)& me, const _PTR(SObject)& thereferencedObject)
 {
+  ASSERT(me);
+  ASSERT(thereferencedObject);
   if(!me || !thereferencedObject) return;
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(me.get());
@@ -333,6 +354,7 @@ void SALOMEDS_StudyBuilder::Addreference(const _PTR(SObject)& me, const _PTR(SOb
 
 void SALOMEDS_StudyBuilder::RemoveReference(const _PTR(SObject)& me)
 {
+  ASSERT(me);
   if(!me) return;
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(me.get());
   if (_isLocal) {
@@ -346,6 +368,7 @@ void SALOMEDS_StudyBuilder::RemoveReference(const _PTR(SObject)& me)
 
 void SALOMEDS_StudyBuilder::SetGUID(const _PTR(SObject)& theSO, const std::string& theGUID)
 {
+  ASSERT(theSO);
   if(!theSO) return;
   if(!Standard_GUID::CheckGUIDFormat((char*)theGUID.c_str())) throw invalid_argument("Invalid GUID");
 
@@ -361,6 +384,7 @@ void SALOMEDS_StudyBuilder::SetGUID(const _PTR(SObject)& theSO, const std::strin
  
 bool SALOMEDS_StudyBuilder::IsGUID(const _PTR(SObject)& theSO, const std::string& theGUID)
 {
+  ASSERT(theSO);
   if(!theSO || !Standard_GUID::CheckGUIDFormat((char*)theGUID.c_str())) return false;
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
@@ -506,6 +530,7 @@ void SALOMEDS_StudyBuilder::CheckLocked()
 
 void SALOMEDS_StudyBuilder::SetName(const _PTR(SObject)& theSO, const std::string& theValue)
 {
+  ASSERT(theSO);
   if(!theSO) return;
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
@@ -520,6 +545,7 @@ void SALOMEDS_StudyBuilder::SetName(const _PTR(SObject)& theSO, const std::strin
 
 void SALOMEDS_StudyBuilder::SetComment(const _PTR(SObject)& theSO, const std::string& theValue)
 {
+  ASSERT(theSO);
   if(!theSO) return;
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
@@ -534,6 +560,7 @@ void SALOMEDS_StudyBuilder::SetComment(const _PTR(SObject)& theSO, const std::st
 
 void SALOMEDS_StudyBuilder::SetIOR(const _PTR(SObject)& theSO, const std::string& theValue)
 {
+  ASSERT(theSO);
   if(!theSO) return;
 
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
