@@ -169,7 +169,7 @@ int main(int argc, char* argv[])
   // --- Kill all created Salome process
 
   system("killSalome.py");
-
+  system("rm -f ./traceUnitTest.log");
   // ---  Return error code 1 if the one of test failed.
 
   return wasSucessful ? 0 : 1;
