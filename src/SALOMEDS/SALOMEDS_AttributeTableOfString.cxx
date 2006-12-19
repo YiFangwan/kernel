@@ -91,7 +91,7 @@ void SALOMEDS_AttributeTableOfString::SetRowTitles(const std::vector<std::string
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for (i = 0; i < aLength; i++) aSeq[i] = (char*)theTitles[i].c_str();
+    for (i = 0; i < aLength; i++) aSeq[i] = CORBA::string_dup((char*)theTitles[i].c_str());
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetRowTitles(aSeq);
   }
 }
@@ -139,7 +139,7 @@ void SALOMEDS_AttributeTableOfString::SetColumnTitles(const std::vector<std::str
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for (i = 0; i < aLength; i++) aSeq[i] = (char*)theTitles[i].c_str();
+    for (i = 0; i < aLength; i++) aSeq[i] = CORBA::string_dup((char*)theTitles[i].c_str());
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetColumnTitles(aSeq);
   }
 }
@@ -187,7 +187,7 @@ void SALOMEDS_AttributeTableOfString::SetRowUnits(const std::vector<std::string>
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for (i = 0; i < aLength; i++) aSeq[i] = (char*)theUnits[i].c_str();
+    for (i = 0; i < aLength; i++) aSeq[i] = CORBA::string_dup((char*)theUnits[i].c_str());
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetRowUnits(aSeq);
   }
 }
@@ -253,7 +253,7 @@ void SALOMEDS_AttributeTableOfString::AddRow(const std::vector<std::string>& the
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for (i = 0; i < aLength; i++) aSeq[i] = (char*)theData[i].c_str();
+    for (i = 0; i < aLength; i++) aSeq[i] = CORBA::string_dup((char*)theData[i].c_str());
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->AddRow(aSeq);
   }
 }
@@ -278,7 +278,7 @@ void SALOMEDS_AttributeTableOfString::SetRow(int theRow, const std::vector<std::
   else {
     SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq();
     aSeq->length(aLength);
-    for (i = 0; i < aLength; i++) aSeq[i] = (char*)theData[i].c_str();
+    for (i = 0; i < aLength; i++) aSeq[i] = CORBA::string_dup((char*)theData[i].c_str());
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetRow(theRow, aSeq);
   }
 }
@@ -323,7 +323,7 @@ void SALOMEDS_AttributeTableOfString::AddColumn(const std::vector<std::string>& 
   else {
     SALOMEDS::StringSeq_var aColumn = new SALOMEDS::StringSeq();
     aColumn->length(aLength);
-    for (i = 0; i < aLength; i++) aColumn[i] = (char*)theData[i].c_str();
+    for (i = 0; i < aLength; i++) aColumn[i] = CORBA::string_dup((char*)theData[i].c_str());
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->AddColumn(aColumn);
   }
 }
@@ -348,7 +348,7 @@ void SALOMEDS_AttributeTableOfString::SetColumn(int theColumn, const std::vector
   else {
     SALOMEDS::StringSeq_var aColumn = new SALOMEDS::StringSeq();
     aColumn->length(aLength);
-    for (i = 0; i < aLength; i++) aColumn[i] = (char*)theData[i].c_str();
+    for (i = 0; i < aLength; i++) aColumn[i] = CORBA::string_dup((char*)theData[i].c_str());
     SALOMEDS::AttributeTableOfString::_narrow(_corba_impl)->SetColumn(theColumn, aColumn);
   }
 }
