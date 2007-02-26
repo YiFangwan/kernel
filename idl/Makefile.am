@@ -41,7 +41,10 @@ BASEIDL_FILES = \
   SALOME_GenericObj.idl \
   SALOME_Session.idl \
   SALOME_TestModuleCatalog.idl \
-  nstest.idl
+  nstest.idl \
+  DSC_Engines.idl \
+  SALOME_Ports.idl \
+  Calcium_Ports.idl 
 
 MPIIDL_FILES = \
   SALOME_MPIObject.idl \
@@ -78,7 +81,10 @@ BASEIDL_SOURCES =\
   SALOME_GenericObjSK.cc \
   SALOME_SessionSK.cc \
   SALOME_TestModuleCatalogSK.cc \
-  nstestSK.cc
+  nstestSK.cc \
+  DSC_EnginesSK.cc \
+  SALOME_PortsSK.cc \
+  Calcium_PortsSK.cc
 
 MPIIDL_SOURCES = \
   SALOME_MPIObjectSK.cc \

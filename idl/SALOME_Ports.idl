@@ -1,0 +1,83 @@
+//  Copyright (C) 2007	OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+//  File   : SALOME_Ports.idl
+//  Author : André RIBES, EDF
+//  $Header:
+
+#ifndef _SALOME_PORTS_IDL_
+#define _SALOME_PORTS_IDL_
+
+/*! \brief
+  This file contains the IDL declarations of the ports provided by the 
+  Salomé Runtime.
+ */
+
+module Ports {
+  
+  /*!
+    \interface Port
+    This interface (currently empty) defines a Port.
+    A port is a Corba interface.
+  */
+  interface Port {};
+
+  exception NotDefined {};
+  exception BadType {};
+
+  /*! \interface PortProperties
+    This interface permits to set and get properties
+    associeted to a port. Each uses or provides port have a 
+    PortProperties object. But this object could be empty
+  */
+  interface PortProperties {
+    void set_property(in string name, in any value) raises (Ports::BadType, 
+							    Ports::NotDefined);
+    any  get_property(in string name) raises (Ports::NotDefined);
+  };
+  
+  /*!
+    \interface Control_Port
+    This interface (currently empty) defines a Control Port.
+    When a component uses his control port, it says that the service associated 
+    to the port can be started.
+  */
+  interface Control_Port : Ports::Port {};
+  
+  /*!
+    \interface Data_Port
+    This interface (currently empty) defines a Data Port.
+    A Data Port is a port that transmit wihtout any informations
+    about control. So the service associated to the port could or could not 
+    be started.
+
+    Each Data Port has a Put operation for the emitter and a Get operation 
+    fot the receiver.
+  */
+  interface Data_Port : Ports::Port {};
+
+  /*!
+    \interface Data_And_Control_Port
+    This interface (currently empty) defines a combination of 
+    a Control_Port and a Data_Port.
+  */
+  interface Data_And_Control_Port : Ports::Port {};
+};
+
+#endif
