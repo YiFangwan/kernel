@@ -52,7 +52,8 @@ SUBDIR_CORBA = \
   KERNEL_PY \
   ModuleGenerator \
   Communication \
-  Communication_SWIG
+  Communication_SWIG \
+  DSC
 
 SUBDIR_CPPUNIT_BASE= \
   Basics/Test \

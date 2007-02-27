@@ -518,6 +518,8 @@ AC_OUTPUT([ \
 	./src/Communication/Makefile \
 	./src/Communication_SWIG/Makefile \
 	./src/Container/Makefile \
+	./src/DSC/Makefile \
+	./src/DSC/DSC_Basic/Makefile \
 	./src/GenericObj/Makefile \
 	./src/HDFPersist/Makefile \
 	./src/KERNEL_PY/Makefile \
