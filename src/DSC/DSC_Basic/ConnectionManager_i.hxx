@@ -44,6 +44,7 @@ class ConnectionManager_i :
     ~ConnectionManager_i();
 
     /*!
+     * CORBA method : connect two ports of two components.
      * \see Engines::ConnectionManager::connect
      */
     Engines::ConnectionManager::connectionId connect(Engines::DSC_ptr uses_component, 
@@ -55,6 +56,9 @@ class ConnectionManager_i :
 	     Engines::DSC::NilPort);
 
     /*!
+     * CORBA method : releases a connection performed with 
+     * ConnectionManager_i::connect.
+     *
      * \see Engines::ConnectionManager::disconnect
      */
     void disconnect(const Engines::ConnectionManager::connectionId id,
