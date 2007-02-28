@@ -19,7 +19,7 @@
 //
 //
 //
-//  File   : ConnectionManager_i.hxx
+//  File   : PortProperties_i.hxx
 //  Author : André RIBES (EDF)
 //  Module : KERNEL
  
@@ -29,6 +29,9 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Ports)
 
+/*! \class PortProperties_i
+ *  \brief This class implements the interface Ports::PortProperties.
+ */
 class PortProperties_i:
   public virtual POA_Ports::PortProperties
 {
@@ -36,12 +39,20 @@ class PortProperties_i:
     PortProperties_i();
     virtual ~PortProperties_i();
 
-    virtual void set_property(const char * name, const CORBA::Any& value)
+    /*!
+     * CORBA method : set a value to a property
+     * \see Ports::PortProperties::set_property
+     */
+    virtual void set_property(const char * name,
+			      const CORBA::Any& value)
       throw (Ports::NotDefined, Ports::BadType);
+
+    /*!
+     * CORBA method : get the value of a property
+     * \see Ports::PortProperties::get_property
+     */
     virtual CORBA::Any* get_property(const char* name)
       throw (Ports::NotDefined);
 };
 
 #endif
-
-

@@ -19,7 +19,7 @@
 //
 //
 //
-//  File   : PortProperties.cxx
+//  File   : PortProperties_i.cxx
 //  Author : André RIBES (EDF)
 //  Module : KERNEL
 
@@ -33,7 +33,7 @@ void
 PortProperties_i::set_property(const char * name, const CORBA::Any& value)
   throw (Ports::NotDefined, Ports::BadType)
 {
-  // Default ...
+  // Default case, the object has no properties.
   throw Ports::NotDefined();
 }
 
@@ -41,7 +41,7 @@ CORBA::Any*
 PortProperties_i::get_property(const char* name)
   throw (Ports::NotDefined)
 {
-  // Default ...
+  // Default case, the object has no properties.
   throw Ports::NotDefined();
 }
 
