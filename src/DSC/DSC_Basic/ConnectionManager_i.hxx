@@ -41,7 +41,7 @@ class ConnectionManager_i :
 {
   public :
     ConnectionManager_i(CORBA::ORB_ptr orb);
-    ~ConnectionManager_i();
+    virtual ~ConnectionManager_i();
 
     /*!
      * CORBA method : connect two ports of two components.
