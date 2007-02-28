@@ -346,7 +346,7 @@ module Engines {
 
 /*--------------------------------------------------------------------------------------------*/
   
-  /*! \brief Interface of the Superv_Component 
+  /*! \brief Interface of the Superv_Component. 
     This interface is a DSC component that contains services for the SALOME module SUPERV.
     This interface contains methods that are only in local (so they are described 
     and explained in the implementation class Superv_Component_i). These methods give access 
@@ -366,7 +366,7 @@ module Engines {
 
 /*--------------------------------------------------------------------------------------------*/
 
-  /*! \brief Interface of a Parallel_DSC component
+  /*! \brief Interface of a Parallel_DSC component.
     This interface defines the operations needed to add a paco++ port 
     into a parallel DSC component.
   */
