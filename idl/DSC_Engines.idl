@@ -29,14 +29,14 @@
 
 /*! \file
   This is a package that contains IDL interfaces that permits to add 
-  a dynamic port model to the %SALOME object model. 
+  a dynamic port model to the SALOME object model. 
  */
 module Engines {
 
-  /*! \brief Interface of a %DSC component.
+  /*! \brief Interface of a DSC component.
 
     This interface defines the operations needed to add a component model with dynamic port 
-    declaration to the %SALOME object model. A component is a black box that interacts with 
+    declaration to the SALOME object model. A component is a black box that interacts with 
     other components only by his ports. A port represents a connection point for the component. 
     In this model, a port is a CORBA interface, so a CORBA object.
     
@@ -71,8 +71,7 @@ module Engines {
 
     /*!
       This enumeration is used when the connection of a port (uses or provides) 
-      is changed. This information is for the user code that implements the 
-      component.
+      is changed. This information is for the component's user code.
     */  
     enum Message {AddingConnection,
                   RemovingConnection, 
@@ -80,7 +79,7 @@ module Engines {
     
     /*!
       This exception is raised when a port's name is gived before
-      is added to the component.
+      it is added to the component.
     */
     exception PortNotDefined {};
     
@@ -96,7 +95,7 @@ module Engines {
     exception PortNotConnected {};
 
     /*!
-      This exception is raised is the type of the provides port is bad.
+      This exception is raised if the type of the provides port is bad.
       This exception contains a string that gives what type is expected
       and the type that the operation received.
     */
@@ -111,14 +110,9 @@ module Engines {
     exception NilPort {};
 
     /*!
-      Port's reference is not good for the operation
+      Port's reference is not the right reference.
     */
     exception BadPortReference {};
-
-    /*!
-      Port is disconnected and someone is using it.
-    */
-    exception PortDisconnected {};
 
     /*!
       Object porperty is not good for the port
@@ -140,9 +134,9 @@ module Engines {
       \exception NilPort
       \exception BadProperty
 
-      \note Notice that the name of the port is unique on the component. So if there is 
-      a uses port that has the same the PorAlreadyDefined exception will be throw. Also
-      notice that each port as an object property that is associated with.
+      \note Notice that the name of the port is unique on a component. So if there is 
+      a uses port that has the same name, the PortAlreadyDefined exception will be throw. 
+      Also notice that each port as an object property that is associated with.
     */
     void add_provides_port(in Ports::Port ref, 
 			   in string provides_port_name,
@@ -162,8 +156,8 @@ module Engines {
       \exception BadProperty
 
       \note Notice that the name of the port is unique on the component. So if there is 
-      a provides port that has the same the PorAlreadyDefined exception will be throw. Also
-      notice that each port as an object property that is associated with.
+      a provides port that has the same name, the PortAlreadyDefined exception will be throw. 
+      Also notice that each port as an object property that is associated with.
     */
     void add_uses_port(in string repository_id, 
 		       in string uses_port_name,
@@ -176,10 +170,9 @@ module Engines {
 
       If it's the framework that wants the port, the reference has to be gived
       even if the port is not connected (boolean connection_error to false).
-      Contrary if it's the component that wants the port, the port is given
-      only if it is connected (boolean connection_error to true). Notice that you can
-      choose the behaviour that you want. In the DSC_User layer, the user code has no
-      choice.
+      Contrary, if it's the component that wants the port, the port is given
+      in most of cases only if it is connected (boolean connection_error to true). 
+      Notice that you can choose the behaviour that you want. 
      
       \param provides_port_name port's name.
       \param connection_error true if you want to wait that the port is connected with 
@@ -200,20 +193,20 @@ module Engines {
       This operation is used to get a uses port of the component.
       It can be used by the framework or the component himself.
       Actually, only the user layer of the component will use this operation.
-      A uses port could be obtain if and only if the uses port is connected. The sequence
+      A uses port could be obtained if and only if the uses port is connected. The sequence
       contains all the connections since a uses port can have multiple connections.
 
       There is a system of callbacks to prevent the user code that there is a new 
-      (or a deletion) connection (see DSC_Callbacks class). 
+      (or a deletion) of a connection (see DSC_Callbacks class). 
 
       \param uses_port_name port's name.
-      \return port's Corba reference.
-
-      \see DSC_Callbacks
+      \return uses port's sequence.
 
       \exception PortNotDefined
       \exception PortNotConnected
       \exception BadPortType
+
+      \see DSC_Callbacks
     */
     uses_port get_uses_port(in string uses_port_name) raises(PortNotDefined, 
 							     PortNotConnected,
@@ -225,17 +218,17 @@ module Engines {
 
       \param provides_port_name provides port's name.
 
-      \exception PortAlreadyConnected
       \exception PortNotDefined
-    */
 
+      \note Notice that the provides doesn't uses port names or component reference.
+    */
     void connect_provides_port(in string provides_port_name) raises(PortNotDefined); 
     
     /*!
       This operation connects a uses port with a provides port.
 
-      \param ref provides port's Corba reference.
       \param uses_port_name uses port's name.
+      \param ref provides port's Corba reference.
 
       \exception PortNotDefined
       \exception BadPortType
@@ -246,9 +239,10 @@ module Engines {
 								    BadPortType, 
 								    NilPort);
     /*!
-      This operation tests if a port is connected.
+      This operation tests if a port is connected. You can test 
+      a uses port or a provides port.
 
-      \param port_name uses port's name.
+      \param port_name port's name.
       \return true if the uses port is connected.      
 
       \exception PortNotDefined
@@ -259,7 +253,7 @@ module Engines {
       This operation disconnects a uses port to a provides port.
 
       \param provides_port_name provides port's name.
-      \param message state associated with the deconnection.
+      \param message state associated with the disconnection.
 
       \exception PortNotDefined
       \exception PortNotConnected
@@ -273,7 +267,7 @@ module Engines {
 
       \param uses_port_name uses port's name.
       \param provides_port_ref CORBA reference of the provides port.
-      \param message state associated with the deconnection.
+      \param message state associated with the disconnection.
       
       \exception PortNotDefined
       \exception PortNotConnected
@@ -284,14 +278,21 @@ module Engines {
 			      in Engines::DSC::Message message) raises(PortNotDefined,
 								       PortNotConnected,
 								       BadPortReference);
+    /*!
+      This operation permits to get port's property object.
 
+      \param port_name port's name.
+      \return properties object's CORBA reference.
+
+      \exception PortNotDefined
+    */
     Ports::PortProperties get_port_properties(in string port_name) raises(PortNotDefined);
 
   };
 
-  /*! \brief Interface of the %ConnectionManager
-    This interface defines a helper object for connection operations.
-    The ConnectionManager is used like other services of Salomé.
+  /*! \brief Interface of the ConnectionManager.
+    It is a helper object for connection operations.
+    The ConnectionManager is used like other services of SALOME (e.g ContainerManager).
   */
   interface ConnectionManager {
    
@@ -306,19 +307,20 @@ module Engines {
     typedef short connectionId;
 
     /*!
-      This operation connect a uses port with a provides port.
+      This operation connects a uses port with a provides port.
 
       \param uses_component The component that have the uses port.
-      \param uses_port_name port's uses name.
+      \param uses_port_name uses port's name.
       \param provides_component The component that have the provides port.
-      \param provides_port_name port's provides name.
+      \param provides_port_name provides port's name.
 
       \exception Engines::DSC::PortNotDefined
       \exception Engines::DSC::BadPortType
       \exception Engines::DSC::NilPort
 
       \return the id of the connection that the ConnectionManager will use
-      to release this connection when the framework will call disconnect.
+      to release this connection when the framework (or a user script, ...) 
+      will call ConnectionManager::disconnect.
     */ 
     connectionId connect(in Engines::DSC uses_component, 
 			 in string uses_port_name, 
@@ -328,12 +330,12 @@ module Engines {
 							      Engines::DSC::NilPort);
 
     /*!
-      This operation release a connection that has been previously created by 
+      This operation releases a connection that has been previously created by 
       the ConnectionManager.
 
       \param id The id of the connection previously gived by the connect operation
       of the ConnectionManager.
-      \param message state associated with the deconnection.
+      \param message state associated with the disconnection.
 
       \exception Engines::ConnectionManager::BadId
     */  
@@ -344,17 +346,17 @@ module Engines {
 
 /*--------------------------------------------------------------------------------------------*/
   
-  /*! \brief Interface of the %Superv_Component 
-    This interface is a component that contains services for the Salomé module SUPERV.
+  /*! \brief Interface of the Superv_Component 
+    This interface is a DSC component that contains services for the SALOME module SUPERV.
     This interface contains methods that are only in local (so they are described 
-    and explained in the implementation class). These methods give access to data-oriented 
-    ports provided by default by Salomé.
+    and explained in the implementation class Superv_Component_i). These methods give access 
+    to data-oriented ports provided by default by SALOME's kernel.
   */
   interface Superv_Component : Engines::DSC {
     
     /*! 
       The SUPERV module call this method before starting the service. Thus the service 
-      can add is dynamics ports before is started.
+      can add is dynamics ports before it is started.
 
       \param service_name service's name.
       \return true if the service is correctly initialised.
@@ -364,20 +366,21 @@ module Engines {
 
 /*--------------------------------------------------------------------------------------------*/
 
-  /*! \brief Interface of a parallel DSC component
+  /*! \brief Interface of a Parallel_DSC component
     This interface defines the operations needed to add a paco++ port 
-    into a parallel component in Salomé.
+    into a parallel DSC component.
   */
   interface Parallel_DSC : Engines::DSC {
 
     /*!
-      This operation gives the proxy node of a paco++ port 
-      to all the nodes.
+      This operation gives the proxy node of a paco++ port to all the nodes.
       Only a node of the parallel component is going to add a proxy object 
       with an internal method.
 
       \param ref provides proxy port's reference.
       \param name provides port's name.
+
+      \see Engines_ParallelDSC_i::add_parallel_provides_proxy_port
      */
     void set_paco_proxy(in Object ref, 
 			in string provides_port_name);
