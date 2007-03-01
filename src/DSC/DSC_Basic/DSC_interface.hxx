@@ -35,6 +35,9 @@
 
 /*! \class Engines_DSC_interface
  *  \brief This class implements the interface Engines::DSC
+ *
+ *  This class is used by the sequential DSC implementation
+ *  and the parallel DSC implementation.
  */
 class Engines_DSC_interface: 
   public DSC_Callbacks
@@ -81,12 +84,20 @@ public:
 
   /*!
    * \see Engines::DSC::connect_provides_port
+   *
+   * \note This method uses Callbacks mechanism to inform the provides
+   * port how much uses ports are connected with. Currently, the provides
+   * port doesn't know its uses ports references. It's framework or application role
+   * to manage connections between ports.
    */
   virtual void connect_provides_port(const char* provides_port_name)
     throw (Engines::DSC::PortNotDefined);
 
   /*!
    * \see Engines::DSC::connect_uses_port
+   *
+   * \note This method uses Callbacks mechanism to inform the uses
+   * port how much provides ports are connected with.
    */
   virtual void connect_uses_port(const char* uses_port_name,
 				 Ports::Port_ptr provides_port_ref) 
@@ -102,6 +113,11 @@ public:
 
    /*!
    * \see Engines::DSC::disconnect_provides_port
+   *
+   * \note This method uses Callbacks mechanism to inform the provides
+   * port how much uses ports are connected with. Currently, the provides
+   * port doesn't know its uses ports references. It's framework or application role
+   * to manage connections between ports.
    */
   virtual void disconnect_provides_port(const char* provides_port_name,
 					const Engines::DSC::Message message)
@@ -110,6 +126,14 @@ public:
 
    /*!
    * \see Engines::DSC::disconnect_uses_port
+   *
+   *
+   * \note This method uses Callbacks mechanism to inform the uses
+   * port how much provides ports are connected with. 
+   *
+   * \warning The new sequence of the uses port is sended by the callback. 
+   * The old sequence is not destoyed. Is uses port user's role to destroy 
+   * the sequence.
    */
   virtual void disconnect_uses_port(const char* uses_port_name,
 				    Ports::Port_ptr provides_port_ref,
@@ -118,6 +142,9 @@ public:
 	   Engines::DSC::PortNotConnected,
 	   Engines::DSC::BadPortReference);
 
+  /*!
+   * \see Engines::DSC::get_port_properties
+   */
   virtual Ports::PortProperties_ptr get_port_properties(const char* port_name)
     throw (Engines::DSC::PortNotDefined);
 

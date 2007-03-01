@@ -29,10 +29,6 @@ Engines_DSC_interface::Engines_DSC_interface() {}
 
 Engines_DSC_interface::~Engines_DSC_interface() {}
 
-/* Ajoute le provides port "name" avec sa reference "ref".
- * Lève PortAlreadyDefined si le port est déjà défini.
- * Lève NilPort si la reference du port est nil.
- */
 void
 Engines_DSC_interface::add_provides_port(Ports::Port_ptr ref, 
 				 const char* provides_port_name,
@@ -41,7 +37,7 @@ throw (Engines::DSC::PortAlreadyDefined,
        Engines::DSC::NilPort,
        Engines::DSC::BadProperty) 
 {
-  // Test des arguments de la méthode
+  // Method args test
   assert(provides_port_name);
   if (CORBA::is_nil(ref))
     throw Engines::DSC::NilPort();
@@ -50,23 +46,20 @@ throw (Engines::DSC::PortAlreadyDefined,
 
   my_ports_it = my_ports.find(provides_port_name);
   if (my_ports_it ==  my_ports.end()) {
-    // Creation d'un nouveau port de type provides.
+    // Creating a new port provides
     port_t * new_port = new port_t();
     new_port->type = provides;
     new_port->connection_nbr = 0;
     new_port->provides_port_ref = Ports::Port::_duplicate(ref);
     new_port->port_prop = Ports::PortProperties::_duplicate(port_prop);
 
-    // Enregistrement du port dans la map.
+    // Port into the port's map
     my_ports[provides_port_name] = new_port;
   }
   else
     throw Engines::DSC::PortAlreadyDefined();
 }
 
-/* Ajoute le uses port "name" avec son repository_id Corba.
- * Lève PortAlreadyDefined si le port est déjà défini.
- */
 void
 Engines_DSC_interface::add_uses_port(const char* repository_id, 
 			     const char* uses_port_name,
@@ -74,9 +67,9 @@ Engines_DSC_interface::add_uses_port(const char* repository_id,
 throw (Engines::DSC::PortAlreadyDefined,
        Engines::DSC::BadProperty) 
 {
-  // Test des arguments de la méthode
-  // Note : Il est difficile de tester si la chaîne du 
-  // repository_id est valide ...
+  // Method args test
+  // Note : We can't be shure that repository id
+  // is a correct CORBA id.
   assert(repository_id);
   assert(uses_port_name);
   if (CORBA::is_nil(port_prop))
@@ -84,7 +77,7 @@ throw (Engines::DSC::PortAlreadyDefined,
 
   my_ports_it = my_ports.find(uses_port_name);
   if (my_ports_it ==  my_ports.end()) {
-    // Creation d'un nouveau port de type uses.
+    // Creating a new uses port
     port_t * new_port = new port_t();
     new_port->type = uses;
     new_port->connection_nbr = 0;
@@ -92,19 +85,13 @@ throw (Engines::DSC::PortAlreadyDefined,
     new_port->repository_id = repository_id;
     new_port->port_prop = Ports::PortProperties::_duplicate(port_prop);
 
-    // Enregistrement du port dans la map.
+    // Port into port's map
     my_ports[uses_port_name] = new_port;
   }
   else
     throw Engines::DSC::PortAlreadyDefined();
 }
 
-/* Fournit le port provides qui a le nom "provides_port_name" dans les my_ports.
- * Lève l'exception Engines::DSC::PortNotDefined s'il ne trouve
- * pas le port.
- * Le booleen permet de savoir s'il faut donner ou non le port s'il est connecté
- * ou non.
- */ 
 Ports::Port_ptr
 Engines_DSC_interface::get_provides_port(const char* provides_port_name,
 				 const CORBA::Boolean connection_error) 
@@ -112,7 +99,7 @@ Engines_DSC_interface::get_provides_port(const char* provides_port_name,
 	 Engines::DSC::PortNotConnected, 
 	 Engines::DSC::BadPortType) 
 {
-  // Test des arguments de la méthode
+  // Method arg test
   assert(provides_port_name);
 
   Ports::Port_ptr rtn_port = Ports::Port::_nil();
@@ -122,7 +109,8 @@ Engines_DSC_interface::get_provides_port(const char* provides_port_name,
 //   for(it=my_ports.begin();it!=my_ports.end();++it) 
 //     std::cout << "|"<<(*it).first<<"|, ";
 //   std::cout << std::endl;
-  
+ 
+  // Searching the port
   my_ports_it = my_ports.find(provides_port_name);
   if (my_ports_it ==  my_ports.end())
     throw Engines::DSC::PortNotDefined();
@@ -140,22 +128,18 @@ Engines_DSC_interface::get_provides_port(const char* provides_port_name,
   return rtn_port;
 }
 
-/* Fournit le port uses qui a le nom "uses_port_name" s'il existe et s'il est 
- * connecté.
- * Dans le cas contraire lève les exceptions :
- * PortNotDefined, PortNotConnected.
- */
 Engines::DSC::uses_port * 
 Engines_DSC_interface::get_uses_port(const char* uses_port_name) 
   throw (Engines::DSC::PortNotDefined,
 	 Engines::DSC::PortNotConnected,
 	 Engines::DSC::BadPortType) 
 {
-  // Test des arguments de la méthode
+  // Method arg test
   assert(uses_port_name);
 
   Engines::DSC::uses_port * rtn_port = NULL;  
-  // On commence par tester si le port existe
+
+  // Searching the uses port
   my_ports_it = my_ports.find(uses_port_name);
   if (my_ports_it == my_ports.end())
     throw Engines::DSC::PortNotDefined();
@@ -166,7 +150,7 @@ Engines_DSC_interface::get_uses_port(const char* uses_port_name)
     throw BPT;
   }
 
-  // On regarde maintenant si le port est connecté
+  // Is the port connected ?
   if (my_ports[uses_port_name]->connection_nbr > 0) {
     rtn_port = new Engines::DSC::uses_port(my_ports[uses_port_name]->uses_port_refs);
   }
@@ -176,23 +160,14 @@ Engines_DSC_interface::get_uses_port(const char* uses_port_name)
   return rtn_port;
 }
 
-
-/* 
- * Cette méthode prévient par le biais de l'attribut connection_nbr
- * que le port provides est connecté à un uses port de plus.
- * Notons que pour le moment le provides_port n'a pas de référence sur le composant
- * qui détient le uses port. Le modèle actuel considère que c'est au 
- * "framework" ou a l'application de gérer les connexions et les déconnexions.
- * Il n'y a donc pas de callback entre deux ports connectés.
- *
- */
 void
 Engines_DSC_interface::connect_provides_port(const char* provides_port_name)
     throw (Engines::DSC::PortNotDefined)
 {
+  // Method arg test
   assert(provides_port_name);
 
-  // Le port uses existe t'il ?
+  // Searching the provides port
   my_ports_it = my_ports.find(provides_port_name);
   if (my_ports_it ==  my_ports.end())
     throw Engines::DSC::PortNotDefined();
@@ -200,22 +175,15 @@ Engines_DSC_interface::connect_provides_port(const char* provides_port_name)
     throw Engines::DSC::PortNotDefined();
 
 
-  // Augmentation du nombre de connexions
+  // Adding a new connection
   my_ports[provides_port_name]->connection_nbr += 1;
-  // On prévient le code utilisateur
+  // User code is informed
   provides_port_changed(provides_port_name, 
 			my_ports[provides_port_name]->connection_nbr,
 			Engines::DSC::AddingConnection
 		       );
 }
 
-/* Cette méthode permet d'ajouter une connexion à un port uses.
- * Elle appelle ensuite une méthode abstraite que le composant doit 
- * implémenter afin d'être averti lorsque les connexions changent.
- * En effet, l'utilisateur doit ensuite prendre le nouveau uses_port
- * fournit dans le callback.
- *
- */
 void
 Engines_DSC_interface::connect_uses_port(const char* uses_port_name,
 					 Ports::Port_ptr provides_port_ref) 
@@ -223,9 +191,13 @@ Engines_DSC_interface::connect_uses_port(const char* uses_port_name,
 	 Engines::DSC::BadPortType,
 	 Engines::DSC::NilPort)
 {
+  // Method arg test
   assert(uses_port_name);
 
-  // Le port uses existe t'il ?
+  if (CORBA::is_nil(provides_port_ref))
+    throw Engines::DSC::NilPort();
+
+  // Searching the uses port
   my_ports_it = my_ports.find(uses_port_name);
   if (my_ports_it ==  my_ports.end())
     throw Engines::DSC::PortNotDefined();
@@ -236,25 +208,20 @@ Engines_DSC_interface::connect_uses_port(const char* uses_port_name,
     throw BPT;
   }
 
-  // La reference est-elle nulle ?
-  if (CORBA::is_nil(provides_port_ref))
-    throw Engines::DSC::NilPort();
-
-  // Le type est-il correct ?
+  // repository_id test
   const char * repository_id = my_ports[uses_port_name]->repository_id.c_str();
   if (provides_port_ref->_is_a(repository_id)) 
   {
-    // Ajout dans la sequence
+    // Adding provides port into the uses port sequence
     CORBA::ULong lgth = my_ports[uses_port_name]->uses_port_refs.length();
     my_ports[uses_port_name]->
       uses_port_refs.length(lgth + 1);
     my_ports[uses_port_name]->uses_port_refs[lgth] = 
       Ports::Port::_duplicate(provides_port_ref);
 
-    // Augmentation du nombre de connexions
+    // Adding a new connection
     my_ports[uses_port_name]->connection_nbr += 1;
-    
-    // Appel du callback pour prévenir le uses port a été modifié
+    // User code is informed
     uses_port_changed(uses_port_name,
 		      new Engines::DSC::uses_port(my_ports[uses_port_name]->uses_port_refs),
 		      Engines::DSC::AddingConnection);
@@ -269,23 +236,20 @@ Engines_DSC_interface::connect_uses_port(const char* uses_port_name,
 
 }
 
-/* Cette méthode teste si le uses port "name" est connecté.
- * Léve PortNotDefined si le port n'existe pas.
- */
 CORBA::Boolean
 Engines_DSC_interface::is_connected(const char* port_name) 
   throw (Engines::DSC::PortNotDefined) 
 {
-  assert(port_name);
-
   CORBA::Boolean rtn = false;
 
-  // Le port existe t-il ?
+  // Method arg test
+  assert(port_name);
+
   my_ports_it = my_ports.find(port_name);
   if (my_ports_it ==  my_ports.end())
     throw Engines::DSC::PortNotDefined();
 
-  // Le port est-il connecté ?
+  // Is it connected ?
   if (my_ports[port_name]->connection_nbr > 0)
     rtn = true;
 
@@ -298,16 +262,16 @@ Engines_DSC_interface::disconnect_provides_port(const char* provides_port_name,
 throw (Engines::DSC::PortNotDefined,
        Engines::DSC::PortNotConnected)
 {
+  // Method args test
   assert(provides_port_name);
 
-  // Le port existe t-il ?
   my_ports_it = my_ports.find(provides_port_name);
   if (my_ports_it ==  my_ports.end())
     throw Engines::DSC::PortNotDefined();
   if (my_ports[provides_port_name]->type != provides)
     throw Engines::DSC::PortNotDefined();
 
-  // Le port est-il connecté ?
+  // Is it connected ?
   if (my_ports[provides_port_name]->connection_nbr > 0) 
   {
     my_ports[provides_port_name]->connection_nbr -= 1;
@@ -327,22 +291,20 @@ throw (Engines::DSC::PortNotDefined,
        Engines::DSC::PortNotConnected,
        Engines::DSC::BadPortReference) 
 {
+  // Method args test
   assert(uses_port_name);
 
-  // Le port existe t-il ?
   my_ports_it = my_ports.find(uses_port_name);
   if (my_ports_it ==  my_ports.end())
     throw Engines::DSC::PortNotDefined();
   if (my_ports[uses_port_name]->type != uses)
     throw Engines::DSC::PortNotDefined();
 
-  // Le port est-il connecté ?
-  if (my_ports[uses_port_name]->connection_nbr > 0) {
-    // On cherche le port dans la sequence representant le
-    // uses port.
-    if (CORBA::is_nil(provides_port_ref))
-      throw Engines::DSC::BadPortReference();
+  if (CORBA::is_nil(provides_port_ref))
+    throw Engines::DSC::BadPortReference();
 
+  // Is it connected ?
+  if (my_ports[uses_port_name]->connection_nbr > 0) {
     CORBA::Long port_index = -1;
     CORBA::ULong seq_length = my_ports[uses_port_name]->uses_port_refs.length(); 
     for(int i = 0; i < seq_length; i++)
@@ -353,7 +315,6 @@ throw (Engines::DSC::PortNotDefined,
 	break;
       }
     }
-
     if (port_index == -1)
       throw Engines::DSC::BadPortReference();
 
@@ -379,11 +340,10 @@ throw (Engines::DSC::PortNotDefined,
       }
     }
 
-    // On remplace la sequence ...
+    // New uses port's sequence
     my_ports[uses_port_name]->uses_port_refs = *new_uses_port;
 
-    // Rq c'est à l'utilisateur de détruire 
-    // la sequence s'il n'en veut pas !!!
+    // The user code is informed
     uses_port_changed(uses_port_name,
 		      new_uses_port,
 		      message);
@@ -396,11 +356,11 @@ Ports::PortProperties_ptr
 Engines_DSC_interface::get_port_properties(const char* port_name) 
   throw (Engines::DSC::PortNotDefined) 
 {
-  assert(port_name);
-
   Ports::PortProperties_ptr rtn_properties = Ports::PortProperties::_nil();
 
-  // Le port existe t-il ?
+  // Method arg test
+  assert(port_name);
+
   my_ports_it = my_ports.find(port_name);
   if (my_ports_it ==  my_ports.end())
     throw Engines::DSC::PortNotDefined();
