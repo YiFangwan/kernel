@@ -23,4 +23,4 @@
 #  Author : André RIBES (EDF)
 #  Module : KERNEL
 
-SUBDIRS = DSC_Basic
+SUBDIRS = DSC_Basic DSC_User

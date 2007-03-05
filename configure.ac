@@ -520,6 +520,7 @@ AC_OUTPUT([ \
 	./src/Container/Makefile \
 	./src/DSC/Makefile \
 	./src/DSC/DSC_Basic/Makefile \
+	./src/DSC/DSC_User/Makefile \
 	./src/GenericObj/Makefile \
 	./src/HDFPersist/Makefile \
 	./src/KERNEL_PY/Makefile \
