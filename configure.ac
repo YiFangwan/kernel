@@ -521,6 +521,10 @@ AC_OUTPUT([ \
 	./src/DSC/Makefile \
 	./src/DSC/DSC_Basic/Makefile \
 	./src/DSC/DSC_User/Makefile \
+	./src/DSC/DSC_User/Basic/Makefile \
+	./src/DSC/DSC_User/Datastream/Makefile \
+	./src/DSC/DSC_User/Datastream/Palm/Makefile \
+	./src/DSC/DSC_User/Datastream/Calcium/Makefile \
 	./src/GenericObj/Makefile \
 	./src/HDFPersist/Makefile \
 	./src/KERNEL_PY/Makefile \

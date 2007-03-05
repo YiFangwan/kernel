@@ -1,25 +1,7 @@
-//  Copyright (C) 2007	OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
-// 
-//  This library is free software; you can redistribute it and/or 
-//  modify it under the terms of the GNU Lesser General Public 
-//  License as published by the Free Software Foundation; either 
-//  version 2.1 of the License. 
-// 
-//  This library is distributed in the hope that it will be useful, 
-//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
-//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
-//  Lesser General Public License for more details. 
-// 
-//  You should have received a copy of the GNU Lesser General Public 
-//  License along with this library; if not, write to the Free Software 
-//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
-// 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
-//
-//  File   : Calcium_Ports.idl
-//  Author : Eric FAYOLLE, EDF
-//  $Header:
+// Eric Fayolle - EDF R&D
+// Modified by : $LastChangedBy$
+// Date        : $LastChangedDate: 2007-01-08 19:01:14 +0100 (Mon, 08 Jan 2007) $
+// Id          : $Id$
 
 #ifndef _CALCIUM_PORTS_IDL_
 #define _CALCIUM_PORTS_IDL_
@@ -30,6 +12,14 @@ module Ports {
 
   module Calcium_Ports {
 
+    typedef boolean DisconnectDirective;
+    const DisconnectDirective stop = FALSE;
+    const DisconnectDirective cont = TRUE;
+
+    interface Calcium_Port : Ports::Data_Port {
+      void disconnect(in DisconnectDirective mode);
+    };
+
     typedef sequence<long>    seq_long;
     typedef sequence<float>   seq_float;
     typedef sequence<double>  seq_double;
@@ -37,27 +27,27 @@ module Ports {
     typedef sequence<boolean> seq_boolean;
     typedef seq_float         seq_complex;
 
-    interface Calcium_Integer_Port : Ports::Data_Port {
+    interface Calcium_Integer_Port : Calcium_Port {
       void put (in seq_long data, in double time, in long tag);
     };
 
-    interface Calcium_Real_Port : Ports::Data_Port {
+    interface Calcium_Real_Port : Calcium_Port {
       void put (in seq_float data, in double time, in long tag);
     };
 
-    interface Calcium_Double_Port : Ports::Data_Port {
+    interface Calcium_Double_Port : Calcium_Port {
       void put (in seq_double data, in double time, in long tag);
     };
 
-    interface Calcium_String_Port : Ports::Data_Port {
+    interface Calcium_String_Port : Calcium_Port {
       void put (in seq_string data, in double time, in long tag);
     };
 
-    interface Calcium_Logical_Port : Ports::Data_Port {
+    interface Calcium_Logical_Port : Calcium_Port {
       void put (in seq_boolean data, in double time, in long tag);
     };
 
-    interface Calcium_Complex_Port : Ports::Data_Port {
+    interface Calcium_Complex_Port : Calcium_Port {
       void put (in seq_complex data, in double time, in long tag);
     };
 

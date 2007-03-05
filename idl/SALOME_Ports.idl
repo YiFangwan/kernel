@@ -106,7 +106,15 @@ module Ports {
     */
     any  get_property(in string name) raises (Ports::NotDefined);
   };
-  
+
+  /*! \brief Interface of a basic datastream short port
+    This interface defines a Data_Port that transmit a CORBA::Short.
+    This interface can be seen as an example of an integration of 
+    a port in the DSC_User programming model.
+  */
+  interface Data_Short_Port : Ports::Data_Port {
+    void put(in short data);
+  };
 };
 
 #endif

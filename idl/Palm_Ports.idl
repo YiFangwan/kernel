@@ -1,0 +1,29 @@
+// André Ribes - EDF R&D 2006
+
+#ifndef _PALM_PORTS_IDL_
+#define _PALM_PORTS_IDL_
+
+#include "SALOME_Ports.idl"
+
+module Ports {
+
+  module Palm_Ports {
+
+    // Tous les ports Palm ont
+    // une méthode put avec 3 arguments 
+    // dont les deux derniers sont :
+    // in long time, in long tag
+
+    interface Palm_Data_Short_Port : Ports::Data_Port {
+      void put (in short data, in long time, in long tag);
+    };
+
+    typedef sequence<short> seq_short;
+    interface Palm_Data_Seq_Short_Port : Ports::Data_Port {
+      void put (in seq_short data, in long time, in long tag);
+    };
+
+  };
+};
+
+#endif

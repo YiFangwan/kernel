@@ -44,7 +44,8 @@ BASEIDL_FILES = \
   nstest.idl \
   DSC_Engines.idl \
   SALOME_Ports.idl \
-  Calcium_Ports.idl 
+  Calcium_Ports.idl \
+  Palm_Ports.idl
 
 MPIIDL_FILES = \
   SALOME_MPIObject.idl \
@@ -84,7 +85,8 @@ BASEIDL_SOURCES =\
   nstestSK.cc \
   DSC_EnginesSK.cc \
   SALOME_PortsSK.cc \
-  Calcium_PortsSK.cc
+  Calcium_PortsSK.cc \
+  Palm_PortsSK.cc
 
 MPIIDL_SOURCES = \
   SALOME_MPIObjectSK.cc \

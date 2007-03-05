@@ -1,49 +1,81 @@
-AM_CXXFLAGS       = -I$(top_srcdir)/src/DSC_User \
-		    -I$(top_srcdir)/src/DSC_User/Datastream \
-		    -I$(top_builddir)/src/DSC_User \
-		    -I$(top_srcdir)/src/DSC_Basic \
-		    -I@KERNEL_ROOT_DIR@/include/salome \
-		    -I$(top_builddir)/idl  \
-		    @OMNIORB_INCLUDES@ \
-		    -I$(top_srcdir)/src/DSC_User/Datastream/Calcium
+#  Copyright (C) 2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+# 
+#  This library is free software; you can redistribute it and/or 
+#  modify it under the terms of the GNU Lesser General Public 
+#  License as published by the Free Software Foundation; either 
+#  version 2.1 of the License. 
+# 
+#  This library is distributed in the hope that it will be useful, 
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+#  Lesser General Public License for more details. 
+# 
+#  You should have received a copy of the GNU Lesser General Public 
+#  License along with this library; if not, write to the Free Software 
+#  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+# 
+# See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+#
+#
+#
+#  File   : Makefile.am
+#  Author : André RIBES (EDF), Eric Fayolle (EDF)
+#  Module : KERNEL
 
-BUILT_SOURCES = SALOME_Component.hh SALOME_Exception.hh
+include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-%.hh : @KERNEL_ROOT_DIR@/idl/salome/%.idl
-	@IDL@ @IDLGENFLAGS@ -I@KERNEL_ROOT_DIR@/idl/salome $<
+#
+# ===============================================================
+# Header to be installed
+# ===============================================================
+#
+# header files  
+salomeinclude_HEADERS = palm_port_factory.hxx \
+			palm_data_short_port_provides.hxx \
+			palm_data_seq_short_port_provides.hxx \
+			PalmCouplingPolicy.hxx
 
+#
+# ===============================================================
+# Local definitions
+# ===============================================================
+#
+
+# This local variable defines the list of CPPFLAGS common to all target in this package.
+COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
+		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream \
+		 -I$(top_srcdir)/src/DSC/DSC_Basic \
+		 -I$(top_srcdir)/src/Utils \
+		 -I$(top_builddir)/salome_adm/unix \
+		 -I$(top_builddir)/idl \
+		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+
+# This local variable defines the list of dependant libraries common to all target in this package.
+COMMON_LIBS = @CORBA_LIBS@
+
+#
+# ===============================================================
+# Libraries targets
+# ===============================================================
+#
 noinst_LTLIBRARIES = libSalomePalm.la
 
-libSalomePalm_la_SOURCES        = palm_port_factory.cxx 
-nodist_libSalomePalm_la_SOURCES = $(top_builddir)/idl/Palm_PortsSK.cc
-libSalomePalm_la_CXXFLAGS = -I$(top_srcdir)/src/DSC_User \
-			    -I$(top_srcdir)/src/DSC_User/Datastream \
-			    -I$(top_builddir)/src/DSC_User \
-			    -I$(top_srcdir)/src/DSC_Basic \
-			    -I@KERNEL_ROOT_DIR@/include/salome \
-			    -I$(top_builddir)/idl  \
-			    @OMNIORB_INCLUDES@ \
-			    -I$(top_srcdir)/src/DSC_User/Datastream/Calcium
+libSalomePalm_la_SOURCES  = palm_port_factory.cxx 
 
+libSalomePalm_la_CXXFLAGS = -no-undefined -version-info=0:0:0 \
+  			    $(COMMON_CPPFLAGS)
 
-## Réussir la déclaration forward ds ProcessTimeInterval.hxx afin d'enlever la ligne précédente
-
+#
+# ===============================================================
+# Executables targets
+# ===============================================================
+#
 noinst_PROGRAMS              = test_DataIdContainer
+
 test_DataIdContainer_SOURCES = test_DataIdContainer.cxx
-## pas normal d'être obligé de linké à caus de __init___...thread
-test_DataIdContainer_LDFLAGS = -L@KERNEL_ROOT_DIR@/lib/salome 
-#-L@PARALLEL_KERNEL_ROOT_DIR@/lib
-test_DataIdContainer_LDFLAGS +=  @OMNIORB_LIBS@ -lomniORB4 -lomniDynamic4 -lCOS4 -lCOSDynamic4 -lomnithread 
-##\
-##			       -lSalomeDSCContainer -lSalomeDSCSuperv -lSalomeDSCSupervDatastream -lSalomeDSCSupervBasic
 
-TESTS                        = test_DataIdContainer
-##test_DataIdContainer_CXXFLAGS = $(AM_CXXFLAGS) -I$(top_srcdir)/src/DSC_User/Basic \
-##				 -I$(top_srcdir)/src/DSC
-##################################################################################################################
+test_DataIdContainer_CXXFLAGS = $(COMMON_CPPFLAGS)
 
-include_HEADERS = palm_port_factory.hxx palm_data_short_port_provides.hxx \
-	palm_data_seq_short_port_provides.hxx PalmCouplingPolicy.hxx
-
-CLEANFILES = *.hh *SK.cc
+test_DataIdContainer_LDFLAGS = $(COMMON_LIBS)
 
