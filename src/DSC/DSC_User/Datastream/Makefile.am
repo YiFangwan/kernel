@@ -68,8 +68,9 @@ lib_LTLIBRARIES = libSalomeDatastream.la
 
 libSalomeDatastream_la_SOURCES        = fake.cc
 
-libSalomeDatastream_la_CXXFLAGS       = -no-undefined -version-info=0:0:0 \
-  					$(COMMON_CPPFLAGS)
+libSalomeDatastream_la_CXXFLAGS       = $(COMMON_CPPFLAGS)
 
 libSalomeDatastream_la_LIBADD         = $(COMMON_LIBS)
+
+libSalomeDatastream_la_LDFLAGS        = -no-undefined -version-info=0:0:0
 

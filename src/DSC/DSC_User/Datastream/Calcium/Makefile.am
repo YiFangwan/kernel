@@ -87,8 +87,9 @@ libSalomeCalcium_la_SOURCES  = calcium_port_factory.cxx \
 			       calcium_destructors_port_provides.cxx \
 			       calcium_destructors_port_uses.cxx
 
-libSalomeCalcium_la_CXXFLAGS = -no-undefined -version-info=0:0:0 \
-  			       $(COMMON_CPPFLAGS)
+libSalomeCalcium_la_CXXFLAGS = $(COMMON_CPPFLAGS)
+
+libSalomeCalcium_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 
 lib_LTLIBRARIES = libCalciumC.la
 

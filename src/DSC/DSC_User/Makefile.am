@@ -74,8 +74,9 @@ libSalomeDSCSuperv_la_SOURCES  = uses_port.cxx \
 				 provides_port.cxx \
 				 Superv_Component_i.cxx
 
-libSalomeDSCSuperv_la_CXXFLAGS = -no-undefined -version-info=0:0:0 \
-  				 $(COMMON_CPPFLAGS)
+libSalomeDSCSuperv_la_CXXFLAGS = $(COMMON_CPPFLAGS)
+
+libSalomeDSCSuperv_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 
 #
 # ===============================================================

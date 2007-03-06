@@ -63,8 +63,9 @@ noinst_LTLIBRARIES = libSalomePalm.la
 
 libSalomePalm_la_SOURCES  = palm_port_factory.cxx 
 
-libSalomePalm_la_CXXFLAGS = -no-undefined -version-info=0:0:0 \
-  			    $(COMMON_CPPFLAGS)
+libSalomePalm_la_CXXFLAGS = $(COMMON_CPPFLAGS)
+
+libSalomePalm_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 
 #
 # ===============================================================
