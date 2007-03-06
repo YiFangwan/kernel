@@ -31,7 +31,6 @@
 #ifndef _SUPERV_COMPONENT_I_HXX_
 #define _SUPERV_COMPONENT_I_HXX_
 
-#include "parallel_salome_config.h"
 #include "DSC_i.hxx"
 #include "base_port.hxx"
 #include "uses_port.hxx"

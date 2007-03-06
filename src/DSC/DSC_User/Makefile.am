@@ -26,3 +26,67 @@
 SUBDIRS = Basic Datastream
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
+
+#
+# ===============================================================
+# Header to be installed
+# ===============================================================
+#
+# header files  
+salomeinclude_HEADERS = base_port.hxx \
+			uses_port.hxx \
+			provides_port.hxx \
+			Superv_Component_i.hxx \
+			DSC_Exception.hxx
+
+#
+# ===============================================================
+# Local definitions
+# ===============================================================
+#
+
+# This local variable defines the list of CPPFLAGS common to all target in this package.
+COMMON_CPPFLAGS= -I$(srcdir)/Basic \
+		 -I$(srcdir)/Datastream  \
+		 -I$(srcdir)/Datastream/Palm \
+		 -I$(srcdir)/Datastream/Calcium \
+		 -I$(top_srcdir)/src/Container \
+		 -I$(top_srcdir)/src/Notification \
+		 -I$(top_srcdir)/src/DSC/DSC_Basic \
+		 -I$(top_srcdir)/src/SALOMELocalTrace \
+		 -I$(top_srcdir)/src/Basics \
+		 -I$(top_srcdir)/src/Utils \
+		 -I$(top_builddir)/salome_adm/unix \
+		 -I$(top_builddir)/idl \
+		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+
+# This local variable defines the list of dependant libraries common to all target in this package.
+COMMON_LIBS = 
+
+#
+# ===============================================================
+# Libraries targets
+# ===============================================================
+#
+lib_LTLIBRARIES = libSalomeDSCSuperv.la 
+
+libSalomeDSCSuperv_la_SOURCES  = uses_port.cxx \
+				 provides_port.cxx \
+				 Superv_Component_i.cxx
+
+libSalomeDSCSuperv_la_CXXFLAGS = -no-undefined -version-info=0:0:0 \
+  				 $(COMMON_CPPFLAGS)
+
+#
+# ===============================================================
+# Executables targets
+# ===============================================================
+#
+noinst_PROGRAMS = test_DSC_Exception
+
+test_DSC_Exception_SOURCES = test_DSC_Exception.cxx
+
+test_DSC_Exception_CXXFLAGS = $(COMMON_CPPFLAGS)
+
+test_DSC_Exception_LDADD = $(top_builddir)/src/Utils/libOpUtil.la
+
