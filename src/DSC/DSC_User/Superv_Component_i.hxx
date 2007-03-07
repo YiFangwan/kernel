@@ -1,32 +1,27 @@
-// André Ribes - EDF R&D 2006
+//  Copyright (C) 2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-// Cette classe implémente le moteur de la plate-forme Salomé
-//
-// Elle dispose de deux types méthodes :
-// Des méthodes pour les ports provides
-// Des méthodes pour les ports uses
-//
-// Les ports provides sont des ports fournis par la plate-forme réalisant
-// par exemple le fonctionnement des ports Calcium ou des ports Basiques sur les 
-// types CORBA
-//
-// Les ports uses sont des objets C++ faisant office de proxy pour le code du service afin 
-// de réaliser des fonctionnalités avant le transfert des données. Ces fonctionnalités doivent d'ailleurs 
-// être écrites par le développeur s'il utilise un port spécifique à son application.
 //
 //
-//
-// Pour ces besoins le moteur redéfini la méthode connect et fourni une méthode register
-// pour les proxy
-//
-// On notera que la méthode init n'est pas implémenté. Elle est laissée à l'implémentation 
-// du moteur et des services.
-//
-// Author      : ribes
-//
-// Modified by : $LastChangedBy: fayolle $
-// Date        : $LastChangedDate: 2007-03-01 13:36:05 +0100 (jeu, 01 mar 2007) $
-// Id          : $Id$
+//  File   : Superv_Component_i.hxx
+//  Author : André RIBES (EDF), Eric Fayolle (EDF)
+//  Module : KERNEL
 
 #ifndef _SUPERV_COMPONENT_I_HXX_
 #define _SUPERV_COMPONENT_I_HXX_
@@ -46,6 +41,18 @@
 
 using namespace std;
 
+/*! \class Superv_Component_i
+ *  \brief This class implements DSC_User component.
+ *
+ *  This class allows a higher programming level than DSC_Basic. It enables
+ *  a programming level for service's developpers who want to use DSC ports.
+ *
+ *  This class has two level for using and declare ports. The higher level proposes
+ *  operations to add ports that are provided by default by Salomé like Calcium ports.
+ *  It provides too some methods to add their own DSC_User ports.
+ *
+ *  \note This class doesn't implement the init_service CORBA operation.
+ */
 class Superv_Component_i :
   public Engines_DSC_i,
   virtual public POA_Engines::Superv_Component
@@ -59,8 +66,9 @@ public:
 		     bool notif = false);
   virtual ~Superv_Component_i();
 
-  // Déclarations des Exceptions
-  // Les définitions sont dans le .cxx
+  // Exceptions declarations.
+  // There are also declared on the Superv_Component_i.cxx to avoid problems
+  // from dlopen.
   DSC_EXCEPTION(BadFabType);
   DSC_EXCEPTION(BadType);
   DSC_EXCEPTION(BadCast);
@@ -71,70 +79,156 @@ public:
   DSC_EXCEPTION(NilPort);
   DSC_EXCEPTION(BadProperty);
   
-  // C++ methods currently disabled
+  /*!
+   * \warning currently disabled.
+   */
   virtual provides_port * create_provides_control_port() 
   {return NULL;}
+
+  /*!
+   * \warning currently disabled.
+   */
   virtual provides_port * create_provides_data_and_control_port(const char* port_type) 
   {return NULL;}
+
+  /*!
+   * \warning currently disabled.
+   */
   virtual uses_port * create_uses_control_port()
   {return NULL;}
+
+  /*!
+   * \warning currently disabled.
+   */
   virtual uses_port * create_uses_data_and_control_port(const char* port_type)
   {return NULL;}
 
-  // Fabriques
-  // Note: Il manque les méthodes pour ajouter des fabriques
-  // Dans ce cas là, les fabriques doivent contenir le constructeur
-  // Bref à revoir éventuellement puisque'on peut faire 
-  // autrement en surchargement ces méthodes dans le composant
-  // utilisateur
+  /*!
+   * This methode permits to create a provides port provided by the platform.
+   * (See documentation of DSC for knoing these ports).
+   *   
+   *
+   * \param port_fab_type type provides port.
+   * \return the provides port.
+   *
+   * \note It's user repsonsability to destroy the provides port.
+   */
   virtual provides_port * create_provides_data_port(const char* port_fab_type)
     throw (BadFabType);
+
+
+  /*!
+   * This methode permits to create a uses port provided by the platform.
+   * (See documentation of DSC for knoing these ports).
+   *   
+   *
+   * \param port_fab_type type uses port.
+   * \return the uses port.
+   *
+   * \note It's user repsonsability to destroy the uses port.
+   */
   virtual uses_port * create_uses_data_port(const char* port_fab_type)
     throw (BadFabType); 
 
-  // Ajouts/Récuperations
+  /*!
+   * Adds a port to the component. With this method only Salomé's provided DSC ports
+   * can be added.
+   *
+   * \param port_fab_type type of the port.
+   * \param port_type uses or provides.
+   * \param port_name the name of the port in the component.
+   */
   virtual void add_port(const char * port_fab_type,
 			const char * port_type,
 			const char * port_name)
     throw (PortAlreadyDefined, BadFabType, BadType, BadProperty);
 
+  /*!
+   * Adds a port to the component. With this method only Salomé's provided DSC ports
+   * can be added.
+   *
+   * \param port_fab_type type of the port.
+   * \param port_type uses or provides.
+   * \param port_name the name of the port in the component.
+   * \return the created port.   
+   */
   template < typename SpecificPortType >  
   SpecificPortType * add_port(const char * port_fab_type,
 			      const char * port_type,
 			      const char * port_name)
     throw (PortAlreadyDefined, BadFabType, BadType, BadCast, BadProperty);
 
+  /*!
+   * Adds a created provides port to the component.
+   *
+   * \param port the provides port.
+   * \param provides_port_name the name of the port in the component.
+   */
   virtual void add_port(provides_port * port, 
 			const char* provides_port_name)
     throw (PortAlreadyDefined, NilPort, BadProperty);
+
+  /*!
+   * Adds a created uses port to the component.
+   *
+   * \param port the uses port.
+   * \param uses_port_name the name of the port in the component.
+   */
   virtual void add_port(uses_port * port, 
 			const char* uses_port_name)
     throw (PortAlreadyDefined, NilPort, BadProperty);
 
+  /*!
+   * Gets the provides port already added in the component.
+   *
+   * \param port the provides port pointer.
+   * \param provides_port_name the name of the port.
+   */
   virtual void get_port(provides_port *& port, 
 			const char* provides_port_name)
     throw (PortNotDefined, PortNotConnected);
   
+  /*!
+   * Gets the uses port already added in the component.
+   *
+   * \param port the uses port pointer.
+   * \param uses_port_name the name of the port.
+   */
   virtual void get_port(uses_port *& port, 
 			const char* uses_port_name)
     throw (PortNotDefined, PortNotConnected);
 
+  /*!
+   * Gets the list of the ports of a service.
+   * If servicename is not set, all the ports of the component are 
+   * returned.
+   *
+   * \param port_names the ports's list.
+   * \param servicename service's name.
+   */
   virtual void get_uses_port_names(std::vector<std::string> & port_names,
 				   const std::string servicename="") const;
 
+  /*!
+   * Gets a port already added in the component.
+   *
+   * \param provides_port_name the name of the port.
+   * \return a port's pointer.
+   */
   template <typename SpecificPortType > 
-  SpecificPortType * get_port( const char * provides_port_name)
+  SpecificPortType * get_port( const char * port_name)
     throw (PortNotDefined, PortNotConnected, BadCast, UnexpectedState);
-  
-  // Connexions/Déconnexions
-  // Actuellement vide, mais on rajoutera bientôt des 
-  // méthodes afin de gérer la connexion dans un même container.
-
-  // Callbacks
+ 
+  /*!
+   * \see DSC_Callbacks::provides_port_changed
+   */
   virtual void provides_port_changed(const char* provides_port_name,
 				     int connection_nbr,
 				     const Engines::DSC::Message message);
 
+  /*!
+   * \see DSC_Callbacks::uses_port_changed
+   */
   virtual void uses_port_changed(const char* uses_port_name,
 				 Engines::DSC::uses_port * new_uses_port,
 				 const Engines::DSC::Message message);
@@ -142,18 +236,18 @@ public:
 
 private:    
 
-  // Les fabriques
+  // Fabrics
   basic_port_factory * _my_basic_factory;
   palm_port_factory * _my_palm_factory;
   calcium_port_factory *   _my_calcium_factory;
 
   /*-------------------------------------------------*/
-  // Gestion des ports
+  // A Superv_Component port.
   struct superv_port_t {
     superv_port_t():u_ref(NULL),p_ref(NULL){};
-    // Specifique aux uses port
+    // For uses ports.
     uses_port * u_ref;
-    // Specifique aux provides port;
+    // For provides ports.
     provides_port * p_ref;
   };
 

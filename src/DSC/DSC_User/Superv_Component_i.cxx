@@ -1,4 +1,28 @@
-// André Ribes - EDF R&D
+//  Copyright (C) 2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
+// 
+//  This library is free software; you can redistribute it and/or 
+//  modify it under the terms of the GNU Lesser General Public 
+//  License as published by the Free Software Foundation; either 
+//  version 2.1 of the License. 
+// 
+//  This library is distributed in the hope that it will be useful, 
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of 
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+//  Lesser General Public License for more details. 
+// 
+//  You should have received a copy of the GNU Lesser General Public 
+//  License along with this library; if not, write to the Free Software 
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
+// 
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+//
+//
+//  File   : Superv_Component_i.cxx
+//  Author : André RIBES (EDF), Eric Fayolle (EDF)
+//  Module : KERNEL
+
 #include "Superv_Component_i.hxx"
 
 DSC_EXCEPTION_CXX(Superv_Component_i,BadFabType);
@@ -28,14 +52,6 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 Superv_Component_i::~Superv_Component_i() {
   delete _my_basic_factory;
 }
-
-// Dans ces méthodes, on analyse le type pour connaître
-// quel constructeur appelé.
-// Le nom du port est sous la forme :
-// TYPE_name, exemple : BASIC_short
-//                    : PALM_sequence_long
-//                    : CALCIUM_long
-//                    : etc ...
 
 provides_port *
 Superv_Component_i::create_provides_data_port(const char* port_fab_type)
@@ -230,8 +246,6 @@ Superv_Component_i::provides_port_changed(const char* provides_port_name,
 					  int connection_nbr,
 					  const Engines::DSC::Message message)
 {
-  // On cherche tout d'abord à savoir si le port
-  // est un port que l'on a dans la liste ...
   my_superv_ports_it = my_superv_ports.find(provides_port_name);
   if (my_superv_ports_it !=  my_superv_ports.end())
     my_superv_ports[provides_port_name]->p_ref->provides_port_changed(connection_nbr,
@@ -243,8 +257,6 @@ Superv_Component_i::uses_port_changed(const char* uses_port_name,
 				      Engines::DSC::uses_port * new_uses_port,
 				      const Engines::DSC::Message message)
 {
-  // On cherche tout d'abord à savoir si le port
-  // est un port que l'on a dans la liste ...
   my_superv_ports_it = my_superv_ports.find(uses_port_name);
   if (my_superv_ports_it !=  my_superv_ports.end())
     my_superv_ports[uses_port_name]->u_ref->uses_port_changed(new_uses_port,
