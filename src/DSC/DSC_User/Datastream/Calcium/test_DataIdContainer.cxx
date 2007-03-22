@@ -28,7 +28,7 @@
 
 #include "CalciumCouplingPolicy.hxx"
 
-#include "calcium_port_provides.hxx"
+#include "CalciumProvidesPort.hxx"
 #include "DatastreamException.hxx"
 
 using namespace CalciumTypes;

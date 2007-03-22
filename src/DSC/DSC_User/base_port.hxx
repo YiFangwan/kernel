@@ -26,15 +26,26 @@
 #ifndef _PORT_HXX_
 #define _PORT_HXX_
 
-/*! \class base_port
- *  \brief This class is the base class of DSC_User's C++ ports.
- *
- *  This class is the base class of DSC_User's C++ ports.
+#include "PortProperties_i.hxx"
+/*
+ *  This class is base class for all DSC_User provides and uses port.
+ *  It provides a default property object for the port.
  */
 class base_port
 {
 public :
-  virtual ~base_port() {};
+  base_port();
+  virtual ~base_port();
+
+  /*!
+   * This is used to get the property object of the port.
+   *
+   * \return property's CORBA reference.
+   */
+  virtual Ports::PortProperties_ptr get_port_properties();
+
+protected :
+  PortProperties_i * default_properties;
 };
 
 #endif

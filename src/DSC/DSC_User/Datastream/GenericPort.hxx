@@ -281,7 +281,7 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
 // ( n'effectue pas de recopie de la donnée trouvée dans storedDatas )
 // ( L'utilisateur devra être attentif à la politique de gestion de l'historique
 //   spécifique au mode de couplage car il peut y avoir une suppression potentielle 
-//   d'une donnée utilisée directement au code utilisateur )
+//   d'une donnée utilisée directement dans le code utilisateur )
 //  Le code doit prendre connaissance du transfert de propriété ou non des données
 //  auprès du mode de couplage choisi. 
 template < typename DataManipulator, typename COUPLING_POLICY >
@@ -416,8 +416,10 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
   storedDatas_mutex.unlock();
   std::cout << "-------- Get : MARK 13 ------------------" << std::endl;
 
-  // dataToTransmit est positionné par la méthode put
-  // La propriété de la données est transmise à l'utilisateur
+  // La propriété de la données N'EST PAS transmise à l'utilisateur en mode CALCIUM
+  // Si l'utilisateur supprime la donnée, storedDataIds devient incohérent
+  // c'est eraseDataId qui choisi ou non de supprimer la donnée
+  // Du coup interaction potentielle entre le 0 copy et gestion des niveaux 
   return dataToTransmit; 
 
 }

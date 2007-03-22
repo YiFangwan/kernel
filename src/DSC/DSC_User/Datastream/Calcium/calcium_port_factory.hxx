@@ -34,7 +34,7 @@
 #include "provides_port.hxx"
 #include <string>
 
-#include "calcium_port_provides.hxx"
+#include "CalciumProvidesPort.hxx"
 
 #include "calcium_integer_port_uses.hxx"
 #include "calcium_real_port_uses.hxx"

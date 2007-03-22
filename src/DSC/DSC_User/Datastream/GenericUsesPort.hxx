@@ -43,7 +43,7 @@
 //ex : GENERATE_USES_PORT(Ports::Data_Short_Port,data_short_port);
 
 template <typename DataManipulator, typename CorbaPortType, char * repositoryName, typename UsesPort=uses_port> 
-class GenericUsesPort : public virtual UsesPort
+class GenericUsesPort : public UsesPort
 {
 public :
   // Type de données manipulés 
@@ -88,12 +88,15 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::set
     size_t n = _my_ports->length()+1;
     _my_ports->length(n);
     (*_my_ports)[n]=CorbaPortType::_narrow(port);
+    return true;
   }  else {
     // Vérifier si port is_nil
     _my_ports = new Engines::DSC::uses_port();
     _my_ports->length(1);
     (*_my_ports)[0]=CorbaPortType::_narrow(port);
+    return true;
   }
+  return false;
 }
 
 template <typename DataManipulator,typename CorbaPortType, char * repositoryName, typename UsesPort > 

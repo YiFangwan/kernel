@@ -79,10 +79,12 @@ public:
   double getAlpha() const ;
 
   void   setDeltaT(double deltaT );
-  double getdeltaT() const ;
+  double getDeltaT() const ;
 
   void setInterpolationSchem (InterpolationSchem interpolationSchem);
   void setExtrapolationSchem (ExtrapolationSchem extrapolationSchem);
+  InterpolationSchem getInterpolationSchem () const ;
+  ExtrapolationSchem getExtrapolationSchem () const ;
 
   // Classe DataId rassemblant les paramètres de la méthode PORT::put 
   // qui identifient l'instance d'une donnée pour Calcium
@@ -284,7 +286,7 @@ bool CalciumCouplingPolicy::isDataIdConveniant( AssocContainer & storedDatas, co
   return isEqual || isBounded;
 }
 
-
+// PAS ENCORE TESTE AVEC UN NIVEAU POSITIONNE
 // Supprime les DataId et les données associées
 // du container associative quand le nombre
 // de données stockées dépasse le niveau CALCIUM.

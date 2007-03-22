@@ -66,7 +66,9 @@ namespace CalciumTypes {
   const   int  UNLIMITED_STORAGE_LEVEL = CP_ILLIMITE;
   typedef enum {UNDEFINED_DEPENDENCY=CPIT,TIME_DEPENDENCY=CP_TEMPS,
 		ITERATION_DEPENDENCY=CP_ITERATION,
-		SEQUENCE_DEPENDENCY =CP_SEQUENTIEL }                        DependencyType;
+		// TYPE uniquement utilisé ds CalciumInterface 
+		SEQUENCE_DEPENDENCY =CP_SEQUENTIEL 
+                                                   }                        DependencyType;
   typedef enum {TI_SCHEM=TI,TF_SCHEM=TF,ALPHA_SCHEM}                        DateCalSchem;
   typedef enum {L0_SCHEM=CP_ESCALIER,L1_SCHEM=CP_LINEAIRE}                  InterpolationSchem;
   typedef enum {UNDEFINED_EXTRA_SCHEM,E0_SCHEM,E1_SCHEM}                    ExtrapolationSchem;

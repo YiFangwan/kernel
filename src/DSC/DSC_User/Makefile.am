@@ -70,7 +70,8 @@ COMMON_LIBS =
 #
 lib_LTLIBRARIES = libSalomeDSCSuperv.la 
 
-libSalomeDSCSuperv_la_SOURCES  = uses_port.cxx \
+libSalomeDSCSuperv_la_SOURCES  = base_port.cxx \
+				 uses_port.cxx \
 				 provides_port.cxx \
 				 Superv_Component_i.cxx
 

@@ -34,6 +34,7 @@ SUBDIRS = Palm Calcium
 #
 # header files  
 salomeinclude_HEADERS = GenericPort.hxx \
+			GenericProvidesPort.hxx \
 			GenericUsesPort.hxx \
 			DataIdFilter.hxx \
 			CorbaTypeManipulator.hxx \

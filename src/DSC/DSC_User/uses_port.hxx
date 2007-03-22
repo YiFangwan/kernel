@@ -29,14 +29,12 @@
 #include "base_port.hxx"
 #include "SALOME_Ports.hh"
 #include "DSC_Engines.hh"
-#include "PortProperties_i.hxx"
 
 /*! \class provides_port
  *  \brief This class implements a DSC_User uses C++ port.
  *
  *  This class is base class for all DSC_User uses port.
  *  It's an abstract class.
- *  It provides a default property object for the port.
  *
  *  Contrary to DSC_Basic layer, a uses port as an implementation
  *  provided by this class which permits to manipulate the uses port.
@@ -64,7 +62,7 @@ class uses_port : public base_port
     virtual bool set_port(Ports::Port_ptr port) = 0;
 
     /*!
-     * This is method is the uses port's callback to be aware of
+     * This method is the uses port's callback to be aware of
      * connections states.
      * It's an abstract method. The uses port uses this method
      * to manage the sequence of the DSC_Basic uses port.
@@ -75,15 +73,6 @@ class uses_port : public base_port
     virtual void uses_port_changed(Engines::DSC::uses_port * new_uses_port,
 				   const Engines::DSC::Message message) = 0;
 
-    /*!
-     * This is used to get the property object of the port.
-     *
-     * \return property's CORBA reference.
-     */
-    virtual Ports::PortProperties_ptr get_port_properties();
-
-  private :
-    PortProperties_i * default_properties;
 };
 
 #endif

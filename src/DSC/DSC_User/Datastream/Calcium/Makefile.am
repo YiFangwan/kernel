@@ -33,10 +33,13 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # header files  
 salomeinclude_HEADERS = calcium_port_factory.hxx \
+			CorbaTypes2CalciumTypes.hxx \
+			CalciumTypes2CorbaTypes.hxx \
 			CalciumGenericProvidesPort.hxx \
 			calcium_uses_port.hxx \
 			CalciumGenericUsesPort.hxx \
-			calcium_port_provides.hxx \
+			calcium_provides_port.hxx \
+			CalciumProvidesPort.hxx \
 			calcium_integer_port_uses.hxx \
 			calcium_real_port_uses.hxx \
 			calcium_double_port_uses.hxx \
@@ -82,9 +85,12 @@ noinst_LTLIBRARIES = libSalomeCalcium.la
 
 libSalomeCalcium_la_SOURCES  = calcium_port_factory.cxx \
 			       calcium_uses_port.cxx	\
+			       calcium_provides_port.cxx\
 			       calcium_repository_types.cxx \
 			       CalciumCouplingPolicy.cxx \
-			       calcium_destructors_port_provides.cxx \
+			       CorbaTypes2CalciumTypes.cxx \
+			       CalciumTypes2CorbaTypes.cxx \
+			       CalciumProvidesPort.cxx \
 			       calcium_destructors_port_uses.cxx
 
 libSalomeCalcium_la_CXXFLAGS = $(COMMON_CPPFLAGS)

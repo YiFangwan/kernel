@@ -67,7 +67,7 @@ public:
   virtual ~Superv_Component_i();
 
   // Exceptions declarations.
-  // There are also declared on the Superv_Component_i.cxx to avoid problems
+  // There are defined on the Superv_Component_i.cxx to avoid problems
   // from dlopen.
   DSC_EXCEPTION(BadFabType);
   DSC_EXCEPTION(BadType);

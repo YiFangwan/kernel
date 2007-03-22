@@ -29,14 +29,12 @@
 #include "base_port.hxx"
 #include "SALOME_Ports.hh"
 #include "DSC_Engines.hh"
-#include "PortProperties_i.hxx"
 
 /*! \class provides_port
  *  \brief This class implements a DSC_User provides C++ port.
  *
  *  This class is base class for all DSC_User provides port.
  *  It's an abstract class.
- *  It provides a default property object for the port.
  */
 class provides_port : public base_port
 {
@@ -61,15 +59,6 @@ class provides_port : public base_port
     virtual void provides_port_changed(int connection_nbr,
 				       const Engines::DSC::Message message) {}
 
-    /*!
-     * This is used to get the property object of the port.
-     *
-     * \return property's CORBA reference.
-     */
-    virtual Ports::PortProperties_ptr get_port_properties();
-
-  private :
-    PortProperties_i * default_properties;
 };
 
 #endif
