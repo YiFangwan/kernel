@@ -86,6 +86,7 @@ BASEIDL_SOURCES =\
   DSC_EnginesSK.cc \
   SALOME_PortsSK.cc \
   Calcium_PortsSK.cc \
+  Calcium_PortsDynSK.cc \
   Palm_PortsSK.cc
 
 MPIIDL_SOURCES = \
@@ -113,7 +114,7 @@ libSalomeIDLKernel_la_LIBADD  = @CORBA_LIBS@
 OMNIORB_IDL         = @OMNIORB_IDL@
 OMNIORB_IDLCXXFLAGS = @OMNIORB_IDLCXXFLAGS@
 OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@ -I$(top_builddir)/salome/idl
-IDLCXXFLAGS = -bcxx @IDLCXXFLAGS@ -I$(top_builddir)/salome/idl
+IDLCXXFLAGS = -bcxx @IDLCXXFLAGS@ -Wba -I$(top_builddir)/salome/idl
 IDLPYFLAGS  = @IDLPYFLAGS@
 
 # potential problem on parallel make on the following - multiple outputs
