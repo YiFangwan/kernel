@@ -72,10 +72,16 @@ module Ports {
   exception NotDefined {};
 
   /*!
-    This exception indicates that the value gived to the property is not
+    This exception indicates that the given value to the property is not
     of a good type.
   */
   exception BadType {};
+
+  /*!
+    This exception indicates that the given value to the property is not
+    authorized.
+  */
+  exception BadValue {};
 
   /*! \brief Interface of a PortProperties.
     This interface permits to set and get properties
@@ -93,7 +99,8 @@ module Ports {
       \exception Ports::BadType
       \exception Ports::NotDefined
     */
-    void set_property(in string name, in any value) raises (Ports::BadType, 
+    void set_property(in string name, in any value) raises (Ports::BadType,
+							    Ports::BadValue,
 							    Ports::NotDefined);
 
     /*!

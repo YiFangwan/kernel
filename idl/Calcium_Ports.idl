@@ -29,11 +29,18 @@ module Ports {
 
   module Calcium_Ports {
 
+    const long UNLIMITED_STORAGE_LEVEL = -70;   
+    enum DependencyType      { UNDEFINED_DEPENDENCY, TIME_DEPENDENCY, ITERATION_DEPENDENCY };
+    enum DateCalSchem        { TI_SCHEM, TF_SCHEM , ALPHA_SCHEM};
+    enum InterpolationSchem  { L0_SCHEM, L1_SCHEM };
+    enum ExtrapolationSchem  { UNDEFINED_EXTRA_SCHEM, E0_SCHEM, E1_SCHEM};
+
+    //    enum DisconnectDirective {UNDEFINED_DIRECTIVE,CONTINUE,STOP};
     typedef boolean DisconnectDirective;
     const DisconnectDirective stop = FALSE;
     const DisconnectDirective cont = TRUE;
 
-    interface Calcium_Port : Ports::Data_Port {
+    interface Calcium_Port : Ports::Data_Port, Ports::PortProperties {
       void disconnect(in DisconnectDirective mode);
     };
 
