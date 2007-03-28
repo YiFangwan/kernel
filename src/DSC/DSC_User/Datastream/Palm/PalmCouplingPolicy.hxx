@@ -37,16 +37,16 @@
 
 class PalmCouplingPolicy: public CouplingPolicy {
 
-  template <typename T_TIME, typename T_TAG >        class InternalDataIdContainer;
-  template <typename T_TIME, typename T_TAG > friend class InternalDataIdContainer;
   // Objet de filtrage et conversion d'un TIME
   filtre_conversion filtre_convert_TIME ;
   // Objet de filtrage et conversion d'un TAG
   filtre_conversion filtre_convert_TAG ;
 
-
 public:
-  
+
+  template <typename T_TIME, typename T_TAG >        class InternalDataIdContainer;
+  template <typename T_TIME, typename T_TAG > friend class InternalDataIdContainer;
+
   filtre_conversion * get_filtre_convert_TIME() { return &filtre_convert_TIME; }
   filtre_conversion * get_filtre_convert_TAG()  { return &filtre_convert_TAG;  }
  
@@ -104,7 +104,7 @@ public:
 
 
     // Pas encore testé
-    InternalDataIdContainer & operator=(const InternalDataIdContainer & p) {
+    InternalDataIdContainer & operator=(const InternalDataIdContainer & pc) {
       if (this != &pc) { _lTime=pc._lTime; _lTag=pc._lTag; }
       return *this;
     }
@@ -117,20 +117,23 @@ public:
     // exister (un seul paramètre n'est pas recevable) 
     bool     empty() const { return _lTime.empty() || _lTag.empty(); }
 
-  private:
     // Définition de l'itérateur du container
     template <typename TTIME, typename TTAG> class DataIdIterator {
 
-    private:
+    public:
+
       typedef typename std::vector<TTIME>::const_iterator ItTime;
       typedef typename std::vector<TTAG >::const_iterator ItTag;
+
+    private:
       ItTime _itTime;
       ItTag  _itTag;
       const InternalDataIdContainer<TTIME,TTAG> & _pc;
       DataIdIterator() {}
 
     public:
-
+ 
+ 
       // Pas encore testé
       DataIdIterator(const InternalDataIdContainer<TTIME,TTAG> & pc):
 	_pc(pc),_itTime(pc._lTime.begin()),_itTag(pc._lTag.begin()) {}

@@ -146,6 +146,7 @@ public:
       typedef typename Container::iterator   iterator;
 
       std::cout << "-------- Generic DisconnectProcessor called " << std::endl;
+      return true;
     }
   };
 

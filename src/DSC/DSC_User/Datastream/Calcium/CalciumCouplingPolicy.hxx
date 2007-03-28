@@ -38,14 +38,15 @@
 typedef DSC_Exception DATASTREAM_EXCEPTION;
 
 class CalciumCouplingPolicy : public CouplingPolicy  {
+
+
+public:
+
   template <typename T_TIME, typename T_TAG >        class InternalDataIdContainer;
   template <typename T_TIME, typename T_TAG > friend class InternalDataIdContainer;
   template <typename DataManipulator >        friend class BoundedDataIdProcessor;
   template <typename DataManipulator >        friend class EraseDataIdProcessor;
   template <typename DataManipulator >        friend class DisconnectProcessor;
-
-
-public:
 
   typedef CalciumTypes::DependencyType       DependencyType;
   typedef CalciumTypes::DateCalSchem         DateCalSchem;
@@ -144,10 +145,10 @@ struct CalciumCouplingPolicy::InternalDataIdContainer : public std::vector< std:
     // Ignore les paramètres qui ne sont pas en rapport avec le type de dépendance
     switch (policy._dependencyType) {
     case CalciumTypes::TIME_DEPENDENCY:
-      push_back(DataId(dataId.first,0));
+      this->push_back(DataId(dataId.first,0));
       break;
     case CalciumTypes::ITERATION_DEPENDENCY:
-      push_back(DataId(0,dataId.second));
+      this->push_back(DataId(0,dataId.second));
       break;
     default:
       throw(DATASTREAM_EXCEPTION(LOC("The dependency type must be set by setDependencyType before calling DataIdContainer contructor")));

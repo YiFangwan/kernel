@@ -194,6 +194,8 @@ SALOMEDS::SObject_ptr SALOMEDS_Study_i::CreateObjectID(const char* anObjectID)
 {
   SALOMEDS::Locker lock; 
 
+  if(!anObjectID || strlen(anObjectID) == 0) return SALOMEDS::SObject::_nil();
+
   Handle(SALOMEDSImpl_SObject) aSO = _impl->CreateObjectID((char*)anObjectID);
   if(aSO.IsNull()) return SALOMEDS::SObject::_nil();
 
@@ -399,6 +401,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetFileNames(const char* theContext)
 //============================================================================
 /*! Function : GetComponentNames
  *  Purpose  : method to get all components names
+ *  SRN:       Note, theContext can be any, it doesn't matter
  */
 //============================================================================
 SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetComponentNames(const char* theContext) 
@@ -406,9 +409,6 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetComponentNames(const char* theCont
   SALOMEDS::Locker lock; 
 
   SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
-
-  if (strlen(theContext) == 0 && !_impl->HasCurrentContext())
-    throw SALOMEDS::Study::StudyInvalidContext();
 
   Handle(TColStd_HSequenceOfAsciiString) aSeq =
     _impl->GetComponentNames(TCollection_AsciiString((char*)theContext));
@@ -880,10 +880,31 @@ char* SALOMEDS_Study_i::GetDefaultScript(const char* theModuleName, const char* 
   return CORBA::string_dup(script.c_str());
 }
 
+//============================================================================
+/*! Function : EnableUseCaseAutoFilling
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::EnableUseCaseAutoFilling(CORBA::Boolean isEnabled) 
+{ 
+  _impl->EnableUseCaseAutoFilling(isEnabled); 
+  Handle(SALOMEDSImpl_StudyBuilder) builder = _builder->GetImpl();
+  if(!builder.IsNull()) {
+    if(isEnabled) {
+      builder->SetOnAddSObject(_impl->GetCallback());
+      builder->SetOnRemoveSObject(_impl->GetCallback());
+    }
+    else {
+      builder->SetOnAddSObject(NULL);
+      builder->SetOnRemoveSObject(NULL);
+    }
+  }
+}
+
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================
-CORBA::Long SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
+CORBA::LongLong SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal)
 {
 #ifdef WIN32
   long pid = (long)_getpid();
@@ -892,5 +913,5 @@ CORBA::Long SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::Long 
 #endif  
   isLocal = (strcmp(theHostname, GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   SALOMEDSImpl_Study* local_impl = _impl.operator->();
-  return ((long)local_impl);
+  return ((CORBA::LongLong)local_impl);
 }

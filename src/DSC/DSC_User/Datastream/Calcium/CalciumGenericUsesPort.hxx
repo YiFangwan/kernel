@@ -47,11 +47,11 @@ CalciumGenericUsesPort< DataManipulator,CorbaPortType, repositoryName >::disconn
 
   typedef typename CorbaPortType::_ptr_type CorbaPortTypePtr;
 
-  if (!_my_ports)
+  if (!this->_my_ports)
     throw DSC_Exception(LOC("There is no connected provides port to communicate with."));
 
-  for(int i = 0; i < _my_ports->length(); i++) {
-    CorbaPortTypePtr port = CorbaPortType::_narrow((*_my_ports)[i]);
+  for(int i = 0; i < this->_my_ports->length(); i++) {
+    CorbaPortTypePtr port = CorbaPortType::_narrow((*this->_my_ports)[i]);
     try {
       std::cerr << "-------- CalciumGenericUsesPort<>::disconnect"<< std::endl;
 

@@ -341,7 +341,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
 	// Décide de la suppression de certaines  instances de données 
 	// La donnée contenu dans la structure CORBA et son dataId sont désallouées
 	// Méthode provenant de la COUPLING_POLICY 
-	typename COUPLING_POLICY::EraseDataIdProcessor<DataManipulator> processEraseDataId(*this);
+	typename COUPLING_POLICY::template EraseDataIdProcessor<DataManipulator> processEraseDataId(*this);
 	processEraseDataId.apply(storedDatas,wDataIt1);
 	std::cout << "-------- Get : MARK 6 ------------------" << std::endl;
 	break;
@@ -349,7 +349,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
       }
       std::cout << "-------- Get : MARK 7 ------------------" << std::endl;
 
-      //if (  isBounded() && COUPLING_POLICY::needToProcessBoundedDataId() ) {
+      //if (  isBounded() && COUPLING_POLICY::template needToProcessBoundedDataId() ) {
       // Le DataId demandé n'est pas trouvé mais est encadré ET la politique de couplage
       // implémente une méthode processBoundedDataId capable de générer les données à retourner
       if (  isBounded ) {
@@ -363,7 +363,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
 	// La propriété des données N'EST PAS transférée à l'utilisateur en mode CALCIUM.
 	std::cout << "-------- Get : MARK 8 ------------------" << std::endl;
 
-	typename COUPLING_POLICY::BoundedDataIdProcessor<DataManipulator> processBoundedDataId(*this);
+	typename COUPLING_POLICY::template BoundedDataIdProcessor<DataManipulator> processBoundedDataId(*this);
 	//si static BDIP::apply(dataToTransmit,expectedDataId,wDataIt1);
 	//ancienne version template processBoundedDataId<DataManipulator>(dataToTransmit,expectedDataId,wDataIt1);
 	//BDIP processBoundedDataId;
@@ -383,7 +383,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
 	std::cout << std::endl;
 	std::cout << "-------- Get : MARK 9 ------------------" << std::endl;
 
-	typename COUPLING_POLICY::EraseDataIdProcessor<DataManipulator> processEraseDataId(*this);
+	typename COUPLING_POLICY::template EraseDataIdProcessor<DataManipulator> processEraseDataId(*this);
 	processEraseDataId.apply(storedDatas,wDataIt1);
    
 	break;
@@ -391,7 +391,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
   
       // Délègue au mode de couplage la gestion d'une demande de donnée non disponible 
       // si le port est deconnecté
-      typename COUPLING_POLICY::DisconnectProcessor<DataManipulator> processDisconnect(*this);
+      typename COUPLING_POLICY::template DisconnectProcessor<DataManipulator> processDisconnect(*this);
       if ( processDisconnect.apply(storedDatas, expectedDataId, wDataIt1) ) continue;
     
       // Réception bloquante sur le dataId demandé
@@ -468,7 +468,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
 
       // Délègue au mode de couplage la gestion d'une demande de donnée non disponible 
       // si le port est deconnecté
-      typename COUPLING_POLICY::DisconnectProcessor<DataManipulator> processDisconnect(*this);
+      typename COUPLING_POLICY::template DisconnectProcessor<DataManipulator> processDisconnect(*this);
       if ( processDisconnect.apply(storedDatas, lastDataId, wDataIt1) ) break;
 
       std::cout << "-------- Next : MARK 2 ------------------" << std::endl;
@@ -497,7 +497,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
     std::cout << "-------- Next : MARK 7 ------------------" << std::endl;
     lastDataId    = (*wDataIt1).first;
 
-    typename COUPLING_POLICY::EraseDataIdProcessor<DataManipulator> processEraseDataId(*this);
+    typename COUPLING_POLICY::template EraseDataIdProcessor<DataManipulator> processEraseDataId(*this);
     processEraseDataId.apply(storedDatas, wDataIt1);
 
     std::cout << "-------- Next : MARK 8 ------------------" << std::endl;   

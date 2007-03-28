@@ -244,9 +244,15 @@ _PTR(SObject) SALOMEDS_Study::CreateObjectID(const std::string& anObjectID)
   SALOMEDSClient_SObject* aSO = NULL;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aSO = new SALOMEDS_SObject(_local_impl->CreateObjectID((char*)anObjectID.c_str()));
+    Handle(SALOMEDSImpl_SObject) aSO_impl = _local_impl->CreateObjectID((char*)anObjectID.c_str());
+    if(aSO_impl.IsNull()) return _PTR(SObject)(aSO);
+    aSO = new SALOMEDS_SObject(aSO_impl);
   }
-  else aSO = new SALOMEDS_SObject(_corba_impl->CreateObjectID((char*)anObjectID.c_str())); 
+  else { 
+    SALOMEDS::SObject_var aSO_impl = _corba_impl->CreateObjectID((char*)anObjectID.c_str());
+    if(CORBA::is_nil(aSO_impl)) return _PTR(SObject)(aSO);
+    aSO = new SALOMEDS_SObject(aSO_impl);
+  }
   return _PTR(SObject)(aSO);
 }
 
@@ -288,6 +294,7 @@ _PTR(SObject) SALOMEDS_Study::FindObjectByPath(const std::string& thePath)
 
 std::string SALOMEDS_Study::GetObjectPath(const _PTR(SObject)& theSO)
 {
+  if(!theSO) return "";
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
   std::string aPath;
   if (_isLocal) {
