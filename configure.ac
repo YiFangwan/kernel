@@ -265,7 +265,7 @@ fi
 
 echo
 echo ============================================================
-echo testing optionnal products
+echo testing parallel products
 echo ============================================================
 echo
 
@@ -276,6 +276,46 @@ echo ---------------------------------------------
 echo
 
 CHECK_MPI
+
+echo
+echo ---------------------------------------------
+echo checking if PaCO++ is requested by user
+echo ---------------------------------------------
+echo
+
+CHECK_PACO
+
+echo
+echo ------------------------------------------------------------
+echo checking if parallel kernel extensions are requested by user
+echo ------------------------------------------------------------
+echo
+
+AC_MSG_CHECKING(whether to enable parallel kernel extension)
+AC_ARG_ENABLE(parallel_extension, 
+	      AC_HELP_STRING([--enable-parallel_extension], [parallel kernel extension = [no/yes] (default is no)]),
+	      parallel_extension_ok=$enableval,		       
+	      parallel_extension_ok=no)
+if test "x$parallel_extension_ok" = "xyes"
+then
+  if test "x$PaCO_ok" = "xno"
+  then
+    parallel_extension_ok=no
+  fi
+fi
+
+if test "x$parallel_extension_ok" = "xyes"
+then
+  AC_MSG_RESULT([yes])
+else
+  AC_MSG_RESULT([no])
+fi
+
+echo
+echo ============================================================
+echo testing optionnal products
+echo ============================================================
+echo
 
 echo
 echo ---------------------------------------------
@@ -409,13 +449,10 @@ else
 fi
 echo
 
-if test x$MPIREQUESTED = xyes; then
-  requested_products="mpi_ok"
-  echo --- products requested by user
-  summary $requested_products
-  check_fatal_error $requested_products
-  echo
-fi
+parallel_products="mpi_ok PaCO_ok parallel_extension_ok"
+echo --- Kernel parallel extensions:
+summary $parallel_products
+echo
 
 optional_products="cppunit_ok openpbs_ok lsf_ok"
 echo --- Optional products:
