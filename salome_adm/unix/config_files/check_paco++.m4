@@ -22,7 +22,6 @@ dnl  Author : André RIBES (EDF)
 dnl  Module : KERNEL
 
 AC_DEFUN([CHECK_PACO],[
-AC_MSG_CHECKING(for PaCO++)
 PaCO_ok=yes
 
 AC_ARG_WITH(paco,
@@ -46,9 +45,11 @@ else
   PaCO_ok=no
 fi
 
+AC_MSG_CHECKING(for PaCO++)
 if  test "x$PaCO_ok" = "xyes"
 then
   AC_MSG_RESULT([yes])
+  PACO_IDL=${PACOPATH}/bin/PaCOIdlTool
   AC_SUBST(PACO_IDL)
   AC_SUBST(PACOPATH)
   AC_SUBST(PACO_INCLUDES)

@@ -311,6 +311,8 @@ else
   AC_MSG_RESULT([no])
 fi
 
+AM_CONDITIONAL([WITH_PACO_PARALLEL], [test "x$parallel_extension_ok" = "xyes"])
+
 echo
 echo ============================================================
 echo testing optionnal products
