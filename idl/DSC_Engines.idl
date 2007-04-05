@@ -128,7 +128,7 @@ module Engines {
 
       \param ref  port's Corba reference.
       \param provides_port_name port's name.
-      \param prot_prop port's property object.
+      \param port_prop port's property object.
     
       \exception PortAlreadyDefined
       \exception NilPort
@@ -150,7 +150,7 @@ module Engines {
       \param repository_id  port's Corba repository id. 
 	     Eg : IDL:toto.tata/MODULE/INTERFACE_NAME:1.0
       \param uses_port_name port's name.
-      \param prot_prop port's property object.
+      \param port_prop port's property object.
 
       \exception PortAlreadyDefined
       \exception BadProperty
@@ -228,7 +228,7 @@ module Engines {
       This operation connects a uses port with a provides port.
 
       \param uses_port_name uses port's name.
-      \param ref provides port's Corba reference.
+      \param provides_port_ref provides port's Corba reference.
 
       \exception PortNotDefined
       \exception BadPortType
@@ -378,7 +378,7 @@ module Engines {
       with an internal method.
 
       \param ref provides proxy port's reference.
-      \param name provides port's name.
+      \param provides_port_name provides port's name.
 
       \see Engines_ParallelDSC_i::add_parallel_provides_proxy_port
      */
