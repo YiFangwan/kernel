@@ -106,7 +106,9 @@ void CalciumCouplingPolicy::disconnect(bool provideLastGivenValue) {
     std::cout << "-------- CalciumCouplingPolicy::disconnect CP_ARRET  ------------------" << std::endl;
     _disconnectDirective = CalciumTypes::STOP;
   }
- 
+  //Wakeup get data if any
+  //wakeupWaiting();
+
 //   if (waitingForAnyDataId || waitingForConvenientDataId);
 //        cond_instance.signal();
        

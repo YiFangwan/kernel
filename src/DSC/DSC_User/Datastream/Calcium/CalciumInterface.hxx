@@ -448,12 +448,14 @@ ecp_fin_ (void * component, int code) {
     double         _tf=*tf;						\
     size_t         _nRead=0;						\
     size_t         _bufferLength=bufferLength;				\
-									\
+    CalciumTypes::DependencyType _dependencyType=     \
+          static_cast<CalciumTypes::DependencyType>(dependencyType);							\
+                                                                                  \
     if ( IsSameType< _name , cplx >::value ) _bufferLength*=2;		\
     std::cout << "-------- CalciumInterface(lecture Inter Part) MARK 1 ------------------" << std::endl; \
     try {								\
       CalciumInterface::ecp_lecture< _type, _name >( *_component,	\
-						     static_cast<CalciumTypes::DependencyType>(dependencyType), \
+						     _dependencyType, \
 						     _ti, _tf, *i,	\
 						     nomvar,		\
 						     _bufferLength, _nRead, *data); \
@@ -466,7 +468,8 @@ ecp_fin_ (void * component, int code) {
       std::cout << "-------- CalciumInterface(lecture Inter Part) _nRead  : " << _nRead << std::endl; \
       std::cout << "-------- CalciumInterface(lecture Inter Part) *nRead  : " << *nRead << std::endl; \
     } else *nRead = _nRead;						\
-    *ti=(CalTimeType< _type _qual >::TimeType)(_ti);			\
+    if (_dependencyType == CalciumTypes::CP_SEQUENTIEL ) \
+        *ti=(CalTimeType< _type _qual >::TimeType)(_ti);			\
     std::cout << "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data << std::endl; \
     for (int i=0; i<_nRead;++i)						\
       printf("-------- CalciumInterface(lecture Inter Part), Valeur de data (typage entier) data[%d] : %d \n",i,(*data)[i]); \

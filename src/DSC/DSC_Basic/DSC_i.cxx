@@ -35,7 +35,10 @@ Engines_DSC_i(CORBA::ORB_ptr orb,
 							  poa, 
 							  contId, 
 							  instanceName, 
-							  interfaceName) {}
+							  interfaceName) 
+{
+  std::cout << "--Engines_DSC_i: MARK 1 --" << instanceName << "----" << std::endl;
+}
 
 Engines_DSC_i::~Engines_DSC_i() {}
 

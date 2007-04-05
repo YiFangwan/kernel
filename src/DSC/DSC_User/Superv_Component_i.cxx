@@ -43,6 +43,7 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 				       bool notif) : 
   Engines_DSC_i(orb, poa, contId, instanceName, interfaceName) 
 {
+  std::cout << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
   _my_basic_factory = new basic_port_factory();
   _my_palm_factory = new palm_port_factory();
   _my_calcium_factory = new calcium_port_factory();

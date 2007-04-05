@@ -58,7 +58,8 @@ typedef int bool;
     /*    std::cout << "Ptr :" << *data << std::endl;				*/ \
     /*									*/ \
     /*    std::cerr << "-------- CalciumInterface(C Part) MARK 2 ------------------" << std::endl; */ \
-    *i = _i;								\
+    if(mode == CP_SEQUENTIEL)   \
+      *i = _i;								\
     *nRead=_nRead;							\
     /*    std::cerr << "-------- CalciumInterface(C Part) MARK 3 ------------------" << std::endl; */ \
 									\
@@ -87,14 +88,21 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
 		       int * nRead, _type _qual * data ) {		\
     size_t _nRead;							\
     long   _i=*i;							\
+    fflush(stdout);           \
+    fflush(stderr);           \
+    fprintf(stderr,"Beginning of CPLxx: %s %d %f\n",nomvar,*i,*ti); \
     									\
     if ( (data == NULL) || (bufferLength < 1) ) return CPNTNULL;	\
     									\
     InfoType info =  ecp_lecture_##_typeName (component, mode, ti, tf, &_i,	\
 					 nomvar, bufferLength, &_nRead, \
 					 &data );			\
-    *i = _i;								\
+    if(mode == CP_SEQUENTIEL)   \
+      *i = _i;							\
     *nRead=_nRead;							\
+    fprintf(stderr,"End of CPLxx: %s %d \n",nomvar,*i); \
+    fflush(stdout);           \
+    fflush(stderr);           \
 									\
     return info;							\
   };									\
@@ -138,12 +146,18 @@ InfoType cp_fin (void * component, int code) {
 		       _type _qual * data ) {				\
 									\
     /*long   _i=i;*/							\
+    fflush(stdout);           \
+    fflush(stderr);           \
+    fprintf(stderr,"Beginning of CPExx: %s %d %f\n",nomvar,i,t); \
     if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;		\
     printf("cp_name : Valeur de nomvar %s\n",nomvar);	\
 									\
     InfoType info =  ecp_ecriture_##_typeName (component, mode, &t, i,	\
 					       nomvar, nbelem,		\
 					       data );			\
+    fprintf(stderr,"End of CPExx: %s %d \n",nomvar,i); \
+    fflush(stdout);           \
+    fflush(stderr);           \
 									\
     return info;							\
   };									\

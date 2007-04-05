@@ -30,7 +30,7 @@
 #include "SALOME_Ports.hh"
 #include "DSC_Engines.hh"
 
-/*! \class provides_port
+/*! \class uses_port
  *  \brief This class implements a DSC_User uses C++ port.
  *
  *  This class is base class for all DSC_User uses port.

@@ -67,6 +67,7 @@ public:
   template <typename TimeType,typename TagType> DataType get(TimeType ti, TimeType tf, TagType tag = 0);
   template <typename TimeType,typename TagType> DataType next(TimeType &t, TagType  &tag );
   void      close (PortableServer::POA_var poa, PortableServer::ObjectId_var id);
+  void wakeupWaiting();
 
 private:
 
@@ -116,6 +117,17 @@ GenericPort<DataManipulator, COUPLING_POLICY>::close (PortableServer::POA_var po
   poa->deactivate_object (id);
 }
 
+template < typename DataManipulator, typename COUPLING_POLICY> void
+GenericPort<DataManipulator, COUPLING_POLICY>::wakeupWaiting()
+{
+  std::cout << "-------- wakeupWaiting ------------------" << std::endl;
+  if (waitingForAnyDataId || waitingForConvenientDataId)
+  {
+    std::cout << "-------- wakeupWaiting:signal --------" << std::endl;
+    std::cout << std::flush;
+    cond_instance.signal();
+  }
+}
 
 /* Methode put_generique
  *
@@ -127,7 +139,8 @@ template < typename TimeType,typename TagType>
 void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataParam, 
 							TimeType time, 
 							TagType  tag) {
-
+  fflush(stdout);
+  fflush(stderr);
   try {
     // Affichage des donnees pour DEBUGging
     cerr << "parametres emis: " << time << ", " << tag << endl;
@@ -256,6 +269,8 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
       // Pb2 : également si deux attentes de DataIds même différents car on n'en stocke qu'un !
       // Conclusion : Pour l'instant on ne gère pas un service multithreadé qui effectue
       // des lectures simultanées sur le même port !
+      std::cout << "-------- Put : new datas available ------------------" << std::endl;
+      fflush(stdout);fflush(stderr);
       cond_instance.signal();
     }
     std::cout << "-------- Put : MARK 12 ------------------" << std::endl;
@@ -264,6 +279,8 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
     storedDatas_mutex.unlock();
 
     std::cout << "-------- Put : MARK 13 ------------------" << std::endl;
+    fflush(stdout);
+    fflush(stderr);
 
   } // Catch les exceptions SALOME//C++ pour la transformer en une exception SALOME//CORBA  
   catch ( const SALOME_Exception & ex ) {
@@ -402,6 +419,8 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
       std::cout << "-------- Get : MARK 11 ------------------" << std::endl;
      
       // Ici on attend que la méthode put recoive la donnée 
+      std::cout << "-------- Get : waiting datas ------------------" << std::endl;
+      fflush(stdout);fflush(stderr);
       cond_instance.wait();
 
       std::cout << "-------- Get : MARK 12 ------------------" << std::endl;
@@ -476,6 +495,8 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
       waitingForAnyDataId   = true;
       std::cout << "-------- Next : MARK 3 ------------------" << std::endl;
       // Ici on attend que la méthode put recoive la donnée 
+      std::cout << "-------- Next : waiting datas ------------------" << std::endl;
+      fflush(stdout);fflush(stderr);
       cond_instance.wait();
     
       if (lastDataIdSet) {

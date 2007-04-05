@@ -51,6 +51,27 @@ template < typename T > struct AdjacentFunctor {
 
   // Suppose que les valeurs passées en paramètres sont triées par ordre croissant
   bool operator()(const T &v1) {
+    std::cout << "AdjacentFunctor: " << _minValue << _maxValue << std::endl;
+    std::cout << "AdjacentFunctor: " << _min << _max << std::endl;
+    if ( v1 <= _minValue && v1 >= _maxValue)    
+    {
+      _equal= true;
+      std::cout << "AdjacentFunctor: _equal : " << v1 << std::endl;   
+      return true; 
+    }
+    if ( v1 < _minValue )    
+    {
+      _min=v1;_minFound=true;
+      std::cout << "AdjacentFunctor: _minFound : " <<_min << std::endl;
+    }
+    else if ( v1 > _maxValue )
+    {
+      _max=v1;_maxFound=true;
+      std::cout << "AdjacentFunctor: _maxFound : " <<_max << std::endl;
+    }
+
+
+    /*
     if ( v1 < _minValue)    {
       std::cout << "EE1: _min : " << _min << std::endl;
       _min=v1;_minFound=true;
@@ -63,8 +84,9 @@ template < typename T > struct AdjacentFunctor {
       std::cout << "AdjacentFunctor: _equal : " << v1<< ", _minValue " << _minValue << ", _maxValue " << _maxValue << std::endl;   
       return true; 
     } // end if
+    */
     
-    std::cout << "AdjacentFunctor: _minFound : " <<_min << ", _maxFound " << _max << std::endl;
+    //std::cout << "AdjacentFunctor: _minFound : " <<_min << ", _maxFound " << _max << std::endl;
     return  ( _minFound && _maxFound );
   }
 

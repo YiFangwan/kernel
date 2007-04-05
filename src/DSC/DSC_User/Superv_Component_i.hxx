@@ -212,7 +212,7 @@ public:
   /*!
    * Gets a port already added in the component.
    *
-   * \param provides_port_name the name of the port.
+   * \param port_name the name of the port.
    * \return a port's pointer.
    */
   template <typename SpecificPortType > 
@@ -311,6 +311,12 @@ Superv_Component_i::get_port( const char * port_name)
     
   SpecificPortType * retPort;
   base_port        * port;
+
+  my_superv_ports_it = my_superv_ports.find(port_name);
+  if (my_superv_ports_it == my_superv_ports.end())
+  {
+    throw PortNotDefined( LOC(OSS()<< "Port " << port_name <<" does not exist"));
+  }
 
   superv_port_t * superv_port =  my_superv_ports[port_name];
   try {

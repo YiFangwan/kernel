@@ -124,6 +124,7 @@ public:
   TimeType getEffectiveTime(TimeType ti, TimeType tf);
 
   void disconnect(bool provideLastGivenValue);
+  virtual void wakeupWaiting(){};
 
 }; //Fin de CalciumCouplingPolicy
 
@@ -244,7 +245,11 @@ bool CalciumCouplingPolicy::isDataIdConveniant( AssocContainer & storedDatas, co
   typedef typename AssocContainer::key_type key_type;
   AdjacentFunctor< key_type > af(expectedDataId);
   if ( _dependencyType == CalciumTypes::TIME_DEPENDENCY )
+  {
+    std::cout << "-------- time expected : " << expectedDataId.first << std::endl;
+    std::cout << "-------- time expected corrected : " << expectedDataId.first*(1.0-_deltaT) << std::endl;
     af.setMaxValue(key_type(expectedDataId.first*(1.0-_deltaT),0));
+  }
   isBounded = false;
 
   // Rem 1 :
@@ -264,8 +269,9 @@ bool CalciumCouplingPolicy::isDataIdConveniant( AssocContainer & storedDatas, co
   // Un codage en reverse serait plus efficace
   typename AssocContainer::iterator prev    = storedDatas.begin();
   typename AssocContainer::iterator current = prev;
-  while ( (current != storedDatas.end()) &&
-	  !af(current->first)  ) {
+  while ( (current != storedDatas.end()) && !af(current->first)  ) 
+  {
+    std::cout << "------- stored time : " << current->first << std::endl;
     //  if ( af(current->first) ) break;
     prev = current++;
   }
