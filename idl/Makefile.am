@@ -26,6 +26,9 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
+# To avoid problems with parallel compilation.
+MAKEFLAGS = -j1
+
 BASEIDL_FILES = \
   SALOME_Exception.idl \
   SALOME_Comm.idl \
@@ -102,16 +105,68 @@ endif
 # also install all generated headers to use result library from another modules
 #salomeinclude_DATA= $(IDL_SOURCES:%SK.cc=%.hh)
 
-BUILT_SOURCES = $(IDL_SOURCES)
+if WITH_PACO_PARALLEL
+PAR = SALOME_ComponentPaCO.h SALOME_ComponentPaCO.cc \
+      SALOME_PortsPaCO.h SALOME_PortsPaCO.cc \
+      DSC_EnginesPaCO.h DSC_EnginesPaCO.cc 
 
-lib_LTLIBRARIES = libSalomeIDLKernel.la
-nodist_libSalomeIDLKernel_la_SOURCES = $(BUILT_SOURCES)
-libSalomeIDLKernel_la_CPPFLAGS =\
-	-I$(top_builddir)/salome_adm/unix \
-	-I$(top_builddir)/idl \
-	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+PAR_LIB = libSalomeParallelIDLKernel.la
+
+IDL_PACO      = SALOME_ComponentPaCO.idl SALOME_PortsPaCO.idl DSC_EnginesPaCO.idl
+
+GEN_PACO = SALOME_ComponentPaCO_Engines_Container_server.cc \
+	   SALOME_ComponentPaCO_Engines_Container_client.cc \
+	   SALOME_ComponentPaCO_Engines_Component_server.cc \
+	   SALOME_ComponentPaCO_Engines_Component_client.cc \
+	   SALOME_PortsPaCO_Ports_Port_server.cc \
+	   SALOME_PortsPaCO_Ports_Port_client.cc \
+	   DSC_EnginesPaCO_Engines_DSC_server.cc \
+	   DSC_EnginesPaCO_Engines_DSC_client.cc \
+	   DSC_EnginesPaCO_Engines_Parallel_DSC_server.cc \
+	   DSC_EnginesPaCO_Engines_Parallel_DSC_client.cc
+
+INCLUDES_PACO = SALOME_ComponentPaCO_Engines_Container_server.h \
+		SALOME_ComponentPaCO_Engines_Container_client.h \
+                SALOME_ComponentPaCO_Engines_Component_server.h \
+		SALOME_ComponentPaCO_Engines_Component_client.h \
+		SALOME_ComponentPaCO.h \
+		SALOME_PortsPaCO_Ports_Port_server.h \
+		SALOME_PortsPaCO_Ports_Port_client.h \
+		SALOME_PortsPaCO.h \
+		DSC_EnginesPaCO_Engines_DSC_server.h \
+		DSC_EnginesPaCO_Engines_DSC_client.h \
+		DSC_EnginesPaCO_Engines_Parallel_DSC_server.h \
+		DSC_EnginesPaCO_Engines_Parallel_DSC_client.h \
+		DSC_EnginesPaCO.h
+
+XML           = SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
+endif
+
+idldir = $(prefix)/idl/salome
+nodist_idl_DATA = ${XML} ${IDL_PACO} 
+nodist_include_HEADERS = ${INCLUDES_PACO} 
+
+BUILT_SOURCES = $(IDL_SOURCES) $(PAR)
+
+SALOME_ComponentPaCO.h SALOME_ComponentPaCO.cc : SALOME_Component.idl SALOME_Component.xml
+SALOME_PortsPaCO.h SALOME_PortsPaCO.cc : SALOME_Ports.idl SALOME_Ports.xml
+DSC_EnginesPaCO.h DSC_EnginesPaCO.cc : DSC_Engines.idl DSC_Engines.xml
+
+lib_LTLIBRARIES = libSalomeIDLKernel.la $(PAR_LIB)
+
+nodist_libSalomeIDLKernel_la_SOURCES = $(IDL_SOURCES)
+libSalomeIDLKernel_la_CPPFLAGS =-I$(top_builddir)/salome_adm/unix \
+				-I$(top_builddir)/idl \
+				@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 libSalomeIDLKernel_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libSalomeIDLKernel_la_LIBADD  = @CORBA_LIBS@
+
+nodist_libSalomeParallelIDLKernel_la_SOURCES = $(PAR) $(GEN_PACO)
+libSalomeParallelIDLKernel_la_CPPFLAGS =-I$(top_builddir)/idl \
+					@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ \
+					@PACO_INCLUDES@
+libSalomeParallelIDLKernel_la_LDFLAGS = -no-undefined -version-info=0:0:0
+libSalomeParallelIDLKernel_la_LIBADD  = libSalomeIDLKernel.la @PACO_LIBS@
 
 # These variables defines the building process of CORBA files
 OMNIORB_IDL         = @OMNIORB_IDL@
@@ -127,6 +182,8 @@ SUFFIXES = .idl .hh SK.cc
 .idl.hh:
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
 
+%PaCO.h %PaCO.cc : %.idl %.xml
+	@PACO_IDL@ -I $(srcdir):@PACOPATH@/idl $^ omniORB4 0
 
 install-exec-local: $(IDL_FILES:%=$(top_srcdir)/idl/%)
 	$(INSTALL) -d  $(pkgpythondir)
@@ -156,4 +213,7 @@ mostlyclean-local:
 	done ;
 
 -include .depidl
+
+CLEANFILES = *PaCO* *.h
+EXTRA_DIST = SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
 

@@ -74,7 +74,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../ResourcesManager \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
-	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ 
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
@@ -101,7 +101,6 @@ libSalomeContainer_la_SOURCES=\
 	Container_i.cxx \
 	SALOME_FileTransfer_i.cxx \
 	SALOME_FileRef_i.cxx \
-	SALOME_ContainerManager.cxx \
 	Container_init_python.cxx 
 
 libSalomeContainer_la_CPPFLAGS =\
@@ -128,15 +127,14 @@ SALOME_Container_SOURCES =\
 SALOME_Container_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
 
-
 SALOME_Container_LDADD =\
 	libSalomeContainer.la \
 	$(COMMON_LIBS) \
 	../Basics/libSALOMEBasics.la
 
-
 SALOME_ContainerManagerServer_SOURCES =\
-	SALOME_ContainerManagerServer.cxx
+	SALOME_ContainerManagerServer.cxx \
+	SALOME_ContainerManager.cxx
 
 SALOME_ContainerManagerServer_CPPFLAGS=\
 	$(COMMON_CPPFLAGS)
@@ -144,4 +142,10 @@ SALOME_ContainerManagerServer_CPPFLAGS=\
 SALOME_ContainerManagerServer_LDADD =\
 	libSalomeContainer.la \
 	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la
+	../Basics/libSALOMEBasics.la 
+
+if WITH_PACO_PARALLEL
+SALOME_ContainerManagerServer_CPPFLAGS += -DWITH_PACO_PARALLEL @PACO_INCLUDES@
+SALOME_ContainerManagerServer_LDADD += @PACO_LIBS@
+endif
+

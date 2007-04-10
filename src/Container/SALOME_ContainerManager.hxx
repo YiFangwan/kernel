@@ -56,6 +56,10 @@ public:
 
   static const char *_ContainerManagerNameInNS;
 
+  // Parallel extension
+  Engines::Container_ptr
+  FindOrStartParallelContainer(const Engines::MachineParameters& params,
+			       const Engines::MachineList& possibleComputer);
 protected:
   Engines::Container_ptr
   FindContainer(const Engines::MachineParameters& params,
@@ -64,6 +68,12 @@ protected:
   Engines::Container_ptr
   FindContainer(const Engines::MachineParameters& params,
 		const char *theMachine);
+
+  // Parallel extension
+  CORBA::Object_ptr 
+  LaunchParallelContainer(const std::string& command, 
+			  const Engines::MachineParameters& params,
+			  const std::string& name);
 
   long GetIdForContainer(void);
   long _id;

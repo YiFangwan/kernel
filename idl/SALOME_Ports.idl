@@ -18,7 +18,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : SALOME_Ports.idl
-//  Author : André RIBES, EDF
+//  Author : Andre RIBES, EDF
 //  $Header:
 
 #ifndef _SALOME_PORTS_IDL_
