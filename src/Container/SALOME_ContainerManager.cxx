@@ -374,7 +374,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params,
   Engines::Container_ptr ret = Engines::Container::_nil();
   INFOS("[FindOrStartParallelContainer] is disabled !");
   INFOS("[FindOrStartParallelContainer] recompile SALOME Kernel to enable parallel extension");
-  return ref;
+  return ret;
 }
 #endif
 
