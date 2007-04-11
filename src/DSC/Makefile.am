@@ -23,4 +23,8 @@
 #  Author : André RIBES (EDF)
 #  Module : KERNEL
 
-SUBDIRS = DSC_Basic DSC_User
+if WITH_PACO_PARALLEL
+SUBDIR_PAR = ParallelDSC
+endif
+
+SUBDIRS = DSC_Basic DSC_User $(SUBDIR_PAR)
