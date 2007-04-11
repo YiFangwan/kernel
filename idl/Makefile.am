@@ -61,7 +61,8 @@ if MPI_IS_OK
 endif
 
 # all the idl files are needed for make dist
-EXTRA_DIST= $(BASEIDL_FILES) $(MPIIDL_FILES)
+EXTRA_DIST= $(BASEIDL_FILES) $(MPIIDL_FILES) \
+	    SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
 
 # This variable defines the files to be installed
 salomeidl_DATA = $(IDL_FILES)
@@ -215,5 +216,4 @@ mostlyclean-local:
 -include .depidl
 
 CLEANFILES = *PaCO* *.h
-EXTRA_DIST = SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
 

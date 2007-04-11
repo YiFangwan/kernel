@@ -22,6 +22,7 @@
 #  File   : Makefile.am
 #  Author : André RIBES (EDF)
 #  Module : KERNEL
+#
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
@@ -31,11 +32,9 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # ===============================================================
 #
 # header files  
-salomeinclude_HEADERS = ConnectionManager_i.hxx \
-			DSC_Callbacks.hxx \
-			DSC_i.hxx \
-			DSC_interface.hxx \
-			PortProperties_i.hxx
+salomeinclude_HEADERS = SALOME_ParallelComponent_i.hxx \
+			SALOME_ParallelContainer_i.hxx 
+
 #
 # ===============================================================
 # Local definitions
@@ -48,44 +47,71 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/Container \
 		 -I$(top_srcdir)/src/SALOMELocalTrace \
 		 -I$(top_srcdir)/src/Basics \
 		 -I$(top_srcdir)/src/NamingService \
+		 -I$(top_srcdir)/src/Registry \
 		 -I$(top_srcdir)/src/Utils \
 		 -I$(top_builddir)/salome_adm/unix \
 		 -I$(top_builddir)/idl \
-		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+		 -I$(top_srcdir)/src/SALOMETraceCollector \
+		 @CORBA_CXXFLAGS@ \
+		 @CORBA_INCLUDES@ \
+		 @PACO_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS = $(top_builddir)/src/Container/libSalomeContainer.la \
-	      @CORBA_LIBS@
+	      $(top_builddir)/idl/libSalomeParallelIDLKernel.la \
+	      @CORBA_LIBS@ \
+	      @PACO_LIBS@
 
 #
 # ===============================================================
 # Libraries targets
 # ===============================================================
 #
-lib_LTLIBRARIES = libSalomeDSCContainer.la 
+lib_LTLIBRARIES = libSalomeParallelContainer.la 
 
-libSalomeDSCContainer_la_SOURCES  = DSC_i.cxx \
-				    DSC_interface.cxx \
-				    PortProperties_i.cxx
+libSalomeParallelContainer_la_SOURCES  = SALOME_ParallelComponent_i.cxx \
+					 SALOME_ParallelContainer_i.cxx 
 
-libSalomeDSCContainer_la_CXXFLAGS = $(COMMON_CPPFLAGS)
+libSalomeParallelContainer_la_CXXFLAGS = $(COMMON_CPPFLAGS)
 
-libSalomeDSCContainer_la_LIBADD   = $(COMMON_LIBS)
+libSalomeParallelContainer_la_LIBADD   = $(COMMON_LIBS)
 
-libSalomeDSCContainer_la_LDFLAGS = -no-undefined -version-info=0:0:0
+libSalomeParallelContainer_la_LDFLAGS = -no-undefined -version-info=0:0:0
 
 #
 # ===============================================================
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = SALOME_ConnectionManagerServer
 
-SALOME_ConnectionManagerServer_SOURCES  = SALOME_ConnectionManagerServer.cxx \
-					  ConnectionManager_i.cxx 
+if MPI_IS_OK
+bin_mpi_programs = SALOME_ParallelContainerProxyMpi \
+		   SALOME_ParallelContainerNodeMpi 
+endif
 
-SALOME_ConnectionManagerServer_CXXFLAGS = $(COMMON_CPPFLAGS)
+bin_PROGRAMS = SALOME_ParallelContainerProxyDummy \
+	       SALOME_ParallelContainerNodeDummy \
+	       $(bin_mpi_programs)
 
-SALOME_ConnectionManagerServer_LDADD    = $(top_builddir)/idl/libSalomeIDLKernel.la \
-					  $(top_builddir)/src/NamingService/libSalomeNS.la \
-					  $(top_builddir)/src/SALOMELocalTrace/libSALOMELocalTrace.la
+SALOME_ParallelContainerProxyDummy_SOURCES  = SALOME_ParallelContainerProxyDummy.cxx
+SALOME_ParallelContainerProxyDummy_CXXFLAGS = $(COMMON_CPPFLAGS)
+SALOME_ParallelContainerProxyDummy_LDADD    = libSalomeParallelContainer.la \
+					      -L@PACOPATH@/lib -lPaCO_dummy -lPaCO_omnithread
+
+SALOME_ParallelContainerNodeDummy_SOURCES  = SALOME_ParallelContainerNodeDummy.cxx
+SALOME_ParallelContainerNodeDummy_CXXFLAGS = $(COMMON_CPPFLAGS)
+SALOME_ParallelContainerNodeDummy_LDADD    = libSalomeParallelContainer.la \
+					     -L@PACOPATH@/lib -lPaCO_dummy -lPaCO_omnithread
+
+SALOME_ParallelContainerProxyMpi_SOURCES  = SALOME_ParallelContainerProxyMpi.cxx
+SALOME_ParallelContainerProxyMpi_CXXFLAGS = $(COMMON_CPPFLAGS) @MPI_INCLUDES@
+SALOME_ParallelContainerProxyMpi_LDADD    = libSalomeParallelContainer.la \
+					    -L@PACOPATH@/lib -lPaCO_dummy -lPaCO_mpi -lPaCO_omnithread \
+					    @MPI_LIBS@
+
+SALOME_ParallelContainerNodeMpi_SOURCES  = SALOME_ParallelContainerNodeMpi.cxx
+SALOME_ParallelContainerNodeMpi_CXXFLAGS = $(COMMON_CPPFLAGS) @MPI_INCLUDES@
+SALOME_ParallelContainerNodeMpi_LDADD    = libSalomeParallelContainer.la \
+					   -L@PACOPATH@/lib -lPaCO_dummy -lPaCO_mpi -lPaCO_omnithread \
+					   @MPI_LIBS@
+

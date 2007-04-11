@@ -101,7 +101,8 @@ libSalomeContainer_la_SOURCES=\
 	Container_i.cxx \
 	SALOME_FileTransfer_i.cxx \
 	SALOME_FileRef_i.cxx \
-	Container_init_python.cxx 
+	Container_init_python.cxx \
+	SALOME_ContainerManager.cxx
 
 libSalomeContainer_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
@@ -113,6 +114,10 @@ libSalomeContainer_la_LDFLAGS  =\
 libSalomeContainer_la_LIBADD =\
 	$(COMMON_LIBS)
 
+if WITH_PACO_PARALLEL
+libSalomeContainer_la_CPPFLAGS += -DWITH_PACO_PARALLEL @PACO_INCLUDES@
+libSalomeContainer_la_LIBADD += @PACO_LIBS@
+endif
 
 #
 # ===============================================================
@@ -133,8 +138,7 @@ SALOME_Container_LDADD =\
 	../Basics/libSALOMEBasics.la
 
 SALOME_ContainerManagerServer_SOURCES =\
-	SALOME_ContainerManagerServer.cxx \
-	SALOME_ContainerManager.cxx
+	SALOME_ContainerManagerServer.cxx 
 
 SALOME_ContainerManagerServer_CPPFLAGS=\
 	$(COMMON_CPPFLAGS)
@@ -144,8 +148,4 @@ SALOME_ContainerManagerServer_LDADD =\
 	$(COMMON_LIBS) \
 	../Basics/libSALOMEBasics.la 
 
-if WITH_PACO_PARALLEL
-SALOME_ContainerManagerServer_CPPFLAGS += -DWITH_PACO_PARALLEL @PACO_INCLUDES@
-SALOME_ContainerManagerServer_LDADD += @PACO_LIBS@
-endif
 
