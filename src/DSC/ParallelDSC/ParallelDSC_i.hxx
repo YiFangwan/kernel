@@ -156,26 +156,56 @@ public:
       return Engines_DSC_interface::get_port_properties(port_name);
     }
   
-  // PaCO++ specific code
-
-  // This method is used to registry the proxy of the parallel port into
-  // all the nodes of the parallel component.
+  /*!
+   * This method is used to register the proxy of the parallel port into
+   * all the nodes of the parallel component.
+   * 
+   * \param ref CORBA proxy reference.
+   * \param provides_port_name provides port associated with the proxy.
+   * \param port_prop port properties.
+   */
   virtual void set_paco_proxy(CORBA::Object_ptr ref, 
 			      const char* provides_port_name,
 			      Ports::PortProperties_ptr port_prop);
 
-  // This method by the node that want to add the parallel proxy port.
+  /*! 
+   * This method is used by the node that want to add the parallel proxy port.
+   *
+   * \param ref CORBA proxy reference.
+   * \param provides_port_name provides port associated with the proxy.
+   *
+   * \return true if the proxy is correctly added.
+   */
   virtual CORBA::Boolean add_parallel_provides_proxy_port(const CORBA::Object_ptr ref, 
 							  const char * provides_port_name);
 
-  // This method is used that the parallel componet node 
-  // knows the CORBA reference of the parallel port.
+  /*! 
+   * This method by the nodes that do not add the proxy to wait is reference.
+   *
+   * \param provides_port_name provides port associated with the proxy.
+   *
+   * \return true if the proxy is correctly added.
+   */
   virtual CORBA::Boolean add_parallel_provides_proxy_wait(const char * provides_port_name);
 
-  // Permits to add a parallel node of a parallel port.
+  /*!
+   * Permits to add a parallel node of a parallel provides port.
+   *
+   * \param ref CORBA node reference.
+   * \param provides_port_name provides port associated with the node.
+   *
+   * \return true if the node is correctly added.
+   */
   virtual CORBA::Boolean add_parallel_provides_node_port(Ports::Port_PaCO_ptr ref, 
 							 const char* provides_port_name);
-  // Used to get the proxy of the parallel port.
+
+  /*!
+   * Used to get the proxy of the parallel port.
+   *
+   * \param provides_port_name name of the parallel provides port.
+   *
+   * \return IOR of the proxy.
+   */
   virtual const char * get_proxy(const char* provides_port_name);
 
 };
