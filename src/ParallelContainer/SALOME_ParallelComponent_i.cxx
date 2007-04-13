@@ -165,7 +165,7 @@ CORBA::Long Engines_Parallel_Component_i::getStudyId()
  */
 //=============================================================================
 
-void Engines_Parallel_Component_i::ping_c()
+void Engines_Parallel_Component_i::ping()
 {
   //  MESSAGE("Engines_Parallel_Component_i::ping_c() pid "<< getpid() << " threadid " << pthread_self());
 }

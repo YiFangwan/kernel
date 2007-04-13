@@ -131,14 +131,17 @@ INCLUDES_PACO = SALOME_ComponentPaCO_Engines_Container_server.h \
                 SALOME_ComponentPaCO_Engines_Component_server.h \
 		SALOME_ComponentPaCO_Engines_Component_client.h \
 		SALOME_ComponentPaCO.h \
+		SALOME_Component.h \
 		SALOME_PortsPaCO_Ports_Port_server.h \
 		SALOME_PortsPaCO_Ports_Port_client.h \
 		SALOME_PortsPaCO.h \
+		SALOME_Ports.h \
 		DSC_EnginesPaCO_Engines_DSC_server.h \
 		DSC_EnginesPaCO_Engines_DSC_client.h \
 		DSC_EnginesPaCO_Engines_Parallel_DSC_server.h \
 		DSC_EnginesPaCO_Engines_Parallel_DSC_client.h \
-		DSC_EnginesPaCO.h
+		DSC_EnginesPaCO.h \
+		DSC_Engines.h
 
 XML           = SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
 endif

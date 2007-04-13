@@ -78,7 +78,7 @@ public:
   char* instanceName();
   char* interfaceName();
 
-  void ping_c();
+  void ping();
   void destroy();
 
   CORBA::Long getStudyId();
