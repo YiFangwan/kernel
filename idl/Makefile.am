@@ -145,7 +145,7 @@ endif
 
 idldir = $(prefix)/idl/salome
 nodist_idl_DATA = ${XML} ${IDL_PACO} 
-nodist_include_HEADERS = ${INCLUDES_PACO} 
+nodist_salomeinclude_HEADERS = ${INCLUDES_PACO} 
 
 BUILT_SOURCES = $(IDL_SOURCES) $(PAR)
 
