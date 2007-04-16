@@ -90,8 +90,10 @@ BASEIDL_SOURCES =\
   DSC_EnginesSK.cc \
   SALOME_PortsSK.cc \
   Calcium_PortsSK.cc \
-  Calcium_PortsDynSK.cc \
   Palm_PortsSK.cc
+
+DYNIDL_SOURCES=\
+  Calcium_PortsDynSK.cc
 
 MPIIDL_SOURCES = \
   SALOME_MPIObjectSK.cc \
@@ -103,8 +105,16 @@ if MPI_IS_OK
   IDL_SOURCES += $(MPIIDL_SOURCES)
 endif
 
+
+STATIDL_SOURCES=$(BASEIDL_SOURCES)
+if MPI_IS_OK
+  STATIDL_SOURCES += $(MPIIDL_SOURCES)
+endif
+
+IDL_SOURCES += $(DYNIDL_SOURCES)
+
 # also install all generated headers to use result library from another modules
-#salomeinclude_DATA= $(IDL_SOURCES:%SK.cc=%.hh)
+salomeinclude_DATA= $(STATIDL_SOURCES:%SK.cc=%.hh)
 
 if WITH_PACO_PARALLEL
 PAR = SALOME_ComponentPaCO.h SALOME_ComponentPaCO.cc \
