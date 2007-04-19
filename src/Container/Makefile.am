@@ -121,7 +121,7 @@ libSalomeContainer_la_LIBADD =\
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = SALOME_Container SALOME_ContainerManagerServer
+bin_PROGRAMS = SALOME_Container SALOME_ContainerManagerServer TestContainerManager
 SALOME_Container_SOURCES =\
 	SALOME_Container.cxx \
 	SALOME_Container_SignalsHandler.cxx
@@ -143,6 +143,17 @@ SALOME_ContainerManagerServer_CPPFLAGS=\
 	$(COMMON_CPPFLAGS)
 
 SALOME_ContainerManagerServer_LDADD =\
+	libSalomeContainer.la \
+	$(COMMON_LIBS) \
+	../Basics/libSALOMEBasics.la
+
+TestContainerManager_SOURCES =\
+	TestContainerManager.cxx
+
+TestContainerManager_CPPFLAGS=\
+	$(COMMON_CPPFLAGS)
+
+TestContainerManager_LDADD =\
 	libSalomeContainer.la \
 	$(COMMON_LIBS) \
 	../Basics/libSALOMEBasics.la

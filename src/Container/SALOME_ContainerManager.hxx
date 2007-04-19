@@ -57,6 +57,15 @@ public:
   FindOrStartContainer(const Engines::MachineParameters& params,
 		       const Engines::MachineList& possibleComputer);
 
+  Engines::Container_ptr
+  StartContainer(const Engines::MachineParameters& params,
+		 const Engines::MachineList& possibleComputer,
+		 Engines::ResPolicy policy);
+
+  Engines::Container_ptr
+  StartContainer(const Engines::MachineParameters& params,
+		 Engines::ResPolicy policy);
+
   Engines::MachineList *
   GetFittingResources(const Engines::MachineParameters& params,
 		      const char *componentName);

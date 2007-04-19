@@ -51,6 +51,8 @@ struct MachineParameters
 */
   exception NotFound {};
 
+  enum policy {P_FIRST,P_CYCL,P_BEST};
+  typedef policy ResPolicy;
 
 /*! \brief Interface of the %containerManager
     This interface is used for interaction with the unique instance
@@ -60,6 +62,9 @@ struct MachineParameters
   {
     Container FindOrStartContainer( in MachineParameters params,
 				    in MachineList possibleComputers);
+
+    Container StartContainer( in MachineParameters params,
+			      in ResPolicy policy);
 
     string FindBest(in MachineList possibleComputers);
 
