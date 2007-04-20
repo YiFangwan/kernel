@@ -52,13 +52,14 @@ Engines_ParallelDSC_i::get_proxy(const char* provides_port_name) {
 
 CORBA::Boolean 
 Engines_ParallelDSC_i::add_parallel_provides_proxy_port(const CORBA::Object_ptr ref, 
-							const char * provides_port_name) 
+							const char * provides_port_name,
+							Ports::PortProperties_ptr port_prop) 
 {
   assert(provides_port_name);
   CORBA::Boolean rtn_bool = false;
   CORBA::Object_ptr _comp_proxy = _orb->string_to_object(_ior.c_str());
   Engines::Parallel_DSC_var real_comp_proxy = Engines::Parallel_DSC::_narrow(_comp_proxy);
-  real_comp_proxy->set_paco_proxy(ref, provides_port_name);
+  real_comp_proxy->set_paco_proxy(ref, provides_port_name, port_prop);
   rtn_bool = true;
   return rtn_bool;
 }
