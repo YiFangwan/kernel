@@ -98,7 +98,7 @@ CalciumCouplingPolicy::getEffectiveTime(CalciumCouplingPolicy::TimeType ti,
 }
 
 void CalciumCouplingPolicy::disconnect(bool provideLastGivenValue) {
-  // TODO Réveiller les ports en attente ! OU timeout ?
+
   if (provideLastGivenValue) {
     std::cout << "-------- CalciumCouplingPolicy::disconnect CP_CONT  ------------------" << std::endl;
     _disconnectDirective = CalciumTypes::CONTINUE;
@@ -106,10 +106,7 @@ void CalciumCouplingPolicy::disconnect(bool provideLastGivenValue) {
     std::cout << "-------- CalciumCouplingPolicy::disconnect CP_ARRET  ------------------" << std::endl;
     _disconnectDirective = CalciumTypes::STOP;
   }
-  //Wakeup get data if any
-  //wakeupWaiting();
 
-//   if (waitingForAnyDataId || waitingForConvenientDataId);
-//        cond_instance.signal();
-       
+  //Wakeup get data if any
+  wakeupWaiting();  
 }

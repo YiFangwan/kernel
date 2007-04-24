@@ -55,6 +55,7 @@ public:
   typedef CalciumTypes::DisconnectDirective  DisconnectDirective;  
 
 private:
+
   DependencyType      _dependencyType;
   size_t              _storageLevel;
   DateCalSchem        _dateCalSchem;
@@ -90,8 +91,6 @@ public:
   // Classe DataId rassemblant les paramètres de la méthode PORT::put 
   // qui identifient l'instance d'une donnée pour Calcium
   // Rem : Le DataId doit pouvoir être une key dans une map stl
-  //   typedef CORBA::Double TimeType;
-  //   typedef CORBA::Long   TagType;
   typedef double TimeType;
   typedef long   TagType;
   typedef std::pair< TimeType , TagType >     DataId;
@@ -124,7 +123,6 @@ public:
   TimeType getEffectiveTime(TimeType ti, TimeType tf);
 
   void disconnect(bool provideLastGivenValue);
-  virtual void wakeupWaiting(){};
 
 }; //Fin de CalciumCouplingPolicy
 
@@ -164,15 +162,15 @@ struct CalciumCouplingPolicy::InternalDataIdContainer : public std::vector< std:
 template <typename DataManipulator>
 struct CalciumCouplingPolicy::BoundedDataIdProcessor{
     
-  CalciumCouplingPolicy _couplingPolicy;
+  const CalciumCouplingPolicy & _couplingPolicy;
     
-  BoundedDataIdProcessor(CalciumCouplingPolicy couplingPolicy):
+  BoundedDataIdProcessor(const CalciumCouplingPolicy &couplingPolicy):
     _couplingPolicy(couplingPolicy) {};
     
   // Méthode implémentant l'interpolation temporelle
   template < typename MapIterator > 
   void inline apply (typename iterator_t<MapIterator>::value_type & data,
-		     const DataId & dataId, const MapIterator & it1) {
+		     const DataId & dataId, const MapIterator & it1) const {
       
     typedef typename iterator_t<MapIterator>::value_type value_type;
     typedef typename DataManipulator::InnerType InnerType;
@@ -221,7 +219,11 @@ struct CalciumCouplingPolicy::BoundedDataIdProcessor{
       // REM : Pour des buffers de type int
       // le compilo indiquera warning: converting to `long int' from `Double'
       std::transform(InIt1,InIt1+dataSize,InIt2,OutIt,
-		     ( _1 - _2 ) * coeff + _2 );
+       		     ( _1 - _2 ) * coeff + _2 );
+//       for(size_t i =0;  i < dataSize3; ++i) {
+// 	OutIt[i]=(InIt1[i] - InIt2[i]) * coeff + InIt2[i];
+//       }
+
     }
     std::cout << "-------- CalciumCouplingPolicy::BoundedDataIdProcessor : Données calculées à t : " << std::endl;
     std::copy(OutIt,OutIt+dataSize,std::ostream_iterator<InnerType>(std::cout," "));
@@ -303,9 +305,9 @@ bool CalciumCouplingPolicy::isDataIdConveniant( AssocContainer & storedDatas, co
 template < typename DataManipulator > 
 struct CalciumCouplingPolicy::EraseDataIdProcessor {
 
-  CalciumCouplingPolicy _couplingPolicy;
+  CalciumCouplingPolicy &_couplingPolicy;
     
-  EraseDataIdProcessor(CalciumCouplingPolicy couplingPolicy):
+  EraseDataIdProcessor(CalciumCouplingPolicy &couplingPolicy):
     _couplingPolicy(couplingPolicy) {};
 
   template < typename Container >
@@ -350,9 +352,9 @@ struct CalciumCouplingPolicy::EraseDataIdProcessor {
 template < typename DataManipulator > 
 struct CalciumCouplingPolicy::DisconnectProcessor {
 
-  CalciumCouplingPolicy _couplingPolicy;
+  const CalciumCouplingPolicy  & _couplingPolicy;
     
-  DisconnectProcessor(CalciumCouplingPolicy couplingPolicy):
+  DisconnectProcessor(const CalciumCouplingPolicy & couplingPolicy):
     _couplingPolicy(couplingPolicy) {};
 
   template < typename Container, typename DataId >
@@ -365,13 +367,16 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
     typedef typename Container::iterator   iterator;
 
     // Pas de traitement particulier a effectuer
-    std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK1 --------" << std::endl;
-    if ( _couplingPolicy._disconnectDirective == CalciumTypes::UNDEFINED_DIRECTIVE ) return false;
-    std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor, CP_CONT : " << (*wDataIt1).first << std::endl;
+    std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK1 ("<< _couplingPolicy._disconnectDirective<<") --------" << std::endl;
+    if ( (_couplingPolicy._disconnectDirective) == (CalciumTypes::UNDEFINED_DIRECTIVE) ) return false;
+  
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK2 --------" << std::endl;
+
+    if ( _couplingPolicy._disconnectDirective == CalciumTypes::CP_ARRET )
       throw(DATASTREAM_EXCEPTION(LOC(OSS()<< "La directive CP_ARRET" 
 				     << " provoque l'interruption de toute lecture de données")));
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK3 --------" << std::endl;
+
 
     // S'il n'y a plus de données indique que l'on a pas pu effectuer de traitement
     if ( storedDatas.empty() ) 
@@ -382,13 +387,20 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
     // qu'en mode itératif il ne soit pas plus grand que le plus grand DataId stocké auquel
     // cas on doit renvoyer une expection car on n'est plus connecté et on ne pourra jamais
     // fournir de données pour ce dataId.
-    std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK4 --------" << std::endl;
+    std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK4  " << expectedDataId <<" --------" << std::endl;
 
+    // >= expectedDataId
     iterator it1 = storedDatas.lower_bound(expectedDataId);
-    if (it1 != storedDatas.end())
+    std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK5  " << std::endl;
+    for (iterator it=storedDatas.begin();it!=storedDatas.end();++it)
+      std::cout <<" "<<(*it).first ;
+    std::cout <<std::endl;
+
+    if (it1 == storedDatas.end())
       throw(DATASTREAM_EXCEPTION(LOC(OSS()<< "La directive CP_CONT" 
 				     << " est active mais le dataId demandé est inférieur ou égal au dernier reçu.")));
   
+    std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK6 " << std::endl;
 
     wDataIt1 = storedDatas.end();
     --wDataIt1;

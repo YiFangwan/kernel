@@ -69,7 +69,7 @@ public :
     std::vector<std::string>::const_iterator it;
     component.get_uses_port_names(usesPortNames);    
     
-    //récupérer le type de réel su port est un peu difficile
+    //récupérer le type de réel du port est un peu difficile
     //car l'interface nous donne aucune indication
     uses_port *myUsesPort;
     
@@ -87,14 +87,23 @@ public :
 	myCalciumUsesPort->disconnect(provideLastGivenValue);
       } catch ( const Superv_Component_i::PortNotDefined & ex) {
 	std::cerr << ex.what() << std::endl;
-	throw (DatastreamException(CalciumTypes::CPNMVR,ex));
+	//throw (DatastreamException(CalciumTypes::CPNMVR,ex));
+	// On continue à traiter la deconnexion des autres ports uses
       } catch ( const Superv_Component_i::PortNotConnected & ex) {
-	std::cerr << ex.what() << std::endl;;
-	throw (DatastreamException(CalciumTypes::CPLIEN,ex)); 
-       } catch ( const Superv_Component_i::BadCast & ex) {
+	std::cerr << ex.what() << std::endl;
+	// throw (DatastreamException(CalciumTypes::CPLIEN,ex)); 
+	// On continue à traiter la deconnexion des autres ports uses
+      } catch ( const Superv_Component_i::BadCast & ex) {
  	std::cerr << ex.what() << std::endl;
  	throw (DatastreamException(CalciumTypes::CPTPVR,ex));
-      } // Laisse passer les autres exceptions.
+      }  catch ( const DSC_Exception & ex) {
+	// exception venant  du port uses
+	std::cerr << ex.what() << std::endl;
+	// On continue à traiter la deconnexion des autres ports uses
+      } catch (...) {// On laisse passer les autres exceptions
+	std::cout << "ecp_fin : Exception innatendue " <<std::endl;
+	throw;
+	}
     }
   }
 

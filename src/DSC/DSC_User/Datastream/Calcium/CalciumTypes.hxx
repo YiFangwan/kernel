@@ -72,7 +72,7 @@ namespace CalciumTypes {
   typedef enum {TI_SCHEM=TI,TF_SCHEM=TF,ALPHA_SCHEM}                        DateCalSchem;
   typedef enum {L0_SCHEM=CP_ESCALIER,L1_SCHEM=CP_LINEAIRE}                  InterpolationSchem;
   typedef enum {UNDEFINED_EXTRA_SCHEM,E0_SCHEM,E1_SCHEM}                    ExtrapolationSchem;
-  typedef enum {UNDEFINED_DIRECTIVE,CONTINUE=CP_CONT,STOP=CP_ARRET}         DisconnectDirective;
+  typedef enum {UNDEFINED_DIRECTIVE=0,CONTINUE=CP_CONT,STOP=CP_ARRET}       DisconnectDirective;
 
   /* Codes d'erreur			*/
 
