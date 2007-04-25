@@ -47,6 +47,7 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 			calcium_logical_port_uses.hxx \
 			calcium_complex_port_uses.hxx \
 			CalciumCouplingPolicy.hxx \
+			CalciumException.hxx \
 			CalciumTypes.hxx \
 			CalciumInterface.hxx \
 			Copy2UserSpace.hxx \
@@ -71,7 +72,8 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/Utils \
 		 -I$(top_builddir)/salome_adm/unix \
 		 -I$(top_builddir)/idl \
-		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@ \
+		 @BOOST_CPPFLAGS@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS = @CORBA_LIBS@

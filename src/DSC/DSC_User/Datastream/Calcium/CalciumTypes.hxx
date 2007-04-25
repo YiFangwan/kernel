@@ -198,8 +198,9 @@ namespace CalciumTypes {
   //   const int CPPVM = 37;
   //   const int CPCOM = 37;
   /* Erreur detectee au niveau de l'int CPERRINST = 38;
+
   /* Mode d'execution non defini		*/
-  const int CPMODE    = 39;
+  //   const int CPMODE    = 39;
 
   /* Instance deconnectee			*/
   const int CPINSTDEC = 40;

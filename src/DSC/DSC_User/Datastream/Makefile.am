@@ -43,9 +43,7 @@ salomeinclude_HEADERS = GenericPort.hxx \
 			FindKeyPredicate.hxx \
 			AdjacentFunctor.hxx \
 			IteratorTraits.hxx \
-			ConstTraits.hxx \
-			lambda.hpp \
-			DatastreamException.hxx
+			ConstTraits.hxx
 
 #
 # ===============================================================

@@ -288,7 +288,6 @@ void GenericPort<DataManipulator, COUPLING_POLICY>::put(CorbaInDataType dataPara
   catch ( const SALOME_Exception & ex ) {
     // On évite de laisser un  mutex
     storedDatas_mutex.unlock();
-    
     std::cerr << ex;
     THROW_SALOME_CORBA_EXCEPTION(ex.what(), SALOME::INTERNAL_ERROR);
   }
@@ -429,6 +428,7 @@ GenericPort<DataManipulator, COUPLING_POLICY>::get(TimeType time,
     }
 
   } catch (...) {
+    waitingForConvenientDataId = true;
     storedDatas_mutex.unlock();
     throw;
   }

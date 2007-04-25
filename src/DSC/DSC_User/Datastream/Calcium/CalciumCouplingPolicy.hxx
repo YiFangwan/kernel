@@ -29,13 +29,13 @@
 
 #include <vector>
 #include <map>
+#include <boost/lambda/lambda.hpp>
+
 #include "DisplayPair.hxx"
 #include "CouplingPolicy.hxx"
 #include "AdjacentFunctor.hxx"
-#include "lambda.hpp"
 #include "CalciumTypes.hxx"
-#include "DSC_Exception.hxx"
-typedef DSC_Exception DATASTREAM_EXCEPTION;
+#include "CalciumException.hxx"
 
 class CalciumCouplingPolicy : public CouplingPolicy  {
 
@@ -150,7 +150,7 @@ struct CalciumCouplingPolicy::InternalDataIdContainer : public std::vector< std:
       this->push_back(DataId(0,dataId.second));
       break;
     default:
-      throw(DATASTREAM_EXCEPTION(LOC("The dependency type must be set by setDependencyType before calling DataIdContainer contructor")));
+      throw(CalciumException(CalciumTypes::CPIT,LOC("The dependency type must be set by setDependencyType before calling DataIdContainer contructor")));
       break;
     }
   };
@@ -295,11 +295,11 @@ bool CalciumCouplingPolicy::isDataIdConveniant( AssocContainer & storedDatas, co
   return isEqual || isBounded;
 }
 
-// PAS ENCORE TESTE AVEC UN NIVEAU POSITIONNE
+// TODO :PAS ENCORE TESTE AVEC UN NIVEAU POSITIONNE
 // Supprime les DataId et les données associées
-// du container associative quand le nombre
+// du container associatif quand le nombre
 // de données stockées dépasse le niveau CALCIUM.
-// Cette méthode est appelée de GenericPort::Get 
+// Cette méthode est appelée de GenericPort::get et GenericPort::next 
 // TODO : Elle devrait également être appelée dans GenericPort::Put
 // mais il faut étudier les interactions avec GenericPort::Get et GenericPort::next
 template < typename DataManipulator > 
@@ -332,9 +332,9 @@ struct CalciumCouplingPolicy::EraseDataIdProcessor {
       }
       // Si l'itérateur pointait sur une valeur que l'on vient de supprimer
       if (dist < s ) {
-	throw(DATASTREAM_EXCEPTION(LOC(OSS()<< "La gestion du niveau CALCIUM " 
-				       << _couplingPolicy._storageLevel << 
-				       " vient d'entraîner la suppression de la donnée à renvoyer")));
+	throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "La gestion du niveau CALCIUM " 
+					    << _couplingPolicy._storageLevel << 
+					    " vient d'entraîner la suppression de la donnée à renvoyer")));
       }
     }
     std::cout << "-------- CalciumCouplingPolicy::eraseDataId, new storedDatasSize : " << storedDatas.size() << std::endl;
@@ -344,11 +344,13 @@ struct CalciumCouplingPolicy::EraseDataIdProcessor {
 };
 
 
-// Lorsque cette méthode est appelée l'expectedDataId n'a pas été trouvé
-// et n'est pas non plus encadrée (en mode temporel)
-// Si l'on effectue pas de traitement particulier la méthode renvoie false
-// Si le port a reçu une directive STOP une exception est levée
-// Si le port a reçu une directive CONTINUE, on localise l'expected
+// Lorsque cette méthode est appelée depuis GenericPort::Get 
+// l'expectedDataId n'a pas été trouvé et n'est pas non plus 
+// encadré (en mode temporel).
+// Si apply n'effectue pas de traitement particulier la méthode renvoie false
+// Si le port a déjà reçu une directive de deconnexion STOP une exception est levée
+// Si le port a déjà reçu une directive de deconnexion CONTINUE, 
+// on donne la dernière valeur connu et on renvoie true.
 template < typename DataManipulator > 
 struct CalciumCouplingPolicy::DisconnectProcessor {
 
@@ -372,16 +374,18 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
   
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK2 --------" << std::endl;
 
+    // TODO : Ds GenericPort::next il faut convertir en CPSTOPSEQ
     if ( _couplingPolicy._disconnectDirective == CalciumTypes::CP_ARRET )
-      throw(DATASTREAM_EXCEPTION(LOC(OSS()<< "La directive CP_ARRET" 
-				     << " provoque l'interruption de toute lecture de données")));
+      throw(CalciumException(CalciumTypes::CPINARRET,LOC(OSS()<< "La directive CP_ARRET" 
+					   << " provoque l'interruption de toute lecture de données")));
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK3 --------" << std::endl;
 
 
     // S'il n'y a plus de données indique que l'on a pas pu effectuer de traitement
+    // TODO : Dans la gestion des niveaux il faut peut être interdire un niveau ==  0
     if ( storedDatas.empty() ) 
-      throw(DATASTREAM_EXCEPTION(LOC(OSS()<< "La directive CP_CONT" 
-				     << " est active mais aucune donnée n'est disponible.")));
+      throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "La directive CP_CONT" 
+					  << " est active mais aucune donnée n'est disponible.")));
     
     // expectedDataId n'a ni été trouvé dans storedDataIds ni encadré mais il se peut
     // qu'en mode itératif il ne soit pas plus grand que le plus grand DataId stocké auquel
@@ -396,9 +400,10 @@ struct CalciumCouplingPolicy::DisconnectProcessor {
       std::cout <<" "<<(*it).first ;
     std::cout <<std::endl;
 
+    // TODO : Il faut en fait renvoyer le plus proche cf IT ou DT
     if (it1 == storedDatas.end())
-      throw(DATASTREAM_EXCEPTION(LOC(OSS()<< "La directive CP_CONT" 
-				     << " est active mais le dataId demandé est inférieur ou égal au dernier reçu.")));
+      throw(CalciumException(CalciumTypes::CPNTNULL,LOC(OSS()<< "La directive CP_CONT" 
+					  << " est active mais le dataId demandé est inférieur ou égal au dernier reçu.")));
   
     std::cout << "-------- CalciumCouplingPolicy::DisconnectProcessor MARK6 " << std::endl;
 
