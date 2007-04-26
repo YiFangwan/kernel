@@ -70,7 +70,7 @@ public:
   GetFittingResources(const Engines::MachineParameters& params,
 		      const char *componentName);
 
-  char* FindBest(const Engines::MachineList& possibleComputers);
+  char* FindFirst(const Engines::MachineList& possibleComputers);
 
   void Shutdown();
   void ShutdownContainers();

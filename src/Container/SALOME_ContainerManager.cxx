@@ -334,9 +334,9 @@ GetFittingResources(const Engines::MachineParameters& params,
 
 char*
 SALOME_ContainerManager::
-FindBest(const Engines::MachineList& possibleComputers)
+FindFirst(const Engines::MachineList& possibleComputers)
 {
-  string theMachine=_ResManager->FindBest(possibleComputers);
+  string theMachine=_ResManager->FindFirst(possibleComputers);
   return CORBA::string_dup(theMachine.c_str());
 }
 
