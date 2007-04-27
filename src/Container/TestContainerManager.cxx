@@ -32,6 +32,7 @@
 #include <SALOMEconfig.h>
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ContainerManager.hxx"
+#include "SALOME_LifeCycleCORBA.hxx"
 #include "NamingService_WaitForServerReadiness.hxx"
 #include "OpUtil.hxx"
 #include "Utils_ORB_INIT.hxx"
@@ -44,6 +45,10 @@ int main (int argc, char * argv[])
 {
   map<string, int> cycle;
   map<string, int> first;
+  Engines::Container_ptr cont;
+  Engines::Component_ptr compo;
+  bool error = false;
+  bool bestImplemented;
 
   // Initializing omniORB
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
@@ -69,17 +74,27 @@ int main (int argc, char * argv[])
   for(int i=0;i<10;i++){
     sprintf(st,"cycl_%d",i);
     p.container_name = CORBA::string_dup(st);
-    _ContManager->StartContainer(p,Engines::P_CYCL);
+    cont = _ContManager->StartContainer(p,Engines::P_CYCL);
+    if(CORBA::is_nil(cont)) error = true;
   }
 
   for(int i=0;i<10;i++){
     sprintf(st,"first_%d",i);
     p.container_name = CORBA::string_dup(st);
-    _ContManager->StartContainer(p,Engines::P_FIRST);
+    cont = _ContManager->StartContainer(p,Engines::P_FIRST);
+    if(CORBA::is_nil(cont)) error = true;
   }
 
   p.container_name = CORBA::string_dup("best");
-  _ContManager->StartContainer(p,Engines::P_BEST);
+  cont = _ContManager->StartContainer(p,Engines::P_BEST);
+  if(CORBA::is_nil(cont)) bestImplemented = false;
+  else bestImplemented = true;
+
+  SALOME_LifeCycleCORBA LCC(_NS);
+  compo = LCC.FindOrLoad_Component("FactoryServer","GEOM");
+  if(CORBA::is_nil(compo)) error = true;
+  compo = LCC.FindOrLoad_Component("FactoryServer","GEOM");
+  if(CORBA::is_nil(compo)) error = true;
 
   _NS->Change_Directory("/Containers");
 
@@ -118,8 +133,13 @@ int main (int argc, char * argv[])
       if(first[(*iter).first]>fmax) fmax=first[(*iter).first];
     }
   }
-  if( ((cmax-cmin) <= 1) && (fmax == 10)){
-    MESSAGE("TEST OK");
+  if( ((cmax-cmin) <= 1) && (fmax == 10) && !error ){
+    string msg;
+    if(bestImplemented)
+      msg = "TEST OK";
+    else
+      msg = "TEST OK but FindBest not implemented!";
+    MESSAGE(msg);
     return 0;
   }
   else{

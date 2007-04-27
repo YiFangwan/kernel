@@ -67,6 +67,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
+	-I$(srcdir)/../LifeCycleCORBA \
 	-I$(srcdir)/../Utils \
 	-I$(srcdir)/../Registry \
 	-I$(srcdir)/../Notification \
@@ -81,6 +82,7 @@ COMMON_LIBS =\
 	../Notification/libSalomeNotification.la \
 	../ResourcesManager/libSalomeResourcesManager.la \
 	../NamingService/libSalomeNS.la \
+	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
