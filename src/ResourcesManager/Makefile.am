@@ -76,9 +76,9 @@ libSalomeResourcesManager_la_SOURCES =\
 
 libSalomeResourcesManager_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS) \
-	@QT_MT_INCLUDES@
+	@QT_INCLUDES@
 
 libSalomeResourcesManager_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libSalomeResourcesManager_la_LIBADD  =\
 	$(COMMON_LIBS) \
-	@QT_MT_LIBS@
+	@QT_LIBS@

@@ -82,7 +82,7 @@ libSalomeLifeCycleCORBA_la_SOURCES  = \
 libSalomeLifeCycleCORBA_la_CPPFLAGS = \
 	$(COMMON_CPPFLAGS) \
 	@PYTHON_INCLUDES@ \
-	@QT_MT_INCLUDES@ \
+	@QT_INCLUDES@ \
 	-I$(srcdir)/../Container \
 	-I$(srcdir)/../Notification
 
@@ -112,7 +112,7 @@ Test_LifeCycleCORBA_LDADD    = \
 	$(COMMON_LIBS) \
 	@CORBA_LIBS@
 
-#CPPFLAGS += $(PYTHON_INCLUDES) $(QT_MT_INCLUDES)
+#CPPFLAGS += $(PYTHON_INCLUDES) $(QT_INCLUDES)
 
 #LDFLAGS += -lSalomeNS -lOpUtil -lSALOMELocalTrace -lSalomeContainer -lSalomeResourcesManager
 #LDFLAGSFORBIN= $(LDFLAGS) -lRegistry -lSalomeNotification -lSALOMEBasics
