@@ -39,20 +39,53 @@ qt_ok=yes
 AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 
+#
+# check QTDIR environment variable
+#
 if test "x$QTDIR" = "x"
 then
    AC_MSG_RESULT(please define QTDIR variable)
    qt_ok=no
 else
    AC_MSG_RESULT(QTDIR is $QTDIR)
-   qt_inc_ok=no
-   QTINC=""
-   AC_CHECK_FILE(${QTDIR}/include/qt3/qglobal.h,QTINC="/qt3",QTINC="")
-   QT_VERS=`grep "QT_VERSION_STR" ${QTDIR}/include${QTINC}/qglobal.h | sed -e 's%^#define QT_VERSION_STR\([[:space:]]*\)%%g' -e 's%\"%%g'`
-   AC_MSG_RESULT(Qt version is $QT_VERS)
-   QT_VERS="Qt_"`echo $QT_VERS | sed -e 's%\"%%g' -e 's%\.%_%g'`
 fi
 
+#
+# check Qt version
+#
+if  test "x$qt_ok" = "xyes"
+then
+   qt_inc_ok=no
+   QTINC=""
+   AC_CHECK_FILE(${QTDIR}/include/qt4/QtCore/qglobal.h,QTINC="/qt4",QTINC="")
+   if test "x$QTINC" = "x"
+   then
+     AC_CHECK_FILE(${QTDIR}/include${QTINC}/QtCore/qglobal.h,qt_inc_ok=yes,qt_inc_ok=no)
+   else
+     qt_inc_ok=yes
+   fi
+   if test "x$qt_inc_ok" = "xyes"
+   then
+     AC_MSG_CHECKING(whether Qt version >= 4.0)
+     QT_VERSION=`grep "QT_VERSION_STR" ${QTDIR}/include${QTINC}/QtCore/qglobal.h | sed -e 's%^#define QT_VERSION_STR[[:space:]]*\"\([[:digit:]\.]*\)\"%\1%g'`
+     QT_VERSION_NUM=`echo $QT_VERSION | awk -F. '{maj=1;min=2;rel=3;v=$maj*10000+$min*100+$rel;print v}'`
+     if test $QT_VERSION_NUM -ge 40000
+     then
+       AC_MSG_RESULT(yes)
+     else
+       AC_MSG_RESULT(no)
+       qt_ok=no
+     fi
+     AC_MSG_CHECKING(Qt version)
+     AC_MSG_RESULT($QT_VERSION)
+   else
+     qt_ok=no
+   fi
+fi
+
+#
+# check moc presence (meta-object compiler)
+#
 if  test "x$qt_ok" = "xyes"
 then
   if test -f ${QTDIR}/bin/moc
@@ -64,13 +97,16 @@ then
   if test "x$MOC" = "x"
   then
     qt_ok=no
-    AC_MSG_RESULT(moc qt-compiler not in PATH variable)
+    AC_MSG_RESULT(moc (Qt meta-object compiler) is not in the PATH variable)
   else
     qt_ok=yes
-    AC_MSG_RESULT(moc found)
+    AC_MSG_RESULT(moc (Qt meta-object compiler) is found)
   fi
 fi
 
+#
+# check uic presence (user interface compiler)
+#
 if  test "x$qt_ok" = "xyes"
 then
   if test -f ${QTDIR}/bin/uic
@@ -82,118 +118,185 @@ then
   if test "x$UIC" = "x"
   then
     qt_ok=no
-    AC_MSG_RESULT(uic qt-interface compiler not in PATH variable)
+    AC_MSG_RESULT(uic (Qt user interface compiler) is not in the PATH variable)
   else
     qt_ok=yes
-    AC_MSG_RESULT(uic found)
+    AC_MSG_RESULT(uic (Qt user interface compiler) is found)
   fi
 fi
 
-AC_SUBST(QTDIR)
-QT_ROOT=$QTDIR
-
+#
+# check rcc presence (resources compiler)
+#
 if  test "x$qt_ok" = "xyes"
 then
+  if test -f ${QTDIR}/bin/rcc
+  then
+    QRCC=${QTDIR}/bin/rcc
+  else
+    AC_PATH_PROG(QRCC, rcc)
+  fi
+  if test "x$QRCC" = "x"
+  then
+    qt_ok=no
+    AC_MSG_RESULT(rcc (Qt resources compiler) is not in the PATH variable)
+  else
+    qt_ok=yes
+    AC_MSG_RESULT(rcc (Qt resources compiler) is found)
+  fi
+fi
+
+#
+# check lupdate presence (translation files compiler)
+#
+if  test "x$qt_ok" = "xyes"
+then
+  if test -f ${QTDIR}/bin/lupdate
+  then
+    LUPDATE=${QTDIR}/bin/lupdate
+  else
+    AC_PATH_PROG(LUPDATE, lupdate)
+  fi
+  if test "x$LUPDATE" = "x"
+  then
+    qt_ok=no
+    AC_MSG_RESULT(lupdate (Qt translation files compiler) is not in the PATH variable)
+  else
+    qt_ok=yes
+    AC_MSG_RESULT(lupdate (Qt translation files compiler) is found)
+  fi
+fi
+
+QT_ROOT=$QTDIR
+
+#
+# check Qt header files
+#
+if  test "x$qt_ok" = "xyes"
+then
+  AC_CHECKING(include Qt header files)
+
   CPPFLAGS_old=$CPPFLAGS
-  CPPFLAGS="$CPPFLAGS -I$QTDIR/include${QTINC}"
-
-  AC_LANG_CPLUSPLUS
-  AC_CHECK_HEADER(qaction.h,qt_ok=yes ,qt_ok=no)
-
+  CPPFLAGS="$CPPFLAGS -I${QTDIR}/include${QTINC} -I${QTDIR}/include${QTINC}/QtCore"
+  AC_CHECK_HEADER(QObject,qt_ok=yes,qt_ok=no)
   CPPFLAGS=$CPPFLAGS_old
-
-  AC_MSG_CHECKING(include of qt headers)
 
   if  test "x$qt_ok" = "xno"
   then
-    AC_MSG_RESULT(qt headers not found, or too old qt version, in $QTDIR/include)
-    AC_MSG_RESULT(QTDIR environment variable may be wrong)
+    AC_MSG_RESULT(qt header files are not found in $QTDIR/include${QTINC}/QtCore)
+    AC_MSG_RESULT(QTDIR environment variable may be wrong (probably too old Qt version))
   else
-    AC_MSG_RESULT(yes)
-    QT_INCLUDES="-I${QT_ROOT}/include${QTINC} -DQT_THREAD_SUPPORT -DQT_CLEAN_NAMESPACE"
-    QT_MT_INCLUDES="-I${QT_ROOT}/include${QTINC} -DQT_THREAD_SUPPORT -DQT_CLEAN_NAMESPACE"
+    AC_MSG_RESULT(qt header files seem to be OK)
+    QT_INCLUDES="-I${QTDIR}/include${QTINC}"
+    # user header files
+    QT_INCLUDES="${QT_INCLUDES} -I${QTDIR}/include${QTINC}/QtCore"
+    QT_INCLUDES="${QT_INCLUDES} -I${QTDIR}/include${QTINC}/QtGui"
+    QT_INCLUDES="${QT_INCLUDES} -I${QTDIR}/include${QTINC}/QtOpenGL"
+    QT_INCLUDES="${QT_INCLUDES} -I${QTDIR}/include${QTINC}/QtXml"
+    # not used currently header files (uncomment if required)
+    #QT_INCLUDES="${QT_INCLUDES} -I$(QTDIR)/include${QTINC}/QtAssistant"
+    #QT_INCLUDES="${QT_INCLUDES} -I$(QTDIR)/include${QTINC}/QtDBus"
+    #QT_INCLUDES="${QT_INCLUDES} -I$(QTDIR)/include${QTINC}/QtDesigner"
+    #QT_INCLUDES="${QT_INCLUDES} -I$(QTDIR)/include${QTINC}/QtNetwork"
+    #QT_INCLUDES="${QT_INCLUDES} -I$(QTDIR)/include${QTINC}/QtSql"
+    #QT_INCLUDES="${QT_INCLUDES} -I$(QTDIR)/include${QTINC}/QtSvg"
+    #QT_INCLUDES="${QT_INCLUDES} -I$(QTDIR)/include${QTINC}/QtTest"
+    #QT_INCLUDES="${QT_INCLUDES} -I$(QTDIR)/include${QTINC}/QtUiTools"
+
+    # this flag is obsolete with Qt 4
+    QT_MT_INCLUDES="$QT_INCLUDES"
   fi
 fi
 
+#
+# test Qt libraries
+#
 if  test "x$qt_ok" = "xyes"
 then
-  AC_MSG_CHECKING(linking qt library)
-  LIBS_old=$LIBS
-  if test "x$QTDIR" = "x/usr"
-  then
-    LIBS="$LIBS -lqt-mt $OGL_LIBS"
-  else
-    LIBS="$LIBS -L$QTDIR/lib${LIB_LOCATION_SUFFIX} -lqt-mt $OGL_LIBS"
-  fi
+  AC_MSG_CHECKING(linking against Qt library)
 
   CXXFLAGS_old=$CXXFLAGS
   CXXFLAGS="$CXXFLAGS $QT_INCLUDES"
 
+  LIBS_old=$LIBS
+  if test "x$QTDIR" = "x/usr"
+  then
+    QT_LIB_DIR=""
+  else
+    QT_LIB_DIR="-L$QTDIR/lib${LIB_LOCATION_SUFFIX}"
+  fi
+  LIBS="$LIBS $QT_LIB_DIR -lQtCore"
+
   AC_CACHE_VAL(salome_cv_lib_qt,[
     AC_TRY_LINK(
-#include <qapplication.h>
+#include <QCoreApplication>
 ,   int n;
     char **s;
-    QApplication a(n, s);
+    QCoreApplication a(n, s);
     a.exec();,
     eval "salome_cv_lib_qt=yes",eval "salome_cv_lib_qt=no")
   ])
   qt_ok="$salome_cv_lib_qt"
 
+  # BEGIN: for CCRT (installation of qt have only a "lib" directory)
   if  test "x$qt_ok" = "xno"
   then
-    #AC_MSG_RESULT(unable to link with qt library)
-    #AC_MSG_RESULT(QTDIR environment variable may be wrong)
-    # BEGIN: for CCRT (installation of qt have only a "lib" directory)
-    LIBS="$LIBS_old -L$QTDIR/lib -lqt-mt $OGL_LIBS"
+    QT_LIB_DIR="-L$QTDIR/lib"
+    LIBS="$LIBS_old $QT_LIB_DIR -lQtCore"
 
     AC_CACHE_VAL(salome_cv_lib_qt,[
       AC_TRY_LINK(
-#include <qapplication.h>
+#include <QCoreApplication>
 ,     int n;
       char **s;
-      QApplication a(n, s);
+      QCoreApplication a(n, s);
       a.exec();,
       eval "salome_cv_lib_qt=yes",eval "salome_cv_lib_qt=no")
     ])
     qt_ok="$salome_cv_lib_qt"
+  fi
+  # END: for CCRT
 
-    if  test "x$qt_ok" = "xno"
-    then
-      AC_MSG_RESULT(unable to link with qt library)
-      AC_MSG_RESULT(QTDIR environment variable may be wrong)
-    else
-      AC_MSG_RESULT(yes)
-         QT_LIBS="-L$QTDIR/lib -lqt-mt"
-      QT_MT_LIBS="-L$QTDIR/lib -lqt-mt"
-    fi
-    # END: for CCRT
+  if  test "x$qt_ok" = "xno"
+  then
+    AC_MSG_RESULT(no)
+    AC_MSG_RESULT(unable to link with qt library)
+    AC_MSG_RESULT(QTDIR environment variable may be wrong (probably too old Qt version))
   else
     AC_MSG_RESULT(yes)
-    if test "x$QTDIR" = "x/usr"
-    then
-         QT_LIBS=" -lqt-mt"
-      QT_MT_LIBS=" -lqt-mt"
-    else
-         QT_LIBS="-L$QTDIR/lib${LIB_LOCATION_SUFFIX} -lqt-mt"
-      QT_MT_LIBS="-L$QTDIR/lib${LIB_LOCATION_SUFFIX} -lqt-mt"
-    fi
+    # core libs
+    QT_CORE_LIBS="$QT_LIB_DIR -lQtCore -lQtXml"
+    # gui libs
+    QT_GUI_LIBS="$QT_LIB_DIR -lQtGui -lQtOpenGL"
+    # other libs (currently not used)
+    QT_OTHER_LIBS="$QT_LIB_DIR"
+    # other libs (can be used if necessary)
+    #QT_OTHER_LIBS="$QT_LIB_DIR -lQt3Support -lQtAssistantClient -lQtDesigner -lQtNetwork -lQtSql -lQtSvg -lQtTest -ltQtUiTools"
+    # all libs
+    QT_LIBS="$QT_CORE_LIBS $QT_GUI_LIBS $QT_OTHER_LIBS"
+    # this flag is obsolete with Qt 4
+    QT_MT_LIBS="$QT_LIBS"
   fi
-
   LIBS=$LIBS_old
   CXXFLAGS=$CXXFLAGS_old
-
 fi
 
+AC_SUBST(QTDIR)
 AC_SUBST(MOC)
 AC_SUBST(UIC)
+AC_SUBST(QRCC)
+AC_SUBST(LUPDATE)
 
 AC_SUBST(QT_ROOT)
 AC_SUBST(QT_INCLUDES)
 AC_SUBST(QT_MT_INCLUDES)
+AC_SUBST(QT_LIB_DIR)
+AC_SUBST(QT_CORE_LIBS)
+AC_SUBST(QT_GUI_LIBS)
+AC_SUBST(QT_OTHER_LIBS)
 AC_SUBST(QT_LIBS)
 AC_SUBST(QT_MT_LIBS)
-AC_SUBST(QT_VERS)
+AC_SUBST(QT_VERSION)
 
 AC_LANG_RESTORE
 
