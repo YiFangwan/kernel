@@ -157,7 +157,7 @@ then
   else
     AC_PATH_PROG(LRELEASE, lrelease)
   fi
-  if test "x$LRELEASE = "x"
+  if test "x$LRELEASE" = "x"
   then
     qt_ok=no
     AC_MSG_RESULT(lrelease (Qt translation files compiler) is not in the PATH variable)
