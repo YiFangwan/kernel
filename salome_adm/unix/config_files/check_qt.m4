@@ -147,23 +147,23 @@ then
 fi
 
 #
-# check lupdate presence (translation files compiler)
+# check lrelease presence (translation files compiler)
 #
 if  test "x$qt_ok" = "xyes"
 then
-  if test -f ${QTDIR}/bin/lupdate
+  if test -f ${QTDIR}/bin/lrelease
   then
-    LUPDATE=${QTDIR}/bin/lupdate
+    LRELEASE=${QTDIR}/bin/lrelease
   else
-    AC_PATH_PROG(LUPDATE, lupdate)
+    AC_PATH_PROG(LRELEASE, lrelease)
   fi
-  if test "x$LUPDATE" = "x"
+  if test "x$LRELEASE = "x"
   then
     qt_ok=no
-    AC_MSG_RESULT(lupdate (Qt translation files compiler) is not in the PATH variable)
+    AC_MSG_RESULT(lrelease (Qt translation files compiler) is not in the PATH variable)
   else
     qt_ok=yes
-    AC_MSG_RESULT(lupdate (Qt translation files compiler) is found)
+    AC_MSG_RESULT(lrelease (Qt translation files compiler) is found)
   fi
 fi
 
@@ -285,7 +285,7 @@ AC_SUBST(QTDIR)
 AC_SUBST(MOC)
 AC_SUBST(UIC)
 AC_SUBST(QRCC)
-AC_SUBST(LUPDATE)
+AC_SUBST(LRELEASE)
 
 AC_SUBST(QT_ROOT)
 AC_SUBST(QT_INCLUDES)
