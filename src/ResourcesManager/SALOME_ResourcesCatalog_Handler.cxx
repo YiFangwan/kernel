@@ -130,7 +130,7 @@ startElement( const QString&,
   for (int i = 0;i < attrs.count();i++)
     {
       QString qName(attrs.localName(i));
-      std::string content(attrs.value(i).latin1());
+      std::string content(attrs.value(i).toLatin1().data());
 
       if ((qName.compare(QString(test_hostname)) == 0))
         _resource.DataForSort._hostName = content;
@@ -265,7 +265,7 @@ endElement(const QString&,
 
 bool SALOME_ResourcesCatalog_Handler::characters(const QString& chars)
 {
-  content = (const char *)chars ;
+  content = chars.toLatin1().data() ;
   return true;
 }
 
@@ -328,7 +328,7 @@ SALOME_ResourcesCatalog_Handler::fatalError
                .arg( exception.message() )
                .arg( exception.lineNumber() )
                .arg( exception.columnNumber() );
-  INFOS("parser error: " << errorProt.latin1());
+  INFOS("parser error: " << errorProt.toLatin1().data());
 
   return QXmlDefaultHandler::fatalError( exception );
 }
