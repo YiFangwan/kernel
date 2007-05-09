@@ -400,3 +400,7 @@ long SALOME_ContainerManager::GetIdForContainer(void)
   return _id;
 }
 
+Engines::MachineParameters* SALOME_ContainerManager::GetMachineParameters(const char *hostname)
+{
+  return _ResManager->GetMachineParameters(hostname);
+}

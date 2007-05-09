@@ -72,6 +72,8 @@ struct MachineParameters
 				     in string componentName )
       raises (SALOME::SALOME_Exception);
 
+    MachineParameters GetMachineParameters( in string hostname );
+
     void Shutdown();
 
     void ShutdownContainers();

@@ -356,7 +356,7 @@ SALOME_ResourcesManager::FindFirst(const Engines::MachineList& listOfMachines)
 string
 SALOME_ResourcesManager::FindNext(const Engines::MachineList& listOfMachines)
 {
-  return _dynamicResourcesSelecter.FindNext(listOfMachines,_NS);
+  return _dynamicResourcesSelecter.FindNext(listOfMachines,_resourcesList,_NS);
 }
 //=============================================================================
 /*!
@@ -927,6 +927,16 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
 
 }
 
-
-
-
+Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const char *hostname)
+{
+  ParserResourcesType resource = _resourcesList[string(hostname)];
+  Engines::MachineParameters *p_ptr = new Engines::MachineParameters;
+  p_ptr->container_name = CORBA::string_dup("");
+  p_ptr->hostname = CORBA::string_dup("hostname");
+  p_ptr->OS = CORBA::string_dup(resource.OS.c_str());
+  p_ptr->mem_mb = resource.DataForSort._memInMB;
+  p_ptr->cpu_clock = resource.DataForSort._CPUFreqMHz;
+  p_ptr->nb_proc_per_node = resource.DataForSort._nbOfProcPerNode;
+  p_ptr->nb_node = resource.DataForSort._nbOfNodes;
+  return p_ptr;
+}

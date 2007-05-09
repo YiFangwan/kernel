@@ -125,15 +125,21 @@ int main (int argc, char * argv[])
   int cmax=0;
   int fmin=10;
   int fmax=0;
+  int nbpmax;
   for(map<string,int>::iterator iter=cycle.begin();iter!=cycle.end();iter++){
     if(strcmp((*iter).first.c_str(),"localhost")!=0){
-      if(cycle[(*iter).first]<cmin) cmin=cycle[(*iter).first];
-      if(cycle[(*iter).first]>cmax) cmax=cycle[(*iter).first];
-      if(first[(*iter).first]<fmin) fmin=first[(*iter).first];
-      if(first[(*iter).first]>fmax) fmax=first[(*iter).first];
+      Engines::MachineParameters *p = _ContManager->GetMachineParameters((*iter).first.c_str());
+      int nbproc = p->nb_node * p->nb_proc_per_node;
+      if(cycle[(*iter).first]/nbproc<cmin) cmin=cycle[(*iter).first]/nbproc;
+      if(cycle[(*iter).first]/nbproc>cmax) cmax=cycle[(*iter).first]/nbproc;
+      if(first[(*iter).first]/nbproc<fmin) fmin=first[(*iter).first]/nbproc;
+      if(first[(*iter).first]/nbproc>fmax){
+	fmax=first[(*iter).first]/nbproc;
+	nbpmax = nbproc;
+      }
     }
   }
-  if( ((cmax-cmin) <= 1) && (fmax == 10) && !error ){
+  if( ((cmax-cmin) <= 1) && (fmax == 10/nbpmax) && !error ){
     string msg;
     if(bestImplemented)
       msg = "TEST OK";

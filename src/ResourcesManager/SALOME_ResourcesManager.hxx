@@ -102,6 +102,8 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     const MapOfParserResourcesType& GetList() const;
 
+    Engines::MachineParameters* GetMachineParameters(const char *hostname);
+
   protected:
     SALOME_NamingService *_NS;
 

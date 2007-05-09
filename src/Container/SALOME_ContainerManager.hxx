@@ -72,6 +72,8 @@ public:
 
   char* FindFirst(const Engines::MachineList& possibleComputers);
 
+  Engines::MachineParameters* GetMachineParameters(const char *hostname);
+
   void Shutdown();
   void ShutdownContainers();
 
