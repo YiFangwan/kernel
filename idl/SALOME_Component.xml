@@ -1,3 +1,4 @@
+<?xml version="1.0"?>
 <!--
 //  Copyright (C) 2007	OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -21,7 +22,6 @@
 //  File   : SALOME_Component.xml
 //  Author : Andre RIBES, EDF
 -->
-<?xml version="1.0"?>
 <GridCCM_Interface_description
       xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
       xsi:noNamespaceSchemaLocation='$PACOPATH/IDL2Tool/interface.xsd'
