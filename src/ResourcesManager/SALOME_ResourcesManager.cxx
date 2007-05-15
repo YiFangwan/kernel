@@ -129,6 +129,7 @@ throw(SALOME_Exception)
 //   MESSAGE("ResourcesManager::GetFittingResources");
   vector <std::string> ret;
 
+
   // --- To be sure that we search in a correct list.
   ParseXmlFile();
 
@@ -338,6 +339,29 @@ const MapOfParserResourcesType& SALOME_ResourcesManager::GetList() const
 
 //=============================================================================
 /*!
+ *  dynamically obtains the first machines
+ */ 
+//=============================================================================
+
+string
+SALOME_ResourcesManager::FindFirst(const Engines::MachineList& listOfMachines)
+{
+  return _dynamicResourcesSelecter.FindFirst(listOfMachines);
+}
+
+//=============================================================================
+/*!
+ *  dynamically obtains the best machines
+ */ 
+//=============================================================================
+
+string
+SALOME_ResourcesManager::FindNext(const Engines::MachineList& listOfMachines)
+{
+  return _dynamicResourcesSelecter.FindNext(listOfMachines,_NS);
+}
+//=============================================================================
+/*!
  *  dynamically obtains the best machines
  */ 
 //=============================================================================
@@ -347,6 +371,7 @@ SALOME_ResourcesManager::FindBest(const Engines::MachineList& listOfMachines)
 {
   return _dynamicResourcesSelecter.FindBest(listOfMachines);
 }
+
 
 
 //=============================================================================
