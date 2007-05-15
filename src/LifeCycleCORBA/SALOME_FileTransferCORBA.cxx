@@ -122,8 +122,9 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
       params.container_name = _containerName.c_str();
       params.hostname = _refMachine.c_str();
 
+      Engines::CompoList clist;
       Engines::MachineList_var listOfMachines =
-	contManager->GetFittingResources(params, "");
+	contManager->GetFittingResources(params, clist);
 
       container = contManager->FindOrStartContainer(params,
 						    listOfMachines);

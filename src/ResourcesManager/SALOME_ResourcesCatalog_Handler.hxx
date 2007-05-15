@@ -71,7 +71,6 @@ class SALOME_ResourcesCatalog_Handler : public QXmlDefaultHandler
     QString errorProt;
     std::string content;
     std::string previous_module_name;
-    std::string previous_module_path;
 
     ParserResourcesType _resource;
     MapOfParserResourcesType& _resources_list;
@@ -87,8 +86,6 @@ class SALOME_ResourcesCatalog_Handler : public QXmlDefaultHandler
     const char *test_appli_path;
     const char *test_modules;
     const char *test_module_name;
-    const char *test_module_path;
-    const char *test_pre_req_file_path;
     const char *test_os;
     const char *test_mem_in_mb;
     const char *test_cpu_freq_mhz;

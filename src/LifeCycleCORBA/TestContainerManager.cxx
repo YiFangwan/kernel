@@ -61,6 +61,10 @@ int main (int argc, char * argv[])
   Engines::ContainerManager_var _ContManager=Engines::ContainerManager::_narrow(obj);
 
   Engines::MachineParameters p;
+  Engines::CompoList clist;
+  clist.length(2);
+  clist[0] = "MED";
+  clist[1] = "GEOM";
 
   p.hostname = "";
   p.OS = "LINUX";
@@ -74,26 +78,27 @@ int main (int argc, char * argv[])
   for(int i=0;i<10;i++){
     sprintf(st,"cycl_%d",i);
     p.container_name = CORBA::string_dup(st);
-    cont = _ContManager->StartContainer(p,Engines::P_CYCL);
+    cont = _ContManager->StartContainer(p,Engines::P_CYCL,clist);
     if(CORBA::is_nil(cont)) error = true;
   }
 
   for(int i=0;i<10;i++){
     sprintf(st,"first_%d",i);
     p.container_name = CORBA::string_dup(st);
-    cont = _ContManager->StartContainer(p,Engines::P_FIRST);
+    cont = _ContManager->StartContainer(p,Engines::P_FIRST,clist);
     if(CORBA::is_nil(cont)) error = true;
   }
 
   p.container_name = CORBA::string_dup("best");
-  cont = _ContManager->StartContainer(p,Engines::P_BEST);
+  cont = _ContManager->StartContainer(p,Engines::P_BEST,clist);
   if(CORBA::is_nil(cont)) bestImplemented = false;
   else bestImplemented = true;
 
   SALOME_LifeCycleCORBA LCC(_NS);
-  compo = LCC.FindOrLoad_Component("FactoryServer","GEOM");
+  p.container_name = CORBA::string_dup("FactoryServer");
+  compo = LCC.FindOrLoad_Component(p,"SMESH");
   if(CORBA::is_nil(compo)) error = true;
-  compo = LCC.FindOrLoad_Component("FactoryServer","GEOM");
+  compo = LCC.FindOrLoad_Component(p,"SMESH");
   if(CORBA::is_nil(compo)) error = true;
 
   _NS->Change_Directory("/Containers");

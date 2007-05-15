@@ -121,7 +121,7 @@ SALOME_ResourcesManager::~SALOME_ResourcesManager()
 vector<string>
 SALOME_ResourcesManager::
 GetFittingResources(const Engines::MachineParameters& params,
-                    const char *moduleName)
+                    const Engines::CompoList& componentList)
 throw(SALOME_Exception)
 {
 //   MESSAGE("ResourcesManager::GetFittingResources");
@@ -179,7 +179,7 @@ throw(SALOME_Exception)
     {
       SelectOnlyResourcesWithOS(ret, params.OS);
 
-      KeepOnlyResourcesWithModule(ret, moduleName);
+      KeepOnlyResourcesWithModule(ret, componentList);
 
       if (ret.size() == 0)
         SelectOnlyResourcesWithOS(ret, params.OS);
@@ -226,16 +226,16 @@ throw(SALOME_Exception)
 int
 SALOME_ResourcesManager::
 AddResourceInCatalog(const Engines::MachineParameters& paramsOfNewResources,
-                     const map<string, string>& modulesOnNewResources,
-                     const char *environPathOfPrerequired,
+                     const vector<string>& modulesOnNewResources,
                      const char *alias,
                      const char *userName,
                      AccessModeType mode,
                      AccessProtocolType prot)
 throw(SALOME_Exception)
 {
-  map<string, string>::const_iterator iter =
-    modulesOnNewResources.find("KERNEL");
+  vector<string>::const_iterator iter = find(modulesOnNewResources.begin(),
+					     modulesOnNewResources.end(),
+					     "KERNEL");
 
   if (iter != modulesOnNewResources.end())
     {
@@ -245,8 +245,7 @@ throw(SALOME_Exception)
       newElt.Protocol = prot;
       newElt.Mode = mode;
       newElt.UserName = userName;
-      newElt.ModulesPath = modulesOnNewResources;
-      newElt.PreReqFilePath = environPathOfPrerequired;
+      newElt.ModulesList = modulesOnNewResources;
       newElt.OS = paramsOfNewResources.OS;
       newElt.DataForSort._memInMB = paramsOfNewResources.mem_mb;
       newElt.DataForSort._CPUFreqMHz = paramsOfNewResources.cpu_clock;
@@ -628,7 +627,7 @@ SALOME_ResourcesManager::BuildCommand
 
   command += machine;
   command += " ";
-  string path = (*(resInfo.ModulesPath.find("KERNEL"))).second;
+  string path = getenv("KERNEL_ROOT_DIR");
   command += path;
   command += "/bin/salome/";
 
@@ -689,17 +688,27 @@ throw(SALOME_Exception)
 void
 SALOME_ResourcesManager::KeepOnlyResourcesWithModule
 ( vector<string>& hosts,
-  const char *moduleName) const
+  const Engines::CompoList& componentList) const
 throw(SALOME_Exception)
 {
   for (vector<string>::iterator iter = hosts.begin(); iter != hosts.end();)
     {
       MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
-      const map<string, string>& mapOfModulesOfCurrentHost =
-        (((*it).second).ModulesPath);
+      const vector<string>& mapOfModulesOfCurrentHost = (((*it).second).ModulesList);
 
-      if (mapOfModulesOfCurrentHost.find(moduleName) ==
-          mapOfModulesOfCurrentHost.end())
+      bool erasedHost = false;
+      if( mapOfModulesOfCurrentHost.size() > 0 ){
+	for(int i=0;i<componentList.length();i++){
+	  vector<string>::const_iterator itt = find(mapOfModulesOfCurrentHost.begin(),
+					      mapOfModulesOfCurrentHost.end(),
+					      componentList[i]);
+	  if (itt == mapOfModulesOfCurrentHost.end()){
+	    erasedHost = true;
+	    break;
+	  }
+	}
+      }
+      if(erasedHost)
         hosts.erase(iter);
       else
         iter++;
@@ -805,27 +814,6 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
 
   // --- set env vars
 
-  tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
-
-  for (map<string, string>::const_iterator iter = resInfo.ModulesPath.begin();
-       iter != resInfo.ModulesPath.end();
-       iter++)
-    {
-      string curModulePath((*iter).second);
-      tempOutputFile << (*iter).first << "_ROOT_DIR=" << curModulePath << endl;
-      tempOutputFile << "export " << (*iter).first << "_ROOT_DIR" << endl;
-      tempOutputFile << "LD_LIBRARY_PATH=" << curModulePath
-		     << "/lib/salome" << ":${LD_LIBRARY_PATH}" << endl;
-      tempOutputFile << "PYTHONPATH=" << curModulePath << "/bin/salome:"
-		     << curModulePath << "/lib/salome:" << curModulePath
-		     << "/lib/python${PYTHON_VERSION}/site-packages/salome:";
-      tempOutputFile << curModulePath
-      << "/lib/python${PYTHON_VERSION}/site-packages/salome/shared_modules:${PYTHONPATH}"
-      << endl;
-    }
-
-  tempOutputFile << "export LD_LIBRARY_PATH" << endl;
-  tempOutputFile << "export PYTHONPATH" << endl;
   tempOutputFile << "export SALOME_trace=local" << endl; // mkr : 27.11.2006 : PAL13967 - Distributed supervision graphs - Problem with "SALOME_trace"
   //tempOutputFile << "source " << resInfo.PreReqFilePath << endl;
 
@@ -853,8 +841,7 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
 #endif
     }
 
-  tempOutputFile << (*(resInfo.ModulesPath.find("KERNEL"))).second
-		 << "/bin/salome/";
+  tempOutputFile << getenv("KERNEL_ROOT_DIR") << "/bin/salome/";
 
   if (params.isMPI)
     {

@@ -64,11 +64,12 @@ public:
 
   Engines::Container_ptr
   StartContainer(const Engines::MachineParameters& params,
-		 Engines::ResPolicy policy);
+		 Engines::ResPolicy policy,
+		 const Engines::CompoList& componentList);
 
   Engines::MachineList *
   GetFittingResources(const Engines::MachineParameters& params,
-		      const char *componentName);
+		      const Engines::CompoList& componentList);
 
   char* FindFirst(const Engines::MachineList& possibleComputers);
 

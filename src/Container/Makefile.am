@@ -67,7 +67,6 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
-	-I$(srcdir)/../LifeCycleCORBA \
 	-I$(srcdir)/../Utils \
 	-I$(srcdir)/../Registry \
 	-I$(srcdir)/../Notification \
@@ -82,7 +81,6 @@ COMMON_LIBS =\
 	../Notification/libSalomeNotification.la \
 	../ResourcesManager/libSalomeResourcesManager.la \
 	../NamingService/libSalomeNS.la \
-	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
@@ -123,7 +121,7 @@ libSalomeContainer_la_LIBADD =\
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = SALOME_Container SALOME_ContainerManagerServer TestContainerManager
+bin_PROGRAMS = SALOME_Container SALOME_ContainerManagerServer
 SALOME_Container_SOURCES =\
 	SALOME_Container.cxx \
 	SALOME_Container_SignalsHandler.cxx
@@ -149,13 +147,3 @@ SALOME_ContainerManagerServer_LDADD =\
 	$(COMMON_LIBS) \
 	../Basics/libSALOMEBasics.la
 
-TestContainerManager_SOURCES =\
-	TestContainerManager.cxx
-
-TestContainerManager_CPPFLAGS=\
-	$(COMMON_CPPFLAGS)
-
-TestContainerManager_LDADD =\
-	libSalomeContainer.la \
-	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la

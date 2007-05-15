@@ -286,9 +286,10 @@ StartContainer(const Engines::MachineParameters& params,
 Engines::Container_ptr
 SALOME_ContainerManager::
 StartContainer(const Engines::MachineParameters& params,
-	       Engines::ResPolicy policy)
+	       Engines::ResPolicy policy,
+	       const Engines::CompoList& componentList)
 {
-  Engines::MachineList_var possibleComputers = GetFittingResources(params,"");
+  Engines::MachineList_var possibleComputers = GetFittingResources(params,componentList);
   return StartContainer(params,possibleComputers,policy);
 }
 
@@ -301,14 +302,14 @@ StartContainer(const Engines::MachineParameters& params,
 Engines::MachineList *
 SALOME_ContainerManager::
 GetFittingResources(const Engines::MachineParameters& params,
-		    const char *componentName)
+		    const Engines::CompoList& componentList)
 {
   MESSAGE("SALOME_ContainerManager::GetFittingResources");
   Engines::MachineList *ret=new Engines::MachineList;
   vector<string> vec;
   try
     {
-      vec = _ResManager->GetFittingResources(params,componentName);
+      vec = _ResManager->GetFittingResources(params,componentList);
     }
   catch(const SALOME_Exception &ex)
     {

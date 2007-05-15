@@ -50,11 +50,13 @@ salomeinclude_HEADERS = \
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
+	@QT_MT_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../SALOMETraceCollector \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../Utils \
+	-I$(srcdir)/../Container \
 	-I$(srcdir)/../ResourcesManager \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
@@ -97,7 +99,7 @@ libSalomeLifeCycleCORBA_la_LIBADD   = $(COMMON_LIBS)
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = Test_LifeCycleCORBA
+bin_PROGRAMS = Test_LifeCycleCORBA TestContainerManager
 Test_LifeCycleCORBA_SOURCES  = Test_LifeCycleCORBA.cxx
 Test_LifeCycleCORBA_CPPFLAGS =\
 	-I$(srcdir)/../Registry \
@@ -105,6 +107,20 @@ Test_LifeCycleCORBA_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
 
 Test_LifeCycleCORBA_LDADD    = \
+	libSalomeLifeCycleCORBA.la \
+	../Registry/libRegistry.la \
+	../Notification/libSalomeNotification.la \
+	../Container/libSalomeContainer.la \
+	$(COMMON_LIBS) \
+	@CORBA_LIBS@
+
+TestContainerManager_SOURCES  = TestContainerManager.cxx
+TestContainerManager_CPPFLAGS =\
+	-I$(srcdir)/../Registry \
+	-I$(srcdir)/../Notification \
+	$(COMMON_CPPFLAGS)
+
+TestContainerManager_LDADD    = \
 	libSalomeLifeCycleCORBA.la \
 	../Registry/libRegistry.la \
 	../Notification/libSalomeNotification.la \

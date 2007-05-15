@@ -122,8 +122,11 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
+  Engines::CompoList clist;
+  clist.length(1);
+  clist[0] = componentName;
   Engines::MachineList_var listOfMachines =
-    _ContManager->GetFittingResources(params, componentName);
+    _ContManager->GetFittingResources(params, clist);
 
   Engines::Component_var compo = _FindComponent(params,
 						componentName,
@@ -153,8 +156,11 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
+  Engines::CompoList clist;
+  clist.length(1);
+  clist[0] = componentName;
   Engines::MachineList_var listOfMachines =
-    _ContManager->GetFittingResources(params, componentName);
+    _ContManager->GetFittingResources(params, clist);
 
   Engines::Component_var compo = _LoadComponent(params,
 						componentName,
@@ -186,8 +192,11 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
+  Engines::CompoList clist;
+  clist.length(1);
+  clist[0] = componentName;
   Engines::MachineList_var listOfMachines =
-    _ContManager->GetFittingResources(params,componentName);
+    _ContManager->GetFittingResources(params,clist);
 
   Engines::Component_var compo = _FindComponent(params,
 						componentName,

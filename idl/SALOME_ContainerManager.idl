@@ -45,6 +45,7 @@ struct MachineParameters
     Type to transmit list of machines.
 */
   typedef sequence<string> MachineList;
+  typedef sequence<string> CompoList;
 
 /*!
     exception thrown if a computer is not found in the catalog
@@ -64,12 +65,13 @@ struct MachineParameters
 				    in MachineList possibleComputers);
 
     Container StartContainer( in MachineParameters params,
-			      in ResPolicy policy);
+			      in ResPolicy policy,
+			      in CompoList componentList );
 
     string FindFirst(in MachineList possibleComputers);
 
     MachineList GetFittingResources( in MachineParameters params,
-				     in string componentName )
+				     in CompoList componentList )
       raises (SALOME::SALOME_Exception);
 
     MachineParameters GetMachineParameters( in string hostname );

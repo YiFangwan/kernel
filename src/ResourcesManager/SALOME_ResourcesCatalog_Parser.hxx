@@ -34,8 +34,6 @@
 #include <map>
 #include <iostream>
 
-typedef std::map<std::string, std::string> MapOfModulesPath;
-
 enum AccessProtocolType {rsh, ssh};
 
 enum AccessModeType {interactive, batch};
@@ -76,11 +74,11 @@ struct ParserResourcesType
     AccessModeType Mode;
     std::string UserName;
     std::string AppliPath;
-    MapOfModulesPath ModulesPath;
-    std::string PreReqFilePath;
+    std::vector<std::string> ModulesList;
     std::string OS;
 
-    void Print();
+    void Print() const;
+    void Clear();
   };
 
 typedef std::map<std::string, ParserResourcesType> MapOfParserResourcesType;

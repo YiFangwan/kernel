@@ -65,7 +65,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     std::vector<std::string>
     GetFittingResources(const Engines::MachineParameters& params,
-                        const char *moduleName)
+                        const Engines::CompoList& componentList)
     throw(SALOME_Exception);
 
     std::string FindFirst(const Engines::MachineList& listOfMachines);
@@ -86,8 +86,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     int AddResourceInCatalog
     (const Engines::MachineParameters& paramsOfNewResources,
-     const std::map<std::string, std::string>& modulesOnNewResources,
-     const char *environPathOfPrerequired,
+     const std::vector<std::string>& modulesOnNewResources,
      const char *alias,
      const char *userName,
      AccessModeType mode,
@@ -116,7 +115,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
       throw(SALOME_Exception);
 
     void KeepOnlyResourcesWithModule(std::vector<std::string>& hosts,
-				     const char *moduleName) const
+				     const Engines::CompoList& componentList) const
       throw(SALOME_Exception);
 
     void AddOmninamesParams(std::string& command) const;
