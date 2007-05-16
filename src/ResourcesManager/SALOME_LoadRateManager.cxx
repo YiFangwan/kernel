@@ -47,15 +47,7 @@ string SALOME_LoadRateManager::FindNext(const Engines::MachineList& hosts,MapOfP
 
   ns->Change_Directory("/Containers");
   vector<string> vec = ns->list_directory_recurs();
-  list<string> lstCont;
   for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++){
-    CORBA::Object_var obj=ns->Resolve((*iter).c_str());
-    Engines::Container_var cont=Engines::Container::_narrow(obj);
-    if(!CORBA::is_nil(cont)){
-      lstCont.push_back((*iter));
-    }
-  }
-  for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
     CORBA::Object_var obj=ns->Resolve((*iter).c_str());
     Engines::Container_var cont=Engines::Container::_narrow(obj);
     if(!CORBA::is_nil(cont)){
