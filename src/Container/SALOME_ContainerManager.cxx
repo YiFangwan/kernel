@@ -257,7 +257,7 @@ StartContainer(const Engines::MachineParameters& params,
 #endif
       count-- ;
       if ( count != 10 )
-	MESSAGE( count << ". Waiting for FactoryServer on " << theMachine);
+	MESSAGE( count << ". Waiting for container on " << theMachine);
 
       if(params.isMPI){
 	containerNameInNS = "/ContainerManager/id";
