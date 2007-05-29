@@ -1,5 +1,3 @@
-//  SALOME NOTIFICATION_SWIG : wrapping of Notification sevices in order to be available in Python
-//
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
@@ -17,23 +15,33 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
 //
 //
 //
-//  File   : NOTIFICATION.i
-//  Author : Francis KLOSS
+//  File   : DSC_Basic.hxx
+//  Author : Natalia ERMOLAYEVA
 //  Module : SALOME
 
-%module libNOTIFICATION
+#ifndef _DSC_Basic_HXX_
+#define _DSC_Basic_HXX_
 
+#ifdef WNT
+ #if defined DSC_BASIC_EXPORTS
+  #if defined WIN32
+   #define DSC_BASIC_EXPORT __declspec( dllexport )
+  #else
+   #define DSC_BASIC_EXPORT
+  #endif
+ #else
+  #if defined WIN32
+   #define DSC_BASIC_EXPORT __declspec( dllimport )
+  #else
+   #define DSC_BASIC_EXPORT
+  #endif
+ #endif
+#else
+ #define DSC_BASIC_EXPORT
+#endif
 
-%{
-//#define __declspec(a)
-#include "NOTIFICATION_Swig.hxx"
-%}
-
-%include SALOME_NOTIFICATION.hxx
-%include SALOME_NOTIFICATION_SWIG.hxx
-%include NOTIFICATION.hxx
-%include NOTIFICATION_Swig.hxx
+#endif

@@ -355,7 +355,11 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 	for (int i = 0; i < params.nb_component_nodes; i++) {
 
 	char buffer [5];
-	snprintf(buffer,5,"%d",i);
+#ifndef WNT
+	  snprintf(buffer,5,"%d",i);
+#else
+	  _snprintf(buffer,5,"%d",i);
+#endif
 	string name_cont = name + string(buffer);
 
 	string theNodeMachine(CORBA::string_dup(params.hostname));
@@ -580,7 +584,12 @@ SALOME_ContainerManager::LaunchParallelContainer(const std::string& command,
 
       // Name of the node
       char buffer [5];
+#ifndef WNT
       snprintf(buffer,5,"%d",i);
+#else
+      _snprintf(buffer,5,"%d",i);
+#endif
+
       string name_cont = name + string(buffer);
 
       // I don't like this...

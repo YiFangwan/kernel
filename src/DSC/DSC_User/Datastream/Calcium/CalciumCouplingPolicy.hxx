@@ -29,11 +29,11 @@
 
 #include <vector>
 #include <map>
-#include <boost/lambda/lambda.hpp>
 
 #include "DisplayPair.hxx"
 #include "CouplingPolicy.hxx"
 #include "AdjacentFunctor.hxx"
+#include <boost/lambda/lambda.hpp>
 #include "CalciumTypes.hxx"
 #include "CalciumException.hxx"
 
