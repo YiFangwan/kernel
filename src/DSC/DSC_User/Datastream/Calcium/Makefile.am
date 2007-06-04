@@ -109,9 +109,8 @@ libCalciumC_la_SOURCES = Calcium.c
 #
 noinst_PROGRAMS              = test_DataIdContainer
 ## testInterpolation
-
-testInterpolation_SOURCES = testInterpolation.cxx
-testInterpolation_CXXFLAGS = -I/usr/include
+## testInterpolation_SOURCES = testInterpolation.cxx
+## testInterpolation_CXXFLAGS = -I/usr/include
 
 test_DataIdContainer_SOURCES = test_DataIdContainer.cxx 
 
