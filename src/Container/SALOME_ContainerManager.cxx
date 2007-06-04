@@ -326,7 +326,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
     INFOS("[FindOrStartParallelContainer] Starting a parallel container");
     
     // Step 2.1 : Choose a computer
-    string theMachine = _ResManager->FindBest(possibleComputers);
+    string theMachine = _ResManager->FindFirst(possibleComputers);
     if(theMachine == "") {
       INFOS("[FindOrStartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
       INFOS("[FindOrStartParallelContainer] No possible computer found");
