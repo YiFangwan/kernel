@@ -149,6 +149,10 @@ def set_env(args, modules_list, modules_root_dir):
     
     python_version="python%d.%d" % sys.version_info[0:2]
     modules_root_dir_list = []
+    os.putenv('SALOME_BATCH','0')
+    if args["batch"] :
+        os.putenv('SALOME_BATCH','1')
+    print 'SALOME_BATCH :',os.getenv('SALOME_BATCH')
     if args["gui"] :
         modules_list = modules_list[:] + ["GUI"] 
     modules_list = modules_list[:] + ["KERNEL"] 
@@ -712,7 +716,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # attente de la disponibilite du Container C++ local dans le Naming Service
     #
 
-    if ('cppContainer' in args['standalone']) | (args["gui"] == 0):
+    if ('cppContainer' in args['standalone']) :
         myServer=ContainerCPPServer(args)
         myServer.run()
         clt.waitNSPID("/Containers/" + theComputer + "/FactoryServer",myServer.PID)
@@ -859,6 +863,7 @@ def useSalome(args, modules_list, modules_root_dir):
         i = 0
         while i < len( toimport ) :
             if toimport[ i ] == 'killall':
+                clt.showNS()
                 killAllPorts()
                 import sys
                 sys.exit(0)
@@ -967,6 +972,8 @@ def no_main():
 def main():
     """Salome launch as a main application"""
     import sys
+    print "runSalome running on ",os.getenv('HOSTNAME')
+    print os.environ.itervalues
     args, modules_list, modules_root_dir = get_config()
     kill_salome(args)
     save_config = True

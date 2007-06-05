@@ -26,10 +26,15 @@
 #endif
 #include <vector>
 #include "Utils_CorbaException.hxx"
+#include "Batch_Date.hxx"
 
 #define TIME_OUT_TO_LAUNCH_CONT 21
 
 using namespace std;
+
+vector<Engines::Container_ptr> SALOME_ContainerManager::_batchLaunchedContainers;
+
+vector<Engines::Container_ptr>::iterator SALOME_ContainerManager::_batchLaunchedContainersIter;
 
 const char *SALOME_ContainerManager::_ContainerManagerNameInNS = 
   "/ContainerManager";
@@ -154,10 +159,6 @@ SALOME_ContainerManager::
 FindOrStartContainer(const Engines::MachineParameters& params,
 		     const Engines::MachineList& possibleComputers)
 {
-  long id;
-  string containerNameInNS;
-  char idc[3*sizeof(long)];
-
   Engines::Container_ptr ret = FindContainer(params,possibleComputers);
   if(!CORBA::is_nil(ret))
     return ret;
@@ -294,6 +295,106 @@ StartContainer(const Engines::MachineParameters& params,
 }
 
 //=============================================================================
+/*! CORBA Method:
+ *  Give a suitable Container in a list of machines
+ *  \param params            Machine Parameters required for the container
+ *  \param possibleComputers list of machines usable for start
+ */
+//=============================================================================
+
+Engines::Container_ptr
+SALOME_ContainerManager::
+GiveContainer(const Engines::MachineParameters& params,
+	       Engines::ResPolicy policy,
+	       const Engines::CompoList& componentList)
+{
+  if(strcmp(getenv("SALOME_BATCH"),"1")==0)
+    {
+      if(_batchLaunchedContainers.empty())
+	fillBatchLaunchedContainers();
+      return *(_batchLaunchedContainersIter++);
+    }
+  return StartContainer(params,policy,componentList);
+}
+
+
+//=============================================================================
+/*! CORBA Method:
+ *  Submit a batch job on a cluster and returns the JobId
+ *  \param fileToExecute      : .py/.exe/.sh/... to execute on the batch cluster
+ *  \param filesToExport      : to export on the batch cluster
+ *  \param NumberOfProcessors : Number of processors needed on the batch cluster
+ *  \param params             : Constraints for the choice of the batch cluster
+ */
+//=============================================================================
+long SALOME_ContainerManager::batchSalomeJob(
+                            const char * fileToExecute ,
+                            const Engines::FilesToExportList& filesToExport ,
+                            const long NumberOfProcessors ,
+                            const Engines::MachineParameters& params)
+{
+  BEGIN_OF("SALOME_ContainerManager::batchSalomeJob");
+  // Determination provisoire de l'extension .py
+  // Il faudra une classe dans Utils pour gerer les Path FileNames et Extensions
+  int lenf = strlen( fileToExecute ) ;
+  if ( strcmp( &fileToExecute[lenf-3] ,".py" ) == NULL ) {
+    int i = lenf-1 ;
+    while ( i >= 0 && fileToExecute[i] != '/' ) {
+      i -= 1 ;
+    }
+    char * FileNameToExecute = new char[lenf-4-i] ;
+    strncpy(FileNameToExecute , &fileToExecute[i+1] , lenf-4-i) ;
+    string fileNameToExecute =string( FileNameToExecute ) ;
+    delete FileNameToExecute ;
+    SCRUTE(fileNameToExecute) ;
+// Le /tmp n'est pas le meme d'un noeud a un autre ===>
+    //string DirForTmpFiles = string("/tmp/")+string(getenv("USER"))+string("/") ;
+    string DirForTmpFiles = string(getenv("HOME"))+string("/Batch/") ;
+    Batch::Date date = Batch::Date(time(0)) ;
+    std::string thedate = date.str() ;
+    int lend = thedate.size() ;
+    i = 0 ;
+    while ( i < lend ) {
+      if ( thedate[i] == '/' || thedate[i] == '-' || thedate[i] == ':' ) {
+        thedate[i] = '_' ;
+      }
+      i++ ;
+    }
+    SCRUTE(thedate);
+    DirForTmpFiles += thedate ;
+    SCRUTE(DirForTmpFiles) ;
+    // Problemes avec ResourcesManager ...
+    // Solution pour l'instant :
+    // 31.05.107 : hostname : tantal
+    //             Alias : tantale.ccc.cea.fr
+    Engines::CompoList aCompoList ;
+    Engines::MachineList aMachineList = *GetFittingResources( params , aCompoList ) ;
+    SCRUTE(aMachineList[0]) ;
+    std::string aCluster = FindFirst( aMachineList) ;
+    SCRUTE(aCluster) ;
+    //Creation of /tmp/$USER/date_hh_mn_ss/ and copy of FileNameToExecute
+    // and of filesToExport in that directory
+    _ResManager->CopyFileNamesToExecute(aCluster,DirForTmpFiles,fileToExecute,filesToExport) ;
+    //Creation of /tmp/$USER/date_hh_mn_ss/runSalome_'FileNameToExecute'_Batch.sh
+    string runSalome_Batch = _ResManager->BuildCmdrunSalomeBatch(aCluster,DirForTmpFiles,fileNameToExecute) ;
+    SCRUTE(runSalome_Batch) ;
+    //Creation of /tmp/$USER/date_hh_mn_ss/'FileNameToExecute'_Batch.sh
+    string FileNameToExecute_Batch = _ResManager->BuildCmdFileNameToExecute_Batch(aCluster,NumberOfProcessors,DirForTmpFiles,fileNameToExecute) ;
+    SCRUTE(FileNameToExecute_Batch) ;
+    //Creation of /tmp/$USER/date_hh_mn_ss/'FileNameToExecute'_bsub.sh
+    string FileNameToExecute_bsub = _ResManager->BuildCmdFileNameToExecute_bsub(aCluster,DirForTmpFiles,fileNameToExecute) ;
+    SCRUTE(FileNameToExecute_bsub) ;
+    //Launch of /tmp/$USER/date_hh_mn_ss/'FileNameToExecute'_bsub.sh on theCluster
+    string sshCommand = _ResManager->CmdToExecute_bsub(aCluster,DirForTmpFiles,fileNameToExecute) ;
+    SCRUTE(sshCommand) ;
+  }
+  else {
+    MESSAGE("SALOME_ContainerManager::batchSalomeJob unknown extension " << fileToExecute);
+  }
+  END_OF("SALOME_ContainerManager::batchSalomeJob");
+}
+
+//=============================================================================
 /*! 
  * 
  */
@@ -404,4 +505,19 @@ long SALOME_ContainerManager::GetIdForContainer(void)
 Engines::MachineParameters* SALOME_ContainerManager::GetMachineParameters(const char *hostname)
 {
   return _ResManager->GetMachineParameters(hostname);
+}
+
+void SALOME_ContainerManager::fillBatchLaunchedContainers()
+{
+  _batchLaunchedContainers.clear();
+  _NS->Change_Directory("/Containers");
+  vector<string> vec = _NS->list_directory_recurs();
+  for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++){
+    CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
+    Engines::Container_ptr cont=Engines::Container::_narrow(obj);
+    if(!CORBA::is_nil(cont)){
+      _batchLaunchedContainers.push_back(cont);
+    }
+  }
+  _batchLaunchedContainersIter=_batchLaunchedContainers.begin();
 }

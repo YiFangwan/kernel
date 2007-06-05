@@ -46,6 +46,7 @@ struct MachineParameters
 */
   typedef sequence<string> MachineList;
   typedef sequence<string> CompoList;
+  typedef sequence<string> FilesToExportList;
 
 /*!
     exception thrown if a computer is not found in the catalog
@@ -67,6 +68,15 @@ struct MachineParameters
     Container StartContainer( in MachineParameters params,
 			      in ResPolicy policy,
 			      in CompoList componentList );
+
+    Container GiveContainer( in MachineParameters params,
+		             in ResPolicy policy,
+		             in CompoList componentList );
+
+    long batchSalomeJob( in string fileToExecute ,
+                         in FilesToExportList filesToExport ,
+                         in long NumberOfProcessors ,
+			 in MachineParameters params ) ;
 
     string FindFirst(in MachineList possibleComputers);
 

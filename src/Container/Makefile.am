@@ -64,6 +64,7 @@ COMMON_CPPFLAGS=\
 	@MPI_INCLUDES@ \
 	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
 	@QT_MT_INCLUDES@ \
+	-I$(srcdir)/../Batch \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
@@ -84,6 +85,7 @@ COMMON_LIBS =\
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
+	../Batch/libSalomeBatch.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@MPI_LIBS@ \
 	@CORBA_LIBS@
@@ -133,7 +135,8 @@ SALOME_Container_CPPFLAGS =\
 SALOME_Container_LDADD =\
 	libSalomeContainer.la \
 	$(COMMON_LIBS) \
-	../Basics/libSALOMEBasics.la
+	../Basics/libSALOMEBasics.la \
+	../Batch/libSalomeBatch.la
 
 
 SALOME_ContainerManagerServer_SOURCES =\
@@ -146,4 +149,5 @@ SALOME_ContainerManagerServer_LDADD =\
 	libSalomeContainer.la \
 	$(COMMON_LIBS) \
 	../Basics/libSALOMEBasics.la
+	../Batch/libSalomeBatch.la
 

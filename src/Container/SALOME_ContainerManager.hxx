@@ -64,8 +64,18 @@ public:
 
   Engines::Container_ptr
   StartContainer(const Engines::MachineParameters& params,
-		 Engines::ResPolicy policy,
-		 const Engines::CompoList& componentList);
+		Engines::ResPolicy policy,
+		const Engines::CompoList& componentList);
+
+  Engines::Container_ptr
+  GiveContainer(const Engines::MachineParameters& params,
+		Engines::ResPolicy policy,
+		const Engines::CompoList& componentList);
+
+  long batchSalomeJob(const char * fileToExecute ,
+                      const Engines::FilesToExportList& filesToExport ,
+                      const long NumberOfProcessors ,
+                      const Engines::MachineParameters& params);
 
   Engines::MachineList *
   GetFittingResources(const Engines::MachineParameters& params,
@@ -89,11 +99,15 @@ protected:
   FindContainer(const Engines::MachineParameters& params,
 		const char *theMachine);
 
+  void fillBatchLaunchedContainers();
+
   long GetIdForContainer(void);
   long _id;
 
   SALOME_ResourcesManager *_ResManager;
   SALOME_NamingService *_NS;
+  static std::vector<Engines::Container_ptr> _batchLaunchedContainers;
+  static std::vector<Engines::Container_ptr>::iterator _batchLaunchedContainersIter;
 };
 
 #endif

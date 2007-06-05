@@ -76,6 +76,24 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
     (const std::string& machine,
      const Engines::MachineParameters& params, const long id);
 
+    void CopyFileNamesToExecute(const std::string& machine,
+                                const std::string& DirForTmpFiles ,
+                                const std::string& PathFileNameToExecute ,
+                                const Engines::FilesToExportList& filesToExport) ;
+    std::string BuildCmdrunSalomeBatch(const std::string& machine,
+                                       const std::string& DirForTmpFiles ,
+                                       const std::string& FileNameToExecute ) ;
+    std::string BuildCmdFileNameToExecute_Batch(const std::string& machine,
+                                      const long NumberOfProcessors,
+                                       const std::string& DirForTmpFiles ,
+                                       const std::string& FileNameToExecute ) ;
+    std::string BuildCmdFileNameToExecute_bsub(const std::string& machine,
+                                       const std::string& DirForTmpFiles ,
+                                       const std::string& FileNameToExecute ) ;
+    std::string CmdToExecute_bsub(const std::string& machine,
+                                  const std::string& DirForTmpFiles ,
+                                  const std::string& FileNameToExecute ) ;
+
     std::string BuildCommandToLaunchLocalContainer
     (const Engines::MachineParameters& params, const long id);
 

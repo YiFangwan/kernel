@@ -509,6 +509,356 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
   return command;
 }
 
+//=============================================================================
+/*! 
+ *  Copy FileNameToExecute and filesToExport in DirForTmpFiles of machine
+ */ 
+//=============================================================================
+void SALOME_ResourcesManager::CopyFileNamesToExecute(const std::string& machine,
+                            const std::string& DirForTmpFiles ,
+                            const std::string& PathFileNameToExecute ,
+                            const Engines::FilesToExportList& filesToExport) {
+  BEGIN_OF("SALOME_ResourcesManager::CopyFileNamesToExecute");
+  const ParserResourcesType& resInfo = _resourcesList[machine];
+  if (resInfo.Protocol == rsh)
+    {
+      string commandRcp;
+      commandRcp = "rsh ";
+      commandRcp += resInfo.Alias;
+      commandRcp += " mkdir -p ";
+      commandRcp += DirForTmpFiles ;
+      system(commandRcp.c_str());
+
+      commandRcp = "rcp ";
+      commandRcp += PathFileNameToExecute;
+      commandRcp += " ";
+      commandRcp += resInfo.Alias;
+      commandRcp += ":";
+      commandRcp += DirForTmpFiles ;
+      system(commandRcp.c_str());
+
+      int i ;
+      for ( i = 0 ; i < filesToExport.length() ; i++ ) {
+        commandRcp = "rcp ";
+        commandRcp += filesToExport[i] ;
+        commandRcp += " ";
+        commandRcp += resInfo.Alias;
+        commandRcp += ":";
+        commandRcp += DirForTmpFiles ;
+        system(commandRcp.c_str());
+      }
+    }
+
+  else if (resInfo.Protocol == ssh)
+    {
+      string commandSsh;
+      commandSsh = "ssh ";
+      commandSsh += resInfo.Alias;
+      commandSsh += " \"mkdir -p ";
+      commandSsh += DirForTmpFiles ;
+      commandSsh += "\"" ;
+      SCRUTE(commandSsh.c_str());
+      system(commandSsh.c_str());
+
+      commandSsh = "scp ";
+      commandSsh += PathFileNameToExecute ;
+      commandSsh += " ";
+      commandSsh += resInfo.Alias;
+      commandSsh += ":";
+      commandSsh += DirForTmpFiles ;
+      SCRUTE(commandSsh);
+      system(commandSsh.c_str());
+
+      int i ;
+      for ( i = 0 ; i < filesToExport.length() ; i++ ) {
+        commandSsh = "scp ";
+        commandSsh += filesToExport[i] ;
+        commandSsh += " ";
+        commandSsh += resInfo.Alias;
+        commandSsh += ":";
+        commandSsh += DirForTmpFiles ;
+        SCRUTE(commandSsh);
+        system(commandSsh.c_str());
+      }
+    }
+  else
+    throw SALOME_Exception("Unknown protocol");
+
+  END_OF("SALOME_ResourcesManager::CopyFileNamesToExecute");
+}
+
+//=============================================================================
+/*!
+ *  builds the shell to create for runSalome Batch on a Cluster :
+ *     #! /bin/sh -f
+ *     source preReqFilePath
+ *     export PYTHONPATH=/$HOME/Batch/date_hh_mn_ss:$PYTHONPATH
+ *     if test $SLURM_PROCID = 0; then
+ *         runSalome --terminal --batch --modules=ListOfModules --standalone=registry,study,moduleCatalog --execute='FileNameToExecute',killall --killall
+ *     else
+ *         sleep 10
+ *         export SALOME_BATCH="1"
+ *         SALOME_Container "YACS_Server_"${SLURM_PROCID}
+ *     fi
+ *
+ *     with preReqFilePath of CatalogResource for Salome environnement
+ *     with ListOfModules of CatalogResource
+ *     with FileNameToExecute as python script to execute
+ */ 
+//=============================================================================
+std::string SALOME_ResourcesManager::BuildCmdrunSalomeBatch(
+                                       const std::string& machine,
+                                       const std::string& DirForTmpFiles ,
+                                       const std::string& FileNameToExecute ) {
+  BEGIN_OF("SALOME_ResourcesManager::BuildCmdrunSalomeBatch");
+  _TmpFileName = BuildTemporaryFileName();
+  ofstream tempOutputFile;
+  tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
+  const ParserResourcesType& resInfo = _resourcesList[machine];
+  resInfo.Print() ;
+  tempOutputFile << "#! /bin/sh -f" << endl ;
+  tempOutputFile << "source " ;
+  tempOutputFile << resInfo.AppliPath << endl ;
+  tempOutputFile << "export PYTHONPATH=" ;
+  tempOutputFile << DirForTmpFiles ;
+  tempOutputFile << ":$PYTHONPATH" << endl ;
+  tempOutputFile << "if test $SLURM_PROCID = 0; then" << endl ;
+  tempOutputFile << "    runSalome --terminal --batch --modules=" ;
+  int i ;
+  for ( i = 0 ; i < resInfo.ModulesList.size() ; i++ ) {
+    tempOutputFile << resInfo.ModulesList[i] ;
+    if ( i != resInfo.ModulesList.size()-1 )
+      tempOutputFile << "," ;
+  }
+  tempOutputFile << " --standalone=registry,study,moduleCatalog --execute=" ;
+  tempOutputFile << FileNameToExecute ;
+  tempOutputFile << ",killall --killall" << endl ;
+  tempOutputFile << "else" << endl ;
+  tempOutputFile << "    sleep 10" << endl ;
+  tempOutputFile << "    export SALOME_BATCH='1'" << endl ;
+  tempOutputFile << "    SALOME_Container 'YACS_Server_'${SLURM_PROCID}" << endl ;
+  tempOutputFile << "fi" << endl ;
+  tempOutputFile.flush();
+  tempOutputFile.close();
+  chmod(_TmpFileName.c_str(), 0x1ED);
+  SCRUTE(_TmpFileName.c_str()) ;
+
+  if (resInfo.Protocol == rsh)
+    {
+      string commandRcp;
+      commandRcp = "rcp ";
+      commandRcp += _TmpFileName;
+      commandRcp += " ";
+      commandRcp += resInfo.Alias;
+      commandRcp += ":";
+      commandRcp += DirForTmpFiles ;
+      commandRcp += "/runSalome_" ;
+      commandRcp += FileNameToExecute ;
+      commandRcp += "_Batch.sh" ;
+      system(commandRcp.c_str());
+      RmTmpFile();
+      return commandRcp;
+    }
+
+  else if (resInfo.Protocol == ssh)
+    {
+      string commandSsh;
+      commandSsh = "scp ";
+      commandSsh += _TmpFileName;
+      commandSsh += " ";
+      commandSsh += resInfo.Alias;
+      commandSsh += ":";
+      commandSsh += DirForTmpFiles ;
+      commandSsh += "/runSalome_" ;
+      commandSsh += FileNameToExecute ;
+      commandSsh += "_Batch.sh" ;
+      system(commandSsh.c_str());
+      SCRUTE(commandSsh);
+      RmTmpFile();
+      return commandSsh;
+    }
+  else
+    throw SALOME_Exception("Unknown protocol");
+
+  END_OF("SALOME_ResourcesManager::BuildCmdrunSalomeBatch");
+  return string("");
+}
+
+//=============================================================================
+/*!
+ *  builds the shell to create for runSalome Batch on a Cluster :
+ *     #! /bin/sh -f
+ *     #BSUB -n NumberOfProcessors
+ *     #BSUB -o runSalome.log%J
+ *     mpirun -srun /$HOME/Batch/date_hh_mn_ss/runSalome_'FileNameToExecute'_Batch.sh
+ *     with NumberOfProcessors from params
+ *     with FileNameToExecute as python script to execute
+ */ 
+//=============================================================================
+std::string SALOME_ResourcesManager::BuildCmdFileNameToExecute_Batch(
+                                       const std::string& machine,
+                                       const long NumberOfProcessors,
+                                       const std::string& DirForTmpFiles ,
+                                       const std::string& FileNameToExecute ) {
+  BEGIN_OF("SALOME_ResourcesManager::BuildCmdFileNameToExecute_Batch");
+  _TmpFileName = BuildTemporaryFileName();
+  ofstream tempOutputFile;
+  tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
+  const ParserResourcesType& resInfo = _resourcesList[machine];
+  resInfo.Print() ;
+  tempOutputFile << "#! /bin/sh -f" << endl ;
+  tempOutputFile << "#BSUB -n  " ;
+  tempOutputFile << NumberOfProcessors << endl ;
+  tempOutputFile << "#BSUB -o runSalome.log%J" << endl ;
+  tempOutputFile << "mpirun -srun " ;
+  tempOutputFile << DirForTmpFiles ;
+  tempOutputFile << "/runSalome_" ;
+  tempOutputFile << FileNameToExecute ;
+  tempOutputFile << "_Batch.sh" << endl ;
+  tempOutputFile.flush();
+  tempOutputFile.close();
+  chmod(_TmpFileName.c_str(), 0x1ED);
+  SCRUTE(_TmpFileName.c_str()) ;
+
+  string commandRcp;
+  if (resInfo.Protocol == rsh)
+    {
+      commandRcp = "rcp ";
+      commandRcp += _TmpFileName;
+      commandRcp += " ";
+      commandRcp += resInfo.Alias;
+      commandRcp += ":";
+      commandRcp += DirForTmpFiles ;
+      commandRcp += "/" ;
+      commandRcp += FileNameToExecute ;
+      commandRcp += "_Batch.sh" ;
+      system(commandRcp.c_str());
+    }
+
+  else if (resInfo.Protocol == ssh)
+    {
+      commandRcp = "scp ";
+      commandRcp += _TmpFileName;
+      commandRcp += " ";
+      commandRcp += resInfo.Alias;
+      commandRcp += ":";
+      commandRcp += DirForTmpFiles ;
+      commandRcp += "/" ;
+      commandRcp += FileNameToExecute ;
+      commandRcp += "_Batch.sh" ;
+      system(commandRcp.c_str());
+    }
+  else
+    throw SALOME_Exception("Unknown protocol");
+
+  SCRUTE(commandRcp);
+  RmTmpFile();
+  END_OF("SALOME_ResourcesManager::BuildCmdFileNameToExecute_Batch");
+
+  return commandRcp;
+}
+
+//=============================================================================
+/*!
+ *  builds the shell to create for runSalome Batch on a Cluster :
+ *     #! /bin/sh -f
+ *     bsub < /$HOME/Batch/date_hh_mn_ss/'FileNameToExecute'_Batch.sh &
+ *     with preReqFilePath of CatalogResource for Salome environnement
+ *     with ListOfModules of CatalogResource
+ *     with FileNameToExecute as python script to execute
+ */ 
+//=============================================================================
+std::string SALOME_ResourcesManager::BuildCmdFileNameToExecute_bsub(
+                                       const std::string& machine,
+                                       const std::string& DirForTmpFiles ,
+                                       const std::string& FileNameToExecute ) {
+  BEGIN_OF("SALOME_ResourcesManager::BuildCmdFileNameToExecute_bsub");
+  _TmpFileName = BuildTemporaryFileName();
+  ofstream tempOutputFile;
+  tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
+  const ParserResourcesType& resInfo = _resourcesList[machine];
+  resInfo.Print() ;
+  tempOutputFile << "#! /bin/sh -f" << endl ;
+  tempOutputFile << "bsub < " ;
+  tempOutputFile << DirForTmpFiles ;
+  tempOutputFile << "/" ;
+  tempOutputFile << FileNameToExecute ;
+  tempOutputFile << "_Batch.sh &" << endl ;
+  tempOutputFile.flush();
+  tempOutputFile.close();
+  chmod(_TmpFileName.c_str(), 0x1ED);
+  SCRUTE(_TmpFileName.c_str()) ;
+
+  string commandRcp;
+  if (resInfo.Protocol == rsh)
+    {
+      commandRcp = "rcp ";
+      commandRcp += _TmpFileName;
+      commandRcp += " ";
+      commandRcp += resInfo.Alias;
+      commandRcp += ":";
+      commandRcp += DirForTmpFiles ;
+      commandRcp += "/" ;
+      commandRcp += FileNameToExecute ;
+      commandRcp += "_bsub.sh" ;
+      system(commandRcp.c_str());
+    }
+
+  else if (resInfo.Protocol == ssh)
+    {
+      commandRcp = "scp ";
+      commandRcp += _TmpFileName;
+      commandRcp += " ";
+      commandRcp += resInfo.Alias;
+      commandRcp += ":";
+      commandRcp += DirForTmpFiles ;
+      commandRcp += "/" ;
+      commandRcp += FileNameToExecute ;
+      commandRcp += "_bsub.sh" ;
+      system(commandRcp.c_str());
+    }
+  else
+    throw SALOME_Exception("Unknown protocol");
+
+  SCRUTE(commandRcp);
+  RmTmpFile();
+  END_OF("SALOME_ResourcesManager::BuildCmdFileNameToExecute_bsub");
+
+  return commandRcp;
+}
+
+//=============================================================================
+/*!
+ *  builds the rsh/ssh command for submitting of a batch job :
+ *     ssh tantale.ccc.cea.fr  /$HOME/Batch/date_hh_mn_ss/'FileNameToExecute'_bsub.sh
+ *     with FileNameToExecute as python script to execute
+ */ 
+//=============================================================================
+std::string SALOME_ResourcesManager::CmdToExecute_bsub(
+                                       const std::string& machine,
+                                       const std::string& DirForTmpFiles ,
+                                       const std::string& FileNameToExecute ) {
+  BEGIN_OF("SALOME_ResourcesManager::CmdToExecute_bsub");
+  const ParserResourcesType& resInfo = _resourcesList[machine];
+  string command;
+  resInfo.Print() ;
+
+  if (resInfo.Protocol == rsh)
+    command = "rsh " ;
+  else if (resInfo.Protocol == ssh)
+    command = "ssh ";
+  command += resInfo.Alias;
+  command += " \"tcsh " ;
+  command += DirForTmpFiles ;
+  command += "/" ;
+  command += FileNameToExecute ;
+  command += "_bsub.sh\"" ;
+  system(command.c_str());
+  SCRUTE(command.c_str()) ;
+  END_OF("SALOME_ResourcesManager::CmdToExecute_bsub");
+
+  return command;
+}
 
 //=============================================================================
 /*!

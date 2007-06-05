@@ -228,6 +228,21 @@ Engines::Component_ptr
 SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
 					    const char *componentName)
 {
+  if(strcmp(getenv("SALOME_BATCH"),"1")==0)
+    {
+      MESSAGE("SALOME_LifeCycleCORBA::FindOrLoad_Component BATCH " << containerName << " " << componentName ) ;
+      _NS->Change_Directory("/Containers");
+      CORBA::Object_ptr obj=_NS->Resolve(containerName);
+      Engines::Container_var cont=Engines::Container::_narrow(obj);
+      bool isLoadable = cont->load_component_Library(componentName);
+      if (!isLoadable) return Engines::Component::_nil();
+
+      Engines::Component_ptr myInstance =
+        cont->create_component_instance(componentName, 0);
+      return myInstance;
+    }
+  MESSAGE("SALOME_LifeCycleCORBA::FindOrLoad_Component INTERACTIF " << containerName << " " << componentName ) ;
+  //#if 0
   // --- Check if Component Name is known in ModuleCatalog
 
   if (! isKnownComponentClass(componentName))
@@ -264,7 +279,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
 //   SCRUTE(params->isMPI);
   free(stContainer);
   return FindOrLoad_Component(params,componentName);
-  
+  //#endif  
 }
 
 //=============================================================================
