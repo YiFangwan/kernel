@@ -113,8 +113,7 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     
     QStringList dirList;
 #ifdef WNT
-    dirList = QStringList::split( SEPARATOR, _general_path, 
-	                          false ); // skip empty entries
+    dirList = QString( _general_path ).split( SEPARATOR, QString::SkipEmptyParts ); // skip empty entries
 #else
     //check for new format
     if ( QString( _general_path ).contains(SEPARATOR) ) {
