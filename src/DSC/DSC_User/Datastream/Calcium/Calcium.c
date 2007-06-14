@@ -150,7 +150,6 @@ InfoType cp_fin (void * component, int code) {
     fflush(stderr);           \
     fprintf(stderr,"Beginning of CPExx: %s %d %f\n",nomvar,i,t); \
     if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;		\
-    printf("cp_name : Valeur de nomvar %s\n",nomvar);	\
 									\
     InfoType info =  ecp_ecriture_##_typeName (component, mode, &t, i,	\
 					       nomvar, nbelem,		\
