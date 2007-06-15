@@ -340,6 +340,9 @@ void SALOME_LifeCycleCORBA::preSet( Engines::MachineParameters& params)
   params.nb_proc_per_node = 0;
   params.nb_node = 0;
   params.isMPI = false;
+
+  params.parallelLib = "";
+  params.nb_component_nodes = 0;
 }
 
 //=============================================================================
