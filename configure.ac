@@ -104,8 +104,8 @@ echo Configuring production
 echo ---------------------------------------------
 echo
 # production.m4
-AC_ENABLE_DEBUG(yes)
-AC_DISABLE_PRODUCTION
+AC_ENABLE_DEBUG(no)
+AC_ENABLE_PRODUCTION(no)
 
 echo
 echo ---------------------------------------------
