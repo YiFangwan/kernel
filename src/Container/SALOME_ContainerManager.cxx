@@ -185,6 +185,10 @@ StartContainer(const Engines::MachineParameters& params,
 	       const Engines::MachineList& possibleComputers,
 	       Engines::ResPolicy policy)
 {
+#ifdef WITH_PACO_PARALLEL
+  if (params.parallelLib != "")
+    return FindOrStartParallelContainer(params, possibleComputers);
+#endif
   long id;
   string containerNameInNS;
   char idc[3*sizeof(long)];

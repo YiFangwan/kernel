@@ -135,6 +135,8 @@ GEN_PACO = SALOME_ComponentPaCO_Engines_Container_server.cc \
 	   SALOME_PortsPaCO_Ports_Port_client.cc \
 	   DSC_EnginesPaCO_Engines_DSC_server.cc \
 	   DSC_EnginesPaCO_Engines_DSC_client.cc \
+	   DSC_EnginesPaCO_Engines_Superv_Component_server.cc \
+	   DSC_EnginesPaCO_Engines_Superv_Component_client.cc \
 	   DSC_EnginesPaCO_Engines_Parallel_DSC_server.cc \
 	   DSC_EnginesPaCO_Engines_Parallel_DSC_client.cc
 
@@ -150,6 +152,8 @@ INCLUDES_PACO = SALOME_ComponentPaCO_Engines_Container_server.h \
 		SALOME_Ports.h \
 		DSC_EnginesPaCO_Engines_DSC_server.h \
 		DSC_EnginesPaCO_Engines_DSC_client.h \
+                DSC_EnginesPaCO_Engines_Superv_Component_server.h \
+		DSC_EnginesPaCO_Engines_Superv_Component_client.h \
 		DSC_EnginesPaCO_Engines_Parallel_DSC_server.h \
 		DSC_EnginesPaCO_Engines_Parallel_DSC_client.h \
 		DSC_EnginesPaCO.h \
