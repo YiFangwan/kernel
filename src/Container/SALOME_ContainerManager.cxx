@@ -186,7 +186,8 @@ StartContainer(const Engines::MachineParameters& params,
 	       Engines::ResPolicy policy)
 {
 #ifdef WITH_PACO_PARALLEL
-  if (params.parallelLib != "")
+  std::string parallelLib(params.parallelLib);
+  if (parallelLib != "")
     return FindOrStartParallelContainer(params, possibleComputers);
 #endif
   long id;
