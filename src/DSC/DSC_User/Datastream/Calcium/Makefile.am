@@ -54,6 +54,7 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 			Copy2CorbaSpace.hxx \
 			CalciumPortTraits.hxx \
 			calcium.h \
+			Calcium.hxx \
 			calciumP.h \
 			version.h \
 			calcium.hf
@@ -66,10 +67,14 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream \
+		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Palm \
+		 -I$(top_srcdir)/src/DSC/DSC_User/Basic \
 		 -I$(top_srcdir)/src/DSC/DSC_Basic \
 		 -I$(top_srcdir)/src/SALOMELocalTrace \
 		 -I$(top_srcdir)/src/Basics \
 		 -I$(top_srcdir)/src/Utils \
+		 -I$(top_srcdir)/src/Container \
+		 -I$(top_srcdir)/src/Notification \
 		 -I$(top_builddir)/salome_adm/unix \
 		 -I$(top_builddir)/idl \
 		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @BOOST_CPPFLAGS@
@@ -92,6 +97,7 @@ libSalomeCalcium_la_SOURCES  = calcium_port_factory.cxx \
 			       CorbaTypes2CalciumTypes.cxx \
 			       CalciumTypes2CorbaTypes.cxx \
 			       CalciumProvidesPort.cxx \
+			       Calcium.cxx \
 			       calcium_destructors_port_uses.cxx
 
 libSalomeCalcium_la_CXXFLAGS = $(COMMON_CPPFLAGS)
@@ -100,7 +106,28 @@ libSalomeCalcium_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 
 AM_CFLAGS         = -fexceptions
 lib_LTLIBRARIES = libCalciumC.la
-libCalciumC_la_SOURCES = Calcium.c 
+libCalciumC_la_SOURCES = Calcium.c Calcium.cxx calciumf.c
+libCalciumC_la_CXXFLAGS = $(COMMON_CPPFLAGS)
+
+pkgpython_PYTHON = calcium.py dsccalcium.py
+pkgpyexec_LTLIBRARIES = _calcium.la
+SWIG_FLAGS= -python -c++ -noexcept
+SWIG_SRC=calcium.i
+_calcium_la_SOURCES = calcium_wrap.cpp
+_calcium_la_LDFLAGS = -module
+_calcium_la_LIBADD = libCalciumC.la \
+										 ../libSalomeDatastream.la \
+										 ../../Basic/libSalomeDSCSupervBasic.la \
+										 ../../libSalomeDSCSuperv.la \
+										 ../../../DSC_Basic/libSalomeDSCContainer.la \
+										 ../../../../Container/libSalomeContainer.la 
+
+_calcium_la_CXXFLAGS = $(PYTHON_INCLUDES) $(COMMON_CPPFLAGS)
+
+calcium_wrap.cpp calcium.py:calcium.i
+	$(SWIG) $(SWIG_FLAGS) -o calcium_wrap.cpp $<
+
+CLEANFILES = calcium_wrap.cpp
 
 #
 # ===============================================================

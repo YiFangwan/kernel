@@ -27,6 +27,7 @@
 #include "calcium.h"
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 // Interface C de SalomeCalcium 
 
@@ -169,3 +170,4 @@ CALCIUM_ECR_INTERFACE_C_(ere,float,float,float,);
 CALCIUM_ECR_INTERFACE_C_(edb,double,double,double,);
 CALCIUM_ECR_INTERFACE_C_(elo,float,bool,bool,);
 CALCIUM_ECR_INTERFACE_C_(ecp,float,float,cplx,);
+
