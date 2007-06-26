@@ -139,6 +139,9 @@ SALOME_Container_LDADD =\
 	$(COMMON_LIBS) \
 	../Basics/libSALOMEBasics.la
 
+SALOME_Container_LDFLAGS  =\
+-Xlinker -export-dynamic
+
 SALOME_ContainerManagerServer_SOURCES =\
 	SALOME_ContainerManagerServer.cxx 
 
