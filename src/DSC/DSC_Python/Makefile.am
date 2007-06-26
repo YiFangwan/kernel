@@ -20,76 +20,60 @@
 #
 #
 #  File   : Makefile.am
-#  Author : AndrÃ© RIBES (EDF)
+#  Author : André RIBES (EDF), Eric Fayolle (EDF)
 #  Module : KERNEL
-
+#
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-#
-# ===============================================================
-# Header to be installed
-# ===============================================================
-#
-# header files  
-salomeinclude_HEADERS = base_port.hxx \
-			uses_port.hxx \
-			provides_port.hxx \
-			Superv_Component_i.hxx \
-			DSC_Exception.hxx
-
-#
 # ===============================================================
 # Local definitions
 # ===============================================================
 #
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
-COMMON_CPPFLAGS= -I$(srcdir)/Basic \
-		 -I$(srcdir)/Datastream  \
-		 -I$(srcdir)/Datastream/Palm \
-		 -I$(srcdir)/Datastream/Calcium \
-		 -I$(top_srcdir)/src/Container \
-		 -I$(top_srcdir)/src/Notification \
+COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
+		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream \
+		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Palm \
+		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Calcium \
+		 -I$(top_srcdir)/src/DSC/DSC_User/Basic \
 		 -I$(top_srcdir)/src/DSC/DSC_Basic \
 		 -I$(top_srcdir)/src/SALOMELocalTrace \
 		 -I$(top_srcdir)/src/Basics \
 		 -I$(top_srcdir)/src/Utils \
+		 -I$(top_srcdir)/src/Container \
+		 -I$(top_srcdir)/src/Notification \
 		 -I$(top_builddir)/salome_adm/unix \
 		 -I$(top_builddir)/idl \
 		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @BOOST_CPPFLAGS@
 
-
 # This local variable defines the list of dependant libraries common to all target in this package.
-COMMON_LIBS = 
+COMMON_LIBS = @CORBA_LIBS@
 
 #
 # ===============================================================
 # Libraries targets
 # ===============================================================
 #
-lib_LTLIBRARIES = libSalomeDSCSuperv.la 
 
-libSalomeDSCSuperv_la_SOURCES  = base_port.cxx \
-				 uses_port.cxx \
-				 provides_port.cxx \
-				 Superv_Component_i.cxx
+AM_CFLAGS         = -fexceptions
+pkgpython_PYTHON = calcium.py dsccalcium.py
+pkgpyexec_LTLIBRARIES = _calcium.la
+SWIG_FLAGS= -python -c++ -noexcept
+SWIG_SRC=calcium.i
+_calcium_la_SOURCES = calcium_wrap.cpp
+_calcium_la_LDFLAGS = -module
+_calcium_la_LIBADD = ../DSC_User/Datastream/Calcium/libCalciumC.la \
+										 ../DSC_User/Datastream/libSalomeDatastream.la \
+										 ../DSC_User/Basic/libSalomeDSCSupervBasic.la \
+										 ../DSC_User/libSalomeDSCSuperv.la \
+										 ../DSC_Basic/libSalomeDSCContainer.la \
+										 ../../Container/libSalomeContainer.la 
 
-libSalomeDSCSuperv_la_CXXFLAGS = $(COMMON_CPPFLAGS)
+_calcium_la_CXXFLAGS = $(PYTHON_INCLUDES) $(COMMON_CPPFLAGS)
 
-libSalomeDSCSuperv_la_LDFLAGS  = -no-undefined -version-info=0:0:0
+calcium_wrap.cpp calcium.py:calcium.i
+	$(SWIG) $(SWIG_FLAGS) -o calcium_wrap.cpp $<
 
-#
-# ===============================================================
-# Executables targets
-# ===============================================================
-#
-noinst_PROGRAMS = test_DSC_Exception
+CLEANFILES = calcium_wrap.cpp
 
-test_DSC_Exception_SOURCES = test_DSC_Exception.cxx
-
-test_DSC_Exception_CXXFLAGS = $(COMMON_CPPFLAGS)
-
-test_DSC_Exception_LDADD = $(top_builddir)/src/Utils/libOpUtil.la
-
-SUBDIRS = Basic Datastream

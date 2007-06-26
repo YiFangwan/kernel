@@ -109,26 +109,6 @@ lib_LTLIBRARIES = libCalciumC.la
 libCalciumC_la_SOURCES = Calcium.c Calcium.cxx calciumf.c
 libCalciumC_la_CXXFLAGS = $(COMMON_CPPFLAGS)
 
-pkgpython_PYTHON = calcium.py dsccalcium.py
-pkgpyexec_LTLIBRARIES = _calcium.la
-SWIG_FLAGS= -python -c++ -noexcept
-SWIG_SRC=calcium.i
-_calcium_la_SOURCES = calcium_wrap.cpp
-_calcium_la_LDFLAGS = -module
-_calcium_la_LIBADD = libCalciumC.la \
-										 ../libSalomeDatastream.la \
-										 ../../Basic/libSalomeDSCSupervBasic.la \
-										 ../../libSalomeDSCSuperv.la \
-										 ../../../DSC_Basic/libSalomeDSCContainer.la \
-										 ../../../../Container/libSalomeContainer.la 
-
-_calcium_la_CXXFLAGS = $(PYTHON_INCLUDES) $(COMMON_CPPFLAGS)
-
-calcium_wrap.cpp calcium.py:calcium.i
-	$(SWIG) $(SWIG_FLAGS) -o calcium_wrap.cpp $<
-
-CLEANFILES = calcium_wrap.cpp
-
 #
 # ===============================================================
 # Executables targets
