@@ -68,8 +68,8 @@ then
    then
      AC_MSG_CHECKING(whether Qt version >= 4.0)
      QT_VERSION=`grep "QT_VERSION_STR" ${QTDIR}/include${QTINC}/QtCore/qglobal.h | sed -e 's%^#define QT_VERSION_STR[[:space:]]*\"\([[:digit:]\.]*\)\"%\1%g'`
-     QT_VERSION_NUM=`echo $QT_VERSION | awk -F. '{maj=1;min=2;rel=3;v=$maj*10000+$min*100+$rel;print v}'`
-     if test $QT_VERSION_NUM -ge 40000
+     QT_VERSION_ID=`echo $QT_VERSION | awk -F. '{v=$[1]*10000+$[2]*100+$[3];print v}'`
+     if test $QT_VERSION_ID -ge 40000
      then
        AC_MSG_RESULT(yes)
      else
@@ -297,6 +297,7 @@ AC_SUBST(QT_OTHER_LIBS)
 AC_SUBST(QT_LIBS)
 AC_SUBST(QT_MT_LIBS)
 AC_SUBST(QT_VERSION)
+AC_SUBST(QT_VERSION_ID)
 
 AC_LANG_RESTORE
 
