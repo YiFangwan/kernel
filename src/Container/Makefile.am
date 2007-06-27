@@ -64,7 +64,7 @@ COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
 	@MPI_INCLUDES@ \
 	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
-	@QT_MT_INCLUDES@ \
+	@QT_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \

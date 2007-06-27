@@ -327,8 +327,8 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 
    //tag test_inParameter_name
    if ((qName.compare(test_inParameter_name)==0)) {
-     if(MYDEBUG) SCRUTE(parent);
-     if(MYDEBUG) SCRUTE(grandparent);
+     if(MYDEBUG) SCRUTE(parent.toLatin1().data());
+     if(MYDEBUG) SCRUTE(grandparent.toLatin1().data());
      if (grandparent.compare(test_inDataStreamParameter_list) == 0)
        _inDataStreamParam.name = content ;
      else 
@@ -395,7 +395,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 
 
    // Parameter out
-   if(MYDEBUG) SCRUTE(qName);
+   if(MYDEBUG) SCRUTE(qName.toLatin1().data());
 
    // tag test_outParameter_type
    if ((qName.compare(test_outParameter_type)==0)) {
@@ -426,8 +426,8 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 	 
    //tag test_outDataStreamParameter_name
    if ((qName.compare(test_outDataStreamParameter_name)==0)) {
-     if(MYDEBUG) SCRUTE(grandparent);
-     if(MYDEBUG) SCRUTE(test_outDataStreamParameter_list);
+     if(MYDEBUG) SCRUTE(grandparent.toLatin1().data());
+     if(MYDEBUG) SCRUTE(test_outDataStreamParameter_list.toLatin1().data());
      if (grandparent.compare(test_outDataStreamParameter_list) == 0)
        _outDataStreamParam.name = content ;
      else 
@@ -534,7 +534,7 @@ bool SALOME_ModuleCatalog_Handler::endElement(const QString&,
 //----------------------------------------------------------------------
 bool SALOME_ModuleCatalog_Handler::characters(const QString& chars)
 {
-  content = (const char*)chars ;
+  content = chars.toLatin1().data() ;
   return true;
 }
 

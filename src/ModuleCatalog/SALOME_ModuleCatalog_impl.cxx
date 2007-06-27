@@ -113,19 +113,15 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     
     QStringList dirList;
 #ifdef WNT
-    dirList = QStringList::split( SEPARATOR, _general_path, 
-	                          false ); // skip empty entries
+    dirList = QString( _general_path ).split( SEPARATOR, QString::SkipEmptyParts ); // skip empty entries
 #else
     //check for new format
-    int isNew = QString( _general_path ).contains(SEPARATOR);
-    if ( isNew > 0 ) {
+    if ( QString( _general_path ).contains(SEPARATOR) ) {
       //using new format
-      dirList = QStringList::split( SEPARATOR, _general_path, 
-	                            false ); // skip empty entries
+      dirList = QString( _general_path ).split( SEPARATOR, QString::SkipEmptyParts ); // skip empty entries
     } else {
       //support old format
-      dirList = QStringList::split( OLD_SEPARATOR, _general_path, 
-	                            false ); // skip empty entries
+      dirList = QString( _general_path ).split( OLD_SEPARATOR, QString::SkipEmptyParts ); // skip empty entries
     }   
 #endif
     
@@ -133,7 +129,7 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
       //QFileInfo fileInfo( dirList[ i ] );
       QFileInfo fileInfo( dirList[ i ].replace( '\"', "" ) ); //remove inverted commas from filename
       if ( fileInfo.isFile() && fileInfo.exists() ) {
-	_parse_xml_file(fileInfo.filePath(), 
+	_parse_xml_file(fileInfo.filePath().toLatin1().data(), 
 			_general_module_list, 
 			_general_path_list);
       }
@@ -484,7 +480,7 @@ SALOME_ModuleCatalogImpl::GetComponent(const char* name)
 
   std::string s(name);
   ParserComponent *C_parser = NULL;
-  ParserPathPrefixes *pp = NULL;
+  //ParserPathPrefixes *pp = NULL; // VSR : commented : unused variable
 
   SALOME_ModuleCatalog::Acomponent_ptr compo
     = SALOME_ModuleCatalog::Acomponent::_nil();
@@ -577,7 +573,7 @@ SALOME_ModuleCatalogImpl::_parse_xml_file(const char* file,
   SALOME_ModuleCatalog_Handler* handler = new SALOME_ModuleCatalog_Handler();
   QFile xmlFile(file);
 
-  QXmlInputSource source(xmlFile);
+  QXmlInputSource source(&xmlFile);
 
   QXmlSimpleReader reader;
   reader.setContentHandler( handler );

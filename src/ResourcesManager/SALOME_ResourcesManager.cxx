@@ -290,7 +290,7 @@ void SALOME_ResourcesManager::WriteInXmlFile()
 
   QFile file( _path_resources );
 
-  if ( !file.open( IO_WriteOnly ) )
+  if ( !file.open( QIODevice::WriteOnly ) )
     INFOS("WRITING ERROR !");
 
   QTextStream ts( &file );
@@ -314,7 +314,7 @@ const MapOfParserResourcesType& SALOME_ResourcesManager::ParseXmlFile()
     new SALOME_ResourcesCatalog_Handler(_resourcesList);
   QFile xmlFile(_path_resources);
 
-  QXmlInputSource source(xmlFile);
+  QXmlInputSource source(&xmlFile);
 
   QXmlSimpleReader reader;
   reader.setContentHandler( handler );
