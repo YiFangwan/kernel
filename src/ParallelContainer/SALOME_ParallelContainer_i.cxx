@@ -991,4 +991,33 @@ Engines_Parallel_Container_i::getFileTransfer()
 }
 
 
+Engines::Salome_file_ptr 
+Engines_Parallel_Container_i::createSalome_file(const char* origFileName) 
+{
+  string origName(origFileName);
+  if (CORBA::is_nil(_Salome_file_map[origName]))
+    {
+      Salome_file_i* aSalome_file = new Salome_file_i();
+      try 
+      {
+	aSalome_file->setLocalFile(origFileName);
+	aSalome_file->recvFiles();
+      }
+      catch (const SALOME::SALOME_Exception& e)
+      {
+	return Engines::Salome_file::_nil();
+      }
+
+      Engines::Salome_file_var theSalome_file = Engines::Salome_file::_nil();
+      theSalome_file = Engines::Salome_file::_narrow(aSalome_file->_this());
+      _numInstanceMutex.lock() ; // lock to be alone (stl container write)
+      _Salome_file_map[origName] = theSalome_file;
+      _numInstanceMutex.unlock() ;
+    }
+  
+  Engines::Salome_file_ptr theSalome_file =  
+    Engines::Salome_file::_duplicate(_Salome_file_map[origName]);
+  ASSERT(!CORBA::is_nil(theSalome_file));
+  return theSalome_file;
+}
 

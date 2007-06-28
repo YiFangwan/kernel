@@ -53,8 +53,17 @@
 
 using namespace std;
 
-#ifdef DEBUG_PARALLEL
+#ifdef _DEBUG_
 #include <signal.h>
+
+void test(int sigval) {
+	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+	cerr << "SIGSEGV in :" << getpid() << endl;
+	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+	while (1) {}
+}
 
 void handler(int t) {
 	cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -70,15 +79,17 @@ int main(int argc, char* argv[])
 {
 	INFOS("Launching a parallel Mpi container node");
 
-#ifdef DEBUG_PARALLEL
-	signal(SIGSEGV, handler);
+#ifdef _DEBUG_
+	struct sigaction action;
+	action.sa_handler = &test;
+	sigaction(SIGSEGV, &action, NULL);
 #endif
 	
 	// MPI Init
 	int provided;
 	MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE ,&provided);
 
-#ifdef DEBUG_PARALLEL
+#ifdef _DEBUG_
 	cerr << "Level MPI_THREAD_SINGLE : " << MPI_THREAD_SINGLE << endl;
 	cerr << "Level MPI_THREAD_SERIALIZED : " << MPI_THREAD_SERIALIZED << endl;
 	cerr << "Level MPI_THREAD_FUNNELED : " << MPI_THREAD_FUNNELED << endl;
