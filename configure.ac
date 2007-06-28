@@ -566,6 +566,7 @@ AC_OUTPUT([ \
 	./src/DSC/DSC_User/Datastream/Palm/Makefile \
 	./src/DSC/DSC_User/Datastream/Calcium/Makefile \
 	./src/DSC/ParallelDSC/Makefile \
+	./src/DSC/DSC_Python/Makefile \
 	./src/GenericObj/Makefile \
 	./src/HDFPersist/Makefile \
 	./src/KERNEL_PY/Makefile \
