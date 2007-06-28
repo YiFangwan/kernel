@@ -617,26 +617,29 @@ std::string SALOME_ResourcesManager::BuildCmdrunSalomeBatch(
   const ParserResourcesType& resInfo = _resourcesList[machine];
   resInfo.Print() ;
   tempOutputFile << "#! /bin/sh -f" << endl ;
-  tempOutputFile << "source " ;
+  tempOutputFile << "cd " ;
   tempOutputFile << resInfo.AppliPath << endl ;
   tempOutputFile << "export PYTHONPATH=" ;
   tempOutputFile << DirForTmpFiles ;
   tempOutputFile << ":$PYTHONPATH" << endl ;
   tempOutputFile << "if test $SLURM_PROCID = 0; then" << endl ;
-  tempOutputFile << "    runSalome --terminal --batch --modules=" ;
+  tempOutputFile << "  ./runAppli --terminal --batch --modules=" ;
   int i ;
   for ( i = 0 ; i < resInfo.ModulesList.size() ; i++ ) {
     tempOutputFile << resInfo.ModulesList[i] ;
     if ( i != resInfo.ModulesList.size()-1 )
       tempOutputFile << "," ;
   }
-  tempOutputFile << " --standalone=registry,study,moduleCatalog --execute=" ;
-  tempOutputFile << FileNameToExecute ;
-  tempOutputFile << ",killall --killall" << endl ;
+  tempOutputFile << " --standalone=registry,study,moduleCatalog --killall &" << endl ;
+  tempOutputFile << "  for ((ip=1; ip < ${SLURM_NPROCS} ; ip++))" << endl;
+  tempOutputFile << "  do" << endl ;
+  tempOutputFile << "    arglist=\"$arglist YACS_Server_\"$ip" << endl ;
+  tempOutputFile << "  done" << endl ;
+  tempOutputFile << "  ./runSession waitContainers.sh $arglist" << endl ;
+  tempOutputFile << "  ./runSession python " << DirForTmpFiles << "/" << FileNameToExecute << ".py" << endl;
   tempOutputFile << "else" << endl ;
-  tempOutputFile << "    sleep 10" << endl ;
-  tempOutputFile << "    export SALOME_BATCH='1'" << endl ;
-  tempOutputFile << "    SALOME_Container 'YACS_Server_'${SLURM_PROCID}" << endl ;
+  tempOutputFile << "  ./runSession waitNS.py" << endl ;
+  tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'${SLURM_PROCID}" << endl ;
   tempOutputFile << "fi" << endl ;
   tempOutputFile.flush();
   tempOutputFile.close();

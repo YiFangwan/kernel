@@ -72,9 +72,9 @@ public:
 		Engines::ResPolicy policy,
 		const Engines::CompoList& componentList);
 
-  long batchSalomeJob(const char * fileToExecute ,
+  CORBA::Long batchSalomeJob(const char * fileToExecute ,
                       const Engines::FilesToExportList& filesToExport ,
-                      const long NumberOfProcessors ,
+		      const CORBA::Long NumberOfProcessors ,
                       const Engines::MachineParameters& params);
 
   Engines::MachineList *

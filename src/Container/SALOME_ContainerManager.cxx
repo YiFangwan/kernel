@@ -327,10 +327,10 @@ GiveContainer(const Engines::MachineParameters& params,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-long SALOME_ContainerManager::batchSalomeJob(
+CORBA::Long SALOME_ContainerManager::batchSalomeJob(
                             const char * fileToExecute ,
                             const Engines::FilesToExportList& filesToExport ,
-                            const long NumberOfProcessors ,
+                            const CORBA::Long NumberOfProcessors ,
                             const Engines::MachineParameters& params)
 {
   BEGIN_OF("SALOME_ContainerManager::batchSalomeJob");
