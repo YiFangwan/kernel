@@ -635,9 +635,11 @@ std::string SALOME_ResourcesManager::BuildCmdrunSalomeBatch(
   tempOutputFile << "  do" << endl ;
   tempOutputFile << "    arglist=\"$arglist YACS_Server_\"$ip" << endl ;
   tempOutputFile << "  done" << endl ;
-  tempOutputFile << "  ./runSession waitContainers.sh $arglist" << endl ;
+  tempOutputFile << "  sleep 1" << endl ;
+  tempOutputFile << "  ./runSession waitContainers.py $arglist" << endl ;
   tempOutputFile << "  ./runSession python " << DirForTmpFiles << "/" << FileNameToExecute << ".py" << endl;
   tempOutputFile << "else" << endl ;
+  tempOutputFile << "  sleep 1" << endl ;
   tempOutputFile << "  ./runSession waitNS.py" << endl ;
   tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'${SLURM_PROCID}" << endl ;
   tempOutputFile << "fi" << endl ;

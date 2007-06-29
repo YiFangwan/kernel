@@ -57,7 +57,9 @@ dist_salomescript_SCRIPTS=\
 	launchConfigureParser.py \
 	showNS.py \
 	addToKillList.py \
-	NSparam.py
+	NSparam.py \
+	waitNS.py \
+	waitContainers.py
 
 EXTRA_DIST = appliskel
 
