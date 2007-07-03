@@ -520,69 +520,65 @@ void SALOME_ResourcesManager::CopyFileNamesToExecute(const std::string& machine,
                             const Engines::FilesToExportList& filesToExport) {
   BEGIN_OF("SALOME_ResourcesManager::CopyFileNamesToExecute");
   const ParserResourcesType& resInfo = _resourcesList[machine];
+  string command;
+
   if (resInfo.Protocol == rsh)
-    {
-      string commandRcp;
-      commandRcp = "rsh ";
-      commandRcp += resInfo.Alias;
-      commandRcp += " mkdir -p ";
-      commandRcp += DirForTmpFiles ;
-      system(commandRcp.c_str());
-
-      commandRcp = "rcp ";
-      commandRcp += PathFileNameToExecute;
-      commandRcp += " ";
-      commandRcp += resInfo.Alias;
-      commandRcp += ":";
-      commandRcp += DirForTmpFiles ;
-      system(commandRcp.c_str());
-
-      int i ;
-      for ( i = 0 ; i < filesToExport.length() ; i++ ) {
-        commandRcp = "rcp ";
-        commandRcp += filesToExport[i] ;
-        commandRcp += " ";
-        commandRcp += resInfo.Alias;
-        commandRcp += ":";
-        commandRcp += DirForTmpFiles ;
-        system(commandRcp.c_str());
-      }
-    }
-
+    command = "rsh ";
   else if (resInfo.Protocol == ssh)
-    {
-      string commandSsh;
-      commandSsh = "ssh ";
-      commandSsh += resInfo.Alias;
-      commandSsh += " \"mkdir -p ";
-      commandSsh += DirForTmpFiles ;
-      commandSsh += "\"" ;
-      SCRUTE(commandSsh.c_str());
-      system(commandSsh.c_str());
-
-      commandSsh = "scp ";
-      commandSsh += PathFileNameToExecute ;
-      commandSsh += " ";
-      commandSsh += resInfo.Alias;
-      commandSsh += ":";
-      commandSsh += DirForTmpFiles ;
-      SCRUTE(commandSsh);
-      system(commandSsh.c_str());
-
-      int i ;
-      for ( i = 0 ; i < filesToExport.length() ; i++ ) {
-        commandSsh = "scp ";
-        commandSsh += filesToExport[i] ;
-        commandSsh += " ";
-        commandSsh += resInfo.Alias;
-        commandSsh += ":";
-        commandSsh += DirForTmpFiles ;
-        SCRUTE(commandSsh);
-        system(commandSsh.c_str());
-      }
-    }
+    command = "ssh ";
   else
     throw SALOME_Exception("Unknown protocol");
+
+  if (resInfo.UserName != ""){
+    command += resInfo.UserName;
+    command += "@";
+  }
+
+  command += resInfo.Alias;
+  command += " \"mkdir -p ";
+  command += DirForTmpFiles ;
+  command += "\"" ;
+  system(command.c_str());
+
+  if (resInfo.Protocol == rsh)
+    command = "rcp ";
+  else if (resInfo.Protocol == ssh)
+    command = "scp ";
+  else
+    throw SALOME_Exception("Unknown protocol");
+
+  command += PathFileNameToExecute ;
+  command += " ";
+
+  if (resInfo.UserName != ""){
+    command += resInfo.UserName;
+    command += "@";
+  }
+
+  command += resInfo.Alias;
+  command += ":";
+  command += DirForTmpFiles ;
+  system(command.c_str());
+
+  int i ;
+  for ( i = 0 ; i < filesToExport.length() ; i++ ) {
+    if (resInfo.Protocol == rsh)
+      command = "rcp ";
+    else if (resInfo.Protocol == ssh)
+      command = "scp ";
+    else
+      throw SALOME_Exception("Unknown protocol");
+    command += filesToExport[i] ;
+    command += " ";
+    if (resInfo.UserName != ""){
+      command += resInfo.UserName;
+      command += "@";
+    }
+    command += resInfo.Alias;
+    command += ":";
+    command += DirForTmpFiles ;
+    system(command.c_str());
+  }
 
   END_OF("SALOME_ResourcesManager::CopyFileNamesToExecute");
 }
@@ -648,45 +644,31 @@ std::string SALOME_ResourcesManager::BuildCmdrunSalomeBatch(
   chmod(_TmpFileName.c_str(), 0x1ED);
   SCRUTE(_TmpFileName.c_str()) ;
 
+  string command;
   if (resInfo.Protocol == rsh)
-    {
-      string commandRcp;
-      commandRcp = "rcp ";
-      commandRcp += _TmpFileName;
-      commandRcp += " ";
-      commandRcp += resInfo.Alias;
-      commandRcp += ":";
-      commandRcp += DirForTmpFiles ;
-      commandRcp += "/runSalome_" ;
-      commandRcp += FileNameToExecute ;
-      commandRcp += "_Batch.sh" ;
-      system(commandRcp.c_str());
-      RmTmpFile();
-      return commandRcp;
-    }
-
+    command = "rcp ";
   else if (resInfo.Protocol == ssh)
-    {
-      string commandSsh;
-      commandSsh = "scp ";
-      commandSsh += _TmpFileName;
-      commandSsh += " ";
-      commandSsh += resInfo.Alias;
-      commandSsh += ":";
-      commandSsh += DirForTmpFiles ;
-      commandSsh += "/runSalome_" ;
-      commandSsh += FileNameToExecute ;
-      commandSsh += "_Batch.sh" ;
-      system(commandSsh.c_str());
-      SCRUTE(commandSsh);
-      RmTmpFile();
-      return commandSsh;
-    }
+    command = "scp ";
   else
     throw SALOME_Exception("Unknown protocol");
 
+  command += _TmpFileName;
+  command += " ";
+  if (resInfo.UserName != ""){
+    command += resInfo.UserName;
+    command += "@";
+  }
+  command += resInfo.Alias;
+  command += ":";
+  command += DirForTmpFiles ;
+  command += "/runSalome_" ;
+  command += FileNameToExecute ;
+  command += "_Batch.sh" ;
+  system(command.c_str());
+  RmTmpFile();
+
   END_OF("SALOME_ResourcesManager::BuildCmdrunSalomeBatch");
-  return string("");
+  return command;
 }
 
 //=============================================================================
@@ -725,42 +707,31 @@ std::string SALOME_ResourcesManager::BuildCmdFileNameToExecute_Batch(
   chmod(_TmpFileName.c_str(), 0x1ED);
   SCRUTE(_TmpFileName.c_str()) ;
 
-  string commandRcp;
+  string command;
   if (resInfo.Protocol == rsh)
-    {
-      commandRcp = "rcp ";
-      commandRcp += _TmpFileName;
-      commandRcp += " ";
-      commandRcp += resInfo.Alias;
-      commandRcp += ":";
-      commandRcp += DirForTmpFiles ;
-      commandRcp += "/" ;
-      commandRcp += FileNameToExecute ;
-      commandRcp += "_Batch.sh" ;
-      system(commandRcp.c_str());
-    }
-
+    command = "rcp ";
   else if (resInfo.Protocol == ssh)
-    {
-      commandRcp = "scp ";
-      commandRcp += _TmpFileName;
-      commandRcp += " ";
-      commandRcp += resInfo.Alias;
-      commandRcp += ":";
-      commandRcp += DirForTmpFiles ;
-      commandRcp += "/" ;
-      commandRcp += FileNameToExecute ;
-      commandRcp += "_Batch.sh" ;
-      system(commandRcp.c_str());
-    }
+    command = "scp ";
   else
     throw SALOME_Exception("Unknown protocol");
+  command += _TmpFileName;
+  command += " ";
+  if (resInfo.UserName != ""){
+    command += resInfo.UserName;
+    command += "@";
+  }
+  command += resInfo.Alias;
+  command += ":";
+  command += DirForTmpFiles ;
+  command += "/" ;
+  command += FileNameToExecute ;
+  command += "_Batch.sh" ;
+  system(command.c_str());
 
-  SCRUTE(commandRcp);
   RmTmpFile();
   END_OF("SALOME_ResourcesManager::BuildCmdFileNameToExecute_Batch");
 
-  return commandRcp;
+  return command;
 }
 
 //=============================================================================
@@ -794,42 +765,30 @@ std::string SALOME_ResourcesManager::BuildCmdFileNameToExecute_bsub(
   chmod(_TmpFileName.c_str(), 0x1ED);
   SCRUTE(_TmpFileName.c_str()) ;
 
-  string commandRcp;
+  string command;
   if (resInfo.Protocol == rsh)
-    {
-      commandRcp = "rcp ";
-      commandRcp += _TmpFileName;
-      commandRcp += " ";
-      commandRcp += resInfo.Alias;
-      commandRcp += ":";
-      commandRcp += DirForTmpFiles ;
-      commandRcp += "/" ;
-      commandRcp += FileNameToExecute ;
-      commandRcp += "_bsub.sh" ;
-      system(commandRcp.c_str());
-    }
-
+    command = "rcp ";
   else if (resInfo.Protocol == ssh)
-    {
-      commandRcp = "scp ";
-      commandRcp += _TmpFileName;
-      commandRcp += " ";
-      commandRcp += resInfo.Alias;
-      commandRcp += ":";
-      commandRcp += DirForTmpFiles ;
-      commandRcp += "/" ;
-      commandRcp += FileNameToExecute ;
-      commandRcp += "_bsub.sh" ;
-      system(commandRcp.c_str());
-    }
+    command = "scp ";
   else
     throw SALOME_Exception("Unknown protocol");
-
-  SCRUTE(commandRcp);
+  command += _TmpFileName;
+  command += " ";
+  if (resInfo.UserName != ""){
+    command += resInfo.UserName;
+    command += "@";
+  }
+  command += resInfo.Alias;
+  command += ":";
+  command += DirForTmpFiles ;
+  command += "/" ;
+  command += FileNameToExecute ;
+  command += "_bsub.sh" ;
+  system(command.c_str());
   RmTmpFile();
   END_OF("SALOME_ResourcesManager::BuildCmdFileNameToExecute_bsub");
 
-  return commandRcp;
+  return command;
 }
 
 //=============================================================================
@@ -852,6 +811,12 @@ std::string SALOME_ResourcesManager::CmdToExecute_bsub(
     command = "rsh " ;
   else if (resInfo.Protocol == ssh)
     command = "ssh ";
+  else
+    throw SALOME_Exception("Unknown protocol");
+  if (resInfo.UserName != ""){
+    command += resInfo.UserName;
+    command += "@";
+  }
   command += resInfo.Alias;
   command += " \"tcsh " ;
   command += DirForTmpFiles ;
@@ -859,7 +824,6 @@ std::string SALOME_ResourcesManager::CmdToExecute_bsub(
   command += FileNameToExecute ;
   command += "_bsub.sh\"" ;
   system(command.c_str());
-  SCRUTE(command.c_str()) ;
   END_OF("SALOME_ResourcesManager::CmdToExecute_bsub");
 
   return command;
