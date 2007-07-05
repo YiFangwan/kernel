@@ -27,6 +27,8 @@
 #include "utilities.h"
 #include <stdlib.h>
 #include <unistd.h>
+#include "HDFOI.hxx"
+#include <stdlib.h>
 
 //=============================================================================
 /*! 
@@ -56,14 +58,390 @@ Salome_file_i::~Salome_file_i()
 
 void 
 Salome_file_i::load(const char* hdf5_file) {
-  MESSAGE("Salome_file_i::load : NOT YET IMPLEMENTED");
   _state.hdf5_file_name = CORBA::string_dup(hdf5_file);
+  try
+  {
+    HDFfile *hdf_file;
+    HDFgroup *hdf_group;
+    HDFdataset *hdf_dataset;
+    int size;
+    int fd;
+    char * value;
+    char * buffer;
+
+    hdf_file = new HDFfile((char*) hdf5_file);
+    hdf_file->OpenOnDisk(HDF_RDONLY);
+
+    hdf_group = new HDFgroup("CONFIG",hdf_file); 
+    hdf_group->OpenOnDisk();
+    hdf_dataset = new HDFdataset("MODE",hdf_group);
+    hdf_dataset->OpenOnDisk();
+    size = hdf_dataset->GetSize();
+    value = new char[size];
+    hdf_dataset->ReadFromDisk(value);
+    hdf_dataset->CloseOnDisk();
+    std::string mode(value);
+    delete value;
+    
+    hdf_group = new HDFgroup("GROUP_FILES",hdf_file); 
+    hdf_group->OpenOnDisk();
+    hdf_dataset = new HDFdataset("LIST_OF_FILES",hdf_group);
+    hdf_dataset->OpenOnDisk();
+    size = hdf_dataset->GetSize();
+    value = new char[size];
+    hdf_dataset->ReadFromDisk(value);
+    hdf_dataset->CloseOnDisk();
+    std::string list_of_files(value);
+    delete value;
+
+    std::istringstream iss(list_of_files);
+    std::string file_name;
+    while (std::getline(iss, file_name, ' '))
+    {
+      std::string dataset_group_name("DATASET");
+      dataset_group_name += file_name;
+
+      hdf_group = new HDFgroup((char *) dataset_group_name.c_str(), hdf_file); 
+      hdf_group->OpenOnDisk();
+
+      hdf_dataset = new HDFdataset("NAME",hdf_group);
+      hdf_dataset->OpenOnDisk();
+      size = hdf_dataset->GetSize();
+      value = new char[size];
+      hdf_dataset->ReadFromDisk(value);
+      hdf_dataset->CloseOnDisk();
+      std::string name(value);
+
+      hdf_dataset = new HDFdataset("PATH",hdf_group);
+      hdf_dataset->OpenOnDisk();
+      size = hdf_dataset->GetSize();
+      value = new char[size];
+      hdf_dataset->ReadFromDisk(value);
+      hdf_dataset->CloseOnDisk();
+      std::string path(value);
+
+      hdf_dataset = new HDFdataset("TYPE",hdf_group);
+      hdf_dataset->OpenOnDisk();
+      size = hdf_dataset->GetSize();
+      value = new char[size];
+      hdf_dataset->ReadFromDisk(value);
+      hdf_dataset->CloseOnDisk();
+      std::string type(value);
+
+      hdf_dataset = new HDFdataset("SOURCE_FILE_NAME",hdf_group);
+      hdf_dataset->OpenOnDisk();
+      size = hdf_dataset->GetSize();
+      value = new char[size];
+      hdf_dataset->ReadFromDisk(value);
+      hdf_dataset->CloseOnDisk();
+      std::string source_file_name(value);
+
+      hdf_dataset = new HDFdataset("STATUS",hdf_group);
+      hdf_dataset->OpenOnDisk();
+      size = hdf_dataset->GetSize();
+      value = new char[size];
+      hdf_dataset->ReadFromDisk(value);
+      hdf_dataset->CloseOnDisk();
+      std::string status(value);
+
+      if (mode == "all") {
+
+	// Changing path, is now current directory
+	char CurrentPath[_path_max];
+	getcwd(CurrentPath, _path_max);
+	path = CurrentPath;
+
+	std::string group_name("GROUP");
+	group_name += file_name;
+	hdf_group = new HDFgroup((char *) group_name.c_str(),hdf_file); 
+	hdf_group->OpenOnDisk();
+	hdf_dataset = new HDFdataset("FILE DATASET",hdf_group);
+	hdf_dataset->OpenOnDisk();
+	size = hdf_dataset->GetSize();
+	buffer = new char[size];
+      
+	if ( (fd = ::open(file_name.c_str(),O_RDWR|O_CREAT,00666)) <0) { 
+	  SALOME::ExceptionStruct es;
+	  es.type = SALOME::INTERNAL_ERROR;
+	  std::string text = "open failed";
+	  es.text = CORBA::string_dup(text.c_str());
+	  throw SALOME::SALOME_Exception(es);
+	};
+	hdf_dataset->ReadFromDisk(buffer);
+	if ( write(fd,buffer,size) <0) { 
+	  SALOME::ExceptionStruct es;
+	  es.type = SALOME::INTERNAL_ERROR;
+	  std::string text = "write failed";
+	  es.text = CORBA::string_dup(text.c_str());
+	  throw SALOME::SALOME_Exception(es);
+	};
+	// Close the target file
+	::close(fd);
+
+	Engines::file infos;
+	infos.file_name = CORBA::string_dup(file_name.c_str());
+	infos.path = CORBA::string_dup(path.c_str());
+	infos.type = CORBA::string_dup(type.c_str());
+	infos.source_file_name = CORBA::string_dup(source_file_name.c_str());
+	infos.status = CORBA::string_dup(status.c_str());
+
+	_fileManaged[file_name] = infos;
+
+	// Update Salome_file state
+	_state.number_of_files++;
+	_state.files_ok = true;
+      }
+      else {
+	Engines::file infos;
+	infos.file_name = CORBA::string_dup(file_name.c_str());
+	infos.path = CORBA::string_dup(path.c_str());
+	infos.type = CORBA::string_dup(type.c_str());
+	infos.source_file_name = CORBA::string_dup(source_file_name.c_str());
+	infos.status = CORBA::string_dup(status.c_str());
+
+	_fileManaged[file_name] = infos;
+
+	// Update Salome_file state
+	_state.number_of_files++;
+	if (status != "ok")
+	  _state.files_ok = false;
+      }
+    }
+  }
+  catch (HDFexception)
+  {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    std::string text = "!!!! HDFexception";
+    es.text = CORBA::string_dup(text.c_str());
+    throw SALOME::SALOME_Exception(es);
+  }
 }
 
 void 
 Salome_file_i::save(const char* hdf5_file) {
-  MESSAGE("Salome_file_i::save : NOT YET IMPLEMENTED");
   _state.hdf5_file_name = CORBA::string_dup(hdf5_file);
+  try
+  {
+    HDFfile *hdf_file;
+    HDFgroup *hdf_group;
+    HDFdataset *hdf_dataset;
+    hdf_size size[1];
+    _t_fileManaged::iterator begin = _fileManaged.begin();
+    _t_fileManaged::iterator end = _fileManaged.end();
+
+    hdf_file = new HDFfile((char*) _state.hdf5_file_name.in());
+    hdf_file->CreateOnDisk();
+
+    // Save mode information
+    hdf_group = new HDFgroup("CONFIG", hdf_file);
+    hdf_group->CreateOnDisk();
+    std::string mode("infos");
+    size[0] = strlen(mode.c_str()) + 1;
+    hdf_dataset = new HDFdataset("MODE", hdf_group, HDF_STRING, size, 1);
+    hdf_dataset->CreateOnDisk();
+    hdf_dataset->WriteOnDisk((void *) mode.c_str());
+    hdf_dataset->CloseOnDisk();
+    hdf_group->CloseOnDisk();
+
+    // List of files that are managed
+    std::string list_of_files;
+    for(;begin!=end;begin++) 
+    {
+      Engines::file file_infos = begin->second;
+      std::string file_name(file_infos.file_name.in());
+
+      list_of_files = list_of_files + file_name + std::string(" ");
+    }
+    hdf_group = new HDFgroup("GROUP_FILES", hdf_file);
+    hdf_group->CreateOnDisk();
+    size[0] = strlen(list_of_files.c_str()) + 1;
+    hdf_dataset = new HDFdataset("LIST_OF_FILES", hdf_group, HDF_STRING, size, 1);
+    hdf_dataset->CreateOnDisk();
+    hdf_dataset->WriteOnDisk((void *) list_of_files.c_str());
+    hdf_dataset->CloseOnDisk();
+    hdf_group->CloseOnDisk();
+
+    // Insert Files into the hdf5_file
+    begin = _fileManaged.begin();
+    for(;begin!=end;begin++) 
+    {
+      Engines::file file_infos = begin->second;
+      std::string file_name(file_infos.file_name.in());
+      std::string comp_file_name(_fileManaged[file_name].path.in());
+      comp_file_name.append(_fileManaged[file_name].file_name.in());
+      std::string dataset_group_name("DATASET");
+      dataset_group_name += std::string(_fileManaged[file_name].file_name.in());
+
+      hdf_group = new HDFgroup((char *) dataset_group_name.c_str(), hdf_file);
+      hdf_group->CreateOnDisk();
+      size[0] = strlen(file_infos.file_name.in()) + 1;
+      hdf_dataset = new HDFdataset("NAME", hdf_group, HDF_STRING, size, 1);
+      hdf_dataset->CreateOnDisk();
+      hdf_dataset->WriteOnDisk((void *) file_infos.file_name.in());
+      hdf_dataset->CloseOnDisk();
+      size[0] = strlen(file_infos.path.in()) + 1;
+      hdf_dataset = new HDFdataset("PATH", hdf_group, HDF_STRING, size, 1);
+      hdf_dataset->CreateOnDisk();
+      hdf_dataset->WriteOnDisk((void *) file_infos.path.in());
+      hdf_dataset->CloseOnDisk();
+      size[0] = strlen(file_infos.type.in()) + 1;
+      hdf_dataset = new HDFdataset("TYPE", hdf_group, HDF_STRING, size, 1);
+      hdf_dataset->CreateOnDisk();
+      hdf_dataset->WriteOnDisk((void *) file_infos.type.in());
+      hdf_dataset->CloseOnDisk();
+      size[0] = strlen(file_infos.source_file_name.in()) + 1;
+      hdf_dataset = new HDFdataset("SOURCE_FILE_NAME", hdf_group, HDF_STRING, size, 1);
+      hdf_dataset->CreateOnDisk();
+      hdf_dataset->WriteOnDisk((void *) file_infos.source_file_name.in());
+      hdf_dataset->CloseOnDisk();
+      size[0] = strlen(file_infos.status.in()) + 1;
+      hdf_dataset = new HDFdataset("STATUS", hdf_group, HDF_STRING, size, 1);
+      hdf_dataset->CreateOnDisk();
+      hdf_dataset->WriteOnDisk((void *) file_infos.status.in());
+      hdf_dataset->CloseOnDisk();
+      hdf_group->CloseOnDisk();
+    }
+
+    hdf_file->CloseOnDisk();
+
+    //      delete hdf_dataset;
+    //      delete hdf_group; ----> SEGFAULT !!!
+    //      delete hdf_file; ----> SEGFAULT !!!
+  }
+  catch (HDFexception)
+  {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    std::string text = "!!!! HDFexception";
+    es.text = CORBA::string_dup(text.c_str());
+    throw SALOME::SALOME_Exception(es);
+  }
+}
+
+void 
+Salome_file_i::save_all(const char* hdf5_file) {
+
+  _state.hdf5_file_name = CORBA::string_dup(hdf5_file);
+  // Test Salome_file status
+  if (_state.files_ok == false) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    std::string text = "File Not Ok !";
+    es.text = CORBA::string_dup(text.c_str());
+    throw SALOME::SALOME_Exception(es);
+  }
+
+  // For each file we create two groups
+  // First group contains file's informations
+  // Second group contains the file
+  // At the end we create a group and a dataset containing the names
+  // of all the files.
+  try
+  {
+    HDFfile *hdf_file;
+    HDFgroup *hdf_group;
+    HDFdataset *hdf_dataset;
+    hdf_size size[1];
+    _t_fileManaged::iterator begin = _fileManaged.begin();
+    _t_fileManaged::iterator end = _fileManaged.end();
+
+    hdf_file = new HDFfile((char*) _state.hdf5_file_name.in());
+    hdf_file->CreateOnDisk();
+
+    // Save mode information
+    hdf_group = new HDFgroup("CONFIG", hdf_file);
+    hdf_group->CreateOnDisk();
+    std::string mode("all");
+    size[0] = strlen(mode.c_str()) + 1;
+    hdf_dataset = new HDFdataset("MODE", hdf_group, HDF_STRING, size, 1);
+    hdf_dataset->CreateOnDisk();
+    hdf_dataset->WriteOnDisk((void *) mode.c_str());
+    hdf_dataset->CloseOnDisk();
+    hdf_group->CloseOnDisk();
+
+
+    // List of files that will be inserted
+    std::string list_of_files;
+    for(;begin!=end;begin++) 
+    {
+      Engines::file file_infos = begin->second;
+      std::string file_name(file_infos.file_name.in());
+
+      list_of_files = list_of_files + file_name + std::string(" ");
+    }
+    hdf_group = new HDFgroup("GROUP_FILES", hdf_file);
+    hdf_group->CreateOnDisk();
+    size[0] = strlen(list_of_files.c_str()) + 1;
+    hdf_dataset = new HDFdataset("LIST_OF_FILES", hdf_group, HDF_STRING, size, 1);
+    hdf_dataset->CreateOnDisk();
+    hdf_dataset->WriteOnDisk((void *) list_of_files.c_str());
+    hdf_dataset->CloseOnDisk();
+    hdf_group->CloseOnDisk();
+
+    // Insert Files into the hdf5_file
+    begin = _fileManaged.begin();
+    for(;begin!=end;begin++) 
+    {
+      Engines::file file_infos = begin->second;
+      std::string file_name(file_infos.file_name.in());
+      std::string comp_file_name(_fileManaged[file_name].path.in());
+      comp_file_name.append(_fileManaged[file_name].file_name.in());
+      std::string group_name("GROUP");
+      group_name += std::string(_fileManaged[file_name].file_name.in());
+      std::string dataset_group_name("DATASET");
+      dataset_group_name += std::string(_fileManaged[file_name].file_name.in());
+
+      hdf_group = new HDFgroup((char *) group_name.c_str(), hdf_file);
+      hdf_group->CreateOnDisk();
+      HDFConvert::FromAscii(comp_file_name.c_str(), *hdf_group, "FILE DATASET");
+      hdf_group->CloseOnDisk();
+
+      hdf_group = new HDFgroup((char *) dataset_group_name.c_str(), hdf_file);
+      hdf_group->CreateOnDisk();
+      size[0] = strlen(file_infos.file_name.in()) + 1;
+      hdf_dataset = new HDFdataset("NAME", hdf_group, HDF_STRING, size, 1);
+      hdf_dataset->CreateOnDisk();
+      hdf_dataset->WriteOnDisk((void *) file_infos.file_name.in());
+      hdf_dataset->CloseOnDisk();
+      size[0] = strlen(file_infos.path.in()) + 1;
+      hdf_dataset = new HDFdataset("PATH", hdf_group, HDF_STRING, size, 1);
+      hdf_dataset->CreateOnDisk();
+      hdf_dataset->WriteOnDisk((void *) file_infos.path.in());
+      hdf_dataset->CloseOnDisk();
+      size[0] = strlen(file_infos.type.in()) + 1;
+      hdf_dataset = new HDFdataset("TYPE", hdf_group, HDF_STRING, size, 1);
+      hdf_dataset->CreateOnDisk();
+      hdf_dataset->WriteOnDisk((void *) file_infos.type.in());
+      hdf_dataset->CloseOnDisk();
+      size[0] = strlen(file_infos.source_file_name.in()) + 1;
+      hdf_dataset = new HDFdataset("SOURCE_FILE_NAME", hdf_group, HDF_STRING, size, 1);
+      hdf_dataset->CreateOnDisk();
+      hdf_dataset->WriteOnDisk((void *) file_infos.source_file_name.in());
+      hdf_dataset->CloseOnDisk();
+      size[0] = strlen(file_infos.status.in()) + 1;
+      hdf_dataset = new HDFdataset("STATUS", hdf_group, HDF_STRING, size, 1);
+      hdf_dataset->CreateOnDisk();
+      hdf_dataset->WriteOnDisk((void *) file_infos.status.in());
+      hdf_dataset->CloseOnDisk();
+      hdf_group->CloseOnDisk();
+
+    }
+
+    hdf_file->CloseOnDisk();
+
+    //      delete hdf_dataset;
+    //      delete hdf_group; ----> SEGFAULT !!!
+    //      delete hdf_file; ----> SEGFAULT !!!
+  }
+  catch (HDFexception)
+  {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    std::string text = "!!!! HDFexception";
+    es.text = CORBA::string_dup(text.c_str());
+    throw SALOME::SALOME_Exception(es);
+  }
 }
 
 void 
@@ -147,15 +525,15 @@ Salome_file_i::setDistributedFile(const char* comp_file_name,
   }
 
   // Test if this file is already added
-  _t_fileManaged::iterator it = _fileManaged.find(file_name);
-  if (it != _fileManaged.end()) 
-  {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
-    std::string text = "file already added";
-    es.text = CORBA::string_dup(text.c_str());
-    throw SALOME::SALOME_Exception(es);
-  }
+  //_t_fileManaged::iterator it = _fileManaged.find(file_name);
+  //if (it != _fileManaged.end()) 
+  //{
+  //  SALOME::ExceptionStruct es;
+  //  es.type = SALOME::INTERNAL_ERROR;
+  //  std::string text = "file already added";
+  //  es.text = CORBA::string_dup(text.c_str());
+  //  throw SALOME::SALOME_Exception(es);
+  //}
 
   // Adding file with is informations
   Engines::file infos;

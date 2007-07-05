@@ -19,7 +19,7 @@ void print_state(Engines::SfState * state)
 {
   cerr << "-------------------------------------------------------------------" << endl;
   cerr << "name = " << state->name << endl;
-  cerr << "hdf5_file_name = " <<  state->name << endl;
+  cerr << "hdf5_file_name = " <<  state->hdf5_file_name << endl;
   cerr << "number_of_files = " <<  state->number_of_files << endl;
   cerr << "files_ok = " <<  state->files_ok << endl;
 }
@@ -27,8 +27,13 @@ void print_state(Engines::SfState * state)
 
 int main (int argc, char * argv[])
 {
+  system("rm toto cat test.hdf test2.hdf");
+
   Salome_file_i file;
   Salome_file_i file2;
+  Salome_file_i file3;
+  Salome_file_i file4;
+  Salome_file_i file5;
   Engines::file * infos;
   Engines::SfState * state;
   Engines::files * all_infos;
@@ -109,4 +114,29 @@ int main (int argc, char * argv[])
   print_state(state);
 
   orb->destroy();
+
+  file3.setLocalFile("/tmp/toto");
+  file3.setLocalFile("/bin/cat");
+  state = file3.getSalome_fileState();
+  print_state(state);
+  file3.save_all("test.hdf");
+  file3.setLocalFile("/bin/tutu");
+  file3.save("test2.hdf");
+
+  file4.load("test.hdf");
+  all_infos = file4.getFilesInfos();
+  for (int i = 0; i < all_infos->length(); i++)
+  {
+    print_infos(&((*all_infos)[i]));
+  }
+  state = file4.getSalome_fileState();
+  print_state(state);
+  file5.load("test2.hdf");
+  all_infos = file5.getFilesInfos();
+  for (int i = 0; i < all_infos->length(); i++)
+  {
+    print_infos(&((*all_infos)[i]));
+  }
+  state = file5.getSalome_fileState();
+  print_state(state);
 }

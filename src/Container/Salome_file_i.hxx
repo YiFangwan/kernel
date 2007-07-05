@@ -45,6 +45,7 @@ class CONTAINER_EXPORT Salome_file_i:
     // Import and export methods
     virtual void load(const char* hdf5_file);
     virtual void save(const char* hdf5_file);
+    virtual void save_all(const char* hdf5_file);
 
     // Adding files
     virtual void setLocalFile(const char* comp_file_name);

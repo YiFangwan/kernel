@@ -49,15 +49,18 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/Container \
 		 -I$(top_srcdir)/src/NamingService \
 		 -I$(top_srcdir)/src/Registry \
 		 -I$(top_srcdir)/src/Utils \
+		 -I$(srcdir)/../HDFPersist \
 		 -I$(top_builddir)/salome_adm/unix \
 		 -I$(top_builddir)/idl \
 		 -I$(top_srcdir)/src/SALOMETraceCollector \
+		 @CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
 		 @CORBA_CXXFLAGS@ \
 		 @CORBA_INCLUDES@ \
 		 @PACO_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS = $(top_builddir)/src/Container/libSalomeContainer.la \
+	      $(top_builddir)/src/HDFPersist/libSalomeHDFPersist.la \
 	      $(top_builddir)/idl/libSalomeParallelIDLKernel.la \
 	      $(top_builddir)/idl/libSalomeIDLKernel.la \
 	      @CORBA_LIBS@ \

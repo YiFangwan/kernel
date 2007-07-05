@@ -471,6 +471,17 @@ module Engines
     */
     void save(in string hdf5_file)			    raises (SALOME::SALOME_Exception);
 
+    /*!
+      Save a Salome_file into a hdf5_file. All files that are managed
+      are saved into the hdf5_file
+
+      \param  hdf5_file name (with path) of the hdf5_file.
+
+      \exception contains informations of errors if the save doesn't succeed.
+
+    */
+    void save_all(in string hdf5_file)			    raises (SALOME::SALOME_Exception);
+
 /**************/
 
     /*!

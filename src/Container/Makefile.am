@@ -73,6 +73,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Registry \
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
+	-I$(srcdir)/../HDFPersist \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ 
@@ -86,6 +87,7 @@ COMMON_LIBS =\
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
+	../HDFPersist/libSalomeHDFPersist.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@MPI_LIBS@ \
 	@CORBA_LIBS@
