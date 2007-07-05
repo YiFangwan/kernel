@@ -615,7 +615,7 @@ std::string SALOME_ResourcesManager::BuildCmdrunSalomeBatch(
   tempOutputFile << "#! /bin/sh -f" << endl ;
   tempOutputFile << "cd " ;
   tempOutputFile << resInfo.AppliPath << endl ;
-  tempOutputFile << "export PYTHONPATH=" ;
+  tempOutputFile << "export PYTHONPATH=~/" ;
   tempOutputFile << DirForTmpFiles ;
   tempOutputFile << ":$PYTHONPATH" << endl ;
   tempOutputFile << "if test $SLURM_PROCID = 0; then" << endl ;
@@ -633,7 +633,7 @@ std::string SALOME_ResourcesManager::BuildCmdrunSalomeBatch(
   tempOutputFile << "  done" << endl ;
   tempOutputFile << "  sleep 1" << endl ;
   tempOutputFile << "  ./runSession waitContainers.py $arglist" << endl ;
-  tempOutputFile << "  ./runSession python " << DirForTmpFiles << "/" << FileNameToExecute << ".py" << endl;
+  tempOutputFile << "  ./runSession python ~/" << DirForTmpFiles << "/" << FileNameToExecute << ".py" << endl;
   tempOutputFile << "else" << endl ;
   tempOutputFile << "  sleep 1" << endl ;
   tempOutputFile << "  ./runSession waitNS.py" << endl ;
@@ -697,7 +697,7 @@ std::string SALOME_ResourcesManager::BuildCmdFileNameToExecute_Batch(
   tempOutputFile << "#BSUB -n  " ;
   tempOutputFile << NumberOfProcessors << endl ;
   tempOutputFile << "#BSUB -o runSalome.log%J" << endl ;
-  tempOutputFile << "mpirun -srun " ;
+  tempOutputFile << "mpirun -srun ~/" ;
   tempOutputFile << DirForTmpFiles ;
   tempOutputFile << "/runSalome_" ;
   tempOutputFile << FileNameToExecute ;
@@ -755,7 +755,7 @@ std::string SALOME_ResourcesManager::BuildCmdFileNameToExecute_bsub(
   const ParserResourcesType& resInfo = _resourcesList[machine];
   resInfo.Print() ;
   tempOutputFile << "#! /bin/sh -f" << endl ;
-  tempOutputFile << "bsub < " ;
+  tempOutputFile << "bsub < ~/" ;
   tempOutputFile << DirForTmpFiles ;
   tempOutputFile << "/" ;
   tempOutputFile << FileNameToExecute ;

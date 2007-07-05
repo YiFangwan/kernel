@@ -349,7 +349,7 @@ CORBA::Long SALOME_ContainerManager::batchSalomeJob(
     SCRUTE(fileNameToExecute) ;
 // Le /tmp n'est pas le meme d'un noeud a un autre ===>
     //string DirForTmpFiles = string("/tmp/")+string(getenv("USER"))+string("/") ;
-    string DirForTmpFiles = string(getenv("HOME"))+string("/Batch/") ;
+    string DirForTmpFiles = string("Batch/") ;
     Batch::Date date = Batch::Date(time(0)) ;
     std::string thedate = date.str() ;
     int lend = thedate.size() ;
