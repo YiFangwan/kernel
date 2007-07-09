@@ -47,7 +47,7 @@ using namespace std;
 RegistryService::RegistryService( void ) : _SessionName(0), _Compteur(0)
 {
 	MESSAGE("Passage dans RegistryService::RegistryService()") ;
-
+	_orb = CORBA::ORB::_nil();
 }
 
 

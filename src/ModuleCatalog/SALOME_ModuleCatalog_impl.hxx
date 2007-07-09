@@ -119,7 +119,7 @@ public:
 
   void ping(){};
 
-  void shutdown() { if (_orb) _orb->shutdown(1); };
+  void shutdown() { if (_orb) _orb->shutdown(0); };
 
 private:
   //! method to parse one module catalog

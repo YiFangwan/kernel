@@ -58,6 +58,7 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
   PortableServer::POAManager_var pman = root_poa->the_POAManager();
   PortableServer::POA_var my_poa;
 
+  _orb = CORBA::ORB::_duplicate(orb) ;
   CORBA::PolicyList policies;
   policies.length(1);
   PortableServer::ThreadPolicy_var threadPol = 
@@ -99,6 +100,8 @@ void SALOME_ContainerManager::Shutdown()
 {
   MESSAGE("Shutdown");
   ShutdownContainers();
+  _orb->shutdown(0);
+  _NS->Destroy_Name(_ContainerManagerNameInNS);
   PortableServer::ObjectId_var oid = _default_POA()->servant_to_id(this);
   _default_POA()->deactivate_object(oid);
   _remove_ref();
@@ -114,36 +117,34 @@ void SALOME_ContainerManager::Shutdown()
 void SALOME_ContainerManager::ShutdownContainers()
 {
   MESSAGE("ShutdownContainers");
-  _NS->Change_Directory("/Containers");
-  vector<string> vec = _NS->list_directory_recurs();
-  list<string> lstCont;
-  for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++)
-    {
+  bool isOK;
+  isOK = _NS->Change_Directory("/Containers");
+  if( isOK ){
+    vector<string> vec = _NS->list_directory_recurs();
+    list<string> lstCont;
+    for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++){
       SCRUTE((*iter));
       CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
       Engines::Container_var cont=Engines::Container::_narrow(obj);
-      if(!CORBA::is_nil(cont))
-	{
-	  lstCont.push_back((*iter));
-	}
+      if(!CORBA::is_nil(cont)){
+	lstCont.push_back((*iter));
+      }
     }
-  MESSAGE("Container list: ");
-  for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++)
-    {
+    MESSAGE("Container list: ");
+    for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
       SCRUTE((*iter));
     }
-  for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++)
-    {
+    for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
       SCRUTE((*iter));
       CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
       Engines::Container_var cont=Engines::Container::_narrow(obj);
-      if(!CORBA::is_nil(cont))
-	{
-	  MESSAGE("ShutdownContainers: " << (*iter));
-	  cont->Shutdown();
-	}
+      if(!CORBA::is_nil(cont)){
+	MESSAGE("ShutdownContainers: " << (*iter));
+	cont->Shutdown();
+      }
       else MESSAGE("ShutdownContainers: no container ref for " << (*iter));
     }
+  }
 }
 
 //=============================================================================

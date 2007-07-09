@@ -103,6 +103,7 @@ protected:
 
   long GetIdForContainer(void);
   long _id;
+  CORBA::ORB_var _orb;
 
   SALOME_ResourcesManager *_ResManager;
   SALOME_NamingService *_NS;

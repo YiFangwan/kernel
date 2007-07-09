@@ -79,20 +79,20 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
     void CopyFileNamesToExecute(const std::string& machine,
                                 const std::string& DirForTmpFiles ,
                                 const std::string& PathFileNameToExecute ,
-                                const Engines::FilesToExportList& filesToExport) ;
+                                const Engines::FilesToExportList& filesToExport) throw(SALOME_Exception);
     std::string BuildCmdrunSalomeBatch(const std::string& machine,
                                        const std::string& DirForTmpFiles ,
-                                       const std::string& FileNameToExecute ) ;
+                                       const std::string& FileNameToExecute ) throw(SALOME_Exception);
     std::string BuildCmdFileNameToExecute_Batch(const std::string& machine,
                                       const long NumberOfProcessors,
                                        const std::string& DirForTmpFiles ,
-                                       const std::string& FileNameToExecute ) ;
+                                       const std::string& FileNameToExecute ) throw(SALOME_Exception);
     std::string BuildCmdFileNameToExecute_bsub(const std::string& machine,
                                        const std::string& DirForTmpFiles ,
-                                       const std::string& FileNameToExecute ) ;
+                                       const std::string& FileNameToExecute ) throw(SALOME_Exception);
     std::string CmdToExecute_bsub(const std::string& machine,
                                   const std::string& DirForTmpFiles ,
-                                  const std::string& FileNameToExecute ) ;
+                                  const std::string& FileNameToExecute ) throw(SALOME_Exception);
 
     std::string BuildCommandToLaunchLocalContainer
     (const Engines::MachineParameters& params, const long id);
@@ -126,7 +126,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     std::string BuildTempFileToLaunchRemoteContainer
     (const std::string& machine,
-     const Engines::MachineParameters& params);
+     const Engines::MachineParameters& params) throw(SALOME_Exception);
 
     void SelectOnlyResourcesWithOS(std::vector<std::string>& hosts,
 				   const char *OS) const

@@ -517,10 +517,12 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
 void SALOME_ResourcesManager::CopyFileNamesToExecute(const std::string& machine,
                             const std::string& DirForTmpFiles ,
                             const std::string& PathFileNameToExecute ,
-                            const Engines::FilesToExportList& filesToExport) {
+                            const Engines::FilesToExportList& filesToExport) throw(SALOME_Exception)
+{
   BEGIN_OF("SALOME_ResourcesManager::CopyFileNamesToExecute");
   const ParserResourcesType& resInfo = _resourcesList[machine];
   string command;
+  int status;
 
   if (resInfo.Protocol == rsh)
     command = "rsh ";
@@ -538,7 +540,10 @@ void SALOME_ResourcesManager::CopyFileNamesToExecute(const std::string& machine,
   command += " \"mkdir -p ";
   command += DirForTmpFiles ;
   command += "\"" ;
-  system(command.c_str());
+  SCRUTE(command.c_str());
+  status = system(command.c_str());
+  if(status)
+    throw SALOME_Exception("Error of connection on remote host");    
 
   if (resInfo.Protocol == rsh)
     command = "rcp ";
@@ -558,7 +563,10 @@ void SALOME_ResourcesManager::CopyFileNamesToExecute(const std::string& machine,
   command += resInfo.Alias;
   command += ":";
   command += DirForTmpFiles ;
-  system(command.c_str());
+  SCRUTE(command.c_str());
+  status = system(command.c_str());
+  if(status)
+    throw SALOME_Exception("Error of connection on remote host");    
 
   int i ;
   for ( i = 0 ; i < filesToExport.length() ; i++ ) {
@@ -577,7 +585,10 @@ void SALOME_ResourcesManager::CopyFileNamesToExecute(const std::string& machine,
     command += resInfo.Alias;
     command += ":";
     command += DirForTmpFiles ;
-    system(command.c_str());
+    SCRUTE(command.c_str());
+    status = system(command.c_str());
+    if(status)
+      throw SALOME_Exception("Error of connection on remote host");    
   }
 
   END_OF("SALOME_ResourcesManager::CopyFileNamesToExecute");
@@ -605,8 +616,10 @@ void SALOME_ResourcesManager::CopyFileNamesToExecute(const std::string& machine,
 std::string SALOME_ResourcesManager::BuildCmdrunSalomeBatch(
                                        const std::string& machine,
                                        const std::string& DirForTmpFiles ,
-                                       const std::string& FileNameToExecute ) {
+                                       const std::string& FileNameToExecute ) throw(SALOME_Exception)
+{
   BEGIN_OF("SALOME_ResourcesManager::BuildCmdrunSalomeBatch");
+  int status;
   _TmpFileName = BuildTemporaryFileName();
   ofstream tempOutputFile;
   tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
@@ -634,6 +647,7 @@ std::string SALOME_ResourcesManager::BuildCmdrunSalomeBatch(
   tempOutputFile << "  sleep 1" << endl ;
   tempOutputFile << "  ./runSession waitContainers.py $arglist" << endl ;
   tempOutputFile << "  ./runSession python ~/" << DirForTmpFiles << "/" << FileNameToExecute << ".py" << endl;
+  tempOutputFile << "  ./runSession shutdownSalome.py" << endl;
   tempOutputFile << "else" << endl ;
   tempOutputFile << "  sleep 1" << endl ;
   tempOutputFile << "  ./runSession waitNS.py" << endl ;
@@ -664,7 +678,10 @@ std::string SALOME_ResourcesManager::BuildCmdrunSalomeBatch(
   command += "/runSalome_" ;
   command += FileNameToExecute ;
   command += "_Batch.sh" ;
-  system(command.c_str());
+  SCRUTE(command.c_str());
+  status = system(command.c_str());
+  if(status)
+    throw SALOME_Exception("Error of connection on remote host");    
   RmTmpFile();
 
   END_OF("SALOME_ResourcesManager::BuildCmdrunSalomeBatch");
@@ -686,8 +703,10 @@ std::string SALOME_ResourcesManager::BuildCmdFileNameToExecute_Batch(
                                        const std::string& machine,
                                        const long NumberOfProcessors,
                                        const std::string& DirForTmpFiles ,
-                                       const std::string& FileNameToExecute ) {
+                                       const std::string& FileNameToExecute ) throw(SALOME_Exception)
+{
   BEGIN_OF("SALOME_ResourcesManager::BuildCmdFileNameToExecute_Batch");
+  int status;
   _TmpFileName = BuildTemporaryFileName();
   ofstream tempOutputFile;
   tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
@@ -726,7 +745,10 @@ std::string SALOME_ResourcesManager::BuildCmdFileNameToExecute_Batch(
   command += "/" ;
   command += FileNameToExecute ;
   command += "_Batch.sh" ;
-  system(command.c_str());
+  SCRUTE(command.c_str());
+  status = system(command.c_str());
+  if(status)
+    throw SALOME_Exception("Error of connection on remote host");    
 
   RmTmpFile();
   END_OF("SALOME_ResourcesManager::BuildCmdFileNameToExecute_Batch");
@@ -747,9 +769,11 @@ std::string SALOME_ResourcesManager::BuildCmdFileNameToExecute_Batch(
 std::string SALOME_ResourcesManager::BuildCmdFileNameToExecute_bsub(
                                        const std::string& machine,
                                        const std::string& DirForTmpFiles ,
-                                       const std::string& FileNameToExecute ) {
+                                       const std::string& FileNameToExecute ) throw(SALOME_Exception)
+{
   BEGIN_OF("SALOME_ResourcesManager::BuildCmdFileNameToExecute_bsub");
   _TmpFileName = BuildTemporaryFileName();
+  int status;
   ofstream tempOutputFile;
   tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
   const ParserResourcesType& resInfo = _resourcesList[machine];
@@ -784,7 +808,11 @@ std::string SALOME_ResourcesManager::BuildCmdFileNameToExecute_bsub(
   command += "/" ;
   command += FileNameToExecute ;
   command += "_bsub.sh" ;
-  system(command.c_str());
+  SCRUTE(command.c_str());
+  status = system(command.c_str());
+  if(status)
+    throw SALOME_Exception("Error of connection on remote host");    
+
   RmTmpFile();
   END_OF("SALOME_ResourcesManager::BuildCmdFileNameToExecute_bsub");
 
@@ -801,11 +829,13 @@ std::string SALOME_ResourcesManager::BuildCmdFileNameToExecute_bsub(
 std::string SALOME_ResourcesManager::CmdToExecute_bsub(
                                        const std::string& machine,
                                        const std::string& DirForTmpFiles ,
-                                       const std::string& FileNameToExecute ) {
+                                       const std::string& FileNameToExecute ) throw(SALOME_Exception)
+{
   BEGIN_OF("SALOME_ResourcesManager::CmdToExecute_bsub");
   const ParserResourcesType& resInfo = _resourcesList[machine];
   string command;
-  resInfo.Print() ;
+  resInfo.Print();
+  int status;
 
   if (resInfo.Protocol == rsh)
     command = "rsh " ;
@@ -823,7 +853,11 @@ std::string SALOME_ResourcesManager::CmdToExecute_bsub(
   command += "/" ;
   command += FileNameToExecute ;
   command += "_bsub.sh\"" ;
-  system(command.c_str());
+  SCRUTE(command.c_str());
+  status = system(command.c_str());
+  if(status)
+    throw SALOME_Exception("Error of connection on remote host");    
+
   END_OF("SALOME_ResourcesManager::CmdToExecute_bsub");
 
   return command;
@@ -1123,8 +1157,10 @@ string SALOME_ResourcesManager::BuildTemporaryFileName() const
 string
 SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
 (const string& machine,
- const Engines::MachineParameters& params)
+ const Engines::MachineParameters& params) throw(SALOME_Exception)
 {
+  int status;
+
   _TmpFileName = BuildTemporaryFileName();
   ofstream tempOutputFile;
   tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
@@ -1198,7 +1234,7 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
       commandRcp += machine;
       commandRcp += ":";
       commandRcp += _TmpFileName;
-      system(commandRcp.c_str());
+      status = system(commandRcp.c_str());
     }
 
   else if (resInfo.Protocol == ssh)
@@ -1210,10 +1246,13 @@ SALOME_ResourcesManager::BuildTempFileToLaunchRemoteContainer
       commandRcp += machine;
       commandRcp += ":";
       commandRcp += _TmpFileName;
-      system(commandRcp.c_str());
+      status = system(commandRcp.c_str());
     }
   else
     throw SALOME_Exception("Unknown protocol");
+
+  if(status)
+    throw SALOME_Exception("Error of connection on remote host");    
 
   command += machine;
   _CommandForRemAccess = command;
