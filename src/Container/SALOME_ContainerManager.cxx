@@ -100,12 +100,11 @@ void SALOME_ContainerManager::Shutdown()
 {
   MESSAGE("Shutdown");
   ShutdownContainers();
-  _orb->shutdown(0);
   _NS->Destroy_Name(_ContainerManagerNameInNS);
   PortableServer::ObjectId_var oid = _default_POA()->servant_to_id(this);
   _default_POA()->deactivate_object(oid);
   _remove_ref();
-  
+  _orb->shutdown(0);  
 }
 
 //=============================================================================
