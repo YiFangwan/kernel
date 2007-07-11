@@ -647,7 +647,7 @@ std::string SALOME_ResourcesManager::BuildCmdrunSalomeBatch(
   tempOutputFile << "  sleep 1" << endl ;
   tempOutputFile << "  ./runSession waitContainers.py $arglist" << endl ;
   tempOutputFile << "  ./runSession python ~/" << DirForTmpFiles << "/" << FileNameToExecute << ".py" << endl;
-  tempOutputFile << "  ./runSession shutdownSalome.py" << endl;
+  tempOutputFile << "  ./runSession killCurrentPort" << endl;
   tempOutputFile << "else" << endl ;
   tempOutputFile << "  sleep 1" << endl ;
   tempOutputFile << "  ./runSession waitNS.py" << endl ;

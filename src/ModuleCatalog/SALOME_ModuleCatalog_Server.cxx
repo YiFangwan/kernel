@@ -173,6 +173,7 @@ int main(int argc,char **argv)
     INFOS("Caught CORBA::Exception.")
       }
 
+  END_OF( argv[0] );
   //  delete myThreadTrace;
   return 0;
 }
