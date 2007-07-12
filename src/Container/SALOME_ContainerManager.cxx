@@ -104,7 +104,8 @@ void SALOME_ContainerManager::Shutdown()
   PortableServer::ObjectId_var oid = _default_POA()->servant_to_id(this);
   _default_POA()->deactivate_object(oid);
   _remove_ref();
-  _orb->shutdown(0);  
+  if(!CORBA::is_nil(_orb))
+    _orb->shutdown(0);
 }
 
 //=============================================================================

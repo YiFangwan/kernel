@@ -269,9 +269,9 @@ bool SALOME_ResourcesCatalog_Handler::characters(const QString& chars)
 
 bool SALOME_ResourcesCatalog_Handler::endDocument()
 {
-  map<string, ParserResourcesType>::const_iterator it;
-  for(it=_resources_list.begin();it!=_resources_list.end();it++)
-    (*it).second.Print();
+//   map<string, ParserResourcesType>::const_iterator it;
+//   for(it=_resources_list.begin();it!=_resources_list.end();it++)
+//     (*it).second.Print();
   
   MESSAGE("This is the end of document");
   return true;

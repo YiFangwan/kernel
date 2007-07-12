@@ -119,7 +119,7 @@ public:
 
   void ping(){};
 
-  void shutdown() { if (_orb) _orb->shutdown(0); };
+  void shutdown() { if(!CORBA::is_nil(_orb)) _orb->shutdown(0); };
 
 private:
   //! method to parse one module catalog
