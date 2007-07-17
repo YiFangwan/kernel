@@ -334,65 +334,7 @@ CORBA::Long SALOME_ContainerManager::batchSalomeJob(
                             const CORBA::Long NumberOfProcessors ,
                             const Engines::MachineParameters& params)
 {
-  BEGIN_OF("SALOME_ContainerManager::batchSalomeJob");
-  // Determination provisoire de l'extension .py
-  // Il faudra une classe dans Utils pour gerer les Path FileNames et Extensions
-  int lenf = strlen( fileToExecute ) ;
-  if ( strcmp( &fileToExecute[lenf-3] ,".py" ) == NULL ) {
-    int i = lenf-1 ;
-    while ( i >= 0 && fileToExecute[i] != '/' ) {
-      i -= 1 ;
-    }
-    char * FileNameToExecute = new char[lenf-4-i] ;
-    strncpy(FileNameToExecute , &fileToExecute[i+1] , lenf-4-i) ;
-    string fileNameToExecute =string( FileNameToExecute ) ;
-    delete FileNameToExecute ;
-    SCRUTE(fileNameToExecute) ;
-// Le /tmp n'est pas le meme d'un noeud a un autre ===>
-    //string DirForTmpFiles = string("/tmp/")+string(getenv("USER"))+string("/") ;
-    string DirForTmpFiles = string("Batch/") ;
-    Batch::Date date = Batch::Date(time(0)) ;
-    std::string thedate = date.str() ;
-    int lend = thedate.size() ;
-    i = 0 ;
-    while ( i < lend ) {
-      if ( thedate[i] == '/' || thedate[i] == '-' || thedate[i] == ':' ) {
-        thedate[i] = '_' ;
-      }
-      i++ ;
-    }
-    SCRUTE(thedate);
-    DirForTmpFiles += thedate ;
-    SCRUTE(DirForTmpFiles) ;
-    // Problemes avec ResourcesManager ...
-    // Solution pour l'instant :
-    // 31.05.107 : hostname : tantal
-    //             Alias : tantale.ccc.cea.fr
-    Engines::CompoList aCompoList ;
-    Engines::MachineList aMachineList = *GetFittingResources( params , aCompoList ) ;
-    SCRUTE(aMachineList[0]) ;
-    std::string aCluster = FindFirst( aMachineList) ;
-    SCRUTE(aCluster) ;
-    //Creation of /tmp/$USER/date_hh_mn_ss/ and copy of FileNameToExecute
-    // and of filesToExport in that directory
-    _ResManager->CopyFileNamesToExecute(aCluster,DirForTmpFiles,fileToExecute,filesToExport) ;
-    //Creation of /tmp/$USER/date_hh_mn_ss/runSalome_'FileNameToExecute'_Batch.sh
-    string runSalome_Batch = _ResManager->BuildCmdrunSalomeBatch(aCluster,DirForTmpFiles,fileNameToExecute) ;
-    SCRUTE(runSalome_Batch) ;
-    //Creation of /tmp/$USER/date_hh_mn_ss/'FileNameToExecute'_Batch.sh
-    string FileNameToExecute_Batch = _ResManager->BuildCmdFileNameToExecute_Batch(aCluster,NumberOfProcessors,DirForTmpFiles,fileNameToExecute) ;
-    SCRUTE(FileNameToExecute_Batch) ;
-    //Creation of /tmp/$USER/date_hh_mn_ss/'FileNameToExecute'_bsub.sh
-    string FileNameToExecute_bsub = _ResManager->BuildCmdFileNameToExecute_bsub(aCluster,DirForTmpFiles,fileNameToExecute) ;
-    SCRUTE(FileNameToExecute_bsub) ;
-    //Launch of /tmp/$USER/date_hh_mn_ss/'FileNameToExecute'_bsub.sh on theCluster
-    string sshCommand = _ResManager->CmdToExecute_bsub(aCluster,DirForTmpFiles,fileNameToExecute) ;
-    SCRUTE(sshCommand) ;
-  }
-  else {
-    MESSAGE("SALOME_ContainerManager::batchSalomeJob unknown extension " << fileToExecute);
-  }
-  END_OF("SALOME_ContainerManager::batchSalomeJob");
+  _ResManager->batchSalomeJob(fileToExecute, filesToExport, NumberOfProcessors, params);
 }
 
 //=============================================================================

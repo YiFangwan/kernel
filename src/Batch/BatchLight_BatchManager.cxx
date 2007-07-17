@@ -1,0 +1,219 @@
+// Copyright (C) 2005  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// 
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either 
+// version 2.1 of the License.
+// 
+// This library is distributed in the hope that it will be useful 
+// but WITHOUT ANY WARRANTY; without even the implied warranty of 
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU 
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public  
+// License along with this library; if not, write to the Free Software 
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+/*
+ * BatchManager.cxx : 
+ *
+ * Auteur : Bernard SECHER - CEA/DEN
+ * Date   : Juillet 2007
+ * Projet : SALOME
+ *
+ */
+
+#include <iostream>
+#include <sstream>
+#include <string>
+#include <netdb.h>
+#include "BatchLight_Job.hxx"
+#include "BatchLight_BatchManager.hxx"
+#include "Batch_Date.hxx"
+using namespace std;
+
+namespace BatchLight {
+
+  // Constructeur
+  BatchManager::BatchManager(const batchParams& p) throw(SALOME_Exception) : _params(p)
+  {
+    SCRUTE(_params.hostname);
+    SCRUTE(_params.protocol);
+    SCRUTE(_params.username);
+    // On verifie que le hostname est correct
+    if (!gethostbyname(_params.hostname.c_str())) { // hostname unknown from network
+      string msg = "hostname \"";
+      msg += _params.hostname;
+      msg += "\" unknown from the network";
+      throw SALOME_Exception(msg.c_str());
+    }
+  }
+
+  // Destructeur
+  BatchManager::~BatchManager()
+  {
+    // Nothing to do
+  }
+
+  void BatchManager::setDirForTmpFiles()
+  {
+    int i;
+
+    _dirForTmpFiles = string("Batch/");
+    Batch::Date date = Batch::Date(time(0)) ;
+    std::string thedate = date.str() ;
+    int lend = thedate.size() ;
+    i = 0 ;
+    while ( i < lend ) {
+      if ( thedate[i] == '/' || thedate[i] == '-' || thedate[i] == ':' ) {
+        thedate[i] = '_' ;
+      }
+      i++ ;
+    }
+    _dirForTmpFiles += thedate ;
+  }
+
+  void BatchManager::exportInFiles(const char *fileToExecute, const Engines::FilesToExportList filesToExportList) throw(SALOME_Exception)
+  {
+    BEGIN_OF("BatchManager::exportInFiles");
+    string command = _params.protocol;
+    int status;
+
+    command += " ";
+
+    if (_params.username != ""){
+      command += _params.username;
+      command += "@";
+    }
+
+    command += _params.hostname;
+    command += " \"mkdir -p ";
+    command += _dirForTmpFiles ;
+    command += "\"" ;
+    SCRUTE(command.c_str());
+    status = system(command.c_str());
+    if(status)
+      throw SALOME_Exception("Error of connection on remote host");    
+
+    if( _params.protocol == "rsh" )
+      command = "rcp ";
+    else if( _params.protocol == "ssh" )
+      command = "scp ";
+    else
+      throw SALOME_Exception("Unknown protocol");
+
+    command += fileToExecute;
+    command += " ";
+
+    if (_params.username != ""){
+      command += _params.username;
+      command += "@";
+    }
+
+    command += _params.hostname;
+    command += ":";
+    command += _dirForTmpFiles ;
+    SCRUTE(command.c_str());
+    status = system(command.c_str());
+    if(status)
+      throw SALOME_Exception("Error of connection on remote host");    
+    
+    int i ;
+    for ( i = 0 ; i < filesToExportList.length() ; i++ ) {
+      if( _params.protocol == "rsh" )
+	command = "rcp ";
+      else if( _params.protocol == "ssh" )
+	command = "scp ";
+      else
+	throw SALOME_Exception("Unknown protocol");
+      command += filesToExportList[i] ;
+      command += " ";
+      if (_params.username != ""){
+	command += _params.username;
+	command += "@";
+      }
+      command += _params.hostname;
+      command += ":";
+      command += _dirForTmpFiles ;
+      SCRUTE(command.c_str());
+      status = system(command.c_str());
+      if(status)
+	throw SALOME_Exception("Error of connection on remote host");    
+    }
+
+    END_OF("BatchManager::exportInFiles");
+  }
+
+  void BatchManager::submit() throw(SALOME_Exception)
+  {
+    BEGIN_OF("BatchManager::submit");
+    string command;
+    int status;
+
+    if( _params.protocol == "rsh" )
+      command = "rsh ";
+    else if( _params.protocol == "ssh" )
+      command = "ssh ";
+    else
+      throw SALOME_Exception("Unknown protocol");
+
+    if (_params.username != ""){
+      command += _params.username;
+      command += "@";
+    }
+
+    command += _params.hostname;
+    command += " \"tcsh " ;
+    command += _dirForTmpFiles ;
+    command += "/" ;
+    command += _fileNameToExecute ;
+    command += "_bsub.sh\"" ;
+    SCRUTE(command.c_str());
+    status = system(command.c_str());
+    if(status)
+      throw SALOME_Exception("Error of connection on remote host");    
+
+    END_OF("BatchManager::submit");
+  }
+
+  string BatchManager::BuildTemporaryFileName() const
+  {
+    //build more complex file name to support multiple salome session
+    char *temp = new char[19];
+    strcpy(temp, "/tmp/command");
+    strcat(temp, "XXXXXX");
+#ifndef WNT
+
+    mkstemp(temp);
+#else
+
+    char aPID[80];
+    itoa(getpid(), aPID, 10);
+    strcat(temp, aPID);
+#endif
+
+    string command(temp);
+    delete [] temp;
+    command += ".sh";
+    return command;
+  }
+
+void BatchManager::RmTmpFile()
+{
+  if (_TmpFileName != "")
+    {
+      string command = "rm ";
+      command += _TmpFileName;
+      char *temp = strdup(command.c_str());
+      int lgthTemp = strlen(temp);
+      temp[lgthTemp - 3] = '*';
+      temp[lgthTemp - 2] = '\0';
+      system(temp);
+      free(temp);
+    }
+}
+
+}
