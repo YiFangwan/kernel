@@ -72,10 +72,15 @@ public:
 		Engines::ResPolicy policy,
 		const Engines::CompoList& componentList);
 
-  CORBA::Long batchSalomeJob(const char * fileToExecute ,
-                      const Engines::FilesToExportList& filesToExport ,
-		      const CORBA::Long NumberOfProcessors ,
-                      const Engines::MachineParameters& params);
+  CORBA::Long submitSalomeJob(const char * fileToExecute ,
+			      const Engines::FilesList& filesToExport ,
+			      const Engines::FilesList& filesToImport ,
+			      const CORBA::Long NumberOfProcessors ,
+			      const Engines::MachineParameters& params);
+
+  char* querySalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
+  void deleteSalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
+  void getResultSalomeJob( const char * directory, const CORBA::Long jobId, const Engines::MachineParameters& params );
 
   Engines::MachineList *
   GetFittingResources(const Engines::MachineParameters& params,

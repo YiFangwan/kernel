@@ -30,6 +30,7 @@
 #define _BL_BATCHMANAGER_H_
 
 #include <vector>
+#include <map>
 #include <string>
 #include "Utils_SALOME_Exception.hxx"
 #include <SALOMEconfig.h>
@@ -55,22 +56,23 @@ namespace BatchLight {
     virtual ~BatchManager();
 
     // Methodes pour le controle des jobs : virtuelles pures
-    virtual const int submitJob(BatchLight::Job & job) = 0; // soumet un job au gestionnaire
+    virtual const int submitJob(BatchLight::Job* job) = 0; // soumet un job au gestionnaire
     virtual void deleteJob(const int & jobid) = 0; // retire un job du gestionnaire
-    virtual int queryJob(const int & jobid) = 0; // renvoie l'etat du job
+    virtual std::string queryJob(const int & jobid) = 0; // renvoie l'etat du job
+    void importOutputFiles( const char *directory, const CORBA::Long jobId ) throw(SALOME_Exception);
 
   protected:
-    batchParams _params; 
+    batchParams _params;
+
+    std::map <int,const BatchLight::Job *> _jobmap;
     std::string _dirForTmpFiles; // repertoire temporaire sur le serveur
     std::string _TmpFileName;
     std::string _fileNameToExecute;
 
     void setDirForTmpFiles();
-    void exportInFiles( const char *fileToExecute, const Engines::FilesToExportList filesToExportList ) throw(SALOME_Exception);
+    void exportInputFiles( const char *fileToExecute, const Engines::FilesList filesToExportList ) throw(SALOME_Exception);
     virtual void buildSalomeCouplingScript( const char *fileToExecute ) throw(SALOME_Exception) = 0;
     virtual void buildSalomeBatchScript( const int nbproc ) throw(SALOME_Exception) = 0;
-    virtual void buildSalomeSubmitBatchScript() throw(SALOME_Exception) = 0;
-    void submit() throw(SALOME_Exception);
 
     std::string BuildTemporaryFileName() const;
     void RmTmpFile();

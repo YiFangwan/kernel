@@ -19,7 +19,6 @@
 //
 #include "SALOME_ResourcesManager.hxx" 
 #include "BatchLight_Job.hxx"
-#include "BatchLight_BatchManager_SLURM.hxx"
 #include "Utils_ExceptHandlers.hxx"
 #include "OpUtil.hxx"
 
@@ -103,6 +102,9 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb)
 SALOME_ResourcesManager::~SALOME_ResourcesManager()
 {
   delete _NS;
+  std::map < string, const BatchLight::BatchManager * >::const_iterator it;
+  for(it=_batchmap.begin();it!=_batchmap.end();it++)
+    delete it->second;
 }
 
 //=============================================================================
@@ -515,42 +517,132 @@ SALOME_ResourcesManager::BuildCommandToLaunchRemoteContainer
  *  Submit a batch job on a cluster and returns the JobId
  *  \param fileToExecute      : .py/.exe/.sh/... to execute on the batch cluster
  *  \param filesToExport      : to export on the batch cluster
+ *  \param filesToExport      : to import from the batch cluster after job
  *  \param NumberOfProcessors : Number of processors needed on the batch cluster
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-CORBA::Long SALOME_ResourcesManager::batchSalomeJob(
-                            const char * fileToExecute ,
-                            const Engines::FilesToExportList& filesToExport ,
-                            const CORBA::Long NumberOfProcessors ,
-                            const Engines::MachineParameters& params)
+CORBA::Long SALOME_ResourcesManager::submitSalomeJob( const char * fileToExecute ,
+						      const Engines::FilesList& filesToExport ,
+						      const Engines::FilesList& filesToImport ,
+						      const CORBA::Long NumberOfProcessors ,
+						      const Engines::MachineParameters& params)
 {
-  BEGIN_OF("SALOME_ResourcesManager::batchSalomeJob");
+  BEGIN_OF("SALOME_ResourcesManager::submitSalomeJob");
+  CORBA::Long jobId;
+
+  // find a cluster matching the structure params
   Engines::CompoList aCompoList ;
   vector<string> aMachineList = GetFittingResources( params , aCompoList ) ;
   const ParserResourcesType& resInfo = _resourcesList[aMachineList[0]];
+  string clustername = resInfo.Alias;
 
-  BatchLight::batchParams p;
-  p.hostname = resInfo.Alias;
-  if( resInfo.Protocol == rsh )
-    p.protocol = "rsh";
-  else if( resInfo.Protocol == ssh )
-    p.protocol = "ssh";
-  else
-    throw SALOME_Exception("Unknown protocol");
-  p.username = resInfo.UserName;
-  p.applipath = resInfo.AppliPath;
-  p.modulesList = resInfo.ModulesList;
+  // search batch manager for that cluster in map or instanciate one
+  std::map < string, const BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+  if(it == _batchmap.end()){
+    // define structure for batch manager
+    BatchLight::batchParams p;
+    p.hostname = clustername;
+    if( resInfo.Protocol == rsh )
+      p.protocol = "rsh";
+    else if( resInfo.Protocol == ssh )
+      p.protocol = "ssh";
+    else
+      throw SALOME_Exception("Unknown protocol");
+    p.username = resInfo.UserName;
+    p.applipath = resInfo.AppliPath;
+    p.modulesList = resInfo.ModulesList;
+    _batchmap[clustername] = new BatchLight::BatchManager_SLURM(p);
+  }
+  BatchLight::BatchManager_SLURM* bms = (BatchLight::BatchManager_SLURM*)_batchmap[clustername];
 
-  try{
-    BatchLight::Job job = BatchLight::Job( fileToExecute, filesToExport, NumberOfProcessors );
-    BatchLight::BatchManager_SLURM bms = BatchLight::BatchManager_SLURM(p);
-    bms.submitJob(job);
-  }
-  catch(const SALOME_Exception &ex){
-    MESSAGE(ex.what());
-  }
-  END_OF("SALOME_ResourcesManager::batchSalomeJob");
+  // submit job on cluster
+  BatchLight::Job* job = new BatchLight::Job( fileToExecute, filesToExport, filesToImport, NumberOfProcessors );
+  jobId = bms->submitJob(job);
+
+  return(jobId);
+  END_OF("SALOME_ResourcesManager::submitSalomeJob");
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  query a batch job on a cluster and returns the status of the job
+ *  \param jobId              : identification of Salome job
+ *  \param params             : Constraints for the choice of the batch cluster
+ */
+//=============================================================================
+string SALOME_ResourcesManager::querySalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params) throw(SALOME_Exception)
+{
+  string status;
+
+  // find a cluster matching params structure
+  Engines::CompoList aCompoList ;
+  vector<string> aMachineList = GetFittingResources( params , aCompoList ) ;
+  const ParserResourcesType& resInfo = _resourcesList[aMachineList[0]];
+  string clustername = resInfo.Alias;
+
+  // search batch manager for that cluster in map
+  std::map < string, const BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+  if(it == _batchmap.end())
+    throw SALOME_Exception("no batchmanager for that cluster");
+
+  BatchLight::BatchManager_SLURM* bms = (BatchLight::BatchManager_SLURM*)_batchmap[clustername];
+
+  status = bms->queryJob(jobId);
+  return(status);
+}
+
+
+//=============================================================================
+/*! CORBA Method:
+ *  delete a batch job on a cluster
+ *  \param jobId              : identification of Salome job
+ *  \param params             : Constraints for the choice of the batch cluster
+ */
+//=============================================================================
+void SALOME_ResourcesManager::deleteSalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params) throw(SALOME_Exception)
+{
+  // find a cluster matching params structure
+  Engines::CompoList aCompoList ;
+  vector<string> aMachineList = GetFittingResources( params , aCompoList ) ;
+  const ParserResourcesType& resInfo = _resourcesList[aMachineList[0]];
+  string clustername = resInfo.Alias;
+
+  // search batch manager for that cluster in map
+  std::map < string, const BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+  if(it == _batchmap.end())
+    throw SALOME_Exception("no batchmanager for that cluster");
+
+  BatchLight::BatchManager_SLURM* bms = (BatchLight::BatchManager_SLURM*)_batchmap[clustername];
+
+  bms->deleteJob(jobId);
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  delete a batch job on a cluster
+ *  \param jobId              : identification of Salome job
+ *  \param params             : Constraints for the choice of the batch cluster
+ */
+//=============================================================================
+void SALOME_ResourcesManager::getResultSalomeJob( const char *directory,
+						  const CORBA::Long jobId, 
+						  const Engines::MachineParameters& params) throw(SALOME_Exception)
+{
+  // find a cluster matching params structure
+  Engines::CompoList aCompoList ;
+  vector<string> aMachineList = GetFittingResources( params , aCompoList ) ;
+  const ParserResourcesType& resInfo = _resourcesList[aMachineList[0]];
+  string clustername = resInfo.Alias;
+
+  // search batch manager for that cluster in map
+  std::map < string, const BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+  if(it == _batchmap.end())
+    throw SALOME_Exception("no batchmanager for that cluster");
+
+  BatchLight::BatchManager_SLURM* bms = (BatchLight::BatchManager_SLURM*)_batchmap[clustername];
+
+  bms->importOutputFiles( directory, jobId );
 }
 
 //=============================================================================

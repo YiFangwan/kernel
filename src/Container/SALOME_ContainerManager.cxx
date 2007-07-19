@@ -328,13 +328,81 @@ GiveContainer(const Engines::MachineParameters& params,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-CORBA::Long SALOME_ContainerManager::batchSalomeJob(
-                            const char * fileToExecute ,
-                            const Engines::FilesToExportList& filesToExport ,
-                            const CORBA::Long NumberOfProcessors ,
-                            const Engines::MachineParameters& params)
+CORBA::Long SALOME_ContainerManager::submitSalomeJob( const char * fileToExecute ,
+						      const Engines::FilesList& filesToExport ,
+						      const Engines::FilesList& filesToImport ,
+						      const CORBA::Long NumberOfProcessors ,
+						      const Engines::MachineParameters& params)
 {
-  _ResManager->batchSalomeJob(fileToExecute, filesToExport, NumberOfProcessors, params);
+  CORBA::Long jobId;
+  try{
+    jobId = _ResManager->submitSalomeJob(fileToExecute, filesToExport, filesToImport, NumberOfProcessors, params);
+  }
+  catch(const SALOME_Exception &ex){
+    INFOS("Caught exception.");
+    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::INTERNAL_ERROR);
+  }
+  return jobId;
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  Query a batch job on a cluster and returns the status of job
+ *  \param jobId              : identification of Salome job
+ *  \param params             : Constraints for the choice of the batch cluster
+ */
+//=============================================================================
+char* SALOME_ContainerManager::querySalomeJob( const CORBA::Long jobId, 
+					       const Engines::MachineParameters& params)
+{
+  string status;
+  try{
+    status = _ResManager->querySalomeJob( jobId, params);
+  }
+  catch(const SALOME_Exception &ex){
+    INFOS("Caught exception.");
+    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
+  }
+  return CORBA::string_dup(status.c_str());
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  Delete a batch job on a cluster 
+ *  \param jobId              : identification of Salome job
+ *  \param params             : Constraints for the choice of the batch cluster
+ */
+//=============================================================================
+void SALOME_ContainerManager::deleteSalomeJob( const CORBA::Long jobId, 
+					       const Engines::MachineParameters& params)
+{
+  try{
+    _ResManager->deleteSalomeJob( jobId, params);
+  }
+  catch(const SALOME_Exception &ex){
+    INFOS("Caught exception.");
+    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
+  }
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  Get result files of job on a cluster
+ *  \param jobId              : identification of Salome job
+ *  \param params             : Constraints for the choice of the batch cluster
+ */
+//=============================================================================
+void SALOME_ContainerManager::getResultSalomeJob( const char *directory,
+						  const CORBA::Long jobId, 
+						  const Engines::MachineParameters& params)
+{
+  try{
+    _ResManager->getResultSalomeJob( directory, jobId, params);
+  }
+  catch(const SALOME_Exception &ex){
+    INFOS("Caught exception.");
+    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
+  }
 }
 
 //=============================================================================

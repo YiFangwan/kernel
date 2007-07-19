@@ -23,6 +23,7 @@
 #include "Utils_SALOME_Exception.hxx"
 #include "utilities.h"
 #include <SALOMEconfig.h>
+#include "BatchLight_BatchManager_SLURM.hxx"
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "SALOME_LoadRateManager.hxx"
 #include "SALOME_NamingService.hxx"
@@ -30,8 +31,6 @@
 #include <string>
 #include <fstream>
 #include <vector>
-
-
 
 #if defined RESOURCESMANAGER_EXPORTS
 #if defined WIN32
@@ -76,10 +75,17 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
     (const std::string& machine,
      const Engines::MachineParameters& params, const long id);
 
-    CORBA::Long batchSalomeJob(const char * fileToExecute ,
-			       const Engines::FilesToExportList& filesToExport ,
-			       const CORBA::Long NumberOfProcessors ,
-			       const Engines::MachineParameters& params);
+    CORBA::Long submitSalomeJob(const char * fileToExecute ,
+				const Engines::FilesList& filesToExport ,
+				const Engines::FilesList& filesToImport ,
+				const CORBA::Long NumberOfProcessors ,
+				const Engines::MachineParameters& params);
+
+    std::string querySalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params) throw(SALOME_Exception);
+    void deleteSalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params) throw(SALOME_Exception);
+    void getResultSalomeJob( const char *directory,
+			     const CORBA::Long jobId, 
+			     const Engines::MachineParameters& params) throw(SALOME_Exception);
 
     std::string BuildCommandToLaunchLocalContainer
     (const Engines::MachineParameters& params, const long id);
@@ -110,6 +116,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
   protected:
     SALOME_NamingService *_NS;
+    std::map <std::string,const BatchLight::BatchManager*> _batchmap;
 
     std::string BuildTempFileToLaunchRemoteContainer
     (const std::string& machine,

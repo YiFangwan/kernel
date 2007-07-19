@@ -32,9 +32,14 @@ using namespace std;
 namespace BatchLight {
 
   // Constructeur
-  Job::Job(const char *fileToExecute, const Engines::FilesToExportList& filesToExport, const int nbproc) : _fileToExecute(fileToExecute), _filesToExport(filesToExport), _nbproc(nbproc)
+  Job::Job(const char *fileToExecute, const Engines::FilesList& filesToExport, const Engines::FilesList& filesToImport, const int nbproc) : _fileToExecute(fileToExecute), _filesToExport(filesToExport), _filesToImport(filesToImport), _nbproc(nbproc)
   {
     // Nothing to do
+  }
+
+  Job::~Job()
+  {
+    MESSAGE("Job destructor");
   }
 
 }

@@ -46,22 +46,37 @@ namespace BatchLight {
   // Destructeur
   BatchManager_SLURM::~BatchManager_SLURM()
   {
-    // Nothing to do
+    MESSAGE("BatchManager_SLURM destructor "<<_params.hostname);
+    std::map < int, const BatchLight::Job * >::const_iterator it;
+    for(it=_jobmap.begin();it!=_jobmap.end();it++)
+      delete it->second;
+    
   }
 
   // Methode pour le controle des jobs : soumet un job au gestionnaire
-  const int BatchManager_SLURM::submitJob(Job & job)
+  const int BatchManager_SLURM::submitJob(Job* job)
   {
     BEGIN_OF("BatchManager_SLURM::submitJob");
-    int id=0;
+    int id;
 
+    // temporary directory on cluster to put input files for job
     setDirForTmpFiles();
     SCRUTE(_dirForTmpFiles);
-    exportInFiles(job.getFileToExecute(),job.getFilesToExportList());
-    buildSalomeCouplingScript(job.getFileToExecute());
-    buildSalomeBatchScript(job.getNbProc());
-    buildSalomeSubmitBatchScript();
-    submit();
+
+    // export input files on cluster
+    exportInputFiles(job->getFileToExecute(),job->getFilesToExportList());
+
+    // build salome coupling script for job
+    buildSalomeCouplingScript(job->getFileToExecute());
+
+    // build batch script for job
+    buildSalomeBatchScript(job->getNbProc());
+
+    // submit job on cluster
+    id = submit();
+
+    // register job on map
+    _jobmap[id] = job;
     END_OF("BatchManager_SLURM::submitJob");
     return id;
   }
@@ -69,13 +84,95 @@ namespace BatchLight {
   // Methode pour le controle des jobs : retire un job du gestionnaire
   void BatchManager_SLURM::deleteJob(const int & jobid)
   {
+    BEGIN_OF("BatchManager_SLURM::deleteJob");
+    string command;
+    int status;
+    ostringstream oss;
+    oss << jobid;
+
+    // define command to submit batch
+    if( _params.protocol == "rsh" )
+      command = "rsh ";
+    else if( _params.protocol == "ssh" )
+      command = "ssh ";
+    else
+      throw SALOME_Exception("Unknown protocol");
+
+    if (_params.username != ""){
+      command += _params.username;
+      command += "@";
+    }
+
+    command += _params.hostname;
+    command += " \"bkill " ;
+    command += oss.str();
+    command += "\"";
+    SCRUTE(command.c_str());
+    status = system(command.c_str());
+    if(status)
+      throw SALOME_Exception("Error of connection on remote host");
+
+    MESSAGE("jobId = " << jobid << "killed");
+    END_OF("BatchManager_SLURM::deleteJob");
   }
    
   // Methode pour le controle des jobs : renvoie l'etat du job
-  int BatchManager_SLURM::queryJob(const int & jobid)
+  string BatchManager_SLURM::queryJob(const int & jobid)
   {
-    int ji=0;
-    return ji;
+    BEGIN_OF("BatchManager_SLURM::queryJob");
+    // define name of log file
+    string logFile="/tmp/logs/";
+    logFile += getenv("USER");
+    logFile += "/batchSalome_";
+
+    srand ( time(NULL) );
+    int ir = rand();
+    ostringstream oss;
+    oss << ir;
+    logFile += oss.str();
+    logFile += ".log";
+
+    string command;
+    int status;
+
+    // define command to submit batch
+    if( _params.protocol == "rsh" )
+      command = "rsh ";
+    else if( _params.protocol == "ssh" )
+      command = "ssh ";
+    else
+      throw SALOME_Exception("Unknown protocol");
+
+    if (_params.username != ""){
+      command += _params.username;
+      command += "@";
+    }
+
+    command += _params.hostname;
+    command += " \"bjobs " ;
+    ostringstream oss2;
+    oss2 << jobid;
+    command += oss2.str();
+    command += "\" > ";
+    command += logFile;
+    SCRUTE(command.c_str());
+    status = system(command.c_str());
+    if(status)
+      throw SALOME_Exception("Error of connection on remote host");
+
+    // read staus of job in log file
+    char line[128];
+    ifstream fp(logFile.c_str(),ios::in);
+    fp.getline(line,80,'\n');
+    
+    string sjobid, username, jstatus;
+    fp >> sjobid;
+    fp >> username;
+    fp >> jstatus;
+
+    MESSAGE("jobId = " << jobid << " " << jstatus);
+    END_OF("BatchManager_SLURM::queryJob");
+    return jstatus;
   }
 
   void BatchManager_SLURM::buildSalomeCouplingScript( const char *fileToExecute ) throw(SALOME_Exception)
@@ -208,53 +305,67 @@ namespace BatchLight {
     
   }
 
-  void BatchManager_SLURM::buildSalomeSubmitBatchScript() throw(SALOME_Exception)
+  int BatchManager_SLURM::submit() throw(SALOME_Exception)
   {
+    BEGIN_OF("BatchManager_SLURM::submit");
 
-    BEGIN_OF("BatchManager_SLURM::buildSalomeSubmitBatchScript");
-    _TmpFileName = BuildTemporaryFileName();
-    int status;
-    ofstream tempOutputFile;
-    tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
+    // define name of log file
+    string logFile="/tmp/logs/";
+    logFile += getenv("USER");
+    logFile += "/batchSalome_";
 
-    tempOutputFile << "#! /bin/sh -f" << endl ;
-    tempOutputFile << "bsub < ~/" ;
-    tempOutputFile << _dirForTmpFiles ;
-    tempOutputFile << "/" ;
-    tempOutputFile << _fileNameToExecute ;
-    tempOutputFile << "_Batch.sh &" << endl ;
-    tempOutputFile.flush();
-    tempOutputFile.close();
-    chmod(_TmpFileName.c_str(), 0x1ED);
-    SCRUTE(_TmpFileName.c_str()) ;
+    srand ( time(NULL) );
+    int ir = rand();
+    ostringstream oss;
+    oss << ir;
+    logFile += oss.str();
+    logFile += ".log";
 
     string command;
+    int status;
+
+    // define command to submit batch
     if( _params.protocol == "rsh" )
-      command = "rcp ";
+      command = "rsh ";
     else if( _params.protocol == "ssh" )
-      command = "scp ";
+      command = "ssh ";
     else
       throw SALOME_Exception("Unknown protocol");
-    command += _TmpFileName;
-    command += " ";
+
     if (_params.username != ""){
       command += _params.username;
       command += "@";
     }
+
     command += _params.hostname;
-    command += ":";
+    command += " \"bsub < " ;
     command += _dirForTmpFiles ;
     command += "/" ;
     command += _fileNameToExecute ;
-    command += "_bsub.sh" ;
+    command += "_Batch.sh\" > ";
+    command += logFile;
     SCRUTE(command.c_str());
     status = system(command.c_str());
     if(status)
-      throw SALOME_Exception("Error of connection on remote host");    
+      throw SALOME_Exception("Error of connection on remote host");
 
-    RmTmpFile();
-    END_OF("BatchManager_SLURM::buildSalomeSubmitBatchScript");
+    // read id of submitted job in log file
+    char line[128];
+    FILE *fp = fopen(logFile.c_str(),"r");
+    fgets( line, 128, fp);
+    fclose(fp);
     
+    string sline(line);
+    int p1 = sline.find("<");
+    int p2 = sline.find(">");
+    string strjob = sline.substr(p1+1,p2-p1-1);
+
+    int id;
+    istringstream iss(strjob);
+    iss >> id;
+
+    END_OF("BatchManager_SLURM::submit");
+    return id;
   }
 
 }

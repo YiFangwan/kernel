@@ -39,16 +39,18 @@ namespace BatchLight {
   {
   public:
     // Constructeurs et destructeur
-    Job(const char *fileToExecute, const Engines::FilesToExportList& filesToExport, const int nbproc);
-    virtual ~Job() {}
+    Job(const char *fileToExecute, const Engines::FilesList& filesToExport, const Engines::FilesList& filesToImport, const int nbproc);
+    virtual ~Job();
 
-    const char *getFileToExecute() { return _fileToExecute; }
-    const Engines::FilesToExportList getFilesToExportList() { return _filesToExport; }
-    const int getNbProc() { return _nbproc; }
+    const char *getFileToExecute() const { return _fileToExecute; }
+    const Engines::FilesList getFilesToExportList() const { return _filesToExport; }
+    const Engines::FilesList getFilesToImportList() const { return _filesToImport; }
+    const int getNbProc() const { return _nbproc; }
     
   protected:
     const char* _fileToExecute;
-    const Engines::FilesToExportList _filesToExport;
+    const Engines::FilesList _filesToExport;
+    const Engines::FilesList _filesToImport;
     const int _nbproc;
 
   private:

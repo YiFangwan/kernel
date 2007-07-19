@@ -76,7 +76,7 @@ namespace BatchLight {
     _dirForTmpFiles += thedate ;
   }
 
-  void BatchManager::exportInFiles(const char *fileToExecute, const Engines::FilesToExportList filesToExportList) throw(SALOME_Exception)
+  void BatchManager::exportInputFiles(const char *fileToExecute, const Engines::FilesList filesToExportList) throw(SALOME_Exception)
   {
     BEGIN_OF("BatchManager::exportInFiles");
     string command = _params.protocol;
@@ -147,36 +147,38 @@ namespace BatchLight {
     END_OF("BatchManager::exportInFiles");
   }
 
-  void BatchManager::submit() throw(SALOME_Exception)
+  void BatchManager::importOutputFiles( const char *directory, const CORBA::Long jobId ) throw(SALOME_Exception)
   {
-    BEGIN_OF("BatchManager::submit");
+    BEGIN_OF("BatchManager::importOutputFiles");
     string command;
     int status;
 
-    if( _params.protocol == "rsh" )
-      command = "rsh ";
-    else if( _params.protocol == "ssh" )
-      command = "ssh ";
-    else
-      throw SALOME_Exception("Unknown protocol");
+    const BatchLight::Job* myJob = _jobmap[jobId];
+    Engines::FilesList filesToImportList = myJob->getFilesToImportList();
 
-    if (_params.username != ""){
-      command += _params.username;
-      command += "@";
+    for ( int i = 0 ; i < filesToImportList.length() ; i++ ) {
+      if( _params.protocol == "rsh" )
+	command = "rcp ";
+      else if( _params.protocol == "ssh" )
+	command = "scp ";
+      else
+	throw SALOME_Exception("Unknown protocol");
+      if (_params.username != ""){
+	command += _params.username;
+	command += "@";
+      }
+      command += _params.hostname;
+      command += ":";
+      command += filesToImportList[i] ;
+      command += " ";
+      command += directory;
+      SCRUTE(command.c_str());
+      status = system(command.c_str());
+      if(status)
+	throw SALOME_Exception("Error of connection on remote host");    
     }
 
-    command += _params.hostname;
-    command += " \"tcsh " ;
-    command += _dirForTmpFiles ;
-    command += "/" ;
-    command += _fileNameToExecute ;
-    command += "_bsub.sh\"" ;
-    SCRUTE(command.c_str());
-    status = system(command.c_str());
-    if(status)
-      throw SALOME_Exception("Error of connection on remote host");    
-
-    END_OF("BatchManager::submit");
+    END_OF("BatchManager::importOutputFiles");
   }
 
   string BatchManager::BuildTemporaryFileName() const

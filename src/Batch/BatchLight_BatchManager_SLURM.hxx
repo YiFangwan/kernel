@@ -45,14 +45,14 @@ namespace BatchLight {
     virtual ~BatchManager_SLURM();
 
     // Methodes pour le controle des jobs : virtuelles pures
-    virtual const int submitJob(BatchLight::Job & job); // soumet un job au gestionnaire
+    virtual const int submitJob(BatchLight::Job* job); // soumet un job au gestionnaire
     virtual void deleteJob(const int & jobid); // retire un job du gestionnaire
-    virtual int queryJob(const int & jobid); // renvoie l'etat du job
+    virtual std::string queryJob(const int & jobid); // renvoie l'etat du job
 
   protected:
     virtual void buildSalomeCouplingScript( const char *fileToExecute ) throw(SALOME_Exception);
     virtual void buildSalomeBatchScript( const int nbproc ) throw(SALOME_Exception);
-    virtual void buildSalomeSubmitBatchScript() throw(SALOME_Exception);
+    virtual int submit() throw(SALOME_Exception);
 
   private:
 

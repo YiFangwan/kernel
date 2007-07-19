@@ -85,6 +85,7 @@ libSalomeLifeCycleCORBA_la_CPPFLAGS = \
 	$(COMMON_CPPFLAGS) \
 	@PYTHON_INCLUDES@ \
 	@QT_MT_INCLUDES@ \
+	-I$(srcdir)/../Batch \
 	-I$(srcdir)/../Container \
 	-I$(srcdir)/../Notification
 
@@ -116,6 +117,7 @@ Test_LifeCycleCORBA_LDADD    = \
 
 TestContainerManager_SOURCES  = TestContainerManager.cxx
 TestContainerManager_CPPFLAGS =\
+	-I$(srcdir)/../Batch \
 	-I$(srcdir)/../Registry \
 	-I$(srcdir)/../Notification \
 	$(COMMON_CPPFLAGS)
