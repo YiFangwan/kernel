@@ -497,13 +497,32 @@ module Engines
       Add a Distributed file to the Salome_file.
 
       \param comp_file_name name of the file with the path.
-      \param source_Salome_file Salome_file that managed the distributed version of the file.
 
       \exception raised if the file is already added into the Salome_file.
     */
-    void setDistributedFile(in string comp_file_name,
-			    in Engines::Salome_file source_Salome_file) raises (SALOME::SALOME_Exception);
+    void setDistributedFile(in string comp_file_name) raises (SALOME::SALOME_Exception);
 
+    /*!
+      Connect a Salome_file with another Salome_file.
+      It works only if the Salome_file managed only one file
+
+      \param source_Salome_file Salome_file that managed the distributed version of the file.
+
+      \exception raised if there is more or less than one file.
+    */
+    void connect(in Engines::Salome_file source_Salome_file) raises (SALOME::SALOME_Exception);
+
+    /*!
+      Connect the managed file file_name to a Salome_file.
+
+      \param file_name name of the file without the path.
+      \param source_Salome_file Salome_file that managed the distributed version of the file.
+
+      \exception raised if the file doesn't exist.
+    */
+    void connectDistributedFile(in string file_name,
+				in Engines::Salome_file source_Salome_file) raises (SALOME::SALOME_Exception);
+    
     /*!
       Connect the file_name with a Distributed file_name.
 

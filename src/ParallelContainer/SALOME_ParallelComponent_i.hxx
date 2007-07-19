@@ -41,6 +41,7 @@
 
 #include "NOTIFICATION.hxx"
 #include "RegistryConnexion.hxx"
+#include "Salome_file_i.hxx"
 
 class Engines_Parallel_Container_i;
 
@@ -98,6 +99,18 @@ public:
 				      CORBA::Boolean isPublished,
 				      CORBA::Boolean& isValidScript);
 
+ virtual Engines::Salome_file_ptr getInputServiceSalome_file(const char* service_name, 
+							     const char* Salome_file_name);
+ virtual Engines::Salome_file_ptr getOutputServiceSalome_file(const char* service_name, 
+							      const char* Salome_file_name);
+
+ virtual void checkInputServiceFiles(const char* service_name);
+ virtual Engines::Salome_file_ptr setInputFileToService(const char* service_name, 
+							const char* Salome_file_name);
+
+ virtual void checkOutputServiceFiles(const char* service_name);
+ virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name, 
+							 const char* Salome_file_name);
 
   // --- local C++ methods
 
@@ -134,6 +147,16 @@ protected:
   RegistryConnexion *_myConnexionToRegistry;
   NOTIFICATION_Supplier* _notifSupplier;
   std::map<std::string,CORBA::Any>_fieldsDict;
+
+  // Map Salome_file_name to Salome_file*
+  typedef std::map<std::string, Salome_file_i*> _t_Salome_file_map;
+  // Map Service_name to  _Salome_file_map
+  typedef std::map<std::string, Engines_Parallel_Component_i::_t_Salome_file_map*> _t_Service_file_map;
+  
+  _t_Service_file_map _Input_Service_file_map;
+  _t_Service_file_map _Output_Service_file_map;
+  _t_Service_file_map::iterator _Service_file_map_it;
+  _t_Salome_file_map::iterator _Salome_file_map_it;
 
   std::string _serviceName ;
   std::string _graphName ;

@@ -32,9 +32,9 @@ extern "C"
 #include "HDFtypes.h"
 }
 #include "HDFcontainerObject.hxx"
-#include <Standard_Macro.hxx>
+#include "HDFexport.hxx"
 
-class Standard_EXPORT HDFgroup : public HDFcontainerObject
+class HDF_EXPORT HDFgroup : public HDFcontainerObject
 {
 private :
   HDFcontainerObject *_father;

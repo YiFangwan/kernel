@@ -2,6 +2,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "HDFascii.hxx"
 
 using namespace std;
 
@@ -73,8 +74,9 @@ int main (int argc, char * argv[])
 
   cerr << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++" << endl;
   cerr << "Test of setDistributedFile()" << endl;
-  file.setDistributedFile("/tmp/toto_distributed", file2_ref);
-  file.setDistributedSourceFile("toto_distributed", "toto_distributed_source");
+  file.setDistributedFile("/tmp/toto_distributed");
+  file.connectDistributedFile("toto_distributed", file2_ref);
+//  file.setDistributedSourceFile("toto_distributed", "toto_distributed_source");
   infos = file.getFileInfos("toto_distributed");
   print_infos(infos);
 
@@ -139,4 +141,14 @@ int main (int argc, char * argv[])
   }
   state = file5.getSalome_fileState();
   print_state(state);
+
+  // Test of ConvertFromHDFToASCII
+  // and ConvertFromASCIIToHDF
+  cerr << "Test of ConvertFromASCIIToHDF" << endl;
+  HDFascii::ConvertFromASCIIToHDF("/tmp/toto"); // RETURN NULL !
+  cerr << "Test of ConvertFromHDFToASCII" << endl;
+  cerr << HDFascii::ConvertFromHDFToASCII("test2.hdf", false) << endl;
+  cerr << HDFascii::ConvertFromHDFToASCII("test2.hdf", true) << endl;
+
+  cerr << "End of tests" << endl;
 }

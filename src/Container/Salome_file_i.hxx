@@ -49,8 +49,12 @@ class CONTAINER_EXPORT Salome_file_i:
 
     // Adding files
     virtual void setLocalFile(const char* comp_file_name);
-    virtual void setDistributedFile(const char* comp_file_name, 
-				    Engines::Salome_file_ptr source_Salome_file);
+    virtual void setDistributedFile(const char* comp_file_name);
+
+    // Configure DistributedFile
+    virtual void connect(Engines::Salome_file_ptr source_Salome_file);
+    virtual void connectDistributedFile(const char * file_name,
+					Engines::Salome_file_ptr source_Salome_file);
     virtual void setDistributedSourceFile(const char* file_name,
 					  const char * source_file_name);
 
@@ -64,7 +68,7 @@ class CONTAINER_EXPORT Salome_file_i:
     virtual void deleteFiles();
 
 
-    // Informations methods
+    // Informations methods:
     virtual Engines::files* getFilesInfos();
     virtual Engines::file* getFileInfos(const char* file_name);
     virtual Engines::SfState* getSalome_fileState();
@@ -80,8 +84,15 @@ class CONTAINER_EXPORT Salome_file_i:
     virtual bool getDistributedFile(std::string file_name);
 
   protected:
+
+    // Contains a relation between a file ID (int) with
+    // a fd descriptor (FILE*) open on the file.
     typedef std::map<int, FILE*> _t_fileAccess;
+
+    // Contains the informations of the files managed by the Salome_file.
     typedef std::map<std::string, Engines::file> _t_fileManaged;
+
+    // Contains the CORBA reference for each distributed file managed.
     typedef std::map<std::string, Engines::Salome_file_var> _t_fileDistributedSource;
 
     int _fileId;

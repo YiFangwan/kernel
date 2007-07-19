@@ -53,7 +53,6 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/Container \
 		 -I$(top_builddir)/salome_adm/unix \
 		 -I$(top_builddir)/idl \
 		 -I$(top_srcdir)/src/SALOMETraceCollector \
-		 @CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
 		 @CORBA_CXXFLAGS@ \
 		 @CORBA_INCLUDES@ \
 		 @PACO_INCLUDES@

@@ -770,3 +770,156 @@ Engines::TMPFile* Engines_Parallel_Component_i::DumpPython(CORBA::Object_ptr the
   isValidScript = true;
   return aStreamFile._retn(); 
 }
+
+Engines::Salome_file_ptr 
+Engines_Parallel_Component_i::getInputServiceSalome_file(const char* service_name, 
+						const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we throw an exception.
+  _Service_file_map_it = _Input_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Input_Service_file_map.end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have salome files";
+    throw SALOME::SALOME_Exception(es);
+  }
+  _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
+
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have this Salome_file";
+    throw SALOME::SALOME_Exception(es);
+  }
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
+
+  return Sfile->_this();
+}
+
+Engines::Salome_file_ptr 
+Engines_Parallel_Component_i::setInputFileToService(const char* service_name, 
+					   const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we add it.
+  _Service_file_map_it = _Input_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Input_Service_file_map.end()) {
+    _t_Salome_file_map * _map = new _t_Salome_file_map();
+    _Input_Service_file_map[service_name] = _map;
+  }
+  _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
+  
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+    Salome_file_i * Sfile = new Salome_file_i();
+    (*_map)[Salome_file_name] = Sfile;
+  }
+  else {
+    // Salome_file_name already added into the service
+    // throw Exception
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "Salome_file_name already added";
+    throw SALOME::SALOME_Exception(es);
+  }
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
+
+  return Sfile->_this();
+}
+
+void 
+Engines_Parallel_Component_i::checkInputServiceFiles(const char* service_name) 
+{
+  // Try to find the service, if it doesn't exist, nothing to do.
+  _Service_file_map_it = _Input_Service_file_map.find(service_name);
+  if (_Service_file_map_it !=  _Input_Service_file_map.end()) {
+    _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
+    _t_Salome_file_map::iterator begin = _map->begin();
+    _t_Salome_file_map::iterator end = _map->end();
+
+    for(;begin!=end;begin++) {
+      Salome_file_i * file = begin->second;
+      file->recvFiles();
+    }
+  }
+
+}
+
+Engines::Salome_file_ptr 
+Engines_Parallel_Component_i::getOutputServiceSalome_file(const char* service_name, 
+						const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we throw an exception.
+  _Service_file_map_it = _Output_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Output_Service_file_map.end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have salome files";
+    throw SALOME::SALOME_Exception(es);
+  }
+  _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
+
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have this Salome_file";
+    throw SALOME::SALOME_Exception(es);
+  }
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
+
+  return Sfile->_this();
+}
+
+Engines::Salome_file_ptr 
+Engines_Parallel_Component_i::setOutputFileToService(const char* service_name, 
+					   const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we add it.
+  _Service_file_map_it = _Output_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Output_Service_file_map.end()) {
+    _t_Salome_file_map * _map = new _t_Salome_file_map();
+    _Output_Service_file_map[service_name] = _map;
+  }
+  _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
+  
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+    Salome_file_i * Sfile = new Salome_file_i();
+    (*_map)[Salome_file_name] = Sfile;
+  }
+  else {
+    // Salome_file_name already added into the service
+    // throw Exception
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "Salome_file_name already added";
+    throw SALOME::SALOME_Exception(es);
+  }
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
+
+  return Sfile->_this();
+}
+
+void 
+Engines_Parallel_Component_i::checkOutputServiceFiles(const char* service_name) 
+{
+  // Try to find the service, if it doesn't exist, nothing to do.
+  _Service_file_map_it = _Output_Service_file_map.find(service_name);
+  if (_Service_file_map_it !=  _Output_Service_file_map.end()) {
+    _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
+    _t_Salome_file_map::iterator begin = _map->begin();
+    _t_Salome_file_map::iterator end = _map->end();
+
+    for(;begin!=end;begin++) {
+      Salome_file_i * file = begin->second;
+      file->recvFiles();
+    }
+  }
+
+}
+

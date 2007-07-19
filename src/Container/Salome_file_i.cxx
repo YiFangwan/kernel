@@ -56,6 +56,12 @@ Salome_file_i::~Salome_file_i()
 {
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::load
+ */
+//=============================================================================
 void 
 Salome_file_i::load(const char* hdf5_file) {
   _state.hdf5_file_name = CORBA::string_dup(hdf5_file);
@@ -218,6 +224,12 @@ Salome_file_i::load(const char* hdf5_file) {
   }
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::save
+ */
+//=============================================================================
 void 
 Salome_file_i::save(const char* hdf5_file) {
   _state.hdf5_file_name = CORBA::string_dup(hdf5_file);
@@ -319,6 +331,12 @@ Salome_file_i::save(const char* hdf5_file) {
   }
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::save_all
+ */
+//=============================================================================
 void 
 Salome_file_i::save_all(const char* hdf5_file) {
 
@@ -444,6 +462,12 @@ Salome_file_i::save_all(const char* hdf5_file) {
   }
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::setLocalFile
+ */
+//=============================================================================
 void 
 Salome_file_i::setLocalFile(const char* comp_file_name)
 {
@@ -499,9 +523,14 @@ Salome_file_i::setLocalFile(const char* comp_file_name)
     _state.files_ok = false;
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::setDistributedFile
+ */
+//=============================================================================
 void 
-Salome_file_i::setDistributedFile(const char* comp_file_name, 
-				  Engines::Salome_file_ptr source_Salome_file)
+Salome_file_i::setDistributedFile(const char* comp_file_name)
 {
   std::string file_name("");
   std::string path("");
@@ -525,17 +554,17 @@ Salome_file_i::setDistributedFile(const char* comp_file_name,
   }
 
   // Test if this file is already added
-  //_t_fileManaged::iterator it = _fileManaged.find(file_name);
-  //if (it != _fileManaged.end()) 
-  //{
-  //  SALOME::ExceptionStruct es;
-  //  es.type = SALOME::INTERNAL_ERROR;
-  //  std::string text = "file already added";
-  //  es.text = CORBA::string_dup(text.c_str());
-  //  throw SALOME::SALOME_Exception(es);
-  //}
+  _t_fileManaged::iterator it = _fileManaged.find(file_name);
+  if (it != _fileManaged.end()) 
+  {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    std::string text = "file already added";
+    es.text = CORBA::string_dup(text.c_str());
+    throw SALOME::SALOME_Exception(es);
+  }
 
-  // Adding file with is informations
+  // Adding file with his informations
   Engines::file infos;
   infos.file_name = CORBA::string_dup(file_name.c_str());
   infos.path = CORBA::string_dup(path.c_str());
@@ -544,33 +573,100 @@ Salome_file_i::setDistributedFile(const char* comp_file_name,
   infos.status = CORBA::string_dup(status.c_str());
 
   _fileManaged[file_name] = infos;
-  _fileDistributedSource[file_name] = Engines::Salome_file::_duplicate(source_Salome_file);
 
   // Update Salome_file state
   _state.number_of_files++;
   _state.files_ok = false;
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::connect
+ */
+//=============================================================================
+void
+Salome_file_i::connect(Engines::Salome_file_ptr source_Salome_file) 
+{
+  // We can connect this Salome_file if there is only one file managed
+  // by the Salome_file
+  std::string fname;
+  if (_fileManaged.size() == 1) 
+  {
+    // only one file managed 
+    _t_fileManaged::iterator it = _fileManaged.begin();
+    fname = it->first;
+    _fileDistributedSource[fname] = Engines::Salome_file::_duplicate(source_Salome_file);
+  }
+  else 
+  {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    std::string text = "cannot connect";
+    es.text = CORBA::string_dup(text.c_str());
+    throw SALOME::SALOME_Exception(es);
+  }
+}
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::connectDistributedFile
+ */
+//=============================================================================
+void
+Salome_file_i::connectDistributedFile(const char * file_name,
+				      Engines::Salome_file_ptr source_Salome_file) 
+{
+  // Test if this file is added
+  _t_fileManaged::iterator it = _fileManaged.find(file_name);
+  if (it == _fileManaged.end()) 
+  {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    std::string text = "file is not added";
+    es.text = CORBA::string_dup(text.c_str());
+    throw SALOME::SALOME_Exception(es);
+  }
+  else 
+  {
+    _fileDistributedSource[file_name] = Engines::Salome_file::_duplicate(source_Salome_file);
+  }
+}
+
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::setDistributedSourceFile
+ */
+//=============================================================================
 void 
 Salome_file_i::setDistributedSourceFile(const char* file_name,
 					const char * source_file_name)
 {
   std::string fname(file_name);
 
-  // Test if this file is managed
+  // Test if this file is added
   _t_fileManaged::iterator it = _fileManaged.find(fname);
   if (it == _fileManaged.end()) 
   {
     SALOME::ExceptionStruct es;
     es.type = SALOME::INTERNAL_ERROR;
-    std::string text = "file is not managed";
+    std::string text = "file is not added";
     es.text = CORBA::string_dup(text.c_str());
     throw SALOME::SALOME_Exception(es);
   }
-
-  _fileManaged[fname].source_file_name = CORBA::string_dup(source_file_name);
+  else 
+  {
+    _fileManaged[fname].source_file_name = CORBA::string_dup(source_file_name);
+  }
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::recvFiles
+ */
+//=============================================================================
 void 
 Salome_file_i::recvFiles() {
   
@@ -582,6 +678,7 @@ Salome_file_i::recvFiles() {
   {
     bool result = true;
     Engines::file file_infos = begin->second;
+    // Test if the file is local or distributed
     if (std::string(file_infos.type.in()) == "local")
     {
       if (std::string(file_infos.status.in()) == "not_ok")
@@ -592,6 +689,8 @@ Salome_file_i::recvFiles() {
       if (std::string(file_infos.status.in()) == "not_ok")
 	result = getDistributedFile(file_infos.file_name.in());
     }
+    // if the result is false
+    // we add this file to files_not_ok
     if (!result) 
     {
       files_not_ok.append(" ");
@@ -607,11 +706,20 @@ Salome_file_i::recvFiles() {
     es.text = CORBA::string_dup(text.c_str());
     throw SALOME::SALOME_Exception(es);
   }
-
-  // We change the state of the Salome_file
-  _state.files_ok = true;
+  else
+  {
+    // We change the state of the Salome_file
+    _state.files_ok = true;
+  }
 }
 
+//=============================================================================
+/*! 
+ *  local C++ method : This method is used by revFiles to check if a local 
+ *  managed file is ok.
+ *  \param  fileName name of the file
+ */
+//=============================================================================
 bool
 Salome_file_i::checkLocalFile(std::string file_name)
 {
@@ -633,6 +741,17 @@ Salome_file_i::checkLocalFile(std::string file_name)
   return result;
 }
 
+//=============================================================================
+/*! 
+ *  local C++ method : this method is used by recvFiles to get a 
+ *  distributed file from is distributed source.
+ *  If there is no source_file_name for the file, it tries to get
+ *  the file from the source. In this case, the source distributed file has to managed
+ *  only one file to be able to the send the file.
+ *
+ *  \param  fileName name of the file
+ */
+//=============================================================================
 bool
 Salome_file_i::getDistributedFile(std::string file_name)
 {
@@ -695,27 +814,57 @@ Salome_file_i::getDistributedFile(std::string file_name)
   return result;
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::removeFile
+ */
+//=============================================================================
 void 
 Salome_file_i::removeFile(const char* file_name) 
 {
   MESSAGE("Salome_file_i::removeFile : NOT YET IMPLEMENTED");
 }
     
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::deleteFile
+ */
+//=============================================================================
 void 
 Salome_file_i::deleteFile(const char* file_name) {
   MESSAGE("Salome_file_i::deleteFile : NOT YET IMPLEMENTED");
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::removeFiles
+ */
+//=============================================================================
 void 
 Salome_file_i::removeFiles() {
   MESSAGE("Salome_file_i::removeFiles : NOT YET IMPLEMENTED");
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::deleteFiles
+ */
+//=============================================================================
 void 
 Salome_file_i::deleteFiles() {
   MESSAGE("Salome_file_i::deleteFiles : NOT YET IMPLEMENTED");
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::recvFiles
+ */
+//=============================================================================
 Engines::files* 
 Salome_file_i::getFilesInfos() {
 
@@ -732,6 +881,12 @@ Salome_file_i::getFilesInfos() {
   return infos;
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::getFileInfos
+ */
+//=============================================================================
 Engines::file* 
 Salome_file_i::getFileInfos(const char* file_name) {
 
@@ -751,6 +906,12 @@ Salome_file_i::getFileInfos(const char* file_name) {
   return infos;
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method
+ * \see Engines::Salome_file::getSalome_fileState
+ */
+//=============================================================================
 Engines::SfState* 
 Salome_file_i::getSalome_fileState() 
 {
@@ -761,7 +922,7 @@ Salome_file_i::getSalome_fileState()
 /*! 
  *  CORBA method: try to open the file given. If the file is readable, return
  *  a positive integer else return 0;
- *  \param  fileName path to the file to be transfered
+ *  \param  fileName file name to be transfered
  *  \return fileId = positive integer > 0 if open OK.
  */
 //=============================================================================
@@ -772,14 +933,31 @@ Salome_file_i::open(const char* file_name)
   int aKey = 0;
 
   std::string fname(file_name);
+  if (fname == "") {
+    // We enter in the simple case where the user
+    // has not used setDistributedSourceFile.
+    // In this case we try to see if the Salome_file
+    if (_fileManaged.size() == 1) 
+    {
+      // only one file managed 
+      _t_fileManaged::iterator it = _fileManaged.begin();
+      fname = it->first;
+    }
+    else
+    {
+      // we can't choose the file so :
+      return aKey;
+    }
+  }
+
   _t_fileManaged::iterator it = _fileManaged.find(fname);
   if (it == _fileManaged.end())
   {
     return aKey;
   }
   
-  std::string comp_file_name(_fileManaged[file_name].path.in());
-  comp_file_name.append(_fileManaged[file_name].file_name.in());
+  std::string comp_file_name(_fileManaged[fname].path.in());
+  comp_file_name.append(fname);
   MESSAGE("Salome_file_i::open " << comp_file_name);
   FILE* fp;
   if ((fp = fopen(comp_file_name.c_str(),"rb")) == NULL)

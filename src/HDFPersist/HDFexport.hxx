@@ -1,6 +1,4 @@
-//  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
-//
-//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  Copyright (C) 2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
 //  This library is free software; you can redistribute it and/or 
@@ -17,34 +15,25 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
 //
 //
 //
-//  File   : HDFinternalObject.hxx
+//  File   : HDFexport.hxx
+//  Author : Andre Ribes - EDF R&D
 //  Module : SALOME
 
-#ifndef HDFINTERNALOBJECT_HXX
-#define HDFINTERNALOBJECT_HXX
+#ifndef _HDF_export_HXX_
+#define _HDF_export_HXX_
 
-extern "C"
-{
-#include "HDFtypes.h"
-}
-#include "HDFobject.hxx"
-#include "HDFexport.hxx"
+#ifdef WNT
+  #if defined WIN32
+   #define HDF_EXPORT __declspec( dllimport )
+  #else
+   #define HDF_EXPORT
+  #endif
+#else
+ #define HDF_EXPORT
+#endif
 
-class HDF_EXPORT HDFinternalObject : public HDFobject
-{
-private :
-  HDFinternalObject *_previousbrother;
-  HDFinternalObject *_nextbrother;
-public :
-  HDFinternalObject(char *name);
-
-  HDFinternalObject *GetPreviousBrother();
-  HDFinternalObject *GetNextBrother();
-  void SetPreviousBrother(HDFinternalObject *previous);
-  void SetNextBrother(HDFinternalObject *next);
-};
 #endif

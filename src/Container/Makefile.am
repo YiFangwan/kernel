@@ -64,7 +64,6 @@ dist_salomescript_SCRIPTS=\
 COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
 	@MPI_INCLUDES@ \
-	@CAS_CPPFLAGS@ @CAS_CXXFLAGS@ \
 	@QT_MT_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
