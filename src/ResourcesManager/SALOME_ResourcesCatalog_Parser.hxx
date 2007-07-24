@@ -38,6 +38,8 @@ enum AccessProtocolType {rsh, ssh};
 
 enum AccessModeType {interactive, batch};
 
+enum BatchType {none, pbs, lsf, slurm};
+
 class ResourceDataToSort
   {
 
@@ -72,6 +74,7 @@ struct ParserResourcesType
     std::string Alias;
     AccessProtocolType Protocol;
     AccessModeType Mode;
+    BatchType Batch;
     std::string UserName;
     std::string AppliPath;
     std::vector<std::string> ModulesList;

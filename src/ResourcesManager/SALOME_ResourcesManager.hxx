@@ -79,7 +79,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 				const Engines::FilesList& filesToExport ,
 				const Engines::FilesList& filesToImport ,
 				const CORBA::Long NumberOfProcessors ,
-				const Engines::MachineParameters& params);
+				const Engines::MachineParameters& params) throw(SALOME_Exception);
 
     std::string querySalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params) throw(SALOME_Exception);
     void deleteSalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params) throw(SALOME_Exception);
@@ -116,7 +116,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
   protected:
     SALOME_NamingService *_NS;
-    std::map <std::string,const BatchLight::BatchManager*> _batchmap;
+    std::map <std::string,BatchLight::BatchManager*> _batchmap;
 
     std::string BuildTempFileToLaunchRemoteContainer
     (const std::string& machine,
@@ -136,6 +136,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     std::string BuildTemporaryFileName() const;
 
+    BatchLight::BatchManager *FactoryBatchManager( const ParserResourcesType& resInfo ) throw(SALOME_Exception);
 
     //! will contain the path to the ressources catalog
     QString _path_resources;

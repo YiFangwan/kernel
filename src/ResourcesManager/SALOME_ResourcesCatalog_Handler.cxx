@@ -54,6 +54,7 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources):
   test_alias = "alias";
   test_protocol = "protocol";
   test_mode = "mode";
+  test_batch = "batch";
   test_user_name = "userName";
   test_appli_path = "appliPath";
   test_modules = "modules";
@@ -176,6 +177,18 @@ startElement( const QString&,
               _resource.Mode = interactive;
               break;
             }
+        }
+
+      if ((qName.compare(QString(test_batch)) == 0))
+        {
+	  if( content.compare("pbs") == 0 )
+	    _resource.Batch = pbs;
+	  else if( content.compare("lsf") == 0 )
+	    _resource.Batch = lsf;
+	  else if( content.compare("slurm") == 0 )
+	    _resource.Batch = slurm;
+	  else
+	    _resource.Batch = none;
         }
 
       if ((qName.compare(QString(test_user_name)) == 0))
@@ -363,6 +376,25 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(QDomDocument& doc)
 
         default:
           eltRoot.setAttribute((char *)test_mode, "interactive");
+        }
+
+      switch ((*iter).second.Batch)
+        {
+
+        case pbs:
+          eltRoot.setAttribute((char *)test_batch, "pbs");
+          break;
+
+        case lsf:
+          eltRoot.setAttribute((char *)test_batch, "lsf");
+          break;
+
+        case slurm:
+          eltRoot.setAttribute((char *)test_batch, "slurm");
+          break;
+
+        default:
+          eltRoot.setAttribute((char *)test_batch, "");
         }
 
       eltRoot.setAttribute((char *)test_user_name,

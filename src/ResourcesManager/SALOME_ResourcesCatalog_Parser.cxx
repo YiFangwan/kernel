@@ -124,6 +124,7 @@ void ParserResourcesType::Print() const
     "MemInMB : " << DataForSort._memInMB << endl <<
     "Protocol : " << Protocol << endl <<
     "Mode : " << Mode << endl <<
+    "Batch : " << Batch << endl <<
     "UserName : " << UserName << endl <<
     "AppliPath : " << AppliPath << endl <<
     "OS : " << OS << endl <<
@@ -146,6 +147,7 @@ void ParserResourcesType::Clear()
   Alias = "";
   Protocol = rsh;
   Mode = interactive;
+  Batch = none;
   UserName = "";
   AppliPath = "";
   ModulesList.clear();

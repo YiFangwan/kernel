@@ -102,7 +102,7 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb)
 SALOME_ResourcesManager::~SALOME_ResourcesManager()
 {
   delete _NS;
-  std::map < string, const BatchLight::BatchManager * >::const_iterator it;
+  std::map < string, BatchLight::BatchManager * >::const_iterator it;
   for(it=_batchmap.begin();it!=_batchmap.end();it++)
     delete it->second;
 }
@@ -526,7 +526,7 @@ CORBA::Long SALOME_ResourcesManager::submitSalomeJob( const char * fileToExecute
 						      const Engines::FilesList& filesToExport ,
 						      const Engines::FilesList& filesToImport ,
 						      const CORBA::Long NumberOfProcessors ,
-						      const Engines::MachineParameters& params)
+						      const Engines::MachineParameters& params) throw(SALOME_Exception)
 {
   BEGIN_OF("SALOME_ResourcesManager::submitSalomeJob");
   CORBA::Long jobId;
@@ -538,30 +538,46 @@ CORBA::Long SALOME_ResourcesManager::submitSalomeJob( const char * fileToExecute
   string clustername = resInfo.Alias;
 
   // search batch manager for that cluster in map or instanciate one
-  std::map < string, const BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
-  if(it == _batchmap.end()){
-    // define structure for batch manager
-    BatchLight::batchParams p;
-    p.hostname = clustername;
-    if( resInfo.Protocol == rsh )
-      p.protocol = "rsh";
-    else if( resInfo.Protocol == ssh )
-      p.protocol = "ssh";
-    else
-      throw SALOME_Exception("Unknown protocol");
-    p.username = resInfo.UserName;
-    p.applipath = resInfo.AppliPath;
-    p.modulesList = resInfo.ModulesList;
-    _batchmap[clustername] = new BatchLight::BatchManager_SLURM(p);
-  }
-  BatchLight::BatchManager_SLURM* bms = (BatchLight::BatchManager_SLURM*)_batchmap[clustername];
+  std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+  if(it == _batchmap.end())
+    _batchmap[clustername] = FactoryBatchManager( resInfo );
 
   // submit job on cluster
   BatchLight::Job* job = new BatchLight::Job( fileToExecute, filesToExport, filesToImport, NumberOfProcessors );
-  jobId = bms->submitJob(job);
+  jobId = _batchmap[clustername]->submitJob(job);
 
   return(jobId);
   END_OF("SALOME_ResourcesManager::submitSalomeJob");
+}
+
+//=============================================================================
+/*!
+ *  Factory to instanciate the good batch manager for choosen cluster.
+ */ 
+//=============================================================================
+
+BatchLight::BatchManager *SALOME_ResourcesManager::FactoryBatchManager( const ParserResourcesType& resInfo ) throw(SALOME_Exception)
+{
+  // Fill structure for batch manager
+  BatchLight::batchParams p;
+  p.hostname = resInfo.Alias;
+  if( resInfo.Protocol == rsh )
+    p.protocol = "rsh";
+  else if( resInfo.Protocol == ssh )
+    p.protocol = "ssh";
+  else
+    throw SALOME_Exception("Unknown protocol");
+  p.username = resInfo.UserName;
+  p.applipath = resInfo.AppliPath;
+  p.modulesList = resInfo.ModulesList;
+
+  switch( resInfo.Batch ){
+  case slurm:
+    return new BatchLight::BatchManager_SLURM(p);
+  default:
+    MESSAGE("BATCH = " << resInfo.Batch);
+    throw SALOME_Exception("no batchmanager for that cluster");
+  }
 }
 
 //=============================================================================
@@ -582,13 +598,11 @@ string SALOME_ResourcesManager::querySalomeJob( const CORBA::Long jobId, const E
   string clustername = resInfo.Alias;
 
   // search batch manager for that cluster in map
-  std::map < string, const BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+  std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
   if(it == _batchmap.end())
     throw SALOME_Exception("no batchmanager for that cluster");
 
-  BatchLight::BatchManager_SLURM* bms = (BatchLight::BatchManager_SLURM*)_batchmap[clustername];
-
-  status = bms->queryJob(jobId);
+  status = _batchmap[clustername]->queryJob(jobId);
   return(status);
 }
 
@@ -609,13 +623,11 @@ void SALOME_ResourcesManager::deleteSalomeJob( const CORBA::Long jobId, const En
   string clustername = resInfo.Alias;
 
   // search batch manager for that cluster in map
-  std::map < string, const BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+  std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
   if(it == _batchmap.end())
     throw SALOME_Exception("no batchmanager for that cluster");
 
-  BatchLight::BatchManager_SLURM* bms = (BatchLight::BatchManager_SLURM*)_batchmap[clustername];
-
-  bms->deleteJob(jobId);
+  _batchmap[clustername]->deleteJob(jobId);
 }
 
 //=============================================================================
@@ -636,13 +648,11 @@ void SALOME_ResourcesManager::getResultSalomeJob( const char *directory,
   string clustername = resInfo.Alias;
 
   // search batch manager for that cluster in map
-  std::map < string, const BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+  std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
   if(it == _batchmap.end())
     throw SALOME_Exception("no batchmanager for that cluster");
 
-  BatchLight::BatchManager_SLURM* bms = (BatchLight::BatchManager_SLURM*)_batchmap[clustername];
-
-  bms->importOutputFiles( directory, jobId );
+  _batchmap[clustername]->importOutputFiles( directory, jobId );
 }
 
 //=============================================================================
