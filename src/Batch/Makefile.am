@@ -212,7 +212,7 @@ libSalomeBatch_la_CPPFLAGS = \
 	-I$(srcdir)/../Utils \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
-	$(LIB_CPPFLAGS)
+	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ $(LIB_CPPFLAGS)
 
 libSalomeBatch_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSalomeBatch_la_LIBADD   = \

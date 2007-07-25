@@ -78,19 +78,19 @@ int main (int argc, char * argv[])
   for(int i=0;i<10;i++){
     sprintf(st,"cycl_%d",i);
     p.container_name = CORBA::string_dup(st);
-    cont = _ContManager->StartContainer(p,Engines::P_CYCL,clist);
+    cont = _ContManager->GiveContainer(p,Engines::P_CYCL,clist);
     if(CORBA::is_nil(cont)) error = true;
   }
 
   for(int i=0;i<10;i++){
     sprintf(st,"first_%d",i);
     p.container_name = CORBA::string_dup(st);
-    cont = _ContManager->StartContainer(p,Engines::P_FIRST,clist);
+    cont = _ContManager->GiveContainer(p,Engines::P_FIRST,clist);
     if(CORBA::is_nil(cont)) error = true;
   }
 
   p.container_name = CORBA::string_dup("best");
-  cont = _ContManager->StartContainer(p,Engines::P_BEST,clist);
+  cont = _ContManager->GiveContainer(p,Engines::P_BEST,clist);
   if(CORBA::is_nil(cont)) bestImplemented = false;
   else bestImplemented = true;
 
