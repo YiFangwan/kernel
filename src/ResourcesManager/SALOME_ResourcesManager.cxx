@@ -17,6 +17,8 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+#include "BatchLight_BatchManager_PBS.hxx"
+#include "BatchLight_BatchManager_SLURM.hxx"
 #include "SALOME_ResourcesManager.hxx" 
 #include "BatchLight_Job.hxx"
 #include "Utils_ExceptHandlers.hxx"
@@ -570,8 +572,22 @@ BatchLight::BatchManager *SALOME_ResourcesManager::FactoryBatchManager( const Pa
   p.username = resInfo.UserName;
   p.applipath = resInfo.AppliPath;
   p.modulesList = resInfo.ModulesList;
+  p.nbnodes = resInfo.DataForSort._nbOfNodes;
+  p.nbprocpernode = resInfo.DataForSort._nbOfProcPerNode;
+  if( resInfo.mpi == indif )
+    p.mpiImpl = "indif";
+  else if( resInfo.mpi == lam )
+    p.mpiImpl = "lam";
+  else if( resInfo.mpi == mpich1 )
+    p.mpiImpl = "mpich1";
+  else if( resInfo.mpi == mpich2 )
+    p.mpiImpl = "mpich2";
+  else
+    throw SALOME_Exception("Unknown mpi implementation");
 
   switch( resInfo.Batch ){
+  case pbs:
+    return new BatchLight::BatchManager_PBS(p);
   case slurm:
     return new BatchLight::BatchManager_SLURM(p);
   default:

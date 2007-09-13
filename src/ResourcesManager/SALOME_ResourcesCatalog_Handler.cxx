@@ -55,6 +55,7 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources):
   test_protocol = "protocol";
   test_mode = "mode";
   test_batch = "batch";
+  test_mpi = "mpi";
   test_user_name = "userName";
   test_appli_path = "appliPath";
   test_modules = "modules";
@@ -191,7 +192,19 @@ startElement( const QString&,
 	    _resource.Batch = none;
         }
 
-      if ((qName.compare(QString(test_user_name)) == 0))
+       if ((qName.compare(QString(test_mpi)) == 0))
+        {
+	  if( content.compare("lam") == 0 )
+	    _resource.mpi = lam;
+	  else if( content.compare("mpich1") == 0 )
+	    _resource.mpi = mpich1;
+	  else if( content.compare("mpich2") == 0 )
+	    _resource.mpi = mpich2;
+	  else
+	    _resource.mpi = indif;
+        }
+
+     if ((qName.compare(QString(test_user_name)) == 0))
         _resource.UserName = content;
 
       if ((qName.compare(QString(test_appli_path)) == 0))
@@ -395,6 +408,25 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(QDomDocument& doc)
 
         default:
           eltRoot.setAttribute((char *)test_batch, "");
+        }
+
+      switch ((*iter).second.mpi)
+        {
+
+        case pbs:
+          eltRoot.setAttribute((char *)test_mpi, "lam");
+          break;
+
+        case lsf:
+          eltRoot.setAttribute((char *)test_mpi, "mpich1");
+          break;
+
+        case slurm:
+          eltRoot.setAttribute((char *)test_mpi, "mpich2");
+          break;
+
+        default:
+          eltRoot.setAttribute((char *)test_mpi, "");
         }
 
       eltRoot.setAttribute((char *)test_user_name,

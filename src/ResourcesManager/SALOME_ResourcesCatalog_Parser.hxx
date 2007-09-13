@@ -40,6 +40,8 @@ enum AccessModeType {interactive, batch};
 
 enum BatchType {none, pbs, lsf, slurm};
 
+enum mpiImpl {indif, lam, mpich1, mpich2};
+
 class ResourceDataToSort
   {
 
@@ -75,6 +77,7 @@ struct ParserResourcesType
     AccessProtocolType Protocol;
     AccessModeType Mode;
     BatchType Batch;
+    mpiImpl mpi;
     std::string UserName;
     std::string AppliPath;
     std::vector<std::string> ModulesList;

@@ -34,6 +34,7 @@
 #include <string>
 #include "Utils_SALOME_Exception.hxx"
 #include <SALOMEconfig.h>
+#include <stdlib.h>
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 
 namespace BatchLight {
@@ -46,6 +47,9 @@ namespace BatchLight {
     std::string username; // username d'acces au serveur
     std::string applipath; // path of apllication directory on server
     std::vector<std::string> modulesList; // list of Salome modules installed on server
+    unsigned int nbnodes; // number of nodes on cluster
+    unsigned int nbprocpernode; // number of processors on each node
+    std::string mpiImpl; // mpi implementation
   };
 
   class BatchManager
@@ -56,7 +60,7 @@ namespace BatchLight {
     virtual ~BatchManager();
 
     // Methodes pour le controle des jobs : virtuelles pures
-    virtual const int submitJob(BatchLight::Job* job) = 0; // soumet un job au gestionnaire
+    const int submitJob(BatchLight::Job* job); // soumet un job au gestionnaire
     virtual void deleteJob(const int & jobid) = 0; // retire un job du gestionnaire
     virtual std::string queryJob(const int & jobid) = 0; // renvoie l'etat du job
     void importOutputFiles( const char *directory, const CORBA::Long jobId ) throw(SALOME_Exception);
@@ -69,6 +73,7 @@ namespace BatchLight {
     std::string _TmpFileName;
     std::string _fileNameToExecute;
 
+    virtual int submit() throw(SALOME_Exception) = 0;
     void setDirForTmpFiles();
     void exportInputFiles( const char *fileToExecute, const Engines::FilesList filesToExportList ) throw(SALOME_Exception);
     virtual void buildSalomeCouplingScript( const char *fileToExecute ) throw(SALOME_Exception) = 0;

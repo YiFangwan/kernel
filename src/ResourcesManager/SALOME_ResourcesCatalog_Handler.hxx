@@ -83,6 +83,7 @@ class SALOME_ResourcesCatalog_Handler : public QXmlDefaultHandler
     const char *test_protocol;
     const char *test_mode;
     const char *test_batch;
+    const char *test_mpi;
     const char *test_user_name;
     const char *test_appli_path;
     const char *test_modules;

@@ -125,6 +125,7 @@ void ParserResourcesType::Print() const
     "Protocol : " << Protocol << endl <<
     "Mode : " << Mode << endl <<
     "Batch : " << Batch << endl <<
+    "mpi : " << mpi << endl <<
     "UserName : " << UserName << endl <<
     "AppliPath : " << AppliPath << endl <<
     "OS : " << OS << endl <<
@@ -148,6 +149,7 @@ void ParserResourcesType::Clear()
   Protocol = rsh;
   Mode = interactive;
   Batch = none;
+  mpi = indif;
   UserName = "";
   AppliPath = "";
   ModulesList.clear();

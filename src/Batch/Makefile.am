@@ -61,6 +61,7 @@ LIB_INCLUDES = \
 	Batch_StringType.hxx \
 	Batch_TypeMismatchException.hxx \
 	BatchLight_BatchManager.hxx \
+	BatchLight_BatchManager_PBS.hxx \
 	BatchLight_BatchManager_SLURM.hxx \
 	BatchLight_Job.hxx
 
@@ -97,6 +98,7 @@ LIB_SRC = \
 	Batch_TypeMismatchException.cxx \
 	BatchLight_BatchManager.cxx \
 	BatchLight_BatchManager_SLURM.cxx \
+	BatchLight_BatchManager_PBS.cxx \
 	BatchLight_Job.cxx
 
 

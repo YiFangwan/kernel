@@ -26,8 +26,8 @@
  *
  */
 
-#ifndef _BL_BATCHMANAGER_SLURM_H_
-#define _BL_BATCHMANAGER_SLURM_H_
+#ifndef _BL_BATCHMANAGER_PBS_H_
+#define _BL_BATCHMANAGER_PBS_H_
 
 #include <string>
 #include "Utils_SALOME_Exception.hxx"
@@ -37,24 +37,25 @@ namespace BatchLight {
 
   class Job;
 
-  class BatchManager_SLURM : public BatchManager
+  class BatchManager_PBS : public BatchManager
   {
   public:
     // Constructeur et destructeur
-    BatchManager_SLURM(const batchParams& p) throw(SALOME_Exception); // connexion a la machine host
-    virtual ~BatchManager_SLURM();
+    BatchManager_PBS(const batchParams& p) throw(SALOME_Exception); // connexion a la machine host
+    virtual ~BatchManager_PBS();
 
     // Methodes pour le controle des jobs : virtuelles pures
     void deleteJob(const int & jobid); // retire un job du gestionnaire
     std::string queryJob(const int & jobid); // renvoie l'etat du job
 
-  protected:
+  private:
     void buildSalomeCouplingScript( const char *fileToExecute ) throw(SALOME_Exception);
     void buildSalomeBatchScript( const int nbproc ) throw(SALOME_Exception);
     int submit() throw(SALOME_Exception);
-
-  private:
-
+    std::string mpiRank() throw(SALOME_Exception);
+    std::string mpiSize() throw(SALOME_Exception);
+    std::string mpiBoot() throw(SALOME_Exception);
+    std::string mpiHalt() throw(SALOME_Exception);
   };
 
 }

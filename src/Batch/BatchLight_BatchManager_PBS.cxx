@@ -26,7 +26,7 @@
  *
  */
 
-#include "BatchLight_BatchManager_SLURM.hxx"
+#include "BatchLight_BatchManager_PBS.hxx"
 #include "utilities.h"
 #include "BatchLight_Job.hxx"
 #include <fstream>
@@ -39,20 +39,20 @@ using namespace std;
 namespace BatchLight {
 
   // Constructeur
-  BatchManager_SLURM::BatchManager_SLURM(const batchParams& p) throw(SALOME_Exception) : BatchManager(p)
+  BatchManager_PBS::BatchManager_PBS(const batchParams& p) throw(SALOME_Exception) : BatchManager(p)
   {
   }
 
   // Destructeur
-  BatchManager_SLURM::~BatchManager_SLURM()
+  BatchManager_PBS::~BatchManager_PBS()
   {
-    MESSAGE("BatchManager_SLURM destructor "<<_params.hostname);
+    MESSAGE("BatchManager_PBS destructor "<<_params.hostname);
   }
 
   // Methode pour le controle des jobs : retire un job du gestionnaire
-  void BatchManager_SLURM::deleteJob(const int & jobid)
+  void BatchManager_PBS::deleteJob(const int & jobid)
   {
-    BEGIN_OF("BatchManager_SLURM::deleteJob");
+    BEGIN_OF("BatchManager_PBS::deleteJob");
     string command;
     int status;
     ostringstream oss;
@@ -72,7 +72,7 @@ namespace BatchLight {
     }
 
     command += _params.hostname;
-    command += " \"bkill " ;
+    command += " \"qdel " ;
     command += oss.str();
     command += "\"";
     SCRUTE(command.c_str());
@@ -81,14 +81,15 @@ namespace BatchLight {
       throw SALOME_Exception("Error of connection on remote host");
 
     MESSAGE("jobId = " << jobid << "killed");
-    END_OF("BatchManager_SLURM::deleteJob");
+    END_OF("BatchManager_PBS::deleteJob");
   }
    
   // Methode pour le controle des jobs : renvoie l'etat du job
-  string BatchManager_SLURM::queryJob(const int & jobid)
+  string BatchManager_PBS::queryJob(const int & jobid)
   {
-    BEGIN_OF("BatchManager_SLURM::queryJob");
+    BEGIN_OF("BatchManager_PBS::queryJob");
     // define name of log file
+    string jstatus;
     string logFile="/tmp/logs/";
     logFile += getenv("USER");
     logFile += "/batchSalome_";
@@ -117,7 +118,7 @@ namespace BatchLight {
     }
 
     command += _params.hostname;
-    command += " \"bjobs " ;
+    command += " \"qstat -f " ;
     ostringstream oss2;
     oss2 << jobid;
     command += oss2.str();
@@ -125,27 +126,44 @@ namespace BatchLight {
     command += logFile;
     SCRUTE(command.c_str());
     status = system(command.c_str());
-    if(status)
+    if(status && status != 153 && status != 256*153){
+      MESSAGE("status="<<status);
       throw SALOME_Exception("Error of connection on remote host");
+    }
 
-    // read staus of job in log file
-    char line[128];
-    ifstream fp(logFile.c_str(),ios::in);
-    fp.getline(line,80,'\n');
-    
-    string sjobid, username, jstatus;
-    fp >> sjobid;
-    fp >> username;
-    fp >> jstatus;
+    if(status == 153 || status == 256*153 )
+      // If job is finished qstat command return 153 status
+      jstatus = "D";
+    else{
+      // read status of job in log file
+      char line[128];
+      ifstream fp(logFile.c_str(),ios::in);
+      
+      string sline;
+      int pos = string::npos;
+      while( (pos == string::npos) && fp.getline(line,80,'\n') ){
+	sline = string(line);
+	pos = sline.find("job_state");
+      };
+      
+      if(pos!=string::npos){
+	istringstream iss(sline);
+	iss >> jstatus;
+	iss >> jstatus;
+	iss >> jstatus;
+      }
+      else
+	jstatus = "U";
+    }
 
     MESSAGE("jobId = " << jobid << " " << jstatus);
-    END_OF("BatchManager_SLURM::queryJob");
+    END_OF("BatchManager_PBS::queryJob");
     return jstatus;
   }
 
-  void BatchManager_SLURM::buildSalomeCouplingScript( const char *fileToExecute ) throw(SALOME_Exception)
+  void BatchManager_PBS::buildSalomeCouplingScript( const char *fileToExecute ) throw(SALOME_Exception)
   {
-    BEGIN_OF("BatchManager_SLURM::buildSalomeCouplingScript");
+    BEGIN_OF("BatchManager_PBS::buildSalomeCouplingScript");
     int status;
     int lenf = strlen( fileToExecute ) ;
     int i = lenf-1 ;
@@ -167,7 +185,9 @@ namespace BatchLight {
     tempOutputFile << "export PYTHONPATH=~/" ;
     tempOutputFile << _dirForTmpFiles ;
     tempOutputFile << ":$PYTHONPATH" << endl ;
-    tempOutputFile << "if test $SLURM_PROCID = 0; then" << endl ;
+    tempOutputFile << "if test " ;
+    tempOutputFile << mpiRank() ;
+    tempOutputFile << " = 0; then" << endl ;
     tempOutputFile << "  ./runAppli --terminal --batch --modules=" ;
     for ( i = 0 ; i < _params.modulesList.size() ; i++ ) {
       tempOutputFile << _params.modulesList[i] ;
@@ -175,7 +195,9 @@ namespace BatchLight {
 	tempOutputFile << "," ;
     }
     tempOutputFile << " --standalone=registry,study,moduleCatalog --killall &" << endl ;
-    tempOutputFile << "  for ((ip=1; ip < ${SLURM_NPROCS} ; ip++))" << endl;
+    tempOutputFile << "  for ((ip=1; ip < ";
+    tempOutputFile << mpiSize();
+    tempOutputFile << " ; ip++))" << endl;
     tempOutputFile << "  do" << endl ;
     tempOutputFile << "    arglist=\"$arglist YACS_Server_\"$ip" << endl ;
     tempOutputFile << "  done" << endl ;
@@ -186,7 +208,8 @@ namespace BatchLight {
     tempOutputFile << "else" << endl ;
     tempOutputFile << "  sleep 5" << endl ;
     tempOutputFile << "  ./runSession waitNS.py" << endl ;
-    tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'${SLURM_PROCID}" << endl ;
+    tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'";
+    tempOutputFile << mpiRank() << endl ;
     tempOutputFile << "fi" << endl ;
     tempOutputFile.flush();
     tempOutputFile.close();
@@ -219,26 +242,40 @@ namespace BatchLight {
       throw SALOME_Exception("Error of connection on remote host");    
     RmTmpFile();
     
-    END_OF("BatchManager_SLURM::buildSalomeCouplingScript");
+    END_OF("BatchManager_PBS::buildSalomeCouplingScript");
   }
 
-  void BatchManager_SLURM::buildSalomeBatchScript( const int nbproc ) throw(SALOME_Exception)
+  void BatchManager_PBS::buildSalomeBatchScript( const int nbproc ) throw(SALOME_Exception)
   {
-    BEGIN_OF("BatchManager_SLURM::buildSalomeBatchScript");
+    BEGIN_OF("BatchManager_PBS::buildSalomeBatchScript");
     int status;
+
+    int nbmaxproc = _params.nbnodes * _params.nbprocpernode;
+    if( nbproc > nbmaxproc ){
+      MESSAGE(nbproc << " processors asked on a cluster of " << nbmaxproc << " processors");
+      throw SALOME_Exception("Too much processors asked for that cluster");
+    }
+
+    int nbnodes;
+    if( nbproc < _params.nbnodes )
+      nbnodes = nbproc;
+    else
+      nbnodes = _params.nbnodes;
+
     _TmpFileName = BuildTemporaryFileName();
     ofstream tempOutputFile;
     tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
 
     tempOutputFile << "#! /bin/sh -f" << endl ;
-    tempOutputFile << "#BSUB -n  " ;
-    tempOutputFile << nbproc << endl ;
-    tempOutputFile << "#BSUB -o runSalome.log%J" << endl ;
-    tempOutputFile << "mpirun -srun ~/" ;
+    tempOutputFile << "#PBS -l nodes=" << nbnodes << endl ;
+    tempOutputFile << "#PBS -o runSalome.log" << endl ;
+    tempOutputFile << mpiBoot() << endl ;
+    tempOutputFile << "mpirun -np " << nbproc << " ~/" ;
     tempOutputFile << _dirForTmpFiles ;
     tempOutputFile << "/runSalome_" ;
     tempOutputFile << _fileNameToExecute ;
     tempOutputFile << "_Batch.sh" << endl ;
+    tempOutputFile << mpiHalt() << endl ;
     tempOutputFile.flush();
     tempOutputFile.close();
     chmod(_TmpFileName.c_str(), 0x1ED);
@@ -269,13 +306,13 @@ namespace BatchLight {
       throw SALOME_Exception("Error of connection on remote host");    
 
     RmTmpFile();
-    END_OF("BatchManager_SLURM::buildSalomeBatchScript");
+    END_OF("BatchManager_PBS::buildSalomeBatchScript");
     
   }
 
-  int BatchManager_SLURM::submit() throw(SALOME_Exception)
+  int BatchManager_PBS::submit() throw(SALOME_Exception)
   {
-    BEGIN_OF("BatchManager_SLURM::submit");
+    BEGIN_OF("BatchManager_PBS::submit");
 
     // define name of log file
     string logFile="/tmp/logs/";
@@ -306,7 +343,7 @@ namespace BatchLight {
     }
 
     command += _params.hostname;
-    command += " \"bsub < " ;
+    command += " \"qsub " ;
     command += _dirForTmpFiles ;
     command += "/" ;
     command += _fileNameToExecute ;
@@ -324,16 +361,63 @@ namespace BatchLight {
     fclose(fp);
     
     string sline(line);
-    int p1 = sline.find("<");
-    int p2 = sline.find(">");
-    string strjob = sline.substr(p1+1,p2-p1-1);
+    int pos = sline.find(".");
+    string strjob;
+    if(pos == string::npos)
+      strjob = sline;
+    else
+      strjob = sline.substr(0,pos);
 
     int id;
     istringstream iss(strjob);
     iss >> id;
 
-    END_OF("BatchManager_SLURM::submit");
+    END_OF("BatchManager_PBS::submit");
     return id;
+  }
+
+  std::string BatchManager_PBS::mpiRank() throw(SALOME_Exception)
+  {
+    if(_params.mpiImpl == "indif")
+      throw SALOME_Exception("You have to specify MPI implementation in CatalogResources.xml file");
+    else if(_params.mpiImpl == "lam")
+      return "${LAMRANK}";
+    else
+      throw SALOME_Exception("not yet implemented");
+  }
+
+  std::string BatchManager_PBS::mpiSize() throw(SALOME_Exception)
+  {
+    if(_params.mpiImpl == "indif")
+      throw SALOME_Exception("You have to specify MPI implementation in CatalogResources.xml file");
+    else if(_params.mpiImpl == "lam")
+      return "${LAMWORLD}";
+    else
+      throw SALOME_Exception("not yet implemented");
+  }
+
+  std::string BatchManager_PBS::mpiBoot() throw(SALOME_Exception)
+  {
+    if(_params.mpiImpl == "indif")
+      throw SALOME_Exception("You have to specify MPI implementation in CatalogResources.xml file");
+    else if(_params.mpiImpl == "lam")
+      return "lamboot ${PBS_NODEFILE}";
+    else if(_params.mpiImpl == "mpich1")
+      return "";
+    else
+      throw SALOME_Exception("not yet implemented");
+  }
+
+  std::string BatchManager_PBS::mpiHalt() throw(SALOME_Exception)
+  {
+    if(_params.mpiImpl == "indif")
+      throw SALOME_Exception("You have to specify MPI implementation in CatalogResources.xml file");
+    else if(_params.mpiImpl == "lam")
+      return "lamhalt";
+    else if(_params.mpiImpl == "mpich1")
+      return "";
+    else
+      throw SALOME_Exception("not yet implemented");
   }
 
 }

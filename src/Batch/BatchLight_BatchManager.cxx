@@ -55,7 +55,38 @@ namespace BatchLight {
   // Destructeur
   BatchManager::~BatchManager()
   {
-    // Nothing to do
+    MESSAGE("BatchManager destructor "<<_params.hostname);
+    std::map < int, const BatchLight::Job * >::const_iterator it;
+    for(it=_jobmap.begin();it!=_jobmap.end();it++)
+      delete it->second; 
+  }
+
+  // Methode pour le controle des jobs : soumet un job au gestionnaire
+  const int BatchManager::submitJob(Job* job)
+  {
+    BEGIN_OF("BatchManager::submitJob");
+    int id;
+
+    // temporary directory on cluster to put input files for job
+    setDirForTmpFiles();
+    SCRUTE(_dirForTmpFiles);
+
+    // export input files on cluster
+    exportInputFiles(job->getFileToExecute(),job->getFilesToExportList());
+
+    // build salome coupling script for job
+    buildSalomeCouplingScript(job->getFileToExecute());
+
+    // build batch script for job
+    buildSalomeBatchScript(job->getNbProc());
+
+    // submit job on cluster
+    id = submit();
+
+    // register job on map
+    _jobmap[id] = job;
+    END_OF("BatchManager::submitJob");
+    return id;
   }
 
   void BatchManager::setDirForTmpFiles()
