@@ -425,6 +425,8 @@ module Engines
     string type;
     string source_file_name;
     string status;
+    long   node;
+    Engines::Container container;
   };
 
   /*!
@@ -527,7 +529,7 @@ module Engines
       Connect the file_name with a Distributed file_name.
 
       \param file_name name of the file without the path.
-      \param source_file_name Salome_file that managed the distributed version of the file.
+      \param source_file_name It's the name of the file managed by the distributed source Salome_file.
 
       \exception raised if the file doesn't exist.
     */

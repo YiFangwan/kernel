@@ -27,17 +27,38 @@
 
 data_short_port_provides::data_short_port_provides() {
   _val = 0;
+  short_termine = false;	            
+  short_mutex = new pthread_mutex_t();
+  pthread_mutex_init(short_mutex, NULL);
+  short_condition = new pthread_cond_t();
+  pthread_cond_init(short_condition, NULL);
 }
 
-data_short_port_provides::~data_short_port_provides() {}
+data_short_port_provides::~data_short_port_provides() {
+  pthread_mutex_destroy(short_mutex);
+  delete short_mutex;
+  pthread_cond_destroy(short_condition);
+  delete short_condition;
+}
 
 void
 data_short_port_provides::put(CORBA::Short data) {
+  pthread_mutex_lock(short_mutex);
   _val = data;
+  short_termine = true;
+  pthread_cond_signal(short_condition);
+  pthread_mutex_unlock(short_mutex);
 }
 
 CORBA::Short
 data_short_port_provides::get() {
+  pthread_mutex_lock(short_mutex);
+  while (short_termine == false)
+  {
+     pthread_cond_wait(short_condition, short_mutex);
+  }
+  short_termine = false;
+  pthread_mutex_unlock(short_mutex);
   return _val;
 }
 

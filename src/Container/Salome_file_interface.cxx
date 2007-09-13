@@ -18,12 +18,12 @@
 //
 //
 //
-//  File   : Salome_file_i.cxx
+//  File   : Salome_file_interface.cxx
 //  Author : André RIBES, EDF
 //  Module : SALOME
 //  $Header: 
 
-#include "Salome_file_i.hxx"
+#include "Salome_file_interface.hxx"
 #include "utilities.h"
 #include <stdlib.h>
 #include <unistd.h>
@@ -36,7 +36,7 @@
  */
 //=============================================================================
 
-Salome_file_i::Salome_file_i()
+Salome_file_interface::Salome_file_interface()
 {
   _fileId = 0;
   _path_max = 1 + pathconf("/", _PC_PATH_MAX);
@@ -52,7 +52,7 @@ Salome_file_i::Salome_file_i()
  */
 //=============================================================================
 
-Salome_file_i::~Salome_file_i()
+Salome_file_interface::~Salome_file_interface()
 {
 }
 
@@ -63,7 +63,7 @@ Salome_file_i::~Salome_file_i()
  */
 //=============================================================================
 void 
-Salome_file_i::load(const char* hdf5_file) {
+Salome_file_interface::load(const char* hdf5_file) {
   _state.hdf5_file_name = CORBA::string_dup(hdf5_file);
   try
   {
@@ -231,7 +231,7 @@ Salome_file_i::load(const char* hdf5_file) {
  */
 //=============================================================================
 void 
-Salome_file_i::save(const char* hdf5_file) {
+Salome_file_interface::save(const char* hdf5_file) {
   _state.hdf5_file_name = CORBA::string_dup(hdf5_file);
   try
   {
@@ -338,7 +338,7 @@ Salome_file_i::save(const char* hdf5_file) {
  */
 //=============================================================================
 void 
-Salome_file_i::save_all(const char* hdf5_file) {
+Salome_file_interface::save_all(const char* hdf5_file) {
 
   _state.hdf5_file_name = CORBA::string_dup(hdf5_file);
   // Test Salome_file status
@@ -469,7 +469,7 @@ Salome_file_i::save_all(const char* hdf5_file) {
  */
 //=============================================================================
 void 
-Salome_file_i::setLocalFile(const char* comp_file_name)
+Salome_file_interface::setLocalFile(const char* comp_file_name)
 {
   std::string file_name("");
   std::string path("");
@@ -530,7 +530,7 @@ Salome_file_i::setLocalFile(const char* comp_file_name)
  */
 //=============================================================================
 void 
-Salome_file_i::setDistributedFile(const char* comp_file_name)
+Salome_file_interface::setDistributedFile(const char* comp_file_name)
 {
   std::string file_name("");
   std::string path("");
@@ -586,7 +586,7 @@ Salome_file_i::setDistributedFile(const char* comp_file_name)
  */
 //=============================================================================
 void
-Salome_file_i::connect(Engines::Salome_file_ptr source_Salome_file) 
+Salome_file_interface::connect(Engines::Salome_file_ptr source_Salome_file) 
 {
   // We can connect this Salome_file if there is only one file managed
   // by the Salome_file
@@ -614,7 +614,7 @@ Salome_file_i::connect(Engines::Salome_file_ptr source_Salome_file)
  */
 //=============================================================================
 void
-Salome_file_i::connectDistributedFile(const char * file_name,
+Salome_file_interface::connectDistributedFile(const char * file_name,
 				      Engines::Salome_file_ptr source_Salome_file) 
 {
   // Test if this file is added
@@ -640,7 +640,7 @@ Salome_file_i::connectDistributedFile(const char * file_name,
  */
 //=============================================================================
 void 
-Salome_file_i::setDistributedSourceFile(const char* file_name,
+Salome_file_interface::setDistributedSourceFile(const char* file_name,
 					const char * source_file_name)
 {
   std::string fname(file_name);
@@ -668,7 +668,7 @@ Salome_file_i::setDistributedSourceFile(const char* file_name,
  */
 //=============================================================================
 void 
-Salome_file_i::recvFiles() {
+Salome_file_interface::recvFiles() {
   
   std::string files_not_ok("");
 
@@ -721,7 +721,7 @@ Salome_file_i::recvFiles() {
  */
 //=============================================================================
 bool
-Salome_file_i::checkLocalFile(std::string file_name)
+Salome_file_interface::checkLocalFile(std::string file_name)
 {
   bool result = true;
 
@@ -753,7 +753,7 @@ Salome_file_i::checkLocalFile(std::string file_name)
  */
 //=============================================================================
 bool
-Salome_file_i::getDistributedFile(std::string file_name)
+Salome_file_interface::getDistributedFile(std::string file_name)
 {
   bool result = true;
   const char * source_file_name = _fileManaged[file_name].source_file_name.in();
@@ -821,9 +821,9 @@ Salome_file_i::getDistributedFile(std::string file_name)
  */
 //=============================================================================
 void 
-Salome_file_i::removeFile(const char* file_name) 
+Salome_file_interface::removeFile(const char* file_name) 
 {
-  MESSAGE("Salome_file_i::removeFile : NOT YET IMPLEMENTED");
+  MESSAGE("Salome_file_interface::removeFile : NOT YET IMPLEMENTED");
 }
     
 //=============================================================================
@@ -833,8 +833,8 @@ Salome_file_i::removeFile(const char* file_name)
  */
 //=============================================================================
 void 
-Salome_file_i::deleteFile(const char* file_name) {
-  MESSAGE("Salome_file_i::deleteFile : NOT YET IMPLEMENTED");
+Salome_file_interface::deleteFile(const char* file_name) {
+  MESSAGE("Salome_file_interface::deleteFile : NOT YET IMPLEMENTED");
 }
 
 //=============================================================================
@@ -844,8 +844,8 @@ Salome_file_i::deleteFile(const char* file_name) {
  */
 //=============================================================================
 void 
-Salome_file_i::removeFiles() {
-  MESSAGE("Salome_file_i::removeFiles : NOT YET IMPLEMENTED");
+Salome_file_interface::removeFiles() {
+  MESSAGE("Salome_file_interface::removeFiles : NOT YET IMPLEMENTED");
 }
 
 //=============================================================================
@@ -855,8 +855,8 @@ Salome_file_i::removeFiles() {
  */
 //=============================================================================
 void 
-Salome_file_i::deleteFiles() {
-  MESSAGE("Salome_file_i::deleteFiles : NOT YET IMPLEMENTED");
+Salome_file_interface::deleteFiles() {
+  MESSAGE("Salome_file_interface::deleteFiles : NOT YET IMPLEMENTED");
 }
 
 //=============================================================================
@@ -866,7 +866,7 @@ Salome_file_i::deleteFiles() {
  */
 //=============================================================================
 Engines::files* 
-Salome_file_i::getFilesInfos() {
+Salome_file_interface::getFilesInfos() {
 
   Engines::files * infos = new Engines::files();
   infos->length(_fileManaged.size());
@@ -888,7 +888,7 @@ Salome_file_i::getFilesInfos() {
  */
 //=============================================================================
 Engines::file* 
-Salome_file_i::getFileInfos(const char* file_name) {
+Salome_file_interface::getFileInfos(const char* file_name) {
 
   std::string fname(file_name);
 
@@ -913,7 +913,7 @@ Salome_file_i::getFileInfos(const char* file_name) {
  */
 //=============================================================================
 Engines::SfState* 
-Salome_file_i::getSalome_fileState() 
+Salome_file_interface::getSalome_fileState() 
 {
   return new Engines::SfState(_state);
 }
@@ -928,7 +928,7 @@ Salome_file_i::getSalome_fileState()
 //=============================================================================
 
 CORBA::Long 
-Salome_file_i::open(const char* file_name)
+Salome_file_interface::open(const char* file_name)
 {
   int aKey = 0;
 
@@ -958,7 +958,7 @@ Salome_file_i::open(const char* file_name)
   
   std::string comp_file_name(_fileManaged[fname].path.in());
   comp_file_name.append(fname);
-  MESSAGE("Salome_file_i::open " << comp_file_name);
+  MESSAGE("Salome_file_interface::open " << comp_file_name);
   FILE* fp;
   if ((fp = fopen(comp_file_name.c_str(),"rb")) == NULL)
     {
@@ -979,9 +979,9 @@ Salome_file_i::open(const char* file_name)
 //=============================================================================
 
 void 
-Salome_file_i::close(CORBA::Long fileId)
+Salome_file_interface::close(CORBA::Long fileId)
 {
-  MESSAGE("Salome_file_i::close");
+  MESSAGE("Salome_file_interface::close");
   FILE* fp;
   if (!(fp = _fileAccess[fileId]) )
     {
@@ -1002,7 +1002,7 @@ Salome_file_i::close(CORBA::Long fileId)
 #define FILEBLOCK_SIZE 256*1024
 
 Engines::fileBlock* 
-Salome_file_i::getBlock(CORBA::Long fileId)
+Salome_file_interface::getBlock(CORBA::Long fileId)
 {
   Engines::fileBlock* aBlock = new Engines::fileBlock;
 

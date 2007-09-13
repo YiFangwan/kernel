@@ -18,7 +18,7 @@
 //
 //
 //
-//  File   : Salome_file_i.hxx
+//  File   : Salome_file_interface.hxx
 //  Author : André RIBES, EDF
 //  Module : SALOME
 //  $Header: 
@@ -35,12 +35,12 @@
 #include <map>
 #include <cstdio>
 
-class CONTAINER_EXPORT Salome_file_i:
+class CONTAINER_EXPORT Salome_file_interface:
   public virtual POA_Engines::Salome_file
 {
   public:
-    Salome_file_i();
-    virtual ~Salome_file_i();
+    Salome_file_interface();
+    virtual ~Salome_file_interface();
 
     // Import and export methods
     virtual void load(const char* hdf5_file);
