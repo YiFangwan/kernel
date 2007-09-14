@@ -132,6 +132,12 @@ GEN_PACO = SALOME_ComponentPaCO_Engines_Container_server.cc \
 	   SALOME_ComponentPaCO_Engines_Container_client.cc \
 	   SALOME_ComponentPaCO_Engines_Component_server.cc \
 	   SALOME_ComponentPaCO_Engines_Component_client.cc \
+	   SALOME_ComponentPaCO_Engines_fileTransfer_server.cc \
+	   SALOME_ComponentPaCO_Engines_fileTransfer_client.cc \
+	   SALOME_ComponentPaCO_Engines_Salome_file_server.cc \
+	   SALOME_ComponentPaCO_Engines_Salome_file_client.cc \
+	   SALOME_ComponentPaCO_Engines_Parallel_Salome_file_server.cc \
+	   SALOME_ComponentPaCO_Engines_Parallel_Salome_file_client.cc \
 	   SALOME_PortsPaCO_Ports_Port_server.cc \
 	   SALOME_PortsPaCO_Ports_Port_client.cc \
 	   DSC_EnginesPaCO_Engines_DSC_server.cc \
@@ -145,6 +151,12 @@ INCLUDES_PACO = SALOME_ComponentPaCO_Engines_Container_server.h \
 		SALOME_ComponentPaCO_Engines_Container_client.h \
                 SALOME_ComponentPaCO_Engines_Component_server.h \
 		SALOME_ComponentPaCO_Engines_Component_client.h \
+		SALOME_ComponentPaCO_Engines_fileTransfer_server.h \
+		SALOME_ComponentPaCO_Engines_fileTransfer_client.h \
+		SALOME_ComponentPaCO_Engines_Salome_file_server.h \
+		SALOME_ComponentPaCO_Engines_Salome_file_client.h \
+		SALOME_ComponentPaCO_Engines_Parallel_Salome_file_server.h \
+		SALOME_ComponentPaCO_Engines_Parallel_Salome_file_client.h \
 		SALOME_ExceptionPaCO.h \
 		SALOME_ComponentPaCO.h \
 		SALOME_Exception.h \

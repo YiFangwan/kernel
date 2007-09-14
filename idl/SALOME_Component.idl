@@ -631,6 +631,40 @@ module Engines
     string getRef(in string machine);
   };
 
+  /*! \brief Interface of a Parallel_Salome_file
+    This interface is used by parallel components and containers.
+    It adds methods to enable to choose on which node of the parallel component the file has to 
+    be received.
+  */
+  interface Parallel_Salome_file : Engines::Salome_file {
+
+    /*!
+      Add a Local file to the Salome_file.
+
+      \param file_name name of the file with the path.
+      \param node the number of the node where the file is.
+
+      \exception raised if the file is already added into the Salome_file.
+    */
+    void setParallelLocalFile(in string comp_file_name, in long node) raises (SALOME::SALOME_Exception);
+
+    /*!
+      Add a Distributed file to the Salome_file.
+
+      \param comp_file_name name of the file with the path.
+
+      \exception raised if the file is already added into the Salome_file.
+    */
+    void setParallelDistributedFile(in string comp_file_name, in long node) raises (SALOME::SALOME_Exception);
+
+    /*!
+      This method update the state of the Parallel_Salome_file. Thus, each node
+      of the Parallel_Salome_file has the same state.
+
+      \param new_state the new state of the Parallel_Salome_file.
+     */
+    void updateState(in Engines::SfState new_state);
+  };
 } ;
 
 #endif

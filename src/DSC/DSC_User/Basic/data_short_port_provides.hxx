@@ -69,6 +69,9 @@ class data_short_port_provides :
     pthread_mutex_t * short_mutex;
     pthread_cond_t * short_condition;
     bool short_termine;
+    pthread_mutex_t * short_mutex_cp;
+    pthread_cond_t * short_condition_cp;
+    bool short_termine_cp;
 
 };
 

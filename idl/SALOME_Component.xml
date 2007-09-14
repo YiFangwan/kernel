@@ -51,5 +51,16 @@
    <Type>distributed</Type>
   </Method>
  </Interface>
+ <Interface>
+  <Name>Parallel_Salome_file</Name>
+  <Method>
+   <Name>setParallelLocalFile</Name>
+   <Type>distributed</Type>
+  </Method>
+  <Method>
+   <Name>setParallelDistributedFile</Name>
+   <Type>distributed</Type>
+  </Method>
+ </Interface>
 </Module>
 </GridCCM_Interface_description>
