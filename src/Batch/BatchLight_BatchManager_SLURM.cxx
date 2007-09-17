@@ -231,14 +231,9 @@ namespace BatchLight {
     tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
 
     tempOutputFile << "#! /bin/sh -f" << endl ;
-    tempOutputFile << "#BSUB -n  " ;
-    tempOutputFile << nbproc << endl ;
-    tempOutputFile << "#BSUB -o runSalome.log%J" << endl ;
-    tempOutputFile << "mpirun -srun ~/" ;
-    tempOutputFile << _dirForTmpFiles ;
-    tempOutputFile << "/runSalome_" ;
-    tempOutputFile << _fileNameToExecute ;
-    tempOutputFile << "_Batch.sh" << endl ;
+    tempOutputFile << "#BSUB -n " << nbproc << endl ;
+    tempOutputFile << "#BSUB -o ~/" << _dirForTmpFiles << "/runSalome.log%J" << endl ;
+    tempOutputFile << "mpirun -srun ~/" << _dirForTmpFiles << "/runSalome_" << _fileNameToExecute << "_Batch.sh" << endl ;
     tempOutputFile.flush();
     tempOutputFile.close();
     chmod(_TmpFileName.c_str(), 0x1ED);

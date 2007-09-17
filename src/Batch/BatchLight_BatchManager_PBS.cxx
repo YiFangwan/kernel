@@ -273,7 +273,7 @@ namespace BatchLight {
 
     tempOutputFile << "#! /bin/sh -f" << endl ;
     tempOutputFile << "#PBS -l nodes=" << nbnodes << endl ;
-    tempOutputFile << "#PBS -o runSalome.log" << endl ;
+    tempOutputFile << "#PBS -o ~/" << _dirForTmpFiles << "/runSalome.log" << endl ;
     tempOutputFile << _mpiImpl->boot("${PBS_NODEFILE}",nbnodes);
     tempOutputFile << _mpiImpl->run("${PBS_NODEFILE}",nbproc,filenameToExecute.str());
     tempOutputFile << _mpiImpl->halt();
