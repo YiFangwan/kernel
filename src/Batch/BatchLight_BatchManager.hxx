@@ -36,6 +36,7 @@
 #include <SALOMEconfig.h>
 #include <stdlib.h>
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
+#include "MpiImpl.hxx"
 
 namespace BatchLight {
 
@@ -67,6 +68,7 @@ namespace BatchLight {
 
   protected:
     batchParams _params;
+    MpiImpl *_mpiImpl;
 
     std::map <int,const BatchLight::Job *> _jobmap;
     std::string _dirForTmpFiles; // repertoire temporaire sur le serveur
@@ -81,6 +83,7 @@ namespace BatchLight {
 
     std::string BuildTemporaryFileName() const;
     void RmTmpFile();
+    MpiImpl *FactoryMpiImpl(std::string mpiImpl) throw(SALOME_Exception);
 
   private:
 

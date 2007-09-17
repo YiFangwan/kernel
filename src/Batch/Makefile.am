@@ -63,7 +63,8 @@ LIB_INCLUDES = \
 	BatchLight_BatchManager.hxx \
 	BatchLight_BatchManager_PBS.hxx \
 	BatchLight_BatchManager_SLURM.hxx \
-	BatchLight_Job.hxx
+	BatchLight_Job.hxx \
+	MpiImpl.hxx
 
 
 LIB_SRC = \
@@ -99,7 +100,8 @@ LIB_SRC = \
 	BatchLight_BatchManager.cxx \
 	BatchLight_BatchManager_SLURM.cxx \
 	BatchLight_BatchManager_PBS.cxx \
-	BatchLight_Job.cxx
+	BatchLight_Job.cxx \
+	MpiImpl.cxx
 
 
 LIB_CPPFLAGS = \

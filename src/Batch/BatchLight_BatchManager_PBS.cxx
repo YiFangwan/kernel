@@ -41,6 +41,8 @@ namespace BatchLight {
   // Constructeur
   BatchManager_PBS::BatchManager_PBS(const batchParams& p) throw(SALOME_Exception) : BatchManager(p)
   {
+    // pbs batch system needs to know mpi implementation
+    _mpiImpl = FactoryMpiImpl(_params.mpiImpl);
   }
 
   // Destructeur
@@ -186,7 +188,7 @@ namespace BatchLight {
     tempOutputFile << _dirForTmpFiles ;
     tempOutputFile << ":$PYTHONPATH" << endl ;
     tempOutputFile << "if test " ;
-    tempOutputFile << mpiRank() ;
+    tempOutputFile << _mpiImpl->rank() ;
     tempOutputFile << " = 0; then" << endl ;
     tempOutputFile << "  ./runAppli --terminal --batch --modules=" ;
     for ( i = 0 ; i < _params.modulesList.size() ; i++ ) {
@@ -196,7 +198,7 @@ namespace BatchLight {
     }
     tempOutputFile << " --standalone=registry,study,moduleCatalog --killall &" << endl ;
     tempOutputFile << "  for ((ip=1; ip < ";
-    tempOutputFile << mpiSize();
+    tempOutputFile << _mpiImpl->size();
     tempOutputFile << " ; ip++))" << endl;
     tempOutputFile << "  do" << endl ;
     tempOutputFile << "    arglist=\"$arglist YACS_Server_\"$ip" << endl ;
@@ -209,7 +211,7 @@ namespace BatchLight {
     tempOutputFile << "  sleep 5" << endl ;
     tempOutputFile << "  ./runSession waitNS.py" << endl ;
     tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'";
-    tempOutputFile << mpiRank() << endl ;
+    tempOutputFile << _mpiImpl->rank() << endl ;
     tempOutputFile << "fi" << endl ;
     tempOutputFile.flush();
     tempOutputFile.close();
@@ -266,16 +268,15 @@ namespace BatchLight {
     ofstream tempOutputFile;
     tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
 
+    ostringstream filenameToExecute;
+    filenameToExecute << " ~/" << _dirForTmpFiles << "/runSalome_" << _fileNameToExecute << "_Batch.sh";
+
     tempOutputFile << "#! /bin/sh -f" << endl ;
     tempOutputFile << "#PBS -l nodes=" << nbnodes << endl ;
     tempOutputFile << "#PBS -o runSalome.log" << endl ;
-    tempOutputFile << mpiBoot() << endl ;
-    tempOutputFile << "mpirun -np " << nbproc << " ~/" ;
-    tempOutputFile << _dirForTmpFiles ;
-    tempOutputFile << "/runSalome_" ;
-    tempOutputFile << _fileNameToExecute ;
-    tempOutputFile << "_Batch.sh" << endl ;
-    tempOutputFile << mpiHalt() << endl ;
+    tempOutputFile << _mpiImpl->boot("${PBS_NODEFILE}",nbnodes);
+    tempOutputFile << _mpiImpl->run("${PBS_NODEFILE}",nbproc,filenameToExecute.str());
+    tempOutputFile << _mpiImpl->halt();
     tempOutputFile.flush();
     tempOutputFile.close();
     chmod(_TmpFileName.c_str(), 0x1ED);
@@ -374,50 +375,6 @@ namespace BatchLight {
 
     END_OF("BatchManager_PBS::submit");
     return id;
-  }
-
-  std::string BatchManager_PBS::mpiRank() throw(SALOME_Exception)
-  {
-    if(_params.mpiImpl == "indif")
-      throw SALOME_Exception("You have to specify MPI implementation in CatalogResources.xml file");
-    else if(_params.mpiImpl == "lam")
-      return "${LAMRANK}";
-    else
-      throw SALOME_Exception("not yet implemented");
-  }
-
-  std::string BatchManager_PBS::mpiSize() throw(SALOME_Exception)
-  {
-    if(_params.mpiImpl == "indif")
-      throw SALOME_Exception("You have to specify MPI implementation in CatalogResources.xml file");
-    else if(_params.mpiImpl == "lam")
-      return "${LAMWORLD}";
-    else
-      throw SALOME_Exception("not yet implemented");
-  }
-
-  std::string BatchManager_PBS::mpiBoot() throw(SALOME_Exception)
-  {
-    if(_params.mpiImpl == "indif")
-      throw SALOME_Exception("You have to specify MPI implementation in CatalogResources.xml file");
-    else if(_params.mpiImpl == "lam")
-      return "lamboot ${PBS_NODEFILE}";
-    else if(_params.mpiImpl == "mpich1")
-      return "";
-    else
-      throw SALOME_Exception("not yet implemented");
-  }
-
-  std::string BatchManager_PBS::mpiHalt() throw(SALOME_Exception)
-  {
-    if(_params.mpiImpl == "indif")
-      throw SALOME_Exception("You have to specify MPI implementation in CatalogResources.xml file");
-    else if(_params.mpiImpl == "lam")
-      return "lamhalt";
-    else if(_params.mpiImpl == "mpich1")
-      return "";
-    else
-      throw SALOME_Exception("not yet implemented");
   }
 
 }

@@ -40,7 +40,7 @@ enum AccessModeType {interactive, batch};
 
 enum BatchType {none, pbs, lsf, slurm};
 
-enum mpiImpl {indif, lam, mpich1, mpich2};
+enum mpiImpl {indif, lam, mpich1, mpich2, openmpi};
 
 class ResourceDataToSort
   {

@@ -200,6 +200,8 @@ startElement( const QString&,
 	    _resource.mpi = mpich1;
 	  else if( content.compare("mpich2") == 0 )
 	    _resource.mpi = mpich2;
+	  else if( content.compare("openmpi") == 0 )
+	    _resource.mpi = openmpi;
 	  else
 	    _resource.mpi = indif;
         }
@@ -413,16 +415,20 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(QDomDocument& doc)
       switch ((*iter).second.mpi)
         {
 
-        case pbs:
+        case lam:
           eltRoot.setAttribute((char *)test_mpi, "lam");
           break;
 
-        case lsf:
+        case mpich1:
           eltRoot.setAttribute((char *)test_mpi, "mpich1");
           break;
 
-        case slurm:
+        case mpich2:
           eltRoot.setAttribute((char *)test_mpi, "mpich2");
+          break;
+
+        case openmpi:
+          eltRoot.setAttribute((char *)test_mpi, "openmpi");
           break;
 
         default:

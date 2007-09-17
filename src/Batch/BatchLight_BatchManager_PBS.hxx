@@ -52,10 +52,6 @@ namespace BatchLight {
     void buildSalomeCouplingScript( const char *fileToExecute ) throw(SALOME_Exception);
     void buildSalomeBatchScript( const int nbproc ) throw(SALOME_Exception);
     int submit() throw(SALOME_Exception);
-    std::string mpiRank() throw(SALOME_Exception);
-    std::string mpiSize() throw(SALOME_Exception);
-    std::string mpiBoot() throw(SALOME_Exception);
-    std::string mpiHalt() throw(SALOME_Exception);
   };
 
 }

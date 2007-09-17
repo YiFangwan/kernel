@@ -339,7 +339,7 @@ CORBA::Long SALOME_ContainerManager::submitSalomeJob( const char * fileToExecute
     jobId = _ResManager->submitSalomeJob(fileToExecute, filesToExport, filesToImport, NumberOfProcessors, params);
   }
   catch(const SALOME_Exception &ex){
-    INFOS("Caught exception.");
+    MESSAGE(ex.what());
     THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::INTERNAL_ERROR);
   }
   return jobId;

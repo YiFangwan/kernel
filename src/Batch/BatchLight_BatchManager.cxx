@@ -50,6 +50,7 @@ namespace BatchLight {
       msg += "\" unknown from the network";
       throw SALOME_Exception(msg.c_str());
     }
+    _mpiImpl = NULL;
   }
 
   // Destructeur
@@ -59,6 +60,7 @@ namespace BatchLight {
     std::map < int, const BatchLight::Job * >::const_iterator it;
     for(it=_jobmap.begin();it!=_jobmap.end();it++)
       delete it->second; 
+    if(_mpiImpl) delete _mpiImpl;
   }
 
   // Methode pour le controle des jobs : soumet un job au gestionnaire
@@ -234,10 +236,9 @@ namespace BatchLight {
     return command;
   }
 
-void BatchManager::RmTmpFile()
-{
-  if (_TmpFileName != "")
-    {
+  void BatchManager::RmTmpFile()
+  {
+    if (_TmpFileName != ""){
       string command = "rm ";
       command += _TmpFileName;
       char *temp = strdup(command.c_str());
@@ -247,6 +248,25 @@ void BatchManager::RmTmpFile()
       system(temp);
       free(temp);
     }
-}
+  }
+
+  MpiImpl *BatchManager::FactoryMpiImpl(string mpiImpl) throw(SALOME_Exception)
+  {
+    if(mpiImpl == "lam")
+      return new MpiImpl_LAM();
+    else if(mpiImpl == "mpich1")
+      return new MpiImpl_MPICH1();
+    else if(mpiImpl == "mpich2")
+      return new MpiImpl_MPICH2();
+    else if(mpiImpl == "openmpi")
+      return new MpiImpl_OPENMPI();
+    else if(mpiImpl == "indif")
+      throw SALOME_Exception("you must specify a mpi implementation in CatalogResources.xml file");
+    else{
+      ostringstream oss;
+      oss << mpiImpl << " : not yet implemented";
+      throw SALOME_Exception(oss.str().c_str());
+    }
+  }
 
 }

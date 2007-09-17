@@ -582,6 +582,8 @@ BatchLight::BatchManager *SALOME_ResourcesManager::FactoryBatchManager( const Pa
     p.mpiImpl = "mpich1";
   else if( resInfo.mpi == mpich2 )
     p.mpiImpl = "mpich2";
+  else if( resInfo.mpi == openmpi )
+    p.mpiImpl = "openmpi";
   else
     throw SALOME_Exception("Unknown mpi implementation");
 
