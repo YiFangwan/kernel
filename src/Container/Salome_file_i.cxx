@@ -736,6 +736,7 @@ Salome_file_i::checkLocalFile(std::string file_name)
   bool result = true;
 
   std::string comp_file_name(_fileManaged[file_name].path.in());
+  comp_file_name.append("/");
   comp_file_name.append(_fileManaged[file_name].file_name.in());
   if(fopen(comp_file_name.c_str(),"rb") == NULL)
   {
@@ -770,6 +771,7 @@ Salome_file_i::getDistributedFile(std::string file_name)
   int fileId;
   FILE* fp;
   std::string comp_file_name(_fileManaged[file_name].path.in());
+  comp_file_name.append("/");
   comp_file_name.append(_fileManaged[file_name].file_name.in());
 
   // Test if the process can write on disk
@@ -946,6 +948,7 @@ Salome_file_i::open(const char* file_name)
   }
   
   std::string comp_file_name(_fileManaged[fname].path.in());
+  comp_file_name.append("/");
   comp_file_name.append(fname);
   MESSAGE("Salome_file_i::open " << comp_file_name);
   FILE* fp;
