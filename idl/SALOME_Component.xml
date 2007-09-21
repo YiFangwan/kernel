@@ -47,20 +47,26 @@
  <Interface>
   <Name>Component</Name>
   <Method>
-   <Name>ping</Name>
+   <Name>setInputServiceSalome_file</Name>
+   <Type>distributed</Type>
+  </Method>
+ </Interface>
+ <Interface>
+  <Name>Parallel_Component</Name>
+  <Method>
+   <Name>send_parallel_proxy_object</Name>
+   <Type>distributed</Type>
+  </Method>
+ </Interface>
+ <Interface>
+  <Name>Salome_file</Name>
+  <Method>
+   <Name>recvFiles</Name>
    <Type>distributed</Type>
   </Method>
  </Interface>
  <Interface>
   <Name>Parallel_Salome_file</Name>
-  <Method>
-   <Name>setParallelLocalFile</Name>
-   <Type>distributed</Type>
-  </Method>
-  <Method>
-   <Name>setParallelDistributedFile</Name>
-   <Type>distributed</Type>
-  </Method>
  </Interface>
 </Module>
 </GridCCM_Interface_description>

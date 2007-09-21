@@ -20,7 +20,7 @@
 //  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
 //
 //  File   : SALOME_ParallelContainer_i.cxx
-//  Author : André RIBES, EDF
+//  Author : Andrï¿½ RIBES, EDF
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA 
 
 #include <SALOMEconfig.h>

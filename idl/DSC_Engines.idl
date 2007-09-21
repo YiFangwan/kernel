@@ -370,7 +370,7 @@ module Engines {
     This interface defines the operations needed to add a paco++ port 
     into a parallel DSC component.
   */
-  interface Parallel_DSC : Engines::Superv_Component {
+  interface Parallel_DSC : Engines::Superv_Component, Engines::Parallel_Component {
 
     /*!
       This operation gives the proxy node of a paco++ port to all the nodes.

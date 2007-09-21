@@ -36,6 +36,7 @@ Engines_ParallelDSC_i::Engines_ParallelDSC_i(CORBA::ORB_ptr orb, char * ior,
   Engines::DSC_serv(orb, ior),
   Engines::Superv_Component_serv(orb, ior),
   Engines::Component_serv(orb, ior),
+  Engines::Parallel_Component_serv(orb, ior),
   InterfaceParallel_impl(orb,ior)
 {
 }

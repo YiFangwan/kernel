@@ -676,6 +676,7 @@ Engines_Container_i::createSalome_file(const char* origFileName)
   if (CORBA::is_nil(_Salome_file_map[origName]))
     {
       Salome_file_i* aSalome_file = new Salome_file_i();
+      aSalome_file->setContainer(Engines::Container::_duplicate(this->_this()));
       try 
       {
 	aSalome_file->setLocalFile(origFileName);

@@ -63,12 +63,10 @@ class CONTAINER_EXPORT Salome_file_i:
 
     // Removing or deleting files
     virtual void removeFile(const char* file_name);
-    virtual void deleteFile(const char* file_name);
     virtual void removeFiles();
-    virtual void deleteFiles();
-
 
     // Informations methods:
+    virtual void setContainer(Engines::Container_ptr container);
     virtual Engines::files* getFilesInfos();
     virtual Engines::file* getFileInfos(const char* file_name);
     virtual Engines::SfState* getSalome_fileState();
@@ -101,6 +99,7 @@ class CONTAINER_EXPORT Salome_file_i:
     _t_fileManaged _fileManaged;
     _t_fileDistributedSource _fileDistributedSource;
     Engines::SfState _state;
+    Engines::Container_ptr _container;
 };
 
 #endif

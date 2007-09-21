@@ -380,6 +380,10 @@ module Engines
 						in string Salome_file_name)	 raises(SALOME::SALOME_Exception);
   } ;
 
+  interface Parallel_Component : Engines::Component {
+    void send_parallel_proxy_object(in Object proxy_ref);
+  };
+
   /*!
     A block of binary data used for file transfer. The maximum size of the
     block is defined on server side.
@@ -562,20 +566,6 @@ module Engines
     */
     void removeFiles();
 
-    /*!
-      Delete a file managed by the Salome_file. File is removed too.
-
-      \param file_name the name of the file.
-
-      \exception raised if the file doesn't exist.
-    */
-    void deleteFile(in string file_name)		    raises (SALOME::SALOME_Exception);
-
-    /*!
-      Delete all the files managed by the Salome_file. Files are removed too.
-    */
-    void deleteFiles();
-
 /**************/
 
     /*!
@@ -599,6 +589,14 @@ module Engines
       Return the state of the Salome_file.
     */
     Engines::SfState getSalome_fileState();
+
+
+    /*!
+      Set the container where files are.
+
+      \param container container CORBA's reference.
+    */
+    void setContainer(in Engines::Container container);
   };
 
   /*! \brief Interface of fileRef.
@@ -639,32 +637,41 @@ module Engines
   interface Parallel_Salome_file : Engines::Salome_file {
 
     /*!
-      Add a Local file to the Salome_file.
+      Set a number of node for the file. Default is the node 0.
 
-      \param file_name name of the file with the path.
-      \param node the number of the node where the file is.
+      \param file_name name of the file.
+      \param node_nbr node number where the file is.
 
-      \exception raised if the file is already added into the Salome_file.
+      \exception raised if the file doesn't exist.
     */
-    void setParallelLocalFile(in string comp_file_name, in long node) raises (SALOME::SALOME_Exception);
+    void setFileNode(in string file_name, in long node_nbr) raises (SALOME::SALOME_Exception);
 
     /*!
-      Add a Distributed file to the Salome_file.
+      Get the number of the node that actually managed the file.
 
-      \param comp_file_name name of the file with the path.
+      \param file_name name of managed file.
 
-      \exception raised if the file is already added into the Salome_file.
-    */
-    void setParallelDistributedFile(in string comp_file_name, in long node) raises (SALOME::SALOME_Exception);
+      \return node number of the file
 
-    /*!
-      This method update the state of the Parallel_Salome_file. Thus, each node
-      of the Parallel_Salome_file has the same state.
-
-      \param new_state the new state of the Parallel_Salome_file.
+      \exception raised if the file doesn't exist.
      */
-    void updateState(in Engines::SfState new_state);
+    long getFileNode(in string file_name) raises (SALOME::SALOME_Exception);
+
+    /*!
+      This method update the state of file for the Parallel_Salome_file. 
+
+      \param new_file the new state of file.
+     */
+    Engines::Container updateFile(in Engines::file new_file);
+
+    /*!
+      This method is used by the parallel implementation of recvFiles.
+
+      \exception raised if the file cannot be ok.
+     */
+    void recvFiles_node() raises (SALOME::SALOME_Exception);
+
   };
-} ;
+};
 
 #endif

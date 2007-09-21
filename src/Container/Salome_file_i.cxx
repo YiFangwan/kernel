@@ -44,6 +44,7 @@ Salome_file_i::Salome_file_i()
   _state.hdf5_file_name = CORBA::string_dup("");
   _state.number_of_files = 0;
   _state.files_ok = true;
+  _container = Engines::Container::_nil();
 }
 
 //=============================================================================
@@ -204,6 +205,9 @@ Salome_file_i::load(const char* hdf5_file) {
 	infos.type = CORBA::string_dup(type.c_str());
 	infos.source_file_name = CORBA::string_dup(source_file_name.c_str());
 	infos.status = CORBA::string_dup(status.c_str());
+	// Infos for parallel extensions...
+	infos.node = 0;
+	infos.container = Engines::Container::_duplicate(_container);
 
 	_fileManaged[file_name] = infos;
 
@@ -514,6 +518,9 @@ Salome_file_i::setLocalFile(const char* comp_file_name)
   infos.type = CORBA::string_dup(type.c_str());
   infos.source_file_name = CORBA::string_dup(source_file_name.c_str());
   infos.status = CORBA::string_dup(status.c_str());
+  // Infos for parallel extensions...
+  infos.node = 0;
+  infos.container = Engines::Container::_duplicate(_container);
 
   _fileManaged[file_name] = infos;
 
@@ -571,6 +578,9 @@ Salome_file_i::setDistributedFile(const char* comp_file_name)
   infos.type = CORBA::string_dup(type.c_str());
   infos.source_file_name = CORBA::string_dup(source_file_name.c_str());
   infos.status = CORBA::string_dup(status.c_str());
+  // Infos for parallel extensions...
+  infos.node = 0;
+  infos.container = Engines::Container::_duplicate(_container);
 
   _fileManaged[file_name] = infos;
 
@@ -762,6 +772,7 @@ Salome_file_i::getDistributedFile(std::string file_name)
   std::string comp_file_name(_fileManaged[file_name].path.in());
   comp_file_name.append(_fileManaged[file_name].file_name.in());
 
+  // Test if the process can write on disk
   if ((fp = fopen(comp_file_name.c_str(),"wb")) == NULL)
   {
     INFOS("file " << comp_file_name << " cannot be open for writing");
@@ -829,17 +840,6 @@ Salome_file_i::removeFile(const char* file_name)
 //=============================================================================
 /*! 
  *  CORBA method
- * \see Engines::Salome_file::deleteFile
- */
-//=============================================================================
-void 
-Salome_file_i::deleteFile(const char* file_name) {
-  MESSAGE("Salome_file_i::deleteFile : NOT YET IMPLEMENTED");
-}
-
-//=============================================================================
-/*! 
- *  CORBA method
  * \see Engines::Salome_file::removeFiles
  */
 //=============================================================================
@@ -851,18 +851,7 @@ Salome_file_i::removeFiles() {
 //=============================================================================
 /*! 
  *  CORBA method
- * \see Engines::Salome_file::deleteFiles
- */
-//=============================================================================
-void 
-Salome_file_i::deleteFiles() {
-  MESSAGE("Salome_file_i::deleteFiles : NOT YET IMPLEMENTED");
-}
-
-//=============================================================================
-/*! 
- *  CORBA method
- * \see Engines::Salome_file::recvFiles
+ * \see Engines::Salome_file::getFilesInfos
  */
 //=============================================================================
 Engines::files* 
@@ -1020,5 +1009,18 @@ Salome_file_i::getBlock(CORBA::Long fileId)
   int nbRed = fread(buf, sizeof(CORBA::Octet), FILEBLOCK_SIZE, fp);
   aBlock->replace(nbRed, nbRed, buf, 1); // 1 means give ownership
   return aBlock;
+}
+
+void 
+Salome_file_i::setContainer(Engines::Container_ptr container)
+{
+  _container = Engines::Container::_duplicate(container);
+
+  // Update All the files
+  _t_fileManaged::iterator begin = _fileManaged.begin();
+  _t_fileManaged::iterator end = _fileManaged.end();
+  for(;begin!=end;begin++) {
+    begin->second.container = Engines::Container::_duplicate(container);
+  }
 }
 

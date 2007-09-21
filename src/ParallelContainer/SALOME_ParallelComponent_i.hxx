@@ -37,11 +37,11 @@
 #include <map>
 #include <SALOMEconfig.h>
 
-#include "SALOME_ComponentPaCO_Engines_Component_server.h"
+#include "SALOME_ComponentPaCO_Engines_Parallel_Component_server.h"
 
 #include "NOTIFICATION.hxx"
 #include "RegistryConnexion.hxx"
-#include "Salome_file_i.hxx"
+#include "Parallel_Salome_file_i.hxx"
 
 class Engines_Parallel_Container_i;
 
@@ -60,7 +60,7 @@ class Engines_Parallel_Container_i;
 #endif
 
 class CONTAINER_EXPORT Engines_Parallel_Component_i: 
-  public virtual Engines::Component_serv,
+  public virtual Engines::Parallel_Component_serv,
   public virtual PortableServer::RefCountServantBase
 {
 public:
@@ -112,6 +112,7 @@ public:
  virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name, 
 							 const char* Salome_file_name);
 
+ void send_parallel_proxy_object(CORBA::Object_ptr proxy_ref);
   // --- local C++ methods
 
   PortableServer::ObjectId * getId(); 
@@ -131,6 +132,9 @@ public:
   void SetCurCpu() ;
   long CpuUsed() ;
 
+  void wait_parallel_object_proxy();
+  char * get_parallel_proxy_object();
+
 protected:
   int _studyId; // -1: not initialised; 0: multiStudy; >0: study
   static bool _isMultiStudy;
@@ -148,19 +152,30 @@ protected:
   NOTIFICATION_Supplier* _notifSupplier;
   std::map<std::string,CORBA::Any>_fieldsDict;
 
-  // Map Salome_file_name to Salome_file*
-  typedef std::map<std::string, Salome_file_i*> _t_Salome_file_map;
+  // Map Salome_file_name to Parallel_Salome_file*
+  typedef std::map<std::string, Parallel_Salome_file_i*> _t_Salome_file_map;
+  typedef std::map<std::string, Engines::Parallel_Salome_file_proxy_impl*> _t_Proxy_Salome_file_map;
+
   // Map Service_name to  _Salome_file_map
   typedef std::map<std::string, Engines_Parallel_Component_i::_t_Salome_file_map*> _t_Service_file_map;
+  typedef std::map<std::string, Engines_Parallel_Component_i::_t_Proxy_Salome_file_map*> _t_Proxy_Service_file_map;
   
   _t_Service_file_map _Input_Service_file_map;
   _t_Service_file_map _Output_Service_file_map;
   _t_Service_file_map::iterator _Service_file_map_it;
   _t_Salome_file_map::iterator _Salome_file_map_it;
 
+  _t_Proxy_Service_file_map _Proxy_Input_Service_file_map;
+  _t_Proxy_Service_file_map _Proxy_Output_Service_file_map;
+  _t_Proxy_Service_file_map::iterator _Proxy_Service_file_map_it;
+  _t_Proxy_Salome_file_map::iterator _Proxy_Salome_file_map_it;
+
   std::string _serviceName ;
   std::string _graphName ;
   std::string _nodeName ;
+
+  pthread_mutex_t * deploy_mutex;
+  char * _proxy;
 
 private:
 #ifndef WNT

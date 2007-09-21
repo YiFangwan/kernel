@@ -877,6 +877,8 @@ Engines_Component_i::setInputFileToService(const char* service_name,
   _Salome_file_map_it = _map->find(Salome_file_name);
   if (_Salome_file_map_it ==  _map->end()) {
     Salome_file_i * Sfile = new Salome_file_i();
+    Engines::Container_ptr container = this->GetContainerRef();
+    Sfile->setContainer(Engines::Container::_duplicate(container));
     (*_map)[Salome_file_name] = Sfile;
   }
   else {
@@ -907,7 +909,6 @@ Engines_Component_i::checkInputServiceFiles(const char* service_name)
       file->recvFiles();
     }
   }
-
 }
 
 Engines::Salome_file_ptr 
@@ -953,6 +954,8 @@ Engines_Component_i::setOutputFileToService(const char* service_name,
   _Salome_file_map_it = _map->find(Salome_file_name);
   if (_Salome_file_map_it ==  _map->end()) {
     Salome_file_i * Sfile = new Salome_file_i();
+    Engines::Container_ptr container = this->GetContainerRef();
+    Sfile->setContainer(Engines::Container::_duplicate(container));
     (*_map)[Salome_file_name] = Sfile;
   }
   else {
