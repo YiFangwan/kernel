@@ -771,10 +771,10 @@ string Engines_Parallel_Component_i::GetDynLibraryName(const char *componentName
 //=============================================================================
 
 Engines::TMPFile* Engines_Parallel_Component_i::DumpPython(CORBA::Object_ptr theStudy, 
-						  CORBA::Boolean isPublished, 
-						  CORBA::Boolean& isValidScript)
+							   CORBA::Boolean isPublished, 
+							   CORBA::Boolean& isValidScript)
 {
-  char* aScript = "def RebuildData(theStudy): pass";
+  const char* aScript = "def RebuildData(theStudy): pass";
   char* aBuffer = new char[strlen(aScript)+1];
   strcpy(aBuffer, aScript);
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
@@ -784,7 +784,221 @@ Engines::TMPFile* Engines_Parallel_Component_i::DumpPython(CORBA::Object_ptr the
   return aStreamFile._retn(); 
 }
 
-// This is a parallel method
+
+Engines::Salome_file_ptr 
+Engines_Parallel_Component_i::setInputFileToService(const char* service_name, 
+						    const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we add it.
+  _Service_file_map_it = _Input_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Input_Service_file_map.end()) {
+    _t_Salome_file_map * _map = new _t_Salome_file_map();
+    _Input_Service_file_map[service_name] = _map;
+    _t_Proxy_Salome_file_map * _proxy_map = new _t_Proxy_Salome_file_map();
+    _Proxy_Input_Service_file_map[service_name] = _proxy_map;
+  }
+  _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
+  _t_Proxy_Salome_file_map * _proxy_map = _Proxy_Input_Service_file_map[service_name];
+  
+  std::string proxy_ior;
+
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+
+    // We create a new PaCO++ object.
+    // He has the same configuration than
+    // his component
+
+    pthread_mutex_lock(deploy_mutex);
+    // Firstly, we have to create the proxy object
+    // of the Salome_file and transmit his
+    // reference to the other nodes.
+    if (getMyRank() == 0) {
+      Engines::Parallel_Salome_file_proxy_impl * proxy = 
+	new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb));
+      PaCO_operation * proxy_global_ptr =  proxy->getContext("global_paco_context");
+      proxy_global_ptr->setTypeClient(true);
+      PaCO::PacoTopology_t client_topo;
+      client_topo.total = 1;
+      proxy_global_ptr->setClientTopo(client_topo);
+      PaCO::PacoTopology_t serveur_topo;
+      serveur_topo.total = getTotalNode();
+      proxy->setTopo(serveur_topo);
+
+      // We initialize the object with the context of the Parallel component
+      PaCO_operation * compo_global_ptr =  getContext("global_paco_context");
+      //compo_global_ptr->init_context(proxy_global_ptr);
+      proxy_global_ptr->init_context(compo_global_ptr);
+      // We register the CORBA objet into the POA
+      CORBA::Object_ptr proxy_ref = proxy->_this();
+
+      // We send the reference to all the nodes...
+      CORBA::Object_ptr comp_proxy = _orb->string_to_object(_ior.c_str());
+      Engines::Parallel_Component_var component_proxy = Engines::Parallel_Component::_narrow(comp_proxy);
+      component_proxy->send_parallel_proxy_object(proxy_ref);
+
+      // Adding proxy into the map
+      (*_proxy_map)[Salome_file_name] = proxy;
+    }
+    else {
+      this->wait_parallel_object_proxy();
+    }
+
+    proxy_ior = this->get_parallel_proxy_object();
+
+    // We register each node of the parallel Salome_file object
+    // into the proxy.
+    for (int i = 0; i < getTotalNode(); i++) {
+      if (i ==  getMyRank()) {
+	Parallel_Salome_file_i * servant = 
+	  new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), proxy_ior.c_str());
+	PaCO_operation * servant_global_ptr = servant->getContext("global_paco_context");
+	
+	// We initialize the object with the context of the Parallel component
+	PaCO_operation * compo_global_ptr =  this->getContext("global_paco_context");
+//	compo_global_ptr->init_context(servant_global_ptr);
+	servant_global_ptr->init_context(compo_global_ptr);
+	
+	// We register the CORBA objet into the POA
+	servant->POA_PaCO::InterfaceParallel::_this();
+
+	// Register the servant
+	servant->deploy(getMyRank());
+
+	// Adding servant to the map
+	(*_map)[Salome_file_name] = servant;
+      }
+
+      PaCO_operation * compo_global_ptr =  this->getContext("global_paco_context");
+      compo_global_ptr->my_com->paco_barrier();
+    }
+
+    // Parallel_Salome_file is created and deployed
+    delete _proxy;
+    _proxy = NULL;
+    pthread_mutex_unlock(deploy_mutex);
+  }
+  else {
+    // Salome_file_name already added into the service
+    // throw Exception
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "Salome_file_name already added";
+    throw SALOME::SALOME_Exception(es);
+  }
+
+  CORBA::Object_ptr obj = _orb->string_to_object(proxy_ior.c_str());
+  return Engines::Salome_file::_narrow(obj);
+}
+
+Engines::Salome_file_ptr 
+Engines_Parallel_Component_i::setOutputFileToService(const char* service_name, 
+						     const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we add it.
+  _Service_file_map_it = _Output_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Output_Service_file_map.end()) {
+    _t_Salome_file_map * _map = new _t_Salome_file_map();
+    _Output_Service_file_map[service_name] = _map;
+    _t_Proxy_Salome_file_map * _proxy_map = new _t_Proxy_Salome_file_map();
+    _Proxy_Output_Service_file_map[service_name] = _proxy_map;
+  }
+  _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
+  _t_Proxy_Salome_file_map * _proxy_map = _Proxy_Output_Service_file_map[service_name];
+  
+  std::string proxy_ior;
+
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+
+    // We create a new PaCO++ object.
+    // He has the same configuration than
+    // his component
+
+    pthread_mutex_lock(deploy_mutex);
+    // Firstly, we have to create the proxy object
+    // of the Salome_file and transmit his
+    // reference to the other nodes.
+    if (getMyRank() == 0) {
+      Engines::Parallel_Salome_file_proxy_impl * proxy = 
+	new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb));
+      PaCO_operation * proxy_global_ptr =  proxy->getContext("global_paco_context");
+      proxy_global_ptr->setTypeClient(true);
+      PaCO::PacoTopology_t client_topo;
+      client_topo.total = 1;
+      proxy_global_ptr->setClientTopo(client_topo);
+      PaCO::PacoTopology_t serveur_topo;
+      serveur_topo.total = getTotalNode();
+      proxy->setTopo(serveur_topo);
+
+      // We initialize the object with the context of the Parallel component
+      PaCO_operation * compo_global_ptr =  getContext("global_paco_context");
+      //compo_global_ptr->init_context(proxy_global_ptr);
+      proxy_global_ptr->init_context(compo_global_ptr);
+      // We register the CORBA objet into the POA
+      CORBA::Object_ptr proxy_ref = proxy->_this();
+
+      // We send the reference to all the nodes...
+      CORBA::Object_ptr comp_proxy = _orb->string_to_object(_ior.c_str());
+      Engines::Parallel_Component_var component_proxy = Engines::Parallel_Component::_narrow(comp_proxy);
+      component_proxy->send_parallel_proxy_object(proxy_ref);
+
+      // Adding proxy into the map
+      (*_proxy_map)[Salome_file_name] = proxy;
+    }
+    else {
+      this->wait_parallel_object_proxy();
+    }
+
+    proxy_ior = this->get_parallel_proxy_object();
+
+    // We register each node of the parallel Salome_file object
+    // into the proxy.
+    for (int i = 0; i < getTotalNode(); i++) {
+      if (i ==  getMyRank()) {
+	Parallel_Salome_file_i * servant = 
+	  new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), proxy_ior.c_str());
+	PaCO_operation * servant_global_ptr = servant->getContext("global_paco_context");
+	
+	// We initialize the object with the context of the Parallel component
+	PaCO_operation * compo_global_ptr =  this->getContext("global_paco_context");
+//	compo_global_ptr->init_context(servant_global_ptr);
+	servant_global_ptr->init_context(compo_global_ptr);
+	
+	// We register the CORBA objet into the POA
+	servant->POA_PaCO::InterfaceParallel::_this();
+
+	// Register the servant
+	servant->deploy(getMyRank());
+
+	// Adding servant to the map
+	(*_map)[Salome_file_name] = servant;
+      }
+
+      PaCO_operation * compo_global_ptr =  this->getContext("global_paco_context");
+      compo_global_ptr->my_com->paco_barrier();
+    }
+
+    // Parallel_Salome_file is created and deployed
+    delete _proxy;
+    _proxy = NULL;
+    pthread_mutex_unlock(deploy_mutex);
+  }
+  else {
+    // Salome_file_name already added into the service
+    // throw Exception
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "Salome_file_name already added";
+    throw SALOME::SALOME_Exception(es);
+  }
+
+  CORBA::Object_ptr obj = _orb->string_to_object(proxy_ior.c_str());
+  return Engines::Salome_file::_narrow(obj);
+}
+
 Engines::Salome_file_ptr 
 Engines_Parallel_Component_i::getInputServiceSalome_file(const char* service_name, 
 						const char* Salome_file_name) 
@@ -814,109 +1028,33 @@ Engines_Parallel_Component_i::getInputServiceSalome_file(const char* service_nam
 }
 
 Engines::Salome_file_ptr 
-Engines_Parallel_Component_i::setInputFileToService(const char* service_name, 
-					   const char* Salome_file_name) 
+Engines_Parallel_Component_i::getOutputServiceSalome_file(const char* service_name, 
+						const char* Salome_file_name) 
 {
-  // Try to find the service, if it doesn't exist, we add it.
-  _Service_file_map_it = _Input_Service_file_map.find(service_name);
-  if (_Service_file_map_it ==  _Input_Service_file_map.end()) {
-    _t_Salome_file_map * _map = new _t_Salome_file_map();
-    _Input_Service_file_map[service_name] = _map;
-    _t_Proxy_Salome_file_map * _proxy_map = new _t_Proxy_Salome_file_map();
-    _Proxy_Input_Service_file_map[service_name] = _proxy_map;
-  }
-  _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
-  _t_Proxy_Salome_file_map * _proxy_map = _Proxy_Input_Service_file_map[service_name];
-  
-  char * proxy_ior;
-
-  // Try to find the Salome_file ...
-  _Salome_file_map_it = _map->find(Salome_file_name);
-  if (_Salome_file_map_it ==  _map->end()) {
-
-    // We create a new PaCO++ object.
-    // He has the same configuration than
-    // his component
-
-    pthread_mutex_lock(deploy_mutex);
-    // Firstly, we have to create the proxy object
-    // of the Salome_file and transmit his
-    // reference to the other nodes.
-    if (getMyRank() == 0) {
-      Engines::Parallel_Salome_file_proxy_impl * proxy = 
-	new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb));
-      PaCO_operation * proxy_global_ptr =  proxy->getContext("global_paco_context");
-      proxy_global_ptr->setTypeClient(true);
-      PaCO::PacoTopology_t client_topo;
-      client_topo.total = 1;
-      proxy_global_ptr->setClientTopo(client_topo);
-      PaCO::PacoTopology_t serveur_topo;
-      serveur_topo.total = getTotalNode();
-      proxy->setTopo(serveur_topo);
-
-      // We initialize the object with the context of the Parallel component
-      PaCO_operation * compo_global_ptr =  this->getContext("global_paco_context");
-      compo_global_ptr->init_context(proxy_global_ptr);
-
-      // We register the CORBA objet into the POA
-      CORBA::Object_ptr proxy_ref = proxy->_this();
-
-      // We send the reference to all the nodes...
-      CORBA::Object_ptr comp_proxy = _orb->string_to_object(_ior.c_str());
-      Engines::Parallel_Component_var component_proxy = Engines::Parallel_Component::_narrow(comp_proxy);
-      component_proxy->send_parallel_proxy_object(proxy_ref);
-
-      // Adding proxy into the map
-      (*_proxy_map)[Salome_file_name] = proxy;
-    }
-    else {
-      this->wait_parallel_object_proxy();
-    }
-
-    proxy_ior = this->get_parallel_proxy_object();
-
-    // We register each node of the parallel Salome_file object
-    // into the proxy.
-    for (int i = 0; i < getTotalNode(); i++) {
-      if (i ==  getMyRank()) {
-	Parallel_Salome_file_i * servant = 
-	  new Parallel_Salome_file_i(CORBA::ORB::_duplicate(_orb), proxy_ior);
-	PaCO_operation * servant_global_ptr = servant->getContext("global_paco_context");
-	
-	// We initialize the object with the context of the Parallel component
-	PaCO_operation * compo_global_ptr =  this->getContext("global_paco_context");
-	compo_global_ptr->init_context(servant_global_ptr);
-	
-	// We register the CORBA objet into the POA
-	servant->POA_PaCO::InterfaceParallel::_this();
-
-	// Register the servant
-	servant->deploy(getMyRank());
-
-	// Adding servant to the map
-	(*_map)[Salome_file_name] = servant;
-      }
-
-      PaCO_operation * compo_global_ptr =  this->getContext("global_paco_context");
-      compo_global_ptr->my_com->paco_barrier();
-    }
-    // Parallel_Salome_file is created and deployed
-    delete _proxy;
-    _proxy = NULL;
-    pthread_mutex_unlock(deploy_mutex);
-  }
-  else {
-    // Salome_file_name already added into the service
-    // throw Exception
+  // Try to find the service, if it doesn't exist, we throw an exception.
+  _Proxy_Service_file_map_it = _Proxy_Output_Service_file_map.find(service_name);
+  if (_Proxy_Service_file_map_it ==  _Proxy_Output_Service_file_map.end()) {
     SALOME::ExceptionStruct es;
     es.type = SALOME::INTERNAL_ERROR;
-    es.text = "Salome_file_name already added";
+    es.text = "service doesn't have salome files";
+    throw SALOME::SALOME_Exception(es);
+  }
+  _t_Proxy_Salome_file_map * _map = _Proxy_Output_Service_file_map[service_name];
+
+  // Try to find the Salome_file ...
+  _Proxy_Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Proxy_Salome_file_map_it ==  _map->end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have this Salome_file";
     throw SALOME::SALOME_Exception(es);
   }
 
-  CORBA::Object_ptr obj = _orb->string_to_object(proxy_ior);
-  return Engines::Salome_file::_narrow(obj);
+  // Client get the proxy object
+  Engines::Parallel_Salome_file_proxy_impl * Sfile = (*_map)[Salome_file_name];
+  return Sfile->_this();
 }
+
 
 void 
 Engines_Parallel_Component_i::checkInputServiceFiles(const char* service_name) 
@@ -935,81 +1073,18 @@ Engines_Parallel_Component_i::checkInputServiceFiles(const char* service_name)
   }
 }
 
-Engines::Salome_file_ptr 
-Engines_Parallel_Component_i::getOutputServiceSalome_file(const char* service_name, 
-						const char* Salome_file_name) 
-{
-  // Try to find the service, if it doesn't exist, we throw an exception.
-  _Service_file_map_it = _Output_Service_file_map.find(service_name);
-  if (_Service_file_map_it ==  _Output_Service_file_map.end()) {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
-    es.text = "service doesn't have salome files";
-    throw SALOME::SALOME_Exception(es);
-  }
-  _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
-
-  // Try to find the Salome_file ...
-  _Salome_file_map_it = _map->find(Salome_file_name);
-  if (_Salome_file_map_it ==  _map->end()) {
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
-    es.text = "service doesn't have this Salome_file";
-    throw SALOME::SALOME_Exception(es);
-  }
-  Salome_file_i * Sfile = (*_map)[Salome_file_name];
-
-  return Sfile->_this();
-}
-
-Engines::Salome_file_ptr 
-Engines_Parallel_Component_i::setOutputFileToService(const char* service_name, 
-					   const char* Salome_file_name) 
-{
-  // Try to find the service, if it doesn't exist, we add it.
-  _Service_file_map_it = _Output_Service_file_map.find(service_name);
-  if (_Service_file_map_it ==  _Output_Service_file_map.end()) {
-    _t_Salome_file_map * _map = new _t_Salome_file_map();
-    _Output_Service_file_map[service_name] = _map;
-  }
-  _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
-  
-  // Try to find the Salome_file ...
-  _Salome_file_map_it = _map->find(Salome_file_name);
-  if (_Salome_file_map_it ==  _map->end()) {
-//    Salome_file_i * Sfile = new Salome_file_i();
-//    (*_map)[Salome_file_name] = Sfile;
-//
-//
-//
-//   TODO
-//
-  }
-  else {
-    // Salome_file_name already added into the service
-    // throw Exception
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
-    es.text = "Salome_file_name already added";
-    throw SALOME::SALOME_Exception(es);
-  }
-  Salome_file_i * Sfile = (*_map)[Salome_file_name];
-
-  return Sfile->_this();
-}
-
 void 
 Engines_Parallel_Component_i::checkOutputServiceFiles(const char* service_name) 
 {
   // Try to find the service, if it doesn't exist, nothing to do.
-  _Service_file_map_it = _Output_Service_file_map.find(service_name);
-  if (_Service_file_map_it !=  _Output_Service_file_map.end()) {
-    _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
-    _t_Salome_file_map::iterator begin = _map->begin();
-    _t_Salome_file_map::iterator end = _map->end();
+  _Proxy_Service_file_map_it = _Proxy_Output_Service_file_map.find(service_name);
+  if (_Proxy_Service_file_map_it !=  _Proxy_Output_Service_file_map.end()) {
+    _t_Proxy_Salome_file_map * _map = _Proxy_Output_Service_file_map[service_name];
+    _t_Proxy_Salome_file_map::iterator begin = _map->begin();
+    _t_Proxy_Salome_file_map::iterator end = _map->end();
 
     for(;begin!=end;begin++) {
-      Salome_file_i * file = begin->second;
+      Engines::Parallel_Salome_file_proxy_impl * file = begin->second;
       file->recvFiles();
     }
   }

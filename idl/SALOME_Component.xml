@@ -50,6 +50,10 @@
    <Name>setInputServiceSalome_file</Name>
    <Type>distributed</Type>
   </Method>
+  <Method>
+   <Name>setOutputServiceSalome_file</Name>
+   <Type>distributed</Type>
+  </Method>
  </Interface>
  <Interface>
   <Name>Parallel_Component</Name>
@@ -60,10 +64,6 @@
  </Interface>
  <Interface>
   <Name>Salome_file</Name>
-  <Method>
-   <Name>recvFiles</Name>
-   <Type>distributed</Type>
-  </Method>
  </Interface>
  <Interface>
   <Name>Parallel_Salome_file</Name>

@@ -26,7 +26,7 @@
 #include "Parallel_Salome_file_i.hxx"
 #include "utilities.h"
 
-Parallel_Salome_file_i::Parallel_Salome_file_i(CORBA::ORB_ptr orb, char * ior) :
+Parallel_Salome_file_i::Parallel_Salome_file_i(CORBA::ORB_ptr orb, const char * ior) :
   InterfaceParallel_impl(orb,ior), 
   Engines::Salome_file_serv(orb,ior),
   Engines::fileTransfer_serv(orb,ior),
@@ -120,7 +120,7 @@ Parallel_Salome_file_i::recvFiles() {
   int total = getTotalNode();
   for (int i =0; i<total; i++) {
     try {
-      parallel_file->recvFiles_node(i);
+     parallel_file->recvFiles_node(i);
     }
     catch (SALOME::SALOME_Exception & ex) {
       files_not_ok = files_not_ok + std::string(ex.details.text.in());
@@ -200,6 +200,7 @@ Parallel_Salome_file_i::getParallelDistributedFile(std::string file_name) {
   int fileId;
   FILE* fp;
   std::string comp_file_name(_fileManaged[file_name].path.in());
+  comp_file_name.append("/");
   comp_file_name.append(_fileManaged[file_name].file_name.in());
 
   // Test if the process can write on disk
@@ -320,6 +321,24 @@ Parallel_Salome_file_i::getFileNode(const char* file_name) {
   
   // Test if this file is managed
   std::string fname(file_name);
+  if (fname == "") {
+    // We enter in the simple case where the user
+    // has not used setDistributedSourceFile.
+    // In this case we try to see if the Salome_file
+    if (_fileManaged.size() == 1) 
+    {
+      // only one file managed 
+      _t_fileManaged::iterator it = _fileManaged.begin();
+      fname = it->first;
+    }
+    else
+    {
+      SALOME::ExceptionStruct es;
+      es.type = SALOME::INTERNAL_ERROR;
+      es.text = "Error : there is more than one file that is managed";
+      throw SALOME::SALOME_Exception(es);
+    }
+  }
   _t_fileManaged::iterator it = _fileManaged.find(fname);
   if (it == _fileManaged.end()) 
   {
