@@ -42,6 +42,7 @@
 
 #include <stdio.h>
 
+//#define _DEBUG_
 
 // Déplacer cette information dans CorbaTypeManipulator
 // Gérer en même temps la recopie profonde.
@@ -576,7 +577,7 @@ ecp_fin_ (void * component, int code) {
 						      static_cast<CalciumTypes::DependencyType>(dependencyType), \
 						      _t,i,nomvar,_bufferLength,*data); \
     } catch ( const CalciumException & ex) {				\
-      DEBTRACE( ex.what() )				\
+      std::cerr << ex.what() << std::endl;				\
       return ex.getInfo();						\
     }									\
     DEBTRACE( "-------- CalciumInterface(ecriture Inter Part), Valeur de data : " ) \

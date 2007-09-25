@@ -5,6 +5,8 @@
 #include <string>
 #include <exception>
 
+//#define _DEBUG_
+
 PySupervCompo::PySupervCompo( CORBA::ORB_ptr orb,
                               PortableServer::POA_ptr poa,
                               Engines::Container_ptr contain,
@@ -49,6 +51,10 @@ extern "C"
 
   void create_calcium_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend)
   {
+#ifdef _DEBUG_
+    std::cerr << "create_calcium_port: " << name << " " << type << " " << mode << " " << depend << std::endl;
+#endif
+
     if(std::string(mode) == "IN")
       {
         provides_port * port ;
