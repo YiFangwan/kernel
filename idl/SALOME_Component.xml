@@ -47,11 +47,11 @@
  <Interface>
   <Name>Component</Name>
   <Method>
-   <Name>setInputServiceSalome_file</Name>
+   <Name>setInputFileToService</Name>
    <Type>distributed</Type>
   </Method>
   <Method>
-   <Name>setOutputServiceSalome_file</Name>
+   <Name>setOutputFileToService</Name>
    <Type>distributed</Type>
   </Method>
  </Interface>

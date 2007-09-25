@@ -96,16 +96,17 @@ public:
 				      CORBA::Boolean isPublished,
 				      CORBA::Boolean& isValidScript);
 
- virtual Engines::Salome_file_ptr getInputServiceSalome_file(const char* service_name, 
-							     const char* Salome_file_name);
- virtual Engines::Salome_file_ptr getOutputServiceSalome_file(const char* service_name, 
+ // CORBA operations for Salome_file
+ virtual Engines::Salome_file_ptr getInputFileToService(const char* service_name, 
+							const char* Salome_file_name);
+ virtual Engines::Salome_file_ptr getOutputFileToService(const char* service_name, 
 							      const char* Salome_file_name);
 
- virtual void checkInputServiceFiles(const char* service_name);
+ virtual void checkInputFilesToService(const char* service_name);
  virtual Engines::Salome_file_ptr setInputFileToService(const char* service_name, 
 							const char* Salome_file_name);
 
- virtual void checkOutputServiceFiles(const char* service_name);
+ virtual void checkOutputFilesToService(const char* service_name);
  virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name, 
 							 const char* Salome_file_name);
   // --- local C++ methods

@@ -300,8 +300,8 @@ module Engines
       \exception contains informations of what if the component cannot 
       sends the file's reference.
     */
-    Engines::Salome_file getInputServiceSalome_file(in string service_name, 
-						    in string Salome_file_name)	 raises(SALOME::SALOME_Exception);
+    Engines::Salome_file getInputFileToService(in string service_name, 
+					       in string Salome_file_name)	 raises(SALOME::SALOME_Exception);
 
     /*!
       This method is used before the activation of the service. It calls
@@ -318,7 +318,7 @@ module Engines
 
       \exception contains informations about files that are not in a good state.
     */
-    void checkInputServiceFiles(in string service_name)				raises(SALOME::SALOME_Exception);
+    void checkInputFilesToService(in string service_name)				raises(SALOME::SALOME_Exception);
 
     /*!
       This method adds a input Salome_file to a service of the component.
@@ -345,8 +345,8 @@ module Engines
       \exception contains informations of what if the component cannot 
       sends the file's reference.
     */
-    Engines::Salome_file getOutputServiceSalome_file(in string service_name, 
-						     in string Salome_file_name) raises(SALOME::SALOME_Exception);
+    Engines::Salome_file getOutputFileToService(in string service_name, 
+						in string Salome_file_name) raises(SALOME::SALOME_Exception);
 
     /*!
       This method is used at the end of the service. It calls
@@ -363,7 +363,7 @@ module Engines
 
       \exception contains informations about files that are not in a good state.
     */
-    void checkOutputServiceFiles(in string service_name)			 raises(SALOME::SALOME_Exception);
+    void checkOutputFilesToService(in string service_name)			 raises(SALOME::SALOME_Exception);
 
     /*!
       This method adds an output Salome_file to a service of the component.

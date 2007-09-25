@@ -835,8 +835,8 @@ Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy,
 }
 
 Engines::Salome_file_ptr 
-Engines_Component_i::getInputServiceSalome_file(const char* service_name, 
-						const char* Salome_file_name) 
+Engines_Component_i::getInputFileToService(const char* service_name, 
+					   const char* Salome_file_name) 
 {
   // Try to find the service, if it doesn't exist, we throw an exception.
   _Service_file_map_it = _Input_Service_file_map.find(service_name);
@@ -895,7 +895,7 @@ Engines_Component_i::setInputFileToService(const char* service_name,
 }
 
 void 
-Engines_Component_i::checkInputServiceFiles(const char* service_name) 
+Engines_Component_i::checkInputFilesToService(const char* service_name) 
 {
   // Try to find the service, if it doesn't exist, nothing to do.
   _Service_file_map_it = _Input_Service_file_map.find(service_name);
@@ -912,8 +912,8 @@ Engines_Component_i::checkInputServiceFiles(const char* service_name)
 }
 
 Engines::Salome_file_ptr 
-Engines_Component_i::getOutputServiceSalome_file(const char* service_name, 
-						const char* Salome_file_name) 
+Engines_Component_i::getOutputFileToService(const char* service_name, 
+					    const char* Salome_file_name) 
 {
   // Try to find the service, if it doesn't exist, we throw an exception.
   _Service_file_map_it = _Output_Service_file_map.find(service_name);
@@ -972,7 +972,7 @@ Engines_Component_i::setOutputFileToService(const char* service_name,
 }
 
 void 
-Engines_Component_i::checkOutputServiceFiles(const char* service_name) 
+Engines_Component_i::checkOutputFilesToService(const char* service_name) 
 {
   // Try to find the service, if it doesn't exist, nothing to do.
   _Service_file_map_it = _Output_Service_file_map.find(service_name);
