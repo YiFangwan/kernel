@@ -879,17 +879,8 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
     _proxy = NULL;
     pthread_mutex_unlock(deploy_mutex);
   }
-  else {
-    // Salome_file_name already added into the service
-    // throw Exception
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
-    es.text = "Salome_file_name already added";
-    throw SALOME::SALOME_Exception(es);
-  }
 
-  CORBA::Object_ptr obj = _orb->string_to_object(proxy_ior.c_str());
-  return Engines::Salome_file::_narrow(obj);
+  return (*_proxy_map)[Salome_file_name]->_this();
 }
 
 Engines::Salome_file_ptr 
@@ -986,17 +977,8 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
     _proxy = NULL;
     pthread_mutex_unlock(deploy_mutex);
   }
-  else {
-    // Salome_file_name already added into the service
-    // throw Exception
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
-    es.text = "Salome_file_name already added";
-    throw SALOME::SALOME_Exception(es);
-  }
 
-  CORBA::Object_ptr obj = _orb->string_to_object(proxy_ior.c_str());
-  return Engines::Salome_file::_narrow(obj);
+  return (*_proxy_map)[Salome_file_name]->_this();
 }
 
 Engines::Salome_file_ptr 

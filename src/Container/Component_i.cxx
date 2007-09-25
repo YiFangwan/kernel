@@ -881,16 +881,8 @@ Engines_Component_i::setInputFileToService(const char* service_name,
     Sfile->setContainer(Engines::Container::_duplicate(container));
     (*_map)[Salome_file_name] = Sfile;
   }
-  else {
-    // Salome_file_name already added into the service
-    // throw Exception
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
-    es.text = "Salome_file_name already added";
-    throw SALOME::SALOME_Exception(es);
-  }
-  Salome_file_i * Sfile = (*_map)[Salome_file_name];
 
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
   return Sfile->_this();
 }
 
@@ -958,16 +950,8 @@ Engines_Component_i::setOutputFileToService(const char* service_name,
     Sfile->setContainer(Engines::Container::_duplicate(container));
     (*_map)[Salome_file_name] = Sfile;
   }
-  else {
-    // Salome_file_name already added into the service
-    // throw Exception
-    SALOME::ExceptionStruct es;
-    es.type = SALOME::INTERNAL_ERROR;
-    es.text = "Salome_file_name already added";
-    throw SALOME::SALOME_Exception(es);
-  }
-  Salome_file_i * Sfile = (*_map)[Salome_file_name];
 
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
   return Sfile->_this();
 }
 
