@@ -14,4 +14,4 @@ class PySupervCompo:public Superv_Component_i
 };
 
 
-extern "C" void create_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend);
+extern "C" void create_calcium_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend);

@@ -47,9 +47,8 @@ extern "C"
       }
   }
 
-  void create_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend)
+  void create_calcium_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend)
   {
-    std::cerr << "create_port: " << name << type << mode << depend << std::endl;
     if(std::string(mode) == "IN")
       {
         provides_port * port ;
@@ -64,18 +63,18 @@ extern "C"
               setDependency(port,type,CalciumTypes::TIME_DEPENDENCY);
             else
               {
-                std::cerr << "unknown dependency: " << depend << std::endl;
+                std::cerr << "create_calcium_port:unknown dependency: " << depend << std::endl;
               }
           }
         catch(const Superv_Component_i::PortAlreadyDefined& ex)
           {
             //Port already defined : we use the old one
             delete port;
-            std::cerr << "create_port: " << ex.what() << std::endl;
+            std::cerr << "create_calcium_port: " << ex.what() << std::endl;
           }
         catch ( ... )
           {
-            std::cerr << "create_port: unknown exception" << std::endl;
+            std::cerr << "create_calcium_port: unknown exception" << std::endl;
           }
       }
     else if(std::string(mode) == "OUT")
@@ -90,17 +89,17 @@ extern "C"
           {
             //Port already defined : we use the old one
             delete uport;
-            std::cerr << "create_port: " << ex.what() << std::endl;
+            std::cerr << "create_calcium_port: " << ex.what() << std::endl;
           }
         catch ( ... )
           {
-            std::cerr << "create_port: unknown exception" << std::endl;
+            std::cerr << "create_calcium_port: unknown exception" << std::endl;
           }
       }
     else
       {
         //Unknown mode
-        std::cerr << "Unknown mode: " << mode << std::endl;
+        std::cerr << "create_calcium_port:Unknown mode: " << mode << std::endl;
       }
   }
 
