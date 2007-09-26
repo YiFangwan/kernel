@@ -89,4 +89,8 @@ class Server:
         #I am a daemon
         os.close(0) #close stdin
         os.open("/dev/null", os.O_RDWR)  # redirect standard input (0) to /dev/null
-        os.execvp(args[0], args)
+        try:
+          os.execvp(args[0], args)
+        except OSError, e:
+          print >>sys.stderr, "(%s) launch failed: %d (%s)" % (args[0],e.errno, e.strerror)
+          os._exit(127)
