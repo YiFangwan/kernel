@@ -277,7 +277,7 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
       SALOME_ModuleCatalog::ModuleCatalog_var Catalog = 
 	SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
       ASSERT(! CORBA::is_nil(Catalog));
-      SALOME_ModuleCatalog::Acomponent_ptr compoInfo = 
+      SALOME_ModuleCatalog::Acomponent_var compoInfo = 
 	Catalog->GetComponent(componentName);
       if (CORBA::is_nil (compoInfo)) 
 	{
