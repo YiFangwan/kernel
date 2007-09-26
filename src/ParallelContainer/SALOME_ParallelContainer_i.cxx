@@ -704,7 +704,7 @@ Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
     // in the nameing service.
     _numInstanceMutex.lock() ; // lock on the instance number
     _numInstance++ ;
-    int numInstance = _numInstance ;
+//    int numInstance = _numInstance ;
     _numInstanceMutex.unlock() ;
   }
   cerr << "Node " << getMyRank() << " entering in paco_barrier()" << endl;

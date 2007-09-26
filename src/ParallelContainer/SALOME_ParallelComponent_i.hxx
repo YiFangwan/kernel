@@ -137,6 +137,10 @@ public:
   void wait_parallel_object_proxy();
   char * get_parallel_proxy_object();
 
+  virtual void configureSalome_file(std::string service_name,
+				    std::string file_port_name,
+				    Engines::Parallel_Salome_file_proxy_impl * file);
+
 protected:
   int _studyId; // -1: not initialised; 0: multiStudy; >0: study
   static bool _isMultiStudy;

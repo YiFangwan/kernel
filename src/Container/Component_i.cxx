@@ -611,7 +611,8 @@ void Engines_Component_i::beginService(const char *serviceName)
 	  (*it).second >>= value;
 	  // ---todo: replace __GNUC__ test by an autoconf macro AC_CHECK_FUNC.
 #if defined __GNUC__
-	  int ret = setenv(cle.c_str(), value, overwrite);
+//	  int ret = setenv(cle.c_str(), value, overwrite);
+	  setenv(cle.c_str(), value, overwrite);
 #else
 	  //CCRT porting : setenv not defined in stdlib.h
 	  std::string s(cle);
@@ -619,7 +620,8 @@ void Engines_Component_i::beginService(const char *serviceName)
 	  s+=value;
 	  // char* cast because 1st arg of linux putenv function
 	  // is not a const char* !
-	  int ret=putenv((char *)s.c_str());
+//	  int ret=putenv((char *)s.c_str());
+	  putenv((char *)s.c_str());
 	  //End of CCRT porting
 #endif
 	  MESSAGE("--- setenv: "<<cle<<" = "<< value);
@@ -824,7 +826,7 @@ Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy,
 						  CORBA::Boolean isPublished, 
 						  CORBA::Boolean& isValidScript)
 {
-  char* aScript = "def RebuildData(theStudy): pass";
+  const char* aScript = "def RebuildData(theStudy): pass";
   char* aBuffer = new char[strlen(aScript)+1];
   strcpy(aBuffer, aScript);
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
@@ -898,6 +900,8 @@ Engines_Component_i::checkInputFilesToService(const char* service_name)
 
     for(;begin!=end;begin++) {
       Salome_file_i * file = begin->second;
+      std::string file_port_name = begin->first;
+      configureSalome_file(service_name, file_port_name, file);
       file->recvFiles();
     }
   }
@@ -967,9 +971,27 @@ Engines_Component_i::checkOutputFilesToService(const char* service_name)
 
     for(;begin!=end;begin++) {
       Salome_file_i * file = begin->second;
+      std::string file_port_name = begin->first;
+      configureSalome_file(service_name, file_port_name, file);
       file->recvFiles();
     }
   }
 
+}
+
+//=============================================================================
+/*! 
+ *  C++ method: used to configure the Salome_file into the runtime.
+ *  \param service_name name of the service that use this Salome_file
+ *  \param file_port_name name of the Salome_file
+ *  \param file Salome_file C++ object
+ */
+//=============================================================================
+void
+Engines_Component_i::configureSalome_file(std::string service_name,
+					  std::string file_port_name,
+					  Salome_file_i * file) 
+{
+  // By default this method does nothing
 }
 

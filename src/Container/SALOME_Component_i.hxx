@@ -129,6 +129,11 @@ public:
   long CpuUsed() ;
   void CancelThread() ;
 
+  virtual void configureSalome_file(std::string service_name,
+				    std::string file_port_name,
+				    Salome_file_i * file);
+
+
 protected:
   int _studyId; // -1: not initialised; 0: multiStudy; >0: study
   static bool _isMultiStudy;

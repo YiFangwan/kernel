@@ -1050,6 +1050,8 @@ Engines_Parallel_Component_i::checkInputFilesToService(const char* service_name)
 
     for(;begin!=end;begin++) {
       Engines::Parallel_Salome_file_proxy_impl * file = begin->second;
+      std::string file_port_name = begin->first;
+      configureSalome_file(service_name, file_port_name, file);
       file->recvFiles();
     }
   }
@@ -1067,17 +1069,29 @@ Engines_Parallel_Component_i::checkOutputFilesToService(const char* service_name
 
     for(;begin!=end;begin++) {
       Engines::Parallel_Salome_file_proxy_impl * file = begin->second;
+      std::string file_port_name = begin->first;
+      configureSalome_file(service_name, file_port_name, file);
       file->recvFiles();
     }
   }
 
 }
 
+//=============================================================================
+/*! 
+ *  C++ method: Used by the Parallel Component to deploy a Parallel Salome_file
+ */ 
+//=============================================================================
 void 
 Engines_Parallel_Component_i::send_parallel_proxy_object(CORBA::Object_ptr proxy_ref) {
   _proxy = _orb->object_to_string(proxy_ref);
 }
 
+//=============================================================================
+/*! 
+ *  C++ method: Used by the Parallel Component to deploy a Parallel Salome_file
+ */ 
+//=============================================================================
 void 
 Engines_Parallel_Component_i::wait_parallel_object_proxy() {
   char * proxy = NULL;
@@ -1089,7 +1103,30 @@ Engines_Parallel_Component_i::wait_parallel_object_proxy() {
   }
 }
 
+//=============================================================================
+/*! 
+ *  C++ method: Used by the Parallel Component to deploy a Parallel Salome_file
+ */ 
+//=============================================================================
 char * 
 Engines_Parallel_Component_i::get_parallel_proxy_object() {
   return _proxy;
 }
+
+
+//=============================================================================
+/*! 
+ *  C++ method: used to configure the Salome_file into the runtime.
+ *  \param service_name name of the service that use this Salome_file
+ *  \param file_port_name name of the Salome_file
+ *  \param file Parallel Salome_file C++ object
+ */
+//=============================================================================
+void
+Engines_Parallel_Component_i::configureSalome_file(std::string service_name,
+						   std::string file_port_name,
+						   Engines::Parallel_Salome_file_proxy_impl * file) 
+{
+  // By default this method does nothing
+}
+
