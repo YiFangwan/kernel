@@ -48,10 +48,10 @@ private :
   char* _attribute;
 
 public:
-  HDFdataset(char *name, HDFcontainerObject *father,hdf_type type, 
+  HDFdataset(const char *name, HDFcontainerObject *father,hdf_type type, 
 	     hdf_size dim[],int dimsize, hdf_byte_order order = H5T_ORDER_NONE);
 
-  HDFdataset(char *name,HDFcontainerObject *father);
+  HDFdataset(const char *name,HDFcontainerObject *father);
   virtual ~HDFdataset();
 
   void CreateOnDisk();

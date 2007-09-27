@@ -40,7 +40,7 @@ private :
   HDFinternalObject *_previousbrother;
   HDFinternalObject *_nextbrother;
 public :
-  HDFinternalObject(char *name);
+  HDFinternalObject(const char *name);
 
   HDFinternalObject *GetPreviousBrother();
   HDFinternalObject *GetNextBrother();

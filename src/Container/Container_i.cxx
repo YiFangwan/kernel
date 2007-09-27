@@ -189,7 +189,8 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 	  // if no thread state defined
 	  if ( !myTstate ) 
 	    myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
-	  PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
+//	  PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
+	  PyThreadState_Swap(myTstate);
 #else
 	  Py_ACQUIRE_NEW_THREAD;
 #endif

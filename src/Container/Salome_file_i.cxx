@@ -45,6 +45,7 @@ Salome_file_i::Salome_file_i()
   _state.number_of_files = 0;
   _state.files_ok = true;
   _container = Engines::Container::_nil();
+  _default_source_Salome_file = Engines::Salome_file::_nil();
 }
 
 //=============================================================================
@@ -108,7 +109,7 @@ Salome_file_i::load(const char* hdf5_file) {
       std::string dataset_group_name("DATASET");
       dataset_group_name += file_name;
 
-      hdf_group = new HDFgroup((char *) dataset_group_name.c_str(), hdf_file); 
+      hdf_group = new HDFgroup(dataset_group_name.c_str(), hdf_file); 
       hdf_group->OpenOnDisk();
 
       hdf_dataset = new HDFdataset("NAME",hdf_group);
@@ -160,7 +161,7 @@ Salome_file_i::load(const char* hdf5_file) {
 
 	std::string group_name("GROUP");
 	group_name += file_name;
-	hdf_group = new HDFgroup((char *) group_name.c_str(),hdf_file); 
+	hdf_group = new HDFgroup(group_name.c_str(),hdf_file); 
 	hdf_group->OpenOnDisk();
 	hdf_dataset = new HDFdataset("FILE DATASET",hdf_group);
 	hdf_dataset->OpenOnDisk();
@@ -584,6 +585,12 @@ Salome_file_i::setDistributedFile(const char* comp_file_name)
 
   _fileManaged[file_name] = infos;
 
+  if(!CORBA::is_nil(_default_source_Salome_file)) 
+  {
+    _fileDistributedSource[file_name] = 
+      Engines::Salome_file::_duplicate(_default_source_Salome_file);
+  }
+
   // Update Salome_file state
   _state.number_of_files++;
   _state.files_ok = false;
@@ -598,25 +605,49 @@ Salome_file_i::setDistributedFile(const char* comp_file_name)
 void
 Salome_file_i::connect(Engines::Salome_file_ptr source_Salome_file) 
 {
-  // We can connect this Salome_file if there is only one file managed
-  // by the Salome_file
-  std::string fname;
-  if (_fileManaged.size() == 1) 
+  if(CORBA::is_nil(_default_source_Salome_file)) 
   {
-    // only one file managed 
-    _t_fileManaged::iterator it = _fileManaged.begin();
-    fname = it->first;
-    _fileDistributedSource[fname] = Engines::Salome_file::_duplicate(source_Salome_file);
+    _default_source_Salome_file = Engines::Salome_file::_duplicate(source_Salome_file);
+    _t_fileManaged::iterator begin = _fileManaged.begin();
+    _t_fileManaged::iterator end = _fileManaged.end();
+    for(;begin!=end;begin++) {
+      // Get the name of the file
+      std::string file_name = begin->first;
+      _t_fileDistributedSource::iterator it = _fileDistributedSource.find(file_name);
+      if (it == _fileDistributedSource.end()) 
+      {
+	_fileDistributedSource[file_name] = Engines::Salome_file::_duplicate(source_Salome_file);
+      }
+    }
   }
-  else 
+  else
   {
     SALOME::ExceptionStruct es;
     es.type = SALOME::INTERNAL_ERROR;
-    std::string text = "cannot connect";
+    std::string text = "already connected to a default Salome_file";
     es.text = CORBA::string_dup(text.c_str());
     throw SALOME::SALOME_Exception(es);
   }
+  // We can connect this Salome_file if there is only one file managed
+  // by the Salome_file
+  //std::string fname;
+  //if (_fileManaged.size() == 1) 
+  //{
+    // only one file managed 
+  //  _t_fileManaged::iterator it = _fileManaged.begin();
+  //  fname = it->first;
+  //  _fileDistributedSource[fname] = Engines::Salome_file::_duplicate(source_Salome_file);
+  //}
+  //else 
+  //{
+  //  SALOME::ExceptionStruct es;
+  //  es.type = SALOME::INTERNAL_ERROR;
+  //  std::string text = "cannot connect";
+   // es.text = CORBA::string_dup(text.c_str());
+   // throw SALOME::SALOME_Exception(es);
+  //}
 }
+
 //=============================================================================
 /*! 
  *  CORBA method

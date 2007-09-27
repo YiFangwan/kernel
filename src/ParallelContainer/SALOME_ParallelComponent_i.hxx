@@ -161,10 +161,12 @@ protected:
   // Map Salome_file_name to Parallel_Salome_file*
   typedef std::map<std::string, Parallel_Salome_file_i*> _t_Salome_file_map;
   typedef std::map<std::string, Engines::Parallel_Salome_file_proxy_impl*> _t_Proxy_Salome_file_map;
+  typedef std::map<std::string, std::string> _t_IOR_Proxy_Salome_file_map;
 
   // Map Service_name to  _Salome_file_map
   typedef std::map<std::string, Engines_Parallel_Component_i::_t_Salome_file_map*> _t_Service_file_map;
   typedef std::map<std::string, Engines_Parallel_Component_i::_t_Proxy_Salome_file_map*> _t_Proxy_Service_file_map;
+  typedef std::map<std::string, Engines_Parallel_Component_i::_t_IOR_Proxy_Salome_file_map*> _t_IOR_Proxy_Service_file_map;
   
   _t_Service_file_map _Input_Service_file_map;
   _t_Service_file_map _Output_Service_file_map;
@@ -175,6 +177,11 @@ protected:
   _t_Proxy_Service_file_map _Proxy_Output_Service_file_map;
   _t_Proxy_Service_file_map::iterator _Proxy_Service_file_map_it;
   _t_Proxy_Salome_file_map::iterator _Proxy_Salome_file_map_it;
+
+  _t_IOR_Proxy_Service_file_map _IOR_Proxy_Input_Service_file_map;
+  _t_IOR_Proxy_Service_file_map _IOR_Proxy_Output_Service_file_map;
+  _t_IOR_Proxy_Service_file_map::iterator _IOR_Proxy_Service_file_map_it;
+  _t_IOR_Proxy_Salome_file_map::iterator _IOR_Proxy_Salome_file_map_it;
 
   std::string _serviceName ;
   std::string _graphName ;

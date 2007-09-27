@@ -43,6 +43,7 @@
 int SIGUSR11 = 1000;
 #endif
 
+#include <paco_dummy.h>
 
 using namespace std;
 
@@ -796,10 +797,14 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
     _Input_Service_file_map[service_name] = _map;
     _t_Proxy_Salome_file_map * _proxy_map = new _t_Proxy_Salome_file_map();
     _Proxy_Input_Service_file_map[service_name] = _proxy_map;
+    _t_IOR_Proxy_Salome_file_map * _IOR_proxy_map = new _t_IOR_Proxy_Salome_file_map();
+    _IOR_Proxy_Input_Service_file_map[service_name] = _IOR_proxy_map;
   }
   _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
   _t_Proxy_Salome_file_map * _proxy_map = _Proxy_Input_Service_file_map[service_name];
+  _t_IOR_Proxy_Salome_file_map * _IOR_proxy_map = _IOR_Proxy_Input_Service_file_map[service_name];
   
+  pthread_mutex_lock(deploy_mutex);
   std::string proxy_ior;
 
   // Try to find the Salome_file ...
@@ -810,7 +815,6 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
     // He has the same configuration than
     // his component
 
-    pthread_mutex_lock(deploy_mutex);
     // Firstly, we have to create the proxy object
     // of the Salome_file and transmit his
     // reference to the other nodes.
@@ -818,6 +822,16 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
       Engines::Parallel_Salome_file_proxy_impl * proxy = 
 	new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb));
       PaCO_operation * proxy_global_ptr =  proxy->getContext("global_paco_context");
+      // We initialize the object with the context of the Parallel component
+      PaCO_operation * compo_global_ptr =  getContext("global_paco_context");
+      //compo_global_ptr->init_context(proxy_global_ptr);
+      proxy_global_ptr->init_context(compo_global_ptr);
+      
+      paco_fabrique_manager* pfm = paco_getFabriqueManager();
+      pfm->register_com("dummy", new paco_dummy_fabrique());
+      proxy_global_ptr->setComFab(NULL);
+      proxy_global_ptr->setLibCom("dummy",NULL);
+      
       proxy_global_ptr->setTypeClient(true);
       PaCO::PacoTopology_t client_topo;
       client_topo.total = 1;
@@ -826,10 +840,6 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
       serveur_topo.total = getTotalNode();
       proxy->setTopo(serveur_topo);
 
-      // We initialize the object with the context of the Parallel component
-      PaCO_operation * compo_global_ptr =  getContext("global_paco_context");
-      //compo_global_ptr->init_context(proxy_global_ptr);
-      proxy_global_ptr->init_context(compo_global_ptr);
       // We register the CORBA objet into the POA
       CORBA::Object_ptr proxy_ref = proxy->_this();
 
@@ -846,6 +856,7 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
     }
 
     proxy_ior = this->get_parallel_proxy_object();
+    (*_IOR_proxy_map)[Salome_file_name] = proxy_ior;
 
     // We register each node of the parallel Salome_file object
     // into the proxy.
@@ -877,10 +888,11 @@ Engines_Parallel_Component_i::setInputFileToService(const char* service_name,
     // Parallel_Salome_file is created and deployed
     delete _proxy;
     _proxy = NULL;
-    pthread_mutex_unlock(deploy_mutex);
   }
-
-  return (*_proxy_map)[Salome_file_name]->_this();
+  pthread_mutex_unlock(deploy_mutex);
+  proxy_ior = (*_IOR_proxy_map)[Salome_file_name];
+  CORBA::Object_ptr proxy_ref = _orb->string_to_object(proxy_ior.c_str());
+  return Engines::Salome_file::_narrow(proxy_ref);
 }
 
 Engines::Salome_file_ptr 
@@ -894,10 +906,14 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
     _Output_Service_file_map[service_name] = _map;
     _t_Proxy_Salome_file_map * _proxy_map = new _t_Proxy_Salome_file_map();
     _Proxy_Output_Service_file_map[service_name] = _proxy_map;
+    _t_IOR_Proxy_Salome_file_map * _IOR_proxy_map = new _t_IOR_Proxy_Salome_file_map();
+    _IOR_Proxy_Output_Service_file_map[service_name] = _IOR_proxy_map;
   }
   _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
   _t_Proxy_Salome_file_map * _proxy_map = _Proxy_Output_Service_file_map[service_name];
+  _t_IOR_Proxy_Salome_file_map * _IOR_proxy_map = _IOR_Proxy_Output_Service_file_map[service_name];
   
+  pthread_mutex_lock(deploy_mutex);
   std::string proxy_ior;
 
   // Try to find the Salome_file ...
@@ -908,7 +924,6 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
     // He has the same configuration than
     // his component
 
-    pthread_mutex_lock(deploy_mutex);
     // Firstly, we have to create the proxy object
     // of the Salome_file and transmit his
     // reference to the other nodes.
@@ -916,6 +931,16 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
       Engines::Parallel_Salome_file_proxy_impl * proxy = 
 	new Engines::Parallel_Salome_file_proxy_impl(CORBA::ORB::_duplicate(_orb));
       PaCO_operation * proxy_global_ptr =  proxy->getContext("global_paco_context");
+      // We initialize the object with the context of the Parallel component
+      PaCO_operation * compo_global_ptr =  getContext("global_paco_context");
+      //compo_global_ptr->init_context(proxy_global_ptr);
+      proxy_global_ptr->init_context(compo_global_ptr);
+
+      paco_fabrique_manager* pfm = paco_getFabriqueManager();
+      pfm->register_com("dummy", new paco_dummy_fabrique());
+      proxy_global_ptr->setComFab(NULL);
+      proxy_global_ptr->setLibCom("dummy",NULL);
+
       proxy_global_ptr->setTypeClient(true);
       PaCO::PacoTopology_t client_topo;
       client_topo.total = 1;
@@ -924,10 +949,6 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
       serveur_topo.total = getTotalNode();
       proxy->setTopo(serveur_topo);
 
-      // We initialize the object with the context of the Parallel component
-      PaCO_operation * compo_global_ptr =  getContext("global_paco_context");
-      //compo_global_ptr->init_context(proxy_global_ptr);
-      proxy_global_ptr->init_context(compo_global_ptr);
       // We register the CORBA objet into the POA
       CORBA::Object_ptr proxy_ref = proxy->_this();
 
@@ -944,6 +965,7 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
     }
 
     proxy_ior = this->get_parallel_proxy_object();
+    (*_IOR_proxy_map)[Salome_file_name] = proxy_ior;
 
     // We register each node of the parallel Salome_file object
     // into the proxy.
@@ -975,10 +997,11 @@ Engines_Parallel_Component_i::setOutputFileToService(const char* service_name,
     // Parallel_Salome_file is created and deployed
     delete _proxy;
     _proxy = NULL;
-    pthread_mutex_unlock(deploy_mutex);
   }
-
-  return (*_proxy_map)[Salome_file_name]->_this();
+  pthread_mutex_unlock(deploy_mutex);
+  proxy_ior = (*_IOR_proxy_map)[Salome_file_name];
+  CORBA::Object_ptr proxy_ref = _orb->string_to_object(proxy_ior.c_str());
+  return Engines::Salome_file::_narrow(proxy_ref);
 }
 
 Engines::Salome_file_ptr 

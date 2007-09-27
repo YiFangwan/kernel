@@ -42,7 +42,7 @@ private :
   HDFinternalObject *_lastson;
   int _nsons;
 public :
-  HDFcontainerObject(char *name);
+  HDFcontainerObject(const char *name);
   virtual ~HDFcontainerObject();
 
   virtual int nInternalObjects();

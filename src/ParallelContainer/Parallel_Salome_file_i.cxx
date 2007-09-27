@@ -73,12 +73,15 @@ Parallel_Salome_file_i::connect(Engines::Salome_file_ptr source_Salome_file) {
 
   // Test if the file is managed in an another node
   // If yes, node is updated
-  _t_fileManaged::iterator it = _fileManaged.begin();
-  std::string file_name = it->first;
-  if (_fileManaged[file_name].node > 0 && getMyRank() == 0) {
-    if (parallel_file == NULL)
-      parallel_file = Engines::PaCO_Parallel_Salome_file::PaCO_narrow(proxy, _orb);
-    parallel_file->connect(source_Salome_file, _fileManaged[file_name].node);
+  _t_fileManaged::iterator begin = _fileManaged.begin();
+  _t_fileManaged::iterator end = _fileManaged.end();
+  for(;begin!=end;begin++) {
+    std::string file_name = begin->first;
+    if (_fileManaged[file_name].node > 0 && getMyRank() == 0) {
+      if (parallel_file == NULL)
+	parallel_file = Engines::PaCO_Parallel_Salome_file::PaCO_narrow(proxy, _orb);
+      parallel_file->connect(source_Salome_file, _fileManaged[file_name].node);
+    }
   }
 }
 
@@ -296,6 +299,9 @@ Parallel_Salome_file_i::setFileNode(const char* file_name, CORBA::Long node) {
       parallel_file = Engines::PaCO_Parallel_Salome_file::PaCO_narrow(proxy, _orb);
 
     Engines::Container_ptr cont = parallel_file->updateFile(_fileManaged[fname], node);
+    parallel_file->connectDistributedFile(fname.c_str(),
+					  _fileDistributedSource[fname],
+					  node);
 
     // Update file infos with the new reference of the container
     _fileManaged[fname].container = Engines::Container::_duplicate(cont);

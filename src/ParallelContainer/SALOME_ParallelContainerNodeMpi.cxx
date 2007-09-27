@@ -75,20 +75,71 @@ void handler(int t) {
 }
 #endif
 
+typedef void (*sighandler_t)(int);
+sighandler_t setsig(int sig, sighandler_t handler)
+{
+  struct sigaction context, ocontext;
+  context.sa_handler = handler;
+  sigemptyset(&context.sa_mask);
+  context.sa_flags = 0;
+  if (sigaction(sig, &context, &ocontext) == -1)
+    return SIG_ERR;
+  return ocontext.sa_handler;
+}
+
+void AttachDebugger()
+{
+  if(getenv ("DEBUGGER"))
+    {
+      std::stringstream exec;
+      exec << "$DEBUGGER SALOME_ParallelContainerNodeMpi " << getpid() << "&";
+      std::cerr << exec.str() << std::endl;
+      system(exec.str().c_str());
+      while(1);
+    }
+}
+
+void Handler(int theSigId)
+{
+  std::cerr << "SIGSEGV: "  << std::endl;
+  AttachDebugger();
+  //to exit or not to exit
+  exit(1);
+}
+
+void terminateHandler(void)
+{
+  std::cerr << "Terminate: not managed exception !"  << std::endl;
+  AttachDebugger();
+}
+
+void unexpectedHandler(void)
+{
+  std::cerr << "Unexpected: unexpected exception !"  << std::endl;
+  AttachDebugger();
+}
+
 int main(int argc, char* argv[])
 {
 	INFOS("Launching a parallel Mpi container node");
 
 #ifdef _DEBUG_
-	struct sigaction action;
-	action.sa_handler = &test;
-	sigaction(SIGSEGV, &action, NULL);
+//	struct sigaction action;
+//	action.sa_handler = &test;
+//	sigaction(SIGSEGV, &action, NULL);
 #endif
 	
 	// MPI Init
 	int provided;
 	MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE ,&provided);
 
+  if(getenv ("DEBUGGER"))
+    {
+  std::cerr << "Unexpected: unexpected exception !"  << std::endl;
+      setsig(SIGSEGV,&Handler);
+      set_terminate(&terminateHandler);
+      set_unexpected(&unexpectedHandler);
+    }
 #ifdef _DEBUG_
 	cerr << "Level MPI_THREAD_SINGLE : " << MPI_THREAD_SINGLE << endl;
 	cerr << "Level MPI_THREAD_SERIALIZED : " << MPI_THREAD_SERIALIZED << endl;

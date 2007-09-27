@@ -38,7 +38,7 @@ protected :
   char *_name;
   hdf_idt _id;
 public :
-  HDFobject(char *name);
+  HDFobject(const char *name);
   virtual ~HDFobject();
 
   hdf_idt GetId();

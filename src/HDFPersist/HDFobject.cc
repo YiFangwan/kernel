@@ -33,7 +33,7 @@ extern "C"
 //#include "utilities.h"
 using namespace std;
 
-HDFobject::HDFobject(char *name)
+HDFobject::HDFobject(const char *name)
 {
   //  MESSAGE("-------- constructor " << name << " " << this);
   HDFerrorModeLock();

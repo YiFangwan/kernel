@@ -42,7 +42,7 @@ private :
   hdf_idt _mid;
   char* _attribute;
 public :
-  HDFgroup(char *name, HDFcontainerObject *father);
+  HDFgroup(const char *name, HDFcontainerObject *father);
 
   void CreateOnDisk();
   void OpenOnDisk();

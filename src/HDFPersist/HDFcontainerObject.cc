@@ -33,7 +33,7 @@ extern "C"
 //#include "utilities.h"
 using namespace std;
 
-HDFcontainerObject::HDFcontainerObject(char *name)
+HDFcontainerObject::HDFcontainerObject(const char *name)
   : HDFinternalObject(name)
 {
   _nsons = 0;
