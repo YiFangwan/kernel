@@ -17,7 +17,7 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "SALOME_ContainerManager.hxx"
+#include "SALOME_Launcher.hxx"
 #include "utilities.h"
 
 int main(int argc, char* argv[])
@@ -31,17 +31,17 @@ int main(int argc, char* argv[])
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
   try{ 
-	obj = orb->resolve_initial_references("RootPOA");
-	if(!CORBA::is_nil(obj))
-	  root_poa = PortableServer::POA::_narrow(obj);
-	if(!CORBA::is_nil(root_poa))
-	  pman = root_poa->the_POAManager();
-      }
+    obj = orb->resolve_initial_references("RootPOA");
+    if(!CORBA::is_nil(obj))
+      root_poa = PortableServer::POA::_narrow(obj);
+    if(!CORBA::is_nil(root_poa))
+      pman = root_poa->the_POAManager();
+  }
   catch(CORBA::COMM_FAILURE&){
     MESSAGE( "Container: CORBA::COMM_FAILURE: Unable to contact the Naming Service" );
   }
   try{
-    SALOME_ContainerManager *cmServ=new SALOME_ContainerManager(orb);
+    SALOME_Launcher *lServ=new SALOME_Launcher(orb,root_poa);
     pman->activate();
     orb->run();
   }catch(CORBA::SystemException&){

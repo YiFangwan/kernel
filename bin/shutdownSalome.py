@@ -10,9 +10,9 @@ obj = clt.Resolve('Kernel/Session')
 if obj != None:
   ses = obj._narrow(SALOME.Session)
   ses.StopSession()
-obj = clt.Resolve('ContainerManager')
+obj = clt.Resolve('SalomeLauncher')
 if obj != None:
-  cm = obj._narrow(Engines.ContainerManager)
+  cm = obj._narrow(Engines.SalomeLauncher)
   cm.Shutdown()
 obj = clt.Resolve('Kernel/ModulCatalog')
 if obj != None:

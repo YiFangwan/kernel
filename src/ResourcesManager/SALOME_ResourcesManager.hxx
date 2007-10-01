@@ -23,7 +23,6 @@
 #include "Utils_SALOME_Exception.hxx"
 #include "utilities.h"
 #include <SALOMEconfig.h>
-#include "BatchLight_BatchManager.hxx"
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "SALOME_LoadRateManager.hxx"
 #include "SALOME_NamingService.hxx"
@@ -52,40 +51,30 @@
 // Only one thread should use the SALOME_ResourcesManager class in a SALOME
 // session.
 
-class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
+class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
+  public POA_Engines::ResourcesManager,
+  public PortableServer::RefCountServantBase
   {
 
   public:
 
-    SALOME_ResourcesManager(CORBA::ORB_ptr orb, const char *xmlFilePath);
-    SALOME_ResourcesManager(CORBA::ORB_ptr orb);
+    SALOME_ResourcesManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService *ns, const char *xmlFilePath);
+    SALOME_ResourcesManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService *ns);
 
     ~SALOME_ResourcesManager();
 
-    std::vector<std::string>
+    Engines::MachineList *
     GetFittingResources(const Engines::MachineParameters& params,
                         const Engines::CompoList& componentList)
     throw(SALOME_Exception);
 
-    std::string FindFirst(const Engines::MachineList& listOfMachines);
+    char* FindFirst(const Engines::MachineList& listOfMachines);
     std::string FindNext(const Engines::MachineList& listOfMachines);
     std::string FindBest(const Engines::MachineList& listOfMachines);
 
     std::string BuildCommandToLaunchRemoteContainer
     (const std::string& machine,
      const Engines::MachineParameters& params, const long id);
-
-    CORBA::Long submitSalomeJob(const char * fileToExecute ,
-				const Engines::FilesList& filesToExport ,
-				const Engines::FilesList& filesToImport ,
-				const CORBA::Long NumberOfProcessors ,
-				const Engines::MachineParameters& params) throw(SALOME_Exception);
-
-    std::string querySalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params) throw(SALOME_Exception);
-    void deleteSalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params) throw(SALOME_Exception);
-    void getResultSalomeJob( const char *directory,
-			     const CORBA::Long jobId, 
-			     const Engines::MachineParameters& params) throw(SALOME_Exception);
 
     std::string BuildCommandToLaunchLocalContainer
     (const Engines::MachineParameters& params, const long id);
@@ -114,9 +103,14 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
 
     Engines::MachineParameters* GetMachineParameters(const char *hostname);
 
+    void Shutdown();
+
+    static const char *_ResourcesManagerNameInNS;
+
   protected:
     SALOME_NamingService *_NS;
-    std::map <std::string,BatchLight::BatchManager*> _batchmap;
+    CORBA::ORB_var _orb;
+    PortableServer::POA_var _poa;
 
     std::string BuildTempFileToLaunchRemoteContainer
     (const std::string& machine,
@@ -135,8 +129,6 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager
     void AddOmninamesParams(std::ofstream& fileStream) const;
 
     std::string BuildTemporaryFileName() const;
-
-    BatchLight::BatchManager *FactoryBatchManager( const ParserResourcesType& resInfo ) throw(SALOME_Exception);
 
     //! will contain the path to the ressources catalog
     QString _path_resources;

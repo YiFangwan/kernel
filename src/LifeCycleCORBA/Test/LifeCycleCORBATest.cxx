@@ -672,11 +672,11 @@ string LifeCycleCORBATest::GetRemoteHost()
 {
   SALOME_LifeCycleCORBA _LCC(&_NS);
 
-  CORBA::Object_var obj = _NS.Resolve("/ContainerManager");
+  CORBA::Object_var obj = _NS.Resolve("/ResourcesManager");
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
-  Engines::ContainerManager_var containerManager =
-    Engines::ContainerManager::_narrow(obj);
-  CPPUNIT_ASSERT(!CORBA::is_nil(containerManager));
+  Engines::ResourcesManager_var resourcesManager =
+    Engines::ResourcesManager::_narrow(obj);
+  CPPUNIT_ASSERT(!CORBA::is_nil(resourcesManager));
 
   Engines::MachineParameters params;
   _LCC.preSet(params);               // empty params to get all the machines
@@ -685,7 +685,7 @@ string LifeCycleCORBATest::GetRemoteHost()
   clist.length(1);
   clist[0] = "SalomeTestComponent";
   Engines::MachineList_var hostList =
-    containerManager->GetFittingResources(params,clist);
+    resourcesManager->GetFittingResources(params,clist);
   CPPUNIT_ASSERT(hostList->length() > 1);
 
   string localHost = GetHostname();

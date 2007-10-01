@@ -50,7 +50,7 @@ class CONTAINER_EXPORT SALOME_ContainerManager:
 {
 
 public:
-  SALOME_ContainerManager(CORBA::ORB_ptr orb);
+  SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_ResourcesManager *rm, SALOME_NamingService *ns);
   ~SALOME_ContainerManager();
 
   Engines::Container_ptr
@@ -72,24 +72,6 @@ public:
 		Engines::ResPolicy policy,
 		const Engines::CompoList& componentList);
 
-  CORBA::Long submitSalomeJob(const char * fileToExecute ,
-			      const Engines::FilesList& filesToExport ,
-			      const Engines::FilesList& filesToImport ,
-			      const CORBA::Long NumberOfProcessors ,
-			      const Engines::MachineParameters& params);
-
-  char* querySalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
-  void deleteSalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
-  void getResultSalomeJob( const char * directory, const CORBA::Long jobId, const Engines::MachineParameters& params );
-
-  Engines::MachineList *
-  GetFittingResources(const Engines::MachineParameters& params,
-		      const Engines::CompoList& componentList);
-
-  char* FindFirst(const Engines::MachineList& possibleComputers);
-
-  Engines::MachineParameters* GetMachineParameters(const char *hostname);
-
   void Shutdown();
   void ShutdownContainers();
 
@@ -109,6 +91,7 @@ protected:
   long GetIdForContainer(void);
   long _id;
   CORBA::ORB_var _orb;
+  PortableServer::POA_var _poa;
 
   SALOME_ResourcesManager *_ResManager;
   SALOME_NamingService *_NS;

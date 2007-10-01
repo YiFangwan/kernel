@@ -147,16 +147,10 @@ namespace BatchLight {
   {
     BEGIN_OF("BatchManager_SLURM::buildSalomeCouplingScript");
     int status;
-    int lenf = strlen( fileToExecute ) ;
-    int i = lenf-1 ;
-    while ( i >= 0 && fileToExecute[i] != '/' ) {
-      i -= 1 ;
-    }
-    char * FileNameToExecute = new char[lenf-4-i] ;
-    strncpy(FileNameToExecute , &fileToExecute[i+1] , lenf-4-i) ;
-    _fileNameToExecute = string( FileNameToExecute ) ;
-    delete FileNameToExecute ;
-    SCRUTE(_fileNameToExecute) ;
+
+    string::size_type p1 = string(fileToExecute).find_last_of("/");
+    string::size_type p2 = string(fileToExecute).find_last_of(".");
+    _fileNameToExecute = string(fileToExecute).substr(p1+1,p2-p1-1);
 
     _TmpFileName = BuildTemporaryFileName();
     ofstream tempOutputFile;
@@ -169,7 +163,7 @@ namespace BatchLight {
     tempOutputFile << ":$PYTHONPATH" << endl ;
     tempOutputFile << "if test $SLURM_PROCID = 0; then" << endl ;
     tempOutputFile << "  ./runAppli --terminal --batch --modules=" ;
-    for ( i = 0 ; i < _params.modulesList.size() ; i++ ) {
+    for ( int i = 0 ; i < _params.modulesList.size() ; i++ ) {
       tempOutputFile << _params.modulesList[i] ;
       if ( i != _params.modulesList.size()-1 )
 	tempOutputFile << "," ;

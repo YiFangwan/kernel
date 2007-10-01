@@ -36,21 +36,13 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # header files  
 salomeinclude_HEADERS = \
-	SALOME_Component_i.hxx \
-	SALOME_Container_i.hxx \
-	SALOME_FileTransfer_i.hxx \
-	SALOME_FileRef_i.hxx \
-	SALOME_ContainerManager.hxx \
-	Container_init_python.hxx
+	SALOME_Launcher.hxx
 
 # Scripts to be installed
-dist_salomescript_DATA =\
-	SALOME_ComponentPy.py \
-	SALOME_Container.py
+dist_salomescript_DATA =
 
 # These files are executable scripts
-dist_salomescript_SCRIPTS=\
-	SALOME_ContainerPy.py
+dist_salomescript_SCRIPTS=
 
 #
 # ===============================================================
@@ -72,6 +64,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Registry \
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
+	-I$(srcdir)/../Container \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
@@ -80,6 +73,7 @@ COMMON_CPPFLAGS=\
 COMMON_LIBS =\
 	../Registry/libRegistry.la \
 	../Notification/libSalomeNotification.la \
+	../Container/libSalomeContainer.la \
 	../ResourcesManager/libSalomeResourcesManager.la \
 	../NamingService/libSalomeNS.la \
 	../Utils/libOpUtil.la \
@@ -97,23 +91,18 @@ COMMON_LIBS =\
 # Libraries targets
 # ===============================================================
 #
-lib_LTLIBRARIES = libSalomeContainer.la
-libSalomeContainer_la_SOURCES=\
-	Component_i.cxx \
-	Container_i.cxx \
-	SALOME_FileTransfer_i.cxx \
-	SALOME_FileRef_i.cxx \
-	SALOME_ContainerManager.cxx \
-	Container_init_python.cxx 
+lib_LTLIBRARIES = libSalomeLauncher.la
+libSalomeLauncher_la_SOURCES=\
+	SALOME_Launcher.cxx
 
-libSalomeContainer_la_CPPFLAGS =\
+libSalomeLauncher_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
 
-libSalomeContainer_la_LDFLAGS  =\
+libSalomeLauncher_la_LDFLAGS  =\
 	-no-undefined -version-info=0:0:0 \
 	@LDEXPDYNFLAGS@
 
-libSalomeContainer_la_LIBADD =\
+libSalomeLauncher_la_LIBADD =\
 	$(PYTHON_LIBS) \
 	$(COMMON_LIBS)
 
@@ -123,17 +112,18 @@ libSalomeContainer_la_LIBADD =\
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = SALOME_Container
-SALOME_Container_SOURCES =\
-	SALOME_Container.cxx \
-	SALOME_Container_SignalsHandler.cxx
+bin_PROGRAMS = SALOME_LauncherServer
 
-SALOME_Container_CPPFLAGS =\
+SALOME_LauncherServer_SOURCES =\
+	SALOME_LauncherServer.cxx
+
+SALOME_LauncherServer_CPPFLAGS=\
 	$(COMMON_CPPFLAGS)
 
-
-SALOME_Container_LDADD =\
-	libSalomeContainer.la \
+SALOME_LauncherServer_LDADD =\
+	libSalomeLauncher.la \
 	$(COMMON_LIBS) \
 	../Basics/libSALOMEBasics.la \
 	../Batch/libSalomeBatch.la
+
+

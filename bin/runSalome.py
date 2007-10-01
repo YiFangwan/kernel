@@ -539,11 +539,11 @@ class SessionServer(Server):
       
 # ---
 
-class ContainerManagerServer(Server):
+class LauncherServer(Server):
     def __init__(self,args):
         self.args=args
         self.initArgs()
-        self.SCMD1=['SALOME_ContainerManagerServer']
+        self.SCMD1=['SALOME_LauncherServer']
         self.SCMD2=[]
         if args["gui"] :
             if 'registry' in self.args['embedded']:
@@ -693,10 +693,10 @@ def startSalome(args, modules_list, modules_root_dir):
         clt.waitNSPID("/myStudyManager",myServer.PID)
 
     #
-    # Lancement ContainerManagerServer
+    # Lancement LauncherServer
     #
     
-    myCmServer = ContainerManagerServer(args)
+    myCmServer = LauncherServer(args)
     myCmServer.setpath(modules_list,modules_root_dir)
     myCmServer.run()
 

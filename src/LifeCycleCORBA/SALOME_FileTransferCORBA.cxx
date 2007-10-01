@@ -116,6 +116,7 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
 
       SALOME_LifeCycleCORBA LCC;
       Engines::ContainerManager_var contManager = LCC.getContainerManager();
+      Engines::ResourcesManager_var resManager = LCC.getResourcesManager();
 
       Engines::MachineParameters params;
       LCC.preSet(params);
@@ -124,7 +125,7 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
 
       Engines::CompoList clist;
       Engines::MachineList_var listOfMachines =
-	contManager->GetFittingResources(params, clist);
+	resManager->GetFittingResources(params, clist);
 
       container = contManager->FindOrStartContainer(params,
 						    listOfMachines);

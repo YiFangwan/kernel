@@ -92,6 +92,10 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
     _NS->Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);
   ASSERT( !CORBA::is_nil(obj));
   _ContManager=Engines::ContainerManager::_narrow(obj);
+
+  obj = _NS->Resolve(SALOME_ResourcesManager::_ResourcesManagerNameInNS);
+  ASSERT( !CORBA::is_nil(obj));
+  _ResManager=Engines::ResourcesManager::_narrow(obj);
 }
 
 //=============================================================================
@@ -126,7 +130,7 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
   clist.length(1);
   clist[0] = componentName;
   Engines::MachineList_var listOfMachines =
-    _ContManager->GetFittingResources(params, clist);
+    _ResManager->GetFittingResources(params, clist);
 
   Engines::Component_var compo = _FindComponent(params,
 						componentName,
@@ -160,7 +164,7 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
   clist.length(1);
   clist[0] = componentName;
   Engines::MachineList_var listOfMachines =
-    _ContManager->GetFittingResources(params, clist);
+    _ResManager->GetFittingResources(params, clist);
 
   Engines::Component_var compo = _LoadComponent(params,
 						componentName,
@@ -196,7 +200,7 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
   clist.length(1);
   clist[0] = componentName;
   Engines::MachineList_var listOfMachines =
-    _ContManager->GetFittingResources(params,clist);
+    _ResManager->GetFittingResources(params,clist);
 
   Engines::Component_var compo = _FindComponent(params,
 						componentName,
@@ -396,6 +400,19 @@ Engines::ContainerManager_ptr SALOME_LifeCycleCORBA::getContainerManager()
  return contManager._retn();
 }
 
+//=============================================================================
+/*! Public -
+ *  \return the container Manager
+ */
+//=============================================================================
+
+Engines::ResourcesManager_ptr SALOME_LifeCycleCORBA::getResourcesManager()
+{
+ Engines::ResourcesManager_var resManager =
+   Engines::ResourcesManager::_duplicate(_ResManager);
+ return resManager._retn();
+}
+
 
 //=============================================================================
 /*! Protected -
@@ -446,7 +463,7 @@ _FindComponent(const Engines::MachineParameters& params,
   if(lghtOfmachinesOK != 0)
     {
       machinesOK->length(lghtOfmachinesOK);
-      CORBA::String_var bestMachine = _ContManager->FindFirst(machinesOK);
+      CORBA::String_var bestMachine = _ResManager->FindFirst(machinesOK);
       CORBA::Object_var obj = _NS->ResolveComponent(bestMachine,
 						    containerName,
 						    componentName,

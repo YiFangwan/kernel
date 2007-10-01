@@ -48,28 +48,25 @@ const char *SALOME_ContainerManager::_ContainerManagerNameInNS =
  */
 //=============================================================================
 
-SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
+SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_ResourcesManager *rm, SALOME_NamingService *ns)
 {
   MESSAGE("constructor");
-  _NS = new SALOME_NamingService(orb);
-  _ResManager = new SALOME_ResourcesManager(orb);
+  _NS = ns;
+  _ResManager = rm;
   _id=0;
-  PortableServer::POA_var root_poa = PortableServer::POA::_the_root_poa();
-  PortableServer::POAManager_var pman = root_poa->the_POAManager();
-  PortableServer::POA_var my_poa;
 
+  PortableServer::POAManager_var pman = poa->the_POAManager();
   _orb = CORBA::ORB::_duplicate(orb) ;
   CORBA::PolicyList policies;
   policies.length(1);
   PortableServer::ThreadPolicy_var threadPol = 
-    root_poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL);
+    poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL);
   policies[0] = PortableServer::ThreadPolicy::_duplicate(threadPol);
 
-  my_poa = 
-    root_poa->create_POA("SThreadPOA",pman,policies);
+  _poa = poa->create_POA("SThreadPOA",pman,policies);
   threadPol->destroy();
-  PortableServer::ObjectId_var id = my_poa->activate_object(this);
-  CORBA::Object_var obj = my_poa->id_to_reference(id);
+  PortableServer::ObjectId_var id = _poa->activate_object(this);
+  CORBA::Object_var obj = _poa->id_to_reference(id);
   Engines::ContainerManager_var refContMan =
     Engines::ContainerManager::_narrow(obj);
 
@@ -86,8 +83,6 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb)
 SALOME_ContainerManager::~SALOME_ContainerManager()
 {
   MESSAGE("destructor");
-  delete _NS;
-  delete _ResManager;
 }
 
 //=============================================================================
@@ -101,11 +96,9 @@ void SALOME_ContainerManager::Shutdown()
   MESSAGE("Shutdown");
   ShutdownContainers();
   _NS->Destroy_Name(_ContainerManagerNameInNS);
-  PortableServer::ObjectId_var oid = _default_POA()->servant_to_id(this);
-  _default_POA()->deactivate_object(oid);
+  PortableServer::ObjectId_var oid = _poa->servant_to_id(this);
+  _poa->deactivate_object(oid);
   _remove_ref();
-  if(!CORBA::is_nil(_orb))
-    _orb->shutdown(0);
 }
 
 //=============================================================================
@@ -291,7 +284,7 @@ StartContainer(const Engines::MachineParameters& params,
 	       Engines::ResPolicy policy,
 	       const Engines::CompoList& componentList)
 {
-  Engines::MachineList_var possibleComputers = GetFittingResources(params,componentList);
+  Engines::MachineList_var possibleComputers = _ResManager->GetFittingResources(params,componentList);
   return StartContainer(params,possibleComputers,policy);
 }
 
@@ -316,141 +309,6 @@ GiveContainer(const Engines::MachineParameters& params,
       return *(_batchLaunchedContainersIter++);
     }
   return StartContainer(params,policy,componentList);
-}
-
-
-//=============================================================================
-/*! CORBA Method:
- *  Submit a batch job on a cluster and returns the JobId
- *  \param fileToExecute      : .py/.exe/.sh/... to execute on the batch cluster
- *  \param filesToExport      : to export on the batch cluster
- *  \param NumberOfProcessors : Number of processors needed on the batch cluster
- *  \param params             : Constraints for the choice of the batch cluster
- */
-//=============================================================================
-CORBA::Long SALOME_ContainerManager::submitSalomeJob( const char * fileToExecute ,
-						      const Engines::FilesList& filesToExport ,
-						      const Engines::FilesList& filesToImport ,
-						      const CORBA::Long NumberOfProcessors ,
-						      const Engines::MachineParameters& params)
-{
-  CORBA::Long jobId;
-  try{
-    jobId = _ResManager->submitSalomeJob(fileToExecute, filesToExport, filesToImport, NumberOfProcessors, params);
-  }
-  catch(const SALOME_Exception &ex){
-    MESSAGE(ex.what());
-    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::INTERNAL_ERROR);
-  }
-  return jobId;
-}
-
-//=============================================================================
-/*! CORBA Method:
- *  Query a batch job on a cluster and returns the status of job
- *  \param jobId              : identification of Salome job
- *  \param params             : Constraints for the choice of the batch cluster
- */
-//=============================================================================
-char* SALOME_ContainerManager::querySalomeJob( const CORBA::Long jobId, 
-					       const Engines::MachineParameters& params)
-{
-  string status;
-  try{
-    status = _ResManager->querySalomeJob( jobId, params);
-  }
-  catch(const SALOME_Exception &ex){
-    INFOS("Caught exception.");
-    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
-  }
-  return CORBA::string_dup(status.c_str());
-}
-
-//=============================================================================
-/*! CORBA Method:
- *  Delete a batch job on a cluster 
- *  \param jobId              : identification of Salome job
- *  \param params             : Constraints for the choice of the batch cluster
- */
-//=============================================================================
-void SALOME_ContainerManager::deleteSalomeJob( const CORBA::Long jobId, 
-					       const Engines::MachineParameters& params)
-{
-  try{
-    _ResManager->deleteSalomeJob( jobId, params);
-  }
-  catch(const SALOME_Exception &ex){
-    INFOS("Caught exception.");
-    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
-  }
-}
-
-//=============================================================================
-/*! CORBA Method:
- *  Get result files of job on a cluster
- *  \param jobId              : identification of Salome job
- *  \param params             : Constraints for the choice of the batch cluster
- */
-//=============================================================================
-void SALOME_ContainerManager::getResultSalomeJob( const char *directory,
-						  const CORBA::Long jobId, 
-						  const Engines::MachineParameters& params)
-{
-  try{
-    _ResManager->getResultSalomeJob( directory, jobId, params);
-  }
-  catch(const SALOME_Exception &ex){
-    INFOS("Caught exception.");
-    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
-  }
-}
-
-//=============================================================================
-/*! 
- * 
- */
-//=============================================================================
-
-Engines::MachineList *
-SALOME_ContainerManager::
-GetFittingResources(const Engines::MachineParameters& params,
-		    const Engines::CompoList& componentList)
-{
-  MESSAGE("SALOME_ContainerManager::GetFittingResources");
-  Engines::MachineList *ret=new Engines::MachineList;
-  vector<string> vec;
-  try
-    {
-      vec = _ResManager->GetFittingResources(params,componentList);
-    }
-  catch(const SALOME_Exception &ex)
-    {
-      INFOS("Caught exception.");
-      THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
-      //return ret;
-    }
-
-  //  MESSAGE("Machine list length "<<vec.size());
-  ret->length(vec.size());
-  for(unsigned int i=0;i<vec.size();i++)
-    {
-      (*ret)[i]=(vec[i]).c_str();
-    }
-  return ret;
-}
-
-//=============================================================================
-/*! 
- * 
- */
-//=============================================================================
-
-char*
-SALOME_ContainerManager::
-FindFirst(const Engines::MachineList& possibleComputers)
-{
-  string theMachine=_ResManager->FindFirst(possibleComputers);
-  return CORBA::string_dup(theMachine.c_str());
 }
 
 //=============================================================================
@@ -511,11 +369,6 @@ long SALOME_ContainerManager::GetIdForContainer(void)
 {
   _id++;
   return _id;
-}
-
-Engines::MachineParameters* SALOME_ContainerManager::GetMachineParameters(const char *hostname)
-{
-  return _ResManager->GetMachineParameters(hostname);
 }
 
 void SALOME_ContainerManager::fillBatchLaunchedContainers()

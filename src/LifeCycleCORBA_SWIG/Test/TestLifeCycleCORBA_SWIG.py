@@ -74,10 +74,10 @@ clt.waitNS("/Kernel/ModulCatalog")
 
 # launch container manager server
 
-myCmServer = runSalome.ContainerManagerServer(args)
+myCmServer = runSalome.LauncherServer(args)
 myCmServer.setpath(modules_list,modules_root_dir)
 myCmServer.run()
-clt.waitNS("/ContainerManager")
+clt.waitNS("/SalomeLauncher")
 
 # execute Unit Test
 
@@ -91,8 +91,8 @@ unittest.TextTestRunner(verbosity=2).run(LifeCycleCORBA_SWIGTest.suite())
 # kill containers created by the Container Manager
 
 import Engines
-containerManager = clt.waitNS("/ContainerManager",Engines.ContainerManager)
-containerManager.Shutdown()
+launcher = clt.waitNS("/SalomeLauncher",Engines.SalomeLauncher)
+launcher.Shutdown()
 
 # kill Test process
 

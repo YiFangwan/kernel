@@ -59,6 +59,9 @@ int main (int argc, char * argv[])
   CORBA::Object_var obj = _NS->Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);
   ASSERT( !CORBA::is_nil(obj));
   Engines::ContainerManager_var _ContManager=Engines::ContainerManager::_narrow(obj);
+  obj = _NS->Resolve(SALOME_ResourcesManager::_ResourcesManagerNameInNS);
+  ASSERT( !CORBA::is_nil(obj));
+  Engines::ResourcesManager_var _ResManager=Engines::ResourcesManager::_narrow(obj);
 
   Engines::MachineParameters p;
   Engines::CompoList clist;
@@ -133,7 +136,7 @@ int main (int argc, char * argv[])
   int nbpmax;
   for(map<string,int>::iterator iter=cycle.begin();iter!=cycle.end();iter++){
     if(strcmp((*iter).first.c_str(),"localhost")!=0){
-      Engines::MachineParameters *p = _ContManager->GetMachineParameters((*iter).first.c_str());
+      Engines::MachineParameters *p = _ResManager->GetMachineParameters((*iter).first.c_str());
       int nbproc = p->nb_node * p->nb_proc_per_node;
       if(cycle[(*iter).first]/nbproc<cmin) cmin=cycle[(*iter).first]/nbproc;
       if(cycle[(*iter).first]/nbproc>cmax) cmax=cycle[(*iter).first]/nbproc;

@@ -43,6 +43,7 @@ SUBDIR_CORBA = \
   NOTIFICATION_SWIG \
   Container \
   TestContainer \
+  Launcher \
   LifeCycleCORBA \
   LifeCycleCORBA_SWIG \
   SALOMEDSClient \
