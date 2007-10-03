@@ -54,12 +54,12 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources):
   test_alias = "alias";
   test_protocol = "protocol";
   test_mode = "mode";
+  test_batch = "batch";
+  test_mpi = "mpi";
   test_user_name = "userName";
   test_appli_path = "appliPath";
   test_modules = "modules";
   test_module_name = "moduleName";
-  test_module_path = "modulePath";
-  test_pre_req_file_path = "preReqFilePath";
   test_os = "OS";
   test_mem_in_mb = "memInMB";
   test_cpu_freq_mhz = "CPUFreqMHz";
@@ -127,6 +127,8 @@ startElement( const QString&,
               const QString& name,
               const QXmlAttributes& attrs )
 {
+  if( name.compare(QString(test_machine)) == 0 ) 
+    _resource.Clear();
   for (int i = 0;i < attrs.count();i++)
     {
       QString qName(attrs.localName(i));
@@ -178,7 +180,33 @@ startElement( const QString&,
             }
         }
 
-      if ((qName.compare(QString(test_user_name)) == 0))
+      if ((qName.compare(QString(test_batch)) == 0))
+        {
+	  if( content.compare("pbs") == 0 )
+	    _resource.Batch = pbs;
+	  else if( content.compare("lsf") == 0 )
+	    _resource.Batch = lsf;
+	  else if( content.compare("slurm") == 0 )
+	    _resource.Batch = slurm;
+	  else
+	    _resource.Batch = none;
+        }
+
+       if ((qName.compare(QString(test_mpi)) == 0))
+        {
+	  if( content.compare("lam") == 0 )
+	    _resource.mpi = lam;
+	  else if( content.compare("mpich1") == 0 )
+	    _resource.mpi = mpich1;
+	  else if( content.compare("mpich2") == 0 )
+	    _resource.mpi = mpich2;
+	  else if( content.compare("openmpi") == 0 )
+	    _resource.mpi = openmpi;
+	  else
+	    _resource.mpi = indif;
+        }
+
+     if ((qName.compare(QString(test_user_name)) == 0))
         _resource.UserName = content;
 
       if ((qName.compare(QString(test_appli_path)) == 0))
@@ -186,12 +214,6 @@ startElement( const QString&,
 
       if ((qName.compare(QString(test_module_name)) == 0))
         previous_module_name = content;
-
-      if ((qName.compare(QString(test_module_path)) == 0))
-        previous_module_path = content;
-
-      if ((qName.compare(QString(test_pre_req_file_path)) == 0))
-        _resource.PreReqFilePath = content;
 
       if ((qName.compare(QString(test_os)) == 0))
         _resource.OS = content;
@@ -228,7 +250,7 @@ endElement(const QString&,
            const QString& qName)
 {
   if ((qName.compare(QString(test_modules)) == 0))
-    _resource.ModulesPath[previous_module_name] = previous_module_path;
+    _resource.ModulesList.push_back(previous_module_name);
 
   if ((qName.compare(QString(test_machine)) == 0)){
     int nbnodes = _resource.DataForSort._nbOfNodes;
@@ -239,12 +261,8 @@ endElement(const QString&,
         inode[0] = '\0' ;
         sprintf(inode,"%s%d",clusterNode.c_str(),i+1);
         std::string nodeName(inode);
-//        _resource.DataForSort._nbOfNodes = 1;
         _resource.DataForSort._hostName = nodeName ;
         _resources_list[nodeName] = _resource;
-        //cout << "SALOME_ResourcesCatalog_Handler::endElement _resources_list["
-        //     << nodeName << "] = _resource " << _resource.DataForSort._hostName.c_str()
-        //     << endl ;
       }
     }
     else
@@ -279,21 +297,11 @@ bool SALOME_ResourcesCatalog_Handler::characters(const QString& chars)
 
 bool SALOME_ResourcesCatalog_Handler::endDocument()
 {
-//   for (map<string, ParserResourcesType>::const_iterator iter =
-//          _resources_list.begin();
-//        iter != _resources_list.end();
-//        iter++)
-//     {
-//       SCRUTE((*iter).second.Alias);
-//       SCRUTE((*iter).second.UserName);
-//       SCRUTE((*iter).second.AppliPath);
-//       SCRUTE((*iter).second.PreReqFilePath);
-//       SCRUTE((*iter).second.OS);
-//       SCRUTE((*iter).second.Protocol);
-//       SCRUTE((*iter).second.Mode);
-//    }
+//   map<string, ParserResourcesType>::const_iterator it;
+//   for(it=_resources_list.begin();it!=_resources_list.end();it++)
+//     (*it).second.Print();
   
-//  MESSAGE("This is the end of document");
+  MESSAGE("This is the end of document");
   return true;
 }
 
@@ -385,24 +393,62 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(QDomDocument& doc)
           eltRoot.setAttribute((char *)test_mode, "interactive");
         }
 
+      switch ((*iter).second.Batch)
+        {
+
+        case pbs:
+          eltRoot.setAttribute((char *)test_batch, "pbs");
+          break;
+
+        case lsf:
+          eltRoot.setAttribute((char *)test_batch, "lsf");
+          break;
+
+        case slurm:
+          eltRoot.setAttribute((char *)test_batch, "slurm");
+          break;
+
+        default:
+          eltRoot.setAttribute((char *)test_batch, "");
+        }
+
+      switch ((*iter).second.mpi)
+        {
+
+        case lam:
+          eltRoot.setAttribute((char *)test_mpi, "lam");
+          break;
+
+        case mpich1:
+          eltRoot.setAttribute((char *)test_mpi, "mpich1");
+          break;
+
+        case mpich2:
+          eltRoot.setAttribute((char *)test_mpi, "mpich2");
+          break;
+
+        case openmpi:
+          eltRoot.setAttribute((char *)test_mpi, "openmpi");
+          break;
+
+        default:
+          eltRoot.setAttribute((char *)test_mpi, "");
+        }
+
       eltRoot.setAttribute((char *)test_user_name,
                            (*iter).second.UserName.c_str());
 
-      for (map<string, string>::const_iterator iter2 =
-             (*iter).second.ModulesPath.begin();
-           iter2 != (*iter).second.ModulesPath.end();
+      for (vector<string>::const_iterator iter2 =
+             (*iter).second.ModulesList.begin();
+           iter2 != (*iter).second.ModulesList.end();
            iter2++)
         {
-          QDomElement rootForModulesPaths = doc.createElement(test_modules);
-          rootForModulesPaths.setAttribute(test_module_name,
-                                           (*iter2).first.c_str());
-          rootForModulesPaths.setAttribute(test_module_path,
-                                           (*iter2).second.c_str());
-          eltRoot.appendChild(rootForModulesPaths);
+          QDomElement rootForModulesList = doc.createElement(test_modules);
+          rootForModulesList.setAttribute(test_module_name,
+                                         (*iter2).c_str());
+          eltRoot.appendChild(rootForModulesList);
         }
 
-      eltRoot.setAttribute(test_pre_req_file_path,
-                           (*iter).second.PreReqFilePath.c_str());
       eltRoot.setAttribute(test_os, (*iter).second.OS.c_str());
       eltRoot.setAttribute(test_mem_in_mb,
                            (*iter).second.DataForSort._memInMB);
