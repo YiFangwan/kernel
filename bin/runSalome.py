@@ -497,7 +497,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # attente de la disponibilite du Container C++ local dans le Naming Service
     #
 
-    if ('cppContainer' in args['standalone']) :
+    if ('cppContainer' in args['standalone']) | (args["gui"] == 0) : 
         myServer=ContainerCPPServer(args)
         myServer.run()
         if sys.platform == "win32":
@@ -812,7 +812,7 @@ def main():
     import sys
     print "runSalome running on ",os.getenv('HOSTNAME')
     print os.environ.itervalues
-    args, modules_list, modules_root_dir = get_config()
+    args, modules_list, modules_root_dir = setenv.get_config()
     kill_salome(args)
     save_config = True
     if args.has_key('save_config'):
