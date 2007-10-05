@@ -449,12 +449,14 @@ GiveContainer(const Engines::MachineParameters& params,
 	       Engines::ResPolicy policy,
 	       const Engines::CompoList& componentList)
 {
-  if(strcmp(getenv("SALOME_BATCH"),"1")==0)
-    {
-      if(_batchLaunchedContainers.empty())
-	fillBatchLaunchedContainers();
-      return *(_batchLaunchedContainersIter++);
-    }
+  char *valenv=getenv("SALOME_BATCH");
+  if(valenv)
+    if (strcmp(valenv,"1")==0)
+      {
+        if(_batchLaunchedContainers.empty())
+          fillBatchLaunchedContainers();
+        return *(_batchLaunchedContainersIter++);
+      }
   return StartContainer(params,policy,componentList);
 }
 
