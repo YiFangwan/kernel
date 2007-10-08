@@ -103,12 +103,12 @@ Engines_Container_i::Engines_Container_i () :
 //=============================================================================
 
 Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb, 
-					  PortableServer::POA_var poa,
-					  char *containerName ,
+                                          PortableServer::POA_var poa,
+                                          char *containerName ,
                                           int argc , char* argv[],
-					  bool activAndRegist,
-					  bool isServantAloneInProcess
-					  ) :
+                                          bool activAndRegist,
+                                          bool isServantAloneInProcess
+                                          ) :
   _numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 {
   _pid = (long)getpid();
@@ -120,8 +120,14 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
   _argv = argv ;
 
   string hostname = GetHostname();
-  MESSAGE(hostname << " " << getpid() << " Engines_Container_i starting argc "
-	  << _argc << " Thread " << pthread_self() ) ;
+#ifndef WNT
+  MESSAGE(hostname << " " << getpid() << 
+         " Engines_Container_i starting argc " <<
+   _argc << " Thread " << pthread_self() ) ;
+#else
+  MESSAGE(hostname << " " << _getpid() << 
+         " Engines_Container_i starting argc " << _argc<< " Thread " << pthread_self().p ) ;
+#endif
 
   int i = 0 ;
   while ( _argv[ i ] )
@@ -158,14 +164,14 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
       _NS->init_orb( CORBA::ORB::_duplicate(_orb) ) ;
       CORBA::Object_var obj=_poa->id_to_reference(*_id);
       Engines::Container_var pCont 
-	= Engines::Container::_narrow(obj);
+        = Engines::Container::_narrow(obj);
 
       _containerName = _NS->BuildContainerNameForNS(containerName,
-						    hostname.c_str());
+                                                    hostname.c_str());
       SCRUTE(_containerName);
       _NS->Register(pCont, _containerName.c_str());
       MESSAGE("Engines_Container_i::Engines_Container_i : Container name "
-	      << _containerName);
+              << _containerName);
 
       // Python: 
       // import SALOME_Container
@@ -179,34 +185,28 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
       SCRUTE(myCommand);
 
       if (!_isSupervContainer)
-	{
+        {
 #ifdef WNT
-	  //Py_ACQUIRE_NEW_THREAD;
-	  PyEval_AcquireLock();
-	  /* It should not be possible for more than one thread state
-	     to be used for a thread.*/
-	  PyThreadState *myTstate = PyGILState_GetThisThreadState();
-	  // if no thread state defined
-	  if ( !myTstate ) 
-	    myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
-//	  PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
-	  PyThreadState_Swap(myTstate);
+
+          PyEval_AcquireLock();
+          PyThreadState *myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
+          PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
 #else
-	  Py_ACQUIRE_NEW_THREAD;
+          Py_ACQUIRE_NEW_THREAD;
 #endif
 
 #ifdef WNT
-	  // mpv: this is temporary solution: there is a unregular crash if not
-	  //Sleep(2000);
-	  //
+          // mpv: this is temporary solution: there is a unregular crash if not
+          //Sleep(2000);
+          //
     // first element is the path to Registry.dll, but it's wrong
-	  PyRun_SimpleString("import sys\n");
-	  PyRun_SimpleString("sys.path = sys.path[1:]\n");
+          PyRun_SimpleString("import sys\n");
+          PyRun_SimpleString("sys.path = sys.path[1:]\n");
 #endif
-	  PyRun_SimpleString("import SALOME_Container\n");
-	  PyRun_SimpleString((char*)myCommand.c_str());
-	  Py_RELEASE_NEW_THREAD;
-	}
+          PyRun_SimpleString("import SALOME_Container\n");
+          PyRun_SimpleString((char*)myCommand.c_str());
+          Py_RELEASE_NEW_THREAD;
+        }
 
       fileTransfer_i* aFileTransfer = new fileTransfer_i();
       _fileTransfer = Engines::fileTransfer::_narrow(aFileTransfer->_this());
@@ -382,20 +382,20 @@ Engines_Container_i::load_component_Library(const char* componentName)
       PyObject *globals = PyModule_GetDict(mainmod);
       PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
       PyObject *result = PyObject_CallMethod(pyCont,
-					     "import_component",
-					     "s",componentName);
+                                             "import_component",
+                                             "s",componentName);
       int ret= PyInt_AsLong(result);
       SCRUTE(ret);
       Py_RELEASE_NEW_THREAD;
   
       if (ret) // import possible: Python component
-	{
-	  _numInstanceMutex.lock() ; // lock to be alone (stl container write)
-	  _library_map[aCompName] = (void *)pyCont; // any non O value OK
-	  _numInstanceMutex.unlock() ;
-	  MESSAGE("import Python: "<<aCompName<<" OK");
-	  return true;
-	}
+        {
+          _numInstanceMutex.lock() ; // lock to be alone (stl container write)
+          _library_map[aCompName] = (void *)pyCont; // any non O value OK
+          _numInstanceMutex.unlock() ;
+          MESSAGE("import Python: "<<aCompName<<" OK");
+          return true;
+        }
     }
   return false;
 }
@@ -414,7 +414,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
 
 Engines::Component_ptr
 Engines_Container_i::create_component_instance(const char*genericRegisterName,
-					       CORBA::Long studyId)
+                                               CORBA::Long studyId)
 {
   if (studyId < 0)
     {
@@ -428,10 +428,10 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
   if (_library_map[aCompName]) // Python component
     {
       if (_isSupervContainer)
-	{
-	  INFOS("Supervision Container does not support Python Component Engines");
-	  return Engines::Component::_nil();
-	}
+        {
+          INFOS("Supervision Container does not support Python Component Engines");
+          return Engines::Component::_nil();
+        }
       _numInstanceMutex.lock() ; // lock on the instance number
       _numInstance++ ;
       int numInstance = _numInstance ;
@@ -441,26 +441,26 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
       sprintf( aNumI , "%d" , numInstance ) ;
       string instanceName = aCompName + "_inst_" + aNumI ;
       string component_registerName =
-	_containerName + "/" + instanceName;
+        _containerName + "/" + instanceName;
 
       Py_ACQUIRE_NEW_THREAD;
       PyObject *mainmod = PyImport_AddModule("__main__");
       PyObject *globals = PyModule_GetDict(mainmod);
       PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
       PyObject *result = PyObject_CallMethod(pyCont,
-					     "create_component_instance",
-					     "ssl",
-					     aCompName.c_str(),
-					     instanceName.c_str(),
-					     studyId);
+                                             "create_component_instance",
+                                             "ssl",
+                                             aCompName.c_str(),
+                                             instanceName.c_str(),
+                                             studyId);
       string iors = PyString_AsString(result);
       SCRUTE(iors);
       Py_RELEASE_NEW_THREAD;
   
       if( iors!="" )
       {
-	CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
-	iobject = Engines::Component::_narrow( obj ) ;
+        CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
+        iobject = Engines::Component::_narrow( obj ) ;
       }
       return iobject._retn();
     }
@@ -481,8 +481,8 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
   else
     {
       iobject = createInstance(genericRegisterName,
-			       handle,
-			       studyId);
+                               handle,
+                               studyId);
       return iobject._retn();
     }
 }
@@ -500,7 +500,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
 
 Engines::Component_ptr
 Engines_Container_i::find_component_instance( const char* registeredName,
-					      CORBA::Long studyId)
+                                              CORBA::Long studyId)
 {
   Engines::Component_var anEngine = Engines::Component::_nil();
   map<string,Engines::Component_var>::iterator itm =_listInstances_map.begin();
@@ -509,13 +509,13 @@ Engines_Container_i::find_component_instance( const char* registeredName,
       string instance = (*itm).first;
       SCRUTE(instance);
       if (instance.find(registeredName) == 0)
-	{
-	  anEngine = (*itm).second;
-	  if (studyId == anEngine->getStudyId())
-	    {
-	      return anEngine._retn();
-	    }
-	}
+        {
+          anEngine = (*itm).second;
+          if (studyId == anEngine->getStudyId())
+            {
+              return anEngine._retn();
+            }
+        }
       itm++;
     }
   return anEngine._retn();  
@@ -537,7 +537,7 @@ Engines_Container_i::find_component_instance( const char* registeredName,
 
 Engines::Component_ptr
 Engines_Container_i::load_impl( const char* genericRegisterName,
-				const char* componentName )
+                                const char* componentName )
 {
   string impl_name = string ("lib") + genericRegisterName +string("Engine.so");
   Engines::Component_var iobject = Engines::Component::_nil() ;
@@ -583,12 +583,12 @@ void Engines_Container_i::finalize_removal()
       void *handle = (*ith).second;
       string impl_name= (*ith).first;
       if (handle)
-	{
-	  SCRUTE(handle);
-	  SCRUTE(impl_name);
-// 	  dlclose(handle);                // SALOME unstable after ...
-// 	  _library_map.erase(impl_name);
-	}
+        {
+          SCRUTE(handle);
+          SCRUTE(impl_name);
+//        dlclose(handle);                // SALOME unstable after ...
+//        _library_map.erase(impl_name);
+        }
     }
   _toRemove_map.clear();
   _numInstanceMutex.unlock();
@@ -680,12 +680,12 @@ Engines_Container_i::createSalome_file(const char* origFileName)
       aSalome_file->setContainer(Engines::Container::_duplicate(this->_this()));
       try 
       {
-	aSalome_file->setLocalFile(origFileName);
-	aSalome_file->recvFiles();
+        aSalome_file->setLocalFile(origFileName);
+        aSalome_file->recvFiles();
       }
       catch (const SALOME::SALOME_Exception& e)
       {
-	return Engines::Salome_file::_nil();
+        return Engines::Salome_file::_nil();
       }
 
       Engines::Salome_file_var theSalome_file = Engines::Salome_file::_nil();
@@ -725,7 +725,7 @@ Engines_Container_i::createSalome_file(const char* origFileName)
 
 Engines::Component_ptr
 Engines_Container_i::find_or_create_instance(string genericRegisterName,
-					     string componentLibraryName)
+                                             string componentLibraryName)
 {
   string aGenRegisterName = genericRegisterName;
   string impl_name = componentLibraryName;
@@ -740,44 +740,44 @@ Engines_Container_i::find_or_create_instance(string genericRegisterName,
       // --- find a registered instance in naming service, or create
 
       string component_registerBase =
-	_containerName + "/" + aGenRegisterName;
+        _containerName + "/" + aGenRegisterName;
       Engines::Component_var iobject = Engines::Component::_nil() ;
       try
-	{
-	  CORBA::Object_var obj =
-	    _NS->ResolveFirst( component_registerBase.c_str());
-	  if ( CORBA::is_nil( obj ) )
-	    {
-	      iobject = createInstance(genericRegisterName,
-				       handle,
-				       0); // force multiStudy instance here !
-	    }
-	  else
-	    { 
-	      iobject = Engines::Component::_narrow( obj ) ;
-	      Engines_Component_i *servant =
-		dynamic_cast<Engines_Component_i*>
-		(_poa->reference_to_servant(iobject));
-	      ASSERT(servant)
-	      int studyId = servant->getStudyId();
-	      ASSERT (studyId >= 0);
-	      if (studyId == 0) // multiStudy instance, OK
-		{
-		  // No ReBind !
-		  MESSAGE(component_registerBase.c_str()<<" already bound");
-		}
-	      else // monoStudy instance: NOK
-		{
-		  iobject = Engines::Component::_nil();
-		  INFOS("load_impl & find_component_instance methods "
-			<< "NOT SUITABLE for mono study components");
-		}
-	    }
-	}
+        {
+          CORBA::Object_var obj =
+            _NS->ResolveFirst( component_registerBase.c_str());
+          if ( CORBA::is_nil( obj ) )
+            {
+              iobject = createInstance(genericRegisterName,
+                                       handle,
+                                       0); // force multiStudy instance here !
+            }
+          else
+            { 
+              iobject = Engines::Component::_narrow( obj ) ;
+              Engines_Component_i *servant =
+                dynamic_cast<Engines_Component_i*>
+                (_poa->reference_to_servant(iobject));
+              ASSERT(servant)
+              int studyId = servant->getStudyId();
+              ASSERT (studyId >= 0);
+              if (studyId == 0) // multiStudy instance, OK
+                {
+                  // No ReBind !
+                  MESSAGE(component_registerBase.c_str()<<" already bound");
+                }
+              else // monoStudy instance: NOK
+                {
+                  iobject = Engines::Component::_nil();
+                  INFOS("load_impl & find_component_instance methods "
+                        << "NOT SUITABLE for mono study components");
+                }
+            }
+        }
       catch (...)
-	{
-	  INFOS( "Container_i::load_impl catched" ) ;
-	}
+        {
+          INFOS( "Container_i::load_impl catched" ) ;
+        }
       return iobject._retn();
     }
 }
@@ -805,8 +805,8 @@ Engines_Container_i::find_or_create_instance(string genericRegisterName,
 
 Engines::Component_ptr
 Engines_Container_i::createInstance(string genericRegisterName,
-				    void *handle,
-				    int studyId)
+                                    void *handle,
+                                    int studyId)
 {
   // --- find the factory
 
@@ -851,15 +851,15 @@ Engines_Container_i::createInstance(string genericRegisterName,
       sprintf( aNumI , "%d" , numInstance ) ;
       string instanceName = aGenRegisterName + "_inst_" + aNumI ;
       string component_registerName =
-	_containerName + "/" + instanceName;
+        _containerName + "/" + instanceName;
 
       // --- Instanciate required CORBA object
 
       PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
       id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str(),
-				 aGenRegisterName.c_str() ) ;
+                                 aGenRegisterName.c_str() ) ;
       if (id == NULL)
-	return iobject._retn();
+        return iobject._retn();
       
       // --- get reference & servant from id
 
@@ -867,7 +867,7 @@ Engines_Container_i::createInstance(string genericRegisterName,
       iobject = Engines::Component::_narrow( obj ) ;
 
       Engines_Component_i *servant =
-	dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
+        dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
       ASSERT(servant);
       //SCRUTE(servant->pd_refCount);
       servant->_remove_ref(); // compensate previous id_to_reference 
@@ -913,7 +913,7 @@ void Engines_Container_i::decInstanceCnt(string genericRegisterName)
   if (_cntInstances_map[aGenRegisterName] == 0)
     {
       string impl_name =
-	Engines_Component_i::GetDynLibraryName(aGenRegisterName.c_str());
+        Engines_Component_i::GetDynLibraryName(aGenRegisterName.c_str());
       SCRUTE(impl_name);
       void* handle = _library_map[impl_name];
       ASSERT(handle);
@@ -994,8 +994,8 @@ void CallCancelThread() ;
 
 #ifndef WNT
 void SigIntHandler(int what ,
-		   siginfo_t * siginfo ,
-		   void * toto ) 
+                   siginfo_t * siginfo ,
+                   void * toto ) 
 {
   //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
   //             use of streams (and so on) should never be used because :
@@ -1018,32 +1018,36 @@ void SigIntHandler(int what ,
     {
       ActSigIntHandler() ;
       if ( siginfo->si_signo == SIGUSR1 )
-	{
-	  SetCpuUsed() ;
-	}
+        {
+          SetCpuUsed() ;
+        }
       else if ( siginfo->si_signo == SIGUSR2 )
-	{
-	  CallCancelThread() ;
-	}
+        {
+          CallCancelThread() ;
+        }
       else 
-	{
-	  _Sleeping = true ;
-	  //      MESSAGE("SigIntHandler BEGIN sleeping.") ;
-	  int count = 0 ;
-	  while( _Sleeping )
-	    {
-	      sleep( 1 ) ;
-	      count += 1 ;
-	    }
-	  //      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
-	}
+        {
+          _Sleeping = true ;
+          //      MESSAGE("SigIntHandler BEGIN sleeping.") ;
+          int count = 0 ;
+          while( _Sleeping )
+            {
+              sleep( 1 ) ;
+              count += 1 ;
+            }
+          //      MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+        }
       return ;
     }
 }
 #else // Case WNT
 void SigIntHandler( int what )
 {
+#ifndef WNT
   MESSAGE( pthread_self() << "SigIntHandler what     " << what << endl );
+#else
+  MESSAGE( "SigIntHandler what     " << what << endl );
+#endif
   if ( _Sleeping )
     {
       _Sleeping = false ;
@@ -1054,21 +1058,21 @@ void SigIntHandler( int what )
     {
       ActSigIntHandler() ;
       if ( what == SIGUSR1 )
-	{
-	  SetCpuUsed() ;
-	}
+        {
+          SetCpuUsed() ;
+        }
       else
-	{
-	  _Sleeping = true ;
-	  MESSAGE("SigIntHandler BEGIN sleeping.") ;
-	  int count = 0 ;
-	  while( _Sleeping ) 
-	    {
-	      Sleep( 1000 ) ;
-	      count += 1 ;
-	    }
-	  MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
-	}
+        {
+          _Sleeping = true ;
+          MESSAGE("SigIntHandler BEGIN sleeping.") ;
+          int count = 0 ;
+          while( _Sleeping ) 
+            {
+              Sleep( 1000 ) ;
+              count += 1 ;
+            }
+          MESSAGE("SigIntHandler LEAVE sleeping after " << count << " s.") ;
+        }
       return ;
     }
 }
