@@ -164,7 +164,7 @@ void SALOME_ResourcesManager::Shutdown()
 Engines::MachineList *
 SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& params,
 					     const Engines::CompoList& componentList)
-throw(SALOME_Exception)
+//throw(SALOME_Exception)
 {
 //   MESSAGE("ResourcesManager::GetFittingResources");
   vector <std::string> vec;

@@ -19,9 +19,44 @@
 //
 #include "SALOME_Launcher.hxx"
 #include "utilities.h"
+#include <sstream>
+#include <iostream>
+#include <stdexcept>
+using namespace std;
+
+void AttachDebugger()
+{
+  if(getenv ("DEBUGGER"))
+    {
+      std::stringstream exec;
+      exec << "$DEBUGGER SALOME_LauncherServer " << getpid() << "&";
+      std::cerr << exec.str() << std::endl;
+      system(exec.str().c_str());
+      while(1);
+    }
+}
+
+void terminateHandler(void)
+{
+  std::cerr << "Terminate: not managed exception !"  << std::endl;
+  AttachDebugger();
+}
+
+void unexpectedHandler(void)
+{
+  std::cerr << "Unexpected: unexpected exception !"  << std::endl;
+  AttachDebugger();
+}
+
 
 int main(int argc, char* argv[])
 {
+  if(getenv ("DEBUGGER"))
+    {
+//       setsig(SIGSEGV,&Handler);
+      set_terminate(&terminateHandler);
+      set_unexpected(&unexpectedHandler);
+    }
   PortableServer::POA_var root_poa;
   PortableServer::POAManager_var pman;
   CORBA::Object_var obj;

@@ -65,8 +65,8 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
 
     Engines::MachineList *
     GetFittingResources(const Engines::MachineParameters& params,
-                        const Engines::CompoList& componentList)
-    throw(SALOME_Exception);
+                        const Engines::CompoList& componentList);
+//     throw(SALOME_Exception);
 
     char* FindFirst(const Engines::MachineList& listOfMachines);
     std::string FindNext(const Engines::MachineList& listOfMachines);
