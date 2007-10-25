@@ -73,14 +73,14 @@ check_mpich.m4 \
 check_omniorb.m4 \
 check_opengl.m4 \
 check_openpbs.m4 \
-check_qt.m4 \
 check_sockets.m4 \
 check_swig.m4 \
 check_withihm.m4 \
 enable_pthreads.m4 \
 production.m4 \
 pyembed.m4 \
-python.m4
+python.m4 \
+check_libxml.m4
 
 dist_salome4depr_DATA=\
 $(DEPRECATED_FILES)
