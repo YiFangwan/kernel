@@ -59,7 +59,6 @@ if freePort < 0 :
     
 else :
     omniCfgFileContent = "InitRef = NameService=corbaname::" + str(hostName) + ":" + str(freePort);
-    omniCfgFileContent += "\ngiopMaxMsgSize = 2097152000  # 2 GBytes";
     omniCfgFilePath = os.environ.get('HOME') + "/" + ".omniORB_" + str(hostName) + "_" + str(freePort) + ".cfg";
 
     omni_file = file(omniCfgFilePath,'w+');
