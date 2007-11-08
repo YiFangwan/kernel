@@ -515,10 +515,7 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
       if  (_personal_module_list[ind].type == _temp_component_type)
 	{
 	  _list_typed_component->length(_j + 1); 
-	  /* Is it an error ?
-           * _list_typed_component[_j] = _personal_module_list[ind].name.c_str();
-           */
-	  _list_typed_component[_j] = (_moduleList[ind].name).c_str();
+           _list_typed_component[_j] = _personal_module_list[ind].name.c_str();
 	  //if(MYDEBUG) SCRUTE(_list_typed_component[_j]);
 	  _j++;
 	}
