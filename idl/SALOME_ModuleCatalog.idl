@@ -337,6 +337,16 @@ This interface is used for creation of the module catalog in %SALOME application
   {
     void ping();
 
+/*!
+    Returns the PID of the server
+*/
+    long getPID();
+
+/*!
+    Shutdown the ModuleCatalog process.
+*/    
+    oneway void ShutdownWithExit();
+
 /*! 
  * Get the types of the catalog
  */   

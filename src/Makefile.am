@@ -27,10 +27,10 @@
 SUBDIR_BASE = \
   Basics \
   SALOMELocalTrace \
-  CASCatch \
   HDFPersist
 
 SUBDIR_CORBA = \
+  DF \
   Logger \
   SALOMETraceCollector \
   Utils \

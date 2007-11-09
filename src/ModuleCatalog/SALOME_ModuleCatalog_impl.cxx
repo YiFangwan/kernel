@@ -129,12 +129,15 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
     if(MYDEBUG) MESSAGE( "Error while argument parsing" );
 
   // Test existency of files
-  if (_general_path == NULL){
+  if (_general_path == NULL)
+  {
     if(MYDEBUG) MESSAGE( "Error the general catalog should be indicated" );
-  }else{
+  }
+  else
+  {
     // Affect the _general_module_list and _general_path_list members
     // with the common catalog
-    
+
     list<string> dirList;
 
 #ifdef WNT
@@ -147,14 +150,15 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
       dirList = splitStringToList(_general_path, SEPARATOR);
     } else {
       //support old format
-      dirList =splitStringToList(_general_path, OLD_SEPARATOR);
-    }   
+      dirList = splitStringToList(_general_path, OLD_SEPARATOR);
+    }
 #endif
-    
-    for(list<string>::iterator iter=dirList.begin();iter!=dirList.end();iter++){
+
+    for (list<string>::iterator iter = dirList.begin(); iter != dirList.end(); iter++)
+    {
       string aPath = (*iter);
       //remove inverted commas from filename
-      while(aPath.find('\"') != string::npos)
+      while (aPath.find('\"') != string::npos)
 	aPath.erase(aPath.find('\"'), 1);
 
       _parse_xml_file(aPath.c_str(), 
@@ -163,17 +167,17 @@ SALOME_ModuleCatalogImpl::SALOME_ModuleCatalogImpl(int argc, char** argv, CORBA:
                       _typeMap,
                       _typeList);
     }
-    
+
     // Verification of _general_path_list content
-    if(!_verify_path_prefix(_general_path_list)){
+    if (!_verify_path_prefix(_general_path_list)) {
       if(MYDEBUG) MESSAGE( "Error while parsing the general path list, "
 			   "differents paths are associated to the same computer," 
 			   "the first one will be choosen");
-    }else{
+    } else {
       if(MYDEBUG) MESSAGE("General path list OK");
     }
-    
-    if(_personal_path != NULL){
+
+    if (_personal_path != NULL) {
       // Initialize the _personal_module_list and 
       // _personal_path_list members with the personal catalog files
       _parse_xml_file(_personal_path,
@@ -625,6 +629,16 @@ SALOME_ModuleCatalogImpl::GetComponentInfo(const char *name)
   }
 
   return NULL;
+}
+
+CORBA::Long SALOME_ModuleCatalogImpl::getPID()
+{ 
+  return (CORBA::Long)getpid();
+}
+
+void SALOME_ModuleCatalogImpl::ShutdownWithExit()
+{
+  exit( EXIT_SUCCESS );
 }
 
 ParserComponent *
