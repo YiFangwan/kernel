@@ -75,6 +75,8 @@
     specific points of %SALOME Kernel :
 
     - \subpage dsc_page : DSC documentation page.
+    - \subpage salome_file_page : Salome_file documentation page.
     - \subpage batch_page : BATCH documentation page.
+
 */
 

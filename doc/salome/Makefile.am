@@ -52,5 +52,6 @@ install-data-local:  html usr_docs
 
 EXTRA_DIST= main.dox batch.dox install.dox \
 	    kernel_resources.dox kernel_services.dox \
-	    salome_application.dox  unittests.dox
+	    salome_application.dox  unittests.dox \
+	    salome_file.dox
 
