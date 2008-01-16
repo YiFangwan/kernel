@@ -126,15 +126,11 @@ int main(int argc, char* argv[])
 
   // Initialise the ORB.
   //SRN: BugID: IPAL9541, it's necessary to set a size of one message to be at least 100Mb
-  //There is no need to use a singleton as ORB_init returns a ref counted singleton 
-  //The only difference is on delete : no automatic call to destroy
-  //But it's in general too late in exit
-  CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
-  /*
+  //CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   CORBA::ORB_ptr orb = init(argc , argv ) ;
-  */
+
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
