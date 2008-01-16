@@ -162,7 +162,7 @@ namespace BatchLight {
     tempOutputFile << _dirForTmpFiles ;
     tempOutputFile << ":$PYTHONPATH" << endl ;
     tempOutputFile << "if test $SLURM_PROCID = 0; then" << endl ;
-    tempOutputFile << "  ./runAppli --terminal --batch --modules=" ;
+    tempOutputFile << "  ./runAppli --terminal --modules=" ;
     for ( int i = 0 ; i < _params.modulesList.size() ; i++ ) {
       tempOutputFile << _params.modulesList[i] ;
       if ( i != _params.modulesList.size()-1 )
@@ -173,13 +173,12 @@ namespace BatchLight {
     tempOutputFile << "  do" << endl ;
     tempOutputFile << "    arglist=\"$arglist YACS_Server_\"$ip" << endl ;
     tempOutputFile << "  done" << endl ;
-    tempOutputFile << "  sleep 5" << endl ;
+    tempOutputFile << "  ./runSession waitNS.sh" << endl ;
     tempOutputFile << "  ./runSession waitContainers.py $arglist" << endl ;
     tempOutputFile << "  ./runSession python ~/" << _dirForTmpFiles << "/" << _fileNameToExecute << ".py" << endl;
     tempOutputFile << "  ./runSession killCurrentPort" << endl;
     tempOutputFile << "else" << endl ;
-    tempOutputFile << "  sleep 5" << endl ;
-    tempOutputFile << "  ./runSession waitNS.py" << endl ;
+    tempOutputFile << "  ./runSession waitNS.sh" << endl ;
     tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'${SLURM_PROCID}" << endl ;
     tempOutputFile << "fi" << endl ;
     tempOutputFile.flush();
@@ -226,7 +225,7 @@ namespace BatchLight {
 
     tempOutputFile << "#! /bin/sh -f" << endl ;
     tempOutputFile << "#BSUB -n " << nbproc << endl ;
-    tempOutputFile << "#BSUB -o ~/" << _dirForTmpFiles << "/runSalome.log%J" << endl ;
+    tempOutputFile << "#BSUB -o " << _dirForTmpFiles << "/runSalome.log%J" << endl ;
     tempOutputFile << "mpirun -srun ~/" << _dirForTmpFiles << "/runSalome_" << _fileNameToExecute << "_Batch.sh" << endl ;
     tempOutputFile.flush();
     tempOutputFile.close();
