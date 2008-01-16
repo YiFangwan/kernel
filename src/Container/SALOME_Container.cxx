@@ -126,11 +126,15 @@ int main(int argc, char* argv[])
 
   // Initialise the ORB.
   //SRN: BugID: IPAL9541, it's necessary to set a size of one message to be at least 100Mb
-  //CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
+  //There is no need to use a singleton as ORB_init returns a ref counted singleton 
+  //The only difference is on delete : no automatic call to destroy
+  //But it's in general too late in exit
+  CORBA::ORB_var orb = CORBA::ORB_init( argc , argv ) ;
+  /*
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance() ;
   ASSERT(SINGLETON_<ORB_INIT>::IsAlreadyExisting());
   CORBA::ORB_ptr orb = init(argc , argv ) ;
-	  
+  */
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
   INFOS_COMPILATION;
   BEGIN_OF(argv[0]);
@@ -168,9 +172,9 @@ int main(int argc, char* argv[])
 
       // add new container to the kill list
 #ifndef WNT
-      ostrstream aCommand ;
+      stringstream aCommand ;
       aCommand << "addToKillList.py " << getpid() << " SALOME_Container" << ends ;
-      system(aCommand.str());
+      system(aCommand.str().c_str());
 #endif
       
       Engines_Container_i * myContainer 
@@ -186,7 +190,10 @@ int main(int argc, char* argv[])
 #endif
 
       HandleServerSideSignals(orb);
-      
+
+      PyGILState_STATE gstate = PyGILState_Ensure();
+      //Delete python container that destroy orb from python (pyCont._orb.destroy())
+      Py_Finalize();
     }
   catch(CORBA::SystemException&)
     {
