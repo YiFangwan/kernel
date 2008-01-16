@@ -40,7 +40,7 @@ ORB_INIT::~ORB_INIT()
 {
   if ( ! CORBA::is_nil( _orb ) )
   {
-    std::cerr << "WARNING: destroy is no more called at exit. Use explicit call." << std::endl;
+    std::cerr << "WARNING: orb destroy is no more called at exit. Use explicit call." << std::endl;
     //std::cerr << "appel _orb->destroy()" << std::endl;
     /*
     try {
