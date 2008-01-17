@@ -1065,7 +1065,7 @@ throw(ServiceUnreachable)
 
       if (binding->binding_type == CosNaming::ncontext)
         {
-          dirList.push_back(CORBA::string_dup(bindingName[0].id));
+          dirList.push_back((const char*)bindingName[0].id);
         }
     }
 
