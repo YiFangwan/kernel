@@ -344,6 +344,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 			     const Engines::MachineList& possibleComputers)
 {
   CORBA::Object_var obj;
+  PaCO::InterfaceManager_var proxy;
   Engines::Container_ptr ret = Engines::Container::_nil();
   Engines::MachineParameters params(params_const);
 
@@ -376,6 +377,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 	params_proxy.nb_component_nodes = 0;
 	obj = LaunchParallelContainer(command, params_proxy, _NS->ContainerName(params));
 	ret = Engines::Container::_narrow(obj);
+	proxy = PaCO::InterfaceManager::_narrow(obj);
 
 	// Step 4 : starting parallel container nodes
 	command = _ResManager->BuildCommandToLaunchLocalParallelContainer("SALOME_ParallelContainerNode", params, "xterm");
@@ -411,8 +413,9 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 
 	PaCO::InterfaceParallel_var node = PaCO::InterfaceParallel::_narrow(obj);
 	MESSAGE("[FindOrStartParallelContainer] Deploying node : " << name);
-	node->deploy(i);
+	node->deploy();
 	}
+	proxy->start();
 	}
 	catch(CORBA::SystemException& e)
 	{
