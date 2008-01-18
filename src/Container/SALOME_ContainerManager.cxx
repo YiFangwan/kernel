@@ -230,6 +230,10 @@ StartContainer(const Engines::MachineParameters& params,
     return Engines::Container::_nil();
   }
 
+  //If the machine name is localhost use the real name
+  if(theMachine == "localhost")
+    theMachine=GetHostname();
+
   MESSAGE("try to launch it on " << theMachine);
 
   // Get Id for container: a parallel container registers in Naming Service
