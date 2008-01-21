@@ -35,7 +35,8 @@
 #include <process.h>
 #endif
 
-#include "SALOME_ComponentPaCO_Engines_Container_server.h"
+//#include "SALOME_ComponentPaCO_Engines_Container_server.h"
+#include "SALOME_ParallelContainerProxy_i.hxx"
 #include <paco_omni.h>
 #include <paco_mpi.h>
 
@@ -95,9 +96,12 @@ int main(int argc, char* argv[])
 #endif
 
     SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
-    Engines::Container_proxy_impl * proxy = 
-      new Engines::Container_proxy_impl(orb, 
-					new paco_omni_fabrique());
+//    Engines::Container_proxy_impl * proxy = 
+//      new Engines::Container_proxy_impl(orb, 
+//					new paco_omni_fabrique());
+    Container_proxy_impl_final * proxy = 
+      new Container_proxy_impl_final(orb, 
+				     new paco_omni_fabrique());
 
     // PaCO++ code
     paco_fabrique_manager* pfm = paco_getFabriqueManager();

@@ -36,7 +36,8 @@
 #endif
 
 // PaCO++ include
-#include "SALOME_ComponentPaCO_Engines_Container_server.h"
+//#include "SALOME_ComponentPaCO_Engines_Container_server.h"
+#include "SALOME_ParallelContainerProxy_i.hxx"
 #include <paco_omni.h>
 #include <paco_dummy.h>
 
@@ -86,15 +87,18 @@ int main(int argc, char* argv[])
 #ifndef WNT
     // add this container to the kill list
     char aCommand[100];
-    sprintf(aCommand, "addToKillList.py %d SALOME_ParallelContainerProxy", getpid());
+    sprintf(aCommand, "addToKillList.py %d SALOME_ParallelContainerProxyDummy", getpid());
     system(aCommand);
 #endif
 
     SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
-    Engines::Container_proxy_impl * proxy = 
-      new Engines::Container_proxy_impl(orb,
-					new paco_omni_fabrique());
+//    Engines::Container_proxy_impl * proxy = 
+//      new Engines::Container_proxy_impl(orb,
+//					new paco_omni_fabrique());
 
+    Container_proxy_impl_final * proxy = 
+      new Container_proxy_impl_final(orb,
+				     new paco_omni_fabrique());
     // PaCO++ code
     paco_fabrique_manager* pfm = paco_getFabriqueManager();
     pfm->register_com("dummy", new paco_dummy_fabrique());
