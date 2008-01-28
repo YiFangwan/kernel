@@ -210,16 +210,15 @@ salomeinclude_HEADERS = $(LIB_INCLUDES)
 lib_LTLIBRARIES = libSalomeBatch.la 
 libSalomeBatch_la_SOURCES = $(LIB_SRC)
 libSalomeBatch_la_CPPFLAGS = \
-	@PYTHON_INCLUDES@ \
+	${PYTHON_INCLUDES} \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../Utils \
 	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
-	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ $(LIB_CPPFLAGS)
+	${CORBA_CXXFLAGS} ${CORBA_INCLUDES} $(LIB_CPPFLAGS)
 
 libSalomeBatch_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSalomeBatch_la_LIBADD   = \
-	../SALOMELocalTrace/libSALOMELocalTrace.la \
-	../Basics/libSALOMEBasics.la \
+	../Utils/libOpUtil.la \
 	$(LIB_LIBADD)
