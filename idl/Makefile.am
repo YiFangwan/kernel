@@ -225,8 +225,11 @@ IDLPYFLAGS  = @IDLPYFLAGS@
 SUFFIXES = .idl .hh SK.cc
 .idlSK.cc:
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
-.idl.hh:
-	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
+SK.cc.hh:
+
+#Dummy rule to replace the following one (for parallel make)
+#.idl.hh:
+#	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
 
 %PaCO.h %PaCO.cc : %.idl %.xml
 	@PACO_IDL@ -I $(srcdir):@PACOPATH@/idl $^ omniORB4 0
