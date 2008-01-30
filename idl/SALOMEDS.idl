@@ -23,10 +23,6 @@
 //  Author : Yves FRICAUD
 //  $Header$
 
-/*! \mainpage
-    \image html Application-About1.jpg
-*/
-
 /*!
   \file SALOMEDS.idl This file contains a set of interfaces used for creation, managment
   and modification of the %Study
@@ -309,6 +305,12 @@ during each working session.
   Returns True if the %study has been modified and not saved.
 */
     boolean IsModified();
+
+/*!
+  Marks the %study as being modified and not saved.
+*/
+    void Modified();
+
 /*!
    Determines the file where the %study has been saved
 */
@@ -707,6 +709,18 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     Determines whether the server has already been loaded or not.
 */
     void ping();
+
+    void Shutdown();
+
+/*!
+    Returns the PID of the server
+*/
+    long getPID();
+
+/*!
+    Shutdown the StudyManager process.
+*/    
+    oneway void ShutdownWithExit();
 
 /*! \brief Creation of a new study
 

@@ -45,6 +45,7 @@
 #else
 #include <sys/timeb.h>
 int SIGUSR11 = 1000;
+#include <process.h>
 #endif
 
 
@@ -209,8 +210,13 @@ CORBA::Long Engines_Component_i::getStudyId()
 
 void Engines_Component_i::ping()
 {
+#ifndef WNT
   MESSAGE("Engines_Component_i::ping() pid "<< getpid() << " threadid "
           << pthread_self());
+#else
+  MESSAGE("Engines_Component_i::ping() pid "<< _getpid()<< " threadid "
+          << pthread_self().p );
+#endif
 }
 
 //=============================================================================
@@ -358,11 +364,19 @@ bool Engines_Component_i::Kill_impl()
 
 bool Engines_Component_i::Stop_impl()
 {
+#ifndef WNT
   MESSAGE("Engines_Component_i::Stop_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
           << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
+#else
+  MESSAGE("Engines_Component_i::Stop_i() pthread_t "<< pthread_self().p
+          << " pid " << _getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId );
+#endif
   
 
   bool RetVal = false ;
@@ -390,11 +404,19 @@ bool Engines_Component_i::Stop_impl()
 
 bool Engines_Component_i::Suspend_impl()
 {
+#ifndef WNT
   MESSAGE("Engines_Component_i::Suspend_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
           << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
+#else
+  MESSAGE("Engines_Component_i::Suspend_i() pthread_t "<< pthread_self().p
+          << " pid " << _getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId );
+#endif
 
   bool RetVal = false ;
 #ifndef WNT
@@ -429,11 +451,19 @@ bool Engines_Component_i::Suspend_impl()
 
 bool Engines_Component_i::Resume_impl()
 {
+#ifndef WNT
   MESSAGE("Engines_Component_i::Resume_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
           << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
+#else
+  MESSAGE("Engines_Component_i::Resume_i() pthread_t "<< pthread_self().p
+          << " pid " << _getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId );
+#endif
   bool RetVal = false ;
 #ifndef WNT
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
@@ -569,8 +599,13 @@ PortableServer::ObjectId * Engines_Component_i::getId()
 
 void Engines_Component_i::beginService(const char *serviceName)
 {
+#ifndef WNT
   MESSAGE(pthread_self() << "Send BeginService notification for " <<serviceName
 	  << endl << "Component instance : " << _instanceName << endl << endl);
+#else
+  MESSAGE(pthread_self().p << "Send BeginService notification for " <<serviceName
+	  << endl << "Component instance : " << _instanceName << endl << endl);
+#endif
 #ifndef WNT
   _ThreadId = pthread_self() ;
 #else
@@ -611,7 +646,8 @@ void Engines_Component_i::beginService(const char *serviceName)
 	  (*it).second >>= value;
 	  // ---todo: replace __GNUC__ test by an autoconf macro AC_CHECK_FUNC.
 #if defined __GNUC__
-	  int ret = setenv(cle.c_str(), value, overwrite);
+//	  int ret = setenv(cle.c_str(), value, overwrite);
+	  setenv(cle.c_str(), value, overwrite);
 #else
 	  //CCRT porting : setenv not defined in stdlib.h
 	  std::string s(cle);
@@ -619,7 +655,8 @@ void Engines_Component_i::beginService(const char *serviceName)
 	  s+=value;
 	  // char* cast because 1st arg of linux putenv function
 	  // is not a const char* !
-	  int ret=putenv((char *)s.c_str());
+//	  int ret=putenv((char *)s.c_str());
+	  putenv((char *)s.c_str());
 	  //End of CCRT porting
 #endif
 	  MESSAGE("--- setenv: "<<cle<<" = "<< value);
@@ -637,9 +674,16 @@ void Engines_Component_i::endService(const char *serviceName)
 {
   if ( !_CanceledThread )
     _ThreadCpuUsed = CpuUsed_impl() ;
+
+#ifndef WNT
   MESSAGE(pthread_self() << " Send EndService notification for " << serviceName
 	  << endl << " Component instance : " << _instanceName << " StartUsed "
           << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
+#else
+  MESSAGE(pthread_self().p << " Send EndService notification for " << serviceName
+	  << endl << " Component instance : " << _instanceName << " StartUsed "
+    << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
+#endif
   _ThreadId = 0 ;
 }
 
@@ -688,8 +732,13 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
 	    }
 	  else
 	    {
+#ifndef WNT
 	      MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
 		      << " pthread_canceled") ;
+#else
+        MESSAGE(pthread_self().p << "Killer : ThreadId " << ThreadId.p
+		      << " pthread_canceled") ;
+#endif
 	    }
 	}
       else
@@ -701,8 +750,13 @@ bool Engines_Component_i::Killer( pthread_t ThreadId , int signum )
 	    }
 	  else 
 	    {
-	      MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
+#ifndef WNT
+        MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
 		      << " pthread_killed(" << signum << ")") ;
+#else
+        MESSAGE(pthread_self().p << "Killer : ThreadId " << ThreadId.p
+		      << " pthread_killed(" << signum << ")") ;
+#endif
 	    }
 	}
     }
@@ -824,7 +878,7 @@ Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy,
 						  CORBA::Boolean isPublished, 
 						  CORBA::Boolean& isValidScript)
 {
-  char* aScript = "def RebuildData(theStudy): pass";
+  const char* aScript = "def RebuildData(theStudy): pass";
   char* aBuffer = new char[strlen(aScript)+1];
   strcpy(aBuffer, aScript);
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
@@ -833,3 +887,163 @@ Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Object_ptr theStudy,
   isValidScript = true;
   return aStreamFile._retn(); 
 }
+
+Engines::Salome_file_ptr 
+Engines_Component_i::getInputFileToService(const char* service_name, 
+					   const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we throw an exception.
+  _Service_file_map_it = _Input_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Input_Service_file_map.end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have salome files";
+    throw SALOME::SALOME_Exception(es);
+  }
+  _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
+
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have this Salome_file";
+    throw SALOME::SALOME_Exception(es);
+  }
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
+
+  return Sfile->_this();
+}
+
+Engines::Salome_file_ptr 
+Engines_Component_i::setInputFileToService(const char* service_name, 
+					   const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we add it.
+  _Service_file_map_it = _Input_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Input_Service_file_map.end()) {
+    _t_Salome_file_map * _map = new _t_Salome_file_map();
+    _Input_Service_file_map[service_name] = _map;
+  }
+  _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
+  
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+    Salome_file_i * Sfile = new Salome_file_i();
+    Engines::Container_ptr container = this->GetContainerRef();
+    Sfile->setContainer(Engines::Container::_duplicate(container));
+    (*_map)[Salome_file_name] = Sfile;
+  }
+
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
+  return Sfile->_this();
+}
+
+void 
+Engines_Component_i::checkInputFilesToService(const char* service_name) 
+{
+  // Try to find the service, if it doesn't exist, nothing to do.
+  _Service_file_map_it = _Input_Service_file_map.find(service_name);
+  if (_Service_file_map_it !=  _Input_Service_file_map.end()) {
+    _t_Salome_file_map * _map = _Input_Service_file_map[service_name];
+    _t_Salome_file_map::iterator begin = _map->begin();
+    _t_Salome_file_map::iterator end = _map->end();
+
+    for(;begin!=end;begin++) {
+      Salome_file_i * file = begin->second;
+      std::string file_port_name = begin->first;
+      configureSalome_file(service_name, file_port_name, file);
+      file->recvFiles();
+    }
+  }
+}
+
+Engines::Salome_file_ptr 
+Engines_Component_i::getOutputFileToService(const char* service_name, 
+					    const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we throw an exception.
+  _Service_file_map_it = _Output_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Output_Service_file_map.end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have salome files";
+    throw SALOME::SALOME_Exception(es);
+  }
+  _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
+
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "service doesn't have this Salome_file";
+    throw SALOME::SALOME_Exception(es);
+  }
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
+
+  return Sfile->_this();
+}
+
+Engines::Salome_file_ptr 
+Engines_Component_i::setOutputFileToService(const char* service_name, 
+					   const char* Salome_file_name) 
+{
+  // Try to find the service, if it doesn't exist, we add it.
+  _Service_file_map_it = _Output_Service_file_map.find(service_name);
+  if (_Service_file_map_it ==  _Output_Service_file_map.end()) {
+    _t_Salome_file_map * _map = new _t_Salome_file_map();
+    _Output_Service_file_map[service_name] = _map;
+  }
+  _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
+  
+  // Try to find the Salome_file ...
+  _Salome_file_map_it = _map->find(Salome_file_name);
+  if (_Salome_file_map_it ==  _map->end()) {
+    Salome_file_i * Sfile = new Salome_file_i();
+    Engines::Container_ptr container = this->GetContainerRef();
+    Sfile->setContainer(Engines::Container::_duplicate(container));
+    (*_map)[Salome_file_name] = Sfile;
+  }
+
+  Salome_file_i * Sfile = (*_map)[Salome_file_name];
+  return Sfile->_this();
+}
+
+void 
+Engines_Component_i::checkOutputFilesToService(const char* service_name) 
+{
+  // Try to find the service, if it doesn't exist, nothing to do.
+  _Service_file_map_it = _Output_Service_file_map.find(service_name);
+  if (_Service_file_map_it !=  _Output_Service_file_map.end()) {
+    _t_Salome_file_map * _map = _Output_Service_file_map[service_name];
+    _t_Salome_file_map::iterator begin = _map->begin();
+    _t_Salome_file_map::iterator end = _map->end();
+
+    for(;begin!=end;begin++) {
+      Salome_file_i * file = begin->second;
+      std::string file_port_name = begin->first;
+      configureSalome_file(service_name, file_port_name, file);
+      file->recvFiles();
+    }
+  }
+
+}
+
+//=============================================================================
+/*! 
+ *  C++ method: used to configure the Salome_file into the runtime.
+ *  \param service_name name of the service that use this Salome_file
+ *  \param file_port_name name of the Salome_file
+ *  \param file Salome_file C++ object
+ */
+//=============================================================================
+void
+Engines_Component_i::configureSalome_file(std::string service_name,
+					  std::string file_port_name,
+					  Salome_file_i * file) 
+{
+  // By default this method does nothing
+}
+

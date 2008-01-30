@@ -55,7 +55,6 @@ public :
   virtual ~GenericUsesPort();
 
   virtual const char * get_repository_id();
-  virtual bool  set_port(Ports::Port_ptr port);
   template <typename TimeType,typename TagType>
   void  put(CorbaInDataType data,  TimeType time, TagType tag); 
 
@@ -83,24 +82,6 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::get
 
 
 template <typename DataManipulator,typename CorbaPortType, char * repositoryName, typename UsesPort > 
-bool
-GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::set_port(Ports::Port_ptr port) {
-  if (_my_ports) {
-    size_t n = _my_ports->length()+1;
-    _my_ports->length(n);
-    (*_my_ports)[n]=CorbaPortType::_narrow(port);
-    return true;
-  }  else {
-    // Vérifier si port is_nil
-    _my_ports = new Engines::DSC::uses_port();
-    _my_ports->length(1);
-    (*_my_ports)[0]=CorbaPortType::_narrow(port);
-    return true;
-  }
-  return false;
-}
-
-template <typename DataManipulator,typename CorbaPortType, char * repositoryName, typename UsesPort > 
 template <typename TimeType,typename TagType>
 void
 GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put( CorbaInDataType data, 
@@ -123,11 +104,13 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
     CorbaPortTypePtr port = CorbaPortType::_narrow((*_my_ports)[i]);
     //if (i) { PB1
     copyOfData = DataManipulator::clone(data);
+#ifdef _DEBUG_
     std::cout << "-------- GenericUsesPort::put : Copie de data("
       //<< DataManipulator::getPointer(data)
 	      <<") vers copyOfData ("
 	      <<DataManipulator::getPointer(copyOfData)
 	      <<")------------------" << std::endl;
+#endif
     //} PB1
     try {
       port->put(*copyOfData,time,tag); // catcher les exceptions
@@ -154,7 +137,9 @@ GenericUsesPort< DataManipulator, CorbaPortType, repositoryName, UsesPort
 {
   if (_my_ports) delete _my_ports;
 
+#ifdef _DEBUG_
   std::cerr << "GenericUsesPort::uses_port_changed" << endl;
+#endif
   _my_ports = new Engines::DSC::uses_port(*new_uses_port);
 }
 

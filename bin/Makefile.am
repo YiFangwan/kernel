@@ -61,8 +61,11 @@ dist_salomescript_SCRIPTS=\
 	setenv.py \
 	launchSalome.py \
 	nameserver.py \
-        server.py
-
+        server.py \
+	waitNS.sh \
+	waitNS.py \
+	waitContainers.py \
+	shutdownSalome.py
 
 EXTRA_DIST = appliskel
 

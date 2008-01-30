@@ -49,3 +49,8 @@ info_TEXINFOS = Batch.texi
 
 install-data-local:  html usr_docs
 	cp -rp $(top_builddir)/doc/salome/Batch.html $(docdir)
+
+EXTRA_DIST= main.dox install.dox \
+	    kernel_resources.dox kernel_services.dox \
+	    salome_application.dox unittests.dox \
+	    salome_file.dox batch.dox

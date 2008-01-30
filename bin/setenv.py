@@ -37,9 +37,9 @@ salome_subdir = "salome"
 def add_path(directory, variable_name):
     """Function helper to add environment variables"""
     if sys.platform == "win32":
-	  splitsym = ";"
+      splitsym = ";"
     else:
-	  splitsym = ":"
+      splitsym = ":"
     if not os.environ.has_key(variable_name):
         os.environ[variable_name] = ""
         pass
@@ -77,7 +77,7 @@ def get_lib_dir():
             __lib__dir__ = "lib64"
     else:
         __lib__dir__ = "lib"
-    return get_lib_dir()
+    return __lib__dir__
 
 # -----------------------------------------------------------------------------
 
@@ -120,7 +120,7 @@ def get_config():
 
     to_remove_list=[]
     for module in modules_list :
-        module_variable=module.upper()+"_ROOT_DIR"
+        module_variable=module+"_ROOT_DIR"
         if not os.environ.has_key(module_variable):
             print "*******************************************************"
             print "*"
@@ -145,8 +145,8 @@ def get_config():
         modules_list.remove("GUI")
         pass
 
-    if "SUPERV" in modules_list and not 'superv' in args['standalone']:
-        args['standalone'].append("superv")
+    if "SUPERV" in modules_list and not 'supervContainer' in args['standalone']:
+        args['standalone'].append("supervContainer")
         pass
    
     return args, modules_list, modules_root_dir
@@ -158,6 +158,8 @@ def set_env(args, modules_list, modules_root_dir):
     
     python_version="python%d.%d" % sys.version_info[0:2]
     modules_root_dir_list = []
+    if os.getenv('SALOME_BATCH') == None:
+      os.putenv('SALOME_BATCH','0')
     if args["gui"] :
         modules_list = modules_list[:] + ["GUI"] 
     modules_list = modules_list[:] + ["KERNEL"] 
@@ -240,9 +242,9 @@ def set_env(args, modules_list, modules_root_dir):
                              "PYTHONPATH")
 
 
-	            if sys.platform == "win32":
-        	      add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir),
-                               "PATH")
+                    if sys.platform == "win32":
+                      add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir),
+                          "PATH")
                     else:
                       add_path(os.path.join(plugin_root,get_lib_dir(),salome_subdir),
                                "LD_LIBRARY_PATH")
@@ -260,18 +262,20 @@ def set_env(args, modules_list, modules_root_dir):
     #if os.getenv("GUI_ROOT_DIR"):
         #if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"
 
-    # set CSF_PluginDefaults variable only if it is not customized
-    # by the user
-    if not os.getenv("CSF_PluginDefaults"):
-        os.environ["CSF_PluginDefaults"] \
-        = os.path.join(modules_root_dir["KERNEL"],"share",
-                       salome_subdir,"resources","kernel")
     os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
     = os.path.join(modules_root_dir["KERNEL"],"share",
                    salome_subdir,"resources","kernel")
 
     if "GEOM" in modules_list:
-        if verbose(): print "GEOM OCAF Resources"
+        if verbose(): print "GEOM OCAF Resources" 
+        
+	# set CSF_PluginDefaults variable only if it is not customized
+        # by the user
+
+        if not os.getenv("CSF_PluginDefaults"):
+    	    os.environ["CSF_PluginDefaults"] \
+    	    = os.path.join(modules_root_dir["GEOM"],"share",
+                    	   salome_subdir,"resources","geom")
         os.environ["CSF_GEOMDS_ResourcesDefaults"] \
         = os.path.join(modules_root_dir["GEOM"],"share",
                        salome_subdir,"resources","geom")

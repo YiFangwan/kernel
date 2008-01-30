@@ -99,8 +99,8 @@ echo Configuring production
 echo ---------------------------------------------
 echo
 # production.m4
-AC_ENABLE_DEBUG(yes)
-AC_DISABLE_PRODUCTION
+AC_ENABLE_DEBUG(no)
+AC_ENABLE_PRODUCTION(no)
 
 echo
 echo ---------------------------------------------
@@ -181,14 +181,6 @@ echo
 
 CHECK_HDF5
 
-echo
-echo ---------------------------------------------
-echo Testing OpenCascade
-echo ---------------------------------------------
-echo
-
-CHECK_CAS
-
 # ----------------------------------------------------------------------------
 # --- test corba
 
@@ -239,20 +231,19 @@ AC_SUBST_FILE(CORBA)
 
 echo
 echo ---------------------------------------------
-echo Testing QT
-echo ---------------------------------------------
-echo
-# Qt must be kept because kernel makes use of qxml and some other
-# non-graphical stuff.
-CHECK_QT
-
-echo
-echo ---------------------------------------------
 echo BOOST Library
 echo ---------------------------------------------
 echo
 
 CHECK_BOOST
+
+echo
+echo ---------------------------------------------
+echo Testing libxml2
+echo ---------------------------------------------
+echo
+
+CHECK_LIBXML
 
 fi 
 # --- end test corba
@@ -419,9 +410,9 @@ function check_fatal_error {
 # --------------------------------------
 
 if test x$corba_gen = xtrue; then
-  basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok occ_ok"
+  basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok"
 else
-  basic_mandatory_products="cc_ok threads_ok hdf5_ok occ_ok"
+  basic_mandatory_products="cc_ok threads_ok hdf5_ok"
 fi
 
 echo --- General mandatory products - Light configuration:
@@ -429,7 +420,7 @@ summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
 echo
 
-corba_mandatory_products="omniORB_ok qt_ok boost_ok"
+corba_mandatory_products="omniORB_ok boost_ok libxml_ok"
 if test x$corba_gen = xtrue; then
   echo --- CORBA mandatory products - default configuration:
   summary $corba_mandatory_products
@@ -548,11 +539,11 @@ AC_OUTPUT([ \
 	./src/Basics/Test/Makefile \
 	./src/Batch/Makefile \
 	./src/Batch_SWIG/Makefile \
-	./src/CASCatch/Makefile \
 	./src/Communication/Makefile \
 	./src/Communication_SWIG/Makefile \
 	./src/Container/Makefile \
 	./src/ParallelContainer/Makefile \
+	./src/DF/Makefile \
 	./src/DSC/Makefile \
 	./src/DSC/DSC_Basic/Makefile \
 	./src/DSC/DSC_User/Makefile \
@@ -561,9 +552,11 @@ AC_OUTPUT([ \
 	./src/DSC/DSC_User/Datastream/Palm/Makefile \
 	./src/DSC/DSC_User/Datastream/Calcium/Makefile \
 	./src/DSC/ParallelDSC/Makefile \
+	./src/DSC/DSC_Python/Makefile \
 	./src/GenericObj/Makefile \
 	./src/HDFPersist/Makefile \
 	./src/KERNEL_PY/Makefile \
+	./src/Launcher/Makefile \
 	./src/LifeCycleCORBA/Makefile \
 	./src/LifeCycleCORBA/Test/Makefile \
 	./src/LifeCycleCORBA_SWIG/Makefile \

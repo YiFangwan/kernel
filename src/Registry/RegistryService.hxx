@@ -72,6 +72,7 @@ public :
 	virtual ~RegistryService(void);
 
         void ping();
+        CORBA::Long getPID();
 	virtual CORBA::ULong add (const Registry::Infos & infos);
 	virtual CORBA::ULong size ( void );
 #ifndef WNT
@@ -88,9 +89,13 @@ public :
 
 	void SessionName( const char *sessionName ) ;
 
+        void SetOrb( CORBA::ORB_ptr orb ) { _orb = orb; return; }
+
+        void Shutdown() { if(!CORBA::is_nil(_orb)) _orb->shutdown(0); }
 
 protected :
 
+        CORBA::ORB_var _orb;
 	const char		*_SessionName ;
 	int			 _Compteur ;
 	std::map<int,client_infos *>	 _reg ;
