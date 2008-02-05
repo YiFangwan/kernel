@@ -83,7 +83,7 @@ if platform.architecture()[0] == "64bit":
     if platform.machine() == "ia64":
         libdir = "lib"
     else:
-        libdir = "lib64"
+        libdir = "lib"
 else:
     libdir = "lib"
 for rep in path:
