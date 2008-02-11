@@ -112,7 +112,7 @@ public :
     typedef PortableServer::ServantBase TServant;
     if(_PtrObjet){
       if(dynamic_cast<TServant*>(_PtrObjet)){
-        std::cerr << "WARNING: automatic destruction for servant is no more used. It's too late in exit. Use explicit call" << std::endl;
+       // std::cerr << "WARNING: automatic destruction for servant is no more used. It's too late in exit. Use explicit call" << std::endl;
   /*
       if(TServant* aServant = dynamic_cast<TServant*>(_PtrObjet)){
 	PortableServer::POA_var aPOA = aServant->_default_POA();

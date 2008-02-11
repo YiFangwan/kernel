@@ -17,7 +17,7 @@ AC_LANG_SAVE
 AC_LANG_CPLUSPLUS
 
 AC_PATH_PROG(OMNIORB_IDL, omniidl)
-if test "xOMNIORB_IDL" = "x"
+if test "x$OMNIORB_IDL" = "x"
 then
   omniORB_ok=no
   AC_MSG_RESULT(omniORB binaries not in PATH variable)
@@ -100,8 +100,6 @@ then
   CPPFLAGS=$CPPFLAGS_old
 
 fi
-
-dnl omniORB_ok=yes
 
 if test "x$omniORB_ok" = "xyes" 
 then
