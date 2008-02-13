@@ -32,9 +32,16 @@ using namespace std;
 namespace BatchLight {
 
   // Constructeur
-  Job::Job(const char *fileToExecute, const Engines::FilesList& filesToExport, const Engines::FilesList& filesToImport, const int nbproc) : _fileToExecute(fileToExecute), _filesToExport(filesToExport), _filesToImport(filesToImport), _nbproc(nbproc)
+  Job::Job(const char *fileToExecute, 
+	   const Engines::FilesList& filesToExport, 
+	   const Engines::FilesList& filesToImport, 
+	   const int nbproc) : _fileToExecute(fileToExecute), 
+			       _filesToExport(filesToExport), 
+			       _filesToImport(filesToImport), 
+			       _nbproc(nbproc)
   {
-    // Nothing to do
+    _dirForTmpFiles = "/tmp/default_batch_tmp_directory";
+    std::string _fileNameToExecute = "";
   }
 
   Job::~Job()
@@ -42,4 +49,11 @@ namespace BatchLight {
     MESSAGE("Job destructor");
   }
 
+  void 
+  Job::addFileToImportList(std::string file_name) 
+  {
+    CORBA::ULong lgth = _filesToImport.length();
+    _filesToImport.length(lgth+1);
+    _filesToImport[lgth] = CORBA::string_dup(file_name.c_str());
+  }
 }

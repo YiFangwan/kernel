@@ -785,6 +785,11 @@ def searchFreePort(args, save_config=1):
                     system('ln -s -f %s %s/.omniORB_last.cfg'%(os.environ['OMNIORB_CONFIG'], home))     
                 pass
             #
+            if args.has_key('ns_port_log_file'):
+              file_name= '%s/%s'%(home, args["ns_port_log_file"])
+              f = open(file_name, "w")
+              f.write(os.environ['NSPORT'])
+              f.close()
             break
         print "%s"%(NSPORT),
         if NSPORT == limit:

@@ -45,14 +45,18 @@ namespace BatchLight {
     const char *getFileToExecute() const { return _fileToExecute; }
     const Engines::FilesList getFilesToExportList() const { return _filesToExport; }
     const Engines::FilesList getFilesToImportList() const { return _filesToImport; }
+    void addFileToImportList(std::string file_name);
     const int getNbProc() const { return _nbproc; }
-    
+
+    const std::string getDirForTmpFiles() const { return _dirForTmpFiles;}
+    void setDirForTmpFiles(std::string dirForTmpFiles) {_dirForTmpFiles = dirForTmpFiles;
+							SCRUTE(_dirForTmpFiles);}
   protected:
     const char* _fileToExecute;
     const Engines::FilesList _filesToExport;
-    const Engines::FilesList _filesToImport;
+    Engines::FilesList _filesToImport;
     const int _nbproc;
-
+    std::string _dirForTmpFiles; // Tmp directory on the server
   private:
 
   };
