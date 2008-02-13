@@ -32,7 +32,7 @@
 #include "provides_port.hxx"
 #include "port_factory.hxx"
 
-// default ports factories on the Kernel
+// default ports factories in the Kernel
 #include "basic_port_factory.hxx"
 #include "palm_port_factory.hxx"
 #include "calcium_port_factory.hxx"
