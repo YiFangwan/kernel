@@ -13,6 +13,7 @@
 #include <Calcium.hxx>
 #include <calcium.h>
 #include <Superv_Component_i.hxx>
+#include <Salome_file_i.hxx>
 #include <omniORB4/CORBA.h>
 
 //--- from omniORBpy.h (not present on Debian Sarge packages)
@@ -453,7 +454,7 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
   }
 }
 
-%typemap(out) Ports::Port_ptr , Ports::PortProperties_ptr
+%typemap(out) Ports::Port_ptr , Ports::PortProperties_ptr, Engines::Salome_file_ptr
 {
   $result = api->cxxObjRefToPyObjRef($1, 1);
 }
@@ -564,6 +565,13 @@ class PySupervCompo:public Superv_Component_i
                      Engines::DSC::BadPortReference);
 
     virtual Ports::PortProperties_ptr get_port_properties(const char* port_name);
+
+    Engines::Salome_file_ptr getInputFileToService(const char* service_name, const char* Salome_file_name);
+    void checkInputFilesToService(const char* service_name);
+    Engines::Salome_file_ptr setInputFileToService(const char* service_name, const char* Salome_file_name);
+    Engines::Salome_file_ptr getOutputFileToService(const char* service_name, const char* Salome_file_name);
+    void checkOutputFilesToService(const char* service_name);
+    Engines::Salome_file_ptr setOutputFileToService(const char* service_name, const char* Salome_file_name);
 
     %extend
       {
