@@ -44,7 +44,7 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
   Engines_DSC_i(orb, poa, contId, instanceName, interfaceName) 
 {
 #ifdef _DEBUG_
-  std::cout << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
+  std::cerr << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
 #endif
   register_factory("BASIC", new basic_port_factory());
   register_factory("PALM", new palm_port_factory());
@@ -155,11 +155,11 @@ Superv_Component_i::add_port(const char * port_fab_type,
   }
   else if (s_port_type == "uses") {
 #ifdef _DEBUG_
-    std::cout << "---- Superv_Component_i::add_port : MARK 1 ---- "  << std::endl;
+    std::cerr << "---- Superv_Component_i::add_port : MARK 1 ---- "  << std::endl;
 #endif
     uses_port * port = create_uses_data_port(port_fab_type);
 #ifdef _DEBUG_
-    std::cout << "---- Superv_Component_i::add_port : MARK 2 ---- "  << std::endl;
+    std::cerr << "---- Superv_Component_i::add_port : MARK 2 ---- "  << std::endl;
 #endif
     add_port(port, port_name);
   }

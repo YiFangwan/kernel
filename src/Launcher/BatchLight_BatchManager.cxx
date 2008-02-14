@@ -227,8 +227,16 @@ namespace BatchLight {
       command += directory;
       SCRUTE(command.c_str());
       status = system(command.c_str());
-      if(status)
-	throw SALOME_Exception("Error of connection on remote host");    
+      if(status) 
+      {
+	// Try to get what we can (logs files)
+	// throw SALOME_Exception("Error of connection on remote host");    
+	std::string mess("Copy command failed ! status is :");
+	ostringstream status_str;
+	status_str << status;
+	mess += status_str.str();
+	INFOS(mess);
+      }
     }
 
     END_OF("BatchManager::importOutputFiles");

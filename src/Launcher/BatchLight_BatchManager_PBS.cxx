@@ -180,26 +180,57 @@ namespace BatchLight {
 
     ofstream tempOutputFile;
     tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
+    
+    // Begin
     tempOutputFile << "#! /bin/sh -f" << endl ;
     tempOutputFile << "cd " ;
     tempOutputFile << _params.applipath << endl ;
+    tempOutputFile << "export SALOME_BATCH=1\n";
     tempOutputFile << "export PYTHONPATH=~/" ;
     tempOutputFile << dirForTmpFiles ;
     tempOutputFile << ":$PYTHONPATH" << endl ;
+
+    // Test node rank
     tempOutputFile << "if test " ;
     tempOutputFile << _mpiImpl->rank() ;
     tempOutputFile << " = 0; then" << endl ;
+
+    // -----------------------------------------------
+    // Code for rank 0 : launch runAppli and a container
+    // RunAppli
     tempOutputFile << "  ./runAppli --terminal --modules=" ;
     for ( int i = 0 ; i < _params.modulesList.size() ; i++ ) {
       tempOutputFile << _params.modulesList[i] ;
       if ( i != _params.modulesList.size()-1 )
 	tempOutputFile << "," ;
     }
-    //tempOutputFile << " --standalone=registry,study,moduleCatalog --killall &" << endl ;
     tempOutputFile << " --standalone=registry,study,moduleCatalog --ns-port-log="
 		   << filelogtemp 
 		   << " &\n";
-    tempOutputFile << "  for ((ip=1; ip < ";
+
+    // Wait NamingService
+    tempOutputFile << "  current=0\n"
+		   << "  stop=20\n" 
+		   << "  while ! test -f " << filelogtemp << "\n"
+		   << "  do\n"
+		   << "    sleep 2\n"
+		   << "    let current=current+1\n"
+		   << "    if [ \"$current\" -eq \"$stop\" ] ; then\n"
+		   << "      echo Error Naming Service failed ! >&2"
+		   << "      exit\n"
+		   << "    fi\n"
+		   << "  done\n"
+		   << "  port=`cat " << filelogtemp << "`\n";
+    
+    // Launch a container
+    tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'"
+		   << _mpiImpl->rank()
+		   << " > ~/" << dirForTmpFiles << "/YACS_Server_" 
+		   << _mpiImpl->rank() << "_container_log.${PBS_JOBID}"
+		   << " 2>&1 &\n";
+
+    // Wait other containers
+    tempOutputFile << "  for ((ip=0; ip < ";
     tempOutputFile << _mpiImpl->size();
     tempOutputFile << " ; ip++))" << endl;
     tempOutputFile << "  do" << endl ;
@@ -207,22 +238,39 @@ namespace BatchLight {
     tempOutputFile << "  done" << endl ;
     tempOutputFile << "  sleep 5" << endl ;
     tempOutputFile << "  ./runSession waitContainers.py $arglist" << endl ;
-    tempOutputFile << "  ./runSession python ~/" << dirForTmpFiles << "/" << fileNameToExecute << ".py" << endl;
 
-    //tempOutputFile << "  ./runSession killCurrentPort" << endl;
-    tempOutputFile << "  if [ -f \"" << filelogtemp << "\" ]\n"
-		   << "  then\n"
-		   << "    port=`cat " << filelogtemp << "`\n"
-		   << "    rm " << filelogtemp << "\n"
-		   << "  fi\n"
+    // Launch user script
+    tempOutputFile << "  ./runSession python ~/" << dirForTmpFiles << "/" << fileNameToExecute << ".py\n";
+
+    // Stop application
+    tempOutputFile << "  rm " << filelogtemp << "\n"
 		   << "  ./runSession killSalomeWithPort.py $port\n";
-    
+   
+    // -------------------------------------
+    // Other nodes launch a container
     tempOutputFile << "else" << endl ;
-    tempOutputFile << "  sleep 5" << endl ;
-    tempOutputFile << "  ./runSession waitNS.py" << endl ;
+    
+    // Wait NamingService
+    tempOutputFile << "  current=0\n"
+		   << "  stop=20\n" 
+		   << "  while ! test -f " << filelogtemp << "\n"
+		   << "  do\n"
+		   << "    sleep 2\n"
+		   << "    let current=current+1\n"
+		   << "    if [ \"$current\" -eq \"$stop\" ] ; then\n"
+		   << "      echo Error Naming Service failed ! >&2"
+		   << "      exit\n"
+		   << "    fi\n"
+		   << "  done\n"
+		   << "  port=`cat " << filelogtemp << "`\n";
+
+    // Launching container
     tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'";
-    tempOutputFile << _mpiImpl->rank() << endl ;
-    tempOutputFile << "fi" << endl ;
+    tempOutputFile << _mpiImpl->rank()
+		   << " > ~/" << dirForTmpFiles << "/YACS_Server_" 
+		   << _mpiImpl->rank() << "_container_log.${PBS_JOBID}"
+		   << " 2>&1\n";
+    tempOutputFile << "fi" << endl;
     tempOutputFile.flush();
     tempOutputFile.close();
     chmod(TmpFileName.c_str(), 0x1ED);
@@ -290,8 +338,8 @@ namespace BatchLight {
 
     tempOutputFile << "#! /bin/sh -f" << endl ;
     tempOutputFile << "#PBS -l nodes=" << nbnodes << endl ;
-    tempOutputFile << "#PBS -o /$PBS_O_HOME/" << dirForTmpFiles << "/runSalome.output.log" << endl ;
-    tempOutputFile << "#PBS -e /$PBS_O_HOME/" << dirForTmpFiles << "/runSalome.error.log" << endl ;
+    tempOutputFile << "#PBS -o /$PBS_O_HOME/" << dirForTmpFiles << "/runSalome.output.log.${PBS_JOBID}" << endl ;
+    tempOutputFile << "#PBS -e /$PBS_O_HOME/" << dirForTmpFiles << "/runSalome.error.log.${PBS_JOBID}" << endl ;
     tempOutputFile << _mpiImpl->boot("${PBS_NODEFILE}",nbnodes);
     tempOutputFile << _mpiImpl->run("${PBS_NODEFILE}",nbproc,filenameToExecute.str());
     tempOutputFile << _mpiImpl->halt();
@@ -326,11 +374,14 @@ namespace BatchLight {
   
     // Adding log files into import list files
     ostringstream file_name_output;
-    file_name_output << "~/" << dirForTmpFiles << "/" << "runSalome.output.log";
+    file_name_output << "~/" << dirForTmpFiles << "/" << "runSalome.output.log*";
     ostringstream file_name_error;
-    file_name_error << "~/" << dirForTmpFiles << "/" << "runSalome.error.log";
+    file_name_error << "~/" << dirForTmpFiles << "/" << "runSalome.error.log*";
+    ostringstream file_container_log;
+    file_container_log << "~/" << dirForTmpFiles << "/" << "YACS_Server*";
     job->addFileToImportList(file_name_output.str());
     job->addFileToImportList(file_name_error.str());
+    job->addFileToImportList(file_container_log.str());
     RmTmpFile(TmpFileName);
     END_OF("BatchManager_PBS::buildSalomeBatchScript");
   }
