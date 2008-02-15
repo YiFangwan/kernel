@@ -97,10 +97,10 @@ struct Copy2UserSpace<false> {
     typedef typename ProvidesPortTraits<T1>::PortType  PortType;
     typedef typename PortType::DataManipulator         DataManipulator;
     typedef typename DataManipulator::InnerType        InnerType;
-    InnerType * dataPtr = NULL;
     
   
 #ifdef _DEBUG_
+    InnerType * dataPtr = NULL;
       // Affiche la valeur du pointeur de la structure corba
       //  et les pointeurs contenus le cas échéant
       dataPtr  = DataManipulator::getPointer(corbaData,false);
