@@ -226,7 +226,7 @@ namespace BatchLight {
     tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'"
 		   << _mpiImpl->rank()
 		   << " > ~/" << dirForTmpFiles << "/YACS_Server_" 
-		   << _mpiImpl->rank() << "_container_log.${PBS_JOBID}"
+		   << _mpiImpl->rank() << "_container_log." << filelogtemp
 		   << " 2>&1 &\n";
 
     // Wait other containers
@@ -268,7 +268,7 @@ namespace BatchLight {
     tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'";
     tempOutputFile << _mpiImpl->rank()
 		   << " > ~/" << dirForTmpFiles << "/YACS_Server_" 
-		   << _mpiImpl->rank() << "_container_log.${PBS_JOBID}"
+		   << _mpiImpl->rank() << "_container_log." << filelogtemp
 		   << " 2>&1\n";
     tempOutputFile << "fi" << endl;
     tempOutputFile.flush();
@@ -316,6 +316,8 @@ namespace BatchLight {
     string::size_type p1 = string(fileToExecute).find_last_of("/");
     string::size_type p2 = string(fileToExecute).find_last_of(".");
     std::string fileNameToExecute = string(fileToExecute).substr(p1+1,p2-p1-1);
+    int idx = dirForTmpFiles.find("Batch/");
+    std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
 
     int nbmaxproc = _params.nbnodes * _params.nbprocpernode;
     if( nbproc > nbmaxproc ){
@@ -338,8 +340,12 @@ namespace BatchLight {
 
     tempOutputFile << "#! /bin/sh -f" << endl ;
     tempOutputFile << "#PBS -l nodes=" << nbnodes << endl ;
-    tempOutputFile << "#PBS -o /$PBS_O_HOME/" << dirForTmpFiles << "/runSalome.output.log.${PBS_JOBID}" << endl ;
-    tempOutputFile << "#PBS -e /$PBS_O_HOME/" << dirForTmpFiles << "/runSalome.error.log.${PBS_JOBID}" << endl ;
+    // In some systems qsub does not correctly expand env variables
+    // like PBS_O_HOME for #PBS directives....
+    //tempOutputFile << "#PBS -o /$PBS_O_HOME/" << dirForTmpFiles << "/runSalome.output.log.${PBS_JOBID}" << endl ;
+    //tempOutputFile << "#PBS -e /$PBS_O_HOME/" << dirForTmpFiles << "/runSalome.error.log.${PBS_JOBID}" << endl ;
+    tempOutputFile << "#PBS -o runSalome.output.log." << filelogtemp << endl ;
+    tempOutputFile << "#PBS -e runSalome.error.log." << filelogtemp << endl ;
     tempOutputFile << _mpiImpl->boot("${PBS_NODEFILE}",nbnodes);
     tempOutputFile << _mpiImpl->run("${PBS_NODEFILE}",nbproc,filenameToExecute.str());
     tempOutputFile << _mpiImpl->halt();
@@ -424,9 +430,9 @@ namespace BatchLight {
     }
 
     command += _params.hostname;
-    command += " \"qsub " ;
-    command += dirForTmpFiles ;
-    command += "/" ;
+    command += " \"cd " ;
+    command += dirForTmpFiles;
+    command += "; qsub " ;
     command += fileNameToExecute ;
     command += "_Batch.sh\" > ";
     command += logFile;
