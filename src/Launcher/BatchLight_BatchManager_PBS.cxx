@@ -311,6 +311,8 @@ namespace BatchLight {
     BEGIN_OF("BatchManager_PBS::buildSalomeBatchScript");
     int status;
     const int nbproc = job->getNbProc();
+    std::string edt = job->getExpectedDuringTime();
+    std::string mem = job->getMemory();
     const std::string dirForTmpFiles = job->getDirForTmpFiles();
     const char *fileToExecute = job->getFileToExecute();
     string::size_type p1 = string(fileToExecute).find_last_of("/");
@@ -340,6 +342,10 @@ namespace BatchLight {
 
     tempOutputFile << "#! /bin/sh -f" << endl ;
     tempOutputFile << "#PBS -l nodes=" << nbnodes << endl ;
+    if (edt != "")
+      tempOutputFile << "#PBS -l walltime=" << edt  << ":00" << endl ;
+    if (mem != "")
+      tempOutputFile << "#PBS -l mem=" << mem << endl ;
     // In some systems qsub does not correctly expand env variables
     // like PBS_O_HOME for #PBS directives....
     //tempOutputFile << "#PBS -o /$PBS_O_HOME/" << dirForTmpFiles << "/runSalome.output.log.${PBS_JOBID}" << endl ;
