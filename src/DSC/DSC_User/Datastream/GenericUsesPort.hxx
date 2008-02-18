@@ -72,7 +72,10 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::Gen
 }
 
 template <typename DataManipulator,typename CorbaPortType, char * repositoryName, typename UsesPort > 
-GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::~GenericUsesPort() {}
+GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::~GenericUsesPort() 
+{
+  delete _my_ports;
+}
 
 template <typename DataManipulator,typename CorbaPortType, char * repositoryName, typename UsesPort > 
 const char *
@@ -87,7 +90,7 @@ void
 GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put( CorbaInDataType data, 
 										  TimeType time, 
 										  TagType tag) {
-  typedef typename CorbaPortType::_ptr_type CorbaPortTypePtr;
+  typedef typename CorbaPortType::_var_type CorbaPortTypeVar;
   if (!_my_ports)
     throw DSC_Exception(LOC("There is no connected provides port to communicate with."));
 
@@ -101,7 +104,7 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
   // OLD :  DataType copyOfData; // = data; PB1
   for(int i = 0; i < _my_ports->length(); i++) {
 
-    CorbaPortTypePtr port = CorbaPortType::_narrow((*_my_ports)[i]);
+    CorbaPortTypeVar port = CorbaPortType::_narrow((*_my_ports)[i]);
     //if (i) { PB1
     //OLD :   copyOfData = DataManipulator::clone(data);
 #ifdef _DEBUG_
@@ -137,7 +140,7 @@ GenericUsesPort< DataManipulator, CorbaPortType, repositoryName, UsesPort
 #ifdef _DEBUG_
   std::cerr << "GenericUsesPort::uses_port_changed" << std::endl;
 #endif
-  _my_ports = new Engines::DSC::uses_port(*new_uses_port);
+  _my_ports = new_uses_port;
 }
 
 #endif

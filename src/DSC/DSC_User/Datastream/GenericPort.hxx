@@ -103,10 +103,12 @@ GenericPort<DataManipulator, COUPLING_POLICY >::GenericPort() :
 template < typename DataManipulator, typename COUPLING_POLICY>
 GenericPort<DataManipulator, COUPLING_POLICY>::~GenericPort() {
   typename DataTable::iterator it;
-  //   for (it=storedDatas.begin(); it!=storedDatas.end(); ++it) {
-  //     std::cout << "~GenericPort() : destruction de la donnnée associée au DataId :"<<  (*it).first << std::endl;
-  //     DataManipulator::delete_data( (*it).second );
-  //   }
+  for (it=storedDatas.begin(); it!=storedDatas.end(); ++it) {
+#ifdef _DEBUG_
+    std::cerr << "~GenericPort() : destruction de la donnnée associée au DataId :"<<  (*it).first << std::endl;
+#endif
+    DataManipulator::delete_data( (*it).second );
+  }
 }
 
 template < typename DataManipulator, typename COUPLING_POLICY> void 
