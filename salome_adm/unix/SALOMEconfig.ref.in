@@ -54,4 +54,11 @@
 /* A path to a ssh-like command */
 #define SSH "@SSH@"
 
+// This is only to suppress warning messages with defines redefined (cause of omniORB that exports these names)
+#undef PACKAGE_BUGREPORT
+#undef PACKAGE_NAME
+#undef PACKAGE_STRING
+#undef PACKAGE_TARNAME
+#undef PACKAGE_VERSION
+
 #endif
