@@ -94,7 +94,7 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
     long   _i=*i;							\
     fflush(stdout);							\
     fflush(stderr);							\
-    fprintf(stderr,"Beginning of cpl" #_name " : %s %d %f\n",nomvar,*i,*ti); \
+    fprintf(stderr,"Beginning of cp_" #_name " : %s %d %f\n",nomvar,*i,*ti); \
     									\
     if ( (data == NULL) || (bufferLength < 1) ) return CPNTNULL;	\
     									\
@@ -104,7 +104,7 @@ CALCIUM_EXT_LECT_INTERFACE_C_(lcp,float,float,cplx,);
     if(mode == CP_SEQUENTIEL)						\
       *i = _i;								\
     *nRead=_nRead;							\
-    fprintf(stderr,"End of cpl" #_name " : %s %d \n",nomvar,*i);	\
+    fprintf(stderr,"End of cp_" #_name " : %s %d \n",nomvar,*i);		\
     fflush(stdout);							\
     fflush(stderr);							\
 									\
@@ -123,7 +123,7 @@ InfoType cp_lch(void * component, int mode, float * ti,	float *	tf, int * i,
   size_t _nRead;							
   long   _i=*i;							
   fflush(stdout);fflush(stderr);							
-  fprintf(stderr,"Beginning of cplch: %s %d %f\n",nomvar,*i,*ti);	
+  fprintf(stderr,"Beginning of cp_lch: %s %d %f\n",nomvar,*i,*ti);	
     									
   if ( (data == NULL) || (bufferLength < 1) ) return CPNTNULL;	
   
@@ -133,7 +133,7 @@ InfoType cp_lch(void * component, int mode, float * ti,	float *	tf, int * i,
   if(mode == CP_SEQUENTIEL)						
     *i = _i;								
   *nRead=_nRead;							
-  fprintf(stderr,"End of cplch: %s %d \n",nomvar,*i);			
+  fprintf(stderr,"End of cp_lch: %s %d \n",nomvar,*i);			
   fflush(stdout);fflush(stderr);							
 									
   return info;							
@@ -209,13 +209,13 @@ InfoType cp_fin (void * component, int code) {
     /*long   _i=i;*/							\
     fflush(stdout);							\
     fflush(stderr);							\
-    fprintf(stderr,"Beginning of cpe" #_name " : %s %d %f\n",nomvar,i,t);	\
+    fprintf(stderr,"Beginning of cp_" #_name " : %s %d %f\n",nomvar,i,t);	\
     if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;		\
 									\
     InfoType info =  ecp_ecriture_##_typeName (component, mode, &t, i,	\
 					       nomvar, nbelem,		\
 					       data );			\
-    fprintf(stderr,"End of cpe" #_name " : %s %d \n",nomvar,i);		\
+    fprintf(stderr,"End of cp_" #_name " : %s %d \n",nomvar,i);		\
     fflush(stdout);							\
     fflush(stderr);							\
 									\
@@ -230,13 +230,13 @@ InfoType cp_ech(void * component, int mode, float t, int i,
 									
   /*long   _i=i;*/							
   fflush(stdout);fflush(stderr);							
-  fprintf(stderr,"Beginning of cpech: %s %d %f\n",nomvar,i,t);	
+  fprintf(stderr,"Beginning of cp_ech: %s %d %f\n",nomvar,i,t);	
   if ( (data == NULL) || (nbelem < 1) ) return CPNTNULL;		
     
   InfoType info =  ecp_ecriture_str (component, mode, &t, i,	
 				     nomvar, nbelem,		
 				     data);/*, strSize );*/
-  fprintf(stderr,"End of cpech: %s %d \n",nomvar,i);			
+  fprintf(stderr,"End of cp_ech: %s %d \n",nomvar,i);			
   fflush(stdout);							
   fflush(stderr);							
 									

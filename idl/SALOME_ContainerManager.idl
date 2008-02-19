@@ -54,6 +54,7 @@ struct MachineParameters
   boolean isMPI;
   string mpiImpl;
   string batch;
+  string workingdir;
 
   // PaCO specific informations
   string parallelLib;
