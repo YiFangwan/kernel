@@ -96,10 +96,11 @@ namespace BatchLight {
     logFile += getenv("USER");
     logFile += "/batchSalome_";
 
-    srand ( time(NULL) );
-    int ir = rand();
+    //srand ( time(NULL) );
+    //int ir = rand();
     ostringstream oss;
-    oss << ir;
+    //oss << ir;
+    oss << this << "_" << jobid;
     logFile += oss.str();
     logFile += ".log";
 
