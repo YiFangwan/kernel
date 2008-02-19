@@ -14,7 +14,7 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([tar-pax])
 #AC_CONFIG_HEADER([config.h])
 
-XVERSION=0x040100
+XVERSION=0x040101
 AC_SUBST(XVERSION)
 
 # set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
