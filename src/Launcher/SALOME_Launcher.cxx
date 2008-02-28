@@ -140,8 +140,13 @@ CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
     std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
     if(it == _batchmap.end())
     {
-      _batchmap[clustername] = FactoryBatchManager(p);
-      // TODO: Add a test for the cluster !
+      BatchLight_BatchTest t(*p);
+      if (t.test())
+	_batchmap[clustername] = FactoryBatchManager(p);
+      else
+      {
+	throw SALOME_Exception("Test of the batch machine failed - see messages in the SALOME_Launcher log");
+      }
     }
     
     // create and submit job on cluster

@@ -36,12 +36,13 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # header files  
 salomeinclude_HEADERS = \
-  BatchLight_BatchManager.hxx \
-  BatchLight_BatchManager_PBS.hxx \
-  BatchLight_BatchManager_SLURM.hxx \
-  BatchLight_Job.hxx \
-	MpiImpl.hxx \
-	SALOME_Launcher.hxx
+			BatchLight_BatchManager.hxx \
+			BatchLight_BatchManager_PBS.hxx \
+			BatchLight_BatchManager_SLURM.hxx \
+			BatchLight_Job.hxx \
+			MpiImpl.hxx \
+			BatchLight_BatchTest.hxx \
+			SALOME_Launcher.hxx
 
 # Scripts to be installed
 dist_salomescript_DATA =
@@ -97,12 +98,13 @@ COMMON_LIBS =\
 #
 lib_LTLIBRARIES = libSalomeLauncher.la
 libSalomeLauncher_la_SOURCES=\
-	SALOME_Launcher.cxx \
-  BatchLight_BatchManager.cxx \
-  BatchLight_BatchManager_SLURM.cxx \
-  BatchLight_BatchManager_PBS.cxx \
-  BatchLight_Job.cxx \
-	MpiImpl.cxx
+			     SALOME_Launcher.cxx \
+			     BatchLight_BatchManager.cxx \
+			     BatchLight_BatchManager_SLURM.cxx \
+			     BatchLight_BatchManager_PBS.cxx \
+			     BatchLight_Job.cxx \
+			     MpiImpl.cxx \
+			     BatchLight_BatchTest.cxx
 
 libSalomeLauncher_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)

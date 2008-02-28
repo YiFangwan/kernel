@@ -24,6 +24,7 @@
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include "SALOME_ContainerManager.hxx"
 #include "BatchLight_BatchManager.hxx"
+#include "BatchLight_BatchTest.hxx"
 
 #include <string>
 
