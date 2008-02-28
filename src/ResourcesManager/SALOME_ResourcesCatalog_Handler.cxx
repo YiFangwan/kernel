@@ -123,6 +123,7 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
             {
 	      xmlChar* hostname = xmlGetProp(aCurNode, (const xmlChar*)test_hostname);
 	      _resource.DataForSort._hostName = (const char*)hostname;
+	      _resource.HostName = (const char*)hostname;
               xmlFree(hostname);
             }
 	  else

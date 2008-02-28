@@ -1154,7 +1154,7 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
   ParserResourcesType resource = _resourcesList[string(hostname)];
   Engines::MachineParameters *p_ptr = new Engines::MachineParameters;
   p_ptr->container_name = CORBA::string_dup("");
-  p_ptr->hostname = CORBA::string_dup("hostname");
+  p_ptr->hostname = CORBA::string_dup(resource.HostName.c_str());
   p_ptr->alias = CORBA::string_dup(resource.Alias.c_str());
   if( resource.Protocol == rsh )
     p_ptr->protocol = "rsh";
