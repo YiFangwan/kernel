@@ -29,6 +29,8 @@
 #ifndef _BATCHMANAGER_H_
 #define _BATCHMANAGER_H_
 
+#include "Batch_Defines.hxx"
+
 #include <string>
 #include <map>
 #include "Batch_Job.hxx"
@@ -41,7 +43,7 @@ namespace Batch {
   class Job;
   class JobId;
   class JobInfo;
-  class FactBatchManager;
+  class BASICS_EXPORT FactBatchManager;
 
   class BatchManager
   {

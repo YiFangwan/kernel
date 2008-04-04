@@ -24,6 +24,13 @@
 #include <stdexcept>
 #include <libxml/parser.h>
 
+#ifdef WNT
+# include <process.h>
+# define getPID _getpid
+#else
+# define getPID getpid
+#endif
+
 using namespace std;
 
 void AttachDebugger()
@@ -31,7 +38,7 @@ void AttachDebugger()
   if(getenv ("DEBUGGER"))
     {
       std::stringstream exec;
-      exec << "$DEBUGGER SALOME_LauncherServer " << getpid() << "&";
+      exec << "$DEBUGGER SALOME_LauncherServer " << getPID() << "&";
       std::cerr << exec.str() << std::endl;
       system(exec.str().c_str());
       while(1);

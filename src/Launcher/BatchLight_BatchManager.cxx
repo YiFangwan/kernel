@@ -29,7 +29,12 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <netdb.h>
+#ifdef WNT
+# include <winsock2.h.>
+# include <process.h>
+#else
+# include <netdb.h>
+#endif
 #include "BatchLight_Job.hxx"
 #include "BatchLight_BatchManager.hxx"
 #include "Batch_Date.hxx"
@@ -226,7 +231,7 @@ namespace BatchLight {
 #else
 
     char aPID[80];
-    itoa(getpid(), aPID, 10);
+    itoa( _getpid(), aPID, 10);
     strcat(temp, aPID);
 #endif
 

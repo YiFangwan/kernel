@@ -25,6 +25,8 @@
 #include <sys/types.h>
 #ifndef WNT
 #include <unistd.h>
+#else
+#include <process.h>
 #endif
 #include <vector>
 #include "Utils_CorbaException.hxx"
@@ -105,7 +107,12 @@ void SALOME_Launcher::Shutdown()
 //=============================================================================
 CORBA::Long SALOME_Launcher::getPID()
 {
-  return (CORBA::Long)getpid();
+  return (CORBA::Long)
+#ifdef WNT
+    _getpid();
+#else
+    getpid();
+#endif
 }
 
 //=============================================================================
@@ -120,7 +127,7 @@ CORBA::Long SALOME_Launcher::getPID()
 CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
 					      const Engines::FilesList& filesToExport ,
 					      const Engines::FilesList& filesToImport ,
-					      const CORBA::Long NumberOfProcessors ,
+					      /*const */CORBA::Long NumberOfProcessors ,
 					      const Engines::MachineParameters& params)
 {
   MESSAGE("BEGIN OF SALOME_Launcher::submitSalomeJob");
@@ -156,7 +163,7 @@ CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-char* SALOME_Launcher::querySalomeJob( const CORBA::Long jobId, 
+char* SALOME_Launcher::querySalomeJob( /*const */CORBA::Long jobId, 
 				       const Engines::MachineParameters& params)
 {
   string status;

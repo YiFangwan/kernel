@@ -34,6 +34,10 @@
 #include <sstream>
 #include <sys/stat.h>
 
+#ifdef WNT
+# include<io.h>
+#endif
+
 using namespace std;
 
 namespace BatchLight {
@@ -209,7 +213,12 @@ namespace BatchLight {
     tempOutputFile << "fi" << endl ;
     tempOutputFile.flush();
     tempOutputFile.close();
-    chmod(_TmpFileName.c_str(), 0x1ED);
+#ifdef WNT
+    _chmod
+#else
+    chmod
+#endif      
+      (_TmpFileName.c_str(), 0x1ED);
     SCRUTE(_TmpFileName.c_str()) ;
 
     string command;
@@ -274,7 +283,12 @@ namespace BatchLight {
     tempOutputFile << _mpiImpl->halt();
     tempOutputFile.flush();
     tempOutputFile.close();
-    chmod(_TmpFileName.c_str(), 0x1ED);
+#ifdef WNT
+    _chmod
+#else
+    chmod
+#endif
+      (_TmpFileName.c_str(), 0x1ED);
     SCRUTE(_TmpFileName.c_str()) ;
 
     string command;

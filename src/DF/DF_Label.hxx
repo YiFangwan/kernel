@@ -11,7 +11,7 @@
 class DF_Document;
 
 
-class DF_LabelNode
+class DF_EXPORT DF_LabelNode
 {
 public:
   DF_LabelNode();

@@ -28,25 +28,27 @@
 #ifndef __SALOMEDSIMPL_TOOL_H__
 #define __SALOMEDSIMPL_TOOL_H__
 
+#include "SALOMEDSImpl_Defines.hxx"
+
 #include <string>
 #include <vector>
 #include "DF_Label.hxx"
 
-class SALOMEDSImpl_Tool                                
+class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Tool
 {
 
 public:
- 
+
   // Returns the unique temporary directory, that is defined in SALOME_TMP_DIR if this variable is set
   // otherwise return /tmp/something/ for Unix or c:\something\ for WNT
   static std::string GetTmpDir();
 
- 
+
   // Removes files which are in <theDirectory>, the files for deletion are listed in <theFiles>
   // if <IsDirDeleted> is true <theDirectory> is also deleted if it is empty
   static void RemoveTemporaryFiles(const std::string& theDirectory,
-				   const std::vector<std::string>& theFiles,
-				   const bool IsDirDeleted);
+    const std::vector<std::string>& theFiles,
+    const bool IsDirDeleted);
 
   // Returns the name by the path
   // for an example: if thePath = "/tmp/aaa/doc1.hdf" the function returns "doc1"
@@ -67,23 +69,3 @@ public:
 
 };
 #endif
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

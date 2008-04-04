@@ -31,18 +31,14 @@
 #include <fstream>
 #include <vector>
 
-#if defined RESOURCESMANAGER_EXPORTS
-#if defined WIN32
-#define RESOURCESMANAGER_EXPORT __declspec( dllexport )
+#ifdef WIN32
+# ifdef RESOURCESMANAGER_EXPORTS
+#   define RESOURCESMANAGER_EXPORT __declspec( dllexport )
+# else
+#   define RESOURCESMANAGER_EXPORT __declspec( dllimport )
+# endif
 #else
-#define RESOURCESMANAGER_EXPORT
-#endif
-#else
-#if defined WNT
-#define RESOURCESMANAGER_EXPORT __declspec( dllimport )
-#else
-#define RESOURCESMANAGER_EXPORT
-#endif
+# define RESOURCESMANAGER_EXPORT
 #endif
 
 // --- WARNING ---

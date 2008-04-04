@@ -23,9 +23,7 @@
 
 #include "SALOMEDSImpl_AttributeComment.hxx"
 
-#ifndef WNT
 using namespace std;
-#endif
 
 //=======================================================================
 //function : GetID

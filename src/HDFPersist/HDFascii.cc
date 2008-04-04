@@ -35,6 +35,7 @@
 #ifdef WNT
 #include <io.h>
 #include <time.h>
+#include <windows.h>
 #endif
 
 using namespace std;

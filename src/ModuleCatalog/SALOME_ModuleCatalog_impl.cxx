@@ -620,7 +620,12 @@ SALOME_ModuleCatalogImpl::GetComponentInfo(const char *name)
 
 CORBA::Long SALOME_ModuleCatalogImpl::getPID()
 { 
-  return (CORBA::Long)getpid();
+  return 
+#ifndef WIN32
+    (CORBA::Long)getpid();
+#else
+    (CORBA::Long)GetCurrentProcessId();
+#endif
 }
 
 void SALOME_ModuleCatalogImpl::ShutdownWithExit()

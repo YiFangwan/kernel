@@ -29,7 +29,12 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <netdb.h>
+#ifdef WNT
+# include<winsock2.h>
+#else
+# include <netdb.h>
+#endif
+
 //#include "MEDMEM_STRING.hxx"
 #include "Batch_Job.hxx"
 #include "Batch_JobId.hxx"
@@ -55,7 +60,7 @@ namespace Batch {
   BatchManager::BatchManager(const FactBatchManager * parent, const char * host) throw(InvalidArgumentException) : _hostname(host), jobid_map(), _parent(parent)
   {
     // On verifie que le hostname est correct
-    if (!gethostbyname(_hostname.c_str())) { // hostname unknown from network
+    if (! gethostbyname(_hostname.c_str()) ) { // hostname unknown from network
       string msg = "hostname \"";
       msg += _hostname;
       msg += "\" unknown from the network";

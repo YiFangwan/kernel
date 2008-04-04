@@ -193,6 +193,7 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_Callback.hxx \
 	SALOMEDSImpl_ChildIterator.hxx \
 	SALOMEDSImpl_ChildNodeIterator.hxx \
+	SALOMEDSImpl_Defines.hxx \
 	SALOMEDSImpl_Driver.hxx \
 	SALOMEDSImpl_GenericAttribute.hxx \
 	SALOMEDSImpl_SComponent.hxx \

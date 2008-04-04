@@ -1,4 +1,4 @@
-//  Copyright (C) 2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
 //  This library is free software; you can redistribute it and/or 
@@ -19,21 +19,21 @@
 //
 //
 //
-//  File   : HDFexport.hxx
-//  Author : Andre Ribes - EDF R&D
+//  File   : Batch_Defines.hxx
+//  Author : Alexander A. BORODIN
 //  Module : SALOME
 
-#ifndef _HDF_export_HXX_
-#define _HDF_export_HXX_
+#ifndef _BATCH_Defines_HXX_
+#define _BATCH_Defines_HXX_
 
 #ifdef WNT
-# ifdef HDFPERSIST_EXPORTS
-#  define HDF_EXPORT __declspec( dllexport )
+# ifdef BASICS_EXPORTS
+#  define BASICS_EXPORT __declspec( dllexport )
 # else
-#  define HDF_EXPORT __declspec( dllimport )
+#  define BASICS_EXPORT __declspec( dllimport )
 # endif
 #else
-# define HDF_EXPORT
+# define BASICS_EXPORT
 #endif
 
 #endif

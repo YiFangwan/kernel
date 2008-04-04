@@ -1,4 +1,4 @@
-//  Copyright (C) 2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
 //  This library is free software; you can redistribute it and/or 
@@ -19,21 +19,21 @@
 //
 //
 //
-//  File   : HDFexport.hxx
-//  Author : Andre Ribes - EDF R&D
-//  Module : SALOME
+//  File   : SALOMEDSImpl_Defines.hxx
+//  Author : Alexander A. BORODIN
+//  Module : KERNEL
 
-#ifndef _HDF_export_HXX_
-#define _HDF_export_HXX_
+#ifndef _SALOMEDSImpl_Defines_HXX_
+#define _SALOMEDSImpl_Defines_HXX_
 
-#ifdef WNT
-# ifdef HDFPERSIST_EXPORTS
-#  define HDF_EXPORT __declspec( dllexport )
+#ifdef WIN32
+# if defined SALOMEDSIMPL_EXPORTS
+#  define SALOMEDSIMPL_EXPORT __declspec( dllexport )
 # else
-#  define HDF_EXPORT __declspec( dllimport )
+#  define SALOMEDSIMPL_EXPORT __declspec( dllimport )
 # endif
 #else
-# define HDF_EXPORT
+# define SALOMEDSIMPL_EXPORT
 #endif
 
 #endif
