@@ -237,10 +237,7 @@ print ret
 smesh.Compute(mesh, box)
 sg.updateObjBrowser(1);
 
-# SUPERVISOR module is not available since SALOME 5.0 version
-defineSuperV = 0
-
-if (defineSuperV != 0) & (sys.platform != "win32"):
+if sys.platform	!= "win32":
 	print
 	print "=============  Test	Supervisor	============================="
 	print
