@@ -70,17 +70,26 @@ COMMON_LIBS =\
 # Libraries targets
 # ===============================================================
 #
-lib_LTLIBRARIES = libSalomeResourcesManager.la
+lib_LTLIBRARIES = libResourcesManager.la libSalomeResourcesManager.la
 libSalomeResourcesManager_la_SOURCES =\
-	SALOME_ResourcesCatalog_Parser.cxx \
-	SALOME_ResourcesCatalog_Handler.cxx  \
-	SALOME_LoadRateManager.cxx \
 	SALOME_ResourcesManager.cxx
 
 libSalomeResourcesManager_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
 
-
 libSalomeResourcesManager_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libSalomeResourcesManager_la_LIBADD  =\
-	$(COMMON_LIBS)
+	$(COMMON_LIBS) libResourcesManager.la
+
+libResourcesManager_la_SOURCES =\
+	SALOME_ResourcesCatalog_Parser.cxx \
+	SALOME_ResourcesCatalog_Handler.cxx  \
+	SALOME_LoadRateManager.cxx \
+	ResourcesManager.cxx
+
+libResourcesManager_la_CPPFLAGS =\
+	@LIBXML_INCLUDES@
+
+libResourcesManager_la_LDFLAGS = -no-undefined -version-info=0:0:0
+libResourcesManager_la_LIBADD  =\
+	@LIBXML_LIBS@

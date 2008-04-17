@@ -30,6 +30,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include "ResourcesManager.hxx"
 
 #if defined RESOURCESMANAGER_EXPORTS
 #if defined WIN32
@@ -66,28 +67,8 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     Engines::MachineList *
     GetFittingResources(const Engines::MachineParameters& params,
                         const Engines::CompoList& componentList);
-//     throw(SALOME_Exception);
 
     char* FindFirst(const Engines::MachineList& listOfMachines);
-    std::string FindNext(const Engines::MachineList& listOfMachines);
-    std::string FindBest(const Engines::MachineList& listOfMachines);
-
-    int AddResourceInCatalog
-    (const Engines::MachineParameters& paramsOfNewResources,
-     const std::vector<std::string>& modulesOnNewResources,
-     const char *alias,
-     const char *userName,
-     AccessModeType mode,
-     AccessProtocolType prot)
-    throw(SALOME_Exception);
-
-    void DeleteResourceInCatalog(const char *hostname);
-
-    void WriteInXmlFile();
-
-    const MapOfParserResourcesType& ParseXmlFile();
-
-    const MapOfParserResourcesType& GetList() const;
 
     Engines::MachineParameters* GetMachineParameters(const char *hostname);
 
@@ -95,7 +76,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
 
     static const char *_ResourcesManagerNameInNS;
 
-    ParserResourcesType GetResourcesList(const std::string& machine);
+    ResourcesManager_cpp *GetImpl() { return &_rm; }
 
   protected:
     
@@ -103,24 +84,8 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     CORBA::ORB_var _orb;
     PortableServer::POA_var _poa;
 
-    void SelectOnlyResourcesWithOS(std::vector<std::string>& hosts,
-				   const char *OS) const
-      throw(SALOME_Exception);
+    ResourcesManager_cpp _rm;
 
-    void KeepOnlyResourcesWithModule(std::vector<std::string>& hosts,
-				     const Engines::CompoList& componentList) const
-      throw(SALOME_Exception);
-
-    //! will contain the path to the ressources catalog
-    std::string _path_resources;
-
-    //! will contain the informations on the data type catalog(after parsing)
-    MapOfParserResourcesType _resourcesList;
-
-    SALOME_LoadRateManager _dynamicResourcesSelecter;
-
-    //! different behaviour if $APPLI exists (SALOME Application) 
-    bool _isAppliSalomeDefined;
   };
 
 #endif // RESSOURCESCATALOG_IMPL_H

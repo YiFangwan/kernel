@@ -56,10 +56,9 @@ SALOME_ResourcesManager::
 SALOME_ResourcesManager(CORBA::ORB_ptr orb, 
 			PortableServer::POA_var poa, 
 			SALOME_NamingService *ns,
-                        const char *xmlFilePath) :
-    _path_resources(xmlFilePath)
+                        const char *xmlFilePath) : _rm(xmlFilePath)
 {
-  MESSAGE("constructor");
+  MESSAGE("SALOME_ResourcesManager constructor");
   _NS = ns;
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
@@ -69,8 +68,7 @@ SALOME_ResourcesManager(CORBA::ORB_ptr orb,
     Engines::SalomeLauncher::_narrow(obj);
 
   _NS->Register(refContMan,_ResourcesManagerNameInNS);
-//   _MpiStarted = false;
-  MESSAGE("constructor end");
+  MESSAGE("SALOME_ResourcesManager constructor end");
 }
 
 //=============================================================================
@@ -86,9 +84,9 @@ SALOME_ResourcesManager(CORBA::ORB_ptr orb,
 
 SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb, 
 						 PortableServer::POA_var poa, 
-						 SALOME_NamingService *ns)
+						 SALOME_NamingService *ns) : _rm()
 {
-  MESSAGE("constructor");
+  MESSAGE("SALOME_ResourcesManager constructor");
   _NS = ns;
   _orb = CORBA::ORB::_duplicate(orb) ;
   _poa = PortableServer::POA::_duplicate(poa) ;
@@ -97,25 +95,7 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb,
   Engines::ResourcesManager_var refContMan = Engines::ResourcesManager::_narrow(obj);
   _NS->Register(refContMan,_ResourcesManagerNameInNS);
 
-  _isAppliSalomeDefined = (getenv("APPLI") != 0);
-//   _MpiStarted = false;
-
-  if (_isAppliSalomeDefined)
-    {
-      _path_resources = getenv("HOME");
-      _path_resources += "/";
-      _path_resources += getenv("APPLI");
-      _path_resources += "/CatalogResources.xml";
-    }
-
-  else
-    {
-      _path_resources = getenv("KERNEL_ROOT_DIR");
-      _path_resources += "/share/salome/resources/kernel/CatalogResources.xml";
-    }
-
-  ParseXmlFile();
-  MESSAGE("constructor end");
+  MESSAGE("SALOME_ResourcesManager constructor end");
 }
 
 //=============================================================================
@@ -126,7 +106,7 @@ SALOME_ResourcesManager::SALOME_ResourcesManager(CORBA::ORB_ptr orb,
 
 SALOME_ResourcesManager::~SALOME_ResourcesManager()
 {
-  MESSAGE("destructor");
+  MESSAGE("SALOME_ResourcesManager destructor");
 }
 
 
@@ -162,254 +142,35 @@ void SALOME_ResourcesManager::Shutdown()
 Engines::MachineList *
 SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& params,
 					     const Engines::CompoList& componentList)
-//throw(SALOME_Exception)
 {
 //   MESSAGE("ResourcesManager::GetFittingResources");
-  vector <std::string> vec;
+  machineParams p;
+  p.hostname = params.hostname;
+  p.OS = params.OS;
+  p.nb_node = params.nb_node;
+  p.nb_proc_per_node = params.nb_proc_per_node;
+  p.cpu_clock = params.cpu_clock;
+  p.mem_mb = params.mem_mb;
+
+  vector<string> cl;
+  for(int i=0;i<componentList.length();i++)
+    cl.push_back(string(componentList[i]));
+  
   Engines::MachineList *ret=new Engines::MachineList;
 
   try{
-    // --- To be sure that we search in a correct list.
-    ParseXmlFile();
-
-    const char *hostname = (const char *)params.hostname;
-    MESSAGE("GetFittingResources " << hostname << " " << GetHostname().c_str());
-
-    if (hostname[0] != '\0')
-      {
-//       MESSAGE("ResourcesManager::GetFittingResources : hostname specified" );
-
-	if ( strcmp(hostname, "localhost") == 0 ||
-	     strcmp(hostname, GetHostname().c_str()) == 0 )
-	  {
-	    //           MESSAGE("ResourcesManager::GetFittingResources : localhost" );
-	    vec.push_back(GetHostname().c_str());
-	    // 	  MESSAGE("ResourcesManager::GetFittingResources : " << vec.size());
-	  }
-	
-	else if (_resourcesList.find(hostname) != _resourcesList.end())
-	  {
-	    // --- params.hostname is in the list of resources so return it.
-	    vec.push_back(hostname);
-	  }
-	
-	else
-	  {
-	    // Cas d'un cluster: nombre de noeuds > 1
-	    int cpt=0;
-	    for (map<string, ParserResourcesType>::const_iterator iter = _resourcesList.begin(); iter != _resourcesList.end(); iter++){
-	      if( (*iter).second.DataForSort._nbOfNodes > 1 ){
-		if( strncmp(hostname,(*iter).first.c_str(),strlen(hostname)) == 0 ){
-		  vec.push_back((*iter).first.c_str());
-		  //cout << "SALOME_ResourcesManager::GetFittingResources vector["
-		  //     << cpt << "] = " << (*iter).first.c_str() << endl ;
-		  cpt++;
-		}
-	      }
-	    }
-	    if(cpt==0){
-	      // --- user specified an unknown hostame so notify him.
-	      MESSAGE("ResourcesManager::GetFittingResources : SALOME_Exception");
-	      throw SALOME_Exception("unknown host");
-	    }
-	  }
-      }
-    
-    else
-      // --- Search for available resources sorted by priority
-      {
-	SelectOnlyResourcesWithOS(vec, params.OS);
-	
-	KeepOnlyResourcesWithModule(vec, componentList);
-	
-	if (vec.size() == 0)
-	  SelectOnlyResourcesWithOS(vec, params.OS);
-	
-	// --- set wanted parameters
-	ResourceDataToSort::_nbOfNodesWanted = params.nb_node;
-	
-	ResourceDataToSort::_nbOfProcPerNodeWanted = params.nb_proc_per_node;
-	
-	ResourceDataToSort::_CPUFreqMHzWanted = params.cpu_clock;
-	
-	ResourceDataToSort::_memInMBWanted = params.mem_mb;
-	
-	// --- end of set
-	
-	list<ResourceDataToSort> li;
-	
-	for (vector<string>::iterator iter = vec.begin();
-           iter != vec.end();
-	     iter++)
-	  li.push_back(_resourcesList[(*iter)].DataForSort);
-	
-	li.sort();
-	
-	unsigned int i = 0;
-	
-	for (list<ResourceDataToSort>::iterator iter2 = li.begin();
-	     iter2 != li.end();
-	     iter2++)
-	  vec[i++] = (*iter2)._hostName;
-      }
-    
-    //  MESSAGE("ResourcesManager::GetFittingResources : return" << ret.size());
-    ret->length(vec.size());
-    for(unsigned int i=0;i<vec.size();i++)
-      (*ret)[i]=(vec[i]).c_str();
-
+      vector <std::string> vec = _rm.GetFittingResources(p,cl);
+      ret->length(vec.size());
+      for(int i=0;i<vec.size();i++)
+	(*ret)[i] = (vec[i]).c_str();
   }
-  catch(const SALOME_Exception &ex)
-    {
-      INFOS("Caught exception.");
-      THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::BAD_PARAM);
-      //return ret;
-    }  
+  catch(const ResourcesException &ex){
+    INFOS("Caught exception.");
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }  
 
   return ret;
 }
-
-//=============================================================================
-/*!
- *  add an entry in the ressources catalog  xml file.
- *  Return 0 if OK (KERNEL found in new resources modules) else throw exception
- */ 
-//=============================================================================
-
-int
-SALOME_ResourcesManager::
-AddResourceInCatalog(const Engines::MachineParameters& paramsOfNewResources,
-                     const vector<string>& modulesOnNewResources,
-                     const char *alias,
-                     const char *userName,
-                     AccessModeType mode,
-                     AccessProtocolType prot)
-throw(SALOME_Exception)
-{
-  vector<string>::const_iterator iter = find(modulesOnNewResources.begin(),
-					     modulesOnNewResources.end(),
-					     "KERNEL");
-
-  if (iter != modulesOnNewResources.end())
-    {
-      ParserResourcesType newElt;
-      newElt.DataForSort._hostName = paramsOfNewResources.hostname;
-      newElt.Alias = alias;
-      newElt.Protocol = prot;
-      newElt.Mode = mode;
-      newElt.UserName = userName;
-      newElt.ModulesList = modulesOnNewResources;
-      newElt.OS = paramsOfNewResources.OS;
-      newElt.DataForSort._memInMB = paramsOfNewResources.mem_mb;
-      newElt.DataForSort._CPUFreqMHz = paramsOfNewResources.cpu_clock;
-      newElt.DataForSort._nbOfNodes = paramsOfNewResources.nb_node;
-      newElt.DataForSort._nbOfProcPerNode =
-        paramsOfNewResources.nb_proc_per_node;
-      _resourcesList[newElt.DataForSort._hostName] = newElt;
-      return 0;
-    }
-
-  else
-    throw SALOME_Exception("KERNEL is not present in this resource");
-}
-
-//=============================================================================
-/*!
- *  Deletes a resource from the catalog
- */ 
-//=============================================================================
-
-void SALOME_ResourcesManager::DeleteResourceInCatalog(const char *hostname)
-{
-  _resourcesList.erase(hostname);
-}
-
-//=============================================================================
-/*!
- *  write the current data in memory in file.
- */ 
-//=============================================================================
-
-void SALOME_ResourcesManager::WriteInXmlFile()
-{
-  const char* aFilePath = _path_resources.c_str();
-  
-  FILE* aFile = fopen(aFilePath, "w");
-
-  if (aFile == NULL)
-    {
-      INFOS("Error opening file !");
-      return;
-    }
-  
-  xmlDocPtr aDoc = xmlNewDoc(BAD_CAST "1.0");
-  xmlNewDocComment(aDoc, BAD_CAST "ResourcesCatalog");
-
-  SALOME_ResourcesCatalog_Handler* handler =
-    new SALOME_ResourcesCatalog_Handler(_resourcesList);
-  handler->PrepareDocToXmlFile(aDoc);
-  delete handler;
-
-  int isOk = xmlSaveFile(aFilePath, aDoc);
-  
-  if (!isOk)
-    INFOS("Error while XML file saving.");
-  
-  // Free the document
-  xmlFreeDoc(aDoc);
-
-  fclose(aFile);
-  
-  MESSAGE("WRITING DONE!");
-}
-
-//=============================================================================
-/*!
- *  parse the data type catalog
- */ 
-//=============================================================================
-
-const MapOfParserResourcesType& SALOME_ResourcesManager::ParseXmlFile()
-{
-  SALOME_ResourcesCatalog_Handler* handler =
-    new SALOME_ResourcesCatalog_Handler(_resourcesList);
-
-  const char* aFilePath = _path_resources.c_str();
-  FILE* aFile = fopen(aFilePath, "r");
-  
-  if (aFile != NULL)
-    {
-      xmlDocPtr aDoc = xmlReadFile(aFilePath, NULL, 0);
-      
-      if (aDoc != NULL)
-	handler->ProcessXmlDocument(aDoc);
-      else
-	INFOS("ResourcesManager: could not parse file "<<aFilePath);
-      
-      // Free the document
-      xmlFreeDoc(aDoc);
-
-      fclose(aFile);
-    }
-  else
-    INFOS("ResourcesManager: file "<<aFilePath<<" is not readable.");
-  
-  delete handler;
-
-  return _resourcesList;
-}
-
-//=============================================================================
-/*!
- *   consult the content of the list
- */ 
-//=============================================================================
-
-const MapOfParserResourcesType& SALOME_ResourcesManager::GetList() const
-  {
-    return _resourcesList;
-  }
-
 
 //=============================================================================
 /*!
@@ -420,102 +181,16 @@ const MapOfParserResourcesType& SALOME_ResourcesManager::GetList() const
 char *
 SALOME_ResourcesManager::FindFirst(const Engines::MachineList& listOfMachines)
 {
-  return CORBA::string_dup(_dynamicResourcesSelecter.FindFirst(listOfMachines).c_str());
+  vector<string> ml;
+  for(int i=0;i<listOfMachines.length();i++)
+    ml.push_back(string(listOfMachines[i]));
+
+  return CORBA::string_dup(_rm.FindFirst(ml).c_str());
 }
-
-//=============================================================================
-/*!
- *  dynamically obtains the best machines
- */ 
-//=============================================================================
-
-string
-SALOME_ResourcesManager::FindNext(const Engines::MachineList& listOfMachines)
-{
-  return _dynamicResourcesSelecter.FindNext(listOfMachines,_resourcesList,_NS);
-}
-//=============================================================================
-/*!
- *  dynamically obtains the best machines
- */ 
-//=============================================================================
-
-string
-SALOME_ResourcesManager::FindBest(const Engines::MachineList& listOfMachines)
-{
-  return _dynamicResourcesSelecter.FindBest(listOfMachines);
-}
-
-//=============================================================================
-/*!
- *  Gives a sublist of machines with matching OS.
- *  If parameter OS is empty, gives the complete list of machines
- */ 
-//=============================================================================
-
-// Warning need an updated parsed list : _resourcesList
-void
-SALOME_ResourcesManager::SelectOnlyResourcesWithOS
-( vector<string>& hosts,
-  const char *OS) const
-throw(SALOME_Exception)
-{
-  string base(OS);
-
-  for (map<string, ParserResourcesType>::const_iterator iter =
-         _resourcesList.begin();
-       iter != _resourcesList.end();
-       iter++)
-    {
-      if ( (*iter).second.OS == base || base.size() == 0)
-        hosts.push_back((*iter).first);
-    }
-}
-
-
-//=============================================================================
-/*!
- *  Gives a sublist of machines on which the module is known.
- */ 
-//=============================================================================
-
-//Warning need an updated parsed list : _resourcesList
-void
-SALOME_ResourcesManager::KeepOnlyResourcesWithModule
-( vector<string>& hosts,
-  const Engines::CompoList& componentList) const
-throw(SALOME_Exception)
-{
-  for (vector<string>::iterator iter = hosts.begin(); iter != hosts.end();)
-    {
-      MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
-      const vector<string>& mapOfModulesOfCurrentHost = (((*it).second).ModulesList);
-
-      bool erasedHost = false;
-      if( mapOfModulesOfCurrentHost.size() > 0 ){
-	for(int i=0;i<componentList.length();i++){
-          const char* compoi = componentList[i];
-	  vector<string>::const_iterator itt = find(mapOfModulesOfCurrentHost.begin(),
-					      mapOfModulesOfCurrentHost.end(),
-					      compoi);
-// 					      componentList[i]);
-	  if (itt == mapOfModulesOfCurrentHost.end()){
-	    erasedHost = true;
-	    break;
-	  }
-	}
-      }
-      if(erasedHost)
-        hosts.erase(iter);
-      else
-        iter++;
-    }
-}
-
 
 Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const char *hostname)
 {
-  ParserResourcesType resource = _resourcesList[string(hostname)];
+  ParserResourcesType resource = _rm.GetResourcesList(string(hostname));
   Engines::MachineParameters *p_ptr = new Engines::MachineParameters;
   p_ptr->container_name = CORBA::string_dup("");
   p_ptr->hostname = CORBA::string_dup("hostname");
@@ -553,7 +228,3 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
   return p_ptr;
 }
 
-ParserResourcesType SALOME_ResourcesManager::GetResourcesList(const std::string& machine)
-{
-  return _resourcesList[machine];
-}

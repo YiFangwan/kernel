@@ -214,17 +214,21 @@ StartContainer(const Engines::MachineParameters& params,
   MESSAGE("SALOME_ContainerManager::StartContainer " <<
 	  possibleComputers.length());
 
+  vector<string> lm;
+  for(int i=0;i<possibleComputers.length();i++)
+    lm.push_back(string(possibleComputers[i]));
+
   string theMachine;
   try{
     switch(policy){
     case Engines::P_FIRST:
-      theMachine=_ResManager->FindFirst(possibleComputers);
+      theMachine=_ResManager->GetImpl()->FindFirst(lm);
       break;
     case Engines::P_CYCL:
-      theMachine=_ResManager->FindNext(possibleComputers);
+      theMachine=_ResManager->GetImpl()->FindNext(lm);
       break;
     case Engines::P_BEST:
-      theMachine=_ResManager->FindBest(possibleComputers);
+      theMachine=_ResManager->GetImpl()->FindBest(lm);
       break;
     }
   }
@@ -739,7 +743,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 
   else
     {
-      const ParserResourcesType& resInfo = _ResManager->GetResourcesList(machine);
+      const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine);
 
       if (params.isMPI)
         {
@@ -1012,7 +1016,7 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
   _TmpFileName = BuildTemporaryFileName();
   ofstream tempOutputFile;
   tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
-  const ParserResourcesType& resInfo = _ResManager->GetResourcesList(machine);
+  const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine);
   tempOutputFile << "#! /bin/sh" << endl;
 
   // --- set env vars

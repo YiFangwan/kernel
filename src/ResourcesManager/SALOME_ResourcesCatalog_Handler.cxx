@@ -29,7 +29,6 @@
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include <iostream>
 #include <map>
-#include "utilities.h"
 
 using namespace std;
 
@@ -50,7 +49,7 @@ SALOME_ResourcesCatalog_Handler::
 SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources):
     _resources_list(listOfResources)
 {
-  MESSAGE("SALOME_ResourcesCatalog_Handler creation");
+  cout << "SALOME_ResourcesCatalog_Handler creation" << endl;
   //XML tags initialisation
   test_machine = "machine";
   test_resources = "resources";
@@ -80,7 +79,7 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& listOfResources):
 
 SALOME_ResourcesCatalog_Handler::~SALOME_ResourcesCatalog_Handler()
 {
-  //  MESSAGE("SALOME_ResourcesCatalog_Handler destruction");
+  //  cout << "SALOME_ResourcesCatalog_Handler destruction") << endl;
 }
 
 //=============================================================================
@@ -103,7 +102,7 @@ SALOME_ResourcesCatalog_Handler::GetResourcesAfterParsing() const
 
 void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 {
-  if (MYDEBUG) MESSAGE("Begin parse document");
+  if (MYDEBUG) cout << "Begin parse document" << endl;
 
   // Empty private elements
   _resources_list.clear();
@@ -304,15 +303,15 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	   iter != _resources_list.end();
 	   iter++)
 	{
-	  SCRUTE((*iter).second.Alias);
-	  SCRUTE((*iter).second.UserName);
-	  SCRUTE((*iter).second.AppliPath);
-	  SCRUTE((*iter).second.OS);
-	  SCRUTE((*iter).second.Protocol);
-	  SCRUTE((*iter).second.Mode);
+	  cout << (*iter).second.Alias << endl;
+	  cout << (*iter).second.UserName << endl;
+	  cout << (*iter).second.AppliPath << endl;
+	  cout << (*iter).second.OS << endl;
+	  cout << (*iter).second.Protocol << endl;
+	  cout << (*iter).second.Mode << endl;
 	}
       
-      MESSAGE("This is the end of document");
+      cout << "This is the end of document" << endl;
     }
 }
 
