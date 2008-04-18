@@ -29,9 +29,8 @@
 #ifndef _BL_JOB_H_
 #define _BL_JOB_H_
 
-#include "utilities.h"
-#include <SALOMEconfig.h>
-#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
+#include <iostream>
+#include "BatchLight_BatchManager.hxx"
 
 namespace BatchLight {
 
@@ -39,29 +38,29 @@ namespace BatchLight {
   {
   public:
     // Constructeurs et destructeur
-    Job(const char *fileToExecute, 
-	const Engines::FilesList& filesToExport, 
-	const Engines::FilesList& filesToImport, 
-	const Engines::BatchParameters& batch_params);
+    Job(const std::string fileToExecute, 
+	const std::vector<std::string>& filesToExport, 
+	const std::vector<std::string>& filesToImport, 
+	const batchParams& batch_params);
     virtual ~Job();
 
-    const char *getFileToExecute() const { return _fileToExecute; }
-    const Engines::FilesList getFilesToExportList() const { return _filesToExport; }
-    const Engines::FilesList getFilesToImportList() const { return _filesToImport; }
+    const std::string getFileToExecute() const { return _fileToExecute; }
+    const std::vector<std::string> getFilesToExportList() const { return _filesToExport; }
+    const std::vector<std::string> getFilesToImportList() const { return _filesToImport; }
     void addFileToImportList(std::string file_name);
-    const CORBA::Long getNbProc() const { return _batch_params.nb_proc; }
+    const long getNbProc() const { return _batch_params.nb_proc; }
     const std::string getExpectedDuringTime();
     const std::string getMemory();
 
     const std::string getDirForTmpFiles() const { return _dirForTmpFiles;}
-    void setDirForTmpFiles(std::string dirForTmpFiles) {_dirForTmpFiles = dirForTmpFiles;
-							SCRUTE(_dirForTmpFiles);}
+    void setDirForTmpFiles(std::string dirForTmpFiles) { _dirForTmpFiles = dirForTmpFiles;
+      std::cerr << _dirForTmpFiles << std::endl;}
     bool check();							
   protected:
-    const char* _fileToExecute;
-    const Engines::FilesList _filesToExport;
-    Engines::FilesList _filesToImport;
-    Engines::BatchParameters _batch_params;
+    const std::string _fileToExecute;
+    const std::vector<std::string> _filesToExport;
+    std::vector<std::string> _filesToImport;
+    batchParams _batch_params;
     std::string _dirForTmpFiles; // Tmp directory on the server
   private:
 

@@ -27,7 +27,6 @@
  */
 
 #include "BatchLight_BatchManager_PBS.hxx"
-#include "utilities.h"
 #include "BatchLight_Job.hxx"
 #include <fstream>
 #include <iostream>
@@ -39,7 +38,7 @@ using namespace std;
 namespace BatchLight {
 
   // Constructeur
-  BatchManager_PBS::BatchManager_PBS(const batchParams& p) throw(SALOME_Exception) : BatchManager(p)
+  BatchManager_PBS::BatchManager_PBS(const clusterParams& p) throw(BatchException) : BatchManager(p)
   {
     // pbs batch system needs to know mpi implementation
     _mpiImpl = FactoryMpiImpl(_params.mpiImpl);
@@ -48,13 +47,12 @@ namespace BatchLight {
   // Destructeur
   BatchManager_PBS::~BatchManager_PBS()
   {
-    MESSAGE("BatchManager_PBS destructor "<<_params.hostname);
+    cerr << "BatchManager_PBS destructor " << _params.hostname << endl;
   }
 
   // Methode pour le controle des jobs : retire un job du gestionnaire
   void BatchManager_PBS::deleteJob(const int & jobid)
   {
-    BEGIN_OF("BatchManager_PBS::deleteJob");
     string command;
     int status;
     ostringstream oss;
@@ -66,7 +64,7 @@ namespace BatchLight {
     else if( _params.protocol == "ssh" )
       command = "ssh ";
     else
-      throw SALOME_Exception("Unknown protocol");
+      throw BatchException("Unknown protocol");
 
     if (_params.username != ""){
       command += _params.username;
@@ -77,19 +75,17 @@ namespace BatchLight {
     command += " \"qdel " ;
     command += oss.str();
     command += "\"";
-    SCRUTE(command.c_str());
+    cerr << command.c_str() << endl;
     status = system(command.c_str());
     if(status)
-      throw SALOME_Exception("Error of connection on remote host");
+      throw BatchException("Error of connection on remote host");
 
-    MESSAGE("jobId = " << jobid << "killed");
-    END_OF("BatchManager_PBS::deleteJob");
+    cerr << "jobId = " << jobid << "killed" << endl;
   }
    
   // Methode pour le controle des jobs : renvoie l'etat du job
   string BatchManager_PBS::queryJob(const int & jobid)
   {
-    BEGIN_OF("BatchManager_PBS::queryJob");
     // define name of log file
     string jstatus;
     string logFile="/tmp/logs/";
@@ -113,7 +109,7 @@ namespace BatchLight {
     else if( _params.protocol == "ssh" )
       command = "ssh ";
     else
-      throw SALOME_Exception("Unknown protocol");
+      throw BatchException("Unknown protocol");
 
     if (_params.username != ""){
       command += _params.username;
@@ -128,11 +124,11 @@ namespace BatchLight {
     command += _pbs_job_name[jobid];
     command += "\" > ";
     command += logFile;
-    SCRUTE(command.c_str());
+    cerr << command.c_str() << endl;
     status = system(command.c_str());
     if(status && status != 153 && status != 256*153){
-      MESSAGE("status="<<status);
-      throw SALOME_Exception("Error of connection on remote host");
+      cerr << "status="<<status << endl;
+      throw BatchException("Error of connection on remote host");
     }
 
     if(status == 153 || status == 256*153 )
@@ -160,23 +156,21 @@ namespace BatchLight {
 	jstatus = "U";
     }
 
-    MESSAGE("jobId = " << jobid << " " << jstatus);
-    END_OF("BatchManager_PBS::queryJob");
+    cerr << "jobId = " << jobid << " " << jstatus << endl;
     return jstatus;
   }
 
-  void BatchManager_PBS::buildSalomeCouplingScript(BatchLight::Job* job) throw(SALOME_Exception)
+  void BatchManager_PBS::buildSalomeCouplingScript(BatchLight::Job* job) throw(BatchException)
   {
-    BEGIN_OF("BatchManager_PBS::buildSalomeCouplingScript");
     int status;
-    const char *fileToExecute = job->getFileToExecute();
+    const string fileToExecute = job->getFileToExecute();
     const std::string dirForTmpFiles = job->getDirForTmpFiles();
     int idx = dirForTmpFiles.find("Batch/");
     std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
 
-    string::size_type p1 = string(fileToExecute).find_last_of("/");
-    string::size_type p2 = string(fileToExecute).find_last_of(".");
-    std::string fileNameToExecute = string(fileToExecute).substr(p1+1,p2-p1-1);
+    string::size_type p1 = fileToExecute.find_last_of("/");
+    string::size_type p2 = fileToExecute.find_last_of(".");
+    std::string fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
     std::string TmpFileName = BuildTemporaryFileName();
 
     ofstream tempOutputFile;
@@ -275,7 +269,7 @@ namespace BatchLight {
     tempOutputFile.flush();
     tempOutputFile.close();
     chmod(TmpFileName.c_str(), 0x1ED);
-    SCRUTE(TmpFileName.c_str()) ;
+    cerr << TmpFileName.c_str() << endl;
 
     string command;
     if( _params.protocol == "rsh" )
@@ -283,7 +277,7 @@ namespace BatchLight {
     else if( _params.protocol == "ssh" )
       command = "scp ";
     else
-      throw SALOME_Exception("Unknown protocol");
+      throw BatchException("Unknown protocol");
     
     command += TmpFileName;
     command += " ";
@@ -297,35 +291,33 @@ namespace BatchLight {
     command += "/runSalome_" ;
     command += fileNameToExecute ;
     command += "_Batch.sh" ;
-    SCRUTE(fileNameToExecute) ;
-    SCRUTE(command.c_str());
+    cerr << fileNameToExecute << endl;
+    cerr << command.c_str() << endl;
     status = system(command.c_str());
     if(status)
-      throw SALOME_Exception("Error of connection on remote host");    
+      throw BatchException("Error of connection on remote host");    
     RmTmpFile(TmpFileName);
     
-    END_OF("BatchManager_PBS::buildSalomeCouplingScript");
   }
 
-  void BatchManager_PBS::buildSalomeBatchScript(BatchLight::Job* job) throw(SALOME_Exception)
+  void BatchManager_PBS::buildSalomeBatchScript(BatchLight::Job* job) throw(BatchException)
   {
-    BEGIN_OF("BatchManager_PBS::buildSalomeBatchScript");
     int status;
     const int nbproc = job->getNbProc();
     std::string edt = job->getExpectedDuringTime();
     std::string mem = job->getMemory();
     const std::string dirForTmpFiles = job->getDirForTmpFiles();
-    const char *fileToExecute = job->getFileToExecute();
-    string::size_type p1 = string(fileToExecute).find_last_of("/");
-    string::size_type p2 = string(fileToExecute).find_last_of(".");
-    std::string fileNameToExecute = string(fileToExecute).substr(p1+1,p2-p1-1);
+    const string fileToExecute = job->getFileToExecute();
+    string::size_type p1 = fileToExecute.find_last_of("/");
+    string::size_type p2 = fileToExecute.find_last_of(".");
+    std::string fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
     int idx = dirForTmpFiles.find("Batch/");
     std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
 
     int nbmaxproc = _params.nbnodes * _params.nbprocpernode;
     if( nbproc > nbmaxproc ){
-      MESSAGE(nbproc << " processors asked on a cluster of " << nbmaxproc << " processors");
-      throw SALOME_Exception("Too much processors asked for that cluster");
+      cerr << nbproc << " processors asked on a cluster of " << nbmaxproc << " processors" << endl;
+      throw BatchException("Too much processors asked for that cluster");
     }
 
     int nbnodes;
@@ -359,7 +351,7 @@ namespace BatchLight {
     tempOutputFile.flush();
     tempOutputFile.close();
     chmod(TmpFileName.c_str(), 0x1ED);
-    SCRUTE(TmpFileName.c_str()) ;
+    cerr << TmpFileName.c_str() << endl;
 
     string command;
     if( _params.protocol == "rsh" )
@@ -367,7 +359,7 @@ namespace BatchLight {
     else if( _params.protocol == "ssh" )
       command = "scp ";
     else
-      throw SALOME_Exception("Unknown protocol");
+      throw BatchException("Unknown protocol");
     command += TmpFileName;
     command += " ";
     if (_params.username != ""){
@@ -380,10 +372,10 @@ namespace BatchLight {
     command += "/" ;
     command += fileNameToExecute ;
     command += "_Batch.sh" ;
-    SCRUTE(command.c_str());
+    cerr << command.c_str() << endl;
     status = system(command.c_str());
     if(status)
-      throw SALOME_Exception("Error of connection on remote host");    
+      throw BatchException("Error of connection on remote host");    
   
     // Adding log files into import list files
     ostringstream file_name_output;
@@ -396,17 +388,15 @@ namespace BatchLight {
     job->addFileToImportList(file_name_error.str());
     job->addFileToImportList(file_container_log.str());
     RmTmpFile(TmpFileName);
-    END_OF("BatchManager_PBS::buildSalomeBatchScript");
   }
 
-  int BatchManager_PBS::submit(BatchLight::Job* job) throw(SALOME_Exception)
+  int BatchManager_PBS::submit(BatchLight::Job* job) throw(BatchException)
   {
-    BEGIN_OF("BatchManager_PBS::submit");
     const std::string dirForTmpFiles = job->getDirForTmpFiles();
-    const char *fileToExecute = job->getFileToExecute();
-    string::size_type p1 = string(fileToExecute).find_last_of("/");
-    string::size_type p2 = string(fileToExecute).find_last_of(".");
-    std::string fileNameToExecute = string(fileToExecute).substr(p1+1,p2-p1-1);
+    const string fileToExecute = job->getFileToExecute();
+    string::size_type p1 = fileToExecute.find_last_of("/");
+    string::size_type p2 = fileToExecute.find_last_of(".");
+    std::string fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
 
     // define name of log file
     string logFile="/tmp/logs/";
@@ -429,7 +419,7 @@ namespace BatchLight {
     else if( _params.protocol == "ssh" )
       command = "ssh ";
     else
-      throw SALOME_Exception("Unknown protocol");
+      throw BatchException("Unknown protocol");
 
     if (_params.username != ""){
       command += _params.username;
@@ -443,10 +433,10 @@ namespace BatchLight {
     command += fileNameToExecute ;
     command += "_Batch.sh\" > ";
     command += logFile;
-    SCRUTE(command.c_str());
+    cerr << command.c_str() << endl;
     status = system(command.c_str());
     if(status)
-      throw SALOME_Exception("Error of connection on remote host");
+      throw BatchException("Error of connection on remote host");
 
     // read id of submitted job in log file
     char line[128];
@@ -468,7 +458,6 @@ namespace BatchLight {
 
     // Ajout dans la map
     _pbs_job_name[id] = sline;
-    END_OF("BatchManager_PBS::submit");
     return id;
   }
 

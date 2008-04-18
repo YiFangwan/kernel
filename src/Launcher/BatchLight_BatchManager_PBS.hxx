@@ -30,7 +30,6 @@
 #define _BL_BATCHMANAGER_PBS_H_
 
 #include <string>
-#include "Utils_SALOME_Exception.hxx"
 #include "BatchLight_BatchManager.hxx"
 
 namespace BatchLight {
@@ -41,7 +40,7 @@ namespace BatchLight {
   {
   public:
     // Constructeur et destructeur
-    BatchManager_PBS(const batchParams& p) throw(SALOME_Exception); // connexion a la machine host
+    BatchManager_PBS(const clusterParams& p) throw(BatchException); // connexion a la machine host
     virtual ~BatchManager_PBS();
 
     // Methodes pour le controle des jobs : virtuelles pures
@@ -49,9 +48,9 @@ namespace BatchLight {
     std::string queryJob(const int & jobid); // renvoie l'etat du job
 
   private:
-    void buildSalomeCouplingScript(BatchLight::Job* job) throw(SALOME_Exception);
-    void buildSalomeBatchScript(BatchLight::Job* job) throw(SALOME_Exception);
-    int submit(BatchLight::Job* job) throw(SALOME_Exception);
+    void buildSalomeCouplingScript(BatchLight::Job* job) throw(BatchException);
+    void buildSalomeBatchScript(BatchLight::Job* job) throw(BatchException);
+    int submit(BatchLight::Job* job) throw(BatchException);
 
     // Permet d'avoir la chaîne complête pour demander
     // le statut du job

@@ -38,17 +38,17 @@ using namespace std;
 namespace BatchLight {
 
   // Constructeur
-  BatchManager::BatchManager(const batchParams& p) throw(SALOME_Exception) : _params(p)
+  BatchManager::BatchManager(const clusterParams& p) throw(BatchException) : _params(p)
   {
-    SCRUTE(_params.hostname);
-    SCRUTE(_params.protocol);
-    SCRUTE(_params.username);
+    cerr << _params.hostname << endl;
+    cerr << _params.protocol << endl;
+    cerr << _params.username << endl;
     // On verifie que le hostname est correct
     if (!gethostbyname(_params.hostname.c_str())) { // hostname unknown from network
       string msg = "hostname \"";
       msg += _params.hostname;
       msg += "\" unknown from the network";
-      throw SALOME_Exception(msg.c_str());
+      throw BatchException(msg.c_str());
     }
     _mpiImpl = NULL;
   }
@@ -56,7 +56,7 @@ namespace BatchLight {
   // Destructeur
   BatchManager::~BatchManager()
   {
-    MESSAGE("BatchManager destructor "<<_params.hostname);
+    cerr << "BatchManager destructor "<<_params.hostname << endl;
     std::map < int, const BatchLight::Job * >::const_iterator it;
     for(it=_jobmap.begin();it!=_jobmap.end();it++)
       delete it->second; 
@@ -66,7 +66,6 @@ namespace BatchLight {
   // Methode pour le controle des jobs : soumet un job au gestionnaire
   const int BatchManager::submitJob(Job* job)
   {
-    BEGIN_OF("BatchManager::submitJob");
     int id;
 
     // temporary directory on cluster to put input files for job
@@ -86,7 +85,6 @@ namespace BatchLight {
 
     // register job on map
     _jobmap[id] = job;
-    END_OF("BatchManager::submitJob");
     return id;
   }
 
@@ -112,12 +110,11 @@ namespace BatchLight {
     job->setDirForTmpFiles(dirForTmpFiles);
   }
 
-  void BatchManager::exportInputFiles(BatchLight::Job* job) throw(SALOME_Exception)
+  void BatchManager::exportInputFiles(BatchLight::Job* job) throw(BatchException)
   {
-    BEGIN_OF("BatchManager::exportInFiles");
     int status;
-    const char * fileToExecute = job->getFileToExecute();
-    const Engines::FilesList filesToExportList = job->getFilesToExportList();
+    const string fileToExecute = job->getFileToExecute();
+    const vector<string> filesToExportList = job->getFilesToExportList();
     const std::string dirForTmpFiles = job->getDirForTmpFiles();
     std::string command;
     std::string copy_command;
@@ -128,7 +125,7 @@ namespace BatchLight {
     else if( _params.protocol == "ssh" )
       copy_command = "scp ";
     else
-      throw SALOME_Exception("Unknown protocol : only rsh and ssh are known !");
+      throw BatchException("Unknown protocol : only rsh and ssh are known !");
     
     // First step : creating batch tmp files directory
     command = _params.protocol;
@@ -141,20 +138,20 @@ namespace BatchLight {
     command += " \"mkdir -p ";
     command += dirForTmpFiles;
     command += "\"" ;
-    SCRUTE(command.c_str());
+    cerr << command.c_str() << endl;
     status = system(command.c_str());
     if(status) {
       std::ostringstream oss;
       oss << status;
       std::string ex_mess("Error of connection on remote host ! status = ");
       ex_mess += oss.str();
-      throw SALOME_Exception(ex_mess.c_str());
+      throw BatchException(ex_mess.c_str());
     }
 
     // Second step : copy fileToExecute into
     // batch tmp files directory
     command = copy_command;
-    command += fileToExecute;
+    command += fileToExecute.c_str();
     command += " ";
     if (_params.username != ""){
       command += _params.username;
@@ -163,19 +160,19 @@ namespace BatchLight {
     command += _params.hostname;
     command += ":";
     command += dirForTmpFiles;
-    SCRUTE(command.c_str());
+    cerr << command.c_str() << endl;
     status = system(command.c_str());
     if(status) {
       std::ostringstream oss;
       oss << status;
       std::string ex_mess("Error of connection on remote host ! status = ");
       ex_mess += oss.str();
-      throw SALOME_Exception(ex_mess.c_str());
+      throw BatchException(ex_mess.c_str());
     }
     
     // Third step : copy filesToExportList into
     // batch tmp files directory
-    for (int i = 0 ; i < filesToExportList.length() ; i++ ) {
+    for (int i = 0 ; i < filesToExportList.size() ; i++ ) {
       command = copy_command;
       command += filesToExportList[i] ;
       command += " ";
@@ -186,36 +183,34 @@ namespace BatchLight {
       command += _params.hostname;
       command += ":";
       command += dirForTmpFiles ;
-      SCRUTE(command.c_str());
+      cerr << command.c_str() << endl;
       status = system(command.c_str());
       if(status) {
 	std::ostringstream oss;
 	oss << status;
 	std::string ex_mess("Error of connection on remote host ! status = ");
 	ex_mess += oss.str();
-	throw SALOME_Exception(ex_mess.c_str());
+	throw BatchException(ex_mess.c_str());
       }
     }
 
-    END_OF("BatchManager::exportInFiles");
   }
 
-  void BatchManager::importOutputFiles( const char *directory, const CORBA::Long jobId ) throw(SALOME_Exception)
+  void BatchManager::importOutputFiles( const string directory, const int &jobId ) throw(BatchException)
   {
-    BEGIN_OF("BatchManager::importOutputFiles");
     string command;
     int status;
 
     const BatchLight::Job* myJob = _jobmap[jobId];
-    Engines::FilesList filesToImportList = myJob->getFilesToImportList();
+    vector<string> filesToImportList = myJob->getFilesToImportList();
 
-    for ( int i = 0 ; i < filesToImportList.length() ; i++ ) {
+    for ( int i = 0 ; i < filesToImportList.size() ; i++ ) {
       if( _params.protocol == "rsh" )
 	command = "rcp ";
       else if( _params.protocol == "ssh" )
 	command = "scp ";
       else
-	throw SALOME_Exception("Unknown protocol");
+	throw BatchException("Unknown protocol");
       if (_params.username != ""){
 	command += _params.username;
 	command += "@";
@@ -225,21 +220,20 @@ namespace BatchLight {
       command += filesToImportList[i] ;
       command += " ";
       command += directory;
-      SCRUTE(command.c_str());
+      cerr << command.c_str() << endl;
       status = system(command.c_str());
       if(status) 
       {
 	// Try to get what we can (logs files)
-	// throw SALOME_Exception("Error of connection on remote host");    
+	// throw BatchException("Error of connection on remote host");    
 	std::string mess("Copy command failed ! status is :");
 	ostringstream status_str;
 	status_str << status;
 	mess += status_str.str();
-	INFOS(mess);
+	cerr << mess << endl;
       }
     }
 
-    END_OF("BatchManager::importOutputFiles");
   }
 
   string BatchManager::BuildTemporaryFileName() const
@@ -274,7 +268,7 @@ namespace BatchLight {
     free(temp);
   }
 
-  MpiImpl *BatchManager::FactoryMpiImpl(string mpiImpl) throw(SALOME_Exception)
+  MpiImpl *BatchManager::FactoryMpiImpl(string mpiImpl) throw(BatchException)
   {
     if(mpiImpl == "lam")
       return new MpiImpl_LAM();
@@ -285,11 +279,11 @@ namespace BatchLight {
     else if(mpiImpl == "openmpi")
       return new MpiImpl_OPENMPI();
     else if(mpiImpl == "indif")
-      throw SALOME_Exception("you must specify a mpi implementation in CatalogResources.xml file");
+      throw BatchException("you must specify a mpi implementation in CatalogResources.xml file");
     else{
       ostringstream oss;
       oss << mpiImpl << " : not yet implemented";
-      throw SALOME_Exception(oss.str().c_str());
+      throw BatchException(oss.str().c_str());
     }
   }
 

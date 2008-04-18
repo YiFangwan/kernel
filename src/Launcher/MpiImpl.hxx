@@ -30,8 +30,14 @@
 #define _BL_MPIIMPL_H_
 
 #include <string>
-#include "Utils_SALOME_Exception.hxx"
-#include <SALOMEconfig.h>
+
+class MpiImplException
+{
+public:
+  const std::string msg;
+  
+  MpiImplException(const std::string m) : msg(m) {}
+};
 
 class MpiImpl
 {

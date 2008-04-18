@@ -29,7 +29,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include "utilities.h"
 #include "MpiImpl.hxx"
 
 using namespace std;
@@ -37,13 +36,13 @@ using namespace std;
 // Constructor
 MpiImpl::MpiImpl()
 {
-  MESSAGE("MpiImpl constructor");
+  cerr << "MpiImpl constructor" << endl;
 }
 
 // Destructor
 MpiImpl::~MpiImpl()
 {
-  MESSAGE("MpiImpl destructor");
+  cerr << "MpiImpl destructor" << endl;
 }
 
 // lam implementation
@@ -55,7 +54,7 @@ MpiImpl_LAM::MpiImpl_LAM() : MpiImpl()
 // Destructor
 MpiImpl_LAM::~MpiImpl_LAM()
 {
-  MESSAGE("MpiImpl_LAM destructor");
+  cerr << "MpiImpl_LAM destructor" << endl;
 }
 
 string MpiImpl_LAM::size()
@@ -98,17 +97,17 @@ MpiImpl_MPICH1::MpiImpl_MPICH1() : MpiImpl()
 // Destructor
 MpiImpl_MPICH1::~MpiImpl_MPICH1()
 {
-  MESSAGE("MpiImpl_MPICH1 destructor");
+  cerr << "MpiImpl_MPICH1 destructor" << endl;
 }
 
 string MpiImpl_MPICH1::size()
 {
-  throw SALOME_Exception("mpich1 doesn't work with this batch system to submit salome session");
+  throw MpiImplException("mpich1 doesn't work with this batch system to submit salome session");
 }
 
 string MpiImpl_MPICH1::rank()
 {
-  throw SALOME_Exception("mpich1 doesn't work with this batch system to submit salome session");
+  throw MpiImplException("mpich1 doesn't work with this batch system to submit salome session");
 }
 
 string MpiImpl_MPICH1::boot(const string machinefile, const unsigned int nbnodes)
@@ -137,7 +136,7 @@ MpiImpl_MPICH2::MpiImpl_MPICH2() : MpiImpl()
 // Destructor
 MpiImpl_MPICH2::~MpiImpl_MPICH2()
 {
-  MESSAGE("MpiImpl_MPICH2 destructor");
+  cerr << "MpiImpl_MPICH2 destructor" << endl;
 }
 
 string MpiImpl_MPICH2::size()
@@ -180,7 +179,7 @@ MpiImpl_OPENMPI::MpiImpl_OPENMPI() : MpiImpl()
 // Destructor
 MpiImpl_OPENMPI::~MpiImpl_OPENMPI()
 {
-  MESSAGE("MpiImpl_OPENMPI destructor");
+  cerr << "MpiImpl_OPENMPI destructor" << endl;
 }
 
 string MpiImpl_OPENMPI::size()

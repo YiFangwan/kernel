@@ -32,10 +32,7 @@
 #include <vector>
 #include <map>
 #include <string>
-#include "Utils_SALOME_Exception.hxx"
-#include <SALOMEconfig.h>
 #include <stdlib.h>
-#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include "MpiImpl.hxx"
 
 namespace BatchLight {
@@ -43,6 +40,17 @@ namespace BatchLight {
   class Job;
 
   struct batchParams{
+    std::string batch_directory; // Where batch command will be launched
+                            // and log files will be created
+    std::string expected_during_time; // Time for the batch
+			         // has to be like this : hh:mm
+    std::string mem; // Minimum of memory needed
+	        // has to be like : 32gb or 512mb
+
+    long nb_proc; // Number of processors requested
+  };
+
+  struct clusterParams{
     std::string hostname; // serveur ou tourne le BatchManager
     std::string protocol; // protocole d'acces au serveur: ssh ou rsh
     std::string username; // username d'acces au serveur
@@ -53,33 +61,41 @@ namespace BatchLight {
     std::string mpiImpl; // mpi implementation
   };
 
+  class BatchException
+  {
+  public:
+    const std::string msg;
+    
+    BatchException(const std::string m) : msg(m) {}
+  };
+
   class BatchManager
   {
   public:
     // Constructeur et destructeur
-    BatchManager(const batchParams& p) throw(SALOME_Exception); // connexion a la machine host
+    BatchManager(const clusterParams& p) throw(BatchException); // connexion a la machine host
     virtual ~BatchManager();
 
     // Methodes pour le controle des jobs : virtuelles pures
     const int submitJob(BatchLight::Job* job); // soumet un job au gestionnaire
     virtual void deleteJob(const int & jobid) = 0; // retire un job du gestionnaire
     virtual std::string queryJob(const int & jobid) = 0; // renvoie l'etat du job
-    void importOutputFiles( const char *directory, const CORBA::Long jobId ) throw(SALOME_Exception);
+    void importOutputFiles( const std::string directory, const int & jobId ) throw(BatchException);
 
   protected:
-    batchParams _params;
+    clusterParams _params;
     MpiImpl *_mpiImpl;
     std::map <int,const BatchLight::Job *> _jobmap;
 
-    virtual int submit(BatchLight::Job* job) throw(SALOME_Exception) = 0;
+    virtual int submit(BatchLight::Job* job) throw(BatchException) = 0;
     void setDirForTmpFiles(BatchLight::Job* job);
-    void exportInputFiles(BatchLight::Job* job) throw(SALOME_Exception);
-    virtual void buildSalomeCouplingScript(BatchLight::Job* job) throw(SALOME_Exception) = 0;
-    virtual void buildSalomeBatchScript(BatchLight::Job* job) throw(SALOME_Exception) = 0;
+    void exportInputFiles(BatchLight::Job* job) throw(BatchException);
+    virtual void buildSalomeCouplingScript(BatchLight::Job* job) throw(BatchException) = 0;
+    virtual void buildSalomeBatchScript(BatchLight::Job* job) throw(BatchException) = 0;
 
     std::string BuildTemporaryFileName() const;
     void RmTmpFile(std::string & TemporaryFileName);
-    MpiImpl *FactoryMpiImpl(std::string mpiImpl) throw(SALOME_Exception);
+    MpiImpl *FactoryMpiImpl(std::string mpiImpl) throw(BatchException);
   private:
 
   };

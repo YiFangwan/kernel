@@ -32,10 +32,10 @@
 using namespace std;
 using namespace BatchLight;
 
-Job::Job(const char *fileToExecute, 
-	 const Engines::FilesList& filesToExport, 
-	 const Engines::FilesList& filesToImport, 
-	 const Engines::BatchParameters& batch_params) : _fileToExecute(fileToExecute), 
+Job::Job(const string fileToExecute, 
+	 const vector<string>& filesToExport, 
+	 const vector<string>& filesToImport, 
+	 const batchParams& batch_params) : _fileToExecute(fileToExecute), 
   _filesToExport(filesToExport), 
   _filesToImport(filesToImport), 
   _batch_params(batch_params)
@@ -46,15 +46,13 @@ Job::Job(const char *fileToExecute,
 
 Job::~Job()
 {
-  MESSAGE("Job destructor");
+  cerr << "Job destructor" << endl;
 }
 
 void 
 Job::addFileToImportList(std::string file_name) 
 {
-  CORBA::ULong lgth = _filesToImport.length();
-  _filesToImport.length(lgth+1);
-  _filesToImport[lgth] = CORBA::string_dup(file_name.c_str());
+  _filesToImport.push_back(file_name);
 }
 
 const std::string
@@ -74,14 +72,14 @@ Job::getMemory()
 bool
 Job::check() {
   bool rtn = true;
-  INFOS("Warning : batch_directory option is not currently implemented"); 
-  INFOS("Warning : currently these informations are only in the PBS batch manager"); 
-  INFOS("Job parameters are :");
-  INFOS("Directory : $HOME/Batch/$date");
+  cerr << "Warning : batch_directory option is not currently implemented" << endl; 
+  cerr << "Warning : currently these informations are only in the PBS batch manager" << endl; 
+  cerr << "Job parameters are :"  <<endl;
+  cerr << "Directory : $HOME/Batch/$date" << endl;
 
   // check expected_during_time (check the format)
   std::string edt_info;
-  std::string edt_value = _batch_params.expected_during_time.in();
+  std::string edt_value = _batch_params.expected_during_time.c_str();
   if (edt_value != "") {
     std::string begin_edt_value = edt_value.substr(0, 2);
     std::string mid_edt_value = edt_value.substr(2, 1);
@@ -114,11 +112,11 @@ Job::check() {
   else {
     edt_info = "No value given";
   }
-  INFOS("Expected during time : " << edt_info);
+  cerr << "Expected during time : " << edt_info << endl;
 
   // check memory (check the format)
   std::string mem_info;
-  std::string mem_value = _batch_params.mem.in();
+  std::string mem_value = _batch_params.mem.c_str();
   if (mem_value != "") {
     std::string begin_mem_value = mem_value.substr(0, mem_value.length()-2);
     long re_mem_value;
@@ -140,7 +138,7 @@ Job::check() {
   else {
     mem_info = "No value given";
   }
-  INFOS("Memory : " << mem_info);
+  cerr << "Memory : " << mem_info << endl;
 
   // check nb_proc
   std::string nb_proc_info;
@@ -154,7 +152,7 @@ Job::check() {
   else {
     nb_proc_info = nb_proc_value.str();
   }
-  INFOS("Nb of processors : " << nb_proc_info);
+  cerr << "Nb of processors : " << nb_proc_info << endl;
 
   return rtn;
 }
