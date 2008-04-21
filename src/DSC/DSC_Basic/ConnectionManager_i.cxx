@@ -126,5 +126,10 @@ ConnectionManager_i::ShutdownWithExit()
 CORBA::Long
 ConnectionManager_i::getPID()
 {
-  return (CORBA::Long)getpid();
+  return
+#ifndef WIN32
+    (CORBA::Long)getpid();
+#else
+    (CORBA::Long)GetCurrentProcessId();
+#endif
 }
