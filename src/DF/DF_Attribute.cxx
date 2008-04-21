@@ -20,7 +20,8 @@ DF_Attribute::~DF_Attribute()
     map<string, DF_Attribute*>::iterator mi;
     for(mi =_node->_attributes.begin(); mi != _node->_attributes.end(); mi++) {
        if(mi->second == this) {
-	 _node->_attributes.erase(mi);
+	      _node->_attributes.erase(mi);
+        break;
        }	 
     }
   }
