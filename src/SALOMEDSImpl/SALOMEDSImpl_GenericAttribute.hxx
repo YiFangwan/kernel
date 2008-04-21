@@ -50,8 +50,8 @@ public:
   SALOMEDSImpl_SObject GetSObject();
   void SetModifyFlag();
 
-  static char* Impl_GetType(DF_Attribute* theAttr); 
-  static char* Impl_GetClassType(DF_Attribute* theAttr);
+  static std::string Impl_GetType(DF_Attribute* theAttr); 
+  static std::string Impl_GetClassType(DF_Attribute* theAttr);
   static void Impl_CheckLocked(DF_Attribute* theAttr);
 
 };

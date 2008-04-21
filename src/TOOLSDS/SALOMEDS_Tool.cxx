@@ -52,7 +52,7 @@ bool Exists(const string thePath)
 {
 #ifdef WNT 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
-    if (  GetLastError () != ERROR_FILE_NOT_FOUND  ) {
+    if (  GetLastError () == ERROR_FILE_NOT_FOUND  ) {
       return false;
     }
   }
