@@ -209,3 +209,42 @@ string MpiImpl_OPENMPI::halt()
   return "";
 }
 
+// slurm implementation
+// Constructor
+MpiImpl_SLURM::MpiImpl_SLURM() : MpiImpl()
+{
+}
+
+// Destructor
+MpiImpl_SLURM::~MpiImpl_SLURM()
+{
+  cerr << "MpiImpl_SLURM destructor" << endl;
+}
+
+string MpiImpl_SLURM::size()
+{
+  return "${SLURM_NPROCS}";
+}
+
+string MpiImpl_SLURM::rank()
+{
+  return "${SLURM_PROCID}";
+}
+
+string MpiImpl_SLURM::boot(const string machinefile, const unsigned int nbnodes)
+{
+  return "";
+}
+
+string MpiImpl_SLURM::run(const string machinefile, const unsigned int nbproc, const string fileNameToExecute)
+{
+  ostringstream oss;
+  oss << "srun " << fileNameToExecute << endl;
+  return oss.str();
+}
+
+string MpiImpl_SLURM::halt()
+{
+  return "";
+}
+

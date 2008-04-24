@@ -40,6 +40,7 @@ namespace BatchLight {
   // Constructeur
   BatchManager_SLURM::BatchManager_SLURM(const clusterParams& p) throw(BatchException) : BatchManager(p)
   {
+    _mpiImpl = FactoryMpiImpl(_params.mpiImpl);
   }
 
   // Destructeur
@@ -138,95 +139,41 @@ namespace BatchLight {
     return jstatus;
   }
 
-  void BatchManager_SLURM::buildSalomeCouplingScript(BatchLight::Job* job) throw(BatchException)
-  {
-    int status;
-    const string fileToExecute = job->getFileToExecute();
-    const std::string dirForTmpFiles = job->getDirForTmpFiles();
-
-    string::size_type p1 = fileToExecute.find_last_of("/");
-    string::size_type p2 = fileToExecute.find_last_of(".");
-    std::string fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
-
-    std::string TmpFileName = BuildTemporaryFileName();
-    ofstream tempOutputFile;
-    tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
-    tempOutputFile << "#! /bin/sh -f" << endl ;
-    tempOutputFile << "cd " ;
-    tempOutputFile << _params.applipath << endl ;
-    tempOutputFile << "export PYTHONPATH=~/" ;
-    tempOutputFile << dirForTmpFiles ;
-    tempOutputFile << ":$PYTHONPATH" << endl ;
-    tempOutputFile << "if test $SLURM_PROCID = 0; then" << endl ;
-    tempOutputFile << "  ./runAppli --terminal --modules=" ;
-    for ( int i = 0 ; i < _params.modulesList.size() ; i++ ) {
-      tempOutputFile << _params.modulesList[i] ;
-      if ( i != _params.modulesList.size()-1 )
-	tempOutputFile << "," ;
-    }
-    tempOutputFile << " --standalone=registry,study,moduleCatalog --killall &" << endl ;
-    tempOutputFile << "  for ((ip=1; ip < ${SLURM_NPROCS} ; ip++))" << endl;
-    tempOutputFile << "  do" << endl ;
-    tempOutputFile << "    arglist=\"$arglist YACS_Server_\"$ip" << endl ;
-    tempOutputFile << "  done" << endl ;
-    tempOutputFile << "  ./runSession waitNS.sh" << endl ;
-    tempOutputFile << "  ./runSession waitContainers.py $arglist" << endl ;
-    tempOutputFile << "  ./runSession python ~/" << dirForTmpFiles << "/" << fileNameToExecute << ".py" << endl;
-    tempOutputFile << "  ./runSession killCurrentPort" << endl;
-    tempOutputFile << "else" << endl ;
-    tempOutputFile << "  ./runSession waitNS.sh" << endl ;
-    tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'${SLURM_PROCID}" << endl ;
-    tempOutputFile << "fi" << endl ;
-    tempOutputFile.flush();
-    tempOutputFile.close();
-    chmod(TmpFileName.c_str(), 0x1ED);
-    cerr << TmpFileName.c_str() << endl;
-
-    string command;
-    if( _params.protocol == "rsh" )
-      command = "rcp ";
-    else if( _params.protocol == "ssh" )
-      command = "scp ";
-    else
-      throw BatchException("Unknown protocol");
-    
-    command += TmpFileName;
-    command += " ";
-    if (_params.username != ""){
-      command += _params.username;
-      command += "@";
-    }
-    command += _params.hostname;
-    command += ":";
-    command += dirForTmpFiles ;
-    command += "/runSalome_" ;
-    command += fileNameToExecute ;
-    command += "_Batch.sh" ;
-    cerr << command.c_str() << endl;
-    status = system(command.c_str());
-    if(status)
-      throw BatchException("Error of connection on remote host");    
-    RmTmpFile(TmpFileName);
-    
-  }
-
-  void BatchManager_SLURM::buildSalomeBatchScript(BatchLight::Job* job) throw(BatchException)
+  void BatchManager_SLURM::buildBatchScript(BatchLight::Job* job) throw(BatchException)
   {
     int status;
     const int nbproc = job->getNbProc();
+    std::string edt = job->getExpectedDuringTime();
+    std::string mem = job->getMemory();
     const std::string dirForTmpFiles = job->getDirForTmpFiles();
-    std::string TmpFileName = BuildTemporaryFileName();
-    ofstream tempOutputFile;
-    tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
     const string fileToExecute = job->getFileToExecute();
     string::size_type p1 = fileToExecute.find_last_of("/");
     string::size_type p2 = fileToExecute.find_last_of(".");
-    std::string fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
+    std::string rootNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
+    std::string fileNameToExecute = "~/" + dirForTmpFiles + "/" + string(basename(fileToExecute.c_str()));
+
+    int nbmaxproc = _params.nbnodes * _params.nbprocpernode;
+    if( nbproc > nbmaxproc ){
+      cerr << nbproc << " processors asked on a cluster of " << nbmaxproc << " processors" << endl;
+      throw BatchException("Too much processors asked for that cluster");
+    }
+
+    int nbnodes;
+    if( nbproc < _params.nbnodes )
+      nbnodes = nbproc;
+    else
+      nbnodes = _params.nbnodes;
+
+    std::string TmpFileName = BuildTemporaryFileName();
+    ofstream tempOutputFile;
+    tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
 
     tempOutputFile << "#! /bin/sh -f" << endl ;
     tempOutputFile << "#BSUB -n " << nbproc << endl ;
     tempOutputFile << "#BSUB -o " << dirForTmpFiles << "/runSalome.log%J" << endl ;
-    tempOutputFile << "srun ~/" << dirForTmpFiles << "/runSalome_" << fileNameToExecute << "_Batch.sh" << endl ;
+    tempOutputFile << _mpiImpl->boot("",nbproc);
+    tempOutputFile << _mpiImpl->run("",nbproc,fileNameToExecute);
+    tempOutputFile << _mpiImpl->halt();
     tempOutputFile.flush();
     tempOutputFile.close();
     chmod(TmpFileName.c_str(), 0x1ED);
@@ -249,9 +196,9 @@ namespace BatchLight {
     command += ":";
     command += dirForTmpFiles ;
     command += "/" ;
-    command += fileNameToExecute ;
+    command += rootNameToExecute ;
     command += "_Batch.sh" ;
-    cerr << command.c_str() << endl;
+     cerr << command.c_str() << endl;
     status = system(command.c_str());
     if(status)
       throw BatchException("Error of connection on remote host");    

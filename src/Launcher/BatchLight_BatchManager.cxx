@@ -68,17 +68,11 @@ namespace BatchLight {
   {
     int id;
 
-    // temporary directory on cluster to put input files for job
-    setDirForTmpFiles(job);
-
     // export input files on cluster
     exportInputFiles(job);
 
-    // build salome coupling script for job
-    buildSalomeCouplingScript(job);
-
     // build batch script for job
-    buildSalomeBatchScript(job);
+    buildBatchScript(job);
 
     // submit job on cluster
     id = submit(job);
@@ -86,28 +80,6 @@ namespace BatchLight {
     // register job on map
     _jobmap[id] = job;
     return id;
-  }
-
-  void BatchManager::setDirForTmpFiles(BatchLight::Job* job)
-  {
-    std::string dirForTmpFiles;
-    std::string thedate;
-
-    // Adding date to the directory name
-    Batch::Date date = Batch::Date(time(0));
-    thedate = date.str();
-    int lend = thedate.size() ;
-    int i = 0 ;
-    while ( i < lend ) {
-      if ( thedate[i] == '/' || thedate[i] == '-' || thedate[i] == ':' ) {
-        thedate[i] = '_' ;
-      }
-      i++ ;
-    }
-
-    dirForTmpFiles += string("Batch/");
-    dirForTmpFiles += thedate ;
-    job->setDirForTmpFiles(dirForTmpFiles);
   }
 
   void BatchManager::exportInputFiles(BatchLight::Job* job) throw(BatchException)
@@ -278,6 +250,8 @@ namespace BatchLight {
       return new MpiImpl_MPICH2();
     else if(mpiImpl == "openmpi")
       return new MpiImpl_OPENMPI();
+    else if(mpiImpl == "slurm")
+      return new MpiImpl_SLURM();
     else if(mpiImpl == "indif")
       throw BatchException("you must specify a mpi implementation in CatalogResources.xml file");
     else{

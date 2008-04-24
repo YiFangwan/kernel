@@ -88,10 +88,8 @@ namespace BatchLight {
     std::map <int,const BatchLight::Job *> _jobmap;
 
     virtual int submit(BatchLight::Job* job) throw(BatchException) = 0;
-    void setDirForTmpFiles(BatchLight::Job* job);
     void exportInputFiles(BatchLight::Job* job) throw(BatchException);
-    virtual void buildSalomeCouplingScript(BatchLight::Job* job) throw(BatchException) = 0;
-    virtual void buildSalomeBatchScript(BatchLight::Job* job) throw(BatchException) = 0;
+    virtual void buildBatchScript(BatchLight::Job* job) throw(BatchException) = 0;
 
     std::string BuildTemporaryFileName() const;
     void RmTmpFile(std::string & TemporaryFileName);

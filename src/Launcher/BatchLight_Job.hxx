@@ -45,8 +45,10 @@ namespace BatchLight {
     virtual ~Job();
 
     const std::string getFileToExecute() const { return _fileToExecute; }
+    void setFileToExecute(const std::string fileToExecute) { _fileToExecute=fileToExecute; }
     const std::vector<std::string> getFilesToExportList() const { return _filesToExport; }
     const std::vector<std::string> getFilesToImportList() const { return _filesToImport; }
+    void addFileToExportList(std::string file_name);
     void addFileToImportList(std::string file_name);
     const long getNbProc() const { return _batch_params.nb_proc; }
     const std::string getExpectedDuringTime();
@@ -57,8 +59,8 @@ namespace BatchLight {
       std::cerr << _dirForTmpFiles << std::endl;}
     bool check();							
   protected:
-    const std::string _fileToExecute;
-    const std::vector<std::string> _filesToExport;
+    std::string _fileToExecute;
+    std::vector<std::string> _filesToExport;
     std::vector<std::string> _filesToImport;
     batchParams _batch_params;
     std::string _dirForTmpFiles; // Tmp directory on the server

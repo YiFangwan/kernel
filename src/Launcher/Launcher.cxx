@@ -21,6 +21,9 @@
 #include "BatchLight_BatchManager_SLURM.hxx"
 #include "BatchLight_Job.hxx"
 #include "Launcher.hxx"
+#include <iostream>
+#include <sstream>
+#include <sys/stat.h>
 
 using namespace std;
 
@@ -102,6 +105,11 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
       delete job;
       throw LauncherException("Job parameters are bad (see informations above)");
     }
+
+    // build salome coupling script for job
+    buildSalomeCouplingScript(job,p);
+
+    // submit job on cluster
     jobId = _batchmap[clustername]->submitJob(job);
   }
   catch(const BatchLight::BatchException &ex){
@@ -225,6 +233,9 @@ BatchLight::BatchManager *Launcher_cpp::FactoryBatchManager( const ParserResourc
   case openmpi:
     p.mpiImpl = "openmpi";
     break;
+  case slurm:
+    p.mpiImpl = "slurm";
+    break;
   default:
     p.mpiImpl = "indif";
     break;
@@ -235,7 +246,7 @@ BatchLight::BatchManager *Launcher_cpp::FactoryBatchManager( const ParserResourc
   case pbs:
     cerr << "Instantiation of PBS batch manager" << endl;
     return new BatchLight::BatchManager_PBS(p);
-  case slurm:
+  case lsf:
     cerr << "Instantiation of SLURM batch manager" << endl;
     return new BatchLight::BatchManager_SLURM(p);
   default:
@@ -244,3 +255,140 @@ BatchLight::BatchManager *Launcher_cpp::FactoryBatchManager( const ParserResourc
   }
 }
 
+void Launcher_cpp::buildSalomeCouplingScript(BatchLight::Job* job, const ParserResourcesType& params)
+{
+  const string fileToExecute = job->getFileToExecute();
+  const std::string dirForTmpFiles = job->getDirForTmpFiles();
+  int idx = dirForTmpFiles.find("Batch/");
+  std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
+
+  string::size_type p1 = fileToExecute.find_last_of("/");
+  string::size_type p2 = fileToExecute.find_last_of(".");
+  std::string fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
+  std::string TmpFileName = "/tmp/runSalome_" + fileNameToExecute + ".sh";
+
+  MpiImpl* mpiImpl = FactoryMpiImpl(params.mpi);
+
+  ofstream tempOutputFile;
+  tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
+
+  // Begin
+  tempOutputFile << "#! /bin/sh -f" << endl ;
+  tempOutputFile << "cd " ;
+  tempOutputFile << params.AppliPath << endl ;
+  tempOutputFile << "export SALOME_BATCH=1\n";
+  tempOutputFile << "export PYTHONPATH=~/" ;
+  tempOutputFile << dirForTmpFiles ;
+  tempOutputFile << ":$PYTHONPATH" << endl ;
+
+  // Test node rank
+  tempOutputFile << "if test " ;
+  tempOutputFile << mpiImpl->rank() ;
+  tempOutputFile << " = 0; then" << endl ;
+
+  // -----------------------------------------------
+  // Code for rank 0 : launch runAppli and a container
+  // RunAppli
+  tempOutputFile << "  ./runAppli --terminal --modules=" ;
+  for ( int i = 0 ; i < params.ModulesList.size() ; i++ ) {
+    tempOutputFile << params.ModulesList[i] ;
+    if ( i != params.ModulesList.size()-1 )
+      tempOutputFile << "," ;
+  }
+  tempOutputFile << " --standalone=registry,study,moduleCatalog --ns-port-log="
+		 << filelogtemp 
+		 << " &\n";
+
+  // Wait NamingService
+  tempOutputFile << "  current=0\n"
+		 << "  stop=20\n" 
+		 << "  while ! test -f " << filelogtemp << "\n"
+		 << "  do\n"
+		 << "    sleep 2\n"
+		 << "    let current=current+1\n"
+		 << "    if [ \"$current\" -eq \"$stop\" ] ; then\n"
+		 << "      echo Error Naming Service failed ! >&2"
+		 << "      exit\n"
+		 << "    fi\n"
+		 << "  done\n"
+		 << "  port=`cat " << filelogtemp << "`\n";
+    
+  // Wait other containers
+  tempOutputFile << "  for ((ip=1; ip < ";
+  tempOutputFile << mpiImpl->size();
+  tempOutputFile << " ; ip++))" << endl;
+  tempOutputFile << "  do" << endl ;
+  tempOutputFile << "    arglist=\"$arglist YACS_Server_\"$ip" << endl ;
+  tempOutputFile << "  done" << endl ;
+  tempOutputFile << "  sleep 5" << endl ;
+  tempOutputFile << "  ./runSession waitContainers.py $arglist" << endl ;
+  
+  // Launch user script
+  tempOutputFile << "  ./runSession python ~/" << dirForTmpFiles << "/" << fileNameToExecute << ".py" << endl;
+
+  // Stop application
+  tempOutputFile << "  rm " << filelogtemp << "\n"
+		 << "  ./runSession killCurrentPort" << endl;
+  // waiting standard killing improvement by P. Rascle
+  tempOutputFile << "  killall notifd" << endl;
+  tempOutputFile << "  killall omniNames" << endl;
+
+  // -------------------------------------
+  // Other nodes launch a container
+  tempOutputFile << "else" << endl ;
+
+  // Wait NamingService
+  tempOutputFile << "  current=0\n"
+		 << "  stop=20\n" 
+		 << "  while ! test -f " << filelogtemp << "\n"
+		 << "  do\n"
+		 << "    sleep 2\n"
+		 << "    let current=current+1\n"
+		 << "    if [ \"$current\" -eq \"$stop\" ] ; then\n"
+		 << "      echo Error Naming Service failed ! >&2"
+		 << "      exit\n"
+		 << "    fi\n"
+		 << "  done\n"
+		 << "  port=`cat " << filelogtemp << "`\n";
+
+  // Launching container
+  tempOutputFile << "  ./runSession SALOME_Container YACS_Server_";
+  tempOutputFile << mpiImpl->rank()
+		 << " > ~/" << dirForTmpFiles << "/YACS_Server_" 
+		 << mpiImpl->rank() << "_container_log." << filelogtemp
+		 << " 2>&1\n";
+  tempOutputFile << "fi" << endl ;
+  tempOutputFile.flush();
+  tempOutputFile.close();
+  chmod(TmpFileName.c_str(), 0x1ED);
+  cerr << TmpFileName.c_str() << endl;
+
+  job->addFileToExportList(fileToExecute);
+  job->setFileToExecute(TmpFileName);
+
+  delete mpiImpl;
+    
+}
+
+MpiImpl *Launcher_cpp::FactoryMpiImpl(MpiImplType mpi) throw(LauncherException)
+{
+  switch(mpi){
+  case lam:
+    return new MpiImpl_LAM();
+  case mpich1:
+    return new MpiImpl_MPICH1();
+  case mpich2:
+    return new MpiImpl_MPICH2();
+  case openmpi:
+    return new MpiImpl_OPENMPI();
+  case slurm:
+    return new MpiImpl_SLURM();
+  case indif:
+    throw LauncherException("you must specify a mpi implementation in CatalogResources.xml file");
+  default:
+    ostringstream oss;
+    oss << mpi << " : not yet implemented";
+    throw LauncherException(oss.str().c_str());
+  }
+
+}

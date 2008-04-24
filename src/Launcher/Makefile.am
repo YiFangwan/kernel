@@ -40,8 +40,9 @@ salomeinclude_HEADERS = \
   BatchLight_BatchManager_PBS.hxx \
   BatchLight_BatchManager_SLURM.hxx \
   BatchLight_Job.hxx \
-	MpiImpl.hxx \
-	SALOME_Launcher.hxx
+  MpiImpl.hxx \
+  SALOME_Launcher.hxx \
+  Launcher.hxx
 
 # Scripts to be installed
 dist_salomescript_DATA =

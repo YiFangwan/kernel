@@ -53,6 +53,9 @@ public:
   void SetResourcesManager( ResourcesManager_cpp* rm ) { _ResManager = rm; }
 
 protected:
+
+  void buildSalomeCouplingScript(BatchLight::Job* job, const ParserResourcesType& params);
+  MpiImpl *FactoryMpiImpl(MpiImplType mpiImpl) throw(LauncherException);
   BatchLight::BatchManager *FactoryBatchManager( const ParserResourcesType& params ) throw(LauncherException);
 
   std::map <std::string,BatchLight::BatchManager*> _batchmap;

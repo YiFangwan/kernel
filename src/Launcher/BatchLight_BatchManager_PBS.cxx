@@ -160,147 +160,7 @@ namespace BatchLight {
     return jstatus;
   }
 
-  void BatchManager_PBS::buildSalomeCouplingScript(BatchLight::Job* job) throw(BatchException)
-  {
-    int status;
-    const string fileToExecute = job->getFileToExecute();
-    const std::string dirForTmpFiles = job->getDirForTmpFiles();
-    int idx = dirForTmpFiles.find("Batch/");
-    std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
-
-    string::size_type p1 = fileToExecute.find_last_of("/");
-    string::size_type p2 = fileToExecute.find_last_of(".");
-    std::string fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
-    std::string TmpFileName = BuildTemporaryFileName();
-
-    ofstream tempOutputFile;
-    tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
-    
-    // Begin
-    tempOutputFile << "#! /bin/sh -f" << endl ;
-    tempOutputFile << "cd " ;
-    tempOutputFile << _params.applipath << endl ;
-    tempOutputFile << "export SALOME_BATCH=1\n";
-    tempOutputFile << "export PYTHONPATH=~/" ;
-    tempOutputFile << dirForTmpFiles ;
-    tempOutputFile << ":$PYTHONPATH" << endl ;
-
-    // Test node rank
-    tempOutputFile << "if test " ;
-    tempOutputFile << _mpiImpl->rank() ;
-    tempOutputFile << " = 0; then" << endl ;
-
-    // -----------------------------------------------
-    // Code for rank 0 : launch runAppli and a container
-    // RunAppli
-    tempOutputFile << "  ./runAppli --terminal --modules=" ;
-    for ( int i = 0 ; i < _params.modulesList.size() ; i++ ) {
-      tempOutputFile << _params.modulesList[i] ;
-      if ( i != _params.modulesList.size()-1 )
-	tempOutputFile << "," ;
-    }
-    tempOutputFile << " --standalone=registry,study,moduleCatalog --ns-port-log="
-		   << filelogtemp 
-		   << " &\n";
-
-    // Wait NamingService
-    tempOutputFile << "  current=0\n"
-		   << "  stop=20\n" 
-		   << "  while ! test -f " << filelogtemp << "\n"
-		   << "  do\n"
-		   << "    sleep 2\n"
-		   << "    let current=current+1\n"
-		   << "    if [ \"$current\" -eq \"$stop\" ] ; then\n"
-		   << "      echo Error Naming Service failed ! >&2"
-		   << "      exit\n"
-		   << "    fi\n"
-		   << "  done\n"
-		   << "  port=`cat " << filelogtemp << "`\n";
-    
-    // Launch a container
-    tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'"
-		   << _mpiImpl->rank()
-		   << " > ~/" << dirForTmpFiles << "/YACS_Server_" 
-		   << _mpiImpl->rank() << "_container_log." << filelogtemp
-		   << " 2>&1 &\n";
-
-    // Wait other containers
-    tempOutputFile << "  for ((ip=0; ip < ";
-    tempOutputFile << _mpiImpl->size();
-    tempOutputFile << " ; ip++))" << endl;
-    tempOutputFile << "  do" << endl ;
-    tempOutputFile << "    arglist=\"$arglist YACS_Server_\"$ip" << endl ;
-    tempOutputFile << "  done" << endl ;
-    tempOutputFile << "  sleep 5" << endl ;
-    tempOutputFile << "  ./runSession waitContainers.py $arglist" << endl ;
-
-    // Launch user script
-    tempOutputFile << "  ./runSession python ~/" << dirForTmpFiles << "/" << fileNameToExecute << ".py\n";
-
-    // Stop application
-    tempOutputFile << "  rm " << filelogtemp << "\n"
-		   << "  ./runSession killSalomeWithPort.py $port\n";
-   
-    // -------------------------------------
-    // Other nodes launch a container
-    tempOutputFile << "else" << endl ;
-    
-    // Wait NamingService
-    tempOutputFile << "  current=0\n"
-		   << "  stop=20\n" 
-		   << "  while ! test -f " << filelogtemp << "\n"
-		   << "  do\n"
-		   << "    sleep 2\n"
-		   << "    let current=current+1\n"
-		   << "    if [ \"$current\" -eq \"$stop\" ] ; then\n"
-		   << "      echo Error Naming Service failed ! >&2"
-		   << "      exit\n"
-		   << "    fi\n"
-		   << "  done\n"
-		   << "  port=`cat " << filelogtemp << "`\n";
-
-    // Launching container
-    tempOutputFile << "  ./runSession SALOME_Container 'YACS_Server_'";
-    tempOutputFile << _mpiImpl->rank()
-		   << " > ~/" << dirForTmpFiles << "/YACS_Server_" 
-		   << _mpiImpl->rank() << "_container_log." << filelogtemp
-		   << " 2>&1\n";
-    tempOutputFile << "fi" << endl;
-    tempOutputFile.flush();
-    tempOutputFile.close();
-    chmod(TmpFileName.c_str(), 0x1ED);
-    cerr << TmpFileName.c_str() << endl;
-
-    string command;
-    if( _params.protocol == "rsh" )
-      command = "rcp ";
-    else if( _params.protocol == "ssh" )
-      command = "scp ";
-    else
-      throw BatchException("Unknown protocol");
-    
-    command += TmpFileName;
-    command += " ";
-    if (_params.username != ""){
-      command += _params.username;
-      command += "@";
-    }
-    command += _params.hostname;
-    command += ":";
-    command += dirForTmpFiles ;
-    command += "/runSalome_" ;
-    command += fileNameToExecute ;
-    command += "_Batch.sh" ;
-    cerr << fileNameToExecute << endl;
-    cerr << command.c_str() << endl;
-    status = system(command.c_str());
-    if(status)
-      throw BatchException("Error of connection on remote host");    
-    RmTmpFile(TmpFileName);
-    
-  }
-
-  void BatchManager_PBS::buildSalomeBatchScript(BatchLight::Job* job) throw(BatchException)
+  void BatchManager_PBS::buildBatchScript(BatchLight::Job* job) throw(BatchException)
   {
     int status;
     const int nbproc = job->getNbProc();
@@ -310,7 +170,9 @@ namespace BatchLight {
     const string fileToExecute = job->getFileToExecute();
     string::size_type p1 = fileToExecute.find_last_of("/");
     string::size_type p2 = fileToExecute.find_last_of(".");
-    std::string fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
+    std::string rootNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
+    std::string fileNameToExecute = "~/" + dirForTmpFiles + "/" + string(basename(fileToExecute.c_str()));
+
     int idx = dirForTmpFiles.find("Batch/");
     std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
 
@@ -330,9 +192,6 @@ namespace BatchLight {
     ofstream tempOutputFile;
     tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
 
-    ostringstream filenameToExecute;
-    filenameToExecute << " ~/" << dirForTmpFiles << "/runSalome_" << fileNameToExecute << "_Batch.sh";
-
     tempOutputFile << "#! /bin/sh -f" << endl ;
     tempOutputFile << "#PBS -l nodes=" << nbnodes << endl ;
     if (edt != "")
@@ -346,7 +205,7 @@ namespace BatchLight {
     tempOutputFile << "#PBS -o runSalome.output.log." << filelogtemp << endl ;
     tempOutputFile << "#PBS -e runSalome.error.log." << filelogtemp << endl ;
     tempOutputFile << _mpiImpl->boot("${PBS_NODEFILE}",nbnodes);
-    tempOutputFile << _mpiImpl->run("${PBS_NODEFILE}",nbproc,filenameToExecute.str());
+    tempOutputFile << _mpiImpl->run("${PBS_NODEFILE}",nbproc,fileNameToExecute);
     tempOutputFile << _mpiImpl->halt();
     tempOutputFile.flush();
     tempOutputFile.close();
@@ -370,7 +229,7 @@ namespace BatchLight {
     command += ":";
     command += dirForTmpFiles ;
     command += "/" ;
-    command += fileNameToExecute ;
+    command += rootNameToExecute ;
     command += "_Batch.sh" ;
     cerr << command.c_str() << endl;
     status = system(command.c_str());

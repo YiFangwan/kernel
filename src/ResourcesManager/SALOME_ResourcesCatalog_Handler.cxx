@@ -187,8 +187,6 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                 _resource.Batch = pbs;
               else if  (aBatch == "lsf")
                 _resource.Batch = lsf;
-              else if  (aBatch == "slurm")
-                _resource.Batch = slurm;
               else
                 _resource.Batch = none;
             }
@@ -206,6 +204,8 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                 _resource.mpi = mpich2;
               else if (anMpi == "openmpi")
                 _resource.mpi = openmpi;
+              else if  (anMpi == "slurm")
+                _resource.mpi = slurm;
               else
                 _resource.mpi = indif;
             }

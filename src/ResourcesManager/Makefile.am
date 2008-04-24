@@ -38,7 +38,8 @@ salomeinclude_HEADERS = \
 		SALOME_ResourcesCatalog_Parser.hxx \
 		SALOME_ResourcesManager.hxx \
                 SALOME_ResourcesCatalog_Handler.hxx \
-		SALOME_LoadRateManager.hxx
+		SALOME_LoadRateManager.hxx \
+		ResourcesManager.hxx
 
 #
 # ===============================================================

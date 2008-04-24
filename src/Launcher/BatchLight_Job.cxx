@@ -26,6 +26,7 @@
  *
  */
 
+#include "Batch_Date.hxx"
 #include "BatchLight_Job.hxx"
 #include <sstream>
 
@@ -40,13 +41,33 @@ Job::Job(const string fileToExecute,
   _filesToImport(filesToImport), 
   _batch_params(batch_params)
 {
-  _dirForTmpFiles = "/tmp/default_batch_tmp_directory";
-  std::string _fileNameToExecute = "";
+  std::string thedate;
+
+  // Adding date to the directory name
+  Batch::Date date = Batch::Date(time(0));
+  thedate = date.str();
+  int lend = thedate.size() ;
+  int i = 0 ;
+  while ( i < lend ) {
+    if ( thedate[i] == '/' || thedate[i] == '-' || thedate[i] == ':' ) {
+      thedate[i] = '_' ;
+    }
+    i++ ;
+  }
+
+  _dirForTmpFiles = string("Batch/");
+  _dirForTmpFiles += thedate ;
 }
 
 Job::~Job()
 {
   cerr << "Job destructor" << endl;
+}
+
+void 
+Job::addFileToExportList(std::string file_name) 
+{
+  _filesToExport.push_back(file_name);
 }
 
 void 
