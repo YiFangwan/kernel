@@ -40,7 +40,6 @@ salomeinclude_HEADERS = \
   BatchLight_BatchManager_PBS.hxx \
   BatchLight_BatchManager_SLURM.hxx \
   BatchLight_Job.hxx \
-  MpiImpl.hxx \
   SALOME_Launcher.hxx \
   Launcher.hxx
 
@@ -115,8 +114,7 @@ libLauncher_la_SOURCES=\
         BatchLight_BatchManager.cxx \
         BatchLight_BatchManager_SLURM.cxx \
         BatchLight_BatchManager_PBS.cxx \
-        BatchLight_Job.cxx \
-	MpiImpl.cxx
+        BatchLight_Job.cxx
 
 libLauncher_la_CPPFLAGS =\
 	-I$(srcdir)/../Batch \

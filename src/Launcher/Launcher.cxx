@@ -332,6 +332,7 @@ void Launcher_cpp::buildSalomeCouplingScript(BatchLight::Job* job, const ParserR
   // waiting standard killing improvement by P. Rascle
   tempOutputFile << "  killall notifd" << endl;
   tempOutputFile << "  killall omniNames" << endl;
+  tempOutputFile << "  rm core.*" << endl;
 
   // -------------------------------------
   // Other nodes launch a container
