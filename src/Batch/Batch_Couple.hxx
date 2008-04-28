@@ -36,7 +36,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT Couple
+  class BATCH_EXPORT Couple
   {
   public:
     // Constructeur standard

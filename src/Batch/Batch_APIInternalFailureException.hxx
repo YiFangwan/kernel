@@ -37,7 +37,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT APIInternalFailureException : public GenericException
+  class BATCH_EXPORT APIInternalFailureException : public GenericException
   {
   public:
 		// Constructeur

@@ -39,7 +39,7 @@ namespace Batch {
 
   class FactBatchManager;
   
-  class BASICS_EXPORT BatchManagerCatalog
+  class BATCH_EXPORT BatchManagerCatalog
   {
   public:
     // Constructeur

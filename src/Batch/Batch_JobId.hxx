@@ -39,7 +39,7 @@ namespace Batch {
 
   class BatchManager;
 
-  class BASICS_EXPORT JobId
+  class BATCH_EXPORT JobId
   {
     friend class BatchManager;
 

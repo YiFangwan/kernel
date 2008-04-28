@@ -35,7 +35,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT ListIsFullException : public GenericException
+  class BATCH_EXPORT ListIsFullException : public GenericException
   {
   public:
 		// Constructeur

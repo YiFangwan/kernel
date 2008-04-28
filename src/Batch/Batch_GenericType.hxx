@@ -37,7 +37,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT GenericType
+  class BATCH_EXPORT GenericType
   {
   public:
 		// Constructeur et destructeur

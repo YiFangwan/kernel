@@ -37,7 +37,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT Job
+  class BATCH_EXPORT Job
   {
   public:
     // Constructeurs et destructeur

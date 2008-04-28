@@ -43,7 +43,7 @@ namespace Batch {
   class Job;
   class JobId;
   class JobInfo;
-  class BASICS_EXPORT FactBatchManager;
+  class BATCH_EXPORT FactBatchManager;
 
   class BatchManager
   {

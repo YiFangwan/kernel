@@ -36,7 +36,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT LongType : public GenericType
+  class BATCH_EXPORT LongType : public GenericType
   {
   public:
 		// Constructeur

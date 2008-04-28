@@ -49,6 +49,7 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 			CalciumCouplingPolicy.hxx \
 			CalciumException.hxx \
 			CalciumTypes.hxx \
+			CalciumCxxInterface.hxx \
 			CalciumInterface.hxx \
 			Copy2UserSpace.hxx \
 			Copy2CorbaSpace.hxx \
@@ -58,6 +59,8 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 			calciumP.h \
 			version.h \
 			calcium.hf
+
+EXTRA_DIST=fortoc.h
 #
 # ===============================================================
 # Local definitions

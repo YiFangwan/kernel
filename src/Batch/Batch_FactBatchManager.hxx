@@ -38,7 +38,7 @@ namespace Batch {
   
   class BatchManager;
 
-  class BASICS_EXPORT FactBatchManager
+  class BATCH_EXPORT FactBatchManager
   {
   public:
     // Constructeur et destructeur

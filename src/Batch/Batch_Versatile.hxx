@@ -55,7 +55,7 @@ namespace Batch {
     int maxelem; // le nombre d'elements autorises
   } TypeParam;
 
-  class BASICS_EXPORT Versatile : public std::list< GenericType * >
+  class BATCH_EXPORT Versatile : public std::list< GenericType * >
   {
   public:
 		// Constructeur standard et destructeur

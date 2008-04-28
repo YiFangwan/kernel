@@ -38,7 +38,7 @@ using namespace std;
 
 namespace Batch {
 
-  class BASICS_EXPORT NotYetImplementedException : public GenericException
+  class BATCH_EXPORT NotYetImplementedException : public GenericException
   {
   public:
 		// Constructeur

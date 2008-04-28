@@ -41,7 +41,7 @@ using namespace std;
 
 namespace Batch {
 
-  class BASICS_EXPORT JobInfo
+  class BATCH_EXPORT JobInfo
   {
   public:
     // Constructeur standard et destructeur

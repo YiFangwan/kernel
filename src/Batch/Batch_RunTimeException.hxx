@@ -37,7 +37,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT RunTimeException : public GenericException
+  class BATCH_EXPORT RunTimeException : public GenericException
   {
   public:
 		// Constructeur

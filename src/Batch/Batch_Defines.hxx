@@ -27,13 +27,13 @@
 #define _BATCH_Defines_HXX_
 
 #ifdef WNT
-# ifdef BASICS_EXPORTS
-#  define BASICS_EXPORT __declspec( dllexport )
+# ifdef BATCH_EXPORTS
+#  define BATCH_EXPORT __declspec( dllexport )
 # else
-#  define BASICS_EXPORT __declspec( dllimport )
+#  define BATCH_EXPORT __declspec( dllimport )
 # endif
 #else
-# define BASICS_EXPORT
+# define BATCH_EXPORT
 #endif
 
 #endif

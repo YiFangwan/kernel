@@ -37,7 +37,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT ConnexionFailureException : public GenericException
+  class BATCH_EXPORT ConnexionFailureException : public GenericException
   {
   public:
 		// Constructeur

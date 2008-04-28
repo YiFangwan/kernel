@@ -39,7 +39,7 @@ namespace Batch {
 
   // une classe privee pour les differents types
   // ces types ne peuvent pas etre redefinis
-  class BASICS_EXPORT MapKey : public std::string
+  class BATCH_EXPORT MapKey : public std::string
   {
   private:
     friend class Parametre; // seule la classe Parametre peut creer des MapKey

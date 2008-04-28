@@ -38,7 +38,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT InvalidKeyException : public GenericException
+  class BATCH_EXPORT InvalidKeyException : public GenericException
   {
   public:
 		// Constructeur

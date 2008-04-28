@@ -49,7 +49,7 @@ using namespace std;
 
 namespace Batch {
 
-  class BASICS_EXPORT Parametre : public map< string, Versatile >
+  class BATCH_EXPORT Parametre : public map< string, Versatile >
   {
   public:
     // Constructeur standard

@@ -42,7 +42,7 @@ using namespace std;
 
 namespace Batch {
 
-  class BASICS_EXPORT PyVersatile : public Versatile
+  class BATCH_EXPORT PyVersatile : public Versatile
   {
   public:
 		// Constructeur a partir d'un objet Versatile

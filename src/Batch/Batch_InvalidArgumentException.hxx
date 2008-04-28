@@ -38,7 +38,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT InvalidArgumentException : public GenericException
+  class BATCH_EXPORT InvalidArgumentException : public GenericException
   {
   public:
 		// Constructeur

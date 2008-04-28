@@ -37,7 +37,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT GenericException
+  class BATCH_EXPORT GenericException
   {
   public:
     const std::string type;    // la nature de l'exception

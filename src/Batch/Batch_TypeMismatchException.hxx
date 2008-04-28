@@ -36,7 +36,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT TypeMismatchException : public GenericException
+  class BATCH_EXPORT TypeMismatchException : public GenericException
   {
   public:
 		// Constructeur

@@ -36,7 +36,7 @@
 
 namespace Batch {
 
-  class BASICS_EXPORT Date
+  class BATCH_EXPORT Date
   {
   public:
     Date(const long l=0);

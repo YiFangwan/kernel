@@ -49,14 +49,14 @@ public:
   ~SALOME_Launcher();
 
   CORBA::Long submitSalomeJob(const char * fileToExecute ,
-                              const Engines::FilesList& filesToExport ,
-                              const Engines::FilesList& filesToImport ,
-                              /*const*/ CORBA::Long NumberOfProcessors ,
-                              const Engines::MachineParameters& params);
+			      const Engines::FilesList& filesToExport ,
+			      const Engines::FilesList& filesToImport ,
+			      const Engines::BatchParameters& batch_params,
+			      const Engines::MachineParameters& params);
 
-  char* querySalomeJob( /*const */CORBA::Long jobId, const Engines::MachineParameters& params);
-  void deleteSalomeJob( /*const*/ CORBA::Long jobId, const Engines::MachineParameters& params);
-  void getResultSalomeJob( const char * directory, /*const*/ CORBA::Long jobId, const Engines::MachineParameters& params );
+  char* querySalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
+  void deleteSalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
+  void getResultSalomeJob( const char * directory, const CORBA::Long jobId, const Engines::MachineParameters& params );
 
   void Shutdown();
 
