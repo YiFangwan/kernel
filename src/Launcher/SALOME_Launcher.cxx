@@ -206,7 +206,7 @@ char* SALOME_Launcher::querySalomeJob( /*const */CORBA::Long jobId,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-void SALOME_Launcher::deleteSalomeJob( const CORBA::Long jobId, 
+void SALOME_Launcher::deleteSalomeJob( CORBA::Long jobId, 
 				       const Engines::MachineParameters& params)
 {
   try{
@@ -237,7 +237,7 @@ void SALOME_Launcher::deleteSalomeJob( const CORBA::Long jobId,
  */
 //=============================================================================
 void SALOME_Launcher::getResultSalomeJob( const char *directory,
-					  const CORBA::Long jobId, 
+					  CORBA::Long jobId, 
 					  const Engines::MachineParameters& params)
 {
   try{

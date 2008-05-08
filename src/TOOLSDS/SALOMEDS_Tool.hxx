@@ -36,21 +36,13 @@
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
 #ifdef WNT
- #if defined TOOLSDS_EXPORTS
-  #if defined WIN32
-   #define TOOLSDS_EXPORT __declspec( dllexport )
-  #else
-   #define TOOLSDS_EXPORT
-  #endif
- #else
-  #if defined WIN32
-   #define TOOLSDS_EXPORT __declspec( dllimport )
-  #else
-   #define TOOLSDS_EXPORT
-  #endif
- #endif
+# if defined TOOLSDS_EXPORTS
+#  define TOOLSDS_EXPORT __declspec( dllexport )
+# else
+#  define TOOLSDS_EXPORT __declspec( dllimport )
+# endif
 #else
- #define TOOLSDS_EXPORT
+# define TOOLSDS_EXPORT
 #endif
 
 class TOOLSDS_EXPORT SALOMEDS_Tool                                

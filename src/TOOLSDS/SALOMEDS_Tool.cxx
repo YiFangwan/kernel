@@ -27,6 +27,7 @@
 #include "SALOMEDS_Tool.hxx"
 
 #include "utilities.h"
+#include "OpUtil.hxx"
 
 #ifndef WNT
 #include <sys/time.h>
@@ -70,9 +71,10 @@ bool Exists(const string thePath)
 //============================================================================ 
 std::string SALOMEDS_Tool::GetTmpDir()
 {
+  return OpUtil_Dir::GetTmpDirByEnv("SALOME_TMP_DIR");
   //Find a temporary directory to store a file
 
-  string aTmpDir = "";
+  /*string aTmpDir = "";
 
   char *Tmp_dir = getenv("SALOME_TMP_DIR");
   if(Tmp_dir != NULL) {
@@ -122,7 +124,7 @@ std::string SALOMEDS_Tool::GetTmpDir()
   mkdir(aDir.c_str(), 0x1ff); 
 #endif
 
-  return aDir;
+  return aDir;*/
 }
 
 //============================================================================

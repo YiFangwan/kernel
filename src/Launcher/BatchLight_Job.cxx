@@ -132,7 +132,7 @@ Job::check() {
       rtn = false;
     }
     std::string end_mem_value = mem_value.substr(mem_value.length()-2);
-    if (end_mem_value != "gb" and end_mem_value != "mb") {
+    if (end_mem_value != "gb" && end_mem_value != "mb") {
       mem_info = "Error on definition, type is bad ! " + mem_value;
       rtn = false;
     }
