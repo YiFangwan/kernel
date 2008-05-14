@@ -18,7 +18,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 /*
- * BatchManager_eLSF.hxx : emulation of LSF client
+ * BatchManager_eLSF.hxx : emulation of client
  *
  * Auteur : Bernard SECHER - CEA DEN
  * Mail   : mailto:bernard.secher@cea.fr
@@ -32,7 +32,7 @@
 
 
 #include "MpiImpl.hxx"
-#include "Batch_Job.hxx"
+#include "Batch_BatchManager.hxx"
 
 namespace Batch {
 
@@ -46,15 +46,15 @@ namespace Batch {
     EmulationException(const std::string m) : msg(m) {}
   };
 
-  class BatchManager_eClient
+  class BatchManager_eClient : public BatchManager
   {
   public:
     // Constructeur et destructeur
-    BatchManager_eClient(const char* host="localhost", const char* protocol="ssh", const char* mpiImpl="indif");
+    BatchManager_eClient(const Batch::FactBatchManager * parent, const char* host="localhost", const char* protocol="ssh", const char* mpiImpl="indif");
     virtual ~BatchManager_eClient();
+    void importOutputFiles( const Job & job, const std::string directory ) throw(EmulationException);
 
   protected:
-    std::string _host; // serveur ou tourne le BatchManager
     std::string _protocol; // protocol to access _hostname
     std::string _username; // username to access _hostname
     MpiImpl *_mpiImpl; // Mpi implementation to launch executable in batch script

@@ -32,13 +32,14 @@
 using namespace std;
 #include <string>
 #include <map>
-#include "Batch_FactBatchManager.hxx"
+#include "Batch_BatchManager_eClient.hxx"
+#include "Batch_FactBatchManager_eClient.hxx"
 
 namespace Batch {
   
   class BatchManager_eLSF;
 
-  class FactBatchManager_eLSF : public FactBatchManager
+  class FactBatchManager_eLSF : public FactBatchManager_eClient
   {
   public:
     // Constructeur et destructeur
@@ -46,6 +47,7 @@ namespace Batch {
     virtual ~FactBatchManager_eLSF();
 
     virtual BatchManager * operator() (const char * hostname) const;
+    virtual BatchManager_eClient * operator() (const char * hostname, const char * protocol, const char * mpiImpl) const;
 
   protected:
 

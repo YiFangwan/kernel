@@ -36,7 +36,7 @@ namespace Batch {
   static FactBatchManager_eLSF sFBM_eLSF;
 
   // Constructeur
-  FactBatchManager_eLSF::FactBatchManager_eLSF() : FactBatchManager("eLSF")
+  FactBatchManager_eLSF::FactBatchManager_eLSF() : FactBatchManager_eClient("eLSF")
   {
     // Nothing to do
   }
@@ -54,5 +54,10 @@ namespace Batch {
     return new BatchManager_eLSF(this, hostname);
   }
 
+  BatchManager_eClient * FactBatchManager_eLSF::operator() (const char * hostname, const char * protocol, const char * mpiImpl) const
+  {
+    // MESSAGE("Building new BatchManager_LSF on host '" << hostname << "'");
+    return new BatchManager_eLSF(this, hostname, protocol, mpiImpl);
+  }
 
 }

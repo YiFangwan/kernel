@@ -47,7 +47,7 @@ namespace Batch {
   class JobInfo;
   class FactBatchManager;
 
-  class BatchManager_ePBS : public BatchManager, public BatchManager_eClient
+  class BatchManager_ePBS : public BatchManager_eClient
   {
   public:
     // Constructeur et destructeur

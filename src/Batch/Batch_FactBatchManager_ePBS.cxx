@@ -36,7 +36,7 @@ namespace Batch {
   static FactBatchManager_ePBS sFBM_ePBS;
 
   // Constructeur
-  FactBatchManager_ePBS::FactBatchManager_ePBS() : FactBatchManager("ePBS")
+  FactBatchManager_ePBS::FactBatchManager_ePBS() : FactBatchManager_eClient("ePBS")
   {
     // Nothing to do
   }
@@ -52,6 +52,12 @@ namespace Batch {
   {
     // MESSAGE("Building new BatchManager_PBS on host '" << hostname << "'");
     return new BatchManager_ePBS(this, hostname);
+  }
+
+  BatchManager_eClient * FactBatchManager_ePBS::operator() (const char * hostname, const char * protocol, const char * mpiImpl) const
+  {
+    // MESSAGE("Building new BatchManager_PBS on host '" << hostname << "'");
+    return new BatchManager_ePBS(this, hostname, protocol, mpiImpl);
   }
 
 

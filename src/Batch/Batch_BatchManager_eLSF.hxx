@@ -48,7 +48,7 @@ namespace Batch {
   class JobInfo;
   class FactBatchManager;
 
-  class BatchManager_eLSF : public BatchManager, public BatchManager_eClient
+  class BatchManager_eLSF : public BatchManager_eClient
   {
   public:
     // Constructeur et destructeur

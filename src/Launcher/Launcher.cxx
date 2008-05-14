@@ -17,9 +17,9 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "BatchLight_BatchManager_PBS.hxx"
-#include "BatchLight_BatchManager_SLURM.hxx"
-#include "BatchLight_Job.hxx"
+#include "Batch_Date.hxx"
+#include "Batch_FactBatchManager_eLSF.hxx"
+#include "Batch_FactBatchManager_ePBS.hxx"
 #include "Launcher.hxx"
 #include <iostream>
 #include <sstream>
@@ -50,9 +50,12 @@ Launcher_cpp::Launcher_cpp()
 Launcher_cpp::~Launcher_cpp()
 {
   cerr << "Launcher_cpp destructor" << endl;
-  std::map < string, BatchLight::BatchManager * >::const_iterator it;
-  for(it=_batchmap.begin();it!=_batchmap.end();it++)
-    delete it->second;
+  std::map < string, Batch::BatchManager_eClient * >::const_iterator it1;
+  for(it1=_batchmap.begin();it1!=_batchmap.end();it1++)
+    delete it1->second;
+  std::map < std::pair<std::string,long> , Batch::Job* >::const_iterator it2;
+  for(it2=_jobmap.begin();it2!=_jobmap.end();it2++)
+    delete it2->second;
 }
 
 //=============================================================================
@@ -67,7 +70,7 @@ Launcher_cpp::~Launcher_cpp()
 long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
 				    const vector<string>& filesToExport ,
 				    const vector<string>& filesToImport ,
-				    const BatchLight::batchParams& batch_params,
+				    const batchParams& batch_params,
 				    const machineParams& params) throw(LauncherException)
 {
   cerr << "BEGIN OF Launcher_cpp::submitSalomeJob" << endl;
@@ -90,7 +93,7 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
   cerr << "Choose cluster: " <<  clustername << endl;
   
   // search batch manager for that cluster in map or instanciate one
-  map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+  map < string, Batch::BatchManager_eClient * >::const_iterator it = _batchmap.find(clustername);
   if(it == _batchmap.end())
     {
       _batchmap[clustername] = FactoryBatchManager(p);
@@ -98,21 +101,41 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     }
     
   try{
-    // create and submit job on cluster
-    BatchLight::Job* job = new BatchLight::Job(fileToExecute, filesToExport, filesToImport, batch_params);
-    bool res = job->check();
-    if (!res) {
-      delete job;
-      throw LauncherException("Job parameters are bad (see informations above)");
-    }
+    // tmp directory on cluster to put files to execute
+    string tmpdir = getTmpDirForBatchFiles();
 
-    // build salome coupling script for job
-    buildSalomeCouplingScript(job,p);
+    // create and submit job on cluster
+    Batch::Parametre param;
+    param[USER] = p.UserName;
+    param[EXECUTABLE] = buildSalomeCouplingScript(fileToExecute,tmpdir,p);
+    param[INFILE] = Batch::Couple( fileToExecute, getRemoteFile(tmpdir,fileToExecute) );
+    for(int i=0;i<filesToExport.size();i++)
+      param[INFILE] += Batch::Couple( filesToExport[i], getRemoteFile(tmpdir,filesToExport[i]) );
+    if( filesToImport.size() > 0 ){
+      param[OUTFILE] = Batch::Couple( "", filesToImport[0] );
+      for(int i=1;i<filesToImport.size();i++)
+	param[OUTFILE] += Batch::Couple( "", filesToImport[i] );
+    }
+    param[NBPROC] = batch_params.nb_proc;
+    param[WORKDIR] = batch_params.batch_directory;
+    param[TMPDIR] = tmpdir;
+    param[MAXCPUTIME] = batch_params.expected_during_time;
+    param[MAXRAMSIZE] = batch_params.mem;
+
+    Batch::Environnement env;
+
+    Batch::Job* job = new Batch::Job(param,env);
 
     // submit job on cluster
-    jobId = _batchmap[clustername]->submitJob(job);
+    Batch::JobId jid = _batchmap[clustername]->submitJob(*job);
+
+    // get job id in long
+    istringstream iss(jid.getReference());
+    iss >> jobId;
+
+    _jobmap[ pair<string,long>(clustername,jobId) ] = job;
   }
-  catch(const BatchLight::BatchException &ex){
+  catch(const Batch::EmulationException &ex){
     throw LauncherException(ex.msg.c_str());
   }
 
@@ -126,8 +149,8 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-string Launcher_cpp::querySalomeJob( long jobId, 
-				    const machineParams& params) throw(LauncherException)
+string Launcher_cpp::querySalomeJob( long id, 
+				     const machineParams& params) throw(LauncherException)
 {
   // find a cluster matching params structure
   vector<string> aCompoList ;
@@ -136,11 +159,17 @@ string Launcher_cpp::querySalomeJob( long jobId,
   string clustername(p.Alias);
     
   // search batch manager for that cluster in map
-  std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+  std::map < string, Batch::BatchManager_eClient * >::const_iterator it = _batchmap.find(clustername);
   if(it == _batchmap.end())
     throw LauncherException("no batchmanager for that cluster");
     
-  return _batchmap[clustername]->queryJob(jobId);
+  ostringstream oss;
+  oss << id;
+  Batch::JobId jobId( _batchmap[clustername], oss.str() );
+
+  Batch::JobInfo jinfo = jobId.queryJob();
+  Batch::Parametre par = jinfo.getParametre();
+  return par[STATE];
 }
 
 //=============================================================================
@@ -150,7 +179,7 @@ string Launcher_cpp::querySalomeJob( long jobId,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-void Launcher_cpp::deleteSalomeJob( const long jobId, 
+void Launcher_cpp::deleteSalomeJob( const long id, 
 				    const machineParams& params) throw(LauncherException)
 {
   // find a cluster matching params structure
@@ -160,11 +189,15 @@ void Launcher_cpp::deleteSalomeJob( const long jobId,
   string clustername(p.Alias);
     
   // search batch manager for that cluster in map
-  map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+  map < string, Batch::BatchManager_eClient * >::const_iterator it = _batchmap.find(clustername);
   if(it == _batchmap.end())
     throw LauncherException("no batchmanager for that cluster");
   
-  _batchmap[clustername]->deleteJob(jobId);
+  ostringstream oss;
+  oss << id;
+  Batch::JobId jobId( _batchmap[clustername], oss.str() );
+
+  jobId.deleteJob();
 }
 
 //=============================================================================
@@ -175,7 +208,7 @@ void Launcher_cpp::deleteSalomeJob( const long jobId,
  */
 //=============================================================================
 void Launcher_cpp::getResultSalomeJob( const string directory,
-				       const long jobId, 
+				       const long id, 
 				       const machineParams& params) throw(LauncherException)
 {
   vector<string> aCompoList ;
@@ -184,11 +217,13 @@ void Launcher_cpp::getResultSalomeJob( const string directory,
   string clustername(p.Alias);
     
   // search batch manager for that cluster in map
-  map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+  map < string, Batch::BatchManager_eClient * >::const_iterator it = _batchmap.find(clustername);
   if(it == _batchmap.end())
     throw LauncherException("no batchmanager for that cluster");
     
-  _batchmap[clustername]->importOutputFiles( directory, jobId );
+  Batch::Job* job = _jobmap[ pair<string,long>(clustername,id) ];
+
+  _batchmap[clustername]->importOutputFiles( *job, directory );
 }
 
 //=============================================================================
@@ -197,68 +232,63 @@ void Launcher_cpp::getResultSalomeJob( const string directory,
  */ 
 //=============================================================================
 
-BatchLight::BatchManager *Launcher_cpp::FactoryBatchManager( const ParserResourcesType& params ) throw(LauncherException)
+Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserResourcesType& params ) throw(LauncherException)
 {
 
-  cerr << "Begin of Launcher_cpp::FactoryBatchManager" << endl;
-  // Fill structure for batch manager
-  BatchLight::clusterParams p;
-  p.hostname = params.Alias;
+  std::string hostname, protocol, mpi;
+  Batch::FactBatchManager_eClient* fact;
+
+  hostname = params.Alias;
   switch(params.Protocol){
   case rsh:
-    p.protocol = "rsh";
+    protocol = "rsh";
     break;
   case ssh:
-    p.protocol = "ssh";
+    protocol = "ssh";
     break;
   default:
     throw LauncherException("unknown protocol");
     break;
   }
-  p.username = params.UserName;
-  p.applipath = params.AppliPath;
-  p.modulesList = params.ModulesList;
-  p.nbnodes = params.DataForSort._nbOfNodes;
-  p.nbprocpernode = params.DataForSort._nbOfProcPerNode;
   switch(params.mpi){
   case lam:
-    p.mpiImpl = "lam";
+    mpi = "lam";
     break;
   case mpich1:
-    p.mpiImpl = "mpich1";
+    mpi = "mpich1";
     break;
   case mpich2:
-    p.mpiImpl = "mpich2";
+    mpi = "mpich2";
     break;
   case openmpi:
-    p.mpiImpl = "openmpi";
+    mpi = "openmpi";
     break;
   case slurm:
-    p.mpiImpl = "slurm";
+    mpi = "slurm";
     break;
   default:
-    p.mpiImpl = "indif";
+    mpi = "indif";
     break;
   }    
-
   cerr << "Instanciation of batch manager" << endl;
   switch( params.Batch ){
   case pbs:
     cerr << "Instantiation of PBS batch manager" << endl;
-    return new BatchLight::BatchManager_PBS(p);
+    fact = new Batch::FactBatchManager_ePBS;
+    break;
   case lsf:
-    cerr << "Instantiation of SLURM batch manager" << endl;
-    return new BatchLight::BatchManager_SLURM(p);
+    cerr << "Instantiation of LSF batch manager" << endl;
+    fact = new Batch::FactBatchManager_eLSF;
+    break;
   default:
     cerr << "BATCH = " << params.Batch << endl;
     throw LauncherException("no batchmanager for that cluster");
   }
+  return (*fact)(hostname.c_str(),protocol.c_str(),mpi.c_str());
 }
 
-void Launcher_cpp::buildSalomeCouplingScript(BatchLight::Job* job, const ParserResourcesType& params)
+string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const string dirForTmpFiles, const ParserResourcesType& params)
 {
-  const string fileToExecute = job->getFileToExecute();
-  const std::string dirForTmpFiles = job->getDirForTmpFiles();
   int idx = dirForTmpFiles.find("Batch/");
   std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
 
@@ -364,10 +394,9 @@ void Launcher_cpp::buildSalomeCouplingScript(BatchLight::Job* job, const ParserR
   chmod(TmpFileName.c_str(), 0x1ED);
   cerr << TmpFileName.c_str() << endl;
 
-  job->addFileToExportList(fileToExecute);
-  job->setFileToExecute(TmpFileName);
-
   delete mpiImpl;
+
+  return TmpFileName;
     
 }
 
@@ -392,4 +421,34 @@ MpiImpl *Launcher_cpp::FactoryMpiImpl(MpiImplType mpi) throw(LauncherException)
     throw LauncherException(oss.str().c_str());
   }
 
+}
+
+string Launcher_cpp::getTmpDirForBatchFiles()
+{
+  string ret;
+  string thedate;
+
+  // Adding date to the directory name
+  Batch::Date date = Batch::Date(time(0));
+  thedate = date.str();
+  int lend = thedate.size() ;
+  int i = 0 ;
+  while ( i < lend ) {
+    if ( thedate[i] == '/' || thedate[i] == '-' || thedate[i] == ':' ) {
+      thedate[i] = '_' ;
+    }
+    i++ ;
+  }
+
+  ret = string("Batch/");
+  ret += thedate;
+  return ret;
+}
+
+string Launcher_cpp::getRemoteFile( std::string remoteDir, std::string localFile )
+{
+  string::size_type pos = localFile.find_last_of("/") + 1;
+  int ln = localFile.length() - pos;
+  string remoteFile = remoteDir + "/" + localFile.substr(pos,ln);
+  return remoteFile;
 }

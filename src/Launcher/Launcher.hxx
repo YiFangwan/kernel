@@ -20,10 +20,17 @@
 #ifndef __LAUNCHER_HXX__
 #define __LAUNCHER_HXX__
 
-#include "BatchLight_BatchManager.hxx"
+#include "Batch_BatchManager_eClient.hxx"
 #include "ResourcesManager.hxx"
 
 #include <string>
+
+struct batchParams{
+  std::string batch_directory;
+  unsigned long expected_during_time;
+  unsigned long mem;
+  unsigned long nb_proc;
+};
 
 class LauncherException
 {
@@ -43,7 +50,7 @@ public:
   long submitSalomeJob(const std::string fileToExecute ,
 		       const std::vector<std::string>& filesToExport ,
 		       const std::vector<std::string>& filesToImport ,
-		       const BatchLight::batchParams& batch_params,
+		       const batchParams& batch_params,
 		       const machineParams& params) throw(LauncherException);
 
   std::string querySalomeJob( const long jobId, const machineParams& params) throw(LauncherException);
@@ -54,11 +61,14 @@ public:
 
 protected:
 
-  void buildSalomeCouplingScript(BatchLight::Job* job, const ParserResourcesType& params);
+  std::string buildSalomeCouplingScript(const string fileToExecute, const string dirForTmpFiles, const ParserResourcesType& params);
   MpiImpl *FactoryMpiImpl(MpiImplType mpiImpl) throw(LauncherException);
-  BatchLight::BatchManager *FactoryBatchManager( const ParserResourcesType& params ) throw(LauncherException);
+  Batch::BatchManager_eClient *FactoryBatchManager( const ParserResourcesType& params ) throw(LauncherException);
+  std::string getTmpDirForBatchFiles();
+  std::string getRemoteFile( std::string remoteDir, std::string localFile );
 
-  std::map <std::string,BatchLight::BatchManager*> _batchmap;
+  std::map <std::string,Batch::BatchManager_eClient*> _batchmap;
+  std::map < std::pair<std::string,long> , Batch::Job* > _jobmap;
   ResourcesManager_cpp *_ResManager;
 };
 

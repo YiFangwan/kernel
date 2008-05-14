@@ -126,7 +126,7 @@ CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
   p.cpu_clock = params.cpu_clock;
   p.mem_mb = params.mem_mb;
 
-  BatchLight::batchParams bp;
+  batchParams bp;
   bp.batch_directory = batch_params.batch_directory;
   bp.expected_during_time = batch_params.expected_during_time;
   bp.mem = batch_params.mem;

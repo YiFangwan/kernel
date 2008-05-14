@@ -76,11 +76,8 @@ struct BatchParameters
 {
   string batch_directory; // Where batch command will be launched
 			  // and log files will be created
-  string expected_during_time; // Time for the batch
-			       // has to be like this : hh:mm
-  string mem; // Minimum of memory needed
-	      // has to be like : 32gb or 512mb
-
+  long expected_during_time; // Time for the batch
+  long mem; // Minimum of memory needed
   long nb_proc; // Number of processors requested
 };
 

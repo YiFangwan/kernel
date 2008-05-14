@@ -35,7 +35,7 @@
 
 namespace Batch {
 
-  BatchManager_eClient::BatchManager_eClient(const char* host, const char* protocol, const char* mpiImpl) : _host(host), _protocol(protocol), _username("")
+  BatchManager_eClient::BatchManager_eClient(const Batch::FactBatchManager * parent, const char* host, const char* protocol, const char* mpiImpl) : BatchManager(parent, host), _protocol(protocol), _username("")
   {
     // instanciation of mpi implementation needed to launch executable in batch script
     _mpiImpl = FactoryMpiImpl(mpiImpl);
@@ -54,8 +54,8 @@ namespace Batch {
     Parametre params = job.getParametre();
     Versatile V = params[INFILE];
     Versatile::iterator Vit;
-    std::string command;
-    std::string copy_command;
+    string command;
+    string copy_command;
     _username = string(params[USER]);
 
     // Test protocol
@@ -73,7 +73,7 @@ namespace Batch {
       command += _username;
       command += "@";
     }
-    command += _host;
+    command += _hostname;
     command += " \"mkdir -p ";
     command += string(params[TMPDIR]);
     command += "\"" ;
@@ -96,7 +96,7 @@ namespace Batch {
       command += _username;
       command += "@";
     }
-    command += _host;
+    command += _hostname;
     command += ":";
     command += string(params[TMPDIR]);
     cerr << command.c_str() << endl;
@@ -121,10 +121,8 @@ namespace Batch {
 	command += _username;
 	command += "@";
       }
-      command += _host;
+      command += _hostname;
       command += ":";
-      command += string(params[TMPDIR]);
-      command += "/";
       command += inputFile.getRemote();
       cerr << command.c_str() << endl;
       status = system(command.c_str());
@@ -134,6 +132,50 @@ namespace Batch {
 	std::string ex_mess("Error of connection on remote host ! status = ");
 	ex_mess += oss.str();
 	throw EmulationException(ex_mess.c_str());
+      }
+    }
+
+  }
+
+  void BatchManager_eClient::importOutputFiles( const Job & job, const string directory ) throw(EmulationException)
+  {
+    string command;
+    int status;
+
+    Parametre params = job.getParametre();
+    Versatile V = params[OUTFILE];
+    Versatile::iterator Vit;
+ 
+    for(Vit=V.begin(); Vit!=V.end(); Vit++) {
+      CoupleType cpt  = *static_cast< CoupleType * >(*Vit);
+      Couple outputFile = cpt;
+      if( _protocol == "rsh" )
+	command = "rcp ";
+      else if( _protocol == "ssh" )
+	command = "scp ";
+      else
+	throw EmulationException("Unknown protocol");
+
+      if (_username != ""){
+	command += _username;
+	command += "@";
+      }
+      command += _hostname;
+      command += ":";
+      command += outputFile.getRemote();
+      command += " ";
+      command += directory;
+      cerr << command.c_str() << endl;
+      status = system(command.c_str());
+      if(status) 
+      {
+	// Try to get what we can (logs files)
+	// throw BatchException("Error of connection on remote host");    
+	std::string mess("Copy command failed ! status is :");
+	ostringstream status_str;
+	status_str << status;
+	mess += status_str.str();
+	cerr << mess << endl;
       }
     }
 

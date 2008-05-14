@@ -61,6 +61,7 @@ LIB_INCLUDES = \
 	Batch_StringType.hxx \
 	Batch_TypeMismatchException.hxx \
 	Batch_BatchManager_eClient.hxx \
+	Batch_FactBatchManager_eClient.hxx \
 	Batch_BatchManager_eLSF.hxx \
 	Batch_FactBatchManager_eLSF.hxx \
 	Batch_JobInfo_eLSF.hxx \
@@ -101,6 +102,7 @@ LIB_SRC = \
 	Batch_StringType.cxx \
 	Batch_TypeMismatchException.cxx \
 	Batch_BatchManager_eClient.cxx \
+	Batch_FactBatchManager_eClient.cxx \
 	Batch_BatchManager_eLSF.cxx \
 	Batch_FactBatchManager_eLSF.cxx \
 	Batch_JobInfo_eLSF.cxx \

@@ -35,7 +35,7 @@
 
 namespace Batch {
 
-  BatchManager_eLSF::BatchManager_eLSF(const FactBatchManager * parent, const char * host, const char * protocol, const char * mpiImpl) throw(InvalidArgumentException,ConnexionFailureException) : BatchManager(parent, host), BatchManager_eClient(host,protocol,mpiImpl)
+  BatchManager_eLSF::BatchManager_eLSF(const FactBatchManager * parent, const char * host, const char * protocol, const char * mpiImpl) throw(InvalidArgumentException,ConnexionFailureException) : BatchManager_eClient(parent,host,protocol,mpiImpl)
   {
     // Nothing to do
   }
@@ -197,6 +197,7 @@ namespace Batch {
 
     // define command to submit batch
     command = _protocol;
+    command += " ";
 
     if (_username != ""){
       command += _username;

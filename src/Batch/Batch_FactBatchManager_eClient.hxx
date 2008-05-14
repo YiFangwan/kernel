@@ -18,43 +18,39 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 /*
- * BatchManager.hxx : 
+ * FactBatchManager_eClient.hxx : emulation of client
  *
- * Auteur : Bernard SECHER - CEA/DEN
- * Date   : Juillet 2007
- * Projet : SALOME
+ * Auteur : Bernard SECHER - CEA DEN
+ * Mail   : mailto:bernard.secher@cea.fr
+ * Date   : Thu Apr 24 10:17:22 2008
+ * Projet : PAL Salome 
  *
  */
 
-#ifndef _BL_BATCHMANAGER_PBS_H_
-#define _BL_BATCHMANAGER_PBS_H_
+#ifndef _FACTBATCHMANAGER_eClient_H_
+#define _FACTBATCHMANAGER_eClient_H_
 
 #include <string>
-#include "BatchLight_BatchManager.hxx"
+#include <map>
+#include "Batch_FactBatchManager.hxx"
 
-namespace BatchLight {
+namespace Batch {
+  
+  class BatchManager_eClient;
 
-  class Job;
-
-  class BatchManager_PBS : public BatchManager
+  class FactBatchManager_eClient : public FactBatchManager
   {
   public:
     // Constructeur et destructeur
-    BatchManager_PBS(const clusterParams& p) throw(BatchException); // connexion a la machine host
-    virtual ~BatchManager_PBS();
+    FactBatchManager_eClient(const std::string & type);
+    virtual ~FactBatchManager_eClient();
 
-    // Methodes pour le controle des jobs : virtuelles pures
-    void deleteJob(const int & jobid); // retire un job du gestionnaire
-    std::string queryJob(const int & jobid); // renvoie l'etat du job
+    virtual Batch::BatchManager_eClient * operator() (const char * hostname,const char * protocol, const char * mpi) const = 0;
+
+  protected:
 
   private:
-    void buildBatchScript(BatchLight::Job* job) throw(BatchException);
-    int submit(BatchLight::Job* job) throw(BatchException);
 
-    // Permet d'avoir la chaîne complête pour demander
-    // le statut du job
-    typedef std::map<int, std::string> _pbs_job_name_t;
-    _pbs_job_name_t _pbs_job_name;
   };
 
 }

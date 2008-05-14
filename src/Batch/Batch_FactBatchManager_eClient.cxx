@@ -18,43 +18,31 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 /*
- * BatchManager.hxx : 
+ * FactBatchManager_eClient.cxx : emulation of client
  *
- * Auteur : Bernard SECHER - CEA/DEN
- * Date   : Juillet 2007
- * Projet : SALOME
+ * Auteur : Bernard SECHER - CEA DEN
+ * Mail   : mailto:bernard.secher@cea.fr
+ * Date   : Thu Apr 24 10:17:22 2008
+ * Projet : PAL Salome 
  *
  */
 
-#ifndef _BL_BATCHMANAGER_SLURM_H_
-#define _BL_BATCHMANAGER_SLURM_H_
-
 #include <string>
-#include "BatchLight_BatchManager.hxx"
+#include <sstream>
+#include "Batch_FactBatchManager_eClient.hxx"
+using namespace std;
 
-namespace BatchLight {
+namespace Batch {
 
-  class Job;
-
-  class BatchManager_SLURM : public BatchManager
+  // Constructeur
+  FactBatchManager_eClient::FactBatchManager_eClient(const string & _t) : FactBatchManager(_t)
   {
-  public:
-    // Constructeur et destructeur
-    BatchManager_SLURM(const clusterParams& p) throw(BatchException); // connexion a la machine host
-    virtual ~BatchManager_SLURM();
+  }
 
-    // Methodes pour le controle des jobs : virtuelles pures
-    void deleteJob(const int & jobid); // retire un job du gestionnaire
-    std::string queryJob(const int & jobid); // renvoie l'etat du job
-
-  protected:
-    void buildBatchScript(BatchLight::Job* job) throw(BatchException);
-    int submit(BatchLight::Job* job) throw(BatchException);
-
-  private:
-
-  };
+  // Destructeur
+  FactBatchManager_eClient::~FactBatchManager_eClient()
+  {
+    // Nothing to do
+  }
 
 }
-
-#endif
