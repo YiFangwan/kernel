@@ -151,6 +151,9 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
 
     //! will contain the informations on the data type catalog(after parsing)
     MapOfParserResourcesType _resourcesList;
+    //
+    //! will contain the informations on the data type catalog(after parsing)
+    MapOfParserResourcesType _resourcesBatchList;
 
     SALOME_LoadRateManager _dynamicResourcesSelecter;
 

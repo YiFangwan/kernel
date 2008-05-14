@@ -162,15 +162,12 @@ void SALOME_ResourcesManager::Shutdown()
 Engines::MachineList *
 SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& params,
 					     const Engines::CompoList& componentList)
-//throw(SALOME_Exception)
 {
-//   MESSAGE("ResourcesManager::GetFittingResources");
   vector <std::string> vec;
   Engines::MachineList *ret=new Engines::MachineList;
-
   try{
     // --- To be sure that we search in a correct list.
-    ParseXmlFile();
+    // ParseXmlFile();
 
     const char *hostname = (const char *)params.hostname;
     MESSAGE("GetFittingResources " << hostname << " " << GetHostname().c_str());
@@ -192,10 +189,14 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& p
 	    // --- params.hostname is in the list of resources so return it.
 	    vec.push_back(hostname);
 	  }
-	
+	else if (_resourcesBatchList.find(hostname) != _resourcesBatchList.end())
+	  {
+	    // --- params.hostname is in the list of resources so return it.
+	    vec.push_back(hostname);
+	  }
 	else
 	  {
-	    // Cas d'un cluster: nombre de noeuds > 1
+	    // Cas d'un cluster interactif: nombre de noeuds > 1
 	    int cpt=0;
 	    for (map<string, ParserResourcesType>::const_iterator iter = _resourcesList.begin(); iter != _resourcesList.end(); iter++){
 	      if( (*iter).second.DataForSort._nbOfNodes > 1 ){
@@ -294,6 +295,7 @@ throw(SALOME_Exception)
     {
       ParserResourcesType newElt;
       newElt.DataForSort._hostName = paramsOfNewResources.hostname;
+      newElt.HostName = paramsOfNewResources.hostname;
       newElt.Alias = alias;
       newElt.Protocol = prot;
       newElt.Mode = mode;
@@ -346,7 +348,7 @@ void SALOME_ResourcesManager::WriteInXmlFile()
   xmlNewDocComment(aDoc, BAD_CAST "ResourcesCatalog");
 
   SALOME_ResourcesCatalog_Handler* handler =
-    new SALOME_ResourcesCatalog_Handler(_resourcesList);
+    new SALOME_ResourcesCatalog_Handler(_resourcesList, _resourcesBatchList);
   handler->PrepareDocToXmlFile(aDoc);
   delete handler;
 
@@ -372,7 +374,7 @@ void SALOME_ResourcesManager::WriteInXmlFile()
 const MapOfParserResourcesType& SALOME_ResourcesManager::ParseXmlFile()
 {
   SALOME_ResourcesCatalog_Handler* handler =
-    new SALOME_ResourcesCatalog_Handler(_resourcesList);
+    new SALOME_ResourcesCatalog_Handler(_resourcesList, _resourcesBatchList);
 
   const char* aFilePath = _path_resources.c_str();
   FILE* aFile = fopen(aFilePath, "r");
@@ -1155,7 +1157,12 @@ void SALOME_ResourcesManager::startMPI()
 
 Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const char *hostname)
 {
-  ParserResourcesType resource = _resourcesList[string(hostname)];
+  ParserResourcesType resource;
+  if (_resourcesList.find(hostname) != _resourcesList.end())
+    resource = _resourcesList[string(hostname)];
+  else
+    resource = _resourcesBatchList[string(hostname)];
+
   Engines::MachineParameters *p_ptr = new Engines::MachineParameters;
   p_ptr->container_name = CORBA::string_dup("");
   p_ptr->hostname = CORBA::string_dup(resource.HostName.c_str());
@@ -1190,5 +1197,6 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
     p_ptr->batch = "lsf";
   else if( resource.Batch == slurm )
     p_ptr->batch = "slurm";
+
   return p_ptr;
 }
