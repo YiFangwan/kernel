@@ -50,6 +50,7 @@ RPATH=../..
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
 	@CPPUNIT_INCLUDES@ \
+	@BOOST_CPPFLAGS@ \
 	-I$(srcdir)/$(RPATH)/Basics               -I$(srcdir)/$(RPATH)/Basics/Test \
 	-I$(srcdir)/$(RPATH)/SALOMELocalTrace     -I$(srcdir)/$(RPATH)/SALOMELocalTrace/Test \
 	-I$(srcdir)/$(RPATH)/SALOMETraceCollector -I$(srcdir)/$(RPATH)/SALOMETraceCollector/Test \
