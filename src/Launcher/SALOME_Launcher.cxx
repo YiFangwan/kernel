@@ -139,15 +139,7 @@ CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
     // search batch manager for that cluster in map or instanciate one
     std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
     if(it == _batchmap.end())
-    {
-      BatchLight_BatchTest t(*p);
-      if (t.test())
-	_batchmap[clustername] = FactoryBatchManager(p);
-      else
-      {
-	throw SALOME_Exception("Test of the batch machine failed - see messages in the SALOME_Launcher log");
-      }
-    }
+      _batchmap[clustername] = FactoryBatchManager(p);
     
     // create and submit job on cluster
     BatchLight::Job* job = new BatchLight::Job(fileToExecute, filesToExport, filesToImport, batch_params);
@@ -163,6 +155,51 @@ CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
     THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::INTERNAL_ERROR);
   }
   return jobId;
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  the test batch configuration 
+ *  \param params             : The batch cluster
+ */
+//=============================================================================
+CORBA::Boolean 
+SALOME_Launcher::testBatch(const Engines::MachineParameters& params)
+{
+  MESSAGE("BEGIN OF SALOME_Launcher::testBatch");
+  CORBA::Boolean rtn = false;
+  try
+  {
+    // find a cluster matching the structure params
+    Engines::CompoList aCompoList ;
+    Engines::MachineList *aMachineList = _ResManager->GetFittingResources(params, aCompoList);
+    if (aMachineList->length() == 0)
+      throw SALOME_Exception("No resources have been found with your parameters");
+
+    const Engines::MachineParameters* p = _ResManager->GetMachineParameters((*aMachineList)[0]);
+    string clustername(p->alias);
+    INFOS("Choose cluster" <<  clustername);
+    BatchLight_BatchTest t(*p);
+    if (t.test()) 
+    {
+      rtn = true;
+      // search batch manager for that cluster in map or instanciate one
+      std::map < string, BatchLight::BatchManager * >::const_iterator it = _batchmap.find(clustername);
+      if(it == _batchmap.end())
+      {
+	  _batchmap[clustername] = FactoryBatchManager(p);
+      }
+    }
+    else
+    {
+      throw SALOME_Exception("Test of the batch machine failed - see messages in the SALOME_Launcher log");
+    }
+  }
+  catch(const SALOME_Exception &ex){
+    INFOS(ex.what());
+    THROW_SALOME_CORBA_EXCEPTION(ex.what(),SALOME::INTERNAL_ERROR);
+  }
+  return rtn;
 }
 
 //=============================================================================

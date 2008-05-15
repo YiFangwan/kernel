@@ -63,6 +63,8 @@ public:
   void deleteSalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
   void getResultSalomeJob( const char * directory, const CORBA::Long jobId, const Engines::MachineParameters& params );
 
+  CORBA::Boolean testBatch(const Engines::MachineParameters& params);
+
   void Shutdown();
 
   CORBA::Long getPID();
