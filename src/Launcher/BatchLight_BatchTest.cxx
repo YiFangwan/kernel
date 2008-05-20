@@ -108,7 +108,9 @@ BatchLight_BatchTest::test_connection()
   // Build command
   command += protocol
 	  + " "
-	  + username + "@" + alias;
+	  + username + "@" + alias
+	  + " 'echo $HOME' > "
+	  + _test_filename + "_home";
 
   // Test
   status = system(command.c_str());
@@ -119,6 +121,16 @@ BatchLight_BatchTest::test_connection()
     result += oss.str();
     return result;
   }
+
+  std::string file_home_name = _test_filename + "_home";
+  std::ifstream file_home(file_home_name.c_str());
+  if (!file_home)
+  {
+    result += "Error in reading temporary file ! filename = " + file_home_name;
+    return result;
+  }
+  std::getline(file_home, _home);
+  file_home.close();
 
   result = "OK";
   return result;
@@ -273,8 +285,8 @@ BatchLight_BatchTest::test_jobsubmit_simple()
   file << "#!/bin/bash\n"
        << "#PBS -l nodes=1\n"
        << "#PBS -l walltime=00:01:00\n"
-       << "#PBS -o " + _date + "_simple_output.log\n"
-       << "#PBS -e " + _date + "_simple_error.log\n"
+       << "#PBS -o " + _home + "/" + _date + "_simple_output.log\n"
+       << "#PBS -e " + _home + "/" + _date + "_simple_error.log\n"
        << "echo Bonjour\n"
        << "echo Error >&2\n";
   file.flush();
@@ -446,8 +458,8 @@ BatchLight_BatchTest::test_jobsubmit_mpi()
   file_mpi << "#!/bin/bash\n"
 	   << "#PBS -l nodes=1\n"
 	   << "#PBS -l walltime=00:01:00\n"
-	   << "#PBS -o "<< _date << "_mpi_output.log\n"
-	   << "#PBS -e " << _date << "_mpi_error.log\n"
+	   << "#PBS -o " << _home << "/" << _date << "_mpi_output.log\n"
+	   << "#PBS -e " << _home << "/" << _date << "_mpi_error.log\n"
 	   << mpiImpl->boot("${PBS_NODEFILE}", 1)
 	   << mpiImpl->run("${PBS_NODEFILE}", 1, _base_filename + "_script")
 	   << mpiImpl->halt();
