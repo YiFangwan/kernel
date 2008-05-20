@@ -55,7 +55,6 @@ class BatchLight_BatchTest
     std::string _test_filename;
     std::string _base_filename;
     std::string _date;
-    std::string _home;
 };
 
 #endif

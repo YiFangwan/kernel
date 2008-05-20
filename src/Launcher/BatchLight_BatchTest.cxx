@@ -108,9 +108,7 @@ BatchLight_BatchTest::test_connection()
   // Build command
   command += protocol
 	  + " "
-	  + username + "@" + alias
-	  + " 'echo $HOME' > "
-	  + _test_filename + "_home";
+	  + username + "@" + alias;
 
   // Test
   status = system(command.c_str());
@@ -121,16 +119,6 @@ BatchLight_BatchTest::test_connection()
     result += oss.str();
     return result;
   }
-
-  std::string file_home_name = _test_filename + "_home";
-  std::ifstream file_home(file_home_name.c_str());
-  if (!file_home)
-  {
-    result += "Error in reading temporary file ! filename = " + file_home_name;
-    return result;
-  }
-  std::getline(file_home, _home);
-  file_home.close();
 
   result = "OK";
   return result;
@@ -278,6 +266,13 @@ BatchLight_BatchTest::test_jobsubmit_simple()
     return result;
   }
 
+  // Getting home directory
+  std::string rst = get_home(&home);
+  if(rst != "") {
+    result += rst;
+    return result;
+  }
+
   // PBS test
   std::string _test_file_simple = _test_filename + "_simple";
   std::ofstream file;
@@ -285,19 +280,13 @@ BatchLight_BatchTest::test_jobsubmit_simple()
   file << "#!/bin/bash\n"
        << "#PBS -l nodes=1\n"
        << "#PBS -l walltime=00:01:00\n"
-       << "#PBS -o " + _home + "/" + _date + "_simple_output.log\n"
-       << "#PBS -e " + _home + "/" + _date + "_simple_error.log\n"
+       << "#PBS -o " + home + "/" + _date + "_simple_output.log\n"
+       << "#PBS -e " + home + "/" + _date + "_simple_error.log\n"
        << "echo Bonjour\n"
        << "echo Error >&2\n";
   file.flush();
   file.close();
 
-  // Getting home directory
-  std::string rst = get_home(&home);
-  if(rst != "") {
-    result += rst;
-    return result;
-  }
 
   // Build command for copy
   command = "scp";
@@ -442,6 +431,13 @@ BatchLight_BatchTest::test_jobsubmit_mpi()
     return result;
   }
 
+  // Getting home directory
+  std::string rst = get_home(&home);
+  if(rst != "") {
+    result += rst;
+    return result;
+  }
+
   // MPI test
   std::string _test_file_script = _test_filename + "_script";
   std::ofstream file_script;
@@ -458,20 +454,14 @@ BatchLight_BatchTest::test_jobsubmit_mpi()
   file_mpi << "#!/bin/bash\n"
 	   << "#PBS -l nodes=1\n"
 	   << "#PBS -l walltime=00:01:00\n"
-	   << "#PBS -o " << _home << "/" << _date << "_mpi_output.log\n"
-	   << "#PBS -e " << _home << "/" << _date << "_mpi_error.log\n"
+	   << "#PBS -o " << home << "/" << _date << "_mpi_output.log\n"
+	   << "#PBS -e " << home << "/" << _date << "_mpi_error.log\n"
 	   << mpiImpl->boot("${PBS_NODEFILE}", 1)
 	   << mpiImpl->run("${PBS_NODEFILE}", 1, _base_filename + "_script")
 	   << mpiImpl->halt();
   file_mpi.flush();
   file_mpi.close();
 
-  // Getting home directory
-  std::string rst = get_home(&home);
-  if(rst != "") {
-    result += rst;
-    return result;
-  }
 
   // Build command for copy
   command = "scp";

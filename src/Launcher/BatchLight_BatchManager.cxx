@@ -72,6 +72,9 @@ namespace BatchLight {
     // temporary directory on cluster to put input files for job
     setDirForTmpFiles(job);
 
+    // Set Home director
+    setHomeDir(job);
+
     // export input files on cluster
     exportInputFiles(job);
 
@@ -110,6 +113,39 @@ namespace BatchLight {
     dirForTmpFiles += string("Batch/");
     dirForTmpFiles += thedate ;
     job->setDirForTmpFiles(dirForTmpFiles);
+  }
+
+  void BatchManager::setHomeDir(BatchLight::Job* job)
+  {
+    std::string home;
+    std::string command;
+    const std::string dirForTmpFiles = job->getDirForTmpFiles();
+    int idx = dirForTmpFiles.find("Batch/");
+    std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
+    filelogtemp = "/tmp/logs" + filelogtemp + "_home";
+
+    if( _params.protocol == "rsh" )
+      command = "rsh ";
+    else if( _params.protocol == "ssh" )
+      command = "ssh ";
+    else
+      throw SALOME_Exception("Unknown protocol");
+    if (_params.username != ""){
+      command += _params.username;
+      command += "@";
+    }
+    command += _params.hostname;
+    command += " 'echo $HOME' > ";
+    command += filelogtemp;
+    SCRUTE(command.c_str());
+    int status = system(command.c_str());
+    if(status)
+      throw SALOME_Exception("Error of launching home command on remote host");
+
+    std::ifstream file_home(filelogtemp.c_str());
+    std::getline(file_home, home);
+    file_home.close();
+    job->setHomeDir(home);
   }
 
   void BatchManager::exportInputFiles(BatchLight::Job* job) throw(SALOME_Exception)

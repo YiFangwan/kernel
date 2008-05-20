@@ -41,7 +41,7 @@ Job::Job(const char *fileToExecute,
   _batch_params(batch_params)
 {
   _dirForTmpFiles = "/tmp/default_batch_tmp_directory";
-  std::string _fileNameToExecute = "";
+  _home="";
 }
 
 Job::~Job()

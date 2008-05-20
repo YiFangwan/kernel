@@ -321,6 +321,7 @@ namespace BatchLight {
     std::string fileNameToExecute = string(fileToExecute).substr(p1+1,p2-p1-1);
     int idx = dirForTmpFiles.find("Batch/");
     std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
+    const std::string home = job->getHomeDir();
 
     int nbmaxproc = _params.nbnodes * _params.nbprocpernode;
     if( nbproc > nbmaxproc ){
@@ -351,8 +352,8 @@ namespace BatchLight {
     // like PBS_O_HOME for #PBS directives....
     //tempOutputFile << "#PBS -o /$PBS_O_HOME/" << dirForTmpFiles << "/runSalome.output.log.${PBS_JOBID}" << endl ;
     //tempOutputFile << "#PBS -e /$PBS_O_HOME/" << dirForTmpFiles << "/runSalome.error.log.${PBS_JOBID}" << endl ;
-    tempOutputFile << "#PBS -o runSalome.output.log." << filelogtemp << endl ;
-    tempOutputFile << "#PBS -e runSalome.error.log." << filelogtemp << endl ;
+    tempOutputFile << "#PBS -o " << home << "/" << dirForTmpFiles << "/runSalome.output.log." << filelogtemp << endl ;
+    tempOutputFile << "#PBS -e " << home << "/" << dirForTmpFiles << "/runSalome.error.log." << filelogtemp << endl ;
     tempOutputFile << _mpiImpl->boot("${PBS_NODEFILE}",nbnodes);
     tempOutputFile << _mpiImpl->run("${PBS_NODEFILE}",nbproc,filenameToExecute.str());
     tempOutputFile << _mpiImpl->halt();

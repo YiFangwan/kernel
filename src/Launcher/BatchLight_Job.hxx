@@ -56,6 +56,8 @@ namespace BatchLight {
     const std::string getDirForTmpFiles() const { return _dirForTmpFiles;}
     void setDirForTmpFiles(std::string dirForTmpFiles) {_dirForTmpFiles = dirForTmpFiles;
 							SCRUTE(_dirForTmpFiles);}
+    void setHomeDir(std::string home) {_home = home;SCRUTE(_dirForTmpFiles);}
+    const std::string getHomeDir() {return _home;}
     bool check();							
   protected:
     const char* _fileToExecute;
@@ -63,6 +65,7 @@ namespace BatchLight {
     Engines::FilesList _filesToImport;
     Engines::BatchParameters _batch_params;
     std::string _dirForTmpFiles; // Tmp directory on the server
+    std::string _home; // Home directory on the server
   private:
 
   };

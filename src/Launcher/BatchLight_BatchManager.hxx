@@ -32,6 +32,7 @@
 #include <vector>
 #include <map>
 #include <string>
+#include <fstream>
 #include "Utils_SALOME_Exception.hxx"
 #include <SALOMEconfig.h>
 #include <stdlib.h>
@@ -73,6 +74,7 @@ namespace BatchLight {
 
     virtual int submit(BatchLight::Job* job) throw(SALOME_Exception) = 0;
     void setDirForTmpFiles(BatchLight::Job* job);
+    void setHomeDir(BatchLight::Job* job);
     void exportInputFiles(BatchLight::Job* job) throw(SALOME_Exception);
     virtual void buildSalomeCouplingScript(BatchLight::Job* job) throw(SALOME_Exception) = 0;
     virtual void buildSalomeBatchScript(BatchLight::Job* job) throw(SALOME_Exception) = 0;
