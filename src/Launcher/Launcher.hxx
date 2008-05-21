@@ -27,8 +27,8 @@
 
 struct batchParams{
   std::string batch_directory;
-  unsigned long expected_during_time;
-  unsigned long mem;
+  std::string expected_during_time;
+  std::string mem;
   unsigned long nb_proc;
 };
 
@@ -70,6 +70,9 @@ protected:
   std::map <std::string,Batch::BatchManager_eClient*> _batchmap;
   std::map < std::pair<std::string,long> , Batch::Job* > _jobmap;
   ResourcesManager_cpp *_ResManager;
+  bool check(const batchParams& batch_params);
+  long getWallTime(std::string edt);
+  long getRamSize(std::string mem);
 };
 
 #endif

@@ -36,13 +36,11 @@ using namespace std;
 // Constructor
 MpiImpl::MpiImpl()
 {
-  cerr << "MpiImpl constructor" << endl;
 }
 
 // Destructor
 MpiImpl::~MpiImpl()
 {
-  cerr << "MpiImpl destructor" << endl;
 }
 
 // lam implementation
@@ -54,7 +52,6 @@ MpiImpl_LAM::MpiImpl_LAM() : MpiImpl()
 // Destructor
 MpiImpl_LAM::~MpiImpl_LAM()
 {
-  cerr << "MpiImpl_LAM destructor" << endl;
 }
 
 string MpiImpl_LAM::size()
@@ -97,7 +94,6 @@ MpiImpl_MPICH1::MpiImpl_MPICH1() : MpiImpl()
 // Destructor
 MpiImpl_MPICH1::~MpiImpl_MPICH1()
 {
-  cerr << "MpiImpl_MPICH1 destructor" << endl;
 }
 
 string MpiImpl_MPICH1::size()
@@ -136,7 +132,6 @@ MpiImpl_MPICH2::MpiImpl_MPICH2() : MpiImpl()
 // Destructor
 MpiImpl_MPICH2::~MpiImpl_MPICH2()
 {
-  cerr << "MpiImpl_MPICH2 destructor" << endl;
 }
 
 string MpiImpl_MPICH2::size()
@@ -179,7 +174,6 @@ MpiImpl_OPENMPI::MpiImpl_OPENMPI() : MpiImpl()
 // Destructor
 MpiImpl_OPENMPI::~MpiImpl_OPENMPI()
 {
-  cerr << "MpiImpl_OPENMPI destructor" << endl;
 }
 
 string MpiImpl_OPENMPI::size()
@@ -218,7 +212,6 @@ MpiImpl_SLURM::MpiImpl_SLURM() : MpiImpl()
 // Destructor
 MpiImpl_SLURM::~MpiImpl_SLURM()
 {
-  cerr << "MpiImpl_SLURM destructor" << endl;
 }
 
 string MpiImpl_SLURM::size()

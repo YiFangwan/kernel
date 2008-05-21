@@ -243,6 +243,9 @@ namespace Batch {
     int status;
     Parametre params = job.getParametre();
     const int nbproc = params[NBPROC];
+    const long edt = params[MAXWALLTIME];
+    const long mem = params[MAXRAMSIZE];
+    const string workDir = params[WORKDIR];
     const std::string dirForTmpFiles = params[TMPDIR];
     const string fileToExecute = params[EXECUTABLE];
     string::size_type p1 = fileToExecute.find_last_of("/");
@@ -255,8 +258,15 @@ namespace Batch {
     tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
 
     tempOutputFile << "#! /bin/sh -f" << endl ;
+    if( edt > 0 )
+      tempOutputFile << "#BSUB -W " << getWallTime(edt) << endl ;
+    if( mem > 0 )
+      tempOutputFile << "#BSUB -M " << mem*1024 << endl ;
     tempOutputFile << "#BSUB -n " << nbproc << endl ;
-    tempOutputFile << "#BSUB -o " << dirForTmpFiles << "/runSalome.log%J" << endl ;
+    tempOutputFile << "#BSUB -o " << dirForTmpFiles << "/runSalome.output.log%J" << endl ;
+    tempOutputFile << "#BSUB -e " << dirForTmpFiles << "/runSalome.error.log%J" << endl ;
+    if( workDir.size() > 0 )
+      tempOutputFile << "cd " << workDir << endl ;
     tempOutputFile << _mpiImpl->boot("",nbproc);
     tempOutputFile << _mpiImpl->run("",nbproc,fileNameToExecute);
     tempOutputFile << _mpiImpl->halt();
@@ -291,6 +301,19 @@ namespace Batch {
 
     RmTmpFile(TmpFileName);
     
+  }
+
+  std::string BatchManager_eLSF::getWallTime(const long edt)
+  {
+    long h, m;
+    h = edt / 60;
+    m = edt - h*60;
+    ostringstream oss;
+    if( m >= 10 )
+      oss << h << ":" << m;
+    else
+      oss << h << ":0" << m;
+    return oss.str();
   }
 
 }

@@ -199,6 +199,7 @@ namespace Batch {
 
     // define command to submit batch
     command = _protocol;
+    command += " ";
 
     if (_username != ""){
       command += _username;
@@ -256,7 +257,10 @@ namespace Batch {
   {
     int status;
     Parametre params = job.getParametre();
-    const int nbproc = params[NBPROC];
+    const long nbproc = params[NBPROC];
+    const long edt = params[MAXWALLTIME];
+    const long mem = params[MAXRAMSIZE];
+    const string workDir = params[WORKDIR];
     const std::string dirForTmpFiles = params[TMPDIR];
     const string fileToExecute = params[EXECUTABLE];
     string::size_type p1 = fileToExecute.find_last_of("/");
@@ -271,9 +275,15 @@ namespace Batch {
     ofstream tempOutputFile;
     tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
 
-    tempOutputFile << "#! /bin/sh -f" << endl ;
+    tempOutputFile << "#! /bin/sh -f" << endl;
+    if( edt > 0 )
+      tempOutputFile << "#PBS -l walltime=" << edt*60 << endl ;
+    if( mem > 0 )
+      tempOutputFile << "#PBS -l mem=" << mem << "mb" << endl ;
     tempOutputFile << "#PBS -o runSalome.output.log." << filelogtemp << endl ;
     tempOutputFile << "#PBS -e runSalome.error.log." << filelogtemp << endl ;
+    if( workDir.size() > 0 )
+      tempOutputFile << "cd " << workDir << endl ;
     tempOutputFile << _mpiImpl->boot("${PBS_NODEFILE}",nbproc);
     tempOutputFile << _mpiImpl->run("${PBS_NODEFILE}",nbproc,fileNameToExecute);
     tempOutputFile << _mpiImpl->halt();

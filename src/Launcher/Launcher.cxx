@@ -77,6 +77,10 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
   long jobId;
   vector<string> aMachineList;
 
+  // check batch params
+  if ( !check(batch_params) )
+    throw LauncherException("Batch parameters are bad (see informations above)");
+
   // find a cluster matching the structure params
   vector<string> aCompoList ;
   try{
@@ -119,8 +123,8 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     param[NBPROC] = batch_params.nb_proc;
     param[WORKDIR] = batch_params.batch_directory;
     param[TMPDIR] = tmpdir;
-    param[MAXCPUTIME] = batch_params.expected_during_time;
-    param[MAXRAMSIZE] = batch_params.mem;
+    param[MAXWALLTIME] = getWallTime(batch_params.expected_during_time);
+    param[MAXRAMSIZE] = getRamSize(batch_params.mem);
 
     Batch::Environnement env;
 
@@ -451,4 +455,131 @@ string Launcher_cpp::getRemoteFile( std::string remoteDir, std::string localFile
   int ln = localFile.length() - pos;
   string remoteFile = remoteDir + "/" + localFile.substr(pos,ln);
   return remoteFile;
+}
+
+bool Launcher_cpp::check(const batchParams& batch_params)
+{
+  bool rtn = true;
+  cerr << "Job parameters are :" << endl;
+  cerr << "Directory : $HOME/Batch/$date" << endl;
+
+  // check expected_during_time (check the format)
+  std::string edt_info;
+  std::string edt_value = batch_params.expected_during_time;
+  if (edt_value != "") {
+    std::string begin_edt_value = edt_value.substr(0, 2);
+    std::string mid_edt_value = edt_value.substr(2, 1);
+    std::string end_edt_value = edt_value.substr(3);
+  
+    long value;
+    std::istringstream iss(begin_edt_value);
+    if (!(iss >> value)) {
+      edt_info = "Error on definition ! : " + edt_value;
+      rtn = false;
+    }
+    else if (value < 0) {
+      edt_info = "Error on definition time is negative ! : " + value;
+      rtn = false;
+    }
+    std::istringstream iss_2(end_edt_value);
+    if (!(iss_2 >> value)) {
+      edt_info = "Error on definition ! : " + edt_value;
+      rtn = false;
+    }
+    else if (value < 0) {
+      edt_info = "Error on definition time is negative ! : " + value;
+      rtn = false;
+    }
+    if (mid_edt_value != ":") {
+      edt_info = "Error on definition ! :" + edt_value;
+      rtn = false;
+    }
+  }
+  else {
+    edt_info = "No value given";
+  }
+  cerr << "Expected during time : " << edt_info << endl;;
+
+  // check memory (check the format)
+  std::string mem_info;
+  std::string mem_value = batch_params.mem;
+  if (mem_value != "") {
+    std::string begin_mem_value = mem_value.substr(0, mem_value.length()-2);
+    long re_mem_value;
+    std::istringstream iss(begin_mem_value);
+    if (!(iss >> re_mem_value)) {
+      mem_info = "Error on definition ! : " + mem_value;
+      rtn = false;
+    }
+    else if (re_mem_value <= 0) {
+      mem_info = "Error on definition memory is negative ! : " + mem_value;
+      rtn = false;
+    }
+    std::string end_mem_value = mem_value.substr(mem_value.length()-2);
+    if (end_mem_value != "gb" and end_mem_value != "mb") {
+      mem_info = "Error on definition, type is bad ! " + mem_value;
+      rtn = false;
+    }
+  }
+  else {
+    mem_info = "No value given";
+  }
+  cerr << "Memory : " << mem_info << endl;
+
+  // check nb_proc
+  std::string nb_proc_info;
+  ostringstream nb_proc_value;
+  nb_proc_value << batch_params.nb_proc;
+  if(batch_params.nb_proc <= 0) {
+    nb_proc_info = "Bad value ! nb_proc = ";
+    nb_proc_info += nb_proc_value.str();
+    rtn = false;
+  }
+  else {
+    nb_proc_info = nb_proc_value.str();
+  }
+  cerr << "Nb of processors : " << nb_proc_info << endl;
+
+  return rtn;
+}
+
+long Launcher_cpp::getWallTime(std::string edt)
+{
+  long hh, mm, ret;
+
+  if( edt.size() == 0 )
+    return 0;
+
+  string::size_type pos = edt.find(":");
+  string h = edt.substr(0,pos);
+  string m = edt.substr(pos+1,edt.size()-pos+1);
+  istringstream issh(h);
+  issh >> hh;
+  istringstream issm(m);
+  issm >> mm;
+  ret = hh*60 + mm;
+  return  ret;
+}
+
+long Launcher_cpp::getRamSize(std::string mem)
+{
+  long mv;
+
+  if( mem.size() == 0 )
+    return 0;
+
+  string ram = mem.substr(0,mem.size()-2);
+  istringstream iss(ram);
+  iss >> mv;
+  string unity = mem.substr(mem.size()-2,2);
+  if( (unity.find("gb") != string::npos) || (unity.find("GB") != string::npos) )
+    return mv*1024;
+  else if( (unity.find("mb") != string::npos) || (unity.find("MB") != string::npos) )
+    return mv;
+  else if( (unity.find("kb") != string::npos) || (unity.find("KB") != string::npos) )
+    return mv/1024;
+  else if( (unity.find("b") != string::npos) || (unity.find("B") != string::npos) )
+    return mv/(1024*1024);
+  else
+    return 0;
 }

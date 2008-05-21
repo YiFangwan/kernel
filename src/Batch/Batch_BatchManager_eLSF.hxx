@@ -75,6 +75,7 @@ namespace Batch {
 
   protected:
     void buildBatchScript(const Job & job) throw(EmulationException);
+    std::string getWallTime(const long edt);
 
   private:
 
