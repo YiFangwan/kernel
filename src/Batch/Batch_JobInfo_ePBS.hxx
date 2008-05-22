@@ -41,7 +41,7 @@ namespace Batch {
   public:
     // Constructeurs et destructeur
     JobInfo_ePBS() : _running(false) {};
-    JobInfo_ePBS(int id,std::string status);
+    JobInfo_ePBS(int id,std::string logFile);
     virtual ~JobInfo_ePBS();
 
     // Constructeur par recopie

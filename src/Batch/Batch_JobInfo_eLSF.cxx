@@ -28,6 +28,8 @@
  */
 
 #include <cstdio>
+#include <iostream>
+#include <fstream>
 #include <sstream>
 #include "Batch_Parametre.hxx"
 #include "Batch_Environnement.hxx"
@@ -40,12 +42,23 @@ namespace Batch {
 
 
   // Constructeurs
-  JobInfo_eLSF::JobInfo_eLSF(int id, string status) : JobInfo()
+  JobInfo_eLSF::JobInfo_eLSF(int id, string logFile) : JobInfo()
   {
     // On remplit les membres _param et _env
     ostringstream oss;
     oss << id;
     _param[ID] = oss.str();
+
+    // read status of job in log file
+    char line[128];
+    ifstream fp(logFile.c_str(),ios::in);
+    fp.getline(line,80,'\n');
+    
+    string sjobid, username, status;
+    fp >> sjobid;
+    fp >> username;
+    fp >> status;
+
     _param[STATE] = status;
 
     if( status.find("RUN") != string::npos)

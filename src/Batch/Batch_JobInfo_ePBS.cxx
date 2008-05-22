@@ -28,6 +28,8 @@
  */
 
 #include <cstdio>
+#include <iostream>
+#include <fstream>
 #include <sstream>
 #include "Batch_Parametre.hxx"
 #include "Batch_Environnement.hxx"
@@ -40,12 +42,34 @@ namespace Batch {
 
 
   // Constructeurs
-  JobInfo_ePBS::JobInfo_ePBS(int id, string status) : JobInfo()
+  JobInfo_ePBS::JobInfo_ePBS(int id, string logFile) : JobInfo()
   {
     // On remplit les membres _param et _env
     ostringstream oss;
     oss << id;
     _param[ID] = oss.str();
+
+    // read of log file
+    char line[128];
+    ifstream fp(logFile.c_str(),ios::in);
+      
+    string status;
+    string sline;
+    int pos = string::npos;
+    while( (pos == string::npos) && fp.getline(line,80,'\n') ){
+      sline = string(line);
+      pos = sline.find("job_state");
+    };
+      
+    if(pos!=string::npos){
+      istringstream iss(sline);
+      iss >> status;
+      iss >> status;
+      iss >> status;
+    }
+    else
+      status = "U";
+
     _param[STATE] = status;
 
     if( status.find("R") != string::npos)

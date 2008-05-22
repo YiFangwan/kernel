@@ -179,7 +179,6 @@ namespace Batch {
   // Methode pour le controle des jobs : renvoie l'etat du job
   JobInfo BatchManager_ePBS::queryJob(const JobId & jobid)
   {
-    string jstatus;
     int id;
     istringstream iss(jobid.getReference());
     iss >> id;
@@ -216,34 +215,7 @@ namespace Batch {
     if(status && status != 153 && status != 256*153)
       throw EmulationException("Error of connection on remote host");
 
-    if(status == 153 || status == 256*153 )
-      // If job is finished qstat command return 153 status
-      jstatus = "D";
-    else{
-      // read status of job in log file
-      char line[128];
-      ifstream fp(logFile.c_str(),ios::in);
-      
-      string sline;
-      int pos = string::npos;
-      while( (pos == string::npos) && fp.getline(line,80,'\n') ){
-	sline = string(line);
-	pos = sline.find("job_state");
-      };
-      
-      if(pos!=string::npos){
-	istringstream iss(sline);
-	iss >> jstatus;
-	iss >> jstatus;
-	iss >> jstatus;
-      }
-      else
-	jstatus = "U";
-    }
-
-    cerr << "jobId = " << id << " " << jstatus << endl;
-
-    JobInfo_ePBS ji = JobInfo_ePBS(id,jstatus);
+    JobInfo_ePBS ji = JobInfo_ePBS(id,logFile);
     return ji;
   }
 

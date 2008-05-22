@@ -41,7 +41,7 @@ namespace Batch {
   public:
     // Constructeurs et destructeur
     JobInfo_eLSF() : _running(false) {};
-    JobInfo_eLSF(int id,std::string status);
+    JobInfo_eLSF(int id,std::string logFile);
     virtual ~JobInfo_eLSF();
 
     // Constructeur par recopie

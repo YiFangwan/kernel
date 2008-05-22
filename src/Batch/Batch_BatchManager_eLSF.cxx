@@ -214,19 +214,7 @@ namespace Batch {
     if(status)
       throw EmulationException("Error of connection on remote host");
 
-    // read status of job in log file
-    char line[128];
-    ifstream fp(logFile.c_str(),ios::in);
-    fp.getline(line,80,'\n');
-    
-    string sjobid, username, jstatus;
-    fp >> sjobid;
-    fp >> username;
-    fp >> jstatus;
-
-    cerr << "jobId = " << id << " " << jstatus << endl;
-
-    JobInfo_eLSF ji = JobInfo_eLSF(id,jstatus);
+    JobInfo_eLSF ji = JobInfo_eLSF(id,logFile);
     return ji;
   }
 
