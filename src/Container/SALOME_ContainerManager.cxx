@@ -508,9 +508,15 @@ GiveContainer(const Engines::MachineParameters& params,
   if(valenv)
     if (strcmp(valenv,"1")==0)
       {
-        if(_batchLaunchedContainers.empty())
-          fillBatchLaunchedContainers();
-        return *(_batchLaunchedContainersIter++);
+	if(_batchLaunchedContainers.empty())
+	  fillBatchLaunchedContainers();
+
+	if (_batchLaunchedContainersIter == _batchLaunchedContainers.end())
+	  _batchLaunchedContainersIter = _batchLaunchedContainers.begin();
+
+	Engines::Container_ptr rtn = Engines::Container::_duplicate(*_batchLaunchedContainersIter);
+	_batchLaunchedContainersIter++;
+        return rtn;
       }
   return StartContainer(params,policy,componentList);
 }
