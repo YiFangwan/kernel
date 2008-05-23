@@ -241,6 +241,9 @@ namespace Batch {
     std::string rootNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
     std::string fileNameToExecute = "~/" + dirForTmpFiles + "/" + string(basename(fileToExecute.c_str()));
 
+    int idx = dirForTmpFiles.find("Batch/");
+    std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
+
     std::string TmpFileName = BuildTemporaryFileName();
     ofstream tempOutputFile;
     tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
@@ -251,8 +254,8 @@ namespace Batch {
     if( mem > 0 )
       tempOutputFile << "#BSUB -M " << mem*1024 << endl ;
     tempOutputFile << "#BSUB -n " << nbproc << endl ;
-    tempOutputFile << "#BSUB -o " << dirForTmpFiles << "/runSalome.output.log%J" << endl ;
-    tempOutputFile << "#BSUB -e " << dirForTmpFiles << "/runSalome.error.log%J" << endl ;
+    tempOutputFile << "#BSUB -o runSalome.output.log." << filelogtemp << endl ;
+    tempOutputFile << "#BSUB -e runSalome.error.log." << filelogtemp << endl ;
     if( workDir.size() > 0 )
       tempOutputFile << "cd " << workDir << endl ;
     tempOutputFile << _mpiImpl->boot("",nbproc);

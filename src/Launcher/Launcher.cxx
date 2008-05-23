@@ -362,11 +362,7 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
 
   // Stop application
   tempOutputFile << "  rm " << filelogtemp << "\n"
-		 << "  ./runSession killCurrentPort" << endl;
-  // waiting standard killing improvement by P. Rascle
-  tempOutputFile << "  killall notifd" << endl;
-  tempOutputFile << "  killall omniNames" << endl;
-  tempOutputFile << "  rm core.*" << endl;
+		 << "  ./runSession shutdownSalome.py" << endl;
 
   // -------------------------------------
   // Other nodes launch a container
