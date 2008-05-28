@@ -23,8 +23,8 @@
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include "SALOME_ContainerManager.hxx"
-#include "BatchLight_BatchManager.hxx"
 #include "BatchLight_BatchTest.hxx"
+#include "Launcher.hxx"
 
 #include <string>
 
@@ -72,14 +72,13 @@ public:
   static const char *_LauncherNameInNS;
 
 protected:
-  BatchLight::BatchManager *FactoryBatchManager( const Engines::MachineParameters* params ) throw(SALOME_Exception);
-
-  std::map <std::string,BatchLight::BatchManager*> _batchmap;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
   SALOME_ContainerManager *_ContManager;
   SALOME_ResourcesManager *_ResManager;
   SALOME_NamingService *_NS;
+
+  Launcher_cpp _l;
 };
 
 #endif

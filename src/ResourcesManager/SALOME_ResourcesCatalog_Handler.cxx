@@ -52,7 +52,6 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list,
     _resources_list(resources_list),
     _resources_batch_list(resources_batch_list)
 {
-  MESSAGE("SALOME_ResourcesCatalog_Handler creation");
   //XML tags initialisation
   test_machine = "machine";
   test_resources = "resources";
@@ -82,7 +81,7 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list,
 
 SALOME_ResourcesCatalog_Handler::~SALOME_ResourcesCatalog_Handler()
 {
-  //  MESSAGE("SALOME_ResourcesCatalog_Handler destruction");
+  //  cout << "SALOME_ResourcesCatalog_Handler destruction") << endl;
 }
 
 //=============================================================================
@@ -105,7 +104,7 @@ SALOME_ResourcesCatalog_Handler::GetResourcesAfterParsing() const
 
 void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 {
-  if (MYDEBUG) MESSAGE("Begin parse document");
+//   if (MYDEBUG) cout << "Begin parse document" << endl;
 
   // Empty private elements
   _resources_list.clear();
@@ -191,8 +190,6 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                 _resource.Batch = pbs;
               else if  (aBatch == "lsf")
                 _resource.Batch = lsf;
-              else if  (aBatch == "slurm")
-                _resource.Batch = slurm;
               else
                 _resource.Batch = none;
             }
@@ -210,6 +207,8 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                 _resource.mpi = mpich2;
               else if (anMpi == "openmpi")
                 _resource.mpi = openmpi;
+              else if  (anMpi == "slurm")
+                _resource.mpi = slurm;
               else
                 _resource.mpi = indif;
             }
@@ -325,7 +324,8 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	  SCRUTE((*iter).second.Mode);
 	}
       
-      MESSAGE("This is the end of document");
+//       cout << "This is the end of document" << endl;
+//     }
     }
 }
 

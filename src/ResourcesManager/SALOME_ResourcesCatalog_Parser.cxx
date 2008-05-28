@@ -18,8 +18,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "SALOME_ResourcesCatalog_Parser.hxx"
-#include "utilities.h"
 #include <iostream>
+#include <sstream>
 
 #define NULL_VALUE 0
 
@@ -106,10 +106,10 @@ unsigned int ResourceDataToSort::GetNumberOfPoints() const
 //! Method used for debug
 void ResourceDataToSort::Print() const
   {
-    SCRUTE(_nbOfNodes);
-    SCRUTE(_nbOfProcPerNode);
-    SCRUTE(_CPUFreqMHz);
-    SCRUTE(_memInMB);
+    cout << _nbOfNodes << endl;
+    cout << _nbOfProcPerNode << endl;
+    cout << _CPUFreqMHz << endl;
+    cout << _memInMB << endl;
   }
 
 void ParserResourcesType::Print() const
@@ -134,7 +134,7 @@ void ParserResourcesType::Print() const
   for(int i=0;i<ModulesList.size();i++)
     oss << "Module " << i+1 << " called : " << ModulesList[i] << endl;
 
-  MESSAGE(oss.str());
+  cout << oss.str() << endl;
 
 }
 
