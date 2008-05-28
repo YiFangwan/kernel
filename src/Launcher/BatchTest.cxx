@@ -1,6 +1,6 @@
-#include "BatchLight_BatchTest.hxx"
+#include "BatchTest.hxx"
 
-BatchLight_BatchTest::BatchLight_BatchTest(const Engines::MachineParameters& batch_descr) 
+BatchTest::BatchTest(const Engines::MachineParameters& batch_descr) 
 {
   _batch_descr = batch_descr;
 
@@ -25,10 +25,10 @@ BatchLight_BatchTest::BatchLight_BatchTest(const Engines::MachineParameters& bat
   _base_filename = _date + "_test_cluster_file_" + _batch_descr.alias.in();
 }
 
-BatchLight_BatchTest::~BatchLight_BatchTest() {}
+BatchTest::~BatchTest() {}
 
 bool
-BatchLight_BatchTest::test()
+BatchTest::test()
 {
   bool rtn = false;
   INFOS(std::endl 
@@ -79,7 +79,7 @@ BatchLight_BatchTest::test()
 
 // For this test we use : alias, protocol, username
 std::string
-BatchLight_BatchTest::test_connection()
+BatchTest::test_connection()
 {
   int status;
   std::string command;
@@ -126,7 +126,7 @@ BatchLight_BatchTest::test_connection()
 
 // For this test we use : alias, protocol, username
 std::string
-BatchLight_BatchTest::test_filecopy()
+BatchTest::test_filecopy()
 {
   int status;
   std::string home;
@@ -177,7 +177,7 @@ BatchLight_BatchTest::test_filecopy()
 
 // For this test we use : alias, protocol, username
 std::string
-BatchLight_BatchTest::test_getresult()
+BatchTest::test_getresult()
 {
   int status;
   std::string home;
@@ -242,7 +242,7 @@ BatchLight_BatchTest::test_getresult()
 }
 
 std::string 
-BatchLight_BatchTest::test_jobsubmit_simple() 
+BatchTest::test_jobsubmit_simple() 
 {
   int status;
   std::string home;
@@ -395,7 +395,7 @@ BatchLight_BatchTest::test_jobsubmit_simple()
 }
 
 std::string 
-BatchLight_BatchTest::test_jobsubmit_mpi() 
+BatchTest::test_jobsubmit_mpi() 
 {
   int status;
   std::string home;
@@ -573,7 +573,7 @@ BatchLight_BatchTest::test_jobsubmit_mpi()
 }
 
 std::string 
-BatchLight_BatchTest::test_appli()
+BatchTest::test_appli()
 {
   int status;
   std::string home;
@@ -657,7 +657,7 @@ BatchLight_BatchTest::test_appli()
 
 // Useful methods
 std::string
-BatchLight_BatchTest::get_home(std::string * home)
+BatchTest::get_home(std::string * home)
 {
   int status;
   std::string result = "";

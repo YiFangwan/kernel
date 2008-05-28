@@ -36,7 +36,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # header files  
 salomeinclude_HEADERS = \
-			BatchLight_BatchTest.hxx \
+			BatchTest.hxx \
 			SALOME_Launcher.hxx \
 			Launcher.hxx
 
@@ -94,7 +94,7 @@ COMMON_LIBS =\
 #
 lib_LTLIBRARIES = libLauncher.la libSalomeLauncher.la
 libSalomeLauncher_la_SOURCES=\
-			     BatchLight_BatchTest.cxx \
+			     BatchTest.cxx \
 			     SALOME_Launcher.cxx 
 
 libSalomeLauncher_la_CPPFLAGS =\

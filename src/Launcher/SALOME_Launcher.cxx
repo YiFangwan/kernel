@@ -172,7 +172,7 @@ SALOME_Launcher::testBatch(const Engines::MachineParameters& params)
     const Engines::MachineParameters* p = _ResManager->GetMachineParameters((*aMachineList)[0]);
     string clustername(p->alias);
     INFOS("Choose cluster" <<  clustername);
-    BatchLight_BatchTest t(*p);
+    BatchTest t(*p);
     if (t.test()) 
     {
       rtn = true;

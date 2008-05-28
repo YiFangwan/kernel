@@ -18,8 +18,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#ifndef __BATCHLIGHT_BATCHTEST_HXX__
-#define __BATCHLIGHT_BATCHTEST_HXX__
+#ifndef __BatchTest_HXX__
+#define __BatchTest_HXX__
 
 #include <sys/stat.h>
 #include <iostream>
@@ -32,11 +32,11 @@
 #include "Batch_Date.hxx"
 #include "MpiImpl.hxx"
 
-class BatchLight_BatchTest 
+class BatchTest 
 {
   public:
-    BatchLight_BatchTest(const Engines::MachineParameters& batch_descr);
-    virtual ~BatchLight_BatchTest();
+    BatchTest(const Engines::MachineParameters& batch_descr);
+    virtual ~BatchTest();
 
     bool test();
 
