@@ -89,24 +89,27 @@ namespace Batch {
 
     // Second step : copy fileToExecute into
     // batch tmp files directory
-    command = copy_command;
-    command += string(params[EXECUTABLE]);
-    command += " ";
-    if(_username != ""){
-      command += _username;
-      command += "@";
-    }
-    command += _hostname;
-    command += ":";
-    command += string(params[TMPDIR]);
-    cerr << command.c_str() << endl;
-    status = system(command.c_str());
-    if(status) {
-      std::ostringstream oss;
-      oss << status;
-      std::string ex_mess("Error of connection on remote host ! status = ");
-      ex_mess += oss.str();
-      throw EmulationException(ex_mess.c_str());
+    string executeFile = params[EXECUTABLE];
+    if( executeFile.size() > 0 ){
+      command = copy_command;
+      command += string(params[EXECUTABLE]);
+      command += " ";
+      if(_username != ""){
+	command += _username;
+	command += "@";
+      }
+      command += _hostname;
+      command += ":";
+      command += string(params[TMPDIR]);
+      cerr << command.c_str() << endl;
+      status = system(command.c_str());
+      if(status) {
+	std::ostringstream oss;
+	oss << status;
+	std::string ex_mess("Error of connection on remote host ! status = ");
+	ex_mess += oss.str();
+	throw EmulationException(ex_mess.c_str());
+      }
     }
     
     // Third step : copy filesToExportList into

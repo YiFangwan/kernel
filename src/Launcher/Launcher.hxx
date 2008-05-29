@@ -22,6 +22,7 @@
 
 #include "Batch_BatchManager_eClient.hxx"
 #include "ResourcesManager.hxx"
+#include "SALOME_Launcher_Parser.hxx"
 
 #include <string>
 
@@ -46,6 +47,9 @@ class Launcher_cpp
 public:
   Launcher_cpp();
   ~Launcher_cpp();
+
+  long submitJob(const std::string xmlExecuteFile,
+		 const std::string clusterName) throw(LauncherException);
 
   long submitSalomeJob(const std::string fileToExecute ,
 		       const std::vector<std::string>& filesToExport ,
@@ -73,6 +77,11 @@ protected:
   bool check(const batchParams& batch_params);
   long getWallTime(std::string edt);
   long getRamSize(std::string mem);
+  void ParseXmlFile(std::string xmlExecuteFile);
+
+  //! will contain the informations on the data type catalog(after parsing)
+  ParserLauncherType _launch;
+
 };
 
 #endif

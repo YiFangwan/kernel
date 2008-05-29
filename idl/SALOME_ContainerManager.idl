@@ -89,6 +89,8 @@ struct BatchParameters
 */
   interface SalomeLauncher
   {
+    long submitJob( in string xmlExecuteFile,
+		    in string clusterName ) raises (SALOME::SALOME_Exception);
     long submitSalomeJob( in string fileToExecute,
 			  in FilesList filesToExport,
 			  in FilesList filesToImport,

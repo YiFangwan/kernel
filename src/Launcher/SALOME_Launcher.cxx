@@ -103,6 +103,28 @@ CORBA::Long SALOME_Launcher::getPID()
 //=============================================================================
 /*! CORBA Method:
  *  Submit a batch job on a cluster and returns the JobId
+ *  \param xmlExecuteFile     : .xml to parse to execute on the batch cluster
+ *  \param clusterName        : cluster name
+ */
+//=============================================================================
+CORBA::Long SALOME_Launcher::submitJob(const char * xmlExecuteFile,
+				       const char * clusterName)
+{
+  CORBA::Long jobId;
+
+  try{
+    jobId = _l.submitJob(xmlExecuteFile,clusterName);
+  }
+  catch(const LauncherException &ex){
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
+  }
+  return jobId;
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  Submit a batch job on a cluster and returns the JobId
  *  \param fileToExecute      : .py/.exe/.sh/... to execute on the batch cluster
  *  \param filesToExport      : to export on the batch cluster
  *  \param NumberOfProcessors : Number of processors needed on the batch cluster

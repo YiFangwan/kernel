@@ -52,6 +52,9 @@ public:
   SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa);
   ~SALOME_Launcher();
 
+  CORBA::Long submitJob(const char * xmlExecuteFile,
+			const char * clusterName);
+
   CORBA::Long submitSalomeJob(const char * fileToExecute ,
 			      const Engines::FilesList& filesToExport ,
 			      const Engines::FilesList& filesToImport ,

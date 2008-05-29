@@ -20,6 +20,7 @@
 #include "Batch_Date.hxx"
 #include "Batch_FactBatchManager_eLSF.hxx"
 #include "Batch_FactBatchManager_ePBS.hxx"
+#include "SALOME_Launcher_Handler.hxx"
 #include "Launcher.hxx"
 #include <iostream>
 #include <sstream>
@@ -56,6 +57,106 @@ Launcher_cpp::~Launcher_cpp()
   std::map < std::pair<std::string,long> , Batch::Job* >::const_iterator it2;
   for(it2=_jobmap.begin();it2!=_jobmap.end();it2++)
     delete it2->second;
+}
+
+//=============================================================================
+/*! CORBA Method:
+ *  Submit a batch job on a cluster and returns the JobId
+ *  \param xmlExecuteFile     : to define the execution on the batch cluster
+ *  \param clusterName        : name of the batch cluster
+ */
+//=============================================================================
+long Launcher_cpp::submitJob( const std::string xmlExecuteFile,
+			      const std::string clusterName) throw(LauncherException)
+{
+  cerr << "BEGIN OF Launcher_cpp::submitJob" << endl;
+  long jobId;
+  vector<string> aMachineList;
+
+  // verify if cluster is in resources catalog
+  machineParams params;
+  params.hostname = clusterName;
+  vector<string> aCompoList ;
+  try{
+    aMachineList = _ResManager->GetFittingResources(params, aCompoList);
+  }
+  catch(const ResourcesException &ex){
+    throw LauncherException(ex.msg.c_str());
+  }
+  if (aMachineList.size() == 0)
+    throw LauncherException("This cluster is not in resources catalog");
+
+  // Parsing xml file
+  ParseXmlFile(xmlExecuteFile);
+
+  // verify if clustername is in xml file
+  map<std::string,MachineParameters>::const_iterator it1 = _launch.MachinesList.find(clusterName);
+  if(it1 == _launch.MachinesList.end())
+    throw LauncherException("This cluster is not in xml file");
+
+  ParserResourcesType p = _ResManager->GetResourcesList(aMachineList[0]);
+  string cname(p.Alias);
+  cerr << "Choose cluster: " <<  cname << endl;
+
+  // search batch manager for that cluster in map or instanciate one
+  map < string, Batch::BatchManager_eClient * >::const_iterator it2 = _batchmap.find(cname);
+  if(it2 == _batchmap.end())
+    {
+      _batchmap[cname] = FactoryBatchManager(p);
+      // TODO: Add a test for the cluster !
+    }
+    
+  try{
+
+    // directory on cluster to put files to execute
+    string remotedir = _launch.MachinesList[clusterName].WorkDirectory;
+    // local directory to get files to execute and to put results
+    string localdir = _launch.RefDirectory;
+
+    int idx1 = xmlExecuteFile.find_last_of("/");
+    if(idx1 == string::npos) idx1 = -1;
+    int idx2 = xmlExecuteFile.find(".xml");
+    string logfile = xmlExecuteFile.substr(idx1+1,idx2-idx1-1);
+    string ologfile = logfile + ".output.log";
+    string elogfile = logfile + ".error.log";
+
+    // create and submit job on cluster
+    Batch::Parametre param;
+    param[USER] = p.UserName;
+    param[EXECUTABLE] = "";
+    for(int i=0; i<_launch.InputFile.size();i++)
+      param[INFILE] += Batch::Couple( localdir + "/" + _launch.InputFile[i], remotedir + "/" + _launch.InputFile[i] );
+    for(int i=0; i<_launch.OutputFile.size();i++)
+      param[OUTFILE] += Batch::Couple( localdir + "/" + _launch.OutputFile[i], remotedir + "/" + _launch.OutputFile[i] );
+    param[OUTFILE] += Batch::Couple( localdir + "/" + ologfile, remotedir + "/" + ologfile );
+    param[OUTFILE] += Batch::Couple( localdir + "/" + elogfile, remotedir + "/" + elogfile );
+    param[NBPROC] = _launch.NbOfProcesses;
+    param[WORKDIR] = remotedir;
+    param[TMPDIR] = remotedir;
+    param[MAXWALLTIME] = getWallTime("");
+    param[MAXRAMSIZE] = getRamSize("");
+
+    Batch::Environnement env;
+    env["COMMAND"] = _launch.Command;
+    env["SOURCEFILE"] = _launch.MachinesList[clusterName].EnvFile;
+    env["LOGFILE"] = logfile;
+
+    Batch::Job* job = new Batch::Job(param,env);
+
+    // submit job on cluster
+    Batch::JobId jid = _batchmap[cname]->submitJob(*job);
+
+    // get job id in long
+    istringstream iss(jid.getReference());
+    iss >> jobId;
+
+    _jobmap[ pair<string,long>(cname,jobId) ] = job;
+  }
+  catch(const Batch::EmulationException &ex){
+    throw LauncherException(ex.msg.c_str());
+  }
+
+  return jobId;
 }
 
 //=============================================================================
@@ -578,4 +679,32 @@ long Launcher_cpp::getRamSize(std::string mem)
     return mv/(1024*1024);
   else
     return 0;
+}
+
+void Launcher_cpp::ParseXmlFile(string xmlExecuteFile)
+{
+  SALOME_Launcher_Handler* handler = new SALOME_Launcher_Handler(_launch);
+
+  const char* aFilePath = xmlExecuteFile.c_str();
+  FILE* aFile = fopen(aFilePath, "r");
+  
+  if (aFile != NULL)
+    {
+      xmlDocPtr aDoc = xmlReadFile(aFilePath, NULL, 0);
+      
+      if (aDoc != NULL)
+	handler->ProcessXmlDocument(aDoc);
+      else
+	cerr << "ResourcesManager_cpp: could not parse file "<< aFilePath << endl;
+      
+      // Free the document
+      xmlFreeDoc(aDoc);
+
+      fclose(aFile);
+    }
+  else
+    cerr << "Launcher_cpp: file "<<aFilePath<<" is not readable." << endl;
+  
+  delete handler;
+
 }

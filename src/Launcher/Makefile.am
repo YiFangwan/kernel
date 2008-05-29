@@ -36,6 +36,8 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # header files  
 salomeinclude_HEADERS = \
+  SALOME_Launcher_Parser.hxx \
+  SALOME_Launcher_Handler.hxx \
   SALOME_Launcher.hxx \
   Launcher.hxx
 
@@ -106,6 +108,8 @@ libSalomeLauncher_la_LIBADD =\
 	$(COMMON_LIBS) libLauncher.la
 
 libLauncher_la_SOURCES=\
+	SALOME_Launcher_Parser.cxx \
+	SALOME_Launcher_Handler.cxx  \
 	Launcher.cxx
 
 libLauncher_la_CPPFLAGS =\
