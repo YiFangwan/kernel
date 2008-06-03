@@ -96,9 +96,9 @@ struct BatchParameters
 			  in FilesList filesToImport,
 			  in BatchParameters batch_params,
 			  in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    string querySalomeJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    void deleteSalomeJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    void getResultSalomeJob( in string directory, in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+    string queryJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+    void deleteJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+    void getResultsJob( in string directory, in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
 
     void Shutdown();
 

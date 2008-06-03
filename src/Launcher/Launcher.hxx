@@ -57,9 +57,12 @@ public:
 		       const batchParams& batch_params,
 		       const machineParams& params) throw(LauncherException);
 
-  std::string querySalomeJob( const long jobId, const machineParams& params) throw(LauncherException);
-  void deleteSalomeJob( const long jobId, const machineParams& params) throw(LauncherException);
-  void getResultSalomeJob( const std::string directory, const long jobId, const machineParams& params ) throw(LauncherException);
+  std::string queryJob( const long jobId, const machineParams& params) throw(LauncherException);
+  std::string queryJob( const long jobId, const std::string clusterName);
+  void deleteJob( const long jobId, const machineParams& params) throw(LauncherException);
+  void deleteJob( const long jobId, const std::string clusterName);
+  void getResultsJob( const std::string directory, const long jobId, const machineParams& params ) throw(LauncherException);
+  void getResultsJob( const std::string directory, const long jobId, const std::string clusterName );
 
   void SetResourcesManager( ResourcesManager_cpp* rm ) { _ResManager = rm; }
 

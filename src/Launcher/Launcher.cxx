@@ -73,6 +73,9 @@ long Launcher_cpp::submitJob( const std::string xmlExecuteFile,
   long jobId;
   vector<string> aMachineList;
 
+  if(!_ResManager)
+    throw LauncherException("You must set Resources Manager to Launcher!!");
+
   // verify if cluster is in resources catalog
   machineParams params;
   params.hostname = clusterName;
@@ -178,6 +181,9 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
   long jobId;
   vector<string> aMachineList;
 
+  if(!_ResManager)
+    throw LauncherException("You must set Resources Manager to Launcher!!");
+
   // check batch params
   if ( !check(batch_params) )
     throw LauncherException("Batch parameters are bad (see informations above)");
@@ -254,9 +260,12 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-string Launcher_cpp::querySalomeJob( long id, 
-				     const machineParams& params) throw(LauncherException)
+string Launcher_cpp::queryJob( long id, 
+			       const machineParams& params) throw(LauncherException)
 {
+  if(!_ResManager)
+    throw LauncherException("You must set Resources Manager to Launcher!!");
+
   // find a cluster matching params structure
   vector<string> aCompoList ;
   vector<string> aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
@@ -277,6 +286,14 @@ string Launcher_cpp::querySalomeJob( long id,
   return par[STATE];
 }
 
+string Launcher_cpp::queryJob( long id, 
+			       const std::string clusterName)
+{
+  machineParams params;
+  params.hostname = clusterName;
+  return queryJob(id,params);
+}
+
 //=============================================================================
 /*! CORBA Method:
  *  Delete a batch job on a cluster 
@@ -284,9 +301,12 @@ string Launcher_cpp::querySalomeJob( long id,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-void Launcher_cpp::deleteSalomeJob( const long id, 
-				    const machineParams& params) throw(LauncherException)
+void Launcher_cpp::deleteJob( const long id, 
+			      const machineParams& params) throw(LauncherException)
 {
+  if(!_ResManager)
+    throw LauncherException("You must set Resources Manager to Launcher!!");
+
   // find a cluster matching params structure
   vector<string> aCompoList ;
   vector<string> aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
@@ -305,6 +325,14 @@ void Launcher_cpp::deleteSalomeJob( const long id,
   jobId.deleteJob();
 }
 
+void Launcher_cpp::deleteJob( long id, 
+			      const std::string clusterName)
+{
+  machineParams params;
+  params.hostname = clusterName;
+  deleteJob(id,params);
+}
+
 //=============================================================================
 /*! CORBA Method:
  *  Get result files of job on a cluster
@@ -312,10 +340,13 @@ void Launcher_cpp::deleteSalomeJob( const long id,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-void Launcher_cpp::getResultSalomeJob( const string directory,
-				       const long id, 
-				       const machineParams& params) throw(LauncherException)
+void Launcher_cpp::getResultsJob( const string directory,
+				  const long id, 
+				  const machineParams& params) throw(LauncherException)
 {
+  if(!_ResManager)
+    throw LauncherException("You must set Resources Manager to Launcher!!");
+
   vector<string> aCompoList ;
   vector<string> aMachineList = _ResManager->GetFittingResources( params , aCompoList ) ;
   ParserResourcesType p = _ResManager->GetResourcesList(aMachineList[0]);
@@ -329,6 +360,15 @@ void Launcher_cpp::getResultSalomeJob( const string directory,
   Batch::Job* job = _jobmap[ pair<string,long>(clustername,id) ];
 
   _batchmap[clustername]->importOutputFiles( *job, directory );
+}
+
+void Launcher_cpp::getResultsJob( const std::string directory, 
+				  long id, 
+				  const std::string clusterName)
+{
+  machineParams params;
+  params.hostname = clusterName;
+  getResultsJob(directory,id,params);
 }
 
 //=============================================================================

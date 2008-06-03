@@ -61,9 +61,9 @@ public:
 			      const Engines::BatchParameters& batch_params,
 			      const Engines::MachineParameters& params);
 
-  char* querySalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
-  void deleteSalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
-  void getResultSalomeJob( const char * directory, const CORBA::Long jobId, const Engines::MachineParameters& params );
+  char* queryJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
+  void deleteJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
+  void getResultsJob( const char * directory, const CORBA::Long jobId, const Engines::MachineParameters& params );
 
   void Shutdown();
 

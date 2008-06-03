@@ -179,8 +179,8 @@ CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-char* SALOME_Launcher::querySalomeJob( const CORBA::Long jobId, 
-				       const Engines::MachineParameters& params)
+char* SALOME_Launcher::queryJob( const CORBA::Long jobId, 
+				 const Engines::MachineParameters& params)
 {
   string status;
   machineParams p;
@@ -192,7 +192,7 @@ char* SALOME_Launcher::querySalomeJob( const CORBA::Long jobId,
   p.mem_mb = params.mem_mb;
 
   try{
-    status = _l.querySalomeJob(jobId,p);
+    status = _l.queryJob(jobId,p);
   }
   catch(const LauncherException &ex){
     INFOS("Caught exception.");
@@ -208,8 +208,8 @@ char* SALOME_Launcher::querySalomeJob( const CORBA::Long jobId,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-void SALOME_Launcher::deleteSalomeJob( const CORBA::Long jobId, 
-				       const Engines::MachineParameters& params)
+void SALOME_Launcher::deleteJob( const CORBA::Long jobId, 
+				 const Engines::MachineParameters& params)
 {
   machineParams p;
   p.hostname = params.hostname;
@@ -220,7 +220,7 @@ void SALOME_Launcher::deleteSalomeJob( const CORBA::Long jobId,
   p.mem_mb = params.mem_mb;
 
   try{
-    _l.deleteSalomeJob(jobId,p);
+    _l.deleteJob(jobId,p);
   }
   catch(const LauncherException &ex){
     INFOS("Caught exception.");
@@ -235,9 +235,9 @@ void SALOME_Launcher::deleteSalomeJob( const CORBA::Long jobId,
  *  \param params             : Constraints for the choice of the batch cluster
  */
 //=============================================================================
-void SALOME_Launcher::getResultSalomeJob( const char *directory,
-					  const CORBA::Long jobId, 
-					  const Engines::MachineParameters& params)
+void SALOME_Launcher::getResultsJob( const char *directory,
+				     const CORBA::Long jobId, 
+				     const Engines::MachineParameters& params)
 {
   machineParams p;
   p.hostname = params.hostname;
@@ -248,7 +248,7 @@ void SALOME_Launcher::getResultSalomeJob( const char *directory,
   p.mem_mb = params.mem_mb;
 
   try{
-    _l.getResultSalomeJob( directory, jobId, p );
+    _l.getResultsJob( directory, jobId, p );
   }
   catch(const LauncherException &ex){
     INFOS("Caught exception.");
