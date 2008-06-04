@@ -30,7 +30,11 @@ endif
 
 ACLOCAL_AMFLAGS = -I salome_adm/unix/config_files
 
-SUBDIRS = $(IDLDIR) salome_adm src doc bin resources
+if WITHONLYLAUNCHER
+  SUBDIRS = src resources
+else
+  SUBDIRS = $(IDLDIR) salome_adm src doc bin resources
+endif
 
 DIST_SUBDIRS=   idl salome_adm src doc bin resources
 

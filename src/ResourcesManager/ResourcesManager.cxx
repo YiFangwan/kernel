@@ -58,10 +58,12 @@ ResourcesManager_cpp(const char *xmlFilePath) :
  */ 
 //=============================================================================
 
-ResourcesManager_cpp::ResourcesManager_cpp()
+ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
 {
   cerr << "ResourcesManager_cpp constructor" << endl;
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
+  if(!getenv("KERNEL_ROOT_DIR"))
+    throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!!");
 
   if (_isAppliSalomeDefined)
     {

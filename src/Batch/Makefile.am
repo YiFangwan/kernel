@@ -113,15 +113,20 @@ LIB_SRC = \
 
 
 LIB_CPPFLAGS = \
-	${PYTHON_INCLUDES} \
+	${PYTHON_INCLUDES}
+if !WITHONLYLAUNCHER
+  LIB_CPPFLAGS += \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
-  -I$(top_builddir)/salome_adm/unix
+        -I$(top_builddir)/salome_adm/unix
+endif
 
-LIB_LIBADD   = \
+LIB_LIBADD =
+if !WITHONLYLAUNCHER
+  LIB_LIBADD   += \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la
-
+endif
 
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -157,7 +162,9 @@ LIB_SRC +=\
 	Batch_Job_Local.cxx \
 	Batch_IOMutex.cxx
 
-LIB_CPPFLAGS += -DHAVE_CONFIG_H
+if !WITHONLYLAUNCHER
+  LIB_CPPFLAGS += -DHAVE_CONFIG_H
+endif
 
 endif
 

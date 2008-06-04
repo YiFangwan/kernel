@@ -93,7 +93,11 @@ COMMON_LIBS =\
 # Libraries targets
 # ===============================================================
 #
-lib_LTLIBRARIES = libLauncher.la libSalomeLauncher.la
+if WITHONLYLAUNCHER
+  lib_LTLIBRARIES = libLauncher.la
+else
+  lib_LTLIBRARIES = libLauncher.la libSalomeLauncher.la
+endif
 libSalomeLauncher_la_SOURCES=\
 	SALOME_Launcher.cxx 
 
@@ -131,7 +135,9 @@ libLauncher_la_LIBADD =\
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = SALOME_LauncherServer
+if !WITHONLYLAUNCHER
+  bin_PROGRAMS = SALOME_LauncherServer
+endif
 
 SALOME_LauncherServer_SOURCES =\
 	SALOME_LauncherServer.cxx

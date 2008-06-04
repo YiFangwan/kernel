@@ -28,9 +28,9 @@
 
 #include <string>
 #include <sstream>
+#include <iostream>
 #include "Batch_BatchManagerCatalog.hxx"
 #include "Batch_FactBatchManager.hxx"
-#include "utilities.h"
 using namespace std;
 
 namespace Batch {
@@ -41,7 +41,7 @@ namespace Batch {
     BatchManagerCatalog::addFactBatchManager(type.c_str(), this);
     ostringstream msg;
     msg << "FactBatchManager of type '" << type << "' inserted into catalog";
-    MESSAGE(msg.str().c_str());
+    cerr << msg.str().c_str() << endl;
   }
 
   // Destructeur
