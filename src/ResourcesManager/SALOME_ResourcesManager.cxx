@@ -157,7 +157,6 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& p
     cl.push_back(string(componentList[i]));
   
   Engines::MachineList *ret=new Engines::MachineList;
-
   try{
       vector <std::string> vec = _rm.GetFittingResources(p,cl);
       ret->length(vec.size());
@@ -193,7 +192,7 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
   ParserResourcesType resource = _rm.GetResourcesList(string(hostname));
   Engines::MachineParameters *p_ptr = new Engines::MachineParameters;
   p_ptr->container_name = CORBA::string_dup("");
-  p_ptr->hostname = CORBA::string_dup("hostname");
+  p_ptr->hostname = CORBA::string_dup(resource.HostName.c_str());
   p_ptr->alias = CORBA::string_dup(resource.Alias.c_str());
   if( resource.Protocol == rsh )
     p_ptr->protocol = "rsh";
@@ -219,12 +218,13 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
     p_ptr->mpiImpl = "mpich2";
   else if( resource.mpi == openmpi )
     p_ptr->mpiImpl = "openmpi";
+  else if( resource.mpi == slurm )
+    p_ptr->mpiImpl = "slurm";
   if( resource.Batch == pbs )
     p_ptr->batch = "pbs";
   else if( resource.Batch == lsf )
     p_ptr->batch = "lsf";
-  else if( resource.Batch == slurm )
-    p_ptr->batch = "slurm";
+
   return p_ptr;
 }
 

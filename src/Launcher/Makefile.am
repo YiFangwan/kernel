@@ -38,6 +38,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS = \
   SALOME_Launcher_Parser.hxx \
   SALOME_Launcher_Handler.hxx \
+  BatchTest.hxx \
   SALOME_Launcher.hxx \
   Launcher.hxx
 
@@ -99,6 +100,7 @@ else
   lib_LTLIBRARIES = libLauncher.la libSalomeLauncher.la
 endif
 libSalomeLauncher_la_SOURCES=\
+	BatchTest.cxx \
 	SALOME_Launcher.cxx 
 
 libSalomeLauncher_la_CPPFLAGS =\

@@ -116,7 +116,7 @@ void ParserResourcesType::Print() const
 {
   ostringstream oss;
   oss << endl <<
-    "HostName : " << DataForSort._hostName << endl << 
+    "HostName : " << HostName << endl << 
     "Alias : " << Alias << endl <<
     "NbOfNodes : " << DataForSort._nbOfNodes << endl <<
     "NbOfProcPerNode : " << DataForSort._nbOfProcPerNode << endl <<
@@ -145,6 +145,7 @@ void ParserResourcesType::Clear()
   DataForSort._nbOfProcPerNode = 1;
   DataForSort._CPUFreqMHz = 0;
   DataForSort._memInMB = 0;
+  HostName = "";
   Alias = "";
   Protocol = rsh;
   Mode = interactive;

@@ -100,6 +100,8 @@ struct BatchParameters
     void deleteJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
     void getResultsJob( in string directory, in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
 
+    boolean testBatch(in MachineParameters params) raises (SALOME::SALOME_Exception);
+
     void Shutdown();
 
     long getPID();

@@ -597,6 +597,7 @@ def startSalome(args, modules_list, modules_root_dir):
     # set PYTHONINSPECT variable
     if args['pinter']:
         os.environ["PYTHONINSPECT"]="1"
+        import readline
         
     return clt
 

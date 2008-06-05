@@ -137,6 +137,12 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 	vec.push_back(hostname);
       }
 	
+    else if (_resourcesBatchList.find(hostname) != _resourcesBatchList.end())
+    {
+      // --- params.hostname is in the list of resources so return it.
+      vec.push_back(hostname);
+    }
+
     else
       {
 	// Cas d'un cluster: nombre de noeuds > 1
@@ -277,7 +283,7 @@ void ResourcesManager_cpp::WriteInXmlFile()
   xmlNewDocComment(aDoc, BAD_CAST "ResourcesCatalog");
 
   SALOME_ResourcesCatalog_Handler* handler =
-    new SALOME_ResourcesCatalog_Handler(_resourcesList);
+    new SALOME_ResourcesCatalog_Handler(_resourcesList, _resourcesBatchList);
   handler->PrepareDocToXmlFile(aDoc);
   delete handler;
 
@@ -303,7 +309,7 @@ void ResourcesManager_cpp::WriteInXmlFile()
 const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFile()
 {
   SALOME_ResourcesCatalog_Handler* handler =
-    new SALOME_ResourcesCatalog_Handler(_resourcesList);
+    new SALOME_ResourcesCatalog_Handler(_resourcesList, _resourcesBatchList);
 
   const char* aFilePath = _path_resources.c_str();
   FILE* aFile = fopen(aFilePath, "r");
@@ -437,7 +443,10 @@ throw(ResourcesException)
 
 ParserResourcesType ResourcesManager_cpp::GetResourcesList(const std::string& machine)
 {
-  return _resourcesList[machine];
+  if (_resourcesList.find(machine) != _resourcesList.end())
+    return _resourcesList[machine];
+  else
+    return _resourcesBatchList[machine];
 }
 
 std::string ResourcesManager_cpp::GetHostname()

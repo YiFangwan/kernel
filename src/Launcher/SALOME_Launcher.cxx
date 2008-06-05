@@ -174,6 +174,41 @@ CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
 
 //=============================================================================
 /*! CORBA Method:
+ *  the test batch configuration 
+ *  \param params             : The batch cluster
+ */
+//=============================================================================
+CORBA::Boolean 
+SALOME_Launcher::testBatch(const Engines::MachineParameters& params)
+{
+  MESSAGE("BEGIN OF SALOME_Launcher::testBatch");
+  CORBA::Boolean rtn = false;
+  try
+  {
+    // find a cluster matching the structure params
+    Engines::CompoList aCompoList ;
+    Engines::MachineList *aMachineList = _ResManager->GetFittingResources(params, aCompoList);
+    if (aMachineList->length() == 0)
+      throw SALOME_Exception("No resources have been found with your parameters");
+
+    const Engines::MachineParameters* p = _ResManager->GetMachineParameters((*aMachineList)[0]);
+    string clustername(p->alias);
+    INFOS("Choose cluster" <<  clustername);
+    BatchTest t(*p);
+    if (t.test()) 
+    {
+      rtn = true;
+    }
+  }
+  catch(const LauncherException &ex){
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
+  }
+  return rtn;
+}
+
+//=============================================================================
+/*! CORBA Method:
  *  Query a batch job on a cluster and returns the status of job
  *  \param jobId              : identification of Salome job
  *  \param params             : Constraints for the choice of the batch cluster

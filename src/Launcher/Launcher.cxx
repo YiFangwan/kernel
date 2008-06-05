@@ -138,6 +138,7 @@ long Launcher_cpp::submitJob( const std::string xmlExecuteFile,
     param[TMPDIR] = remotedir;
     param[MAXWALLTIME] = getWallTime("");
     param[MAXRAMSIZE] = getRamSize("");
+    param[HOMEDIR] = "";
 
     Batch::Environnement env;
     env["COMMAND"] = _launch.Command;
@@ -222,16 +223,26 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     param[INFILE] = Batch::Couple( fileToExecute, getRemoteFile(tmpdir,fileToExecute) );
     for(int i=0;i<filesToExport.size();i++)
       param[INFILE] += Batch::Couple( filesToExport[i], getRemoteFile(tmpdir,filesToExport[i]) );
-    if( filesToImport.size() > 0 ){
-      param[OUTFILE] = Batch::Couple( "", filesToImport[0] );
-      for(int i=1;i<filesToImport.size();i++)
-	param[OUTFILE] += Batch::Couple( "", filesToImport[i] );
-    }
+
+    ostringstream file_name_output;
+    file_name_output << "~/" << tmpdir << "/" << "output.log*";
+    ostringstream file_name_error;
+    file_name_error << "~/" << tmpdir << "/" << "error.log*";
+    ostringstream file_container_log;
+    file_container_log << "~/" << tmpdir << "/" << "YACS_Server*";
+    param[OUTFILE] = Batch::Couple( "", file_name_output.str());
+    param[OUTFILE] += Batch::Couple( "", file_name_error.str());
+    param[OUTFILE] += Batch::Couple( "", file_container_log.str());
+
+    for(int i=0;i<filesToImport.size();i++)
+      param[OUTFILE] += Batch::Couple( "", filesToImport[i] );
+
     param[NBPROC] = batch_params.nb_proc;
     param[WORKDIR] = batch_params.batch_directory;
     param[TMPDIR] = tmpdir;
     param[MAXWALLTIME] = getWallTime(batch_params.expected_during_time);
     param[MAXRAMSIZE] = getRamSize(batch_params.mem);
+    param[HOMEDIR] = getHomeDir(p, tmpdir);
 
     Batch::Environnement env;
 
@@ -464,7 +475,10 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   // -----------------------------------------------
   // Code for rank 0 : launch runAppli and a container
   // RunAppli
-  tempOutputFile << "  ./runAppli --terminal --modules=" ;
+  if(params.ModulesList.size()>0)
+    tempOutputFile << "  ./runAppli --terminal --modules=" ;
+  else
+    tempOutputFile << "  ./runAppli --terminal ";
   for ( int i = 0 ; i < params.ModulesList.size() ; i++ ) {
     tempOutputFile << params.ModulesList[i] ;
     if ( i != params.ModulesList.size()-1 )
@@ -601,7 +615,7 @@ bool Launcher_cpp::check(const batchParams& batch_params)
   cerr << "Directory : $HOME/Batch/$date" << endl;
 
   // check expected_during_time (check the format)
-  std::string edt_info;
+  std::string edt_info = batch_params.expected_during_time;
   std::string edt_value = batch_params.expected_during_time;
   if (edt_value != "") {
     std::string begin_edt_value = edt_value.substr(0, 2);
@@ -747,4 +761,36 @@ void Launcher_cpp::ParseXmlFile(string xmlExecuteFile)
   
   delete handler;
 
+}
+
+std::string Launcher_cpp::getHomeDir(const ParserResourcesType& p, const std::string& tmpdir)
+{
+  std::string home;
+  std::string command;
+  int idx = tmpdir.find("Batch/");
+  std::string filelogtemp = tmpdir.substr(idx+6, tmpdir.length());
+  filelogtemp = "/tmp/logs" + filelogtemp + "_home";
+  
+  if( p.Protocol == rsh )
+    command = "rsh ";
+  else if( p.Protocol == ssh )
+    command = "ssh ";
+  else
+    throw LauncherException("Unknown protocol");
+  if (p.UserName != ""){
+    command += p.UserName;
+    command += "@";
+  }
+  command += p.Alias;
+  command += " 'echo $HOME' > ";
+  command += filelogtemp;
+  std::cerr << command.c_str() << std::endl;
+  int status = system(command.c_str());
+  if(status)
+    throw LauncherException("Error of launching home command on remote host");
+  
+  std::ifstream file_home(filelogtemp.c_str());
+  std::getline(file_home, home);
+  file_home.close();
+  return home;
 }

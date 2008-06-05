@@ -84,6 +84,10 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     CORBA::ORB_var _orb;
     PortableServer::POA_var _poa;
 
+    //
+    //! will contain the informations on the data type catalog(after parsing)
+    MapOfParserResourcesType _resourcesBatchList;
+
     ResourcesManager_cpp _rm;
 
   };

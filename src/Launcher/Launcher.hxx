@@ -73,6 +73,7 @@ protected:
   Batch::BatchManager_eClient *FactoryBatchManager( const ParserResourcesType& params ) throw(LauncherException);
   std::string getTmpDirForBatchFiles();
   std::string getRemoteFile( std::string remoteDir, std::string localFile );
+  std::string getHomeDir(const ParserResourcesType& p, const std::string & tmpdir);  
 
   std::map <std::string,Batch::BatchManager_eClient*> _batchmap;
   std::map < std::pair<std::string,long> , Batch::Job* > _jobmap;

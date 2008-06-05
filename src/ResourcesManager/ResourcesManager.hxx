@@ -102,6 +102,9 @@ class ResourcesManager_cpp
     //! will contain the informations on the data type catalog(after parsing)
     MapOfParserResourcesType _resourcesList;
 
+    //! will contain the informations on the data type catalog(after parsing)
+    MapOfParserResourcesType _resourcesBatchList;
+
     SALOME_LoadRateManager _dynamicResourcesSelecter;
 
     //! different behaviour if $APPLI exists (SALOME Application) 

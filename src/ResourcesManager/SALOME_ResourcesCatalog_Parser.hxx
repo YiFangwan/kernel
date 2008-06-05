@@ -73,6 +73,7 @@ class ResourceDataToSort
 struct ParserResourcesType
   {
     ResourceDataToSort DataForSort;
+    std::string HostName;
     std::string Alias;
     AccessProtocolType Protocol;
     AccessModeType Mode;

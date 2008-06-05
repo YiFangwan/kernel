@@ -242,6 +242,7 @@ namespace Batch {
     const string workDir = params[WORKDIR];
     const std::string dirForTmpFiles = params[TMPDIR];
     const string fileToExecute = params[EXECUTABLE];
+    const string home = params[HOMEDIR];
     std::string rootNameToExecute;
     std::string fileNameToExecute;
     std::string filelogtemp;
@@ -269,12 +270,12 @@ namespace Batch {
       tempOutputFile << "#BSUB -M " << mem*1024 << endl ;
     tempOutputFile << "#BSUB -n " << nbproc << endl ;
     if( fileToExecute.size() > 0 ){
-      tempOutputFile << "#BSUB -o output.log." << filelogtemp << endl ;
-      tempOutputFile << "#BSUB -e error.log." << filelogtemp << endl ;
+      tempOutputFile << "#BSUB -o " << home << "/" << dirForTmpFiles << "/output.log." << filelogtemp << endl ;
+      tempOutputFile << "#BSUB -e " << home << "/" << dirForTmpFiles << "/error.log." << filelogtemp << endl ;
     }
     else{
-      tempOutputFile << "#BSUB -o " << env["LOGFILE"] << ".output.log" << endl ;
-      tempOutputFile << "#BSUB -e " << env["LOGFILE"] << ".error.log" << endl ;
+      tempOutputFile << "#BSUB -o " << dirForTmpFiles << "/" << env["LOGFILE"] << ".output.log" << endl ;
+      tempOutputFile << "#BSUB -e " << dirForTmpFiles << "/" << env["LOGFILE"] << ".error.log" << endl ;
     }
     if( workDir.size() > 0 )
       tempOutputFile << "cd " << workDir << endl ;
