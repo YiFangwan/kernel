@@ -384,9 +384,6 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
 	case lsf:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "lsf");
           break;
-	case slurm:
-	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "slurm");
-          break;
         default:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");
         }
@@ -404,6 +401,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
           break;
 	case openmpi:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
+          break;
+	case slurm:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurm");
           break;
         default:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "");
@@ -467,9 +467,6 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
 	case lsf:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "lsf");
           break;
-	case slurm:
-	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "slurm");
-          break;
         default:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");
         }
@@ -487,6 +484,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
           break;
 	case openmpi:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
+          break;
+	case slurm:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurm");
           break;
         default:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "");
