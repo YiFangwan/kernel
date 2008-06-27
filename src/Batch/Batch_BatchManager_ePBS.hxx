@@ -51,7 +51,7 @@ namespace Batch {
   {
   public:
     // Constructeur et destructeur
-    BatchManager_ePBS(const FactBatchManager * parent, const char * host="localhost", const char * protocol="ssh", const char * mpiImpl="indif") throw(InvalidArgumentException,ConnexionFailureException); // connexion a la machine host
+    BatchManager_ePBS(const FactBatchManager * parent, const char * host="localhost", const char * protocol="ssh", const char * mpiImpl="nompi") throw(InvalidArgumentException,ConnexionFailureException); // connexion a la machine host
     virtual ~BatchManager_ePBS();
 
     // Recupere le nom du serveur par defaut

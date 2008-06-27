@@ -230,7 +230,7 @@ char* SALOME_Launcher::queryJob( const CORBA::Long jobId,
     status = _l.queryJob(jobId,p);
   }
   catch(const LauncherException &ex){
-    INFOS("Caught exception.");
+    INFOS(ex.msg.c_str());
     THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
   }
   return CORBA::string_dup(status.c_str());

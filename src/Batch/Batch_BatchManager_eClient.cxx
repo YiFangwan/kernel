@@ -196,6 +196,8 @@ namespace Batch {
       return new MpiImpl_OPENMPI();
     else if(mpiImpl == "slurm")
       return new MpiImpl_SLURM();
+    else if(mpiImpl == "nompi")
+      throw EmulationException("you must specified an mpi implementation for batch manager");
     else{
       ostringstream oss;
       oss << mpiImpl << " : not yet implemented";

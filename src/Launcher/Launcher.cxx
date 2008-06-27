@@ -20,6 +20,7 @@
 #include "Batch_Date.hxx"
 #include "Batch_FactBatchManager_eLSF.hxx"
 #include "Batch_FactBatchManager_ePBS.hxx"
+#include "Batch_FactBatchManager_eSGE.hxx"
 #include "SALOME_Launcher_Handler.hxx"
 #include "Launcher.hxx"
 #include <iostream>
@@ -288,12 +289,19 @@ string Launcher_cpp::queryJob( long id,
   if(it == _batchmap.end())
     throw LauncherException("no batchmanager for that cluster");
     
-  ostringstream oss;
-  oss << id;
-  Batch::JobId jobId( _batchmap[clustername], oss.str() );
+  Batch::Parametre par;
+  try{
+    ostringstream oss;
+    oss << id;
+    Batch::JobId jobId( _batchmap[clustername], oss.str() );
 
-  Batch::JobInfo jinfo = jobId.queryJob();
-  Batch::Parametre par = jinfo.getParametre();
+    Batch::JobInfo jinfo = jobId.queryJob();
+    par = jinfo.getParametre();
+  }
+  catch(const Batch::EmulationException &ex){
+    throw LauncherException(ex.msg.c_str());
+  }
+
   return par[STATE];
 }
 
@@ -422,8 +430,11 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserReso
   case slurm:
     mpi = "slurm";
     break;
+  case nompi:
+    throw LauncherException("you must specified an mpi implementation for batch manager");
+    break;
   default:
-    mpi = "indif";
+    throw LauncherException("unknown mpi implementation");
     break;
   }    
   cerr << "Instanciation of batch manager" << endl;
@@ -435,6 +446,10 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserReso
   case lsf:
     cerr << "Instantiation of LSF batch manager" << endl;
     fact = new Batch::FactBatchManager_eLSF;
+    break;
+  case sge:
+    cerr << "Instantiation of SGE batch manager" << endl;
+    fact = new Batch::FactBatchManager_eSGE;
     break;
   default:
     cerr << "BATCH = " << params.Batch << endl;
@@ -568,8 +583,9 @@ MpiImpl *Launcher_cpp::FactoryMpiImpl(MpiImplType mpi) throw(LauncherException)
     return new MpiImpl_OPENMPI();
   case slurm:
     return new MpiImpl_SLURM();
-  case indif:
-    throw LauncherException("you must specify a mpi implementation in CatalogResources.xml file");
+  case nompi:
+    throw LauncherException("you must specified an mpi implementation for batch manager");
+    break;
   default:
     ostringstream oss;
     oss << mpi << " : not yet implemented";

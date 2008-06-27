@@ -260,6 +260,12 @@ BatchTest::test_jobsubmit_simple()
     result = "OK";
     return result;
   }
+  if (batch_type == "sge")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for sge... return OK");
+    result = "OK";
+    return result;
+  }
   if (batch_type != "pbs")
   {
     result += "Batch type unknown ! : " + batch_type;
@@ -425,10 +431,17 @@ BatchTest::test_jobsubmit_mpi()
     return result;
   }
 
-  // SLURM not yet implemented...
+  // LSF et SGE not yet implemented...
   if (batch_type == "lsf")
   {
     INFOS("test_jobsubmit_simple not yet implemented for lsf... return OK");
+    result = "OK";
+    return result;
+  }
+
+  if (batch_type == "sge")
+  {
+    INFOS("test_jobsubmit_simple not yet implemented for sge... return OK");
     result = "OK";
     return result;
   }

@@ -18,7 +18,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 /*
- * BatchManager_eLSF.hxx : emulation of client
+ * JobInfo_eSGE.hxx :  emulation of SGE client
  *
  * Auteur : Bernard SECHER - CEA DEN
  * Mail   : mailto:bernard.secher@cea.fr
@@ -27,44 +27,40 @@
  *
  */
 
-#ifndef _BATCHMANAGER_eClient_H_
-#define _BATCHMANAGER_eClient_H_
+#ifndef _JOBINFO_SGE_H_
+#define _JOBINFO_SGE_H_
 
-
-#include "MpiImpl.hxx"
-#include "Batch_BatchManager.hxx"
+#include <string>
+#include "Batch_RunTimeException.hxx"
+#include "Batch_JobInfo.hxx"
 
 namespace Batch {
 
-  class Job;
-
-  class EmulationException
+  class JobInfo_eSGE : public JobInfo
   {
   public:
-    const std::string msg;
-    
-    EmulationException(const std::string m) : msg(m) {}
-  };
+    // Constructeurs et destructeur
+    JobInfo_eSGE() : _running(false) {};
+    JobInfo_eSGE(int id,std::string logFile);
+    virtual ~JobInfo_eSGE();
 
-  class BatchManager_eClient : public BatchManager
-  {
-  public:
-    // Constructeur et destructeur
-    BatchManager_eClient(const Batch::FactBatchManager * parent, const char* host="localhost", const char* protocol="ssh", const char* mpiImpl="mpich1");
-    virtual ~BatchManager_eClient();
-    void importOutputFiles( const Job & job, const std::string directory ) throw(EmulationException);
+    // Constructeur par recopie
+    JobInfo_eSGE(const JobInfo_eSGE & jinfo) : JobInfo(jinfo) {};
+
+    // Teste si un job est present en machine
+    virtual bool isRunning() const;
+
+    // Methodes pour l'interfacage avec Python (SWIG)
+    // TODO : supprimer ces methodes et transferer leur definitions dans SWIG
+    string  __str__() const; // SWIG : affichage en Python
+    string  __repr__() const { return __str__(); }; // SWIG : affichage en Python
 
   protected:
-    std::string _protocol; // protocol to access _hostname
-    std::string _username; // username to access _hostname
-    MpiImpl *_mpiImpl; // Mpi implementation to launch executable in batch script
-
-    std::string BuildTemporaryFileName() const;
-    void RmTmpFile(std::string & TemporaryFileName);
-    MpiImpl* FactoryMpiImpl(string mpiImpl) throw(EmulationException);
-    void exportInputFiles(const Job & job) throw(EmulationException);
+    bool _running; // etat du job en machine
 
   private:
+    // Convertit une date HH:MM:SS en secondes
+    long HMStoLong(const string &);
 
   };
 
