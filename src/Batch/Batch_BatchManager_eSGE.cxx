@@ -56,7 +56,6 @@ namespace Batch {
     string::size_type p1 = fileToExecute.find_last_of("/");
     string::size_type p2 = fileToExecute.find_last_of(".");
     std::string fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
-    cerr << "Entree BatchManager_eSGE::submitJob" << endl;
 
     // export input files on cluster
     exportInputFiles(job);
