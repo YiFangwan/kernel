@@ -37,17 +37,14 @@
 #else
 #include <signal.h>
 #include <process.h>
+#include <direct.h>
 int SIGUSR1 = 1000;
 #endif
 
 #include "utilities.h"
 #include <SALOMEconfig.h>
-//#ifndef WNT
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include CORBA_SERVER_HEADER(SALOME_Exception)
-//#else
-//#include <SALOME_Component.hh>
-//#endif
 #include <pthread.h>  // must be before Python.h !
 #include "SALOME_Container_i.hxx"
 #include "SALOME_Component_i.hxx"

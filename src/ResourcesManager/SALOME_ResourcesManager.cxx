@@ -639,12 +639,22 @@ SALOME_ResourcesManager::BuildCommandToLaunchLocalContainer
           if(wdir == "$TEMPDIR")
             {
               // a new temporary directory is requested
-              char dir[]="/tmp/salomeXXXXXX";
+              /*char dir[]="/tmp/salomeXXXXXX";
               char* mdir=mkdtemp(dir);
               if(mdir==NULL)
                 std::cerr << "Problem in mkdtemp " << dir << " " << mdir << std::endl;
               else
                 command="cd "+std::string(dir)+";";
+              */
+              string dir = OpUtil_Dir::GetTmpDir();
+#ifdef WNT
+              if ( dir.length() > 1 && dir[1] == ':')
+                command = dir.substr( 0, 2 ) + ";";
+              command += "cd "+ dir +";";
+#else
+              command = "cd "+ dir +";";
+#endif
+
             }
           else
             {

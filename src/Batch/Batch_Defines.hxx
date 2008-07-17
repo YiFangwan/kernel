@@ -1,5 +1,3 @@
-//  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
-//
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
@@ -17,40 +15,25 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
 //
 //
 //
-//  File   : HDFcontainerObject.hxx
+//  File   : Batch_Defines.hxx
+//  Author : Alexander A. BORODIN
 //  Module : SALOME
 
-#ifndef HDFCONTAINEROBJECT_HXX
-#define HDFCONTAINEROBJECT_HXX
+#ifndef _BATCH_Defines_HXX_
+#define _BATCH_Defines_HXX_
 
-extern "C"
-{
-#include "HDFtypes.h"
-}
-#include "HDFobject.hxx"
-#include "HDFinternalObject.hxx"
-#include "HDFexport.hxx"
+#ifdef WNT
+# ifdef BATCH_EXPORTS
+#  define BATCH_EXPORT __declspec( dllexport )
+# else
+#  define BATCH_EXPORT __declspec( dllimport )
+# endif
+#else
+# define BATCH_EXPORT
+#endif
 
-class HDFPERSIST_EXPORT HDFcontainerObject : public HDFinternalObject
-{ 
-private :
-  HDFinternalObject *_firstson;
-  HDFinternalObject *_lastson;
-  int _nsons;
-public :
-  HDFcontainerObject(const char *name);
-  virtual ~HDFcontainerObject();
-
-  virtual int nInternalObjects();
-  virtual void InternalObjectIndentify(int rank, char *object_name);
-  
-  void AddSon(HDFinternalObject *son);
-  HDFinternalObject *GetFirstSon();
-  HDFinternalObject *GetLastSon();
-  int nSons();
-};
 #endif

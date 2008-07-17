@@ -59,7 +59,8 @@ LIB_INCLUDES = \
 	Batch_PyVersatile.hxx \
 	Batch_RunTimeException.hxx \
 	Batch_StringType.hxx \
-	Batch_TypeMismatchException.hxx 
+	Batch_TypeMismatchException.hxx \
+	Batch_Defines.hxx
 
 
 LIB_SRC = \

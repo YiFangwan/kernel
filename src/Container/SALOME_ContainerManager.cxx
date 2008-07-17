@@ -26,7 +26,9 @@
 #endif
 #include <vector>
 #include "Utils_CorbaException.hxx"
+#ifndef WNT //not ported
 #include "Batch_Date.hxx"
+#endif
 
 #ifdef WITH_PACO_PARALLEL
 #include "PaCO++.h"

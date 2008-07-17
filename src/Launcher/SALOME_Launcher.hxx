@@ -29,18 +29,14 @@
 
 class SALOME_NamingService;
 
-#if defined LAUNCHER_EXPORTS
-#if defined WIN32
-#define LAUNCHER_EXPORT __declspec( dllexport )
+#ifdef WNT
+# ifdef LAUNCHER_EXPORTS
+#   define LAUNCHER_EXPORT __declspec( dllexport )
+# else
+#   define LAUNCHER_EXPORT __declspec( dllimport )
+# endif
 #else
-#define LAUNCHER_EXPORT
-#endif
-#else
-#if defined WNT
-#define LAUNCHER_EXPORT __declspec( dllimport )
-#else
-#define LAUNCHER_EXPORT
-#endif
+# define LAUNCHER_EXPORT
 #endif
 
 class LAUNCHER_EXPORT SALOME_Launcher:
@@ -58,9 +54,9 @@ public:
 			      const Engines::BatchParameters& batch_params,
 			      const Engines::MachineParameters& params);
 
-  char* querySalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
-  void deleteSalomeJob( const CORBA::Long jobId, const Engines::MachineParameters& params);
-  void getResultSalomeJob( const char * directory, const CORBA::Long jobId, const Engines::MachineParameters& params );
+  char* querySalomeJob( CORBA::Long jobId, const Engines::MachineParameters& params);
+  void deleteSalomeJob( CORBA::Long jobId, const Engines::MachineParameters& params);
+  void getResultSalomeJob( const char * directory, CORBA::Long jobId, const Engines::MachineParameters& params );
 
   void Shutdown();
 

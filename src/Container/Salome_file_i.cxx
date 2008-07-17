@@ -25,10 +25,18 @@
 
 #include "Salome_file_i.hxx"
 #include "utilities.h"
-#include <stdlib.h>
-#include <unistd.h>
 #include "HDFOI.hxx"
 #include <stdlib.h>
+#ifndef WNT
+# include <unistd.h>
+# define _getcwd getcwd
+# define _open   open
+#else
+# include <direct.h>
+# include <io.h>
+# include <windows.h>
+#endif
+
 
 //=============================================================================
 /*! 
@@ -39,7 +47,12 @@
 Salome_file_i::Salome_file_i()
 {
   _fileId = 0;
+#ifndef WIN32
   _path_max = 1 + pathconf("/", _PC_PATH_MAX);
+#else
+  _path_max = 32768; //from MSDN.
+  //for full compablity with FAT32, needs _MAX_PATH
+#endif
   _state.name = CORBA::string_dup("");
   _state.hdf5_file_name = CORBA::string_dup("");
   _state.number_of_files = 0;
@@ -155,8 +168,8 @@ Salome_file_i::load(const char* hdf5_file) {
       if (mode == "all") {
 
 	// Changing path, is now current directory
-	char CurrentPath[_path_max];
-	getcwd(CurrentPath, _path_max);
+	char* CurrentPath = new char[_path_max];
+	_getcwd(CurrentPath, _path_max);
 	path = CurrentPath;
 
 	std::string group_name("GROUP");
@@ -168,7 +181,7 @@ Salome_file_i::load(const char* hdf5_file) {
 	size = hdf_dataset->GetSize();
 	buffer = new char[size];
       
-	if ( (fd = ::open(file_name.c_str(),O_RDWR|O_CREAT,00666)) <0) { 
+	if ( (fd = ::_open(file_name.c_str(),O_RDWR|O_CREAT,00666)) <0) { 
 	  SALOME::ExceptionStruct es;
 	  es.type = SALOME::INTERNAL_ERROR;
 	  std::string text = "open failed";
@@ -492,8 +505,8 @@ Salome_file_i::setLocalFile(const char* comp_file_name)
   else
   {
     file_name = comp_file_name;
-    char CurrentPath[_path_max];
-    getcwd(CurrentPath, _path_max);
+    char* CurrentPath = new char[_path_max];
+    _getcwd(CurrentPath, _path_max);
     path = CurrentPath;
   }
 
@@ -556,8 +569,8 @@ Salome_file_i::setDistributedFile(const char* comp_file_name)
   else
   {
     file_name = comp_file_name;
-    char CurrentPath[_path_max];
-    getcwd(CurrentPath, _path_max);
+    char* CurrentPath = new char[_path_max];
+    _getcwd(CurrentPath, _path_max);
     path = CurrentPath;
   }
 

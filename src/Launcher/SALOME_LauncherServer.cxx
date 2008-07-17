@@ -24,6 +24,13 @@
 #include <stdexcept>
 #include <libxml/parser.h>
 
+#ifdef WNT
+# include <process.h>
+# define getPID _getpid
+#else
+# define getPID getpid
+#endif
+
 using namespace std;
 
 void AttachDebugger()

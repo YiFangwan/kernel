@@ -23,11 +23,8 @@
 
 #include "SALOMEDSImpl_AttributeInteger.hxx"
 
-#ifndef WNT
-using namespace std;
-#endif
-
 #include <stdlib.h>
+using namespace std;
 
 //=======================================================================
 //function : GetID
@@ -114,7 +111,7 @@ void SALOMEDSImpl_AttributeInteger::Paste (DF_Attribute* Into)
 //=======================================================================
 string SALOMEDSImpl_AttributeInteger::Save() 
 { 
-  char buffer[128]; 
+  char* buffer = new char[128]; 
   sprintf(buffer, "%d", myValue);
   return string(buffer); 
 }

@@ -1,5 +1,3 @@
-//  SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
-//
 //  Copyright (C) 2003  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
 // 
@@ -17,35 +15,25 @@
 //  License along with this library; if not, write to the Free Software 
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA 
 // 
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//  See http://www.opencascade.org/SALOME/ or email : webmaster.salome@opencascade.org 
 //
 //
 //
-//  File   : HDFobject.hxx
-//  Module : SALOME
+//  File   : SALOMEDSImpl_Defines.hxx
+//  Author : Alexander A. BORODIN
+//  Module : KERNEL
 
-#ifndef HDFOBJECT_HXX
-#define HDFOBJECT_HXX
+#ifndef _SALOMEDSImpl_Defines_HXX_
+#define _SALOMEDSImpl_Defines_HXX_
 
-extern "C"
-{
-#include "HDFtypes.h"
-}
-#include <HDFexport.hxx>
+#ifdef WIN32
+# if defined SALOMEDSIMPL_EXPORTS
+#  define SALOMEDSIMPL_EXPORT __declspec( dllexport )
+# else
+#  define SALOMEDSIMPL_EXPORT __declspec( dllimport )
+# endif
+#else
+# define SALOMEDSIMPL_EXPORT
+#endif
 
-class HDFPERSIST_EXPORT HDFobject {
-protected :
-  char *_name;
-  hdf_idt _id;
-public :
-  HDFobject(const char *name);
-  virtual ~HDFobject();
-
-  hdf_idt GetId();
-  char *GetName();
-  virtual hdf_object_type GetObjectType();
-  
-};
-
-#endif /* HDFOBJECT_HXX */ 
-
+#endif
