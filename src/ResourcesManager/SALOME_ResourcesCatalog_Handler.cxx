@@ -29,15 +29,8 @@
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include <iostream>
 #include <map>
-#include "utilities.h"
 
 using namespace std;
-
-#ifdef _DEBUG_
-static int MYDEBUG = 1;
-#else
-static int MYDEBUG = 0;
-#endif
 
 //=============================================================================
 /*!
@@ -104,8 +97,6 @@ SALOME_ResourcesCatalog_Handler::GetResourcesAfterParsing() const
 
 void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 {
-//   if (MYDEBUG) cout << "Begin parse document" << endl;
-
   // Empty private elements
   _resources_list.clear();
 
@@ -307,26 +298,22 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
       aCurNode = aCurNode->next;
     }
 
-  // For debug only
-  if (MYDEBUG)
-    {
-      for (map<string, ParserResourcesType>::const_iterator iter =
-	     _resources_list.begin();
-	   iter != _resources_list.end();
-	   iter++)
-	{
-	  SCRUTE((*iter).second.HostName);
-	  SCRUTE((*iter).second.Alias);
-	  SCRUTE((*iter).second.UserName);
-	  SCRUTE((*iter).second.AppliPath);
-	  SCRUTE((*iter).second.OS);
-	  SCRUTE((*iter).second.Protocol);
-	  SCRUTE((*iter).second.Mode);
-	}
-      
-//       cout << "This is the end of document" << endl;
-//     }
-    }
+#ifdef _DEBUG_
+    for (map<string, ParserResourcesType>::const_iterator iter =
+	   _resources_list.begin();
+	 iter != _resources_list.end();
+	 iter++)
+      {
+	std::cerr << (*iter).second.HostName << std::endl;
+	std::cerr << (*iter).second.Alias << std::endl;
+	std::cerr << (*iter).second.UserName << std::endl;
+	std::cerr << (*iter).second.AppliPath << std::endl;
+	std::cerr << (*iter).second.OS << std::endl;
+	std::cerr << (*iter).second.Protocol << std::endl;
+	std::cerr << (*iter).second.Mode << std::endl;
+      }
+#endif
+
 }
 
 
