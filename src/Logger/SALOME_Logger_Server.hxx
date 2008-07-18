@@ -13,10 +13,8 @@
 
 #include <SALOMEconfig.h>
 
-#ifndef WNT
-#include <fstream.h>
-#else
 #include <fstream>
+#ifdef WNT
 #include <iosfwd>
 #endif
 #include <omnithread.h>
@@ -52,11 +50,8 @@ private:
 	//otherwise all messages will be put into terminal via cout 
         bool m_putIntoFile;
 	//ofstream class specialized for disk file output
-#ifndef WNT
-        ofstream m_outputFile; 
-#else
-		std::ofstream m_outputFile; 
-#endif
+	std::ofstream m_outputFile; 
+
 	//synchronisation object
 	static omni_mutex myLock;
 };

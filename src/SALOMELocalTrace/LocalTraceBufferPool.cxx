@@ -27,6 +27,7 @@
 #include <iostream>
 #include <limits.h>
 #include <cassert>
+#include <string.h>
 
 #ifndef WNT
 #include <dlfcn.h>

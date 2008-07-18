@@ -29,6 +29,10 @@
 #ifndef _BATCHMANAGER_H_
 #define _BATCHMANAGER_H_
 
+#include <string.h>
+#include <stdlib.h>
+#include <limits.h>
+
 #include <string>
 #include <map>
 #include "Batch_Job.hxx"
