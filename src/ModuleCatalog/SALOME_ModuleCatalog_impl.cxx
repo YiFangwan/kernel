@@ -36,9 +36,9 @@ using namespace std;
 #include "utilities.h"
 
 #ifdef _DEBUG_
-static int MYDEBUG = 1;
+static int MYDEBUG = 0;
 #else
-static int MYDEBUG = 1;
+static int MYDEBUG = 0;
 #endif
 
 static const char* SEPARATOR     = "::";
@@ -747,6 +747,8 @@ void SALOME_ModuleCatalogImpl::duplicate
   C_corba.type = ComponentTypeConvert[C_parser.type];
   if(C_parser.implementationType == "EXE")
     C_corba.implementationType=SALOME_ModuleCatalog::EXE;
+  else if(C_parser.implementationType == "CEXE")
+    C_corba.implementationType=SALOME_ModuleCatalog::CEXE;
   else if(C_parser.implementationType == "PY")
     C_corba.implementationType=SALOME_ModuleCatalog::PY;
   else

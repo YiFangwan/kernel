@@ -4,7 +4,7 @@
 # ================================================================
 #
 #AC_PREREQ(2.59)
-AC_INIT([Salome2 Project], [4.1.2], [paul.rascle@edf.fr], [SalomeKer])
+AC_INIT([Salome2 Project], [4.1.3], [paul.rascle@edf.fr], [SalomeKer])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
@@ -14,7 +14,7 @@ AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([tar-pax])
 #AC_CONFIG_HEADER([config.h])
 
-XVERSION=0x040102
+XVERSION=0x040103
 AC_SUBST(XVERSION)
 
 # set up MODULE_NAME variable for dynamic construction of directories (resources, etc.)
@@ -475,38 +475,11 @@ else
    AC_SUBST(SETX) SETX="set -x"
 fi
 
-echo 
-echo ---------------------------------------------
-echo copying resource files, shell scripts, and 
-echo xml files
-echo ---------------------------------------------
-echo
-
-
-mkdir -p bin/salome
-cd bin/salome
-for i in  `find $ROOT_SRCDIR/bin`
-do
-  local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR/bin,.,"`
-  case "$local_bin" in
-        *.in | *~) ;;
-        . | */CVS | */CVS/* | ./salome) ;;
-        ./appliskel |./appliskel/env.d) $INSTALL -d $local_bin ; echo $local_bin ;;
-        *) $INSTALL $i $local_bin; echo $local_bin ;;
-  esac
-done
-cd $ROOT_BUILDDIR
-
 echo
 echo ---------------------------------------------
 echo generating Makefiles and configure files
 echo ---------------------------------------------
 echo
-
-AC_OUTPUT_COMMANDS([ \
-	chmod +x ./bin/*; \
-	chmod +x ./bin/salome/* \
-])
 
 # This list is initiated using autoscan and must be updated manually
 # when adding a new file <filename>.in to manage. When you execute

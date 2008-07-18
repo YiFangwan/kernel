@@ -334,7 +334,10 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   // -----------------------------------------------
   // Code for rank 0 : launch runAppli and a container
   // RunAppli
-  tempOutputFile << "  ./runAppli --terminal --modules=" ;
+  if(params.ModulesList.size()>0)
+    tempOutputFile << "  ./runAppli --terminal --modules=" ;
+  else
+    tempOutputFile << "  ./runAppli --terminal ";
   for ( int i = 0 ; i < params.ModulesList.size() ; i++ ) {
     tempOutputFile << params.ModulesList[i] ;
     if ( i != params.ModulesList.size()-1 )
