@@ -147,7 +147,10 @@ string MpiImpl_MPICH2::rank()
 string MpiImpl_MPICH2::boot(const string machinefile, const unsigned int nbnodes)
 {
   ostringstream oss;
-  oss << "mpdboot -n " << nbnodes << " -f " << machinefile << endl;
+  oss << "mpdboot" << " -n " << nbnodes;
+  if (machinefile!="")
+    oss  << " -f " << machinefile;
+  oss << endl;
   return oss.str();
 }
 
