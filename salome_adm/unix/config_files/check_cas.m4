@@ -188,8 +188,7 @@ if test "x$occ_ok" = xyes ; then
   AC_CACHE_VAL(salome_cv_lib_occ,[
     AC_TRY_LINK(
 #include <TCollection_AsciiString.hxx>
-,   size_t size;
-    TCollection_AsciiString aStr ("toto");
+,    TCollection_AsciiString aStr ("toto");
     aStr.Capitalize();, 
     eval "salome_cv_lib_occ=yes",eval "salome_cv_lib_occ=no")
   ])
