@@ -38,6 +38,7 @@ struct omniORBpyAPI {
 };
 
   omniORBpyAPI* api;
+  PyObject* dsc ;
 
 
 %}
@@ -60,6 +61,9 @@ struct omniORBpyAPI {
   PyObject* pyapi = PyObject_GetAttrString(omnipy, (char*)"API");
   api = (omniORBpyAPI*)PyCObject_AsVoidPtr(pyapi);
   Py_DECREF(pyapi);
+
+  PyObject* engines = PyImport_ImportModule("Engines");
+  dsc = PyObject_GetAttrString(engines, "DSC");
 %}
 
 %include <exception.i>
@@ -78,6 +82,9 @@ struct omniORBpyAPI {
 
 #ifdef WITH_NUMPY
 /* With Numpy */
+#ifdef HAVE_ISINF
+#undef HAVE_ISINF
+#endif
 #include <numpy/arrayobject.h>
 
 typedef PyArrayObject ArrayObject;
@@ -92,7 +99,7 @@ typedef PyArrayObject ArrayObject;
 
 /* Given a PyObject, return a string describing its type.
  */
-char* pytype_string(PyObject* py_obj) {
+const char* pytype_string(PyObject* py_obj) {
   if (py_obj == NULL          ) return "C NULL value";
   if (PyCallable_Check(py_obj)) return "callable"    ;
   if (PyString_Check(  py_obj)) return "string"      ;
@@ -148,8 +155,8 @@ enum NPY_TYPECHAR { NPY_BOOLLTR = '?',
 
 /* Given a Numeric typecode, return a string describing the type.
  */
-char* typecode_string(int typecode) {
-  char* type_names[] = {"bool","byte","unsigned byte","short",
+const char* typecode_string(int typecode) {
+  const char* type_names[] = {"bool","byte","unsigned byte","short",
         "unsigned short","int","unsigned int","long","unsigned long",
         "longlong","unsigned longlong",
         "float","double","long double","complex float","complex double","complex long double",
@@ -176,16 +183,16 @@ PyArrayObject* obj_to_array_no_conversion(PyObject* input, int typecode) {
         ary = (PyArrayObject*) input;
     }
     else if is_array(input) {
-      char* desired_type = typecode_string(typecode);
-      char* actual_type = typecode_string(array_type(input));
+      const char* desired_type = typecode_string(typecode);
+      const char* actual_type = typecode_string(array_type(input));
       PyErr_Format(PyExc_TypeError,
        "Array of type '%s' required.  Array of type '%s' given",
        desired_type, actual_type);
       ary = NULL;
     }
     else {
-      char * desired_type = typecode_string(typecode);
-      char * actual_type = pytype_string(input);
+      const char * desired_type = typecode_string(typecode);
+      const char * actual_type = pytype_string(input);
       PyErr_Format(PyExc_TypeError,
        "Array of type '%s' required.  A %s was given",
        desired_type, actual_type);
@@ -418,10 +425,10 @@ struct stringArray
 %define TYPEMAP_IN3(type,typecode)
 %typemap(in) type* IN_ARRAY3
              (ArrayObject* array=NULL, int is_new_object) {
-  int size[1] = {-1};
   if ((SWIG_ConvertPtr($input, (void **) &$1, $1_descriptor,0)) == -1)
   {
 %#ifdef WITH_NUMPY
+    int size[1] = {-1};
     array = obj_to_array_contiguous_allow_conversion($input, typecode, &is_new_object);
     if (!array || !require_dimensions(array,1) || !require_size(array,size,1)) SWIG_fail;
     $1 = (type*) array->data;
@@ -448,10 +455,10 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
 /*  Specific typemap for complex */
 %typemap(in) float*  ecpval
              (ArrayObject* array=NULL, int is_new_object) {
-  int size[1] = {-1};
   if ((SWIG_ConvertPtr($input, (void **) &$1, $1_descriptor,0)) == -1)
   {
 %#ifdef WITH_NUMPY
+    int size[1] = {-1};
     array = obj_to_array_contiguous_allow_conversion($input, PyArray_CFLOAT, &is_new_object);
     if (!array || !require_dimensions(array,1) || !require_size(array,size,1)) SWIG_fail;
     $1 = (float*) array->data;
@@ -468,11 +475,11 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
 /* array of strings on input */
 %typemap(in) char** eval
          (ArrayObject* array=NULL, int is_new_object) {
-  int size[1] = {-1};
   stringArray* sarray;
   if ((SWIG_ConvertPtr($input, (void **) &sarray, $descriptor(stringArray *),0)) == -1)
   {
 %#ifdef WITH_NUMPY
+    int size[1] = {-1};
     array = obj_to_array_contiguous_allow_conversion($input, PyArray_STRING, &is_new_object);
     if (!array || !require_dimensions(array,1) || !require_size(array,size,1)) SWIG_fail;
     $1 = (char**) malloc(array_size(array,0)*sizeof(char*));
@@ -508,6 +515,7 @@ TYPEMAP_IN3(double,  PyArray_DOUBLE)
     if (!temp  || !require_contiguous(temp)) SWIG_fail;
     $1 = (type*) temp->data;
 %#else
+    temp = NULL;
     SWIG_exception(SWIG_TypeError, "type* expected");
 %#endif
   }
@@ -534,6 +542,7 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
     if (!temp  || !require_contiguous(temp)) SWIG_fail;
     $1 = (float*) temp->data;
 %#else
+    temp = NULL;
     SWIG_exception(SWIG_TypeError, "complex array expected");
 %#endif
   }
@@ -553,6 +562,7 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
     for(int i=0;i<array_size(temp,0);i++)
       $1[i]=(char*) temp->data+i*temp->strides[0];
 %#else
+    temp = NULL;
     SWIG_exception(SWIG_TypeError, "string array expected");
 %#endif
   }
@@ -569,6 +579,10 @@ TYPEMAP_INPLACE3(double,  PyArray_DOUBLE)
 %typemap(in) CORBA::Boolean
 {
   $1=(CORBA::Boolean)PyInt_AsLong($input);
+}
+%typemap(out) CORBA::Boolean
+{
+  $result=PyInt_FromLong($1 ? 1 : 0);
 }
 
 %define CORBAPTR(type)
@@ -630,17 +644,29 @@ CORBAPTR(PortableServer::POA)
    }
    catch(Engines::DSC::PortNotDefined& _e) {
       Py_BLOCK_THREADS
-      PyErr_SetString(PyExc_ValueError,"Port not defined");
+      PyObject* excc = PyObject_GetAttrString(dsc, "PortNotDefined");
+      PyObject* exci = PyEval_CallObject(excc, (PyObject *)NULL);
+      PyErr_SetObject(excc, exci);
+      Py_XDECREF(excc);
+      Py_XDECREF(exci);
       return NULL;
    }
    catch(Engines::DSC::PortNotConnected& _e) {
       Py_BLOCK_THREADS
-      PyErr_SetString(PyExc_ValueError,"Port not connected");
+      PyObject* excc = PyObject_GetAttrString(dsc, "PortNotConnected");
+      PyObject* exci = PyEval_CallObject(excc, (PyObject *)NULL);
+      PyErr_SetObject(excc, exci);
+      Py_XDECREF(excc);
+      Py_XDECREF(exci);
       return NULL;
    }
    catch(Engines::DSC::BadPortType& _e) {
       Py_BLOCK_THREADS
-      PyErr_SetString(PyExc_ValueError,"Bad port type");
+      PyObject* excc = PyObject_GetAttrString(dsc, "BadPortType");
+      PyObject* exci = PyEval_CallObject(excc, (PyObject *)NULL);
+      PyErr_SetObject(excc, exci);
+      Py_XDECREF(excc);
+      Py_XDECREF(exci);
       return NULL;
    }
    catch (SALOME_Exception &e) {
@@ -650,6 +676,7 @@ CORBAPTR(PortableServer::POA)
    }
    catch (SALOME::SALOME_Exception &e) {
       Py_BLOCK_THREADS
+      //This one should be converted into a python corba exception
       PyErr_SetString(PyExc_RuntimeError,e.details.text);
       return NULL;
    }
@@ -750,6 +777,7 @@ class PySupervCompo:public Superv_Component_i
   virtual void add_provides_port(Ports::Port_ptr ref, const char* provides_port_name, Ports::PortProperties_ptr port_prop);
   virtual void add_uses_port(const char* repository_id, const char* uses_port_name, Ports::PortProperties_ptr port_prop);
   virtual Engines::DSC::uses_port * get_uses_port(const char* uses_port_name);
+  CORBA::Boolean is_connected(const char* port_name) throw (Engines::DSC::PortNotDefined);
 // End of DSC interface for python components
 
 

@@ -33,10 +33,10 @@ ACLOCAL_AMFLAGS = -I salome_adm/unix/config_files
 if WITHONLYLAUNCHER
   SUBDIRS = src resources
 else
-  SUBDIRS = $(IDLDIR) salome_adm src doc bin resources
+  SUBDIRS = salome_adm $(IDLDIR) src doc bin resources
 endif
 
-DIST_SUBDIRS=   idl salome_adm src doc bin resources
+DIST_SUBDIRS= salome_adm idl src doc bin resources
 
 DISTCLEANFILES = a.out
 

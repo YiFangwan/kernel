@@ -87,8 +87,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 	  DEVTRACE("New buffer pool");
 	  LocalTraceBufferPool* myInstance = new LocalTraceBufferPool(); 
 
-  	  DESTRUCTOR_OF<LocalTraceBufferPool> *ptrDestroy =
-  	    new DESTRUCTOR_OF<LocalTraceBufferPool> (*myInstance);
+	  new DESTRUCTOR_OF<LocalTraceBufferPool> (*myInstance);
 	  _singleton = myInstance;
 
 	  // --- start a trace Collector
@@ -101,7 +100,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 	    }
 	  else if (strncmp(traceKind,"file",strlen("file"))==0)
 	    {
-	      char *fileName;
+	      const char *fileName;
 	      if (strlen(traceKind) > strlen("file"))
 		fileName = &traceKind[strlen("file")+1];
 	      else
@@ -223,7 +222,7 @@ int LocalTraceBufferPool::retrieve(LocalTrace_TraceInfo& aTrace)
   while (ret)
     {
       ret = sem_wait(&_fullBufferSemaphore);
-      if (ret) perror(" LocalTraceBufferPool::retrieve, sem_wait");
+      if (ret) MESSAGE (" LocalTraceBufferPool::retrieve, sem_wait");
     }
 
   // get the next buffer to print

@@ -280,10 +280,19 @@ StartContainer(const Engines::MachineParameters& params,
   CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
   if ( !CORBA::is_nil(obj) )
     {
-      // unregister the registered container if it exists
-      _NS->Destroy_Name(containerNameInNS.c_str());
-      // unregister component instances ???
-      //Engines::Container_var cont=Engines::Container::_narrow(obj);
+      // shutdown the registered container if it exists
+      Engines::Container_var cont=Engines::Container::_narrow(obj);
+      if(!CORBA::is_nil(cont))
+        {
+          try
+            {
+              cont->Shutdown();
+            }
+          catch(CORBA::Exception&)
+            {
+              INFOS("CORBA::Exception ignored.");
+            }
+        }
     }
 
   //redirect stdout and stderr in a file
@@ -367,9 +376,7 @@ StartContainer(const Engines::MachineParameters& params,
           SALOME_ModuleCatalog::Acomponent_var compoInfo = Catalog->GetComponent(compoi);
           if (CORBA::is_nil (compoInfo))
             {
-              INFOS("ContainerManager Error: Component not found in the catalog" );
-              INFOS( compoi );
-              return Engines::Container::_nil();
+              continue;
             }
           SALOME_ModuleCatalog::ImplType impl=compoInfo->implementation_type();
           container_exe=compoInfo->implementation_name();

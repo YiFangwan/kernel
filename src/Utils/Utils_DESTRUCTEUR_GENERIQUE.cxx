@@ -36,12 +36,13 @@ extern "C"
 
 # include "Utils_DESTRUCTEUR_GENERIQUE.hxx"
 //# include "utilities.h"
+# include "LocalTraceBufferPool.hxx"
 void Nettoyage();
 
 #ifdef _DEBUG_
-static int MYDEBUG = 0;
+// static int MYDEBUG = 0;
 #else
-static int MYDEBUG = 0;
+// static int MYDEBUG = 0;
 #endif
 
 using namespace std;
@@ -83,6 +84,8 @@ public :
 		DESTRUCTEUR_GENERIQUE_::Destructeurs = 
                       new std::list<DESTRUCTEUR_GENERIQUE_*> ; // Destructeur alloue dynamiquement (cf. ci-dessous) ,
 								   // il est utilise puis detruit par la fonction Nettoyage
+                //To be sure the trace singleton will be the last one to be destroyed initialize it here before calling atexit
+                LocalTraceBufferPool::instance();
 		int cr = atexit( Nettoyage );                      // execute Nettoyage lors de exit, aprs la destruction des donnees statiques !
 		assert(cr==0) ;
 		ATEXIT_Done = true ;
