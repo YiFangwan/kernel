@@ -44,7 +44,9 @@ ResourcesManager_cpp::
 ResourcesManager_cpp(const char *xmlFilePath) :
     _path_resources(xmlFilePath)
 {
-  cerr << "ResourcesManager_cpp constructor" << endl;
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cout << "ResourcesManager_cpp constructor" << endl;
+#endif
 }
 
 //=============================================================================
@@ -60,7 +62,9 @@ ResourcesManager_cpp(const char *xmlFilePath) :
 
 ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
 {
-  cerr << "ResourcesManager_cpp constructor" << endl;
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cout << "ResourcesManager_cpp constructor" << endl;
+#endif
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
   if(!getenv("KERNEL_ROOT_DIR"))
     throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!!");
@@ -80,7 +84,9 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
     }
 
   ParseXmlFile();
-  cerr << "ResourcesManager_cpp constructor end";
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cout << "ResourcesManager_cpp constructor end";
+#endif
 }
 
 //=============================================================================
@@ -91,7 +97,9 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
 
 ResourcesManager_cpp::~ResourcesManager_cpp()
 {
-  cerr << "ResourcesManager_cpp destructor" << endl;
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cout << "ResourcesManager_cpp destructor" << endl;
+#endif
 }
 
 //=============================================================================
@@ -112,23 +120,21 @@ std::vector<std::string>
 ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 				      const std::vector<std::string>& componentList) throw(ResourcesException)
 {
-//   cerr << "ResourcesManager_cpp::GetFittingResources" << endl;
   vector <std::string> vec;
 
   ParseXmlFile();
 
   const char *hostname = params.hostname.c_str();
-  cerr << "GetFittingResources " << hostname << " " << GetHostname().c_str() << endl;
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cout << "GetFittingResources " << hostname << " " << GetHostname().c_str() << endl;
+#endif
 
   if (hostname[0] != '\0'){
-    //       cerr << "ResourcesManager_cpp::GetFittingResources : hostname specified" << endl;
 
     if ( strcmp(hostname, "localhost") == 0 ||
 	 strcmp(hostname, GetHostname().c_str()) == 0 )
       {
-	//           cerr << "ResourcesManager_cpp::GetFittingResources : localhost" << endl;
 	vec.push_back(GetHostname().c_str());
-	// 	  cerr << "ResourcesManager_cpp::GetFittingResources : " << vec.size() << endl;
       }
 	
     else if (_resourcesList.find(hostname) != _resourcesList.end())
@@ -151,15 +157,15 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 	  if( (*iter).second.DataForSort._nbOfNodes > 1 ){
 	    if( strncmp(hostname,(*iter).first.c_str(),strlen(hostname)) == 0 ){
 	      vec.push_back((*iter).first.c_str());
-	      //cerr << "SALOME_ResourcesManager_cpp::GetFittingResources vector["
-	      //     << cpt << "] = " << (*iter).first.c_str() << endl ;
 	      cpt++;
 	    }
 	  }
 	}
 	if(cpt==0){
 	  // --- user specified an unknown hostame so notify him.
-	  cerr << "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" << endl;
+#if defined(_DEBUG_) || defined(_DEBUG)
+	  cout << "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" << endl;
+#endif
 	  throw ResourcesException("unknown host");
 	}
       }
@@ -275,7 +281,9 @@ void ResourcesManager_cpp::WriteInXmlFile()
 
   if (aFile == NULL)
     {
-      cerr << "Error opening file !"  << endl;
+#if defined(_DEBUG_) || defined(_DEBUG)
+      cout << "Error opening file !"  << endl;
+#endif
       return;
     }
   
@@ -290,14 +298,18 @@ void ResourcesManager_cpp::WriteInXmlFile()
   int isOk = xmlSaveFile(aFilePath, aDoc);
   
   if (!isOk)
-    cerr << "Error while XML file saving." << endl;
+#if defined(_DEBUG_) || defined(_DEBUG)
+    cout << "Error while XML file saving." << endl;
+#endif
   
   // Free the document
   xmlFreeDoc(aDoc);
 
   fclose(aFile);
   
-  cerr << "WRITING DONE!" << endl;
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cout << "WRITING DONE!" << endl;
+#endif
 }
 
 //=============================================================================
@@ -321,7 +333,9 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFile()
       if (aDoc != NULL)
 	handler->ProcessXmlDocument(aDoc);
       else
-	cerr << "ResourcesManager_cpp: could not parse file "<< aFilePath << endl;
+#if defined(_DEBUG_) || defined(_DEBUG)
+	cout << "ResourcesManager_cpp: could not parse file "<< aFilePath << endl;
+#endif
       
       // Free the document
       xmlFreeDoc(aDoc);
@@ -329,7 +343,9 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFile()
       fclose(aFile);
     }
   else
-    cerr << "ResourcesManager_cpp: file "<<aFilePath<<" is not readable." << endl;
+#if defined(_DEBUG_) || defined(_DEBUG)
+    cout << "ResourcesManager_cpp: file "<<aFilePath<<" is not readable." << endl;
+#endif
   
   delete handler;
 
