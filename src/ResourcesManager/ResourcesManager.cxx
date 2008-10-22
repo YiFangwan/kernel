@@ -18,6 +18,7 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "ResourcesManager.hxx" 
+#include <Basics_Utils.hxx>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -27,10 +28,9 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <libxml/parser.h>
 
-#include "utilities.h"
+#include <algorithm>
 
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
@@ -46,7 +46,9 @@ ResourcesManager_cpp::
 ResourcesManager_cpp(const char *xmlFilePath) :
     _path_resources(xmlFilePath)
 {
-  MESSAGE ( "ResourcesManager_cpp constructor" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "ResourcesManager_cpp constructor" << endl;
+#endif
 }
 
 //=============================================================================
@@ -62,7 +64,9 @@ ResourcesManager_cpp(const char *xmlFilePath) :
 
 ResourcesManager_cpp::ResourcesManager_cpp()
 {
-  MESSAGE ( "ResourcesManager_cpp constructor" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "ResourcesManager_cpp constructor" << endl;
+#endif
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
 
   if (_isAppliSalomeDefined)
@@ -80,7 +84,9 @@ ResourcesManager_cpp::ResourcesManager_cpp()
     }
 
   ParseXmlFile();
-  MESSAGE ( "ResourcesManager_cpp constructor end" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "ResourcesManager_cpp constructor end";
+#endif
 }
 
 //=============================================================================
@@ -91,7 +97,9 @@ ResourcesManager_cpp::ResourcesManager_cpp()
 
 ResourcesManager_cpp::~ResourcesManager_cpp()
 {
-  MESSAGE ( "ResourcesManager_cpp destructor" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "ResourcesManager_cpp destructor" << endl;
+#endif
 }
 
 //=============================================================================
@@ -112,23 +120,33 @@ std::vector<std::string>
 ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 				      const std::vector<std::string>& componentList) throw(ResourcesException)
 {
+//#if defined(_DEBUG_) || defined(_DEBUG)
 //   cerr << "ResourcesManager_cpp::GetFittingResources" << endl;
+//#endif
   vector <std::string> vec;
 
   ParseXmlFile();
 
   const char *hostname = params.hostname.c_str();
-  MESSAGE ( "GetFittingResources " << hostname << " " << GetHostname().c_str() );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "GetFittingResources " << hostname << " " << Kernel_Utils::GetHostname().c_str() << endl;
+#endif
 
   if (hostname[0] != '\0'){
-    //       cerr << "ResourcesManager_cpp::GetFittingResources : hostname specified" << endl;
+//#if defined(_DEBUG_) || defined(_DEBUG)
+//    cerr << "ResourcesManager_cpp::GetFittingResources : hostname specified" << endl;
+//#endif
 
     if ( strcmp(hostname, "localhost") == 0 ||
-	 strcmp(hostname, GetHostname().c_str()) == 0 )
+	 strcmp(hostname, Kernel_Utils::GetHostname().c_str()) == 0 )
       {
-	//           cerr << "ResourcesManager_cpp::GetFittingResources : localhost" << endl;
-	vec.push_back(GetHostname().c_str());
-	// 	  cerr << "ResourcesManager_cpp::GetFittingResources : " << vec.size() << endl;
+//#if defined(_DEBUG_) || defined(_DEBUG)
+//	cerr << "ResourcesManager_cpp::GetFittingResources : localhost" << endl;
+//#endif
+	vec.push_back(Kernel_Utils::GetHostname().c_str());
+//#if defined(_DEBUG_) || defined(_DEBUG)
+//	cerr << "ResourcesManager_cpp::GetFittingResources : " << vec.size() << endl;
+//#endif
       }
 	
     else if (_resourcesList.find(hostname) != _resourcesList.end())
@@ -149,15 +167,19 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 	  if( (*iter).second.DataForSort._nbOfNodes > 1 ){
 	    if( strncmp(hostname,(*iter).first.c_str(),strlen(hostname)) == 0 ){
 	      vec.push_back((*iter).first.c_str());
-	      //cerr << "SALOME_ResourcesManager_cpp::GetFittingResources vector["
-	      //     << cpt << "] = " << (*iter).first.c_str() << endl ;
+//#if defined(_DEBUG_) || defined(_DEBUG)
+//	      cerr << "SALOME_ResourcesManager_cpp::GetFittingResources vector["
+//	      << cpt << "] = " << (*iter).first.c_str() << endl ;
+//#endif
 	      cpt++;
 	    }
 	  }
 	}
 	if(cpt==0){
 	  // --- user specified an unknown hostame so notify him.
-	  MESSAGE ( "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+	  cerr << "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" << endl;
+#endif
 	  throw ResourcesException("unknown host");
 	}
       }
@@ -273,7 +295,9 @@ void ResourcesManager_cpp::WriteInXmlFile()
 
   if (aFile == NULL)
     {
-      INFOS ( "Error opening file !" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+      cerr << "Error opening file !"  << endl;
+#endif
       return;
     }
   
@@ -285,17 +309,21 @@ void ResourcesManager_cpp::WriteInXmlFile()
   handler->PrepareDocToXmlFile(aDoc);
   delete handler;
 
+#if defined(_DEBUG_) || defined(_DEBUG)
   int isOk = xmlSaveFile(aFilePath, aDoc);
-  
-  if (!isOk)
-    INFOS ( "Error while XML file saving." );
+  if (!isOk) cerr << "Error while XML file saving." << endl;
+#else
+  xmlSaveFile(aFilePath, aDoc);
+#endif
   
   // Free the document
   xmlFreeDoc(aDoc);
 
   fclose(aFile);
   
-  INFOS ( "WRITING DONE!" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "WRITING DONE!" << endl;
+#endif
 }
 
 //=============================================================================
@@ -318,16 +346,20 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFile()
       
       if (aDoc != NULL)
 	handler->ProcessXmlDocument(aDoc);
+#if defined(_DEBUG_) || defined(_DEBUG)
       else
-	INFOS ( "ResourcesManager_cpp: could not parse file "<< aFilePath );
+	cerr << "ResourcesManager_cpp: could not parse file "<< aFilePath << endl;
+#endif
       
       // Free the document
       xmlFreeDoc(aDoc);
 
       fclose(aFile);
     }
+#if defined(_DEBUG_) || defined(_DEBUG)
   else
-    INFOS ( "ResourcesManager_cpp: file "<<aFilePath<<" is not readable." );
+    cerr << "ResourcesManager_cpp: file "<<aFilePath<<" is not readable." << endl;
+#endif
   
   delete handler;
 
@@ -419,7 +451,7 @@ throw(ResourcesException)
 
       bool erasedHost = false;
       if( mapOfModulesOfCurrentHost.size() > 0 ){
-	for(int i=0;i<componentList.size();i++){
+	for(unsigned int i=0;i<componentList.size();i++){
           const char* compoi = componentList[i].c_str();
 	  vector<string>::const_iterator itt = find(mapOfModulesOfCurrentHost.begin(),
 					      mapOfModulesOfCurrentHost.end(),
@@ -446,43 +478,3 @@ ParserResourcesType ResourcesManager_cpp::GetResourcesList(const std::string& ma
   else
     return _resourcesBatchList[machine];
 }
-
-std::string ResourcesManager_cpp::GetHostname()
-{
-  int ls = 100, r = 1;
-  char *s;
-
-  while (ls < 10000 && r) {
-    ls *= 2;
-    s = new char[ls];
-    r = gethostname(s, ls-1);
-    switch (r) 
-      {
-      case 0:
-	  break;
-      default:
-#ifdef EINVAL
-      case EINVAL:
-#endif
-#ifdef ENAMETOOLONG
-      case ENAMETOOLONG:
-#endif
-        delete [] s;
-	continue;
-      }
-  }
-
-  if (r != 0) {
-    s = new char[50];
-    strcpy(s, "localhost");
-  }
-
-  // remove all after '.'
-  char *aDot = (strchr(s,'.'));
-  if (aDot) aDot[0] = '\0';
-
-  string p = s;
-  delete [] s;
-  return p;
-}
-

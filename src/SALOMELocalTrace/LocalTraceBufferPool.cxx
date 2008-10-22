@@ -29,7 +29,7 @@
 #include <cassert>
 #include <string.h>
 
-#ifndef WNT
+#ifndef WIN32
 #include <dlfcn.h>
 #else
 #include <windows.h>
@@ -53,7 +53,7 @@ using namespace std;
 // Class static attributes initialisation
 
 LocalTraceBufferPool* LocalTraceBufferPool::_singleton = 0;
-//#ifndef WNT
+//#ifndef WIN32
 //pthread_mutex_t LocalTraceBufferPool::_singletonMutex;
 //#else
 pthread_mutex_t LocalTraceBufferPool::_singletonMutex =
@@ -111,7 +111,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 	    }
 	  else // --- try a dynamic library
 	    {
-#ifndef WNT
+#ifndef WIN32
 	      void* handle;
 	      string impl_name = string ("lib") + traceKind 
 		+ string("TraceCollector.so");
@@ -124,7 +124,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 	      if ( handle )
 		{
 		  typedef BaseTraceCollector * (*FACTORY_FUNCTION) (void);
-#ifndef WNT
+#ifndef WIN32
 		  FACTORY_FUNCTION TraceCollectorFactory =
 		    (FACTORY_FUNCTION) dlsym(handle, "SingletonInstance");
 #else
@@ -134,7 +134,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 		  if ( !TraceCollectorFactory )
 		  {
 		      cerr << "Can't resolve symbol: SingletonInstance" <<endl;
-#ifndef WNT
+#ifndef WIN32
 		      cerr << "dlerror: " << dlerror() << endl;
 #endif
 		      exit( 1 );

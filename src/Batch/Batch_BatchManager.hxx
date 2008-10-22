@@ -29,9 +29,7 @@
 #ifndef _BATCHMANAGER_H_
 #define _BATCHMANAGER_H_
 
-#include <string.h>
-#include <stdlib.h>
-#include <limits.h>
+#include "Batch_Defines.hxx"
 
 #include <string>
 #include <map>
@@ -47,7 +45,7 @@ namespace Batch {
   class JobInfo;
   class FactBatchManager;
 
-  class BatchManager
+  class BATCH_EXPORT BatchManager
   {
   public:
     // Constructeur et destructeur

@@ -41,6 +41,9 @@
 /* Le nom du module Python tel qu'il est importe */
 %module libBatch_Swig
 
+/* generate docstrings with types */
+%feature("autodoc", "1");
+
 /* Inclusion des conversions de type */
 %include libBatch_Swig_typemap.i
 
@@ -48,6 +51,7 @@
 %include libBatch_Swig_exception.i
 
 %{
+#include "Batch_Defines.hxx"
 #include "Batch_Job.hxx"
 #include "Batch_JobId.hxx"
 #include "Batch_JobInfo.hxx"
@@ -58,6 +62,7 @@
 %}
 
 /* Les classes exportees en Python */
+%include Batch_Defines.hxx
 %include Batch_Job.hxx
 %include Batch_JobId.hxx
 %include Batch_JobInfo.hxx

@@ -40,8 +40,6 @@
 #include "DSC_Exception.hxx"
 
 
-using namespace std;
-
 /*! \class Superv_Component_i
  *  \brief This class implements DSC_User component.
  *
@@ -70,7 +68,8 @@ public:
 		     Engines::Container_ptr container, 
 		     const char *instanceName,
 		     const char *interfaceName,
-		     bool notif = false);
+		     bool notif = false,
+         bool regist = true );
   virtual ~Superv_Component_i();
 
   // Exceptions declarations.

@@ -36,7 +36,7 @@
 #include <iostream>
 #include <signal.h>
 #include <stdlib.h>
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #endif
 #include <sys/types.h>
@@ -67,8 +67,9 @@ public:
 		      Engines::Container_ptr container, 
 		      const char *instanceName, 
 		      const char *interfaceName,
-                      bool notif = false);
-  // Consructeur pour composant parallele: ne pas faire appel au registry
+                      bool notif = false,
+                      bool regist=true);
+  // Constructor for parallel component : don't call registry
   Engines_Component_i(CORBA::ORB_ptr orb,
 		      PortableServer::POA_ptr poa,
 		      PortableServer::ObjectId * contId, 
@@ -175,7 +176,7 @@ protected:
   std::string _nodeName ;
 
 private:
-#ifndef WNT
+#ifndef WIN32
   pthread_t _ThreadId ;
 #else
   pthread_t* _ThreadId ;

@@ -23,7 +23,7 @@
 #include "OpUtil.hxx"
 
 #include <stdlib.h>
-#ifndef WNT
+#ifndef WIN32
 #include <unistd.h>
 #else
 #include <io.h>
@@ -153,14 +153,14 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& p
   p.mem_mb = params.mem_mb;
 
   vector<string> cl;
-  for(int i=0;i<componentList.length();i++)
+  for(unsigned int i=0;i<componentList.length();i++)
     cl.push_back(string(componentList[i]));
   
   Engines::MachineList *ret=new Engines::MachineList;
   try{
       vector <std::string> vec = _rm.GetFittingResources(p,cl);
       ret->length(vec.size());
-      for(int i=0;i<vec.size();i++)
+      for(unsigned int i=0;i<vec.size();i++)
 	(*ret)[i] = (vec[i]).c_str();
   }
   catch(const ResourcesException &ex){
@@ -181,7 +181,7 @@ char *
 SALOME_ResourcesManager::FindFirst(const Engines::MachineList& listOfMachines)
 {
   vector<string> ml;
-  for(int i=0;i<listOfMachines.length();i++)
+  for(unsigned int i=0;i<listOfMachines.length();i++)
     ml.push_back(string(listOfMachines[i]));
 
   return CORBA::string_dup(_rm.FindFirst(ml).c_str());
@@ -201,13 +201,14 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
   p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
   p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
   p_ptr->modList.length(resource.ModulesList.size());
-  for(int i=0;i<resource.ModulesList.size();i++)
+  for(unsigned int i=0;i<resource.ModulesList.size();i++)
     p_ptr->modList[i] = CORBA::string_dup(resource.ModulesList[i].c_str());
   p_ptr->OS = CORBA::string_dup(resource.OS.c_str());
   p_ptr->mem_mb = resource.DataForSort._memInMB;
   p_ptr->cpu_clock = resource.DataForSort._CPUFreqMHz;
   p_ptr->nb_proc_per_node = resource.DataForSort._nbOfProcPerNode;
   p_ptr->nb_node = resource.DataForSort._nbOfNodes;
+
   if( resource.mpi == indif )
     p_ptr->mpiImpl = "indif";
   else if( resource.mpi == lam )
@@ -220,10 +221,17 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
     p_ptr->mpiImpl = "openmpi";
   else if( resource.mpi == slurm )
     p_ptr->mpiImpl = "slurm";
+
+  p_ptr->isMPI=false;
+  if(resource.mpi != indif )
+    p_ptr->isMPI=true;
+
   if( resource.Batch == pbs )
     p_ptr->batch = "pbs";
   else if( resource.Batch == lsf )
     p_ptr->batch = "lsf";
+
+  p_ptr->nb_component_nodes=1;
 
   return p_ptr;
 }

@@ -31,7 +31,16 @@
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
+#include <string.h>
+#include <stdlib.h>
+
 #include "Batch_BatchManager_ePBS.hxx"
+#ifdef WIN32
+# include <time.h>
+# include <io.h>
+#endif
+
+using namespace std;
 
 namespace Batch {
 
@@ -227,6 +236,7 @@ namespace Batch {
 
   void BatchManager_ePBS::buildBatchScript(const Job & job) throw(EmulationException)
   {
+#ifndef WIN32 //TODO: need for porting on Windows
     int status;
     Parametre params = job.getParametre();
     const long nbproc = params[NBPROC];
@@ -262,7 +272,12 @@ namespace Batch {
     tempOutputFile << _mpiImpl->halt();
     tempOutputFile.flush();
     tempOutputFile.close();
-    chmod(TmpFileName.c_str(), 0x1ED);
+#ifdef WIN32
+    _chmod(
+#else
+    chmod(
+#endif
+      TmpFileName.c_str(), 0x1ED);
     cerr << TmpFileName.c_str() << endl;
 
     string command;
@@ -290,7 +305,7 @@ namespace Batch {
       throw EmulationException("Error of connection on remote host");    
 
     RmTmpFile(TmpFileName);
-    
+#endif    
   }
 
 }

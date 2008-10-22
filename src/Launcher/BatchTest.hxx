@@ -21,18 +21,14 @@
 #ifndef __BatchTest_HXX__
 #define __BatchTest_HXX__
 
-#include <sys/stat.h>
-#include <iostream>
-#include <fstream>
+#include "SALOME_Launcher_defs.hxx"
 
 #include <SALOMEconfig.h>
-#include "utilities.h"
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 
-#include "Batch_Date.hxx"
-#include "MpiImpl.hxx"
+#include <string>
 
-class BatchTest 
+class SALOMELAUNCHER_EXPORT BatchTest 
 {
   public:
     BatchTest(const Engines::MachineParameters& batch_descr);

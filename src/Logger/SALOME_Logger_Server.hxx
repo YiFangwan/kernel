@@ -12,15 +12,15 @@
 #define SALOME_Logger_Server_include
 
 #include <SALOMEconfig.h>
-
 #include <fstream>
+
 #ifdef WNT
 #include <iosfwd>
 #endif
 #include <omnithread.h>
 #include "Logger.hh"
 
-#ifdef WNT
+#ifdef WIN32
 # if defined LOGGER_EXPORTS
 #  define LOGGER_EXPORT __declspec( dllexport )
 # else

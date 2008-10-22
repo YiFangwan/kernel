@@ -17,14 +17,21 @@
 //
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
+
+#include "Launcher.hxx"
+
 #include "Batch_Date.hxx"
 #include "Batch_FactBatchManager_eLSF.hxx"
 #include "Batch_FactBatchManager_ePBS.hxx"
-#include "Launcher.hxx"
-#include "utilities.h"
+#include "Batch_BatchManager_eClient.hxx"
+
 #include <iostream>
 #include <sstream>
 #include <sys/stat.h>
+
+#ifdef WIN32
+# include <time.h>
+#endif
 
 using namespace std;
 
@@ -39,7 +46,9 @@ using namespace std;
 
 Launcher_cpp::Launcher_cpp()
 {
-  MESSAGE ( "Launcher_cpp constructor" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "Launcher_cpp constructor" << endl;
+#endif
 }
 
 //=============================================================================
@@ -50,7 +59,9 @@ Launcher_cpp::Launcher_cpp()
 
 Launcher_cpp::~Launcher_cpp()
 {
-  MESSAGE ( "Launcher_cpp destructor" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "Launcher_cpp destructor" << endl;
+#endif
   std::map < string, Batch::BatchManager_eClient * >::const_iterator it1;
   for(it1=_batchmap.begin();it1!=_batchmap.end();it1++)
     delete it1->second;
@@ -74,7 +85,9 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
 				    const batchParams& batch_params,
 				    const machineParams& params) throw(LauncherException)
 {
-  MESSAGE ( "BEGIN OF Launcher_cpp::submitSalomeJob" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "BEGIN OF Launcher_cpp::submitSalomeJob" << endl;
+#endif
   long jobId;
   vector<string> aMachineList;
 
@@ -95,7 +108,9 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
 
   ParserResourcesType p = _ResManager->GetResourcesList(aMachineList[0]);
   string clustername(p.Alias);
-  MESSAGE ( "Choose cluster: " <<  clustername );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "Choose cluster: " <<  clustername << endl;
+#endif
   
   // search batch manager for that cluster in map or instanciate one
   map < string, Batch::BatchManager_eClient * >::const_iterator it = _batchmap.find(clustername);
@@ -149,7 +164,7 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     istringstream iss(jid.getReference());
     iss >> jobId;
 
-    _jobmap[ pair<string,long>(clustername,jobId) ] = job;
+    _jobmap[ pair<string,long>(clustername,jobId) ] = job;    
   }
   catch(const Batch::EmulationException &ex){
     throw LauncherException(ex.msg.c_str());
@@ -286,18 +301,26 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserReso
     mpi = "indif";
     break;
   }    
-  MESSAGE ( "Instanciation of batch manager" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "Instanciation of batch manager" << endl;
+#endif
   switch( params.Batch ){
   case pbs:
-    MESSAGE ( "Instantiation of PBS batch manager" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+    cerr << "Instantiation of PBS batch manager" << endl;
+#endif
     fact = new Batch::FactBatchManager_ePBS;
     break;
   case lsf:
-    MESSAGE ( "Instantiation of LSF batch manager" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+    cerr << "Instantiation of LSF batch manager" << endl;
+#endif
     fact = new Batch::FactBatchManager_eLSF;
     break;
   default:
-    MESSAGE ( "BATCH = " << params.Batch );
+#if defined(_DEBUG_) || defined(_DEBUG)
+    cerr << "BATCH = " << params.Batch << endl;
+#endif
     throw LauncherException("no batchmanager for that cluster");
   }
   return (*fact)(hostname.c_str(),protocol.c_str(),mpi.c_str());
@@ -305,6 +328,7 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserReso
 
 string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const string dirForTmpFiles, const ParserResourcesType& params)
 {
+#ifndef WIN32 //TODO: need for porting on Windows
   int idx = dirForTmpFiles.find("Batch/");
   std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
 
@@ -407,11 +431,16 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   tempOutputFile.flush();
   tempOutputFile.close();
   chmod(TmpFileName.c_str(), 0x1ED);
-  MESSAGE ( TmpFileName.c_str() );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << TmpFileName.c_str() << endl;
+#endif
 
   delete mpiImpl;
 
   return TmpFileName;
+#else
+  return "";
+#endif
     
 }
 
@@ -471,8 +500,10 @@ string Launcher_cpp::getRemoteFile( std::string remoteDir, std::string localFile
 bool Launcher_cpp::check(const batchParams& batch_params)
 {
   bool rtn = true;
-  MESSAGE ( "Job parameters are :" );
-  MESSAGE ( "Directory : $HOME/Batch/$date" );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "Job parameters are :" << endl;
+  cerr << "Directory : $HOME/Batch/$date" << endl;
+#endif
 
   // check expected_during_time (check the format)
   std::string edt_info = batch_params.expected_during_time;
@@ -509,7 +540,9 @@ bool Launcher_cpp::check(const batchParams& batch_params)
   else {
     edt_info = "No value given";
   }
-  MESSAGE ( "Expected during time : " << edt_info );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "Expected during time : " << edt_info << endl;;
+#endif
 
   // check memory (check the format)
   std::string mem_info;
@@ -527,7 +560,7 @@ bool Launcher_cpp::check(const batchParams& batch_params)
       rtn = false;
     }
     std::string end_mem_value = mem_value.substr(mem_value.length()-2);
-    if (end_mem_value != "gb" and end_mem_value != "mb") {
+    if (end_mem_value != "gb" && end_mem_value != "mb") {
       mem_info = "Error on definition, type is bad ! " + mem_value;
       rtn = false;
     }
@@ -535,7 +568,9 @@ bool Launcher_cpp::check(const batchParams& batch_params)
   else {
     mem_info = "No value given";
   }
-  MESSAGE ( "Memory : " << mem_info );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "Memory : " << mem_info << endl;
+#endif
 
   // check nb_proc
   std::string nb_proc_info;
@@ -549,7 +584,9 @@ bool Launcher_cpp::check(const batchParams& batch_params)
   else {
     nb_proc_info = nb_proc_value.str();
   }
-  MESSAGE ( "Nb of processors : " << nb_proc_info );
+#if defined(_DEBUG_) || defined(_DEBUG)
+  cerr << "Nb of processors : " << nb_proc_info << endl;
+#endif
 
   return rtn;
 }
@@ -617,7 +654,9 @@ Launcher_cpp::getHomeDir(const ParserResourcesType& p, const std::string& tmpdir
     command += p.Alias;
     command += " 'echo $HOME' > ";
     command += filelogtemp;
-    MESSAGE ( command.c_str() );
+#if defined(_DEBUG_) || defined(_DEBUG)
+    std::cerr << command.c_str() << std::endl;
+#endif
     int status = system(command.c_str());
     if(status)
       throw LauncherException("Error of launching home command on remote host");
