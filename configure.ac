@@ -494,35 +494,6 @@ else
    AC_SUBST(SETX) SETX="set -x"
 fi
 
-if test x$WITHONLYLAUNCHER = xno; then
-echo 
-echo ---------------------------------------------
-echo copying resource files, shell scripts, and 
-echo xml files
-echo ---------------------------------------------
-echo
-
-
-mkdir -p bin/salome
-cd bin/salome
-for i in  `find $ROOT_SRCDIR/bin`
-do
-  local_bin=`echo $i | sed -e "s,$ROOT_SRCDIR/bin,.,"`
-  case "$local_bin" in
-        *.in | *~) ;;
-        . | */CVS | */CVS/* | ./salome) ;;
-        ./appliskel |./appliskel/env.d) $INSTALL -d $local_bin ; echo $local_bin ;;
-        *) $INSTALL $i $local_bin; echo $local_bin ;;
-  esac
-done
-cd $ROOT_BUILDDIR
-
-AC_OUTPUT_COMMANDS([ \
-	chmod +x ./bin/*; \
-	chmod +x ./bin/salome/* \
-])
-fi
-
 echo
 echo ---------------------------------------------
 echo generating Makefiles and configure files
