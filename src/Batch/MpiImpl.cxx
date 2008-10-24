@@ -98,12 +98,12 @@ MpiImpl_MPICH1::~MpiImpl_MPICH1()
 
 string MpiImpl_MPICH1::size()
 {
-  throw MpiImplException("mpich1 doesn't work with this batch system to submit salome session");
+  return "${MPIRUN_NPROCS}";
 }
 
 string MpiImpl_MPICH1::rank()
 {
-  throw MpiImplException("mpich1 doesn't work with this batch system to submit salome session");
+  return "${MPIRUN_RANK}";
 }
 
 string MpiImpl_MPICH1::boot(const string machinefile, const unsigned int nbnodes)

@@ -182,6 +182,8 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                 _resource.Batch = pbs;
               else if  (aBatch == "lsf")
                 _resource.Batch = lsf;
+              else if  (aBatch == "sge")
+                _resource.Batch = sge;
               else
                 _resource.Batch = none;
             }
@@ -202,7 +204,7 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
               else if  (anMpi == "slurm")
                 _resource.mpi = slurm;
               else
-                _resource.mpi = indif;
+                _resource.mpi = nompi;
             }
 
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_user_name))
@@ -379,8 +381,8 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
 	case lsf:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "lsf");
           break;
-	case slurm:
-	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "slurm");
+	case sge:
+	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "sge");
           break;
         default:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");
@@ -399,6 +401,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
           break;
 	case openmpi:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
+          break;
+	case slurm:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurm");
           break;
         default:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "");
@@ -462,8 +467,8 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
 	case lsf:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "lsf");
           break;
-	case slurm:
-	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "slurm");
+	case sge:
+	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "sge");
           break;
         default:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");
@@ -482,6 +487,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
           break;
 	case openmpi:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
+          break;
+	case slurm:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurm");
           break;
         default:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "");
