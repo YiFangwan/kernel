@@ -78,6 +78,11 @@ dist-hook:
 
 DISTCLEANFILES = $(top_builddir)/bin/salome/Makefile.am
 
+clean-local:
+	rm -rf $(top_builddir)/bin/salome/appliskel
+	cd $(top_builddir)/bin/salome; \
+	rm -f $(dist_salomescript_DATA) $(dist_salomescript_SCRIPTS)
+
 # This is an ugly target to avoid exploring the appliskel subdirectory.
 install-exec-local:
 	$(INSTALL) -d $(DESTDIR)$(salomescriptdir)
