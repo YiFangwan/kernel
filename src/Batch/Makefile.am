@@ -69,7 +69,7 @@ LIB_INCLUDES = \
 	Batch_FactBatchManager_ePBS.hxx \
 	Batch_JobInfo_ePBS.hxx \
 	MpiImpl.hxx \
-	Batch_Defines.hxx
+	Batch_Defines.hxx \
 	Batch_BatchManager_eSGE.hxx \
 	Batch_FactBatchManager_eSGE.hxx \
 	Batch_JobInfo_eSGE.hxx \
