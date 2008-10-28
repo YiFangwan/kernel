@@ -96,6 +96,21 @@ public:
   virtual void UnLockStudy(const std::string& theLockerID);
   virtual std::vector<std::string> GetLockerID();
 
+  virtual void SetReal(const std::string& theVarName, const double theValue);
+  virtual void SetInteger(const std::string& theVarName, const int theValue);
+  virtual void SetBoolean(const std::string& theVarName, const bool theValue);  
+  
+  virtual double GetReal(const std::string& theVarName);
+  virtual int GetInteger(const std::string& theVarName);
+  virtual bool GetBoolean(const std::string& theVarName);
+  
+  virtual bool IsReal(const std::string& theVarName);
+  virtual bool IsInteger(const std::string& theVarName);
+  virtual bool IsBoolean(const std::string& theVarName);
+
+  virtual bool IsVariable(const std::string& theVarName);
+  virtual std::vector<std::string> GetVariableNames();
+
   std::string ConvertObjectToIOR(CORBA::Object_ptr theObject);
   CORBA::Object_ptr ConvertIORToObject(const std::string& theIOR);     
 

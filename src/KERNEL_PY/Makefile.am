@@ -40,7 +40,8 @@ salomepython_PYTHON = \
 	salome_ComponentGUI.py \
 	omnipatch.py \
 	iparameters.py \
-	salome_version.py
+	salome_version.py \
+	salome_notebook.py
 
 sharedpkgpython_PYTHON = kernel_shared_modules.py
 

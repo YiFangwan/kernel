@@ -76,7 +76,9 @@ salomeinclude_HEADERS= \
 	SALOMEDSImpl_ChildNodeIterator.hxx \
 	SALOMEDSImpl_Defines.hxx \
 	SALOMEDSImpl_IParameters.hxx \
-	SALOMEDSImpl_TMPFile.hxx
+	SALOMEDSImpl_TMPFile.hxx \
+	SALOMEDSImpl_GenericVariable.hxx \
+	SALOMEDSImpl_ScalarVariable.hxx
 
 #
 # ===============================================================
@@ -154,6 +156,8 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_StudyManager.cxx \
 	SALOMEDSImpl_IParameters.cxx \
 	SALOMEDSImpl_TMPFile.cxx \
+	SALOMEDSImpl_GenericVariable.cxx \
+	SALOMEDSImpl_ScalarVariable.cxx \
 	\
 	SALOMEDSImpl_AttributeComment.hxx \
 	SALOMEDSImpl_AttributeDrawable.hxx \
@@ -202,7 +206,9 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_StudyManager.hxx \
 	SALOMEDSImpl_Tool.hxx \
 	SALOMEDSImpl_UseCaseBuilder.hxx \
-	SALOMEDSImpl_UseCaseIterator.hxx
+	SALOMEDSImpl_UseCaseIterator.hxx \
+	SALOMEDSImpl_GenericVariable.hxx \
+	SALOMEDSImpl_ScalarVariable.hxx
 
 libSalomeDSImpl_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeDSImpl_la_LDFLAGS  = -no-undefined -version-info=0:0:0

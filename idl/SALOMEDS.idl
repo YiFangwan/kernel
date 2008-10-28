@@ -427,7 +427,55 @@ during each working session.
 */
     ListOfStrings GetLockerID();
 
+/*!
+  TODO: Write comments.
+*/
+    void SetReal( in string theVarName, in double theValue );
+/*!
 
+  TODO: Write comments.
+*/
+    void SetInteger( in string theVarName, in long theValue );
+/*!
+  TODO: Write comments.
+*/
+    void SetBoolean( in string theVarName, in boolean theValue );
+
+/*!
+  TODO: Write comments.
+*/
+    double GetReal( in string theVarName );
+/*!
+  TODO: Write comments.
+*/
+    long GetInteger( in string theVarName );
+
+/*!
+  TODO: Write comments.
+*/
+    boolean GetBoolean( in string theVarName );
+    
+
+/*!
+  TODO: Write comments.
+*/
+    boolean IsReal( in string theVarName );
+
+/*!
+  TODO: Write comments.
+*/
+    boolean IsInteger( in string theVarName );
+/*!
+  TODO: Write comments.
+*/
+    boolean IsBoolean( in string theVarName );
+
+/*!
+  TODO: Write comments.
+*/
+    boolean IsVariable( in string theVarName );
+
+    ListOfStrings GetVariableNames();
   };
 
   //==========================================================================

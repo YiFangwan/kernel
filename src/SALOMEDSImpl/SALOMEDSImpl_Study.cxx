@@ -36,6 +36,7 @@ using namespace std;
 #include "SALOMEDSImpl_StudyHandle.hxx"
 #include "SALOMEDSImpl_Tool.hxx"
 #include "SALOMEDSImpl_IParameters.hxx"
+#include "SALOMEDSImpl_ScalarVariable.hxx"
 
 #include <fstream>
 
@@ -1483,6 +1484,106 @@ void SALOMEDSImpl_Study::UnLockStudy(const char* theLockerID)
 vector<string> SALOMEDSImpl_Study::GetLockerID()
 {
   return _lockers;
+}
+
+//============================================================================
+/*! Function : SetVariable
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::SetVariable(const string& theVarName,
+                                     const double theValue,
+                                     const SALOMEDSImpl_GenericVariable::VariableTypes theType)
+{
+  std::map<std::string, SALOMEDSImpl_GenericVariable*>::iterator it 
+    = myNoteBookVars.find(theVarName);
+  
+  SALOMEDSImpl_ScalarVariable* aVar = NULL;
+  if( it == myNoteBookVars.end() ) {
+
+    aVar = new SALOMEDSImpl_ScalarVariable(theType);
+
+    aVar->setValue(theValue);
+    myNoteBookVars[theVarName] = aVar;
+  }
+  else {
+    if(aVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>((*it).second)) {
+      aVar->setValue(theValue);
+      if(aVar->Type() != theType)
+        aVar->setType(theType);
+    }
+  }
+}
+
+//============================================================================
+/*! Function : GetReal
+ *  Purpose  :
+ */
+//============================================================================
+double SALOMEDSImpl_Study::GetVariable(const string& theVarName)
+{
+  std::map<std::string, SALOMEDSImpl_GenericVariable*>::const_iterator it = 
+    myNoteBookVars.find(theVarName);
+  
+  if(it != myNoteBookVars.end())
+    if(SALOMEDSImpl_ScalarVariable* aVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>((*it).second))
+      return aVar->getValue();
+}
+
+//============================================================================
+/*! Function : IsTypeOf
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::IsTypeOf(const string& theVarName,
+                                  SALOMEDSImpl_GenericVariable::
+                                  VariableTypes theType) const
+{
+  std::map<std::string, SALOMEDSImpl_GenericVariable*>::const_iterator it = 
+    myNoteBookVars.find(theVarName);
+  
+  if(it != myNoteBookVars.end())
+    return (*it).second->Type() == theType;
+  
+  return false;
+}
+
+//============================================================================
+/*! Function : IsVariable
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::IsVariable(const string& theVarName) const
+{
+  return myNoteBookVars.find(theVarName) != myNoteBookVars.end();
+}
+
+//============================================================================
+/*! Function : GetVariableNames
+ *  Purpose  :
+ */
+//============================================================================
+vector<string> SALOMEDSImpl_Study::GetVariableNames() const
+{
+  vector<string> aResult;
+  std::map<std::string, SALOMEDSImpl_GenericVariable*>::const_iterator it = 
+    myNoteBookVars.begin();
+
+  for(; it != myNoteBookVars.end(); it++)
+    aResult.push_back((*it).first);
+
+  return aResult;
+}
+
+//============================================================================
+/*! Function : AddVariable
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::AddVariable(const string& theVarName,
+                                     SALOMEDSImpl_GenericVariable* theVariable)
+{
+  myNoteBookVars[theVarName] = theVariable;
 }
 
 //============================================================================

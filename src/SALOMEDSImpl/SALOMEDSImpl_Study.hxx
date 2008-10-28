@@ -46,10 +46,10 @@
 #include "SALOMEDSImpl_Callback.hxx"
 #include "SALOMEDSImpl_Driver.hxx" 
 #include "SALOMEDSImpl_ChildIterator.hxx" 
+#include "SALOMEDSImpl_GenericVariable.hxx"
 
 class SALOMEDSImpl_StudyManager;
 class SALOMEDSImpl_GenericAttribute;
-
 
 class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Study
 {
@@ -70,7 +70,7 @@ private:
   std::map<std::string, SALOMEDSImpl_SObject> _mapOfSO;
   std::map<std::string, SALOMEDSImpl_SComponent> _mapOfSCO;
   std::map<std::string, DF_Label> myIORLabels;
-
+  std::map<std::string, SALOMEDSImpl_GenericVariable*> myNoteBookVars;
 
   SALOMEDSImpl_SObject   _FindObject(const SALOMEDSImpl_SObject& SO,
     const std::string& anObjectName,
@@ -250,6 +250,27 @@ public:
   //Returns an ID of the study locker
   std::vector<std::string> GetLockerID();
 
+  /*!
+  TODO: Write comments for new functions.
+  */
+
+  void SetVariable(const std::string& theVarName,
+                   const double theValue, 
+                   const SALOMEDSImpl_GenericVariable::VariableTypes);
+
+  double GetVariable(const std::string& theVarName);
+
+  bool IsTypeOf(const std::string& theVarName,
+                SALOMEDSImpl_GenericVariable::VariableTypes theType) const;
+        
+  bool IsVariable(const std::string& theVarName) const;
+
+  std::vector<std::string> GetVariableNames() const;
+
+  void AddVariable(const std::string& theVarName,
+                   SALOMEDSImpl_GenericVariable* theVariable);
+  
+
   //Returns a callback 
   SALOMEDSImpl_Callback* GetCallback() { return _cb; }
 
@@ -258,5 +279,6 @@ public:
 
   friend class SALOMEDSImpl_StudyManager;    
   friend class SALOMEDSImpl_GenericAttribute;
+  friend class SALOMEDSImpl_GenericVariable;
 };
 #endif

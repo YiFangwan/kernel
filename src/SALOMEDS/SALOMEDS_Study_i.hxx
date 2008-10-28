@@ -294,6 +294,28 @@ public:
 
   virtual SALOMEDS::ListOfStrings* GetLockerID();
 
+  virtual void SetReal(const char* theVarName, CORBA::Double theValue);
+  
+  virtual void SetInteger(const char* theVarName, CORBA::Long theValue);
+
+  virtual void SetBoolean(const char* theVarName, CORBA::Boolean theValue);
+
+  virtual CORBA::Double GetReal(const char* theVarName);
+  
+  virtual CORBA::Long GetInteger(const char* theVarName);
+
+  virtual CORBA::Boolean GetBoolean(const char* theVarName);
+
+  virtual CORBA::Boolean IsReal(const char* theVarName);
+  
+  virtual CORBA::Boolean IsInteger(const char* theVarName);
+
+  virtual CORBA::Boolean IsBoolean(const char* theVarName);
+
+  virtual CORBA::Boolean IsVariable(const char* theVarName);
+
+  virtual SALOMEDS::ListOfStrings* GetVariableNames();
+
   virtual char* GetDefaultScript(const char* theModuleName, const char* theShift);
 
   virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished);

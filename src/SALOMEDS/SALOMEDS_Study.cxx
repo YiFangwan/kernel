@@ -44,6 +44,7 @@
 #include "SALOMEDSImpl_SComponentIterator.hxx"
 #include "SALOMEDSImpl_AttributeStudyProperties.hxx"
 #include "SALOMEDSImpl_AttributeParameter.hxx"
+#include "SALOMEDSImpl_GenericVariable.hxx"
 #include "SALOMEDSImpl_UseCaseBuilder.hxx"
 
 #include "SALOMEDS_Driver_i.hxx"
@@ -675,6 +676,146 @@ vector<string> SALOMEDS_Study::GetLockerID()
     SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetLockerID();
     aLength = aSeq->length();
     for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
+  }
+  return aVector;
+}
+
+
+void SALOMEDS_Study::SetReal(const string& theVarName, const double theValue)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->SetVariable(theVarName,
+                             theValue,
+                             SALOMEDSImpl_GenericVariable::REAL_VAR);
+  }
+  else 
+    _corba_impl->SetReal((char*)theVarName.c_str(),theValue);
+}
+
+void SALOMEDS_Study::SetInteger(const string& theVarName, const int theValue)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->SetVariable(theVarName,
+                             theValue,
+                             SALOMEDSImpl_GenericVariable::INTEGER_VAR);
+  }
+  else 
+    _corba_impl->SetInteger((char*)theVarName.c_str(),theValue);
+}
+
+void SALOMEDS_Study::SetBoolean(const string& theVarName, const bool theValue)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->SetVariable(theVarName,
+                             theValue,
+                             SALOMEDSImpl_GenericVariable::BOOLEAN_VAR);
+  }
+  else 
+    _corba_impl->SetBoolean((char*)theVarName.c_str(),theValue);
+}
+
+double SALOMEDS_Study::GetReal(const string& theVarName)
+{
+  double aResult;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = _local_impl->GetVariable(theVarName);
+  }
+  else 
+    aResult = _corba_impl->GetReal((char*)theVarName.c_str());
+  return aResult;
+}
+
+int SALOMEDS_Study::GetInteger(const string& theVarName)
+{
+  int aResult;  
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = (int) _local_impl->GetVariable(theVarName);
+  }
+  else 
+    aResult = _corba_impl->GetInteger((char*)theVarName.c_str());
+  return aResult;
+}
+
+bool SALOMEDS_Study::GetBoolean(const string& theVarName)
+{
+  bool aResult;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = (bool) _local_impl->GetVariable(theVarName);
+  }
+  else 
+    aResult = _corba_impl->GetBoolean((char*)theVarName.c_str());
+  return aResult;
+}
+
+bool SALOMEDS_Study::IsReal(const string& theVarName)
+{
+  bool aResult;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = _local_impl->IsTypeOf(theVarName, 
+                                   SALOMEDSImpl_GenericVariable::REAL_VAR);
+  }
+  else
+    aResult = _corba_impl->IsReal((char*)theVarName.c_str());
+  return aResult;
+}
+
+bool SALOMEDS_Study::IsInteger(const string& theVarName)
+{
+  bool aResult;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = _local_impl->IsTypeOf(theVarName, 
+                                   SALOMEDSImpl_GenericVariable::INTEGER_VAR);
+  }
+  else
+    aResult = _corba_impl->IsInteger((char*)theVarName.c_str());
+  return aResult;
+}
+
+bool SALOMEDS_Study::IsBoolean(const string& theVarName)
+{
+  bool aResult;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = _local_impl->IsTypeOf(theVarName, 
+                                   SALOMEDSImpl_GenericVariable::BOOLEAN_VAR);
+  }
+  else
+    aResult = _corba_impl->IsBoolean((char*)theVarName.c_str());
+  return aResult;
+}
+
+bool SALOMEDS_Study::IsVariable(const string& theVarName)
+{
+  bool aResult;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = _local_impl->IsVariable(theVarName);
+  }
+  else
+    aResult = _corba_impl->IsVariable((char*)theVarName.c_str());
+  return aResult;
+}
+
+vector<string> SALOMEDS_Study::GetVariableNames()
+{
+  vector<string> aVector;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aVector = _local_impl->GetVariableNames();
+  }
+  else {
+    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetVariableNames();
+    int aLength = aSeq->length();
+    for (int i = 0; i < aLength; i++) 
+      aVector.push_back( string(aSeq[i].in()) );
   }
   return aVector;
 }
