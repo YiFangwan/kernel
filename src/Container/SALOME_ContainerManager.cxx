@@ -35,7 +35,7 @@
 #include "PaCO++.h"
 #endif
 
-#define TIME_OUT_TO_LAUNCH_CONT 21
+#define TIME_OUT_TO_LAUNCH_CONT 61
 
 using namespace std;
 
