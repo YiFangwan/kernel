@@ -203,6 +203,8 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                 _resource.mpi = openmpi;
               else if  (anMpi == "slurm")
                 _resource.mpi = slurm;
+              else if  (anMpi == "prun")
+                _resource.mpi = prun;
               else
                 _resource.mpi = nompi;
             }
@@ -405,6 +407,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
 	case slurm:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurm");
           break;
+	case prun:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "prun");
+          break;
         default:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "");
         }
@@ -490,6 +495,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
           break;
 	case slurm:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurm");
+          break;
+	case prun:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "prun");
           break;
         default:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "");

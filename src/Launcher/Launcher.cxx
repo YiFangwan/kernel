@@ -450,6 +450,9 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserReso
   case slurm:
     mpi = "slurm";
     break;
+  case prun:
+    mpi = "prun";
+    break;
   case nompi:
     throw LauncherException("you must specified an mpi implementation for batch manager");
     break;
@@ -514,9 +517,9 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   tempOutputFile << ":$PYTHONPATH" << endl ;
 
   // Test node rank
-  tempOutputFile << "if test " ;
+  tempOutputFile << "if test \"" ;
   tempOutputFile << mpiImpl->rank() ;
-  tempOutputFile << " = 0; then" << endl ;
+  tempOutputFile << "\" = \"0\"; then" << endl ;
 
   // -----------------------------------------------
   // Code for rank 0 : launch runAppli and a container
@@ -619,6 +622,8 @@ MpiImpl *Launcher_cpp::FactoryMpiImpl(MpiImplType mpi) throw(LauncherException)
     return new MpiImpl_OPENMPI();
   case slurm:
     return new MpiImpl_SLURM();
+  case prun:
+    return new MpiImpl_PRUN();
   case nompi:
     throw LauncherException("you must specified an mpi implementation for batch manager");
     break;

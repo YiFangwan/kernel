@@ -219,6 +219,8 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
     p_ptr->mpiImpl = "openmpi";
   else if( resource.mpi == slurm )
     p_ptr->mpiImpl = "slurm";
+  else if( resource.mpi == prun )
+    p_ptr->mpiImpl = "prun";
 
   if( resource.Batch == pbs )
     p_ptr->batch = "pbs";

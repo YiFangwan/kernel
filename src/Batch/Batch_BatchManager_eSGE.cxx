@@ -32,6 +32,8 @@
 #include <sstream>
 #include <sys/stat.h>
 #include "Batch_BatchManager_eSGE.hxx"
+#include <stdlib.h>
+#include <libgen.h>
 
 using namespace std;
 
@@ -242,7 +244,7 @@ namespace Batch {
       string::size_type p1 = fileToExecute.find_last_of("/");
       string::size_type p2 = fileToExecute.find_last_of(".");
       rootNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
-      fileNameToExecute = "~/" + dirForTmpFiles + "/" + string(basename(fileToExecute.c_str()));
+      fileNameToExecute = "~/" + dirForTmpFiles + "/" + string(basename((char *) fileToExecute.c_str()));
 
       int idx = dirForTmpFiles.find("Batch/");
       filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());

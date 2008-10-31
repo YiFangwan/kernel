@@ -244,3 +244,40 @@ string MpiImpl_SLURM::halt()
   return "";
 }
 
+// prun implementation
+// Constructor
+MpiImpl_PRUN::MpiImpl_PRUN() : MpiImpl()
+{
+}
+
+// Destructor
+MpiImpl_PRUN::~MpiImpl_PRUN()
+{
+}
+
+string MpiImpl_PRUN::size()
+{
+  return "${RMS_NPROCS}";
+}
+
+string MpiImpl_PRUN::rank()
+{
+  return "${RMS_RANK}";
+}
+
+string MpiImpl_PRUN::boot(const string machinefile, const unsigned int nbnodes)
+{
+  return "";
+}
+
+string MpiImpl_PRUN::run(const string machinefile, const unsigned int nbproc, const string fileNameToExecute)
+{
+  ostringstream oss;
+  oss << "prun -n " << nbproc << " " << "-p mpi " << fileNameToExecute << endl;
+  return oss.str();
+}
+
+string MpiImpl_PRUN::halt()
+{
+  return "";
+}

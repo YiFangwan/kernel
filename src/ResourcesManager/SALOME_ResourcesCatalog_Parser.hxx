@@ -42,7 +42,7 @@ enum AccessModeType {interactive, batch};
 
 enum BatchType {none, pbs, lsf, sge};
 
-enum MpiImplType {nompi, lam, mpich1, mpich2, openmpi, slurm};
+enum MpiImplType {nompi, lam, mpich1, mpich2, openmpi, slurm, prun};
 
 class RESOURCESMANAGER_EXPORT ResourceDataToSort
   {
