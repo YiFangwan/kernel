@@ -37,10 +37,12 @@ class SALOMEDSIMPL_EXPORT SALOMEDSImpl_GenericVariable
   //Supported types of the nootebook variables
   enum VariableTypes{REAL_VAR, INTEGER_VAR, BOOLEAN_VAR};
 
-  SALOMEDSImpl_GenericVariable(VariableTypes theType);
+  SALOMEDSImpl_GenericVariable(VariableTypes theType, const std::string& theName);
   ~SALOMEDSImpl_GenericVariable();
 
   VariableTypes Type() const;
+
+  std::string Name() const;
 
   static VariableTypes String2VariableType(const std::string& theStrType);
   
@@ -51,12 +53,14 @@ class SALOMEDSIMPL_EXPORT SALOMEDSImpl_GenericVariable
   virtual void SetModifyFlag();
 
   virtual std::string Save() const;
+  virtual std::string SaveToScript() const;
   virtual std::string SaveType() const;
 
   virtual void Load(const std::string& theStrValue);
   
  private:
   VariableTypes _type;
+  std::string _name;
 };
 
 #endif //_GENERICIMPL_VARIABLE_HXX_

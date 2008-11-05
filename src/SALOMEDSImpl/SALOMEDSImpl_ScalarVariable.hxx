@@ -31,13 +31,15 @@ class SALOMEDSIMPL_EXPORT SALOMEDSImpl_ScalarVariable :
   public SALOMEDSImpl_GenericVariable 
 {
 public:
-  SALOMEDSImpl_ScalarVariable(SALOMEDSImpl_GenericVariable::VariableTypes theType);
+  SALOMEDSImpl_ScalarVariable(SALOMEDSImpl_GenericVariable::VariableTypes theType,
+                              const std::string& theName);
   ~SALOMEDSImpl_ScalarVariable();
   
   void setValue(const double theValue);
   double getValue() const;
 
   virtual std::string Save() const;
+  virtual std::string SaveToScript() const;
   virtual std::string SaveType() const;
 
   virtual void Load(const std::string& theStrValue);

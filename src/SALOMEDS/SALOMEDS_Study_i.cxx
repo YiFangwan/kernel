@@ -886,7 +886,7 @@ void SALOMEDS_Study_i::SetBoolean(const char* theVarName, CORBA::Boolean theValu
 //============================================================================
 CORBA::Double SALOMEDS_Study_i::GetReal(const char* theVarName)
 {
-  return _impl->GetVariable(string(theVarName));
+  return _impl->GetVariableValue(string(theVarName));
 }
 
 //============================================================================
@@ -896,7 +896,7 @@ CORBA::Double SALOMEDS_Study_i::GetReal(const char* theVarName)
 //============================================================================
 CORBA::Long SALOMEDS_Study_i::GetInteger(const char* theVarName)
 {
-  return (int)_impl->GetVariable(string(theVarName));
+  return (int)_impl->GetVariableValue(string(theVarName));
 }
 
 //============================================================================
@@ -906,7 +906,7 @@ CORBA::Long SALOMEDS_Study_i::GetInteger(const char* theVarName)
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::GetBoolean(const char* theVarName)
 {
-  return (bool)_impl->GetVariable(string(theVarName));
+  return (bool)_impl->GetVariableValue(string(theVarName));
 }
 
 //============================================================================

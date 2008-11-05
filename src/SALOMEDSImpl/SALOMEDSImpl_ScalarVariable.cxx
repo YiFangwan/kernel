@@ -32,8 +32,9 @@ using namespace std;
  */
 //============================================================================
 SALOMEDSImpl_ScalarVariable::
-SALOMEDSImpl_ScalarVariable(SALOMEDSImpl_GenericVariable::VariableTypes type):
-  SALOMEDSImpl_GenericVariable(type)
+SALOMEDSImpl_ScalarVariable(SALOMEDSImpl_GenericVariable::VariableTypes type,
+                            const string& theName):
+  SALOMEDSImpl_GenericVariable(type,theName)
 {}
 
 //============================================================================
@@ -88,12 +89,45 @@ string SALOMEDSImpl_ScalarVariable::Save() const{
     case SALOMEDSImpl_GenericVariable::INTEGER_VAR:
       {
         sprintf(buffer, "%d", (int)myValue);
+        break;
       }
     default:break;
     }
   return string(buffer);
 }
 
+//============================================================================
+/*! Function : SaveToScript()
+ *  Purpose  : 
+ */
+//============================================================================
+string SALOMEDSImpl_ScalarVariable::SaveToScript() const
+{
+  char buffer[255];
+  switch(Type())
+    {
+    case SALOMEDSImpl_GenericVariable::REAL_VAR:
+      {
+        sprintf(buffer, "%f", myValue);
+        break;
+      }
+    case SALOMEDSImpl_GenericVariable::INTEGER_VAR:
+      {
+        sprintf(buffer, "%d", (int)myValue);
+        break;
+      }
+    case SALOMEDSImpl_GenericVariable::BOOLEAN_VAR:
+      {
+        if((bool)myValue)
+          sprintf(buffer, "%s", "True");
+        else
+          sprintf(buffer, "%s", "False");
+        break;
+      }
+    default:break;
+    }
+  return string(buffer);
+}
 
 //============================================================================
 /*! Function : SaveType()

@@ -70,7 +70,7 @@ private:
   std::map<std::string, SALOMEDSImpl_SObject> _mapOfSO;
   std::map<std::string, SALOMEDSImpl_SComponent> _mapOfSCO;
   std::map<std::string, DF_Label> myIORLabels;
-  std::map<std::string, SALOMEDSImpl_GenericVariable*> myNoteBookVars;
+  std::vector<SALOMEDSImpl_GenericVariable*> myNoteBookVars;
 
   SALOMEDSImpl_SObject   _FindObject(const SALOMEDSImpl_SObject& SO,
     const std::string& anObjectName,
@@ -79,6 +79,10 @@ private:
   SALOMEDSImpl_SObject   _FindObjectIOR(const SALOMEDSImpl_SObject& SO,
     const std::string& anObjectIOR,
     bool& _find);
+
+  std::string _GetStudyVariablesScript();
+  std::string _GetNoteBookAccessor();
+  std::string _GetNoteBookAccess();
 
 public:
 
@@ -258,18 +262,19 @@ public:
                    const double theValue, 
                    const SALOMEDSImpl_GenericVariable::VariableTypes);
 
-  double GetVariable(const std::string& theVarName);
+  double GetVariableValue(const std::string& theVarName);
 
   bool IsTypeOf(const std::string& theVarName,
                 SALOMEDSImpl_GenericVariable::VariableTypes theType) const;
         
   bool IsVariable(const std::string& theVarName) const;
 
+
   std::vector<std::string> GetVariableNames() const;
 
-  void AddVariable(const std::string& theVarName,
-                   SALOMEDSImpl_GenericVariable* theVariable);
-  
+  void AddVariable(SALOMEDSImpl_GenericVariable* theVariable);
+
+  SALOMEDSImpl_GenericVariable* GetVariable(const std::string& theName) const;
 
   //Returns a callback 
   SALOMEDSImpl_Callback* GetCallback() { return _cb; }

@@ -36,8 +36,10 @@ using namespace std;
  */
 //============================================================================
 SALOMEDSImpl_GenericVariable::
-SALOMEDSImpl_GenericVariable(SALOMEDSImpl_GenericVariable::VariableTypes theType): 
-  _type(theType)
+SALOMEDSImpl_GenericVariable(SALOMEDSImpl_GenericVariable::VariableTypes theType,
+                             const string& theName): 
+  _type(theType),
+  _name(theName)
 {}
 
 //============================================================================
@@ -56,6 +58,16 @@ SALOMEDSImpl_GenericVariable::~SALOMEDSImpl_GenericVariable()
 SALOMEDSImpl_GenericVariable::VariableTypes SALOMEDSImpl_GenericVariable::Type() const
 {
   return _type;
+}
+
+//============================================================================
+/*! Function : Name
+ *  Purpose  : 
+ */
+//============================================================================
+string SALOMEDSImpl_GenericVariable::Name() const
+{
+  return _name;
 }
 
 //============================================================================
@@ -121,6 +133,16 @@ string SALOMEDSImpl_GenericVariable::Save() const
   return string();
 }
 
+
+//============================================================================
+/*! Function : SaveToScript
+ *  Purpose  : 
+ */
+//============================================================================
+string SALOMEDSImpl_GenericVariable::SaveToScript() const
+{
+  return string();
+}
 //============================================================================
 /*! Function : SaveType
  *  Purpose  : 

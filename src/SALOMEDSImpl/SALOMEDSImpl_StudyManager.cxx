@@ -652,18 +652,16 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aUrl,
       hdf_notebook_vars = new HDFgroup("NOTEBOOK_VARIABLES",hdf_file);
       hdf_notebook_vars->CreateOnDisk();
       
-      map <std::string, SALOMEDSImpl_GenericVariable*>::const_iterator it = 
-        aStudy->myNoteBookVars.begin();
       string varValue;
       string varType;
 
-      for( ;it != aStudy->myNoteBookVars.end(); it++ ){
+      for(int i=0 ;i < aStudy->myNoteBookVars.size(); i++ ){
         // For each variable create HDF group
-        hdf_notebook_var = new HDFgroup((char*)(*it).first.c_str(),hdf_notebook_vars);
+        hdf_notebook_var = new HDFgroup((char*)aStudy->myNoteBookVars[i]->Name().c_str(),hdf_notebook_vars);
         hdf_notebook_var->CreateOnDisk();
 
         // Save Variable type
-        varType = (*it).second->SaveType();
+        varType = aStudy->myNoteBookVars[i]->SaveType();
         name_len = (hdf_int32) varType.length();
         size[0] = name_len +1 ;
         hdf_dataset = new HDFdataset("VARIABLE_TYPE",hdf_notebook_var,HDF_STRING,size,1);
@@ -673,7 +671,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aUrl,
         hdf_dataset=0; //will be deleted by hdf_sco_group destructor
         
         // Save Variable value
-        varValue = (*it).second->Save();
+        varValue = aStudy->myNoteBookVars[i]->Save();
         name_len = (hdf_int32) varValue.length();
         size[0] = name_len +1 ;
         hdf_dataset = new HDFdataset("VARIABLE_VALUE",hdf_notebook_var,HDF_STRING,size,1);
@@ -1315,11 +1313,11 @@ void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup)
 
       //Create variable and add it in the study
       SALOMEDSImpl_GenericVariable* aVariable = 
-        new SALOMEDSImpl_ScalarVariable(aVarType);
+        new SALOMEDSImpl_ScalarVariable(aVarType,string(aVarName));
       aVariable->Load(string(currentVarValue));
       delete currentVarValue;
       
-      theStudy->AddVariable(string(aVarName),aVariable);
+      theStudy->AddVariable(aVariable);
     }
   }
   theGroup->CloseOnDisk();

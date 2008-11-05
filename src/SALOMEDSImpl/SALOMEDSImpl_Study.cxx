@@ -877,6 +877,60 @@ SALOMEDSImpl_Study::_FindObjectIOR(const SALOMEDSImpl_SObject& SO,
   return RefSO;
 }
 
+//============================================================================
+/*! Function : _GetNoteBookAccessor
+ *  Purpose  : Find an Object with SALOMEDSImpl_IOR = anObjectIOR
+ */
+//============================================================================
+string SALOMEDSImpl_Study::_GetNoteBookAccessor(){
+  return string("notebook");
+}
+
+//============================================================================
+/*! Function : _GetStudyVariablesScript
+ *  Purpose  : 
+ */
+//============================================================================
+string SALOMEDSImpl_Study::_GetStudyVariablesScript()
+{
+  string dump("");
+  
+  if(myNoteBookVars.empty())
+    return dump;
+  
+  dump += "####################################################\n";
+  dump += "##       Begin of NoteBook variables section      ##\n";
+  dump += "####################################################\n";
+
+  string set_method = _GetNoteBookAccessor()+".set(";
+  string varName;
+  string varValue;
+  for(int i = 0 ; i < myNoteBookVars.size();i++ ) {
+    varName = myNoteBookVars[i]->Name();
+    varValue = myNoteBookVars[i]->SaveToScript();
+    dump+=set_method+"\""+varName+"\", "+varValue+")\n";
+  }
+  
+  dump += "####################################################\n";
+  dump += "##        End of NoteBook variables section       ##\n";
+  dump += "####################################################\n";
+
+  return dump;
+}
+
+//============================================================================
+/*! Function : _GetNoteBookAccess
+ *  Purpose  :
+ */
+//============================================================================
+string SALOMEDSImpl_Study::_GetNoteBookAccess()
+{
+  string accessor = _GetNoteBookAccessor();
+  string notebook = "import salome_notebook\n";
+         notebook += accessor+" = salome_notebook."+accessor + "\n";
+  return notebook;       
+}
+
 bool SALOMEDSImpl_Study::IsLocked()
 {
   _errorCode = "";
@@ -1156,8 +1210,12 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
 
   fp << aBatchModeScript << ".salome_init()" << endl << endl;
 
+  fp << _GetNoteBookAccess();
+
   fp << "sys.path.insert( 0, \'" << thePath << "\')" << endl << endl;
 
+  //Dump NoteBook Variables
+  fp << _GetStudyVariablesScript();
 
   //Check if it's necessary to dump visual parameters
   bool isDumpVisuals = SALOMEDSImpl_IParameters::isDumpPython(this);
@@ -1495,22 +1553,21 @@ void SALOMEDSImpl_Study::SetVariable(const string& theVarName,
                                      const double theValue,
                                      const SALOMEDSImpl_GenericVariable::VariableTypes theType)
 {
-  std::map<std::string, SALOMEDSImpl_GenericVariable*>::iterator it 
-    = myNoteBookVars.find(theVarName);
+ 
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
   
-  SALOMEDSImpl_ScalarVariable* aVar = NULL;
-  if( it == myNoteBookVars.end() ) {
+  if( aGVar == NULL ) {
 
-    aVar = new SALOMEDSImpl_ScalarVariable(theType);
+    SALOMEDSImpl_ScalarVariable* aSVar = new SALOMEDSImpl_ScalarVariable(theType, theVarName);
 
-    aVar->setValue(theValue);
-    myNoteBookVars[theVarName] = aVar;
+    aSVar->setValue(theValue);
+    myNoteBookVars.push_back(aSVar);
   }
   else {
-    if(aVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>((*it).second)) {
-      aVar->setValue(theValue);
-      if(aVar->Type() != theType)
-        aVar->setType(theType);
+    if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar)) {
+      aSVar->setValue(theValue);
+      if(aSVar->Type() != theType)
+        aSVar->setType(theType);
     }
   }
 }
@@ -1520,14 +1577,13 @@ void SALOMEDSImpl_Study::SetVariable(const string& theVarName,
  *  Purpose  :
  */
 //============================================================================
-double SALOMEDSImpl_Study::GetVariable(const string& theVarName)
+double SALOMEDSImpl_Study::GetVariableValue(const string& theVarName)
 {
-  std::map<std::string, SALOMEDSImpl_GenericVariable*>::const_iterator it = 
-    myNoteBookVars.find(theVarName);
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
   
-  if(it != myNoteBookVars.end())
-    if(SALOMEDSImpl_ScalarVariable* aVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>((*it).second))
-      return aVar->getValue();
+  if(aGVar != NULL )
+    if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar))
+      return aSVar->getValue();
 }
 
 //============================================================================
@@ -1539,11 +1595,10 @@ bool SALOMEDSImpl_Study::IsTypeOf(const string& theVarName,
                                   SALOMEDSImpl_GenericVariable::
                                   VariableTypes theType) const
 {
-  std::map<std::string, SALOMEDSImpl_GenericVariable*>::const_iterator it = 
-    myNoteBookVars.find(theVarName);
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
   
-  if(it != myNoteBookVars.end())
-    return (*it).second->Type() == theType;
+  if(aGVar != NULL )
+    return aGVar->Type() == theType;
   
   return false;
 }
@@ -1555,7 +1610,8 @@ bool SALOMEDSImpl_Study::IsTypeOf(const string& theVarName,
 //============================================================================
 bool SALOMEDSImpl_Study::IsVariable(const string& theVarName) const
 {
-  return myNoteBookVars.find(theVarName) != myNoteBookVars.end();
+  SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
+  return (aGVar != NULL);
 }
 
 //============================================================================
@@ -1566,12 +1622,10 @@ bool SALOMEDSImpl_Study::IsVariable(const string& theVarName) const
 vector<string> SALOMEDSImpl_Study::GetVariableNames() const
 {
   vector<string> aResult;
-  std::map<std::string, SALOMEDSImpl_GenericVariable*>::const_iterator it = 
-    myNoteBookVars.begin();
 
-  for(; it != myNoteBookVars.end(); it++)
-    aResult.push_back((*it).first);
-
+  for(int i = 0; i < myNoteBookVars.size(); i++)
+    aResult.push_back(myNoteBookVars[i]->Name());
+  
   return aResult;
 }
 
@@ -1580,10 +1634,26 @@ vector<string> SALOMEDSImpl_Study::GetVariableNames() const
  *  Purpose  :
  */
 //============================================================================
-void SALOMEDSImpl_Study::AddVariable(const string& theVarName,
-                                     SALOMEDSImpl_GenericVariable* theVariable)
+void SALOMEDSImpl_Study::AddVariable(SALOMEDSImpl_GenericVariable* theVariable)
 {
-  myNoteBookVars[theVarName] = theVariable;
+  myNoteBookVars.push_back(theVariable);
+}
+
+//============================================================================
+/*! Function : AddVariable
+ *  Purpose  :
+ */
+//============================================================================
+SALOMEDSImpl_GenericVariable* SALOMEDSImpl_Study::GetVariable(const std::string& theName) const
+{
+  SALOMEDSImpl_GenericVariable* aResult = NULL;
+  for(int i = 0; i < myNoteBookVars.size();i++) {
+    if(theName.compare(myNoteBookVars[i]->Name()) == 0) {
+      aResult = myNoteBookVars[i];
+      break;
+    }  
+  }
+  return aResult;
 }
 
 //============================================================================

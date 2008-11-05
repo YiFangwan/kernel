@@ -722,7 +722,7 @@ double SALOMEDS_Study::GetReal(const string& theVarName)
   double aResult;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aResult = _local_impl->GetVariable(theVarName);
+    aResult = _local_impl->GetVariableValue(theVarName);
   }
   else 
     aResult = _corba_impl->GetReal((char*)theVarName.c_str());
@@ -734,7 +734,7 @@ int SALOMEDS_Study::GetInteger(const string& theVarName)
   int aResult;  
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aResult = (int) _local_impl->GetVariable(theVarName);
+    aResult = (int) _local_impl->GetVariableValue(theVarName);
   }
   else 
     aResult = _corba_impl->GetInteger((char*)theVarName.c_str());
@@ -746,7 +746,7 @@ bool SALOMEDS_Study::GetBoolean(const string& theVarName)
   bool aResult;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aResult = (bool) _local_impl->GetVariable(theVarName);
+    aResult = (bool) _local_impl->GetVariableValue(theVarName);
   }
   else 
     aResult = _corba_impl->GetBoolean((char*)theVarName.c_str());
