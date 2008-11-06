@@ -494,6 +494,7 @@ AC_OUTPUT([ \
 	Makefile \
 	./bin/Makefile \
 	./bin/VERSION \
+	./bin/runIDLparser \
 	./doc/Makefile \
 	./doc/salome/Makefile \
 	./doc/salome/tui/Makefile \
