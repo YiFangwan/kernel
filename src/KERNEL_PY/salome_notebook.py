@@ -58,5 +58,8 @@ class NoteBook:
                 aResult = self.myStudy.GetBoolean(variableName)
                 
         return aResult
+    
+    def isVariable(self, variableName):
+        return self.myStudy.IsVariable(variableName)
                 
 notebook = NoteBook(salome.myStudy)
