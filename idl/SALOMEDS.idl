@@ -476,6 +476,34 @@ during each working session.
     boolean IsVariable( in string theVarName );
 
     ListOfStrings GetVariableNames();
+
+/*! \brief Removing variable
+
+   Remove variable with the specified name from the study with substitution of its value.
+
+   \param theVarName Name of the variable.
+   \return Status of operation.
+*/
+    boolean RemoveVariable( in string theVarName );
+
+/*! \brief Renaming variable
+
+   Rename variable with the specified name within the study.
+
+   \param theVarName Name of the variable.
+   \param theNewVarName New name for the variable.
+   \return Status of operation.
+*/
+    boolean RenameVariable( in string theVarName, in string theNewVarName );
+
+/*! \brief Checking variable usage
+
+   Check that variable is used in the study.
+
+   \param theVarName Name of the variable.
+   \return Variable usage.
+*/
+    boolean IsVariableUsed( in string theVarName );
   };
 
   //==========================================================================

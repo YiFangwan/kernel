@@ -111,6 +111,10 @@ public:
   virtual bool IsVariable(const std::string& theVarName);
   virtual std::vector<std::string> GetVariableNames();
 
+  virtual bool RemoveVariable(const std::string& theVarName);
+  virtual bool RenameVariable(const std::string& theVarName, const std::string& theNewVarName);
+  virtual bool IsVariableUsed(const std::string& theVarName);
+
   std::string ConvertObjectToIOR(CORBA::Object_ptr theObject);
   CORBA::Object_ptr ConvertIORToObject(const std::string& theIOR);     
 

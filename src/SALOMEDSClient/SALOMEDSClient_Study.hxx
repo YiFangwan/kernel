@@ -107,6 +107,11 @@ public:
   virtual bool IsVariable(const std::string& theVarName) = 0;
   virtual std::vector<std::string> GetVariableNames() = 0;
 
+  virtual bool RemoveVariable(const std::string& theVarName) = 0;
+  virtual bool RenameVariable(const std::string& theVarName,
+			      const std::string& theNewVarName) = 0;
+  virtual bool IsVariableUsed(const std::string& theVarName) = 0;
+  
 };
 
 

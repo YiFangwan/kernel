@@ -48,6 +48,8 @@ class SALOMEDSIMPL_EXPORT SALOMEDSImpl_GenericVariable
   
   void setType(const VariableTypes theType);
 
+  void setName(const std::string& theName);
+
   virtual void CheckLocked();
   
   virtual void SetModifyFlag();

@@ -81,6 +81,16 @@ void SALOMEDSImpl_GenericVariable::setType(const SALOMEDSImpl_GenericVariable::V
 }
 
 //============================================================================
+/*! Function : setName
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDSImpl_GenericVariable::setName(const std::string& theName)
+{
+  _name = theName;
+}
+
+//============================================================================
 /*! Function : CheckLocked
  *  Purpose  : 
  */

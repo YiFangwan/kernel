@@ -276,6 +276,15 @@ public:
 
   SALOMEDSImpl_GenericVariable* GetVariable(const std::string& theName) const;
 
+  bool RemoveVariable(const std::string& theVarName);
+
+  bool RenameVariable(const std::string& theVarName, const std::string& theNewVarName);
+
+  bool IsVariableUsed(const std::string& theVarName);
+
+  bool FindVariableAttribute(const std::string& theName);
+  void ReplaceVariableAttribute(const std::string& theSource, const std::string& theDest);
+
   //Returns a callback 
   SALOMEDSImpl_Callback* GetCallback() { return _cb; }
 

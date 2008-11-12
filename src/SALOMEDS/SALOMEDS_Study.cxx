@@ -820,6 +820,42 @@ vector<string> SALOMEDS_Study::GetVariableNames()
   return aVector;
 }
 
+bool SALOMEDS_Study::RemoveVariable(const string& theVarName)
+{
+  bool aResult;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = _local_impl->RemoveVariable(theVarName);
+  }
+  else
+    aResult = _corba_impl->RemoveVariable((char*)theVarName.c_str());
+  return aResult;
+}
+
+bool SALOMEDS_Study::RenameVariable(const string& theVarName, const string& theNewVarName)
+{
+  bool aResult;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = _local_impl->RenameVariable(theVarName, theNewVarName);
+  }
+  else
+    aResult = _corba_impl->RenameVariable((char*)theVarName.c_str(), (char*)theNewVarName.c_str());
+  return aResult;
+}
+
+bool SALOMEDS_Study::IsVariableUsed(const string& theVarName)
+{
+  bool aResult;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = _local_impl->IsVariableUsed(theVarName);
+  }
+  else
+    aResult = _corba_impl->IsVariableUsed((char*)theVarName.c_str());
+  return aResult;
+}
+
 std::string SALOMEDS_Study::ConvertObjectToIOR(CORBA::Object_ptr theObject) 
 {
   return _orb->object_to_string(theObject); 

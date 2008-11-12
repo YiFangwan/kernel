@@ -972,6 +972,36 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetVariableNames()
 }
 
 //============================================================================
+/*! Function : RemoveVariable
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::RemoveVariable(const char* theVarName)
+{
+  return _impl->RemoveVariable(string(theVarName));
+}
+
+//============================================================================
+/*! Function : RenameVariable
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::RenameVariable(const char* theVarName, const char* theNewVarName)
+{
+  return _impl->RenameVariable(string(theVarName), string(theNewVarName));
+}
+
+//============================================================================
+/*! Function : IsVariableUsed
+ *  Purpose  : 
+ */
+//============================================================================
+CORBA::Boolean SALOMEDS_Study_i::IsVariableUsed(const char* theVarName)
+{
+  return _impl->IsVariableUsed(string(theVarName));
+}
+
+//============================================================================
 /*! Function : GetDefaultScript
  *  Purpose  : 
  */

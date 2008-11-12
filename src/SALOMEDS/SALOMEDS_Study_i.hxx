@@ -316,6 +316,12 @@ public:
 
   virtual SALOMEDS::ListOfStrings* GetVariableNames();
 
+  virtual CORBA::Boolean RemoveVariable(const char* theVarName);
+
+  virtual CORBA::Boolean RenameVariable(const char* theVarName, const char* theNewVarName);
+
+  virtual CORBA::Boolean IsVariableUsed(const char* theVarName);
+
   virtual char* GetDefaultScript(const char* theModuleName, const char* theShift);
 
   virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished);

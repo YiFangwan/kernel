@@ -1584,6 +1584,8 @@ double SALOMEDSImpl_Study::GetVariableValue(const string& theVarName)
   if(aGVar != NULL )
     if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar))
       return aSVar->getValue();
+
+  return 0;
 }
 
 //============================================================================
@@ -1654,6 +1656,157 @@ SALOMEDSImpl_GenericVariable* SALOMEDSImpl_Study::GetVariable(const std::string&
     }  
   }
   return aResult;
+}
+
+//============================================================================
+/*! Function : RemoveVariable
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::RemoveVariable(const string& theVarName)
+{
+  SALOMEDSImpl_GenericVariable* aVariable = GetVariable( theVarName );
+  if( !aVariable )
+    return false;
+
+  string aValue = aVariable->SaveToScript();
+  ReplaceVariableAttribute( theVarName, aValue );
+
+  std::vector<SALOMEDSImpl_GenericVariable*>::iterator it = myNoteBookVars.begin(), itEnd = myNoteBookVars.end();
+  for( ; it != itEnd; it++ )
+  {
+    SALOMEDSImpl_GenericVariable* aVariableRef = *it;
+    if( aVariableRef && theVarName.compare( aVariableRef->Name() ) == 0 )
+    {
+      myNoteBookVars.erase( it );
+      break;
+    }
+  }
+
+  return true;
+}
+
+//============================================================================
+/*! Function : RenameVariable
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::RenameVariable(const string& theVarName, const string& theNewVarName)
+{
+  SALOMEDSImpl_GenericVariable* aVariable = GetVariable( theVarName );
+  if( !aVariable )
+    return false;
+
+  ReplaceVariableAttribute( theVarName, theNewVarName );
+
+  std::vector<SALOMEDSImpl_GenericVariable*>::iterator it = myNoteBookVars.begin(), itEnd = myNoteBookVars.end();
+  for( ; it != itEnd; it++ )
+  {
+    SALOMEDSImpl_GenericVariable* aVariableRef = *it;
+    if( aVariableRef && theVarName.compare( aVariableRef->Name() ) == 0 )
+    {
+      aVariableRef->setName( theNewVarName );
+      break;
+    }
+  }
+
+  return true;
+}
+
+//============================================================================
+/*! Function : IsVariableUsed
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::IsVariableUsed(const string& theVarName)
+{
+  return FindVariableAttribute( theVarName );
+}
+
+//============================================================================
+/*! Function : FindVariableAttribute
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::FindVariableAttribute(const std::string& theName)
+{
+  DF_Attribute* anAttr;
+  SALOMEDSImpl_StudyBuilder* aStudyBuilder = NewBuilder();
+  SALOMEDSImpl_SComponentIterator aCompIter = NewComponentIterator();
+  for( ; aCompIter.More(); aCompIter.Next() )
+  {
+    SALOMEDSImpl_SObject aComp = aCompIter.Value();
+
+    SALOMEDSImpl_ChildIterator anIter = NewChildIterator( aComp );
+    for( ; anIter.More(); anIter.Next() )
+    {
+      SALOMEDSImpl_SObject aSObject = anIter.Value();
+      if( aStudyBuilder->FindAttribute( aSObject, anAttr, "AttributeString" ) )
+      {
+	if( SALOMEDSImpl_AttributeString* aStringAttr = ( SALOMEDSImpl_AttributeString* )anAttr )
+	{
+	  string aString = aStringAttr->Value();
+
+	  vector<string> aVector = SALOMEDSImpl_Tool::splitString( aString, ':' );
+	  for( int i = 0, len = aVector.size(); i < len; i++ )
+	  {
+	    string aStr = aVector[i];
+	    if( aStr.compare( theName ) == 0 )
+	      return true;
+	  }
+	}
+      }
+    }
+  }
+  return false;
+}
+
+//============================================================================
+/*! Function : ReplaceVariableAttribute
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::ReplaceVariableAttribute(const std::string& theSource, const std::string& theDest)
+{
+  DF_Attribute* anAttr;
+  SALOMEDSImpl_StudyBuilder* aStudyBuilder = NewBuilder();
+  SALOMEDSImpl_SComponentIterator aCompIter = NewComponentIterator();
+  for( ; aCompIter.More(); aCompIter.Next() )
+  {
+    SALOMEDSImpl_SObject aComp = aCompIter.Value();
+
+    SALOMEDSImpl_ChildIterator anIter = NewChildIterator( aComp );
+    for( ; anIter.More(); anIter.Next() )
+    {
+      SALOMEDSImpl_SObject aSObject = anIter.Value();
+      if( aStudyBuilder->FindAttribute( aSObject, anAttr, "AttributeString" ) )
+      {
+	if( SALOMEDSImpl_AttributeString* aStringAttr = ( SALOMEDSImpl_AttributeString* )anAttr )
+	{
+	  bool isChanged = false;
+	  string aNewString, aCurrentString = aStringAttr->Value();
+
+	  vector<string> aVector = SALOMEDSImpl_Tool::splitString( aCurrentString, ':' );
+	  for( int i = 0, len = aVector.size(); i < len; i++ )
+	  {
+	    string aStr = aVector[i];
+	    if( aStr.compare( theSource ) == 0 )
+	    {
+	      isChanged = true;
+	      aStr = theDest;
+	    }
+
+	    aNewString.append( aStr );
+	    if( i != len )
+	      aNewString.append( ":" );
+	  }
+
+	  if( isChanged )
+	    aStringAttr->SetValue( aNewString );
+	}
+      }
+    }
+  }
 }
 
 //============================================================================
