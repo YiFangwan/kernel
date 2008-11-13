@@ -282,7 +282,15 @@ public:
 
   bool IsVariableUsed(const std::string& theVarName);
 
+  bool FindVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
+			     SALOMEDSImpl_SObject theSObject,
+			     const std::string& theName);
   bool FindVariableAttribute(const std::string& theName);
+
+  void ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
+				SALOMEDSImpl_SObject theSObject,
+				const std::string& theSource,
+				const std::string& theDest);
   void ReplaceVariableAttribute(const std::string& theSource, const std::string& theDest);
 
   //Returns a callback 
