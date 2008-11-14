@@ -43,6 +43,7 @@ using namespace std;
 #define DIRECTORYID       16661
 #define FILELOCALID       26662
 #define FILEID            "FILE: "
+#define VARIABLE_SEPARATOR ':'
 
 
 //============================================================================
@@ -1744,7 +1745,7 @@ bool SALOMEDSImpl_Study::FindVariableAttribute(SALOMEDSImpl_StudyBuilder* theStu
     {
       string aString = aStringAttr->Value();
 
-      vector<string> aVector = SALOMEDSImpl_Tool::splitString( aString, ':' );
+      vector<string> aVector = SALOMEDSImpl_Tool::splitStringWithEmpty( aString, VARIABLE_SEPARATOR );
       for( int i = 0, len = aVector.size(); i < len; i++ )
       {
 	string aStr = aVector[i];
@@ -1796,7 +1797,7 @@ void SALOMEDSImpl_Study::ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* the
       bool isChanged = false;
       string aNewString, aCurrentString = aStringAttr->Value();
 
-      vector<string> aVector = SALOMEDSImpl_Tool::splitString( aCurrentString, ':' );
+      vector<string> aVector = SALOMEDSImpl_Tool::splitStringWithEmpty( aCurrentString, VARIABLE_SEPARATOR );
       for( int i = 0, len = aVector.size(); i < len; i++ )
       {
 	string aStr = aVector[i];
@@ -1807,7 +1808,7 @@ void SALOMEDSImpl_Study::ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* the
 	}
 
 	aNewString.append( aStr );
-	if( i != len )
+	if( i != len - 1 )
 	  aNewString.append( ":" );
       }
 
