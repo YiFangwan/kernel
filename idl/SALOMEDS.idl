@@ -504,6 +504,14 @@ during each working session.
    \return Variable usage.
 */
     boolean IsVariableUsed( in string theVarName );
+
+/*! \brief Parse variables used for object creation
+
+   \param string with variables, separated by special symbol. 
+   \return Variables list.
+*/
+    ListOfStrings ParseVariables( in string theVars );
+    
   };
 
   //==========================================================================

@@ -321,6 +321,8 @@ public:
   virtual CORBA::Boolean RenameVariable(const char* theVarName, const char* theNewVarName);
 
   virtual CORBA::Boolean IsVariableUsed(const char* theVarName);
+  
+  virtual SALOMEDS::ListOfStrings* ParseVariables(const char* theVars);
 
   virtual char* GetDefaultScript(const char* theModuleName, const char* theShift);
 

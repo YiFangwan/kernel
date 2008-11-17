@@ -1839,6 +1839,16 @@ void SALOMEDSImpl_Study::ReplaceVariableAttribute(const std::string& theSource, 
  *  Purpose  :
  */
 //============================================================================
+vector<string> SALOMEDSImpl_Study::ParseVariables(const string& theVariables) const
+{
+  return SALOMEDSImpl_Tool::splitStringWithEmpty( theVariables, VARIABLE_SEPARATOR );
+}
+
+//============================================================================
+/*! Function : EnableUseCaseAutoFilling
+ *  Purpose  :
+ */
+//============================================================================
 void SALOMEDSImpl_Study::EnableUseCaseAutoFilling(bool isEnabled)
 { 
   _errorCode = ""; _autoFill = isEnabled; 

@@ -1001,6 +1001,26 @@ CORBA::Boolean SALOMEDS_Study_i::IsVariableUsed(const char* theVarName)
   return _impl->IsVariableUsed(string(theVarName));
 }
 
+
+//============================================================================
+/*! Function : ParseVariables
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDS::ListOfStrings* SALOMEDS_Study_i::ParseVariables(const char* theVarName)
+{
+  vector<string> aVarNames = _impl->ParseVariables(string(theVarName));
+  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
+
+  int aLen = aVarNames.size();
+  aResult->length(aLen);
+
+  for (int anInd = 0; anInd < aLen; anInd++)
+    aResult[anInd] = CORBA::string_dup(aVarNames[anInd].c_str());
+  
+  return aResult._retn();
+}
+
 //============================================================================
 /*! Function : GetDefaultScript
  *  Purpose  : 

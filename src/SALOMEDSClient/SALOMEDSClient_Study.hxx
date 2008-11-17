@@ -111,6 +111,8 @@ public:
   virtual bool RenameVariable(const std::string& theVarName,
 			      const std::string& theNewVarName) = 0;
   virtual bool IsVariableUsed(const std::string& theVarName) = 0;
+
+  virtual std::vector<std::string> ParseVariables(const std::string& theVars) = 0;
   
 };
 

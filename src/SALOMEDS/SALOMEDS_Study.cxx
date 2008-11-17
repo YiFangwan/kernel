@@ -856,6 +856,22 @@ bool SALOMEDS_Study::IsVariableUsed(const string& theVarName)
   return aResult;
 }
 
+vector<string> SALOMEDS_Study::ParseVariables(const string& theVars)
+{
+  vector<string> aResult;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = _local_impl->ParseVariables(theVars);
+  }
+  else {
+    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->ParseVariables(theVars.c_str());
+    int aLength = aSeq->length();
+    for (int i = 0; i < aLength; i++) 
+      aResult.push_back( string(aSeq[i].in()) );
+  }
+  return aResult;
+}
+
 std::string SALOMEDS_Study::ConvertObjectToIOR(CORBA::Object_ptr theObject) 
 {
   return _orb->object_to_string(theObject); 
