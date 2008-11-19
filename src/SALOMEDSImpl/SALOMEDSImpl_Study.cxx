@@ -1554,7 +1554,7 @@ void SALOMEDSImpl_Study::SetVariable(const string& theVarName,
                                      const double theValue,
                                      const SALOMEDSImpl_GenericVariable::VariableTypes theType)
 {
- 
+  bool modified = false;
   SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
   
   if( aGVar == NULL ) {
@@ -1563,14 +1563,16 @@ void SALOMEDSImpl_Study::SetVariable(const string& theVarName,
 
     aSVar->setValue(theValue);
     myNoteBookVars.push_back(aSVar);
+    modified = true;
   }
   else {
     if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar)) {
-      aSVar->setValue(theValue);
-      if(aSVar->Type() != theType)
-        aSVar->setType(theType);
+      modified = aSVar->setValue(theValue) || modified;
+      modified = aSVar->setType(theType) || modified;
     }
   }
+  if(modified)
+    Modify();
 }
 
 //============================================================================
@@ -1680,6 +1682,7 @@ bool SALOMEDSImpl_Study::RemoveVariable(const string& theVarName)
     if( aVariableRef && theVarName.compare( aVariableRef->Name() ) == 0 )
     {
       myNoteBookVars.erase( it );
+      Modify();
       break;
     }
   }
@@ -1707,6 +1710,7 @@ bool SALOMEDSImpl_Study::RenameVariable(const string& theVarName, const string& 
     if( aVariableRef && theVarName.compare( aVariableRef->Name() ) == 0 )
     {
       aVariableRef->setName( theNewVarName );
+      Modify();
       break;
     }
   }

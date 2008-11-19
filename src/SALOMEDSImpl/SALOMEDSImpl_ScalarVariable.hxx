@@ -35,7 +35,7 @@ public:
                               const std::string& theName);
   ~SALOMEDSImpl_ScalarVariable();
   
-  void setValue(const double theValue);
+  bool setValue(const double theValue);
   double getValue() const;
 
   virtual std::string Save() const;

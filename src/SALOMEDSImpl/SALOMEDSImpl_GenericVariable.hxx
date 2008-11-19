@@ -46,13 +46,9 @@ class SALOMEDSIMPL_EXPORT SALOMEDSImpl_GenericVariable
 
   static VariableTypes String2VariableType(const std::string& theStrType);
   
-  void setType(const VariableTypes theType);
+  bool setType(const VariableTypes theType);
 
-  void setName(const std::string& theName);
-
-  virtual void CheckLocked();
-  
-  virtual void SetModifyFlag();
+  bool setName(const std::string& theName);
 
   virtual std::string Save() const;
   virtual std::string SaveToScript() const;

@@ -49,16 +49,14 @@ SALOMEDSImpl_ScalarVariable::~SALOMEDSImpl_ScalarVariable(){}
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDSImpl_ScalarVariable::setValue(const double theValue)
+bool SALOMEDSImpl_ScalarVariable::setValue(const double theValue)
 {
-  CheckLocked();
   
   if(myValue == theValue) 
-    return;
+    return false;
   
   myValue = theValue;
-  
-  SetModifyFlag();
+  return true;
 }
 
 //============================================================================

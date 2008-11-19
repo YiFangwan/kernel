@@ -75,9 +75,13 @@ string SALOMEDSImpl_GenericVariable::Name() const
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDSImpl_GenericVariable::setType(const SALOMEDSImpl_GenericVariable::VariableTypes theType)
+bool SALOMEDSImpl_GenericVariable::setType(const SALOMEDSImpl_GenericVariable::VariableTypes theType)
 {
+  if(_type == theType)
+    return false;
+
   _type = theType;
+  return true;
 }
 
 //============================================================================
@@ -85,43 +89,14 @@ void SALOMEDSImpl_GenericVariable::setType(const SALOMEDSImpl_GenericVariable::V
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDSImpl_GenericVariable::setName(const std::string& theName)
+bool SALOMEDSImpl_GenericVariable::setName(const std::string& theName)
 {
+  if(_name.compare(theName) == 0)
+    return false;
+
   _name = theName;
+  return true;
 }
-
-//============================================================================
-/*! Function : CheckLocked
- *  Purpose  : 
- */
-//============================================================================
-void SALOMEDSImpl_GenericVariable::CheckLocked()
-{
-  DF_Label aLabel = DF_Label();
-  if(aLabel.IsNull()) return;
-
-  SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudy(aLabel);
-  if(!aStudy) return;
-  if(aStudy->IsLocked()) {
-    aStudy->_errorCode = "LockProtection";
-    throw LockProtection("LockProtection");
-  }                                         
-}
-
-//============================================================================
-/*! Function : SetModifyFlag
- *  Purpose  : 
- */
-//============================================================================
-void SALOMEDSImpl_GenericVariable::SetModifyFlag()
-{
-  DF_Label aLabel = DF_Label();
-  if(aLabel.IsNull()) return; 
-  
-  SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudy(aLabel);
-  if(aStudy) aStudy->Modify();
-}
-
 
 //============================================================================
 /*! Function : String2VariableType
