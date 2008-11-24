@@ -264,6 +264,20 @@ vector<string> SALOMEDSImpl_Tool::splitStringWithEmpty(const string& theValue, c
   return aResult;
 }
 
+//============================================================================
+// function : 
+// purpose  : The functions returns a list of lists of substrings of initial string 
+//            divided by two given separators include empty strings
+//============================================================================
+vector< vector<string> > SALOMEDSImpl_Tool::splitStringWithEmpty(const string& theValue, char sep1, char sep2)
+{
+  vector< vector<string> > aResult;
+  vector<string> aSections = splitStringWithEmpty( theValue, sep1 );
+  for( int i = 0, n = aSections.size(); i < n; i++ )
+    aResult.push_back( splitStringWithEmpty( aSections[i], sep2 ) );
+  return aResult;
+}
+
 
 void SALOMEDSImpl_Tool::GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, int& seconds)
 {

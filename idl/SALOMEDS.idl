@@ -72,6 +72,9 @@ during each working session.
 /*! An unbounded sequence of strings
 */
   typedef sequence<string> ListOfStrings ;
+/*! An unbounded sequence of sequence of strings
+*/
+  typedef sequence<ListOfStrings> ListOfListOfStrings ;
 /*! A byte stream which is used for binary data transfer between different components
 */
   typedef sequence<octet> TMPFile;
@@ -510,7 +513,7 @@ during each working session.
    \param string with variables, separated by special symbol. 
    \return Variables list.
 */
-    ListOfStrings ParseVariables( in string theVars );
+    ListOfListOfStrings ParseVariables( in string theVars );
     
   };
 

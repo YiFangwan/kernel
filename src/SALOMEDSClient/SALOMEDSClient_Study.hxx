@@ -112,7 +112,7 @@ public:
 			      const std::string& theNewVarName) = 0;
   virtual bool IsVariableUsed(const std::string& theVarName) = 0;
 
-  virtual std::vector<std::string> ParseVariables(const std::string& theVars) = 0;
+  virtual std::vector< std::vector<std::string> > ParseVariables(const std::string& theVars) = 0;
   
 };
 

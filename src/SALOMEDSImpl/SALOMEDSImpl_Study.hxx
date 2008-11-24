@@ -293,7 +293,7 @@ public:
 				const std::string& theDest);
   void ReplaceVariableAttribute(const std::string& theSource, const std::string& theDest);
 
-  std::vector<std::string> ParseVariables(const std::string& theVariables) const;
+  std::vector< std::vector<std::string> > ParseVariables(const std::string& theVariables) const;
 
   //Returns a callback 
   SALOMEDSImpl_Callback* GetCallback() { return _cb; }

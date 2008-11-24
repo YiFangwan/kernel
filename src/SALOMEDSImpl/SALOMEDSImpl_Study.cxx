@@ -43,7 +43,8 @@ using namespace std;
 #define DIRECTORYID       16661
 #define FILELOCALID       26662
 #define FILEID            "FILE: "
-#define VARIABLE_SEPARATOR ':'
+#define VARIABLE_SEPARATOR  ':'
+#define OPERATION_SEPARATOR '|'
 
 
 //============================================================================
@@ -1749,12 +1750,16 @@ bool SALOMEDSImpl_Study::FindVariableAttribute(SALOMEDSImpl_StudyBuilder* theStu
     {
       string aString = aStringAttr->Value();
 
-      vector<string> aVector = SALOMEDSImpl_Tool::splitStringWithEmpty( aString, VARIABLE_SEPARATOR );
-      for( int i = 0, len = aVector.size(); i < len; i++ )
+      vector< vector<string> > aSections = ParseVariables( aString );
+      for( int i = 0, n = aSections.size(); i < n; i++ )
       {
-	string aStr = aVector[i];
-	if( aStr.compare( theName ) == 0 )
-	  return true;
+	vector<string> aVector = aSections[i];
+	for( int j = 0, m = aVector.size(); j < m; j++ )
+	{
+	  string aStr = aVector[j];
+	  if( aStr.compare( theName ) == 0 )
+	    return true;
+	}
       }
     }
   }
@@ -1801,19 +1806,25 @@ void SALOMEDSImpl_Study::ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* the
       bool isChanged = false;
       string aNewString, aCurrentString = aStringAttr->Value();
 
-      vector<string> aVector = SALOMEDSImpl_Tool::splitStringWithEmpty( aCurrentString, VARIABLE_SEPARATOR );
-      for( int i = 0, len = aVector.size(); i < len; i++ )
+      vector< vector<string> > aSections = ParseVariables( aCurrentString );
+      for( int i = 0, n = aSections.size(); i < n; i++ )
       {
-	string aStr = aVector[i];
-	if( aStr.compare( theSource ) == 0 )
+	vector<string> aVector = aSections[i];
+	for( int j = 0, m = aVector.size(); j < m; j++ )
 	{
-	  isChanged = true;
-	  aStr = theDest;
-	}
+	  string aStr = aVector[j];
+	  if( aStr.compare( theSource ) == 0 )
+	  {
+	    isChanged = true;
+	    aStr = theDest;
+	  }
 
-	aNewString.append( aStr );
-	if( i != len - 1 )
-	  aNewString.append( ":" );
+	  aNewString.append( aStr );
+	  if( j != m - 1 )
+	    aNewString.append( ":" );
+	}
+	if( i != n - 1 )
+	  aNewString.append( "|" );
       }
 
       if( isChanged )
@@ -1839,13 +1850,13 @@ void SALOMEDSImpl_Study::ReplaceVariableAttribute(const std::string& theSource, 
 }
 
 //============================================================================
-/*! Function : EnableUseCaseAutoFilling
+/*! Function : ParseVariables
  *  Purpose  :
  */
 //============================================================================
-vector<string> SALOMEDSImpl_Study::ParseVariables(const string& theVariables) const
+vector< vector< string > > SALOMEDSImpl_Study::ParseVariables(const string& theVariables) const
 {
-  return SALOMEDSImpl_Tool::splitStringWithEmpty( theVariables, VARIABLE_SEPARATOR );
+  return SALOMEDSImpl_Tool::splitStringWithEmpty( theVariables, OPERATION_SEPARATOR, VARIABLE_SEPARATOR );
 }
 
 //============================================================================

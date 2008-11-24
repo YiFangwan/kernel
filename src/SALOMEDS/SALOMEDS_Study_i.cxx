@@ -1007,17 +1007,29 @@ CORBA::Boolean SALOMEDS_Study_i::IsVariableUsed(const char* theVarName)
  *  Purpose  : 
  */
 //============================================================================
-SALOMEDS::ListOfStrings* SALOMEDS_Study_i::ParseVariables(const char* theVarName)
+SALOMEDS::ListOfListOfStrings* SALOMEDS_Study_i::ParseVariables(const char* theVarName)
 {
-  vector<string> aVarNames = _impl->ParseVariables(string(theVarName));
-  SALOMEDS::ListOfStrings_var aResult = new SALOMEDS::ListOfStrings;
+  vector< vector<string> > aSections = _impl->ParseVariables(string(theVarName));
 
-  int aLen = aVarNames.size();
-  aResult->length(aLen);
+  SALOMEDS::ListOfListOfStrings_var aResult = new SALOMEDS::ListOfListOfStrings;
 
-  for (int anInd = 0; anInd < aLen; anInd++)
-    aResult[anInd] = CORBA::string_dup(aVarNames[anInd].c_str());
-  
+  int aSectionsLen = aSections.size();
+  aResult->length(aSectionsLen);
+
+  for (int aSectionInd = 0; aSectionInd < aSectionsLen; aSectionInd++) {
+    vector<string> aVarNames = aSections[aSectionInd];
+
+    SALOMEDS::ListOfStrings_var aList = new SALOMEDS::ListOfStrings;
+
+    int aLen = aVarNames.size();
+    aList->length(aLen);
+
+    for (int anInd = 0; anInd < aLen; anInd++)
+      aList[anInd] = CORBA::string_dup(aVarNames[anInd].c_str());
+
+    aResult[aSectionInd] = aList;
+  }
+
   return aResult._retn();
 }
 

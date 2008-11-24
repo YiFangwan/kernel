@@ -65,6 +65,12 @@ public:
   //include empty strings
   static std::vector<std::string> splitStringWithEmpty(const std::string& theValue, char separator);
   
+  //The functions returns a list of substring of initial string divided by given separator, 
+  //include empty strings
+  static std::vector< std::vector<std::string> > splitStringWithEmpty(const std::string& theValue,
+								      char separator1,
+								      char separator2);
+  
 
   //Returns a system date  
   static void GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, int& seconds);

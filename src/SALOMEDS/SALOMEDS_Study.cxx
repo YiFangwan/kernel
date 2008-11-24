@@ -856,18 +856,23 @@ bool SALOMEDS_Study::IsVariableUsed(const string& theVarName)
   return aResult;
 }
 
-vector<string> SALOMEDS_Study::ParseVariables(const string& theVars)
+vector< vector<string> > SALOMEDS_Study::ParseVariables(const string& theVars)
 {
-  vector<string> aResult;
+  vector< vector<string> > aResult;
   if (_isLocal) {
     SALOMEDS::Locker lock;
     aResult = _local_impl->ParseVariables(theVars);
   }
   else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->ParseVariables(theVars.c_str());
-    int aLength = aSeq->length();
-    for (int i = 0; i < aLength; i++) 
-      aResult.push_back( string(aSeq[i].in()) );
+    SALOMEDS::ListOfListOfStrings_var aSeq = _corba_impl->ParseVariables(theVars.c_str());
+    for (int i = 0, n = aSeq->length(); i < n; i++) {
+      vector<string> aVector;
+      SALOMEDS::ListOfStrings aSection = aSeq[i];
+      for (int j = 0, m = aSection.length(); j < m; j++) {
+	aVector.push_back( string(aSection[j].in()) );
+      }
+      aResult.push_back( aVector );
+    }
   }
   return aResult;
 }
