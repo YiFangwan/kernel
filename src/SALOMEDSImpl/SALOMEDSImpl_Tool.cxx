@@ -246,7 +246,7 @@ vector<string> SALOMEDSImpl_Tool::splitStringWithEmpty(const string& theValue, c
   vector<string> aResult;
   if(theValue[0] == sep ) aResult.push_back(string());
   int pos = theValue.find(sep);
-  if(pos < 0) {
+  if(pos < 0 && theValue.size() > 0) {
     aResult.push_back(theValue);
     return aResult;
   }
