@@ -1306,6 +1306,9 @@ void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup)
       new_dataset->ReadFromDisk(currentVarValue);
       new_dataset->CloseOnDisk();
       new_dataset = 0; //will be deleted by hdf_sco_group destructor
+
+      new_group->CloseOnDisk();
+      new_group = 0;  //will be deleted by hdf_sco_group destructor
       
       SALOMEDSImpl_GenericVariable::VariableTypes aVarType =
         SALOMEDSImpl_GenericVariable::String2VariableType(string(currentVarType));
