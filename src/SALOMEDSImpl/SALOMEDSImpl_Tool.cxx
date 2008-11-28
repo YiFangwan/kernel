@@ -246,7 +246,7 @@ vector<string> SALOMEDSImpl_Tool::splitStringWithEmpty(const string& theValue, c
   vector<string> aResult;
   if(theValue[0] == sep ) aResult.push_back(string());
   int pos = theValue.find(sep);
-  if(pos < 0 && theValue.size() > 0) {
+  if(pos < 0 ) {
     aResult.push_back(theValue);
     return aResult;
   }
@@ -272,9 +272,11 @@ vector<string> SALOMEDSImpl_Tool::splitStringWithEmpty(const string& theValue, c
 vector< vector<string> > SALOMEDSImpl_Tool::splitStringWithEmpty(const string& theValue, char sep1, char sep2)
 {
   vector< vector<string> > aResult;
-  vector<string> aSections = splitStringWithEmpty( theValue, sep1 );
-  for( int i = 0, n = aSections.size(); i < n; i++ )
-    aResult.push_back( splitStringWithEmpty( aSections[i], sep2 ) );
+  if(theValue.size() > 0) {
+    vector<string> aSections = splitStringWithEmpty( theValue, sep1 );
+    for( int i = 0, n = aSections.size(); i < n; i++ )
+      aResult.push_back( splitStringWithEmpty( aSections[i], sep2 ) );
+  }
   return aResult;
 }
 
