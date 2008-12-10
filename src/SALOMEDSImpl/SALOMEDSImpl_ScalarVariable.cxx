@@ -106,7 +106,7 @@ string SALOMEDSImpl_ScalarVariable::SaveToScript() const
     {
     case SALOMEDSImpl_GenericVariable::REAL_VAR:
       {
-        sprintf(buffer, "%f", myValue);
+        sprintf(buffer, "%g", myValue);
         break;
       }
     case SALOMEDSImpl_GenericVariable::INTEGER_VAR:
