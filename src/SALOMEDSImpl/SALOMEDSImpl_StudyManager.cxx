@@ -187,10 +187,12 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
       return NULL;
     }
 
-  //Read and create notebook variables
-  hdf_notebook_vars  = new HDFgroup("NOTEBOOK_VARIABLES",hdf_file);
-  ReadNoteBookVariables(Study,hdf_notebook_vars);
-  hdf_notebook_vars =0; //will be deleted by hdf_sco_group destructor
+  //Read and create notebook variables 
+  if(hdf_file->ExistInternalObject("NOTEBOOK_VARIABLES")) {
+    hdf_notebook_vars  = new HDFgroup("NOTEBOOK_VARIABLES",hdf_file);
+    ReadNoteBookVariables(Study,hdf_notebook_vars);
+    hdf_notebook_vars =0; //will be deleted by hdf_sco_group destructor
+  }
 
   hdf_file->CloseOnDisk();
   hdf_group_study_structure = new HDFgroup("STUDY_STRUCTURE",hdf_file);
