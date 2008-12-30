@@ -109,7 +109,7 @@ Test_LifeCycleCORBA_LDADD    = \
 	../Registry/libRegistry.la \
 	../Notification/libSalomeNotification.la \
 	../Container/libSalomeContainer.la \
-	../HDFPersist/libSalomeHDFPersist.la \	
+	../HDFPersist/libSalomeHDFPersist.la \
 	$(COMMON_LIBS) \
 	@CORBA_LIBS@
 
@@ -126,7 +126,7 @@ TestContainerManager_LDADD    = \
 	../Notification/libSalomeNotification.la \
 	../Container/libSalomeContainer.la \
 	../HDFPersist/libSalomeHDFPersist.la \
-	../HDFPersist/libSalomeHDFPersist.la \	
+	../HDFPersist/libSalomeHDFPersist.la \
 	$(COMMON_LIBS) \
 	@CORBA_LIBS@
 

@@ -166,7 +166,7 @@ struct omniORBpyAPI {
       param->parallelLib = CORBA::string_dup("");
       param->nb_component_nodes = 0;
       PyObject *key, *value;
-      int pos = 0;
+      Py_ssize_t pos = 0;
       while (PyDict_Next($input, &pos, &key, &value))
 	{
 	  char* keystr = PyString_AsString(key);
