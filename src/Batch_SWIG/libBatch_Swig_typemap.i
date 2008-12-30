@@ -87,7 +87,7 @@
   // on itere sur toutes les clefs du dictionnaire, et on passe par la classe PyVersatile
 	// qui convertit un Versatile en PyObject et vice versa
 	PyObject *key, *value;
-	int pos = 0;
+	Py_ssize_t pos = 0;
 	while (PyDict_Next($input, &pos, &key, &value)) {
 		std::string mk = PyString_AsString(key);
 		Batch::PyVersatile PyV = value;
@@ -121,7 +121,7 @@
   // on itere sur toutes les clefs du dictionnaire, et on passe par la classe PyVersatile
 	// qui convertit un Versatile en PyObject et vice versa
 	PyObject *key, *value;
-	int pos = 0;
+	Py_ssize_t pos = 0;
 	while (PyDict_Next($input, &pos, &key, &value)) {
 		std::string mk = PyString_AsString(key);
 		Batch::PyVersatile PyV = value;
@@ -173,7 +173,7 @@
 
 	// on itere sur toutes les clefs du dictionnaire
 	PyObject *key, *value;
-	int pos = 0;
+	Py_ssize_t pos = 0;
 	while (PyDict_Next($input, &pos, &key, &value)) {
 		std::string mk  = PyString_AsString(key);
 		std::string val = PyString_AsString(value);
@@ -195,7 +195,7 @@
 
 	// on itere sur toutes les clefs du dictionnaire
 	PyObject *key, *value;
-	int pos = 0;
+	Py_ssize_t pos = 0;
 	while (PyDict_Next($input, &pos, &key, &value)) {
 		std::string mk  = PyString_AsString(key);
 		std::string val = PyString_AsString(value);
