@@ -29,7 +29,6 @@
 
 #include "SALOME_LocalTrace.hxx"
 
-#include <string>
 #include "LocalTraceBufferPool.hxx"
 #include "BaseTraceCollector.hxx"
 

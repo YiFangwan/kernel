@@ -36,7 +36,7 @@
 #include "SALOME_FileRef_i.hxx"
 #include "SALOME_FileTransfer_i.hxx"
 #include "SALOME_NamingService.hxx"
-#include "Basics_Utils.hxx"
+#include "OpUtil.hxx"
 
 #include <string.h>
 #include <stdio.h>

@@ -37,7 +37,7 @@
 #include "PaCO++.h"
 #endif
 
-#define TIME_OUT_TO_LAUNCH_CONT 21
+#define TIME_OUT_TO_LAUNCH_CONT 61
 
 using namespace std;
 
@@ -127,13 +127,20 @@ void SALOME_ContainerManager::ShutdownContainers()
   if( isOK ){
     vector<string> vec = _NS->list_directory_recurs();
     list<string> lstCont;
-    for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++){
+    for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++)
+      {
         SCRUTE((*iter));
         CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
-        Engines::Container_var cont=Engines::Container::_narrow(obj);
-        if(!CORBA::is_nil(cont)){
-	    lstCont.push_back((*iter));
-	}
+        try
+          {
+            Engines::Container_var cont=Engines::Container::_narrow(obj);
+            if(!CORBA::is_nil(cont))
+	      lstCont.push_back((*iter));
+          }
+        catch(const CORBA::Exception& e)
+          {
+            // ignore this entry and continue
+          }
       }
     MESSAGE("Container list: ");
     for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
@@ -283,19 +290,17 @@ StartContainer(const Engines::MachineParameters& params,
   CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
   if ( !CORBA::is_nil(obj) )
     {
-	// shutdown the registered container if it exists
-        Engines::Container_var cont=Engines::Container::_narrow(obj);
-        if(!CORBA::is_nil(cont))
-	  {
-	    try
-	    {
-        	cont->Shutdown();
-	    }
-    	    catch(CORBA::Exception&)
-            {
-	      INFOS("CORBA::Exception ignored.");
-    	    }
-	  }
+      try
+        {
+          // shutdown the registered container if it exists
+          Engines::Container_var cont=Engines::Container::_narrow(obj);
+          if(!CORBA::is_nil(cont))
+            cont->Shutdown();
+        }
+      catch(CORBA::Exception&)
+        {
+          INFOS("CORBA::Exception ignored.");
+        }
     }
 
   //redirect stdout and stderr in a file
@@ -305,16 +310,17 @@ StartContainer(const Engines::MachineParameters& params,
   // launch container with a system call
   int status=system(command.c_str());
 
-  RmTmpFile(); // command file can be removed here
 
   if (status == -1){
     MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
 	    "(system command status -1)");
+    RmTmpFile(); // command file can be removed here
     return Engines::Container::_nil();
   }
   else if (status == 217){
     MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
 	    "(system command status 217)");
+    RmTmpFile(); // command file can be removed here
     return Engines::Container::_nil();
   }
   else{
@@ -346,6 +352,7 @@ StartContainer(const Engines::MachineParameters& params,
         ret->logfilename(logFilename.c_str());
       }
 
+    RmTmpFile(); // command file can be removed here
     return ret;
   }
 }

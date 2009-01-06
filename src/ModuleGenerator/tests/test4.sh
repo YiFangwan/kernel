@@ -35,9 +35,10 @@ echo  "
 --> creation d'un nouveau catalogue avec un composant
 "
 
-${ROOT_BUILDDIR}/bin/runIDLparser \
-		-Wbcatalog=my_catalog.xml \
-		${ROOT_SRCDIR}/idl/AddComponent.idl
+sh ${ROOT_BUILDDIR}/bin/runIDLparser -p ${SRCDIR} \
+    -I${ROOT_SRCDIR}/idl \
+    -Wbcatalog=my_catalog.xml \
+    ${SRCDIR}/tests/AddComponent.idl
 
 
 mv my_catalog.xml C1
@@ -52,7 +53,8 @@ mv C1 my_catalog.xml
  --> remplacement du composant dans le catalogue (autre idl)
 "
 
-${ROOT_BUILDDIR}/bin/runIDLparser \
-		-Wbcatalog=my_catalog.xml \
-		${SRCDIR}/tests/Truc2Component.idl
+sh ${ROOT_BUILDDIR}/bin/runIDLparser -p ${SRCDIR} \
+    -I${ROOT_SRCDIR}/idl \
+    -Wbcatalog=my_catalog.xml \
+    ${SRCDIR}/tests/Truc2Component.idl
 

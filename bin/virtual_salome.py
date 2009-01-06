@@ -100,11 +100,31 @@ def link_module(options):
         return
 
     home_dir = os.path.expanduser(options.prefix)
+    #try to find python version of salome application and put it in versio
+    pys=[os.path.split(s)[1] for s in glob.glob(os.path.join(home_dir,get_lib_dir(),"python*.*"))]
+    if not pys :
+      versio=None
+    else:
+      versio=pys[0]
+
+    pys=[os.path.split(s)[1] for s in glob.glob(os.path.join(module_dir,get_lib_dir(),"python*.*"))]
+    #check if the module has a python version compatible with application version
+    if not pys :
+      pyversio=versio or py_version
+    elif versio is None:
+      pyversio=pys[0]
+    elif versio in pys:
+      pyversio=versio
+    else:
+      #incompatible python versions
+      print "incompatible python versions : application has version %s and module %s has not" % (versio,module_dir)
+      return
 
     module_bin_dir=os.path.join(module_dir,'bin','salome')
+    module_idl_dir=os.path.join(module_dir,'idl','salome')
     module_lib_dir=os.path.join(module_dir,get_lib_dir(),'salome')
-    module_lib_py_dir=os.path.join(module_dir,get_lib_dir(),py_version,'site-packages','salome')
-    module_lib_py_shared_dir=os.path.join(module_dir,get_lib_dir(),py_version,
+    module_lib_py_dir=os.path.join(module_dir,get_lib_dir(),pyversio,'site-packages','salome')
+    module_lib_py_shared_dir=os.path.join(module_dir,get_lib_dir(),pyversio,
                                           'site-packages','salome','shared_modules')
     module_share_dir=os.path.join(module_dir,'share','salome','resources')
     module_doc_gui_dir=os.path.join(module_dir,'doc','salome','gui')
@@ -115,9 +135,10 @@ def link_module(options):
     module_sharedoc_tui_dir=os.path.join(module_dir,'share','doc','salome','tui')
 
     bin_dir=os.path.join(home_dir,'bin','salome')
+    idl_dir=os.path.join(home_dir,'idl','salome')
     lib_dir=os.path.join(home_dir,'lib','salome')
-    lib_py_dir=os.path.join(home_dir,'lib',py_version,'site-packages','salome')
-    lib_py_shared_dir=os.path.join(home_dir,'lib',py_version,
+    lib_py_dir=os.path.join(home_dir,'lib',pyversio,'site-packages','salome')
+    lib_py_shared_dir=os.path.join(home_dir,'lib',pyversio,
                                    'site-packages','salome','shared_modules')
     share_dir=os.path.join(home_dir,'share','salome','resources')
     doc_gui_dir=os.path.join(home_dir,'doc','salome','gui')
@@ -131,6 +152,7 @@ def link_module(options):
 
     if options.clear:
         rmtree(bin_dir)
+        rmtree(idl_dir)
         rmtree(lib_dir)
         rmtree(lib_py_dir)
         rmtree(share_dir)
@@ -149,6 +171,14 @@ def link_module(options):
         print module_bin_dir, " doesn't exist"
         pass    
     
+    #directory idl/salome : create it and link content
+    if os.path.exists(module_idl_dir):
+        mkdir(idl_dir)
+        for fn in os.listdir(module_idl_dir):
+            symlink(os.path.join(module_idl_dir, fn), os.path.join(idl_dir, fn))
+    else:
+        print module_idl_dir, " doesn't exist"
+
     #directory lib/salome : create it and link content
     if os.path.exists(module_lib_dir):
         mkdir(lib_dir)
@@ -160,7 +190,7 @@ def link_module(options):
         print module_lib_dir, " doesn't exist"
         pass    
     
-    #directory lib/py_version/site-packages/salome : create it and link content
+    #directory lib/pyversio/site-packages/salome : create it and link content
     if not os.path.exists(module_lib_py_dir):
         print "Python directory %s does not exist" % module_lib_py_dir
     else:

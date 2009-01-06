@@ -45,10 +45,7 @@ salomeinclude_HEADERS = base_port.hxx \
 #
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
-COMMON_CPPFLAGS= -I$(srcdir) -I$(srcdir)/Basic \
-		 -I$(srcdir)/Datastream  \
-		 -I$(srcdir)/Datastream/Palm \
-		 -I$(srcdir)/Datastream/Calcium \
+COMMON_CPPFLAGS= \
 		 -I$(top_srcdir)/src/Container \
 		 -I$(top_srcdir)/src/Notification \
 		 -I$(top_srcdir)/src/DSC/DSC_Basic \
@@ -78,6 +75,7 @@ libSalomeDSCSuperv_la_SOURCES  = base_port.cxx \
 libSalomeDSCSuperv_la_CXXFLAGS = $(COMMON_CPPFLAGS)
 
 libSalomeDSCSuperv_la_LDFLAGS  = -no-undefined -version-info=0:0:0
+libSalomeDSCSuperv_la_LIBADD  = ../DSC_Basic/libSalomeDSCContainer.la
 
 #
 # ===============================================================
@@ -93,4 +91,4 @@ test_DSC_Exception_CXXFLAGS = $(COMMON_CPPFLAGS)
 test_DSC_Exception_LDADD = $(top_builddir)/src/Utils/libOpUtil.la \
                            $(CORBA_LIBS)
 
-SUBDIRS = Basic Datastream
+SUBDIRS = . Basic Datastream

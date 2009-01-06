@@ -72,7 +72,11 @@ COMMON_LIBS =\
 # Libraries targets
 # ===============================================================
 #
-lib_LTLIBRARIES = libResourcesManager.la libSalomeResourcesManager.la
+if WITHONLYLAUNCHER
+  lib_LTLIBRARIES = libResourcesManager.la
+else
+  lib_LTLIBRARIES = libResourcesManager.la libSalomeResourcesManager.la
+endif
 libSalomeResourcesManager_la_SOURCES =\
 	SALOME_ResourcesManager.cxx
 
@@ -97,6 +101,5 @@ libResourcesManager_la_CPPFLAGS =\
 
 libResourcesManager_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libResourcesManager_la_LIBADD  =\
-	../Basics/libSALOMEBasics.la \
-	../SALOMELocalTrace/libSALOMELocalTrace.la \
+	../Utils/libOpUtil.la \
 	@LIBXML_LIBS@

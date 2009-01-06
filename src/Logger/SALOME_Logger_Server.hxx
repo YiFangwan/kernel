@@ -28,8 +28,8 @@
 #define SALOME_Logger_Server_include
 
 #include <SALOMEconfig.h>
-
 #include <fstream>
+
 #ifdef WIN32
 #include <iosfwd>
 #endif
@@ -69,8 +69,10 @@ private:
         bool m_putIntoFile;
 	//ofstream class specialized for disk file output
 	std::ofstream m_outputFile; 
+
 	//synchronisation object
 	static omni_mutex myLock;
+
 	CORBA::ORB_ptr _orb;
 };
 

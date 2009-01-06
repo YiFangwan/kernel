@@ -32,12 +32,15 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # ===============================================================
 #
 
-dist_salomeres_DATA = \
-	CatalogDataType.xml \
+if WITHONLYLAUNCHER
+  dist_salomeres_DATA=\
+	CatalogResources.xml \
+	CatalogModulePersonnel.xml_skel
+else
+  dist_salomeres_DATA=\
+	CatalogResources.xml \
 	CatalogModulePersonnel.xml_skel \
 	channel.cfg \
-	SALOMEDS_Resources
-
-nodist_salomeres_DATA = \
-	CatalogResources.xml \
-	KERNELCatalog.xml
+	KERNELCatalog.xml \
+	SALOMEDS_Resources 
+endif

@@ -29,7 +29,6 @@ extern "C"
 }
 #include "HDFcontainerObject.hxx"
 #include "HDFexception.hxx"
-//#include "utilities.h"
 using namespace std;
 
 HDFcontainerObject::HDFcontainerObject(const char *name)
@@ -47,10 +46,8 @@ HDFcontainerObject::~HDFcontainerObject()
     {
       sonToDelete = _firstson;
       _firstson = _firstson->GetNextBrother();
-//       MESSAGE("son to delete: " << sonToDelete);
       delete sonToDelete;
     }
-//   MESSAGE("destruction: " << this);
 }
 
 int HDFcontainerObject::nInternalObjects()
@@ -65,11 +62,6 @@ void HDFcontainerObject::InternalObjectIndentify(int rank, char *object_name)
 
 void HDFcontainerObject::AddSon(HDFinternalObject *son)
 {
-//   MESSAGE("add son ")  MESSAGE("add to this" << this);
-//   MESSAGE("add son " << son);
-//   MESSAGE("firstson " << _firstson);
-//   MESSAGE("lastson  " << _lastson);
-
   if (_nsons == 0)
     {
       _firstson = son;
@@ -82,8 +74,6 @@ void HDFcontainerObject::AddSon(HDFinternalObject *son)
       _lastson = son;
     }
   _nsons ++;
-//   MESSAGE("firstson " << _firstson);
-//   MESSAGE("lastson  " << _lastson);
 }
 
 HDFinternalObject *HDFcontainerObject::GetFirstSon()

@@ -24,8 +24,7 @@
 //  Module : SALOME
 //
 #include "Basics_Utils.hxx"
-
-#include "string.h"
+#include <string.h>
 
 #ifndef WIN32
 #include <unistd.h>

@@ -28,10 +28,8 @@
  *
  */
 
-#include <string>
 #include "Batch_BatchManager_PBS.hxx"
 #include "Batch_FactBatchManager_PBS.hxx"
-#include "utilities.h"
 using namespace std;
 
 namespace Batch {
@@ -53,7 +51,6 @@ namespace Batch {
   // Functor
   BatchManager * FactBatchManager_PBS::operator() (const char * hostname) const
   {
-    MESSAGE("Building new BatchManager_PBS on host '" << hostname << "'");
     return new BatchManager_PBS(this, hostname);
   }
 

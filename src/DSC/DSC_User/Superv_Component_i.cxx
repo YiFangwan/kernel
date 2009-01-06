@@ -25,8 +25,6 @@
 //
 #include "Superv_Component_i.hxx"
 
-using namespace std;
-
 DSC_EXCEPTION_CXX(Superv_Component_i,BadFabType);
 DSC_EXCEPTION_CXX(Superv_Component_i,BadType);
 DSC_EXCEPTION_CXX(Superv_Component_i,BadCast);
@@ -36,6 +34,8 @@ DSC_EXCEPTION_CXX(Superv_Component_i,PortNotDefined);
 DSC_EXCEPTION_CXX(Superv_Component_i,PortNotConnected);
 DSC_EXCEPTION_CXX(Superv_Component_i,NilPort);
 DSC_EXCEPTION_CXX(Superv_Component_i,BadProperty);
+
+std::map<std::string, port_factory*> Superv_Component_i::_factory_map;
 
 Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 				       PortableServer::POA_ptr poa,
@@ -48,23 +48,19 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 #ifdef _DEBUG_
   std::cerr << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
 #endif
-  register_factory("BASIC", new basic_port_factory());
-  register_factory("PALM", new palm_port_factory());
-  register_factory("CALCIUM", new calcium_port_factory());
 }
 Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
 				       PortableServer::POA_ptr poa,
 				       Engines::Container_ptr container, 
 				       const char *instanceName,
 				       const char *interfaceName,
-				       bool notif) : Engines_DSC_i(orb, poa, container, instanceName, interfaceName) 
+				       bool notif,
+                                       bool regist) : 
+  Engines_DSC_i(orb, poa, container, instanceName, interfaceName,notif,regist) 
 {
 #ifdef _DEBUG_
   std::cerr << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
 #endif
-  register_factory("BASIC", new basic_port_factory());
-  register_factory("PALM", new palm_port_factory());
-  register_factory("CALCIUM", new calcium_port_factory());
 }
 
   

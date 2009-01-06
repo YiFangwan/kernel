@@ -220,5 +220,4 @@ bin_PROGRAMS = testDS
 testDS_SOURCES  = testDS.cxx
 testDS_CPPFLAGS = $(COMMON_CPPFLAGS)
 testDS_LDADD    = libSalomeDSImpl.la \
-	../HDFPersist/libSalomeHDFPersist.la \
 	$(HDF5_LIBS)

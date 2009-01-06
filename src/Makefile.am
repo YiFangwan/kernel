@@ -100,6 +100,10 @@ DIST_SUBDIRS = \
 # check_cppunit for example with CPPUNIT_IS_OK.
 #
 
+if WITHONLYLAUNCHER
+  SUBDIRS = Batch Batch_SWIG ResourcesManager Launcher
+else
+
 SUBDIRS = $(SUBDIR_BASE)
 
 if WITH_BATCH
@@ -110,9 +114,9 @@ if CORBA_GEN
   SUBDIRS += $(SUBDIR_CORBA)
 endif
 
-#if MPI_IS_OK
-#  SUBDIRS += $(SUBDIR_MPI)
-#endif
+if MPI_IS_OK
+  SUBDIRS += $(SUBDIR_MPI)
+endif
 
 if CPPUNIT_IS_OK
 if CORBA_GEN
@@ -127,7 +131,8 @@ else
 endif
 endif
 if WITH_PACO_PARALLEL
-SUBDIRS += $(SUBDIR_PARALLEL)
+  SUBDIRS += $(SUBDIR_PARALLEL)
 endif
 
+endif
 EXTRA_DIST = win32pm

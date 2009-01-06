@@ -622,10 +622,9 @@ def CreateOptionParser (theAdditionalOptions=[]):
     help_str = "Launch session with gdb"
     o_gdb = optparse.Option("--gdb-session",
                             action="store_true",
-                            dest="gdb_session",
-			    default=False,
-			    help=help_str)
-			    
+                            dest="gdb_session", default=False,
+                            help=help_str)
+    
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop

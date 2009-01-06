@@ -49,14 +49,15 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # The library will be installed in the common place.
 #
 
+BUILT_SOURCES = swig_wrap.cpp
+
 SWIG_FLAGS    = @SWIG_FLAGS@ -I$(srcdir) -I$(srcdir)/../Communication
 SWIG_SOURCES  = libSALOME_Comm.i
 
 
-nodist_salomepython_PYTHON = libSALOME_Comm.py
+salomepython_PYTHON = libSALOME_Comm.py
 salomepyexec_LTLIBRARIES = _libSALOME_Comm.la
-nodist__libSALOME_Comm_la_SOURCES = swig_wrap.cpp
-_libSALOME_Comm_la_SOURCES  = $(SWIG_SOURCES)
+_libSALOME_Comm_la_SOURCES  = $(BUILT_SOURCES) $(SWIG_SOURCES)
 _libSALOME_Comm_la_CPPFLAGS =\
 	@PYTHON_INCLUDES@ \
 	-I$(srcdir) -I$(srcdir)/../Communication \
@@ -83,7 +84,7 @@ endif
 swig_wrap.cpp : $(SWIG_SOURCES)
 	$(SWIG) $(SWIG_FLAGS) -o $@ $<
 
-CLEANFILES = swig_wrap.cpp libSALOME_Comm.py
+CLEANFILES = swig_wrap.cpp
 
 
 #

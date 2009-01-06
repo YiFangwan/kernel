@@ -27,7 +27,7 @@
 #include "SALOME_ParallelComponent_i.hxx"
 #include "SALOME_ParallelContainer_i.hxx"
 
-#include "Basics_Utils.hxx"
+#include "OpUtil.hxx"
 #include <stdio.h>
 #ifndef WIN32
 #include <dlfcn.h>

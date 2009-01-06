@@ -228,7 +228,7 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
                                 pass
                             pass
                         pass
-            
+                    
     if sys.platform == 'win32':
         os.environ["SALOMEPATH"]=";".join(modules_root_dir_list)
     else:

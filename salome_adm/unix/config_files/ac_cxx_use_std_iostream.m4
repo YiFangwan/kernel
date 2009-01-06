@@ -20,7 +20,10 @@ dnl
 dnl  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 dnl
 dnl @synopsis AC_CXX_USE_STD_IOSTREAM
+dnl
 dnl If the C++ library use std iostream
+dnl
+dnl @author Bernard Secher (CEA) - 05/12/2003
 dnl
 AC_DEFUN([AC_CXX_USE_STD_IOSTREAM],
 [

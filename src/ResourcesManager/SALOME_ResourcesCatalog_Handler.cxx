@@ -26,17 +26,11 @@
 //$Header$
 //
 #include "SALOME_ResourcesCatalog_Handler.hxx"
+#include "Basics_Utils.hxx"
 #include <iostream>
 #include <map>
-#include "utilities.h"
 
 using namespace std;
-
-#ifdef _DEBUG_
-static int MYDEBUG = 1;
-#else
-static int MYDEBUG = 0;
-#endif
 
 //=============================================================================
 /*!
@@ -70,6 +64,8 @@ SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list,
   test_cpu_freq_mhz = "CPUFreqMHz";
   test_nb_of_nodes = "nbOfNodes";
   test_nb_of_proc_per_node = "nbOfProcPerNode";
+  test_batch_queue = "batchQueue";
+  test_user_commands = "userCommands";
 }
 
 //=============================================================================
@@ -103,8 +99,6 @@ SALOME_ResourcesCatalog_Handler::GetResourcesAfterParsing() const
 
 void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 {
-//   if (MYDEBUG) cout << "Begin parse document" << endl;
-
   // Empty private elements
   _resources_list.clear();
 
@@ -138,10 +132,28 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	  else
 	    _resource.Alias = "";
 
-	  if (xmlHasProp(aCurNode, (const xmlChar*)test_protocol))
+          if (xmlHasProp(aCurNode, (const xmlChar*)test_batch_queue))
             {
-	      xmlChar* protocol= xmlGetProp(aCurNode, (const xmlChar*)test_protocol);
-	      switch ( protocol[0])
+              xmlChar* batch_queue = xmlGetProp(aCurNode, (const xmlChar*)test_batch_queue);
+              _resource.batchQueue = (const char*)batch_queue;
+              xmlFree(batch_queue);
+            }
+          else
+            _resource.batchQueue = "";
+
+          if (xmlHasProp(aCurNode, (const xmlChar*)test_user_commands))
+            {
+              xmlChar* user_commands= xmlGetProp(aCurNode, (const xmlChar*)test_user_commands);
+              _resource.userCommands = (const char*)user_commands;
+              xmlFree(user_commands);
+            }
+          else
+            _resource.userCommands = "";
+          
+          if (xmlHasProp(aCurNode, (const xmlChar*)test_protocol))
+            {
+              xmlChar* protocol= xmlGetProp(aCurNode, (const xmlChar*)test_protocol);
+              switch ( protocol[0])
 	        {
 	        case 'r':
 	          _resource.Protocol = rsh;
@@ -189,6 +201,8 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                 _resource.Batch = pbs;
               else if  (aBatch == "lsf")
                 _resource.Batch = lsf;
+              else if  (aBatch == "sge")
+                _resource.Batch = sge;
               else
                 _resource.Batch = none;
             }
@@ -208,8 +222,10 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
                 _resource.mpi = openmpi;
               else if  (anMpi == "slurm")
                 _resource.mpi = slurm;
+              else if  (anMpi == "prun")
+                _resource.mpi = prun;
               else
-                _resource.mpi = indif;
+                _resource.mpi = nompi;
             }
 
 	  if (xmlHasProp(aCurNode, (const xmlChar*)test_user_name))
@@ -296,36 +312,36 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 		_resource.HostName = nodeName ;
 		_resources_list[nodeName] = _resource;
 	      }
-	    }
-	    else
-	      _resources_list[_resource.HostName] = _resource;
-	  }
-	  else
-	    _resources_batch_list[_resource.HostName] = _resource;
-	}
+            }
+            else
+              {
+                _resources_list[_resource.HostName] = _resource;
+                if(_resource.HostName == "localhost")
+                  _resources_list[Kernel_Utils::GetHostname()] = _resource;
+              }
+          }
+          else
+            _resources_batch_list[_resource.HostName] = _resource;
+        }
       aCurNode = aCurNode->next;
     }
 
-  // For debug only
-  if (MYDEBUG)
-    {
-      for (map<string, ParserResourcesType>::const_iterator iter =
-	     _resources_list.begin();
-	   iter != _resources_list.end();
-	   iter++)
-	{
-	  SCRUTE((*iter).second.HostName);
-	  SCRUTE((*iter).second.Alias);
-	  SCRUTE((*iter).second.UserName);
-	  SCRUTE((*iter).second.AppliPath);
-	  SCRUTE((*iter).second.OS);
-	  SCRUTE((*iter).second.Protocol);
-	  SCRUTE((*iter).second.Mode);
-	}
-      
-//       cout << "This is the end of document" << endl;
-//     }
-    }
+#ifdef _DEBUG_
+    for (map<string, ParserResourcesType>::const_iterator iter =
+	   _resources_list.begin();
+	 iter != _resources_list.end();
+	 iter++)
+      {
+	std::cerr << (*iter).second.HostName << std::endl;
+	std::cerr << (*iter).second.Alias << std::endl;
+	std::cerr << (*iter).second.UserName << std::endl;
+	std::cerr << (*iter).second.AppliPath << std::endl;
+	std::cerr << (*iter).second.OS << std::endl;
+	std::cerr << (*iter).second.Protocol << std::endl;
+	std::cerr << (*iter).second.Mode << std::endl;
+      }
+#endif
+
 }
 
 
@@ -353,7 +369,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
       node = xmlNewChild(root_node, NULL, BAD_CAST test_machine, NULL);
       xmlNewProp(node, BAD_CAST test_hostname, BAD_CAST (*iter).second.HostName.c_str());
       xmlNewProp(node, BAD_CAST test_alias, BAD_CAST (*iter).second.Alias.c_str());
-      
+      xmlNewProp(node, BAD_CAST test_batch_queue, BAD_CAST (*iter).second.batchQueue.c_str());
+      xmlNewProp(node, BAD_CAST test_user_commands, BAD_CAST (*iter).second.userCommands.c_str());
+  
       switch ((*iter).second.Protocol)
         {
         case rsh:
@@ -386,8 +404,8 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
 	case lsf:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "lsf");
           break;
-	case slurm:
-	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "slurm");
+	case sge:
+	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "sge");
           break;
         default:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");
@@ -406,6 +424,12 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
           break;
 	case openmpi:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
+          break;
+	case slurm:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurm");
+          break;
+	case prun:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "prun");
           break;
         default:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "");
@@ -469,8 +493,8 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
 	case lsf:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "lsf");
           break;
-	case slurm:
-	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "slurm");
+	case sge:
+	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "sge");
           break;
         default:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");
@@ -489,6 +513,12 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
           break;
 	case openmpi:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "openmpi");
+          break;
+	case slurm:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "slurm");
+          break;
+	case prun:
+	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "prun");
           break;
         default:
 	  xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST "");

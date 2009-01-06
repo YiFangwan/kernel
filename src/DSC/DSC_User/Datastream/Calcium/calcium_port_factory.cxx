@@ -27,10 +27,13 @@
 // Id          : $Id$
 //
 #include "calcium_port_factory.hxx"
+#include "Superv_Component_i.hxx"
 
 using namespace std;
 
-calcium_port_factory::calcium_port_factory() {}
+calcium_port_factory::calcium_port_factory() {
+  Superv_Component_i::register_factory("CALCIUM",this);
+}
 
 calcium_port_factory::~calcium_port_factory() {}
 
@@ -73,3 +76,5 @@ calcium_port_factory::create_data_proxy(string type) {
 
   return rtn_port;
 }
+
+static calcium_port_factory myfactory;

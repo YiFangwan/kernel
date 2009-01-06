@@ -27,15 +27,12 @@
 #include <string.h>
 #include <map>
 #include <list>
-#include <algorithm>
 
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <libxml/parser.h>
 
-#ifndef WIN32
-# include <unistd.h>
-#endif
+#include <algorithm>
 
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
@@ -67,12 +64,14 @@ ResourcesManager_cpp(const char *xmlFilePath) :
  */ 
 //=============================================================================
 
-ResourcesManager_cpp::ResourcesManager_cpp()
+ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
 {
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "ResourcesManager_cpp constructor" << endl;
 #endif
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
+  if(!getenv("KERNEL_ROOT_DIR"))
+    throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!!");
 
   if (_isAppliSalomeDefined)
     {
@@ -125,9 +124,6 @@ std::vector<std::string>
 ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 				      const std::vector<std::string>& componentList) throw(ResourcesException)
 {
-//#if defined(_DEBUG_) || defined(_DEBUG)
-//   cerr << "ResourcesManager_cpp::GetFittingResources" << endl;
-//#endif
   vector <std::string> vec;
 
   ParseXmlFile();
@@ -138,9 +134,6 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 #endif
 
   if (hostname[0] != '\0'){
-//#if defined(_DEBUG_) || defined(_DEBUG)
-//    cerr << "ResourcesManager_cpp::GetFittingResources : hostname specified" << endl;
-//#endif
 
     if ( strcmp(hostname, "localhost") == 0 ||
 	 strcmp(hostname, Kernel_Utils::GetHostname().c_str()) == 0 )
@@ -159,11 +152,13 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 	// --- params.hostname is in the list of resources so return it.
 	vec.push_back(hostname);
       }
+        
     else if (_resourcesBatchList.find(hostname) != _resourcesBatchList.end())
     {
       // --- params.hostname is in the list of resources so return it.
       vec.push_back(hostname);
     }
+
     else
       {
 	// Cas d'un cluster: nombre de noeuds > 1
@@ -172,10 +167,6 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 	  if( (*iter).second.DataForSort._nbOfNodes > 1 ){
 	    if( strncmp(hostname,(*iter).first.c_str(),strlen(hostname)) == 0 ){
 	      vec.push_back((*iter).first.c_str());
-//#if defined(_DEBUG_) || defined(_DEBUG)
-//	      cerr << "SALOME_ResourcesManager_cpp::GetFittingResources vector["
-//	      << cpt << "] = " << (*iter).first.c_str() << endl ;
-//#endif
 	      cpt++;
 	    }
 	  }

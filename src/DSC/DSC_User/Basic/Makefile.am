@@ -45,6 +45,11 @@ salomeinclude_HEADERS = basic_port_factory.hxx \
 COMMON_CPPFLAGS= -I$(top_builddir)/idl \
 		 -I$(top_srcdir)/src/DSC/DSC_Basic \
 		 -I$(top_srcdir)/src/DSC/DSC_User \
+		 -I$(top_srcdir)/src/Container \
+		 -I$(top_srcdir)/src/Notification \
+		 -I$(top_srcdir)/src/SALOMELocalTrace \
+		 -I$(top_srcdir)/src/Basics \
+		 -I$(top_srcdir)/src/Utils \
 		 -I$(top_builddir)/salome_adm/unix \
 		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
@@ -66,4 +71,5 @@ libSalomeDSCSupervBasic_la_SOURCES  = basic_port_factory.cxx \
 libSalomeDSCSupervBasic_la_CXXFLAGS = $(COMMON_CPPFLAGS)
 
 libSalomeDSCSupervBasic_la_LDFLAGS  = -no-undefined -version-info=0:0:0
+libSalomeDSCSupervBasic_la_LIBADD  = ../libSalomeDSCSuperv.la
 

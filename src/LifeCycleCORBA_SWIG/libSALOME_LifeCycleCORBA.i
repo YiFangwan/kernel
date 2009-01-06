@@ -23,6 +23,8 @@
 //
 %module libSALOME_LifeCycleCORBA
 
+%feature("autodoc", "1");
+
 %include <std_except.i>
 
 
@@ -35,6 +37,11 @@
 #include "SALOME_NamingService.hxx"
 #include "ServiceUnreachable.hxx"
 #include "Utils_SALOME_Exception.hxx"
+#if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
+typedef int Py_ssize_t;
+#define PY_SSIZE_T_MAX INT_MAX
+#define PY_SSIZE_T_MIN INT_MIN
+#endif
 
   using namespace std;
 
@@ -116,10 +123,13 @@ struct omniORBpyAPI {
   $result = PyString_FromString($1.c_str());
 }
 
-%typemap(typecheck) const Engines::MachineParameters &,
-                    Engines::MachineParameters const &
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) Engines::MachineParameters const &
 {
-  $1 = PyDict_Check($input);
+  $1 = PyDict_Check($input)? 1 : 0;
+}
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) const Engines::MachineParameters &
+{
+  $1 = PyDict_Check($input)? 1 : 0;
 }
 
 %typemap(typecheck) std::string, 

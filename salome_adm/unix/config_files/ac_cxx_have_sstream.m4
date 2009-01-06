@@ -23,7 +23,9 @@ dnl @synopsis AC_CXX_HAVE_SSTREAM
 dnl If the C++ library has a working stringstream, define HAVE_SSTREAM.
 dnl @author Ben Stanley
 dnl @version $Id$
+dnl modified by Marc Tajchman (CEA) - 10/10/2002
 dnl
+
 AC_DEFUN([AC_CXX_HAVE_SSTREAM],
 [AC_CACHE_CHECK(whether the compiler has stringstream,
 HAVE_SSTREAM,

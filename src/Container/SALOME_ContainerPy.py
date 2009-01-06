@@ -174,9 +174,10 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
             if verbose(): print "import ",componentName," successful"
             ret=1
         except:
-            import traceback
-            traceback.print_exc()
-            print "import ",componentName," not possible"
+            if verbose(): 
+              import traceback
+              traceback.print_exc()
+              print "import ",componentName," not possible"
         return ret
 
     #-------------------------------------------------------------------------
@@ -317,6 +318,8 @@ class SALOME_ContainerPy_i (Engines__POA.Container):
 #=============================================================================
 
 if __name__ == "__main__":
+  # change the stdout buffering to line buffering (same as C++ cout buffering)
+  sys.stdout=os.fdopen(1,"w",1)
   #initialise the ORB and find the root POA
   if verbose():print "Starting ",sys.argv[1]
   orb = CORBA.ORB_init(sys.argv, CORBA.ORB_ID)

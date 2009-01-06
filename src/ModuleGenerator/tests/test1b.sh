@@ -23,7 +23,7 @@
 #  File   : test1b.sh
 #  Module : SALOME
 #
-echo   "test6:
+echo   "test1b:
 
         test derivation Engine::Component
         "
@@ -35,7 +35,8 @@ echo  "
 --> creation d'un nouveau catalogue avec un composant
 "
 
-${ROOT_BUILDDIR}/bin/runIDLparser \
-		-Wbcatalog=my_catalog.xml \
+sh ${ROOT_BUILDDIR}/bin/runIDLparser -p ${SRCDIR} \
+    -I${ROOT_SRCDIR}/idl \
+    -Wbcatalog=my_catalog.xml \
 		${SRCDIR}/tests/TrucComponent.idl
 

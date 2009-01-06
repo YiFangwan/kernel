@@ -33,7 +33,9 @@
 #include <fstream>
 #include <sstream>
 #include <sys/stat.h>
+#include <string.h>
 #include <stdlib.h>
+
 #include "Batch_BatchManager_eLSF.hxx"
 #ifdef WIN32
 # include <time.h>
@@ -64,9 +66,14 @@ namespace Batch {
     Parametre params = job.getParametre();
     const std::string dirForTmpFiles = params[TMPDIR];
     const string fileToExecute = params[EXECUTABLE];
-    string::size_type p1 = fileToExecute.find_last_of("/");
-    string::size_type p2 = fileToExecute.find_last_of(".");
-    std::string fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
+    std::string fileNameToExecute;
+    if( fileToExecute.size() > 0 ){
+      string::size_type p1 = fileToExecute.find_last_of("/");
+      string::size_type p2 = fileToExecute.find_last_of(".");
+      fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
+    }
+    else
+      fileNameToExecute = "command";
 
     // export input files on cluster
     exportInputFiles(job);
@@ -242,37 +249,65 @@ namespace Batch {
 #ifndef WIN32 //TODO: need for porting on Windows
     int status;
     Parametre params = job.getParametre();
+    Environnement env = job.getEnvironnement();
     const int nbproc = params[NBPROC];
     const long edt = params[MAXWALLTIME];
     const long mem = params[MAXRAMSIZE];
     const string workDir = params[WORKDIR];
     const std::string dirForTmpFiles = params[TMPDIR];
     const string fileToExecute = params[EXECUTABLE];
-    string::size_type p1 = fileToExecute.find_last_of("/");
-    string::size_type p2 = fileToExecute.find_last_of(".");
-    std::string rootNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
-    std::string fileNameToExecute = "~/" + dirForTmpFiles + "/" + string(basename((char*)(fileToExecute.c_str())));
+    const string home = params[HOMEDIR];
+    const std::string queue = params[QUEUE];
+    std::string rootNameToExecute;
+    std::string fileNameToExecute;
+    std::string filelogtemp;
+    if( fileToExecute.size() > 0 ){
+      string::size_type p1 = fileToExecute.find_last_of("/");
+      string::size_type p2 = fileToExecute.find_last_of(".");
+      rootNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
+      char* basec=strdup(fileToExecute.c_str());
+      fileNameToExecute = "~/" + dirForTmpFiles + "/" + string(basename(basec));
+      free(basec);
 
-    int idx = dirForTmpFiles.find("Batch/");
-    std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
+      int idx = dirForTmpFiles.find("Batch/");
+      filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
+    }
+    else{
+      rootNameToExecute = "command";
+    }
 
     std::string TmpFileName = BuildTemporaryFileName();
     ofstream tempOutputFile;
     tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
 
     tempOutputFile << "#! /bin/sh -f" << endl ;
+    if (queue != "")
+      tempOutputFile << "#BSUB -q " << queue << endl;
     if( edt > 0 )
       tempOutputFile << "#BSUB -W " << getWallTime(edt) << endl ;
     if( mem > 0 )
       tempOutputFile << "#BSUB -M " << mem*1024 << endl ;
     tempOutputFile << "#BSUB -n " << nbproc << endl ;
-    tempOutputFile << "#BSUB -o runSalome.output.log." << filelogtemp << endl ;
-    tempOutputFile << "#BSUB -e runSalome.error.log." << filelogtemp << endl ;
+    if( fileToExecute.size() > 0 ){
+      tempOutputFile << "#BSUB -o " << home << "/" << dirForTmpFiles << "/output.log." << filelogtemp << endl ;
+      tempOutputFile << "#BSUB -e " << home << "/" << dirForTmpFiles << "/error.log." << filelogtemp << endl ;
+    }
+    else{
+      tempOutputFile << "#BSUB -o " << dirForTmpFiles << "/" << env["LOGFILE"] << ".output.log" << endl ;
+      tempOutputFile << "#BSUB -e " << dirForTmpFiles << "/" << env["LOGFILE"] << ".error.log" << endl ;
+    }
     if( workDir.size() > 0 )
       tempOutputFile << "cd " << workDir << endl ;
-    tempOutputFile << _mpiImpl->boot("",nbproc);
-    tempOutputFile << _mpiImpl->run("",nbproc,fileNameToExecute);
-    tempOutputFile << _mpiImpl->halt();
+    if( fileToExecute.size() > 0 ){
+      tempOutputFile << _mpiImpl->boot("",nbproc);
+      tempOutputFile << _mpiImpl->run("",nbproc,fileNameToExecute);
+      tempOutputFile << _mpiImpl->halt();
+    }
+    else{
+      tempOutputFile << "source " << env["SOURCEFILE"] << endl ;
+      tempOutputFile << env["COMMAND"];
+    }
+      
     tempOutputFile.flush();
     tempOutputFile.close();
 #ifdef WIN32

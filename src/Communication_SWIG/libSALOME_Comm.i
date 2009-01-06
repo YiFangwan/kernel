@@ -21,6 +21,8 @@
 //
 %module libSALOME_Comm
 
+%feature("autodoc", "1");
+
 %{
   #include "ReceiverFactory.hxx"
   #include "MatrixClient.hxx"

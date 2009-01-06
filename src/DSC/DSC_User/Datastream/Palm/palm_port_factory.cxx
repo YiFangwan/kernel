@@ -27,10 +27,12 @@
 // Id          : $Id$
 //
 #include "palm_port_factory.hxx"
+#include "Superv_Component_i.hxx"
 
 using namespace std;
 
 palm_port_factory::palm_port_factory() {
+    Superv_Component_i::register_factory("PALM",this);
 }
 
 palm_port_factory::~palm_port_factory() {}
@@ -52,3 +54,5 @@ palm_port_factory::create_data_proxy(string type) {
   uses_port * rtn_port = NULL;
   return rtn_port;
 }
+
+static palm_port_factory myfactory;

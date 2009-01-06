@@ -19,14 +19,6 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-/*
- * BatchManager.hxx : 
- *
- * Auteur : Bernard SECHER - CEA/DEN
- * Date   : Juillet 2007
- * Projet : SALOME
- *
- */
 
 #ifndef _BL_MPIIMPL_H_
 #define _BL_MPIIMPL_H_
@@ -143,6 +135,25 @@ public:
   // Constructeur et destructeur
   MpiImpl_SLURM(); // constructor
   virtual ~MpiImpl_SLURM(); //Destructor
+
+  std::string size(); // get number of process of current job
+  std::string rank(); // get process number of current job
+  std::string boot( const std::string machinefile, const unsigned int nbnodes); // get boot command
+  std::string run( const std::string machinefile, const unsigned int nbproc, const std::string fileNameToExecute); // get run command
+  std::string halt(); // get stop command
+
+protected:
+
+private:
+
+};
+
+class BATCH_EXPORT MpiImpl_PRUN : public MpiImpl
+{
+public:
+  // Constructeur et destructeur
+  MpiImpl_PRUN(); // constructor
+  virtual ~MpiImpl_PRUN(); //Destructor
 
   std::string size(); // get number of process of current job
   std::string rank(); // get process number of current job

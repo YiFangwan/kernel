@@ -32,12 +32,9 @@
 #include "provides_port.hxx"
 #include "port_factory.hxx"
 
-// default ports factories in the Kernel
-#include "basic_port_factory.hxx"
-#include "palm_port_factory.hxx"
-#include "calcium_port_factory.hxx"
-
 #include "DSC_Exception.hxx"
+#include <vector>
+
 
 /*! \class Superv_Component_i
  *  \brief This class implements DSC_User component.
@@ -67,7 +64,8 @@ public:
 		     Engines::Container_ptr container, 
 		     const char *instanceName,
 		     const char *interfaceName,
-		     bool notif = false);
+		     bool notif = false,
+         bool regist = true );
   virtual ~Superv_Component_i();
 
   // Exceptions declarations.
@@ -246,7 +244,7 @@ public:
    * and Superv_Component_i::create_uses_data_port)
    * \param factory_ptr factory pointer (destroyed by the component)
    */
-  virtual void register_factory(const std::string & factory_name,
+  static void register_factory(const std::string & factory_name,
 				port_factory * factory_ptr);
 
   /*!
@@ -260,7 +258,7 @@ public:
 private:   
   // Factory map
   typedef std::map<std::string, port_factory*> factory_map_t;
-  factory_map_t _factory_map;
+  static factory_map_t _factory_map;
 
   /*-------------------------------------------------*/
   // A Superv_Component port.

@@ -39,8 +39,6 @@
 #include "Batch_Parametre.hxx"
 #include "Batch_Environnement.hxx"
 
-using namespace std;
-
 namespace Batch {
 
   class BATCH_EXPORT JobInfo

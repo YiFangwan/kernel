@@ -24,10 +24,13 @@
 //  Module : KERNEL
 //
 #include "basic_port_factory.hxx"
+#include "Superv_Component_i.hxx"
 
 using namespace std;
 
-basic_port_factory::basic_port_factory() {}
+basic_port_factory::basic_port_factory() {
+  Superv_Component_i::register_factory("BASIC",this);
+}
 
 basic_port_factory::~basic_port_factory() {}
 
@@ -47,3 +50,5 @@ basic_port_factory::create_data_proxy(string type) {
     rtn_port = new data_short_port_uses();
   return rtn_port;
 }
+
+static basic_port_factory myfactory;

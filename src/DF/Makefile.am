@@ -48,16 +48,10 @@ salomeinclude_HEADERS= \
 
 # This local variable defines the list of CPPFLAGS common to all target in this package.
 COMMON_CPPFLAGS=\
-	-I$(srcdir)/../Basics \
-	-I$(srcdir)/../SALOMELocalTrace \
-	-I$(srcdir)/../HDFPersist \
-	@HDF5_INCLUDES@ \
 	@BOOST_CPPFLAGS@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
-COMMON_LIBS =\
-	../HDFPersist/libSalomeHDFPersist.la \
-	@HDF5_LIBS@
+COMMON_LIBS =
 
 #
 # ===============================================================
@@ -93,6 +87,5 @@ libDF_la_LIBADD    = $(COMMON_LIBS)
 bin_PROGRAMS = testDF
 testDF_SOURCES  = testDF.cxx
 testDF_CPPFLAGS = $(COMMON_CPPFLAGS)
-testDF_LDADD    = ./libDF.la \
-                  $(HDF5_LIBS)
+testDF_LDADD    = ./libDF.la
 

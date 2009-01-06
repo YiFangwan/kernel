@@ -68,7 +68,11 @@ LIB_INCLUDES = \
 	Batch_FactBatchManager_ePBS.hxx \
 	Batch_JobInfo_ePBS.hxx \
 	MpiImpl.hxx \
-	Batch_Defines.hxx
+	Batch_Defines.hxx \
+	Batch_BatchManager_eSGE.hxx \
+	Batch_FactBatchManager_eSGE.hxx \
+	Batch_JobInfo_eSGE.hxx \
+	MpiImpl.hxx
 
 
 LIB_SRC = \
@@ -109,20 +113,27 @@ LIB_SRC = \
 	Batch_BatchManager_ePBS.cxx \
 	Batch_FactBatchManager_ePBS.cxx \
 	Batch_JobInfo_ePBS.cxx \
+	Batch_BatchManager_eSGE.cxx \
+	Batch_FactBatchManager_eSGE.cxx \
+	Batch_JobInfo_eSGE.cxx \
 	MpiImpl.cxx
 
 
 LIB_CPPFLAGS = \
-	${PYTHON_INCLUDES} \
+	${PYTHON_INCLUDES}
+if !WITHONLYLAUNCHER
+  LIB_CPPFLAGS += \
 	-I$(srcdir)/../Basics \
-	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(top_builddir)/salome_adm/unix
+endif
 
-LIB_LIBADD   = \
-	${PYTHON_LIBS} \
-	../SALOMELocalTrace/libSALOMELocalTrace.la \
+LIB_LIBADD =
+if !WITHONLYLAUNCHER
+  LIB_LIBADD   += \
 	../Basics/libSALOMEBasics.la
+endif
 
+LIB_LIBADD   += $(PYTHON_LIBS)
 
 #
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -158,7 +169,9 @@ LIB_SRC +=\
 	Batch_Job_Local.cxx \
 	Batch_IOMutex.cxx
 
-LIB_CPPFLAGS += -DHAVE_CONFIG_H
+if !WITHONLYLAUNCHER
+  LIB_CPPFLAGS += -DHAVE_CONFIG_H
+endif
 
 endif
 

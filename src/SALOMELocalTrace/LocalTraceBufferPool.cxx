@@ -40,7 +40,6 @@
 #include "BaseTraceCollector.hxx"
 #include "LocalTraceCollector.hxx"
 #include "FileTraceCollector.hxx"
-#include "BasicsGenericDestructor.hxx"
 #include "utilities.h"
 
 using namespace std;
@@ -133,9 +132,9 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 #endif
 		  if ( !TraceCollectorFactory )
 		  {
-		      MESSAGE ( "Can't resolve symbol: SingletonInstance" );
+		      cerr << "Can't resolve symbol: SingletonInstance" <<endl;
 #ifndef WIN32
-		      MESSAGE ( "dlerror: " << dlerror() );
+		      cerr << "dlerror: " << dlerror() << endl;
 #endif
 		      exit( 1 );
 		    }
@@ -143,7 +142,7 @@ LocalTraceBufferPool* LocalTraceBufferPool::instance()
 		}
 	      else
 		{
-		  MESSAGE ( "library: " << impl_name << " not found !" );
+		  cerr << "library: " << impl_name << " not found !" << endl;
 		  assert(handle); // to give file and line
 		  exit(1);        // in case assert is deactivated
 		}	      

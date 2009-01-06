@@ -36,10 +36,11 @@
 #include CORBA_CLIENT_HEADER(SALOME_MPIContainer)
 #include CORBA_CLIENT_HEADER(SALOME_TestMPIComponent)
 
+#include "Basics_Utils.hxx"
 # include "Utils_ORB_INIT.hxx"
 # include "Utils_SINGLETON.hxx"
 #include "SALOME_NamingService.hxx"
-#include "Basics_Utils.hxx"
+#include "OpUtil.hxx"
 using namespace std;
 
 int main (int argc, char * argv[])

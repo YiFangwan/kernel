@@ -29,24 +29,20 @@ extern "C"
 #include "hdfi.h"
 }
 
-#include <string>
-//#include "utilities.h"
+#include <string.h>
+#include <stdlib.h>
 using namespace std;
 
 HDFobject::HDFobject(const char *name)
 {
-  //  MESSAGE("-------- constructor " << name << " " << this);
   HDFerrorModeLock();
-  _name = new char[strlen(name)+1];
-  strcpy(_name,name);
+  _name = strdup(name);
   _id = -1;
 }
 
 HDFobject::~HDFobject()
 {
-  //delete [] _name;
-  delete _name;
-  //  MESSAGE("-------- destructor ------" << this);
+  free(_name);
 }
 
 hdf_idt HDFobject::GetId()

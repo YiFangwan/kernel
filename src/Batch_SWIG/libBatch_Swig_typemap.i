@@ -36,6 +36,11 @@
 #include "Batch_PyVersatile.hxx"
 #include "Batch_JobId.hxx"
 #include "Batch_FactBatchManager.hxx"
+#if PY_VERSION_HEX < 0x02050000 && !defined(PY_SSIZE_T_MIN)
+typedef int Py_ssize_t;
+#define PY_SSIZE_T_MAX INT_MAX
+#define PY_SSIZE_T_MIN INT_MIN
+#endif
 %}
 
 # // supprime toutes les definitions par defaut => sert au debug
@@ -55,6 +60,10 @@
   }
 }
 
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) Batch::Parametre
+{
+  $1 = PyDict_Check($input)? 1 : 0;
+}
 
 # // construction d'un dictionnaire Python a partir d'un objet Parametre C++
 %typemap(out) Batch::Parametre
@@ -138,6 +147,10 @@
   }
 }
 
+%typemap(typecheck,precedence=SWIG_TYPECHECK_POINTER) Batch::Environnement
+{
+  $1 = PyDict_Check($input)? 1 : 0;
+}
 
 # // construction d'un dictionnaire Python a partir d'un objet Environnement C++
 %typemap(out) Batch::Environnement

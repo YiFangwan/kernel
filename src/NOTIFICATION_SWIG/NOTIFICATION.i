@@ -26,6 +26,7 @@
 //
 %module libNOTIFICATION
 
+%feature("autodoc", "1");
 
 %{
 //#define __declspec(a)

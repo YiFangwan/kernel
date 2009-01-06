@@ -51,6 +51,8 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
   MESSAGE("=================================================================");
   MESSAGE("Python Initialization...");
   MESSAGE("=================================================================");
+  // set stdout to line buffering (aka C++ std::cout)
+  setvbuf(stdout, (char *)NULL, _IOLBF, BUFSIZ);
   Py_SetProgramName(argv[0]);
   Py_Initialize(); // Initialize the interpreter
   PySys_SetArgv(argc, argv);

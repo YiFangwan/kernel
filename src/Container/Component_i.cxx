@@ -124,6 +124,7 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
  *  \param instanceName unique instance name for this object (see Container_i)
  *  \param interfaceName component class name
  *  \param notif use of notification
+ *  \param regist (true or false) use of registry (default true)
  */
 //=============================================================================
 
@@ -132,7 +133,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
                                          Engines::Container_ptr container,
                                          const char *instanceName,
                                          const char *interfaceName,
-                                         bool notif) :
+                                         bool notif,
+                                         bool regist) :
   _instanceName(instanceName),
   _interfaceName(interfaceName),
   _myConnexionToRegistry(0),
@@ -159,7 +161,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
       _contId = 0;
     }
   const CORBA::String_var ior = _orb->object_to_string(_container);
-  _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession", _instanceName.c_str());
+  if(regist)
+    _myConnexionToRegistry = new RegistryConnexion(0, 0, ior,"theSession", _instanceName.c_str());
   _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
 }
 
@@ -289,11 +292,10 @@ void Engines_Component_i::destroy()
   MESSAGE("Engines_Component_i::destroy()");
   //SCRUTE(pd_refCount);
 
-  delete _notifSupplier;
-  _notifSupplier = 0;
-
-  delete _myConnexionToRegistry;
+  if(_myConnexionToRegistry)delete _myConnexionToRegistry;
   _myConnexionToRegistry = 0 ;
+  if(_notifSupplier)delete _notifSupplier;
+  _notifSupplier = 0;
   if(_id)
     delete(_id) ;
   //SCRUTE(pd_refCount);

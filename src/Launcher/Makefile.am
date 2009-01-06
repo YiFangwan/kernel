@@ -19,12 +19,6 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-#  SALOME Container : implementation of container and engine for Kernel
-#  File   : Makefile.am
-#  Author : Guillaume Boulant (CSSI)
-#  Module : KERNEL
-#  $Header$
-#
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
 #
@@ -34,10 +28,12 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # header files  
 salomeinclude_HEADERS = \
-			BatchTest.hxx \
-			SALOME_Launcher.hxx \
-			SALOME_Launcher_defs.hxx \
-			Launcher.hxx
+  SALOME_Launcher_Parser.hxx \
+  SALOME_Launcher_Handler.hxx \
+  BatchTest.hxx \
+  SALOME_Launcher_defs.hxx \
+  SALOME_Launcher.hxx \
+  Launcher.hxx
 
 # Scripts to be installed
 dist_salomescript_DATA =
@@ -91,10 +87,14 @@ COMMON_LIBS =\
 # Libraries targets
 # ===============================================================
 #
-lib_LTLIBRARIES = libLauncher.la libSalomeLauncher.la
+if WITHONLYLAUNCHER
+  lib_LTLIBRARIES = libLauncher.la
+else
+  lib_LTLIBRARIES = libLauncher.la libSalomeLauncher.la
+endif
 libSalomeLauncher_la_SOURCES=\
-			     BatchTest.cxx \
-			     SALOME_Launcher.cxx 
+	BatchTest.cxx \
+	SALOME_Launcher.cxx 
 
 libSalomeLauncher_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
@@ -107,10 +107,12 @@ libSalomeLauncher_la_LIBADD =\
 	$(COMMON_LIBS) libLauncher.la
 
 libLauncher_la_SOURCES=\
+	SALOME_Launcher_Parser.cxx \
+	SALOME_Launcher_Handler.cxx  \
 	Launcher.cxx
 
 libLauncher_la_CPPFLAGS =\
-	$(COMMON_CPPFLAGS) \
+	-I$(srcdir)/../Batch \
 	-I$(srcdir)/../ResourcesManager \
 	@MPI_INCLUDES@ \
 	@LIBXML_INCLUDES@
@@ -121,7 +123,7 @@ libLauncher_la_LDFLAGS  =\
 
 libLauncher_la_LIBADD =\
 	../Batch/libSalomeBatch.la \
-	../ResourcesManager/libResourcesManager.la \
+	../ResourcesManager/libSalomeResourcesManager.la \
 	@MPI_LIBS@ \
 	@LIBXML_LIBS@
 
@@ -130,7 +132,9 @@ libLauncher_la_LIBADD =\
 # Executables targets
 # ===============================================================
 #
-bin_PROGRAMS = SALOME_LauncherServer
+if !WITHONLYLAUNCHER
+  bin_PROGRAMS = SALOME_LauncherServer
+endif
 
 SALOME_LauncherServer_SOURCES =\
 	SALOME_LauncherServer.cxx

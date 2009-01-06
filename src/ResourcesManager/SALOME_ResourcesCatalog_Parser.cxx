@@ -131,6 +131,8 @@ void ParserResourcesType::Print() const
     "UserName : " << UserName << endl <<
     "AppliPath : " << AppliPath << endl <<
     "OS : " << OS << endl <<
+    "batchQueue : " << batchQueue << endl <<
+    "userCommands : " << userCommands << endl <<
     "Modules : " << endl;
 
   for(int i=0;i<ModulesList.size();i++)
@@ -152,9 +154,11 @@ void ParserResourcesType::Clear()
   Protocol = rsh;
   Mode = interactive;
   Batch = none;
-  mpi = indif;
+  mpi = nompi;
   UserName = "";
   AppliPath = "";
+  batchQueue = "";
+  userCommands = "";
   ModulesList.clear();
   OS = "";
 }

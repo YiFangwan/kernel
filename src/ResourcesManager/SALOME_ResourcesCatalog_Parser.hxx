@@ -39,9 +39,9 @@ enum AccessProtocolType {rsh, ssh};
 
 enum AccessModeType {interactive, batch};
 
-enum BatchType {none, pbs, lsf};
+enum BatchType {none, pbs, lsf, sge};
 
-enum MpiImplType {indif, lam, mpich1, mpich2, openmpi, slurm};
+enum MpiImplType {nompi, lam, mpich1, mpich2, openmpi, slurm, prun};
 
 class RESOURCESMANAGER_EXPORT ResourceDataToSort
   {
@@ -84,6 +84,8 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesType
     std::string AppliPath;
     std::vector<std::string> ModulesList;
     std::string OS;
+    std::string batchQueue;
+    std::string userCommands;
 
     void Print() const;
     void Clear();
