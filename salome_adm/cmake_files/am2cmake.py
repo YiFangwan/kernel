@@ -53,7 +53,7 @@ p_if = re.compile(r"""
 if         # an if
 \s+        # 1 or more space
 (?P<val>   # open the group val
-\w+        # the group contain 1 or more alphanumeric characters 
+[^\s]+     # the group contain 1 or more non space characters
 )          # close the group
 """, re.VERBOSE)
 
@@ -228,6 +228,13 @@ class CMakeFile(object):
     def initialize(self, newlines):
         if self.root == self.the_root:
             # --
+            newlines.append("""
+            CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+            IF(COMMAND cmake_policy)
+            cmake_policy(SET CMP0003 NEW)
+            ENDIF(COMMAND cmake_policy)
+            """)
+            # --
             if self.module == "kernel":
                 newlines.append("""
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
@@ -381,6 +388,9 @@ class CMakeFile(object):
         match = p_if.match(line)
         if match:
             theif = match.group("val")
+            if theif[0] == "!":
+                theif = "NOT " + theif[1:]
+                pass
             line = p_if.sub(r"IF(%s)"%(theif), line)
             opened_ifs.append(theif)
             newlines.append(line)
