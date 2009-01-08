@@ -20,6 +20,7 @@
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 #include "Superv_Component_i.hxx"
+#include "calcium_port_factory.hxx"
 
 class PySupervCompo:public Superv_Component_i
 {
