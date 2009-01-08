@@ -36,20 +36,32 @@ export APPLI=`${APPLI_HOME}/getAppliPath.py`
 
 . ${HOME}/${APPLI}/envd ${HOME}/${APPLI}
 
-# --- set omniORB configuration to current session if any
-
-fileOmniConfig=${HOME}/${APPLI}/.omniORB_last.cfg
-
-if [ -f $fileOmniConfig ]; then
-  OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_last.cfg
-  export OMNIORB_CONFIG
-
-  # --- set environment variables for port and hostname of NamingService
-
-  NSHOST=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py host`
-  export NSHOST
-  NSPORT=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py port`
+if test "x$1" == "xNSPORT"; then
+  NSPORT=$2
   export NSPORT
+  myhost=`hostname`
+  OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_${myhost}_${NSPORT}.cfg
+  export OMNIORB_CONFIG
+  NSHOST=${myhost}
+  export NSHOST
+  shift 2
+else
+
+  # --- set omniORB configuration to current session if any
+
+  fileOmniConfig=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
+
+  if [ -f $fileOmniConfig ]; then
+    OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
+    export OMNIORB_CONFIG
+
+    # --- set environment variables for port and hostname of NamingService
+
+    NSHOST=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py host`
+    export NSHOST
+    NSPORT=`${KERNEL_ROOT_DIR}/bin/salome/NSparam.py port`
+    export NSPORT
+  fi
 fi
 
 # --- invoke shell with or without args

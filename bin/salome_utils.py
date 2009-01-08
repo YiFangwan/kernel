@@ -344,4 +344,4 @@ def generateFileName( dir, prefix = None, suffix = None, extension = None,
             name = os.path.join( dir, name )
             pass
         pass
-    return name
+    return os.path.normpath(name)

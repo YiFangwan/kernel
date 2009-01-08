@@ -771,13 +771,17 @@ def searchFreePort(args, save_config=1):
             #
             home  = os.getenv("HOME")
             appli = os.getenv("APPLI")
-            if appli is not None: home = os.path.join(home, appli)
+            kwargs={}
+            if appli is not None: 
+              home = os.path.join(home, appli,"USERS")
+              kwargs["with_username"]=True
             #
             omniorb_config = generateFileName(home, prefix="omniORB",
                                               extension="cfg",
                                               hidden=True,
                                               with_hostname=True,
-                                              with_port=NSPORT)
+                                              with_port=NSPORT,
+                                              **kwargs)
             orbdata = []
             initref = "NameService=corbaname::%s:%s"%(hostname, NSPORT)
             import CORBA
@@ -804,7 +808,8 @@ def searchFreePort(args, save_config=1):
                 last_running_config = generateFileName(home, prefix="omniORB",
                                                        suffix="last",
                                                        extension="cfg",
-                                                       hidden=True)
+                                                       hidden=True,
+                                                       **kwargs)
                 try:
                     if sys.platform == "win32":
                         import shutil       

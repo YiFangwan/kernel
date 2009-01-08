@@ -32,10 +32,10 @@ export APPLI=`${APPLI_HOME}/getAppliPath.py`
 
 # --- find omniORB configuration relative to current session if any
 
-fileOmniConfig=${HOME}/${APPLI}/.omniORB_last.cfg
+fileOmniConfig=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
 
 if [ -f $fileOmniConfig ]; then
-  OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_last.cfg
+  OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
   export OMNIORB_CONFIG
 fi
 

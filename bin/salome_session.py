@@ -60,12 +60,16 @@ def searchFreePort():
         if status:
             home  = os.getenv("HOME")
             appli = os.getenv("APPLI")
-            if appli is not None: home = os.path.join(home, appli)
+            kwargs={}
+            if appli is not None: 
+              home = os.path.join(home, appli,"USERS")
+              kwargs["with_username"]=True
             omniorb_config = generateFileName(home, prefix="omniORB",
                                               extension="cfg",
                                               hidden=True,
                                               with_hostname=True,
-                                              with_port=NSPORT)
+                                              with_port=NSPORT,
+                                              **kwargs)
             f = open(omniorb_config, "w")
             f.write("ORBInitRef NameService=corbaname::%s:%s\n"%(hostname, NSPORT))
             f.close()
@@ -73,7 +77,8 @@ def searchFreePort():
             last_running_config = generateFileName(home, prefix="omniORB",
                                                    suffix="last",
                                                    extension="cfg",
-                                                   hidden=True)
+                                                   hidden=True,
+                                                   **kwargs)
             os.environ['LAST_RUNNING_CONFIG'] = last_running_config
             if os.access(last_running_config,os.F_OK):
                 os.unlink(last_running_config)

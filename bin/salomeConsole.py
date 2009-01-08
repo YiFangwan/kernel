@@ -44,13 +44,15 @@ import SALOME_ModuleCatalog
 reload(Engines)
 reload(SALOME)
 reload(SALOMEDS)
+import salome_utils
 
 import LifeCycleCORBA
 import orbmodule
 from runSalome import *
 
 import Utils_Identity
-files = glob.glob(os.path.join(os.environ["HOME"],Utils_Identity.getapplipath(),".omni*.cfg"))
+files = glob.glob(os.path.join(os.environ["HOME"],Utils_Identity.getapplipath(),
+                               "USERS",".omniORB_"+salome_utils.getUserName()+"_*.cfg"))
 
 filename=""
 if len(files)==1:

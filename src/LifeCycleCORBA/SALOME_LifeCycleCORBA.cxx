@@ -541,16 +541,8 @@ void SALOME_LifeCycleCORBA::killOmniNames()
   // NPAL 18309  (Kill Notifd)
   if ( !portNumber.empty() ) 
     {
-      string cmd = ("import pickle, os; ");
-      cmd += string("from killSalomeWithPort import getPiDict; ");
-      cmd += string("filedict=getPiDict(") + portNumber + "); ";
-      cmd += string("f=open(filedict, 'r'); ");
-      cmd += string("pids=pickle.load(f); ");
-      cmd += string("m={}; ");
-      cmd += string("[ m.update(i) for i in pids ]; ");
-      cmd += string("pids=filter(lambda a: 'notifd' in m[a], m.keys()); ");
-      cmd += string("[ os.system('kill -9 %d'%pid) for pid in pids ]; ");
-      cmd += string("os.remove(filedict); ");
+      string cmd = ("from killSalomeWithPort import killNotifdAndClean; ");
+      cmd += string("killNotifdAndClean(") + portNumber + "); ";
       cmd  = string("python -c \"") + cmd +"\" >& /dev/null";
       MESSAGE(cmd);
       system( cmd.c_str() );

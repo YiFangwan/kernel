@@ -34,7 +34,7 @@ searchFreePort() {
         if [ -z "$aRes" ]; then
             echo ${NSPORT} - Ok
 	    local myhost=`hostname`
-            OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_${myhost}_${NSPORT}.cfg
+            OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_${myhost}_${NSPORT}.cfg
             export OMNIORB_CONFIG
 	    export NSPORT
             NSHOST=${myhost}
@@ -42,7 +42,7 @@ searchFreePort() {
             local initref="NameService=corbaname::"`hostname`":$NSPORT"
             #echo "ORBInitRef $initref" > $OMNIORB_CONFIG
             echo "InitRef = $initref" > $OMNIORB_CONFIG
-            LAST_RUNNING_CONFIG=${HOME}/${APPLI}/.omniORB_last.cfg
+            LAST_RUNNING_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
             export LAST_RUNNING_CONFIG
 	    rm ${LAST_RUNNING_CONFIG}
             ln -s ${OMNIORB_CONFIG} ${LAST_RUNNING_CONFIG}

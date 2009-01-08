@@ -40,7 +40,8 @@ verbose=0
 def mkdir(path):
     """Create a directory and all the intermediate directories if path does not exist"""
     if not os.path.exists(path):
-        print 'Creating %s' % path
+        if verbose:
+            print 'Creating %s' % path
         os.makedirs(path)
     else:
         if verbose:
@@ -58,7 +59,8 @@ def symlink(src, dest):
             pass
         os.symlink(src, dest)
     else:
-        print 'Symlink %s already exists' % dest
+        if verbose:
+            print 'Symlink %s already exists' % dest
         pass
     pass
 
@@ -89,6 +91,7 @@ def get_lib_dir():
 # -----------------------------------------------------------------------------
 
 def link_module(options):
+    global verbose
 
     if not options.module:
         print "Option module is mandatory"
@@ -98,6 +101,8 @@ def link_module(options):
     if not os.path.exists(module_dir):
         print "Module %s does not exist" % module_dir
         return
+
+    verbose = options.verbose
 
     home_dir = os.path.expanduser(options.prefix)
     #try to find python version of salome application and put it in versio
@@ -148,8 +153,6 @@ def link_module(options):
     sharedoc_gui_dir=os.path.join(home_dir,'share','doc','salome','gui')
     sharedoc_tui_dir=os.path.join(home_dir,'share','doc','salome','tui')
 
-    verbose = options.verbose
-
     if options.clear:
         rmtree(bin_dir)
         rmtree(idl_dir)
@@ -168,7 +171,8 @@ def link_module(options):
             pass
         pass
     else:
-        print module_bin_dir, " doesn't exist"
+        if verbose:
+            print module_bin_dir, " doesn't exist"
         pass    
     
     #directory idl/salome : create it and link content
@@ -177,7 +181,8 @@ def link_module(options):
         for fn in os.listdir(module_idl_dir):
             symlink(os.path.join(module_idl_dir, fn), os.path.join(idl_dir, fn))
     else:
-        print module_idl_dir, " doesn't exist"
+        if verbose:
+            print module_idl_dir, " doesn't exist"
 
     #directory lib/salome : create it and link content
     if os.path.exists(module_lib_dir):
@@ -187,7 +192,8 @@ def link_module(options):
             pass
         pass
     else:
-        print module_lib_dir, " doesn't exist"
+        if verbose:
+            print module_lib_dir, " doesn't exist"
         pass    
     
     #directory lib/pyversio/site-packages/salome : create it and link content
@@ -205,7 +211,8 @@ def link_module(options):
                 pass
             pass
         else:
-            print module_lib_py_shared_dir, " doesn't exist"
+            if verbose:
+                print module_lib_py_shared_dir, " doesn't exist"
             pass    
 
     #directory share/doc/salome (KERNEL doc) : create it and link content

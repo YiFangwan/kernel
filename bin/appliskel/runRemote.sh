@@ -50,7 +50,7 @@ export APPLI=`${APPLI_HOME}/getAppliPath.py`
 
 # --- set the OMNIORB_CONFIG file and environment relative to this run of SALOME
 
-OMNIORB_CONFIG=${HOME}/${APPLI}/.omniORB_$1_$2.cfg
+OMNIORB_CONFIG=${HOME}/${APPLI}/USERS/.omniORB_${USER}_$1_$2.cfg
 export OMNIORB_CONFIG
 NSHOST=$1
 export NSHOST

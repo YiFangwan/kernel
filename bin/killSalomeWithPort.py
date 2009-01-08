@@ -20,8 +20,10 @@
 #
 #  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-import os, sys, pickle, signal, commands
+import os, sys, pickle, signal, commands,glob
 from launchConfigureParser import verbose
+import Utils_Identity
+import salome_utils
 
 def getPiDict(port,appname='salome',full=True,hidden=True):
     """
@@ -65,8 +67,8 @@ def getPiDict(port,appname='salome',full=True,hidden=True):
 def appliCleanOmniOrbConfig(port):
     """
     Remove omniorb config files related to the port in SALOME application:
-    - ${HOME}/${APPLI}/.omniORB_${HOSTNAME}_${NSPORT}.cfg
-    - ${HOME}/${APPLI}/.omniORB_last.cfg
+    - ${HOME}/${APPLI}/USERS/.omniORB_${USER}_${HOSTNAME}_${NSPORT}.cfg
+    - ${HOME}/${APPLI}/USERS/.omniORB_${USER}_last.cfg
     the last is removed only if the link points to the first file.
     """
     from salome_utils import generateFileName
@@ -76,13 +78,15 @@ def appliCleanOmniOrbConfig(port):
         #Run outside application context
         pass
     else:
-        dir = os.path.join(home, appli)
+        dir = os.path.join(home, appli,"USERS")
         omniorb_config      = generateFileName(dir, prefix="omniORB",
                                                extension="cfg",
                                                hidden=True,
+                                               with_username=True,
                                                with_hostname=True,
                                                with_port=port)
         last_running_config = generateFileName(dir, prefix="omniORB",
+                                               with_username=True,
                                                suffix="last",
                                                extension="cfg",
                                                hidden=True)
@@ -97,6 +101,20 @@ def appliCleanOmniOrbConfig(port):
         if os.access(omniorb_config,os.F_OK):
             os.remove(omniorb_config)
             pass
+
+        #try to relink last.cfg to an existing config file if any
+        files = glob.glob(os.path.join(os.environ["HOME"],Utils_Identity.getapplipath(),
+                                       "USERS",".omniORB_"+salome_utils.getUserName()+"_*.cfg"))
+        current_config=None
+        current=0
+        for f in files:
+          stat=os.stat(f)
+          if stat.st_atime > current:
+            current=stat.st_atime
+            current_config=f
+        if current_config:
+          os.symlink(os.path.normpath(current_config), last_running_config)
+
         pass
     pass
 
@@ -190,6 +208,29 @@ def killMyPort(port):
     appliCleanOmniOrbConfig(port)
     pass
             
+def killNotifdAndClean(port):
+    """
+    Kill notifd daemon and clean application running on the specified port.
+    Parameters:
+    - port - port number
+    """
+    try:
+      filedict=getPiDict(port)
+      f=open(filedict, 'r')
+      pids=pickle.load(f)
+      for d in pids:
+        for pid,process in d.items():
+          if 'notifd' in process:
+            cmd='kill -9 %d'% pid
+            os.system(cmd)
+      os.remove(filedict)
+    except:
+      #import traceback
+      #traceback.print_exc()
+      pass
+
+    appliCleanOmniOrbConfig(port)
+    
 if __name__ == "__main__":
     for port in sys.argv[1:]:
         killMyPort(port)
