@@ -203,6 +203,8 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(poa);
   _contId = contId ;
+  CORBA::Object_var o = _poa->id_to_reference(*contId); // container ior...
+  _container=Engines::Container::_narrow(o);
 
   _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
 }
