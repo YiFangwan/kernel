@@ -784,7 +784,7 @@ def searchFreePort(args, save_config=1):
                                               **kwargs)
             orbdata = []
             initref = "NameService=corbaname::%s:%s"%(hostname, NSPORT)
-            import CORBA
+            from omniORB import CORBA
             if CORBA.ORB_ID == "omniORB4":
                 orbdata.append("InitRef = %s"%(initref))
                 orbdata.append("giopMaxMsgSize = 2097152000  # 2 GBytes")
