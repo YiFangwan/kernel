@@ -130,15 +130,74 @@ class CMakeFile(object):
         
         # --
         cas_list = [
-            "TKV3d",
-            "TKOpenGl",
+            "BinLPlugin",
+            "BinPlugin",
+            "BinTObjPlugin",
+            "BinXCAFPlugin",
+            "FWOSPlugin",
+            "PTKernel",
+            "StdLPlugin",
+            "StdPlugin",
+            "TKAdvTools",
+            "TKBin",
+            "TKBinL",
+            "TKBinTObj",
+            "TKBinXCAF",
+            "TKBO",
             "TKBool",
             "TKBRep",
+            "TKCAF",
+            "TKCDF",
+            "TKernel",
+            "TKFeat",
+            "TKFillet",
+            "TKG2d",
+            "TKG3d",
+            "TKGeomAlgo",
+            "TKGeomBase",
+            "TKHLR",
             "TKIGES",
-            "TKSTEP",
-            "TKSTL",
+            "TKLCAF",
+            "TKMath",
             "TKMesh",
-            "TKBO",
+            "TKMeshVS",
+            "TKNIS",
+            "TKOffset",
+            "TKOpenGl",
+            "TKPCAF",
+            "TKPLCAF",
+            "TKPrim",
+            "TKPShape",
+            "TKService",
+            "TKShapeSchema",
+            "TKShHealing",
+            "TKStdLSchema",
+            "TKStdSchema",
+            "TKSTEP",
+            "TKSTEP209",
+            "TKSTEPAttr",
+            "TKSTEPBase",
+            "TKSTL",
+            "TKTObj",
+            "TKTopAlgo",
+            "TKV2d",
+            "TKV3d",
+            "TKVRML",
+            "TKXCAF",
+            "TKXCAFSchema",
+            "TKXDEIGES",
+            "TKXDESTEP",
+            "TKXMesh",
+            "TKXml",
+            "TKXmlL",
+            "TKXmlTObj",
+            "TKXmlXCAF",
+            "TKXSBase",
+            "XCAFPlugin",
+            "XmlLPlugin",
+            "XmlPlugin",
+            "XmlTObjPlugin",
+            "XmlXCAFPlugin",
             ]
         kernel_list  = [
             "SalomeIDLKernel",
@@ -161,10 +220,37 @@ class CMakeFile(object):
             "SalomeLauncher",
             ]
         gui_list = [
+            "caf",
+            "CAM",
+            "CASCatch",
+            "DDS",
+            "Event",
+            "GLViewer",
+            "LightApp",
+            "LogWindow",
+            "ObjBrowser",
+            "OCCViewer",
+            "Plot2d",
+            "PyConsole",
+            "PyInterp",
+            "QDS",
             "qtx",
-            "suit",
+            "QxScene",
             "SalomeApp",
+            "SalomeIDLGUI",
+            "SalomeObject",
+            "SalomePrs",
             "SalomeSession",
+            "SalomeStyle",
+            "SOCC",
+            "SPlot2d",
+            "std",
+            "SUITApp",
+            "suit",
+            "SUPERVGraph",
+            "SVTK",
+            "ToolsGUI",
+            "VTKViewer",
             ]
         full_list = cas_list + kernel_list + gui_list
         for key in full_list:
@@ -781,6 +867,12 @@ class CMakeFile(object):
         IF(name STREQUAL SALOMEDS_Client_exe)
         SET(var ${var} -DNOGDI)
         ENDIF(name STREQUAL SALOMEDS_Client_exe)
+        IF(name STREQUAL SalomeIDLGEOM)
+        SET(var ${var} -DNOGDI)
+        ENDIF(name STREQUAL SalomeIDLGEOM)
+        IF(name STREQUAL GEOMEngine)
+        SET(var ${var} -DNOGDI)
+        ENDIF(name STREQUAL GEOMEngine)
         ENDIF(WINDOWS)
         ''')
         if self.module in ["geom"]:
@@ -895,6 +987,11 @@ class CMakeFile(object):
         IF(name STREQUAL SalomeResourcesManager)
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL SALOME%s_EXPORTS)
         ENDIF(name STREQUAL SalomeResourcesManager)
+        '''%(upper_name))
+        newlines.append(r'''
+        IF(name STREQUAL GEOMObject)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL GEOM_%s_EXPORTS)
+        ENDIF(name STREQUAL GEOMObject)
         '''%(upper_name))
         # --
         self.setLibAdd(newlines)
