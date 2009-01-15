@@ -1008,6 +1008,22 @@ class CMakeFile(object):
             newlines.append(r'''
             IF(BEGIN_WITH_lib)
             INSTALL(TARGETS ${name} DESTINATION lib/salome)
+            ''')
+            if self.module == "geom":
+                newlines.append(r'''
+                IF(WINDOWS)
+                STRING(REGEX MATCH "Export" ISExport ${name})
+                IF(ISExport)
+                INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/lib/salome/${name}.dll DESTINATION lib/salome RENAME lib${name}.dll)
+                ENDIF(ISExport)
+                STRING(REGEX MATCH "Import" ISImport ${name})
+                IF(ISImport)
+                INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/lib/salome/${name}.dll DESTINATION lib/salome RENAME lib${name}.dll)
+                ENDIF(ISImport)
+                ENDIF(WINDOWS)
+                ''')
+                pass
+            newlines.append(r'''
             IF(name STREQUAL SalomePyQt)
             INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so DESTINATION lib/salome RENAME ${name}.so)
             ENDIF(name STREQUAL SalomePyQt)
