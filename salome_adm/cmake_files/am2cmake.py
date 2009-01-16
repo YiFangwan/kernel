@@ -127,6 +127,12 @@ class CMakeFile(object):
         # --
         content = content.replace("-no-undefined -version-info=0:0:0", "")
         content = content.replace("-include SALOMEconfig.h", "")
+
+        # --
+        # Compatibility medfile
+        # --
+        content = content.replace("-no-undefined -version-info 0:0:0", "")
+        content = content.replace("-no-undefined -version-info 2:5:1", "")
         
         # --
         cas_list = [
@@ -394,6 +400,14 @@ class CMakeFile(object):
             elif self.module == "geom":
                 newlines.append("""
                 SET(GEOM_ENABLE_GUI ON)
+                """)
+                pass
+            elif self.module == "medfile":
+                newlines.append("""
+                SET(MED_NUM_MAJEUR 2)
+                SET(MED_NUM_MINEUR 3)
+                SET(MED_NUM_RELEASE 5)
+                SET(LONG_OR_INT int)
                 """)
                 pass
             # --
@@ -886,6 +900,7 @@ class CMakeFile(object):
 	SET(var ${var} ${PTHREADS_INCLUDES})
 	SET(var ${var} ${${amname}_CPPFLAGS})
 	SET(var ${var} ${${amname}_CXXFLAGS})
+	SET(var ${var} ${${amname}_CFLAGS})
         SET(flags)
         FOREACH(f ${var})
         SET(flags "${flags} ${f}")
@@ -968,12 +983,22 @@ class CMakeFile(object):
         # --
         self.setCompilationFlags(newlines)
         # --
-        newlines.append(r'''
-        SET_TARGET_PROPERTIES(${name} PROPERTIES VERSION 0.0.0 SOVERSION 0)
-        ''')
+        if self.module == "medfile":
+            newlines.append(r'''
+            SET_TARGET_PROPERTIES(${name} PROPERTIES VERSION 1.1.5 SOVERSION 1)
+            ''')
+        else:
+            newlines.append(r'''
+            SET_TARGET_PROPERTIES(${name} PROPERTIES VERSION 0.0.0 SOVERSION 0)
+            ''')
+            pass
         # --
         from os.path import basename
         upper_name = basename(self.root).upper()
+        # --
+        if upper_name in ["2.1.X", "2.3.1"]:
+            upper_name = "D_" + upper_name
+            pass
         # --
         newlines.append(r'''
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL %s_EXPORTS)
@@ -1005,27 +1030,36 @@ class CMakeFile(object):
         ''')
         # --
         if key != "noinst_LTLIBRARIES":
+            if self.module == "medfile":
+                newlines.append(r'''
+                SET(DEST lib)
+                ''')
+            else:
+                newlines.append(r'''
+                SET(DEST lib/salome)
+                ''')
+                pass
             newlines.append(r'''
             IF(BEGIN_WITH_lib)
-            INSTALL(TARGETS ${name} DESTINATION lib/salome)
+            INSTALL(TARGETS ${name} DESTINATION ${DEST})
             ''')
             if self.module == "geom":
                 newlines.append(r'''
                 IF(WINDOWS)
                 STRING(REGEX MATCH "Export" ISExport ${name})
                 IF(ISExport)
-                INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/lib/salome/${name}.dll DESTINATION lib/salome RENAME lib${name}.dll)
+                INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/${DEST}/${name}.dll DESTINATION ${DEST} RENAME lib${name}.dll)
                 ENDIF(ISExport)
                 STRING(REGEX MATCH "Import" ISImport ${name})
                 IF(ISImport)
-                INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/lib/salome/${name}.dll DESTINATION lib/salome RENAME lib${name}.dll)
+                INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/${DEST}/${name}.dll DESTINATION ${DEST} RENAME lib${name}.dll)
                 ENDIF(ISImport)
                 ENDIF(WINDOWS)
                 ''')
                 pass
             newlines.append(r'''
             IF(name STREQUAL SalomePyQt)
-            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so DESTINATION lib/salome RENAME ${name}.so)
+            INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/lib${name}.so DESTINATION ${DEST} RENAME ${name}.so)
             ENDIF(name STREQUAL SalomePyQt)
             ELSE(BEGIN_WITH_lib)
             IF(WINDOWS)
@@ -1066,17 +1100,27 @@ class CMakeFile(object):
         # --
         self.setLibAdd(newlines)
         # --
+        if self.module == "medfile":
+            newlines.append(r'''
+            SET(DEST bin)
+            ''')
+        else:
+            newlines.append(r'''
+            SET(DEST bin/salome)
+            ''')
+            pass
+        # --
         newlines.append(r'''
         IF(WINDOWS)
-        INSTALL(TARGETS ${name} DESTINATION bin/salome)
-        INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/bin/salome/${name}.exe DESTINATION bin/salome RENAME ${amname}.exe)
-        INSTALL(CODE "FILE(REMOVE ${CMAKE_INSTALL_PREFIX}/bin/salome/${name}.exe)")
+        INSTALL(TARGETS ${name} DESTINATION ${DEST})
+        INSTALL(FILES ${CMAKE_INSTALL_PREFIX}/${DEST}/${name}.exe DESTINATION ${DEST} RENAME ${amname}.exe)
+        INSTALL(CODE "FILE(REMOVE ${CMAKE_INSTALL_PREFIX}/${DEST}/${name}.exe)")
         ELSE(WINDOWS)
         SET(PERMS)
         SET(PERMS ${PERMS} OWNER_READ OWNER_WRITE OWNER_EXECUTE)
         SET(PERMS ${PERMS} GROUP_READ GROUP_EXECUTE)
         SET(PERMS ${PERMS} WORLD_READ WORLD_EXECUTE)
-        INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${name} DESTINATION bin/salome PERMISSIONS ${PERMS} RENAME ${amname})
+        INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/${name} DESTINATION ${DEST} PERMISSIONS ${PERMS} RENAME ${amname})
         ENDIF(WINDOWS)
         ''')
         # --
