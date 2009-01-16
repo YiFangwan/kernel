@@ -434,9 +434,9 @@ class CMakeFile(object):
             pass
         
         # --
-        # If the line begins with 'include', just comment it
+        # If the line begins with 'include ', just comment it
         # --
-        if line.find("include") == 0:
+        if line.find("include ") == 0:
             newlines.append("# " + line)
             return
         
@@ -824,6 +824,12 @@ class CMakeFile(object):
             "nodist_salomepython_PYTHON"  :  "lib/python${PYTHON_VERSION}/site-packages/salome",
             "sharedpkgpython_PYTHON"      :  "lib/python${PYTHON_VERSION}/site-packages/salome/shared_modules",
             }
+        if self.module == "medfile":
+            d = {
+                "include_HEADERS"        :  "include",
+                "nodist_include_HEADERS" :  "include",
+                }
+            pass
         for key, value in d.items():
             if self.__thedict__.has_key(key):
                 self.addInstallTarget(key, value, newlines)
@@ -1022,11 +1028,11 @@ class CMakeFile(object):
         self.setLibAdd(newlines)
         # --
         newlines.append(r'''
-        IF(name STREQUAL SalomeHDFPersist)
         IF(WINDOWS)
+        IF(name STREQUAL SalomeHDFPersist)
         SET_TARGET_PROPERTIES(${name} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMTD")
-        ENDIF(WINDOWS)
         ENDIF(name STREQUAL SalomeHDFPersist)
+        ENDIF(WINDOWS)
         ''')
         # --
         if key != "noinst_LTLIBRARIES":
