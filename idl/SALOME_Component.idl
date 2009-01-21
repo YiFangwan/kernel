@@ -26,6 +26,7 @@
 #ifndef _SALOME_COMPONENT_IDL_
 #define _SALOME_COMPONENT_IDL_
 
+#include "SALOMEDS.idl"
 #include "SALOME_Exception.idl"
 
 /*! \brief
@@ -388,6 +389,25 @@ module Engines
     */
     Engines::Salome_file setOutputFileToService(in string service_name,
 						in string Salome_file_name)	 raises(SALOME::SALOME_Exception);
+    /*!
+      Returns true if the component provides custom information about its objects, false otherwise.
+      Should be redefined in the certain component to return true in case of this
+      component provides such information.
+    */
+    boolean hasObjectInfo();
+    
+    /*!
+      This method is used to get the custom information about the given object.
+      Should be redefined in the certain component in case of this
+      component provides such information.
+      It is worth using this method only if hasObjectInfo() method returns true.
+      
+      \param entry object's entry.
+      \param studyId study id
+
+      \return an information about the given object.
+    */
+    string getObjectInfo(in long studyId, in string entry);
   } ;
 
   interface Parallel_Component : Engines::Component {

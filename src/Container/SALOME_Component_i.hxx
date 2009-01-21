@@ -24,7 +24,7 @@
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //  Module : SALOME
 //  $Header$
-//
+
 #ifndef _SALOME_COMPONENT_I_HXX_
 #define _SALOME_COMPONENT_I_HXX_
 
@@ -117,6 +117,11 @@ public:
  virtual void checkOutputFilesToService(const char* service_name);
  virtual Engines::Salome_file_ptr setOutputFileToService(const char* service_name, 
 							 const char* Salome_file_name);
+
+  // Object information
+  virtual bool hasObjectInfo() { return false; }
+  virtual char* getObjectInfo(CORBA::Long studyId, const char* entry) { return ""; }
+  
   // --- local C++ methods
 
   PortableServer::ObjectId * getId(); 
