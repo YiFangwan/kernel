@@ -699,11 +699,13 @@ class CMakeFile(object):
         
         # --
         # --
-        if self.__thedict__.has_key("SWIG_SRC"):
-            newlines.append('''
-            SET(SWIG_SOURCES ${SWIG_SRC})
-            ''')
-            self.__thedict__["SWIG_SOURCES"] = self.__thedict__["SWIG_SRC"]
+        for key in ["SWIG_SRC", "SWIGSOURCES"]:
+            if self.__thedict__.has_key(key):
+                newlines.append('''
+                SET(SWIG_SOURCES ${%s})
+                '''%(key))
+                self.__thedict__["SWIG_SOURCES"] = self.__thedict__[key]
+                pass
             pass
         
         # --
@@ -992,7 +994,11 @@ class CMakeFile(object):
         ENDFOREACH(src ${${amname}_SOURCES} ${dist_${amname}_SOURCES})
         SET(build_srcs)
         FOREACH(f ${nodist_${amname}_SOURCES} ${BUILT_SOURCES})
+        GET_FILENAME_COMPONENT(ext ${f} EXT)
+        IF(ext STREQUAL .py)
+        ELSE(ext STREQUAL .py)
         SET(build_srcs ${build_srcs} ${CMAKE_CURRENT_BINARY_DIR}/${f})
+        ENDIF(ext STREQUAL .py)
         ENDFOREACH(f ${nodist_${amname}_SOURCES})
         SET(srcs ${build_srcs} ${srcs})
         ''')
