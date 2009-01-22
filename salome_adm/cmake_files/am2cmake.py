@@ -970,8 +970,26 @@ class CMakeFile(object):
         # --
         newlines.append(r'''
         SET(srcs)
-        SET(srcs ${srcs} ${${amname}_SOURCES})
-        SET(srcs ${srcs} ${dist_${amname}_SOURCES})
+        FOREACH(src ${${amname}_SOURCES} ${dist_${amname}_SOURCES})
+        GET_FILENAME_COMPONENT(ext ${src} EXT)
+        IF(ext STREQUAL .f)
+        SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${src})
+        STRING(REPLACE ".f" ".o" src ${src})
+        SET(src ${CMAKE_CURRENT_BINARY_DIR}/${src})
+        SET(output ${src})
+        IF(WINDOWS)
+        SET(F77 g77)
+        ELSE(WINDOWS)
+        SET(F77 gfortran)
+        ENDIF(WINDOWS)
+        ADD_CUSTOM_COMMAND(
+        OUTPUT ${output}
+        COMMAND ${F77} -c -o ${output} ${input}
+        MAIN_DEPENDENCY ${input}
+        )
+        ENDIF(ext STREQUAL .f)
+        SET(srcs ${srcs} ${src})
+        ENDFOREACH(src ${${amname}_SOURCES} ${dist_${amname}_SOURCES})
         SET(build_srcs)
         FOREACH(f ${nodist_${amname}_SOURCES} ${BUILT_SOURCES})
         SET(build_srcs ${build_srcs} ${CMAKE_CURRENT_BINARY_DIR}/${f})
@@ -989,15 +1007,14 @@ class CMakeFile(object):
         # --
         self.setCompilationFlags(newlines)
         # --
-        if self.module == "medfile":
-            newlines.append(r'''
-            SET_TARGET_PROPERTIES(${name} PROPERTIES VERSION 1.1.5 SOVERSION 1)
-            ''')
-        else:
-            newlines.append(r'''
-            SET_TARGET_PROPERTIES(${name} PROPERTIES VERSION 0.0.0 SOVERSION 0)
-            ''')
-            pass
+        newlines.append(r'''
+        SET_TARGET_PROPERTIES(${name} PROPERTIES VERSION 0.0.0 SOVERSION 0)
+        FOREACH(lib medC med)
+        IF(lib STREQUAL ${name})
+        SET_TARGET_PROPERTIES(${name} PROPERTIES VERSION 1.1.5 SOVERSION 1)
+        ENDIF(lib STREQUAL ${name})
+        ENDFOREACH(lib medC med)
+        ''')
         # --
         from os.path import basename
         upper_name = basename(self.root).upper()
@@ -1024,14 +1041,31 @@ class CMakeFile(object):
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL GEOM_%s_EXPORTS)
         ENDIF(name STREQUAL GEOMObject)
         '''%(upper_name))
+        newlines.append(r'''
+        IF(name STREQUAL medC)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEDC_DLL_EXPORTS)
+        ENDIF(name STREQUAL medC)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL med)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MED_DLL_EXPORTS)
+        ENDIF(name STREQUAL med)
+        ''')
         # --
         self.setLibAdd(newlines)
         # --
         newlines.append(r'''
         IF(WINDOWS)
-        IF(name STREQUAL SalomeHDFPersist)
+        SET(libs)
+        SET(libs ${libs} SalomeHDFPersist)
+        SET(libs ${libs} medC)
+        SET(libs ${libs} medimport)
+        SET(libs ${libs} medimportcxx)
+        FOREACH(lib ${libs})
+        IF(name STREQUAL ${lib})
         SET_TARGET_PROPERTIES(${name} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMTD")
-        ENDIF(name STREQUAL SalomeHDFPersist)
+        ENDIF(name STREQUAL ${lib})
+        ENDFOREACH(lib ${libs})
         ENDIF(WINDOWS)
         ''')
         # --
