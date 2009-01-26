@@ -66,17 +66,9 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
   
 Superv_Component_i::~Superv_Component_i() 
 {
-  factory_map_t::iterator begin = _factory_map.begin();
-  factory_map_t::iterator end = _factory_map.end();
-  for(;begin!=end;begin++) 
-  {
-    delete begin->second;
-  }
-
   my_superv_ports_it = my_superv_ports.begin();
   for(;my_superv_ports_it != my_superv_ports.end();my_superv_ports_it++) 
     delete my_superv_ports_it->second;
-
 }
 
 void 
