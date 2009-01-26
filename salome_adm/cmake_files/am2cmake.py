@@ -259,6 +259,11 @@ class CMakeFile(object):
             "VTKViewer",
             ]
         full_list = cas_list + kernel_list + gui_list
+        # --
+        full_list += [
+            "boost_thread",
+            ]
+        # --
         for key in full_list:
             content = content.replace("-l%s"%(key), "${%s}"%(key))
             pass
@@ -374,6 +379,11 @@ class CMakeFile(object):
                     INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindSIPPYQT.cmake)
                     INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindGUI.cmake)
                     """)
+                    if self.module == "med":
+                        newlines.append("""
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
+                        """)
+                        pass
                     pass
                 pass
             # --
@@ -413,11 +423,19 @@ class CMakeFile(object):
                 ENDIF(NOT WINDOWS)
                 """)
                 pass
+            elif self.module == "med":
+                newlines.append("""
+                SET(MED_ENABLE_KERNEL ON)
+                """)
+                pass
             # --
             pass
         # --
         newlines.append("""
         SET(SUBDIRS)
+        SET(AM_CPPFLAGS)
+        SET(AM_CXXFLAGS)
+        SET(LDADD)
         """)
         # --
         return
@@ -703,7 +721,7 @@ class CMakeFile(object):
         
         # --
         # --
-        for key in ["SWIG_SRC", "SWIGSOURCES"]:
+        for key in ["SWIG_SRC", "SWIGSOURCES", "SWIG_DEF"]:
             if self.__thedict__.has_key(key):
                 newlines.append('''
                 SET(SWIG_SOURCES ${%s})
@@ -847,7 +865,7 @@ class CMakeFile(object):
         # --
         return
     
-    def setLibAdd(self, newlines):
+    def setLibAdd(self, key, newlines):
         # --
         newlines.append(r'''
         SET(libadd)
@@ -862,7 +880,8 @@ class CMakeFile(object):
         ''')
         # --
         newlines.append(r'''
-        FOREACH(lib ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
+        SET(libs ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
+        FOREACH(lib ${libs})
         GET_FILENAME_COMPONENT(ext ${lib} EXT)
         IF(ext STREQUAL .la)
         GET_FILENAME_COMPONENT(lib ${lib} NAME_WE)
@@ -877,7 +896,7 @@ class CMakeFile(object):
         ENDFOREACH(v ${vars})
         ENDIF(WINDOWS)
         SET(libadd ${libadd} ${lib})
-        ENDFOREACH(lib ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
+        ENDFOREACH(lib ${libs})
         TARGET_LINK_LIBRARIES(${name} ${PTHREADS_LIBRARY} ${libadd})
         ''')
         # --
@@ -898,7 +917,7 @@ class CMakeFile(object):
         # --
         return
     
-    def setCompilationFlags(self, newlines):
+    def setCompilationFlags(self, key, newlines):
         newlines.append(r'''
         SET(var)
         IF(WINDOWS)
@@ -1033,7 +1052,7 @@ class CMakeFile(object):
         # --
         # The compilation flags
         # --
-        self.setCompilationFlags(newlines)
+        self.setCompilationFlags(key, newlines)
         # --
         newlines.append(r'''
         SET_TARGET_PROPERTIES(${name} PROPERTIES VERSION 0.0.0 SOVERSION 0)
@@ -1089,8 +1108,38 @@ class CMakeFile(object):
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEDIMPORTCXX_DLL_EXPORTS)
         ENDIF(name STREQUAL medimportcxx)
         ''')
+        newlines.append(r'''
+        IF(name STREQUAL MEDWrapperBase)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEDWRAPPER_BASE_EXPORTS)
+        ENDIF(name STREQUAL MEDWrapperBase)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL MEDWrapper_V2_1)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEDWRAPPER_V2_1_EXPORTS)
+        ENDIF(name STREQUAL MEDWrapper_V2_1)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL med_V2_1)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEDWRAPPER_V2_1_CORE_EXPORTS)
+        ENDIF(name STREQUAL med_V2_1)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL MEDWrapper_V2_2)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEDWRAPPER_V2_2_EXPORTS)
+        ENDIF(name STREQUAL MEDWrapper_V2_2)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL MEDWrapper)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEDWRAPPER_FACTORY_EXPORTS)
+        ENDIF(name STREQUAL MEDWrapper)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL interpkernel)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL INTERPKERNEL_EXPORTS)
+        ENDIF(name STREQUAL interpkernel)
+        ''')
         # --
-        self.setLibAdd(newlines)
+        self.setLibAdd(key, newlines)
         # --
         if key != "noinst_LTLIBRARIES":
             if self.module == "medfile":
@@ -1159,9 +1208,9 @@ class CMakeFile(object):
         ADD_EXECUTABLE(${name} ${srcs})
         ''')
         # --
-        self.setCompilationFlags(newlines)
+        self.setCompilationFlags(key, newlines)
         # --
-        self.setLibAdd(newlines)
+        self.setLibAdd(key, newlines)
         # --
         if self.module == "medfile":
             newlines.append(r'''
