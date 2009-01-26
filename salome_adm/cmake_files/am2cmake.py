@@ -881,6 +881,14 @@ class CMakeFile(object):
         # --
         newlines.append(r'''
         SET(libs ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
+        ''')
+        if key == "bin_PROGRAMS":
+            newlines.append(r'''
+            SET(libs ${libs} ${LDADD})
+            ''')
+            pass
+        # --
+        newlines.append(r'''
         FOREACH(lib ${libs})
         GET_FILENAME_COMPONENT(ext ${lib} EXT)
         IF(ext STREQUAL .la)
@@ -938,10 +946,16 @@ class CMakeFile(object):
         ENDIF(name STREQUAL GEOMEngine)
         ENDIF(WINDOWS)
         ''')
-        if self.module in ["geom"]:
+        if self.module in ["geom", "med"]:
             newlines.append(r'''
             SET(var ${var} -I${CMAKE_CURRENT_SOURCE_DIR})
             SET(var ${var} -I${CMAKE_CURRENT_BINARY_DIR})
+            ''')
+            pass
+        if key == "bin_PROGRAMS":
+            newlines.append(r'''
+            SET(var ${var} ${AM_CPPFLAGS})
+            SET(var ${var} ${AM_CXXFLAGS})
             ''')
             pass
         newlines.append(r'''
