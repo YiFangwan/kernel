@@ -408,6 +408,9 @@ class CMakeFile(object):
                 SET(MED_NUM_MINEUR 3)
                 SET(MED_NUM_RELEASE 5)
                 SET(LONG_OR_INT int)
+                IF(NOT WINDOWS)
+                SET(FLIBS -lgfortranbegin -lgfortran)
+                ENDIF(NOT WINDOWS)
                 """)
                 pass
             # --
@@ -480,6 +483,7 @@ class CMakeFile(object):
         line = line.replace(r"${top_srcdir}", r"${CMAKE_SOURCE_DIR}")
         line = line.replace(r"${srcdir}", r"${CMAKE_CURRENT_SOURCE_DIR}")
         line = line.replace(r"${builddir}", r"${CMAKE_CURRENT_BINARY_DIR}")
+        line = line.replace(r"${datadir}", r"${CMAKE_INSTALL_PREFIX}/share")
         
         # --
         # Check if the line is a 'if' condition
@@ -830,6 +834,8 @@ class CMakeFile(object):
             d = {
                 "include_HEADERS"        :  "include",
                 "nodist_include_HEADERS" :  "include",
+                "bin_SCRIPTS"            :  "bin",
+                "doc_DATA"               :  "${docdir}",
                 }
             pass
         for key, value in d.items():
@@ -874,6 +880,22 @@ class CMakeFile(object):
         ENDFOREACH(lib ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
         TARGET_LINK_LIBRARIES(${name} ${PTHREADS_LIBRARY} ${libadd})
         ''')
+        # --
+        newlines.append(r'''
+        IF(WINDOWS)
+        SET(targets)
+        SET(targets ${targets} SalomeHDFPersist)
+        SET(targets ${targets} medC)
+        SET(targets ${targets} medimport)
+        SET(targets ${targets} medimportcxx)
+        FOREACH(target ${targets})
+        IF(name STREQUAL ${target})
+        SET_TARGET_PROPERTIES(${name} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMTD")
+        ENDIF(name STREQUAL ${target})
+        ENDFOREACH(target ${targets})
+        ENDIF(WINDOWS)
+        ''')
+        # --
         return
     
     def setCompilationFlags(self, newlines):
@@ -1057,23 +1079,18 @@ class CMakeFile(object):
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MED_DLL_EXPORTS)
         ENDIF(name STREQUAL med)
         ''')
+        newlines.append(r'''
+        IF(name STREQUAL medimport)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEDIMPORT_DLL_EXPORTS)
+        ENDIF(name STREQUAL medimport)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL medimportcxx)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEDIMPORTCXX_DLL_EXPORTS)
+        ENDIF(name STREQUAL medimportcxx)
+        ''')
         # --
         self.setLibAdd(newlines)
-        # --
-        newlines.append(r'''
-        IF(WINDOWS)
-        SET(libs)
-        SET(libs ${libs} SalomeHDFPersist)
-        SET(libs ${libs} medC)
-        SET(libs ${libs} medimport)
-        SET(libs ${libs} medimportcxx)
-        FOREACH(lib ${libs})
-        IF(name STREQUAL ${lib})
-        SET_TARGET_PROPERTIES(${name} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMTD")
-        ENDIF(name STREQUAL ${lib})
-        ENDFOREACH(lib ${libs})
-        ENDIF(WINDOWS)
-        ''')
         # --
         if key != "noinst_LTLIBRARIES":
             if self.module == "medfile":
