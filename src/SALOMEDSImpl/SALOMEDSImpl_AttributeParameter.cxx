@@ -28,6 +28,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <strstream>
+#include <sstream>
 
 using namespace std;
 
@@ -44,7 +45,7 @@ string convertString(const string& S)
   for(int i = 0, pos = 0; i<length; i++, pos+=3) {
     int val = (int)s[i];
     buffer[pos] = '%';
-    sprintf(c, "%x", val);
+    sprintf(c, "%.2x", val);
     buffer[pos+1] = c[0]; 
     buffer[pos+2] = c[1];
   }
@@ -628,7 +629,7 @@ void SALOMEDSImpl_AttributeParameter::Paste (DF_Attribute* into)
 //=======================================================================
 string SALOMEDSImpl_AttributeParameter::Save() 
 { 
-  ostrstream buffer;
+  ostringstream buffer;
   char *tmpBuffer = new char[255];
 
   buffer << _ints.size() << " ";
@@ -687,7 +688,7 @@ string SALOMEDSImpl_AttributeParameter::Save()
 
   delete tmpBuffer;
 
-  string AS((char*)buffer.rdbuf()->str());
+  string AS = buffer.str();
 
   return AS; 
 }
