@@ -949,6 +949,7 @@ class CMakeFile(object):
         IF(WINDOWS)
         SET(targets)
         SET(targets ${targets} SalomeIDLKernel)
+        SET(targets ${targets} SalomeDS)
         SET(targets ${targets} SALOMEDS_Client_exe)
         SET(targets ${targets} SalomeIDLGEOM)
         SET(targets ${targets} GEOMEngine)
