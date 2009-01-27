@@ -29,7 +29,7 @@ extern "C"
 #include "hdfi.h"
 }
 
-#include <string.h>
+#include <cstring>
 #include <stdlib.h>
 using namespace std;
 
