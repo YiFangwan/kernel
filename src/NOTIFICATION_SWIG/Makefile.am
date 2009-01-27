@@ -45,6 +45,7 @@ _libNOTIFICATION_la_SOURCES  = swig_wrap.cpp \
 	NOTIFICATION_Swig.cxx NOTIFICATION_Swig.hxx SALOME_NOTIFICATION_SWIG.hxx
 _libNOTIFICATION_la_CPPFLAGS =\
 	@PYTHON_INCLUDES@ -DHAVE_CONFIG_H \
+	-I$(srcdir) \
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
@@ -53,7 +54,7 @@ _libNOTIFICATION_la_CPPFLAGS =\
 
 
 _libNOTIFICATION_la_LDFLAGS  = -module
-_libNOTIFICATION_la_LIBADD   = ../Notification/libSalomeNotification.la
+_libNOTIFICATION_la_LIBADD   = @PYTHON_LIBS@ ../Notification/libSalomeNotification.la
 
 swig_wrap.cpp libNOTIFICATION.py : $(SWIGSOURCES)
 	$(SWIG) $(SWIG_FLAGS) -o swig_wrap.cpp $<
