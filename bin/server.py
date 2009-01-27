@@ -63,7 +63,9 @@ class Server:
         else:
           #pid = os.spawnvp(os.P_NOWAIT, command[0], command)
           pid=self.daemonize(command)
-        process_id[pid]=self.CMD
+        if pid is not None:
+          #store process pid if it really exists
+          process_id[pid]=self.CMD
         self.PID = pid
         return pid
 
@@ -84,7 +86,14 @@ class Server:
           os.waitpid(pid,0) #remove zombie
           os.close(c2pread)
           # return : first parent
-          return int(data)
+          childpid=int(data)
+          if childpid==-1:
+            return None
+          try:
+            os.kill(childpid,0)
+            return childpid
+          except:
+            return None
 
         #first child
         # decouple from parent environment
