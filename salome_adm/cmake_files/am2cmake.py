@@ -206,24 +206,32 @@ class CMakeFile(object):
             "XmlXCAFPlugin",
             ]
         kernel_list  = [
-            "SalomeIDLKernel",
-            "SalomeHDFPersist",
-            "SalomeNS",
-            "SALOMELocalTrace",
+            "DF",
+            "Launcher",
             "OpUtil",
-            "SalomeLifeCycleCORBA",
+            "Registry",
+            "ResourcesManager",
+            "SALOMEBasics",
+            "SalomeBatch",
             "SalomeCatalog",
-            "SalomeDSClient",
-            "with_loggerTraceCollector",
+            "SalomeCommunication",
             "SalomeContainer",
+            "SalomeDSCContainer",
+            "SalomeDSClient",
+            "SalomeDSImpl",
+            "SalomeDS",
+            "SalomeGenericObj",
+            "SalomeHDFPersist",
+            "SalomeIDLKernel",
+            "SalomeLauncher",
+            "SalomeLifeCycleCORBA",
+            "SALOMELocalTrace",
+            "SalomeLoggerServer",
+            "SalomeNotification",
+            "SalomeNS",
             "SalomeResourcesManager",
             "TOOLSDS",
-            "SalomeDSImpl",
-            "SalomeGenericObj",
-            "Registry",
-            "SalomeNotification",
-            "SALOMEBasics",
-            "SalomeLauncher",
+            "with_loggerTraceCollector",
             ]
         gui_list = [
             "caf",
@@ -426,6 +434,7 @@ class CMakeFile(object):
             elif self.module == "med":
                 newlines.append("""
                 SET(MED_ENABLE_KERNEL ON)
+                SET(MED_ENABLE_GUI ON)
                 """)
                 pass
             # --
@@ -897,6 +906,7 @@ class CMakeFile(object):
         ENDIF(ext STREQUAL .la)
         IF(WINDOWS)
         SET(vars -Xlinker -export-dynamic -module -Wl,-E)
+        SET(vars ${vars} -lutil -lm)
         FOREACH(v ${vars})
         IF(lib STREQUAL v)
         SET(lib)
@@ -923,29 +933,40 @@ class CMakeFile(object):
         ENDIF(WINDOWS)
         ''')
         # --
+        if self.module == "med":
+            newlines.append(r'''
+            IF(WINDOWS)
+            SET_TARGET_PROPERTIES(${name} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMTD")
+            ENDIF(WINDOWS)
+            ''')
+            pass
+        # --
         return
     
     def setCompilationFlags(self, key, newlines):
         newlines.append(r'''
         SET(var)
         IF(WINDOWS)
-        IF(name STREQUAL SalomeIDLKernel)
+        SET(targets)
+        SET(targets ${targets} SalomeIDLKernel)
+        SET(targets ${targets} SALOMEDS_Client_exe)
+        SET(targets ${targets} SalomeIDLGEOM)
+        SET(targets ${targets} GEOMEngine)
+        SET(targets ${targets} MEDEngine)
+        FOREACH(target ${targets})
+        IF(name STREQUAL ${target})
         SET(var ${var} -DNOGDI)
-        ENDIF(name STREQUAL SalomeIDLKernel)
-        IF(name STREQUAL SalomeDS)
-        SET(var ${var} -DNOGDI)
-        ENDIF(name STREQUAL SalomeDS)
-        IF(name STREQUAL SALOMEDS_Client_exe)
-        SET(var ${var} -DNOGDI)
-        ENDIF(name STREQUAL SALOMEDS_Client_exe)
-        IF(name STREQUAL SalomeIDLGEOM)
-        SET(var ${var} -DNOGDI)
-        ENDIF(name STREQUAL SalomeIDLGEOM)
-        IF(name STREQUAL GEOMEngine)
-        SET(var ${var} -DNOGDI)
-        ENDIF(name STREQUAL GEOMEngine)
+        ENDIF(name STREQUAL ${target})
+        ENDFOREACH(target ${targets})
         ENDIF(WINDOWS)
         ''')
+        # --
+        newlines.append(r'''
+        IF(WINDOWS)
+        SET(var ${var} -D_USE_MATH_DEFINES)
+        ENDIF(WINDOWS)
+        ''')
+        # --
         if self.module in ["geom", "med"]:
             newlines.append(r'''
             SET(var ${var} -I${CMAKE_CURRENT_SOURCE_DIR})
@@ -1155,7 +1176,7 @@ class CMakeFile(object):
         # --
         self.setLibAdd(key, newlines)
         # --
-        if key != "noinst_LTLIBRARIES":
+        if 1: # key != "noinst_LTLIBRARIES":
             if self.module == "medfile":
                 newlines.append(r'''
                 SET(DEST lib)
