@@ -238,6 +238,50 @@ vector<string> SALOMEDSImpl_Tool::splitString(const string& theValue, char separ
   return vs;
 }
 
+//============================================================================
+// function : 
+// purpose  : The functions returns a list of substring of initial string 
+//            divided by given separator include empty strings
+//============================================================================
+vector<string> SALOMEDSImpl_Tool::splitStringWithEmpty(const string& theValue, char sep)
+{
+  vector<string> aResult;
+  if(theValue[0] == sep ) aResult.push_back(string());
+  int pos = theValue.find(sep);
+  if(pos < 0 ) {
+    aResult.push_back(theValue);
+    return aResult;
+  }
+
+  string s = theValue;
+  if(s[0] == sep) s = s.substr(1, s.size());
+  while((pos = s.find(sep)) >= 0) {
+    aResult.push_back(s.substr(0, pos));
+    s = s.substr(pos+1, s.size());
+  }
+
+  if(!s.empty() && s[0] != sep) aResult.push_back(s);
+  if(theValue[theValue.size()-1] == sep) aResult.push_back(string());
+
+  return aResult;
+}
+
+//============================================================================
+// function : 
+// purpose  : The functions returns a list of lists of substrings of initial string 
+//            divided by two given separators include empty strings
+//============================================================================
+vector< vector<string> > SALOMEDSImpl_Tool::splitStringWithEmpty(const string& theValue, char sep1, char sep2)
+{
+  vector< vector<string> > aResult;
+  if(theValue.size() > 0) {
+    vector<string> aSections = splitStringWithEmpty( theValue, sep1 );
+    for( int i = 0, n = aSections.size(); i < n; i++ )
+      aResult.push_back( splitStringWithEmpty( aSections[i], sep2 ) );
+  }
+  return aResult;
+}
+
 
 void SALOMEDSImpl_Tool::GetSystemDate(int& year, int& month, int& day, int& hours, int& minutes, int& seconds)
 {
