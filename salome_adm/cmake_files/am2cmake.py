@@ -266,11 +266,70 @@ class CMakeFile(object):
             "ToolsGUI",
             "VTKViewer",
             ]
+        geom_list = [
+            "BasicGUI",
+            "BlocksGUI",
+            "BooleanGUI",
+            "BREPExport",
+            "BREPImport",
+            "BuildGUI",
+            "DisplayGUI",
+            "DlgRef",
+            "EntityGUI",
+            "GenerationGUI",
+            "GEOMAlgo",
+            "GEOMArchimede",
+            "GEOMBase",
+            "GEOMbasic",
+            "GEOMClient",
+            "GEOMEngine",
+            "GEOMFiltersSelection",
+            "GEOMimpl",
+            "GEOMObject",
+            "GEOMSketcher",
+            "GEOM",
+            "GEOM_SupervEngine",
+            "GEOMToolsGUI",
+            "GroupGUI",
+            "IGESExport",
+            "IGESImport",
+            "MeasureGUI",
+            "NMTDS",
+            "NMTTools",
+            "OperationGUI",
+            "PrimitiveGUI",
+            "RepairGUI",
+            "SalomeIDLGEOM",
+            "ShHealOper",
+            "STEPExport",
+            "STEPImport",
+            "STLExport",
+            "TransformationGUI",
+            ]
+        med_list = [
+            "interpkernel",
+            "InterpKernelTest",
+            "MEDMEMCppTest",
+            "medmem",
+            "med_V2_1",
+            "MEDWrapperBase",
+            "MEDWrapper",
+            "MEDWrapper_V2_1",
+            "MEDWrapper_V2_2",
+            "SalomeIDLMED",
+            ]
         full_list = cas_list + kernel_list + gui_list
+        full_list += geom_list + med_list
         # --
         full_list += [
             "boost_thread",
             ]
+        # --
+        # E.A. : sort by len before substitution ...
+        # Why ? Thing to "-lMEDWrapper" then "-lMEDWrapper_V2_1" substition
+        # And you understand ...
+        # --
+        full_list.sort(cmp = lambda x, y : cmp(len(y), len(x)))
         # --
         for key in full_list:
             content = content.replace("-l%s"%(key), "${%s}"%(key))
@@ -390,6 +449,15 @@ class CMakeFile(object):
                     if self.module == "med":
                         newlines.append("""
                         INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
+                        """)
+                        pass
+                    if self.module == "smesh":
+                        newlines.append("""
+                        SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
+                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                        INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
+                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
+                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
                         """)
                         pass
                     pass
@@ -954,6 +1022,7 @@ class CMakeFile(object):
         SET(targets ${targets} SalomeIDLGEOM)
         SET(targets ${targets} GEOMEngine)
         SET(targets ${targets} MEDEngine)
+        SET(targets ${targets} SMESHEngine)
         FOREACH(target ${targets})
         IF(name STREQUAL ${target})
         SET(var ${var} -DNOGDI)
@@ -1173,6 +1242,41 @@ class CMakeFile(object):
         IF(name STREQUAL interpkernel)
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL INTERPKERNEL_EXPORTS)
         ENDIF(name STREQUAL interpkernel)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL SMESHControls)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL SMESHCONTROLS_EXPORTS)
+        ENDIF(name STREQUAL SMESHControls)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL MeshDriver)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MESHDRIVER_EXPORTS)
+        ENDIF(name STREQUAL MeshDriver)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL MeshDriverMED)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MESHDRIVERMED_EXPORTS)
+        ENDIF(name STREQUAL MeshDriverMED)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL MeshDriverDAT)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MESHDRIVERDAT_EXPORTS)
+        ENDIF(name STREQUAL MeshDriverDAT)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL MeshDriverUNV)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MESHDRIVERUNV_EXPORTS)
+        ENDIF(name STREQUAL MeshDriverUNV)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL MeshDriverSTL)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MESHDRIVERSTL_EXPORTS)
+        ENDIF(name STREQUAL MeshDriverSTL)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL MEFISTO2D)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL MEFISTO2D_EXPORTS)
+        ENDIF(name STREQUAL MEFISTO2D)
         ''')
         # --
         self.setLibAdd(key, newlines)
