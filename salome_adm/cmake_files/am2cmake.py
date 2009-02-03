@@ -135,6 +135,11 @@ class CMakeFile(object):
         content = content.replace("-no-undefined -version-info 2:5:1", "")
         
         # --
+        # Compatibility netgen plugin
+        # --
+        content = content.replace("../NETGEN/libNETGEN.la", "${NETGEN_LIBS}")
+        
+        # --
         cas_list = [
             "BinLPlugin",
             "BinPlugin",
@@ -318,8 +323,29 @@ class CMakeFile(object):
             "MEDWrapper_V2_2",
             "SalomeIDLMED",
             ]
+        smesh_list = [
+            "MEFISTO2D",
+            "MeshDriverDAT",
+            "MeshDriverMED",
+            "MeshDriver",
+            "MeshDriverSTL",
+            "MeshDriverUNV",
+            "SalomeIDLSMESH",
+            "SMDS",
+            "SMESHClient",
+            "SMESHControls",
+            "SMESHDS",
+            "SMESHEngine",
+            "SMESHFiltersSelection",
+            "SMESHimpl",
+            "SMESHObject",
+            "SMESH",
+            "StdMeshersEngine",
+            "StdMeshersGUI",
+            "StdMeshers",
+            ]
         full_list = cas_list + kernel_list + gui_list
-        full_list += geom_list + med_list
+        full_list += geom_list + med_list + smesh_list
         # --
         full_list += [
             "boost_thread",
@@ -460,6 +486,17 @@ class CMakeFile(object):
                         INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
                         """)
                         pass
+                    if self.module == "netgenplugin":
+                        newlines.append("""
+                        SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
+                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                        SET(SMESH_ROOT_DIR $ENV{SMESH_ROOT_DIR})
+                        INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
+                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                        INCLUDE(${SMESH_ROOT_DIR}/adm_local/cmake_files/FindSMESH.cmake)
+                        INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindNETGEN.cmake)
+                        """)
+                        pass
                     pass
                 pass
             # --
@@ -508,6 +545,11 @@ class CMakeFile(object):
             elif self.module == "smesh":
                 newlines.append("""
                 SET(SMESH_ENABLE_GUI ON)
+                """)
+                pass
+            elif self.module == "netgenplugin":
+                newlines.append("""
+                SET(NETGENPLUGIN_ENABLE_GUI ON)
                 """)
                 pass
             # --
@@ -1342,6 +1384,11 @@ class CMakeFile(object):
         IF(name STREQUAL _libSMESH_Swig)
         SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL SMESH_SWIG_EXPORTS)
         ENDIF(name STREQUAL _libSMESH_Swig)
+        ''')
+        newlines.append(r'''
+        IF(name STREQUAL NETGENPluginGUI)
+        SET_TARGET_PROPERTIES(${name} PROPERTIES DEFINE_SYMBOL NETGENPLUGIN_GUI_EXPORTS)
+        ENDIF(name STREQUAL NETGENPluginGUI)
         ''')
         # --
         self.setLibAdd(key, newlines)
