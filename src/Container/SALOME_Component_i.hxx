@@ -24,7 +24,7 @@
 //  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA
 //  Module : SALOME
 //  $Header$
-
+//
 #ifndef _SALOME_COMPONENT_I_HXX_
 #define _SALOME_COMPONENT_I_HXX_
 
@@ -59,7 +59,8 @@ public:
 		      PortableServer::ObjectId * contId, 
 		      const char *instanceName, 
 		      const char *interfaceName,
-                      bool notif = false);
+                      bool notif = false,
+                      bool regist = true);
   //Constructor for standalone component
   Engines_Component_i(CORBA::ORB_ptr orb,
 		      PortableServer::POA_ptr poa,
@@ -67,15 +68,7 @@ public:
 		      const char *instanceName, 
 		      const char *interfaceName,
                       bool notif = false,
-                      bool regist=true);
-  // Constructor for parallel component : don't call registry
-  Engines_Component_i(CORBA::ORB_ptr orb,
-		      PortableServer::POA_ptr poa,
-		      PortableServer::ObjectId * contId, 
-		      const char *instanceName, 
-		      const char *interfaceName,
-		      int flag,
-                      bool notif = false);
+                      bool regist = true);
 
   virtual ~Engines_Component_i();
 

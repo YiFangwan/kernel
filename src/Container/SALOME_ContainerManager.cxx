@@ -62,7 +62,6 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
   MESSAGE("constructor");
   _NS = ns;
   _ResManager = rm;
-  _id=0;
 
   PortableServer::POAManager_var pman = poa->the_POAManager();
   _orb = CORBA::ORB::_duplicate(orb) ;
@@ -217,9 +216,7 @@ StartContainer(const Engines::MachineParameters& params,
   if (parallelLib != "")
     return FindOrStartParallelContainer(params, possibleComputers);
 #endif
-  long id;
   string containerNameInNS;
-  char idc[3*sizeof(long)];
   Engines::Container_ptr ret = Engines::Container::_nil();
 
   MESSAGE("SALOME_ContainerManager::StartContainer " <<
@@ -254,15 +251,6 @@ StartContainer(const Engines::MachineParameters& params,
 
   MESSAGE("try to launch it on " << theMachine);
 
-  // Get Id for container: a parallel container registers in Naming Service
-  // on the machine where is process 0. ContainerManager does'nt know the name
-  // of this machine before the launch of the parallel container. So to get
-  // the IOR of the parallel container in Naming Service, ContainerManager
-  // gives a unique Id. The parallel container registers his name under
-  // /ContainerManager/Id directory in NamingService
-
-  id = GetIdForContainer();
-
   string command;
   if(theMachine==""){
     MESSAGE("SALOME_ContainerManager::StartContainer : " <<
@@ -270,19 +258,16 @@ StartContainer(const Engines::MachineParameters& params,
     return Engines::Container::_nil();
   }
   else if(theMachine==Kernel_Utils::GetHostname())
-    command = BuildCommandToLaunchLocalContainer(params,id,container_exe);
+    command = BuildCommandToLaunchLocalContainer(params,container_exe);
   else
-    command = BuildCommandToLaunchRemoteContainer(theMachine,params,id,container_exe);
+    command = BuildCommandToLaunchRemoteContainer(theMachine,params,container_exe);
 
-  // RmTmpFile(); Too early! May be this function has not been used for a long time...
+  // RmTmpFile(_TmpFileName); Too early! May be this function has not been used for a long time...
 
   //check if an entry exists in Naming service
   if(params.isMPI)
-    {
-      containerNameInNS = "/ContainerManager/id";
-      sprintf(idc,"%ld",id);
-      containerNameInNS += idc;
-    }
+    // A parallel container register on zero node in NS
+    containerNameInNS = _NS->BuildContainerNameForNS(params,GetMPIZeroNode(theMachine).c_str());
   else
     containerNameInNS = _NS->BuildContainerNameForNS(params,theMachine.c_str());
 
@@ -314,13 +299,13 @@ StartContainer(const Engines::MachineParameters& params,
   if (status == -1){
     MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
 	    "(system command status -1)");
-    RmTmpFile(); // command file can be removed here
+    RmTmpFile(_TmpFileName); // command file can be removed here
     return Engines::Container::_nil();
   }
   else if (status == 217){
     MESSAGE("SALOME_LifeCycleCORBA::StartOrFindContainer rsh failed " <<
 	    "(system command status 217)");
-    RmTmpFile(); // command file can be removed here
+    RmTmpFile(_TmpFileName); // command file can be removed here
     return Engines::Container::_nil();
   }
   else{
@@ -352,7 +337,7 @@ StartContainer(const Engines::MachineParameters& params,
         ret->logfilename(logFilename.c_str());
       }
 
-    RmTmpFile(); // command file can be removed here
+    RmTmpFile(_TmpFileName); // command file can be removed here
     return ret;
   }
 }
@@ -730,24 +715,6 @@ SALOME_ContainerManager::LaunchParallelContainer(const std::string& command,
   return obj;
 }
 
-//=============================================================================
-/*! 
- * Get Id for container: a parallel container registers in Naming Service
- * on the machine where is process 0. ContainerManager does'nt know the name
- * of this machine before the launch of the parallel container. So to get
- * the IOR of the parallel container in Naming Service, ContainerManager
- * gives a unique Id. The parallel container registers his name under
- * /ContainerManager/Id directory in NamingService
- */
-//=============================================================================
-
-
-long SALOME_ContainerManager::GetIdForContainer(void)
-{
-  _id++;
-  return _id;
-}
-
 void SALOME_ContainerManager::fillBatchLaunchedContainers()
 {
   _batchLaunchedContainers.clear();
@@ -807,11 +774,10 @@ bool isPythonContainer(const char* ContainerName)
 string
 SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 (const string& machine,
- const Engines::MachineParameters& params, const long id,const std::string& container_exe)
+ const Engines::MachineParameters& params, const std::string& container_exe)
 {
   string command;
   int nbproc;
-  char idc[3*sizeof(long)];
 	  
   if ( ! _isAppliSalomeDefined )
     command = BuildTempFileToLaunchRemoteContainer(machine, params);
@@ -887,6 +853,13 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 	  command += o.str();
 #ifdef WITHLAM
 	  command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+#elif defined(WITHOPENMPI)
+	  if( getenv("OMPI_URI_FILE") == NULL )
+	    command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
+	  else{
+	    command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
+	    command += getenv("OMPI_URI_FILE");
+	  }
 #endif	
 	  command += " SALOME_MPIContainer ";
 	}
@@ -894,9 +867,6 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
         command += " " +container_exe+ " ";
 
       command += _NS->ContainerName(params);
-      command += " -id ";
-      sprintf(idc,"%ld",id);
-      command += idc;
       command += " -";
       AddOmninamesParams(command);
 
@@ -914,12 +884,11 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 
 string
 SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
-(const Engines::MachineParameters& params, const long id,const std::string& container_exe)
+(const Engines::MachineParameters& params, const std::string& container_exe)
 {
   _TmpFileName = BuildTemporaryFileName();
   string command;
   int nbproc = 0;
-  //char idc[3*sizeof(long)];
 
   ofstream command_file( _TmpFileName.c_str() );
 
@@ -946,14 +915,22 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
 #ifdef WITHLAM
       //command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
       command_file << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+#elif defined(WITHOPENMPI)
+      //command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace ";
+      if( getenv("OMPI_URI_FILE") == NULL )
+	command_file << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
+      else{
+	command_file << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
+	command_file << getenv("OMPI_URI_FILE");
+      }
 #endif
 
       if (isPythonContainer(params.container_name))
         //command += "pyMPI SALOME_ContainerPy.py ";
-        command_file << "pyMPI SALOME_ContainerPy.py ";
+        command_file << " pyMPI SALOME_ContainerPy.py ";
       else
         //command += "SALOME_MPIContainer ";
-        command_file << "SALOME_MPIContainer ";
+        command_file << " SALOME_MPIContainer ";
     }
 
   else
@@ -998,16 +975,8 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
 
     }
 
-
-  /*command += _NS->ContainerName(params);
-  command += " -id ";
-  sprintf(idc,"%ld",id);
-  command += idc;
-  command += " -";  
-  AddOmninamesParams(command);*/
-
   command_file << _NS->ContainerName(params);
-  command_file << " -id " << id << " -";
+  command_file << " -";
   AddOmninamesParams(command_file);
   command_file.close();
 
@@ -1027,9 +996,9 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
  */ 
 //=============================================================================
 
-void SALOME_ContainerManager::RmTmpFile()
+void SALOME_ContainerManager::RmTmpFile(std::string& tmpFileName)
 {
-  int lenght = _TmpFileName.size();
+  int lenght = tmpFileName.size();
   if ( lenght  > 0)
     {
 #ifdef WIN32
@@ -1038,13 +1007,13 @@ void SALOME_ContainerManager::RmTmpFile()
       string command = "rm ";      
 #endif
       if ( lenght > 4 )
-        command += _TmpFileName.substr(0, lenght - 3 );
+        command += tmpFileName.substr(0, lenght - 3 );
       else
-        command += _TmpFileName;
+        command += tmpFileName;
       command += '*';
       system(command.c_str());
       //if dir is empty - remove it
-      string tmp_dir = Kernel_Utils::GetDirByPath( _TmpFileName );
+      string tmp_dir = Kernel_Utils::GetDirByPath( tmpFileName );
       if ( Kernel_Utils::IsEmptyDir( tmp_dir ) )
         {
 #ifdef WIN32
@@ -1152,6 +1121,13 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
       tempOutputFile << nbproc << " ";
 #ifdef WITHLAM
       tempOutputFile << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+#elif defined(WITHOPENMPI)
+      if( getenv("OMPI_URI_FILE") == NULL )
+	tempOutputFile << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
+      else{
+	tempOutputFile << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
+	tempOutputFile << getenv("OMPI_URI_FILE");
+      }
 #endif
     }
 
@@ -1160,9 +1136,9 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
   if (params.isMPI)
     {
       if (isPythonContainer(params.container_name))
-        tempOutputFile << "pyMPI SALOME_ContainerPy.py ";
+        tempOutputFile << " pyMPI SALOME_ContainerPy.py ";
       else
-        tempOutputFile << "SALOME_MPIContainer ";
+        tempOutputFile << " SALOME_MPIContainer ";
     }
 
   else
@@ -1372,3 +1348,22 @@ void SALOME_ContainerManager::startMPI()
   }
 }
 
+string SALOME_ContainerManager::GetMPIZeroNode(string machine)
+{
+  int status;
+  string zeronode;
+  string cmd;
+  string tmpFile = BuildTemporaryFileName();
+
+  cmd = "ssh " + machine + " mpirun -np 1 hostname > " + tmpFile;
+
+  status = system(cmd.c_str());
+  if( status == 0 ){
+    ifstream fp(tmpFile.c_str(),ios::in);
+    fp >> zeronode;
+  }
+
+  RmTmpFile(tmpFile);
+
+  return zeronode;
+}
