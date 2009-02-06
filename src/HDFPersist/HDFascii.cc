@@ -447,7 +447,7 @@ bool CreateGroupFromASCII(HDFcontainerObject *father, FILE *fp)
 
   HDFgroup* hdf_group = new HDFgroup(new_name, father);
 
-  delete new_name;
+  delete [] new_name;
 
   hdf_group->CreateOnDisk();
 
@@ -526,8 +526,8 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
     order = H5T_ORDER_NONE;
 
   HDFdataset* hdf_dataset = new HDFdataset(new_name, father,type, sizeArray, nbDim, order);
-  delete new_name;
-  delete sizeArray;
+  delete [] new_name;
+  delete [] sizeArray;
 
   hdf_dataset->CreateOnDisk();
 
@@ -535,7 +535,7 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
     char *val = new char[size+1];
     fread(val, 1, size, fp);
     hdf_dataset->WriteOnDisk(val);
-    delete val;
+    delete [] val;
   } else if (type == HDF_FLOAT64) {
     hdf_float64* val = new hdf_float64[size];
     for(i=0; i<size; i++) {
