@@ -1195,7 +1195,7 @@ static void ReadAttributes(SALOMEDSImpl_Study* theStudy,
   } else if (!strcmp(hdf_dataset->GetName(),"AttributeReference") ||
              !strcmp(hdf_dataset->GetName(),"Reference")) { // Old format maintainance
     theStudy->NewBuilder()->Addreference(aSO, theStudy->CreateObjectID(current_string));
-    delete(current_string);
+    delete [] (current_string);
     hdf_dataset->CloseOnDisk();
     return;
   } else {
@@ -1206,7 +1206,7 @@ static void ReadAttributes(SALOMEDSImpl_Study* theStudy,
     anAttr->Load(current_string);
   }
   
-  delete(current_string);
+  delete [] (current_string);
   hdf_dataset->CloseOnDisk();
 }
 
