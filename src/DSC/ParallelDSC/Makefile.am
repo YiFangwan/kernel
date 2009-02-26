@@ -31,7 +31,8 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # ===============================================================
 #
 # header files  
-salomeinclude_HEADERS = ParallelDSC_i.hxx
+salomeinclude_HEADERS = ParallelDSC_i.hxx param_double_port_provides.hxx \
+			param_double_port_uses.hxx
 
 #
 # ===============================================================
@@ -53,7 +54,7 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/Container \
 		 -I$(top_srcdir)/src/Registry \
 		 -I$(top_srcdir)/src/Utils \
 		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@ \
-		 @PACO_INCLUDES@
+		 @PACO_INCLUDES@ @MPI_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS = 
@@ -65,7 +66,8 @@ COMMON_LIBS =
 #
 lib_LTLIBRARIES =  libSalomeParallelDSCContainer.la 
 
-libSalomeParallelDSCContainer_la_SOURCES  = ParallelDSC_i.cxx
+libSalomeParallelDSCContainer_la_SOURCES  = ParallelDSC_i.cxx param_double_port_provides.cxx \
+					    param_double_port_uses.cxx
 
 libSalomeParallelDSCContainer_la_CXXFLAGS = $(COMMON_CPPFLAGS)
 

@@ -34,6 +34,7 @@
 #endif
 #include <cstdlib>
 #include "utilities.h"
+#include "Basics_Utils.hxx"
 
 #ifndef WIN32
 #include <sys/time.h>
@@ -64,7 +65,9 @@ bool Engines_Parallel_Component_i::_isMultiInstance = false;
 Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior, int rank) : 
   InterfaceParallel_impl(orb,ior,rank), 
   Engines::Component_serv(orb,ior,rank), 
-  Engines::Parallel_Component_serv(orb,ior,rank)
+  Engines::Component_base_serv(orb,ior,rank), 
+  Engines::Parallel_Component_serv(orb,ior,rank),
+  Engines::Parallel_Component_base_serv(orb,ior,rank)
 {
   //ASSERT(0);
   INFOS("Default Constructor...");
@@ -91,7 +94,9 @@ Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, c
                                          bool notif) :
   InterfaceParallel_impl(orb,ior,rank), 
   Engines::Component_serv(orb,ior,rank),
+  Engines::Component_base_serv(orb,ior,rank),
   Engines::Parallel_Component_serv(orb,ior,rank),
+  Engines::Parallel_Component_base_serv(orb,ior,rank),
   _instanceName(instanceName),
   _interfaceName(interfaceName),
   _myConnexionToRegistry(0),

@@ -44,14 +44,59 @@
 #include "SALOME_NamingService.hxx"
 
 #include "utilities.h"
+#include "Basics_Utils.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
 using namespace std;
 
-#ifdef DEBUG_PARALLEL
+#ifdef _DEBUG_
 #include <signal.h>
+
+typedef void (*sighandler_t)(int);
+sighandler_t setsig(int sig, sighandler_t handler)
+{
+  struct sigaction context, ocontext;
+  context.sa_handler = handler;
+  sigemptyset(&context.sa_mask);
+  context.sa_flags = 0;
+  if (sigaction(sig, &context, &ocontext) == -1)
+    return SIG_ERR;
+  return ocontext.sa_handler;
+}
+
+void AttachDebugger()
+{
+  if(getenv ("DEBUGGER"))
+  {
+    std::stringstream exec;
+    exec << "$DEBUGGER SALOME_ParallelContainerProxyMpi " << getpid() << "&";
+    std::cerr << exec.str() << std::endl;
+    system(exec.str().c_str());
+    while(1);
+  }
+}
+
+void Handler(int theSigId)
+{
+  std::cerr << "SIGSEGV: "  << std::endl;
+  AttachDebugger();
+  //to exit or not to exit
+  exit(1);
+}
+
+void terminateHandler(void)
+{
+  std::cerr << "Terminate: not managed exception !"  << std::endl;
+  AttachDebugger();
+}
+
+void unexpectedHandler(void)
+{
+  std::cerr << "Unexpected: unexpected exception !"  << std::endl;
+  AttachDebugger();
+}
 
 void handler(int t) {
   cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -75,6 +120,15 @@ int main(int argc, char* argv[])
   int provided;
   MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED ,&provided);
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+
+  if(getenv ("DEBUGGER"))
+  {
+    std::cerr << "Unexpected: unexpected exception !"  << std::endl;
+    setsig(SIGSEGV,&Handler);
+    //set_terminate(&terminateHandler);
+    set_terminate(__gnu_cxx::__verbose_terminate_handler);
+    set_unexpected(&unexpectedHandler);
+  }
 
   std::string containerName("");
   containerName = argv[1];
@@ -105,8 +159,9 @@ int main(int argc, char* argv[])
     // PaCO++ code
     paco_fabrique_manager* pfm = paco_getFabriqueManager();
     pfm->register_com("mpi", new paco_mpi_fabrique());
-    MPI_Comm group = MPI_COMM_WORLD;
-    proxy->setLibCom("mpi", &group);
+    MPI_Comm parallel_object_group;
+    MPI_Comm_dup(MPI_COMM_WORLD, &parallel_object_group);
+    proxy->setLibCom("mpi", &parallel_object_group);
     pfm->register_thread("omnithread", new paco_omni_fabrique());
     proxy->setLibThread("omnithread");
     PaCO::PacoTopology_t serveur_topo;

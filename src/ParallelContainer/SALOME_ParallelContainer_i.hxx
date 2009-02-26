@@ -29,7 +29,7 @@
 
 #include <SALOMEconfig.h>
 
-#include "SALOME_ComponentPaCO_Engines_Container_server.h"
+#include "SALOME_ComponentPaCO_Engines_Container_server.hxx"
 
 #include <iostream>
 #include <signal.h>

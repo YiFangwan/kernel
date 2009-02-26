@@ -34,7 +34,7 @@
 #include "Batch_Date.hxx"
 
 #ifdef WITH_PACO_PARALLEL
-#include "PaCO++.h"
+#include "PaCO++.hxx"
 #endif
 
 #define TIME_OUT_TO_LAUNCH_CONT 61
@@ -1262,17 +1262,49 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalParallelContainer(const std::s
 
   if (parallelLib == "Dummy")
   {
+    command = "";
     //command = "gdb --args ";
     //command = "valgrind --tool=memcheck --log-file=val_log ";
     //command += real_exe_name;
 
-    command = real_exe_name;
+    if (par > 0)
+    {
+      string command_temp = real_exe_name;
+      command_temp += " " + _NS->ContainerName(rtn);
+      command_temp += " " + parallelLib;
+      command_temp += " " + hostname;
+      command_temp += " " + string(buffer);
+      command_temp += " -";
+      AddOmninamesParams(command_temp);
+      command += "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;" 
+	+  command_temp 
+	+ "\"&";
+    }
+    else
+    {
+      for (int i= 0; i < nbproc; i++)
+      {
+	string command_temp = real_exe_name;
 
-    command += " " + _NS->ContainerName(rtn);
-    command += " " + parallelLib;
-    command += " " + hostname;
-    command += " -";
-    AddOmninamesParams(command);
+	// A refaire en C++
+	char buffer_temp [33];
+	sprintf(buffer_temp,"%d",i);
+
+	command_temp += " " + _NS->ContainerName(rtn);
+	command_temp += " " + parallelLib;
+	command_temp += " " + hostname;
+	command_temp += " " + string(buffer_temp);
+	command_temp += " -";
+	AddOmninamesParams(command_temp);
+
+//	if (command != "")
+//	  command += ";";
+
+	command += "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;" 
+	  +  command_temp 
+	  + "\"&";
+      }
+    }
   }
 
   else if (parallelLib == "Mpi")
@@ -1287,7 +1319,7 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalParallelContainer(const std::s
     {
       // Nodes case
 
-      command = "mpiexec -np " + string(buffer) + " ";
+      command = "mpirun -np " + string(buffer) + " ";
 //      command += "gdb --args ";
       command += real_exe_name;
       command += " " + _NS->ContainerName(rtn);
@@ -1299,7 +1331,7 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalParallelContainer(const std::s
     else                                          
     {
       // Proxy case
-      command = "mpiexec -np 1 ";
+      command = "mpirun -np 1 ";
       command += real_exe_name;
       command += " " + _NS->ContainerName(rtn);
       command += " " + string(buffer);
@@ -1308,6 +1340,23 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalParallelContainer(const std::s
       command += " -";
       AddOmninamesParams(command);
     }
+    // log choice
+    if (log == "default")
+    {
+      command += " > /tmp/";
+      command += _NS->ContainerName(rtn);
+      command += "_";
+      command += Kernel_Utils::GetHostname();
+      command += "_";
+      command += getenv( "USER" ) ;
+      command += ".log 2>&1 &" ;
+    }
+    if (log == "xterm")
+    {
+      command = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;  " 
+	//	      + command + " \" &";
+	+ command + "; echo $LD_LIBRARY_PATH; cat \" &";
+    }
   }
   else
   {
@@ -1315,23 +1364,6 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalParallelContainer(const std::s
     throw SALOME_Exception(message.c_str());
   }
 
-  // log choice
-  if (log == "default")
-  {
-    command += " > /tmp/";
-    command += _NS->ContainerName(rtn);
-    command += "_";
-    command += Kernel_Utils::GetHostname();
-    command += "_";
-    command += getenv( "USER" ) ;
-    command += ".log 2>&1 &" ;
-  }
-  if (log == "xterm")
-  {
-    command = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;  " 
-	      + command + " \" &";
-//	      + command + "; echo $LD_LIBRARY_PATH; cat \" &";
-  }
   return command;
 
 /*  if (log == "xterm")
@@ -1361,10 +1393,12 @@ void SALOME_ContainerManager::startMPI()
   if (status == -1)
   {
     INFOS("lamboot failed : system command status -1");
+    _MpiStarted = true;
   }
   else if (status == 217)
   {
     INFOS("lamboot failed : system command status 217");
+    _MpiStarted = true;
   }
   else
   {

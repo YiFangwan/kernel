@@ -45,6 +45,7 @@
 #include "SALOME_NamingService.hxx"
 
 #include "utilities.h"
+#include "Basics_Utils.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
@@ -133,6 +134,7 @@ int main(int argc, char* argv[])
     std::cerr << "Unexpected: unexpected exception !"  << std::endl;
     setsig(SIGSEGV,&Handler);
     set_terminate(&terminateHandler);
+    //set_terminate(__gnu_cxx::__verbose_terminate_handler);
     set_unexpected(&unexpectedHandler);
   }
   cerr << "Level MPI_THREAD_SINGLE : " << MPI_THREAD_SINGLE << endl;
@@ -196,8 +198,9 @@ int main(int argc, char* argv[])
     paco_fabrique_manager * pfm = paco_getFabriqueManager();
     pfm->register_com("mpi", new paco_mpi_fabrique());
     pfm->register_thread("omni", new paco_omni_fabrique());
-    MPI_Comm group = MPI_COMM_WORLD;
-    servant->setLibCom("mpi", &group);
+    MPI_Comm parallel_object_group;
+    MPI_Comm_dup(MPI_COMM_WORLD, &parallel_object_group);
+    servant->setLibCom("mpi", &parallel_object_group);
     servant->setLibThread("omni");
 
     // Activation

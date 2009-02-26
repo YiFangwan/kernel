@@ -27,7 +27,7 @@
 #define _SALOME_PARALLEL_CONTAINER_PROXY_I_HXX_
 
 #include "utilities.h"
-#include "SALOME_ComponentPaCO_Engines_Container_server.h"
+#include "SALOME_ComponentPaCO_Engines_Container_server.hxx"
 
 class Container_proxy_impl_final :
   public Engines::Container_proxy_impl

@@ -38,7 +38,7 @@
 #include <map>
 #include <SALOMEconfig.h>
 
-#include "SALOME_ComponentPaCO_Engines_Parallel_Component_server.h"
+#include "SALOME_ComponentPaCO_Engines_Parallel_Component_server.hxx"
 
 #include "NOTIFICATION.hxx"
 #include "RegistryConnexion.hxx"
@@ -111,6 +111,10 @@ public:
 							 const char* Salome_file_name);
 
  void send_parallel_proxy_object(CORBA::Object_ptr proxy_ref);
+
+  // Object information
+  virtual bool hasObjectInfo() { return false; }
+  virtual char* getObjectInfo(CORBA::Long studyId, const char* entry) { return ""; }
 
   // --- local C++ methods
 

@@ -52,6 +52,7 @@ int SIGUSR1 = 1000;
 
 #include <paco_omni.h>
 #include "utilities.h"
+#include "Basics_Utils.hxx"
 using namespace std;
 
 bool _Sleeping = false ;
@@ -83,6 +84,7 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
 							    int rank) : 
   InterfaceParallel_impl(orb,ior,rank), 
   Engines::Container_serv(orb,ior,rank),
+  Engines::Container_base_serv(orb,ior,rank),
   _numInstance(0)
 {
 }
@@ -104,6 +106,7 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
 							   ) :
   InterfaceParallel_impl(orb,ior,rank), 
   Engines::Container_serv(orb,ior,rank),
+  Engines::Container_base_serv(orb,ior,rank),
   _numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 {
   _pid = (long)getpid();
@@ -772,8 +775,6 @@ Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
     // --- get reference & servant from id
     CORBA::Object_var obj = _poa->id_to_reference(*id);
     iobject2 = Engines::Component_PaCO::_narrow(obj) ;
-
-    // --- register the engine under the name
     _NS->Register(iobject2 , component_registerName.c_str()) ;
     MESSAGE( component_registerName.c_str() << " bound" ) ;
   }

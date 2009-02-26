@@ -42,6 +42,7 @@
 #include "SALOME_NamingService.hxx"
 
 #include "utilities.h"
+#include "Basics_Utils.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
@@ -128,6 +129,9 @@ int main(int argc, char* argv[])
   if(argc > 3) {
     hostname = argv[3];
   }
+  int myid = 0;
+  if(argc > 4) 
+    sscanf(argv[4],"%d",&myid);
 
   try {  
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
@@ -152,7 +156,7 @@ int main(int argc, char* argv[])
     string node_name = containerName + "Node";
     Engines_Parallel_Container_i * servant = new Engines_Parallel_Container_i(CORBA::ORB::_duplicate(orb), 
 									      proxy_ior,
-									      0,
+									      myid,
 									      root_poa,
 									      (char*) node_name.c_str(),
 									      argc, argv);
@@ -170,7 +174,6 @@ int main(int argc, char* argv[])
 
     // In the NamingService
     string hostname = Kernel_Utils::GetHostname();
-    int myid = 0;
     char buffer [5];
     snprintf(buffer, 5, "%d", myid);
     node_name = node_name + buffer;

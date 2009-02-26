@@ -43,6 +43,7 @@
 #include "SALOME_NamingService.hxx"
 
 #include "utilities.h"
+#include "Basics_Utils.hxx"
 #include "Utils_ORB_INIT.hxx"
 #include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
@@ -77,6 +78,9 @@ int main(int argc, char* argv[])
     containerName = argv[1];
   }
 
+  int nbnodes = 1;
+  if(argc > 4) 
+    sscanf(argv[4],"%d",&nbnodes);
   try {  
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     ASSERT(!CORBA::is_nil(obj));
@@ -106,7 +110,7 @@ int main(int argc, char* argv[])
     proxy->setLibThread("omnithread");
     // Topo of the parallel object
     PaCO::PacoTopology_t serveur_topo;
-    serveur_topo.total = 1;
+    serveur_topo.total = nbnodes;
     proxy->setTopology(serveur_topo);
 
     PortableServer::ObjectId_var _id = root_poa->activate_object(proxy);
