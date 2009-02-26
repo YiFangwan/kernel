@@ -124,6 +124,18 @@ module Ports {
   interface Data_Short_Port : Ports::Data_Port {
     void put(in short data);
   };
+
+  /*!  \brief Interface of a port for parametric application
+       This interface defines a Data_Port that sends a vector of
+       double that are distributed along the different processor
+       and returns a vector of double for the results
+  */
+
+  interface Param_Double_Port : Ports::Data_Port {
+    typedef sequence<double>  seq_double;
+    void put(in Ports::Param_Double_Port::seq_double param_data);
+    void get_results(out Ports::Param_Double_Port::seq_double param_results);
+  };
 };
 
 #endif

@@ -69,7 +69,7 @@ OTHER_IDL_FILES = \
 
 # all the idl files are needed for make dist
 EXTRA_DIST= $(BASEIDL_FILES) $(MPIIDL_FILES) $(OTHER_IDL_FILES) \
-	    SALOME_Exception.xml SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
+	    SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
 
 # This variable defines the files to be installed
 salomeidl_DATA = $(IDL_FILES)
@@ -129,78 +129,84 @@ $(DYNIDL_SRCS) : $(IDL_SOURCES)
 salomeinclude_DATA= $(STATIDL_SOURCES:%SK.cc=%.hh)
 
 if WITH_PACO_PARALLEL
-PAR = SALOME_ExceptionPaCO.h SALOME_ExceptionPaCO.cc \
-      SALOME_ComponentPaCO.h SALOME_ComponentPaCO.cc \
-      SALOME_PortsPaCO.h SALOME_PortsPaCO.cc \
-      DSC_EnginesPaCO.h DSC_EnginesPaCO.cc 
+PAR = SALOME_ComponentPaCO.hxx SALOME_ComponentPaCO.cxx \
+      SALOME_PortsPaCO.hxx SALOME_PortsPaCO.cxx \
+      DSC_EnginesPaCO.hxx DSC_EnginesPaCO.cxx
+
+PAR_INCLUDES = SALOME_Exception.hxx SALOME_GenericObj.hxx SALOMEDS.hxx
 
 PAR_LIB = libSalomeParallelIDLKernel.la
 
-IDL_PACO      = SALOME_ExceptionPaCO.idl SALOME_ComponentPaCO.idl SALOME_PortsPaCO.idl DSC_EnginesPaCO.idl
+IDL_PACO      = SALOME_ComponentPaCO.idl SALOME_PortsPaCO.idl DSC_EnginesPaCO.idl
 
-GEN_PACO = SALOME_ComponentPaCO_Engines_Container_server.cc \
-	   SALOME_ComponentPaCO_Engines_Container_client.cc \
-	   SALOME_ComponentPaCO_Engines_Component_server.cc \
-	   SALOME_ComponentPaCO_Engines_Component_client.cc \
-	   SALOME_ComponentPaCO_Engines_Parallel_Component_server.cc \
-	   SALOME_ComponentPaCO_Engines_Parallel_Component_client.cc \
-	   SALOME_ComponentPaCO_Engines_fileTransfer_server.cc \
-	   SALOME_ComponentPaCO_Engines_fileTransfer_client.cc \
-	   SALOME_ComponentPaCO_Engines_Salome_file_server.cc \
-	   SALOME_ComponentPaCO_Engines_Salome_file_client.cc \
-	   SALOME_ComponentPaCO_Engines_Parallel_Salome_file_server.cc \
-	   SALOME_ComponentPaCO_Engines_Parallel_Salome_file_client.cc \
-	   SALOME_PortsPaCO_Ports_Port_server.cc \
-	   SALOME_PortsPaCO_Ports_Port_client.cc \
-	   DSC_EnginesPaCO_Engines_DSC_server.cc \
-	   DSC_EnginesPaCO_Engines_DSC_client.cc \
-	   DSC_EnginesPaCO_Engines_Superv_Component_server.cc \
-	   DSC_EnginesPaCO_Engines_Superv_Component_client.cc \
-	   DSC_EnginesPaCO_Engines_Parallel_DSC_server.cc \
-	   DSC_EnginesPaCO_Engines_Parallel_DSC_client.cc
+GEN_PACO = SALOME_ComponentPaCO_Engines_Container_server.cxx \
+	   SALOME_ComponentPaCO_Engines_Container_client.cxx \
+	   SALOME_ComponentPaCO_Engines_Component_server.cxx \
+	   SALOME_ComponentPaCO_Engines_Component_client.cxx \
+	   SALOME_ComponentPaCO_Engines_Parallel_Component_server.cxx \
+	   SALOME_ComponentPaCO_Engines_Parallel_Component_client.cxx \
+	   SALOME_ComponentPaCO_Engines_fileTransfer_server.cxx \
+	   SALOME_ComponentPaCO_Engines_fileTransfer_client.cxx \
+	   SALOME_ComponentPaCO_Engines_Salome_file_server.cxx \
+	   SALOME_ComponentPaCO_Engines_Salome_file_client.cxx \
+	   SALOME_ComponentPaCO_Engines_Parallel_Salome_file_server.cxx \
+	   SALOME_ComponentPaCO_Engines_Parallel_Salome_file_client.cxx \
+	   SALOME_PortsPaCO_Ports_Port_server.cxx \
+	   SALOME_PortsPaCO_Ports_Port_client.cxx \
+	   SALOME_PortsPaCO_Ports_Data_Port_server.cxx \
+	   SALOME_PortsPaCO_Ports_Data_Port_client.cxx \
+	   SALOME_PortsPaCO_Ports_Param_Double_Port_server.cxx \
+	   SALOME_PortsPaCO_Ports_Param_Double_Port_client.cxx \
+	   DSC_EnginesPaCO_Engines_DSC_server.cxx \
+	   DSC_EnginesPaCO_Engines_DSC_client.cxx \
+	   DSC_EnginesPaCO_Engines_Superv_Component_server.cxx \
+	   DSC_EnginesPaCO_Engines_Superv_Component_client.cxx \
+	   DSC_EnginesPaCO_Engines_Parallel_DSC_server.cxx \
+	   DSC_EnginesPaCO_Engines_Parallel_DSC_client.cxx
 
-INCLUDES_PACO = SALOME_ComponentPaCO_Engines_Container_server.h \
-		SALOME_ComponentPaCO_Engines_Container_client.h \
-                SALOME_ComponentPaCO_Engines_Component_server.h \
-		SALOME_ComponentPaCO_Engines_Component_client.h \
-                SALOME_ComponentPaCO_Engines_Parallel_Component_server.h \
-		SALOME_ComponentPaCO_Engines_Parallel_Component_client.h \
-		SALOME_ComponentPaCO_Engines_fileTransfer_server.h \
-		SALOME_ComponentPaCO_Engines_fileTransfer_client.h \
-		SALOME_ComponentPaCO_Engines_Salome_file_server.h \
-		SALOME_ComponentPaCO_Engines_Salome_file_client.h \
-		SALOME_ComponentPaCO_Engines_Parallel_Salome_file_server.h \
-		SALOME_ComponentPaCO_Engines_Parallel_Salome_file_client.h \
-		SALOME_ExceptionPaCO.h \
-		SALOME_ComponentPaCO.h \
-		SALOME_Exception.h \
-		SALOME_Component.h \
-		SALOME_PortsPaCO_Ports_Port_server.h \
-		SALOME_PortsPaCO_Ports_Port_client.h \
-		SALOME_PortsPaCO.h \
-		SALOME_Ports.h \
-		DSC_EnginesPaCO_Engines_DSC_server.h \
-		DSC_EnginesPaCO_Engines_DSC_client.h \
-                DSC_EnginesPaCO_Engines_Superv_Component_server.h \
-		DSC_EnginesPaCO_Engines_Superv_Component_client.h \
-		DSC_EnginesPaCO_Engines_Parallel_DSC_server.h \
-		DSC_EnginesPaCO_Engines_Parallel_DSC_client.h \
-		DSC_EnginesPaCO.h \
-		DSC_Engines.h
+INCLUDES_PACO = SALOME_ComponentPaCO_Engines_Container_server.hxx \
+		SALOME_ComponentPaCO_Engines_Container_client.hxx \
+                SALOME_ComponentPaCO_Engines_Component_server.hxx \
+		SALOME_ComponentPaCO_Engines_Component_client.hxx \
+                SALOME_ComponentPaCO_Engines_Parallel_Component_server.hxx \
+		SALOME_ComponentPaCO_Engines_Parallel_Component_client.hxx \
+		SALOME_ComponentPaCO_Engines_fileTransfer_server.hxx \
+		SALOME_ComponentPaCO_Engines_fileTransfer_client.hxx \
+		SALOME_ComponentPaCO_Engines_Salome_file_server.hxx \
+		SALOME_ComponentPaCO_Engines_Salome_file_client.hxx \
+		SALOME_ComponentPaCO_Engines_Parallel_Salome_file_server.hxx \
+		SALOME_ComponentPaCO_Engines_Parallel_Salome_file_client.hxx \
+		SALOME_ComponentPaCO.hxx \
+		SALOME_Component.hxx \
+		SALOME_PortsPaCO_Ports_Port_server.hxx \
+		SALOME_PortsPaCO_Ports_Port_client.hxx \
+		SALOME_PortsPaCO_Ports_Data_Port_server.hxx \
+		SALOME_PortsPaCO_Ports_Data_Port_client.hxx \
+		SALOME_PortsPaCO_Ports_Param_Double_Port_server.hxx \
+		SALOME_PortsPaCO_Ports_Param_Double_Port_client.hxx \
+		SALOME_PortsPaCO.hxx \
+		SALOME_Ports.hxx \
+		DSC_EnginesPaCO_Engines_DSC_server.hxx \
+		DSC_EnginesPaCO_Engines_DSC_client.hxx \
+                DSC_EnginesPaCO_Engines_Superv_Component_server.hxx \
+		DSC_EnginesPaCO_Engines_Superv_Component_client.hxx \
+		DSC_EnginesPaCO_Engines_Parallel_DSC_server.hxx \
+		DSC_EnginesPaCO_Engines_Parallel_DSC_client.hxx \
+		DSC_EnginesPaCO.hxx \
+		DSC_Engines.hxx
 
-XML           = SALOME_Exception.xml SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
+XML           = SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml
 endif
 
 idldir = $(prefix)/idl/salome
 nodist_idl_DATA = ${XML} ${IDL_PACO} 
 nodist_salomeinclude_HEADERS = ${INCLUDES_PACO} 
 
-BUILT_SOURCES = $(IDL_SOURCES) $(PAR)
+BUILT_SOURCES = $(IDL_SOURCES) $(PAR) $(PAR_INCLUDES)
 
-SALOME_ExceptionPaCO.h SALOME_ExceptionPaCO.cc : SALOME_Exception.idl SALOME_Exception.xml
-SALOME_ComponentPaCO.h SALOME_ComponentPaCO.cc : SALOME_Component.idl SALOME_Component.xml
-SALOME_PortsPaCO.h SALOME_PortsPaCO.cc : SALOME_Ports.idl SALOME_Ports.xml
-DSC_EnginesPaCO.h DSC_EnginesPaCO.cc : DSC_Engines.idl DSC_Engines.xml
+SALOME_ComponentPaCO.hxx SALOME_ComponentPaCO.cxx : SALOME_Component.idl SALOME_Component.xml
+SALOME_PortsPaCO.hxx SALOME_PortsPaCO.cxx : SALOME_Ports.idl SALOME_Ports.xml
+DSC_EnginesPaCO.hxx DSC_EnginesPaCO.cxx : DSC_Engines.idl DSC_Engines.xml
 
 lib_LTLIBRARIES = libSalomeIDLKernel.la $(PAR_LIB)
 
@@ -236,8 +242,15 @@ SK.cc.hh:
 #.idl.hh:
 #	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
 
-%PaCO.h %PaCO.cc : %.idl %.xml
-	@PACO_IDL@ -I $(srcdir):@PACOPATH@/idl $^ omniORB4 0
+if WITH_PACO_PARALLEL
+
+%PaCO.hxx %PaCO.cxx : %.idl %.xml
+	$(OMNIORB_IDL) -p@PACOPATH@/lib/python -bpaco -Wb$(top_srcdir)/idl/$*.xml,$(srcdir):@PACOPATH@/idl $(top_srcdir)/idl/$*.idl
+
+%.hxx : %.idl
+	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) -Wbh=.hxx -Wbs=.cxx $<
+
+endif
 
 install-exec-local: $(IDL_FILES:%=$(top_srcdir)/idl/%)
 	$(INSTALL) -d  $(DESTDIR)$(salomepythondir)
@@ -268,5 +281,5 @@ mostlyclean-local:
 
 -include .depidl
 
-CLEANFILES = *PaCO* *.h
+CLEANFILES = *PaCO* *.hxx *.cxx
 
