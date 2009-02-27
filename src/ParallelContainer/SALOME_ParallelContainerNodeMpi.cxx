@@ -129,6 +129,7 @@ int main(int argc, char* argv[])
   MPI_Init_thread(&argc, &argv, MPI_THREAD_MULTIPLE ,&provided);
   MPI_Comm_rank(MPI_COMM_WORLD,&myid);
 
+#ifdef _DEBUG_
   if(getenv ("DEBUGGER"))
   {
     std::cerr << "Unexpected: unexpected exception !"  << std::endl;
@@ -137,6 +138,8 @@ int main(int argc, char* argv[])
     //set_terminate(__gnu_cxx::__verbose_terminate_handler);
     set_unexpected(&unexpectedHandler);
   }
+#endif
+
   cerr << "Level MPI_THREAD_SINGLE : " << MPI_THREAD_SINGLE << endl;
   cerr << "Level MPI_THREAD_SERIALIZED : " << MPI_THREAD_SERIALIZED << endl;
   cerr << "Level MPI_THREAD_FUNNELED : " << MPI_THREAD_FUNNELED << endl;

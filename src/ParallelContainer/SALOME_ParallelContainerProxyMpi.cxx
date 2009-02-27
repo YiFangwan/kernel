@@ -112,7 +112,7 @@ int main(int argc, char* argv[])
 {
   INFOS("Launching a parallel Mpi proxy container");
 
-#ifdef DEBUG_PARALLEL
+#ifdef _DEBUG_
   signal(SIGSEGV, handler);
 #endif
 
@@ -121,6 +121,7 @@ int main(int argc, char* argv[])
   MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED ,&provided);
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
 
+#ifdef _DEBUG_
   if(getenv ("DEBUGGER"))
   {
     std::cerr << "Unexpected: unexpected exception !"  << std::endl;
@@ -129,6 +130,7 @@ int main(int argc, char* argv[])
     set_terminate(__gnu_cxx::__verbose_terminate_handler);
     set_unexpected(&unexpectedHandler);
   }
+#endif
 
   std::string containerName("");
   containerName = argv[1];

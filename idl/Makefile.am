@@ -26,10 +26,6 @@
 #
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-if WITH_PACO_PARALLEL
-MAKEFLAGS = -j1
-endif
-
 AM_CXXFLAGS = -fPIC
 
 BASEIDL_FILES = \
