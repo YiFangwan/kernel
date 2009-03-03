@@ -163,14 +163,12 @@ bool Engines_MPIContainer_i::Lload_component_Library(const char* componentName)
       _library_map[impl_name] = handle;
       _numInstanceMutex.unlock();
       MESSAGE("[" << _numproc << "] Library " << impl_name << " loaded");
-      MPI_Barrier(MPI_COMM_WORLD);
       return true;
     }
   else
     {
       MESSAGE("[" << _numproc << "] Can't load shared library : " << impl_name);
       MESSAGE("[" << _numproc << "] error dlopen: " << dlerror());
-      MPI_Barrier(MPI_COMM_WORLD);
     }
   _numInstanceMutex.unlock();
 
