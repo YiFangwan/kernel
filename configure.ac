@@ -24,7 +24,7 @@
 # ================================================================
 #AC_PREREQ(2.59)
 #
-AC_INIT([Salome2 Project], [5.1.0], [paul.rascle@edf.fr], [SalomeKERNEL])
+AC_INIT([Salome2 Project], [5.1.1], [paul.rascle@edf.fr], [SalomeKERNEL])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
@@ -89,8 +89,8 @@ AM_CONDITIONAL(CORBA_GEN, test x$corba_gen = xtrue)
 # ---- option to build only launcher, resources manager and batch classes
 AC_ARG_WITH(onlylauncher,
 	    --with-onlylauncher,
-	    WITHONLYLAUNCHER="yes",WITHONLYLAUNCHER="no")
-AM_CONDITIONAL(WITHONLYLAUNCHER, test x$WITHONLYLAUNCHER = xyes)
+	    [],[with_onlylauncher="no"])
+AM_CONDITIONAL(WITHONLYLAUNCHER, test x$with_onlylauncher = xyes)
 
 # ----------------------------------------------------------------------------
 
@@ -206,7 +206,7 @@ echo
 
 CHECK_LIBXML
 
-if test x$WITHONLYLAUNCHER = xno; then
+if test x$with_onlylauncher = xno; then
 echo
 echo ---------------------------------------------
 echo testing HDF5
@@ -439,7 +439,7 @@ function check_fatal_error {
 
 # --------------------------------------
 
-if test x$WITHONLYLAUNCHER = xno; then
+if test x$with_onlylauncher = xno; then
   if test x$corba_gen = xtrue; then
     basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok libxml_ok"
   else
@@ -454,7 +454,7 @@ summary $basic_mandatory_products
 check_fatal_error $basic_mandatory_products
 echo
 
-if test x$WITHONLYLAUNCHER = xno; then
+if test x$with_onlylauncher = xno; then
   corba_mandatory_products="omniORB_ok omniORBpy_ok boost_ok"
   if test x$corba_gen = xtrue; then
     echo --- CORBA mandatory products - default configuration:
@@ -491,7 +491,7 @@ echo --- Html documentation products: only required for doc production
 summary $htmldoc_products
 echo
 
-if test x$WITHONLYLAUNCHER = xno; then
+if test x$with_onlylauncher = xno; then
 echo
 echo "Default ORB   : $DEFAULT_ORB"
 echo
@@ -537,9 +537,9 @@ AC_OUTPUT([ \
 	./doc/Makefile \
 	./doc/salome/Makefile \
 	./doc/salome/tui/Makefile \
-	./doc/salome/tui/INPUT/doxyuser:./doc/salome/tui/KERNEL/doxyuser.in \
-	./doc/salome/tui/INPUT/doxydev:./doc/salome/tui/KERNEL/doxydev.in \
-	./doc/salome/tui/INPUT/sources/static/tree.js:./doc/salome/tui/KERNEL/sources/static/tree.js.in \
+  ./doc/salome/tui/doxyfile \
+	./doc/salome/gui/Makefile \
+  ./doc/salome/gui/doxyfile \
 	./idl/Makefile \
 	./resources/Makefile \
 	./resources/KERNELCatalog.xml \

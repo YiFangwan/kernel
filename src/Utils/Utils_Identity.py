@@ -26,19 +26,25 @@
 #  Module : SALOME
 #  $Header$
 #
+## @package Utils_Identity
+# \brief Module to get information about user and version
+#
+#
+
 import sys
 import os
 import socket
 
 if not sys.platform == "win32":
     import pwd
-	
+
 import time
 import string
 
 def getShortHostName():
     """
     gives Hostname without domain extension.
+
     SALOME naming service needs short Hostnames (without domain extension).
     HOSTNAME is not allways defined in environment,
     socket.gethostname() gives short or complete Hostname, depending on
@@ -51,18 +57,18 @@ class Identity:
         self._name = name
         self._pid =  os.getpid()
         self._machine = socket.gethostname()
-        self._adip	=  socket.gethostbyname(self._machine) # IP adress        
+        self._adip =  socket.gethostbyname(self._machine) # IP adress        
         if sys.platform == "win32":
-	    self._uid	 = os.getpid() 
-	    self._pwname = os.environ["USER"]
-	else:
-            self._uid	= os.getuid()
-            list = pwd.getpwuid(self._uid)
-	    self._pwname	= list[0] # user name
+          self._uid  = os.getpid() 
+          self._pwname = os.environ["USER"]
+        else:
+          self._uid = os.getuid()
+          list = pwd.getpwuid(self._uid)
+          self._pwname  = list[0] # user name
 
-        self._tc_start	= time.time()
+        self._tc_start = time.time()
         self._cstart    = time.ctime(self._tc_start)
-        self._cdir	= os.getcwd()
+        self._cdir = os.getcwd()
 
 def getapplipath():
     """
