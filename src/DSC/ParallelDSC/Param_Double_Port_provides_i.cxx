@@ -23,7 +23,7 @@
 #include <iostream>
 #include <string>
 
-#include "param_double_port_provides.hxx"
+#include "Param_Double_Port_provides_i.hxx"
 
 #include <paco_omni.h>
 #include <paco_dummy.h>
@@ -32,7 +32,7 @@
 #include <GaBro.h>
 #include <BasicBC.h>
 
-param_double_port_provides_i::param_double_port_provides_i(CORBA::ORB_ptr orb, char * ior, int rank) :
+Param_Double_Port_provides_i::Param_Double_Port_provides_i(CORBA::ORB_ptr orb, char * ior, int rank) :
   Ports::Param_Double_Port_serv(orb,ior,rank),
   Ports::Param_Double_Port_base_serv(orb,ior,rank),
   Ports::Data_Port_serv(orb,ior,rank),
@@ -68,7 +68,7 @@ param_double_port_provides_i::param_double_port_provides_i(CORBA::ORB_ptr orb, c
   pthread_cond_init(seq_results_condition_cp, NULL);
 }
 
-param_double_port_provides_i::~param_double_port_provides_i() 
+Param_Double_Port_provides_i::~Param_Double_Port_provides_i() 
 {
   if (_seq_data)
     delete _seq_data;
@@ -95,8 +95,8 @@ param_double_port_provides_i::~param_double_port_provides_i()
   delete seq_results_condition_cp;
 }
 
-param_double_port_provides_i *
-param_double_port_provides_i::init_port(Engines_ParallelDSC_i * par_compo, 
+Param_Double_Port_provides_i *
+Param_Double_Port_provides_i::init_port(Engines_ParallelDSC_i * par_compo, 
 					std::string port_name,
 					CORBA::ORB_ptr orb)
 {
@@ -112,7 +112,7 @@ param_double_port_provides_i::init_port(Engines_ParallelDSC_i * par_compo,
   pfm->register_distribution("pdp_GaBro", new GaBro_fab());
   pfm->register_distribution("pdp_BasicBC", new BasicBC_fab());
 
-  param_double_port_provides_i * port = NULL; 
+  Param_Double_Port_provides_i * port = NULL; 
   Ports::Param_Double_Port_proxy_impl * proxy_node = NULL; 
 
   std::cerr << "Creating Proxy" << std::endl;
@@ -147,7 +147,7 @@ param_double_port_provides_i::init_port(Engines_ParallelDSC_i * par_compo,
   char * proxy_ior = (char * ) par_compo->get_proxy(port_name.c_str());
   std::cerr << "Proxy ior is : " << proxy_ior << std::endl;
 
-  port = new param_double_port_provides_i(CORBA::ORB::_duplicate(orb), proxy_ior, rank);
+  port = new Param_Double_Port_provides_i(CORBA::ORB::_duplicate(orb), proxy_ior, rank);
   port->copyGlobalContext(par_compo);
 
   // Il faut maintenant configurer les bibliothèques
@@ -188,7 +188,7 @@ param_double_port_provides_i::init_port(Engines_ParallelDSC_i * par_compo,
 }
 
 void 
-param_double_port_provides_i::put(const Ports::Param_Double_Port::seq_double & param_data)
+Param_Double_Port_provides_i::put(const Ports::Param_Double_Port::seq_double & param_data)
 {
 
   // On attend que le get soit fait
@@ -214,7 +214,7 @@ param_double_port_provides_i::put(const Ports::Param_Double_Port::seq_double & p
 }
     
 void 
-param_double_port_provides_i::get_results(Ports::Param_Double_Port::seq_double_out param_results)
+Param_Double_Port_provides_i::get_results(Ports::Param_Double_Port::seq_double_out param_results)
 {
   pthread_mutex_lock(seq_results_mutex);
   while (seq_results_termine == false)
@@ -240,7 +240,7 @@ param_double_port_provides_i::get_results(Ports::Param_Double_Port::seq_double_o
 }
 
 Ports::Param_Double_Port::seq_double *
-param_double_port_provides_i::get_data()
+Param_Double_Port_provides_i::get_data()
 {
   Ports::Param_Double_Port::seq_double * result = NULL;
 
@@ -269,7 +269,7 @@ param_double_port_provides_i::get_data()
 }
 
 void
-param_double_port_provides_i::set_data(Ports::Param_Double_Port::seq_double * results)
+Param_Double_Port_provides_i::set_data(Ports::Param_Double_Port::seq_double * results)
 {
   // On attend que le get soit fait
   // Au départ seq_results_termine_cp = TRUE
@@ -293,7 +293,7 @@ param_double_port_provides_i::set_data(Ports::Param_Double_Port::seq_double * re
 }
 
 void 
-param_double_port_provides_i::configure_set_data(int data_length, int totalNbElt, int BeginEltPos)
+Param_Double_Port_provides_i::configure_set_data(int data_length, int totalNbElt, int BeginEltPos)
 {
   // Configuration de la biblothèque de redistribution
   // pour les données actuelles

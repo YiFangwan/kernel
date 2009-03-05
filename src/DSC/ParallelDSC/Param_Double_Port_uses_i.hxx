@@ -32,13 +32,13 @@
 #include <GaBro.h>
 #include <BasicBC.h>
 
-class param_double_port_uses_i
+class Param_Double_Port_uses_i
 {
   public :
-    param_double_port_uses_i(Engines_ParallelDSC_i * par_compo, 
+    Param_Double_Port_uses_i(Engines_ParallelDSC_i * par_compo, 
 			     std::string port_name,
 			     CORBA::ORB_ptr orb);
-    virtual ~param_double_port_uses_i();
+    virtual ~Param_Double_Port_uses_i();
 
     // Port local init methods
     virtual void add_port_to_component();

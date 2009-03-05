@@ -28,12 +28,12 @@
 #include "ParallelDSC_i.hxx"
 #include "PortProperties_i.hxx"
 
-class param_double_port_provides_i :
+class Param_Double_Port_provides_i :
   public virtual Ports::Param_Double_Port_serv
 {
   public :
-    param_double_port_provides_i(CORBA::ORB_ptr orb, char * ior, int rank);
-    virtual ~param_double_port_provides_i();
+    Param_Double_Port_provides_i(CORBA::ORB_ptr orb, char * ior, int rank);
+    virtual ~Param_Double_Port_provides_i();
 
     void put(const Ports::Param_Double_Port::seq_double & param_data);
     void get_results(Ports::Param_Double_Port::seq_double_out param_results);
@@ -46,7 +46,7 @@ class param_double_port_provides_i :
 			    int BeginEltPos);
 
     // Aide à la création du port
-    static param_double_port_provides_i * init_port(Engines_ParallelDSC_i * par_compo, 
+    static Param_Double_Port_provides_i * init_port(Engines_ParallelDSC_i * par_compo, 
 						    std::string port_name,
 						    CORBA::ORB_ptr orb);
 

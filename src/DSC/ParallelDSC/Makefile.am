@@ -31,8 +31,9 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # ===============================================================
 #
 # header files  
-salomeinclude_HEADERS = ParallelDSC_i.hxx param_double_port_provides.hxx \
-			param_double_port_uses.hxx
+salomeinclude_HEADERS = ParallelDSC_i.hxx \
+			Param_Double_Port_provides_i.hxx \
+			Param_Double_Port_uses_i.hxx
 
 #
 # ===============================================================
@@ -66,8 +67,9 @@ COMMON_LIBS =
 #
 lib_LTLIBRARIES =  libSalomeParallelDSCContainer.la 
 
-libSalomeParallelDSCContainer_la_SOURCES  = ParallelDSC_i.cxx param_double_port_provides.cxx \
-					    param_double_port_uses.cxx
+libSalomeParallelDSCContainer_la_SOURCES  = ParallelDSC_i.cxx \
+					    Param_Double_Port_provides_i.cxx \
+					    Param_Double_Port_uses_i.cxx
 
 libSalomeParallelDSCContainer_la_CXXFLAGS = $(COMMON_CPPFLAGS)
 

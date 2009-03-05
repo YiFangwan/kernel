@@ -14,15 +14,15 @@
 //  License along with this library; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-//  See http://www.salome-platform.org/ or email : webparam_double_port_uses_i.salome@opencascade.com
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 //  File   : param_double_port_uses.cxx
 //  Author : André RIBES (EDF)
 //  Module : KERNEL
 
-#include "param_double_port_uses.hxx"
+#include "Param_Double_Port_uses_i.hxx"
 
-param_double_port_uses_i::param_double_port_uses_i(Engines_ParallelDSC_i * par_compo, 
+Param_Double_Port_uses_i::Param_Double_Port_uses_i(Engines_ParallelDSC_i * par_compo, 
 						   std::string port_name,
 						   CORBA::ORB_ptr orb)
 {
@@ -33,12 +33,12 @@ param_double_port_uses_i::param_double_port_uses_i(Engines_ParallelDSC_i * par_c
   _provides_port = NULL;
 
   paco_fabrique_manager * pfm = paco_getFabriqueManager();
-  pfm->register_comScheduling("param_double_port_uses_i_direct", new paco_direct_fabrique());
-  pfm->register_distribution("param_double_port_uses_i_GaBro", new GaBro_fab());
-  pfm->register_distribution("param_double_port_uses_i_BasicBC", new BasicBC_fab());
+  pfm->register_comScheduling("Param_Double_Port_uses_i_direct", new paco_direct_fabrique());
+  pfm->register_distribution("Param_Double_Port_uses_i_GaBro", new GaBro_fab());
+  pfm->register_distribution("Param_Double_Port_uses_i_BasicBC", new BasicBC_fab());
 }
 
-param_double_port_uses_i::~param_double_port_uses_i()
+Param_Double_Port_uses_i::~Param_Double_Port_uses_i()
 {
   if (_fake_properties)
     delete _fake_properties;
@@ -50,7 +50,7 @@ param_double_port_uses_i::~param_double_port_uses_i()
 }
 
 void 
-param_double_port_uses_i::add_port_to_component()
+Param_Double_Port_uses_i::add_port_to_component()
 {
     _par_compo->add_uses_port("IDL:Ports/Param_Double_Port:1.0", 
 			      _port_name.c_str(),
@@ -58,7 +58,7 @@ param_double_port_uses_i::add_port_to_component()
 }
 
 void
-param_double_port_uses_i::start_port()
+Param_Double_Port_uses_i::start_port()
 {
   Engines::DSC::uses_port * uport = _par_compo->get_uses_port(_port_name.c_str());  
   _proxy_port =  Ports::Param_Double_Port::_narrow((*uport)[0]);
@@ -70,8 +70,8 @@ param_double_port_uses_i::start_port()
   // de redistributions de la fonction put
   ParallelMethodContext * method_ptr;
   method_ptr = _provides_port->getParallelMethodContext("put");
-  method_ptr->setLibComScheduling("param_double_port_uses_i_direct"); 
-  method_ptr->setDistLibArg("param_data", "param_double_port_uses_i_BasicBC", "in");
+  method_ptr->setLibComScheduling("Param_Double_Port_uses_i_direct"); 
+  method_ptr->setDistLibArg("param_data", "Param_Double_Port_uses_i_BasicBC", "in");
   BasicBC * dislib = (BasicBC *) method_ptr->getDistLibArg("param_data", "in");
   dislib->setEltSize(sizeof(CORBA::Double));
   dislib->setBlocSize(0); // BLOC
@@ -80,8 +80,8 @@ param_double_port_uses_i::start_port()
   // Il faut maintenant configurer les bibliothèques
   // de redistributions de la fonction get_results
   method_ptr = _provides_port->getParallelMethodContext("get_results");
-  method_ptr->setLibComScheduling("param_double_port_uses_i_direct"); 
-  method_ptr->setDistLibArg("param_results", "param_double_port_uses_i_GaBro", "out");
+  method_ptr->setLibComScheduling("Param_Double_Port_uses_i_direct"); 
+  method_ptr->setDistLibArg("param_results", "Param_Double_Port_uses_i_GaBro", "out");
   GaBro * dislib_gabro = (GaBro *) method_ptr->getDistLibArg("param_results", "out");
   dislib_gabro->setEltSize(sizeof(CORBA::Double));
 
@@ -89,7 +89,7 @@ param_double_port_uses_i::start_port()
 }
 
 void 
-param_double_port_uses_i::configure_port_method_put(int totalNbElt)
+Param_Double_Port_uses_i::configure_port_method_put(int totalNbElt)
 {
   ParallelMethodContext * method_ptr;
   method_ptr = _provides_port->getParallelMethodContext("put");
@@ -98,13 +98,13 @@ param_double_port_uses_i::configure_port_method_put(int totalNbElt)
 }
 
 void 
-param_double_port_uses_i::put(const Ports::Param_Double_Port::seq_double & param_data)
+Param_Double_Port_uses_i::put(const Ports::Param_Double_Port::seq_double & param_data)
 {
   _provides_port->put(param_data);
 }
 
 void 
-param_double_port_uses_i::get_results(Ports::Param_Double_Port::seq_double_out param_results)
+Param_Double_Port_uses_i::get_results(Ports::Param_Double_Port::seq_double_out param_results)
 {
   _provides_port->get_results(param_results);
 }
