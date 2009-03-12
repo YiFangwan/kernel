@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2009  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -21,29 +21,35 @@
 // 
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  File   : DSC_Engines.xml
+//  File   : SALOME_ParamPorts.xml
 //  Author : Andre RIBES, EDF
 -->
 <PaCO_Interface_description>
 <Module>
- <Name>Engines</Name>
+ <Name>Ports</Name>
  <Interface>
-  <Name>DSC</Name>
+  <Name>Param_Double_Port</Name>
   <Method>
-   <Name>connect_provides_port</Name>
+   <Name>put</Name>
    <Type>distributed</Type>
- </Method>
- <Method>
-   <Name>connect_uses_port</Name>
+   <Argument>
+    <Name>param_data</Name>
+    <TypeDis>
+     <Distributed>BasicBC</Distributed>
+    </TypeDis>
+   </Argument>
+  </Method>
+  <Method>
+   <Name>get_results</Name>
    <Type>distributed</Type>
- </Method>
- </Interface>
- <Interface>
-   <Name>Superv_Component</Name>
-   <Method>
-     <Name>init_service</Name>
-     <Type>distributed</Type>
-   </Method>
+   <Argument>
+    <Name>param_results</Name>
+    <TypeDis>
+     <Distributed>GaBro</Distributed>
+    </TypeDis>
+   </Argument>
+  </Method>
  </Interface>
 </Module>
 </PaCO_Interface_description>
+

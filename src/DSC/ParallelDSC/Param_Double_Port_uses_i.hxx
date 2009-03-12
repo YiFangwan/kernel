@@ -23,7 +23,7 @@
 #ifndef _PARAM_DOUBLE_PORT_USES_HXX_
 #define _PARAM_DOUBLE_PORT_USES_HXX_
 
-#include "SALOME_PortsPaCO_Ports_Param_Double_Port_client.hxx"
+#include "SALOME_ParamPortsPaCO_Ports_Param_Double_Port_client.hxx"
 
 #include "ParallelDSC_i.hxx"
 #include "PortProperties_i.hxx"

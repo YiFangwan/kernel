@@ -22,23 +22,238 @@
 //  SALOME_ParallelContainerProxy : implementation of container and engine for Parallel Kernel
 //  File   : SALOME_ParallelContainerProxy_i.cxx
 //  Author : André RIBES, EDF
-//
+
 #include "SALOME_ParallelContainerProxy_i.hxx"
 
 Container_proxy_impl_final::Container_proxy_impl_final(CORBA::ORB_ptr orb, 
 						       paco_fabrique_thread * fab_thread, 
+						       PortableServer::POA_ptr poa,
+						       std::string containerName,
 						       bool is_a_return_proxy) :
+  Engines::PACO_Container_proxy_impl(orb, fab_thread, is_a_return_proxy),
   Engines::Container_proxy_impl(orb, fab_thread, is_a_return_proxy),
   InterfaceManager_impl(orb, fab_thread, is_a_return_proxy)
-{}
+{
+  _numInstance = 0;
+  _containerName = containerName;
+  _poa = PortableServer::POA::_duplicate(poa);
+
+  // Add CORBA object to the poa
+  _id = _poa->activate_object(this);
+  this->_remove_ref();
+
+  // Init SALOME Naming Service
+  _NS = new SALOME_NamingService();
+  _NS->init_orb(_orb);
+}
 
 Container_proxy_impl_final:: ~Container_proxy_impl_final() {}
 
 void
 Container_proxy_impl_final::Shutdown()
 {
+  // We call shutdown in each node
+  for (CORBA::ULong i = 0; i < _infos.nodes.length(); i++)
+  {
+    MESSAGE("Shutdown work node : " << i);
+    CORBA::Object_var object = _orb->string_to_object(_infos.nodes[i]);
+    Engines::Container_var node = Engines::Container::_narrow(object);
+    if (!CORBA::is_nil(node))
+    {
+      try 
+      {
+	node->Shutdown();
+	MESSAGE("Shutdown done node : " << i);
+      }
+      catch (...)
+      {
+	INFOS("Exception catch during Shutdown of node : " << i);
+      }
+    }
+    else
+    {
+      INFOS("Cannot shutdown node " << i << " ref is nil !");
+    }
+  }
+
   INFOS("Shutdown Parallel Proxy");
   if(!CORBA::is_nil(_orb))
     _orb->shutdown(0);
 }
 
+// On intercepte cette méthode pour pouvoir ensuite
+// déterminer si on doit créer une instance sequentielle
+// ou parallèle d'un composant dans la méthode create_component_instance
+CORBA::Boolean 
+Container_proxy_impl_final::load_component_Library(const char* componentName)
+{
+  MESSAGE("Begin of load_component_Library on proxy : " << componentName)
+  std::string aCompName = componentName;
+
+  if (_libtype_map.count(aCompName) == 0)
+  {
+    _numInstanceMutex.lock(); // lock to be alone
+
+    // Default lib is seq
+    _libtype_map[aCompName] = "seq";
+
+    // --- try dlopen C++ component
+    // If is not a C++ or failed then is maybe 
+    // a seq component...
+
+    MESSAGE("Try to load C++ component");
+#ifndef WIN32
+    std::string impl_name = string ("lib") + aCompName + string("Engine.so");
+#else
+    std::string impl_name = aCompName + string("Engine.dll");
+#endif
+    void* handle;
+#ifndef WIN32
+    handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+#else
+    handle = dlopen( impl_name.c_str() , 0 ) ;
+#endif
+    if ( handle )
+    {
+      _library_map[impl_name] = handle;
+      MESSAGE("Library " << impl_name << " loaded");
+
+      //Test if lib could contain a parallel component
+
+      std::string paco_test_fct_signature("isAPACO_Component");
+      PACO_TEST_FUNCTION paco_test_fct = NULL;
+#ifndef WIN32
+      paco_test_fct = (PACO_TEST_FUNCTION)dlsym(handle, paco_test_fct_signature.c_str());
+#else
+      paco_test_fct = (PACO_TEST_FUNCTION)GetProcAddress((HINSTANCE)handle, paco_test_fct_signature.c_str());
+#endif
+      if (!paco_test_fct)
+      {
+	// PaCO Component found
+	MESSAGE("PACO LIB FOUND");
+	_libtype_map[aCompName] = "par";
+	_parlibfct_map[aCompName] = paco_test_fct;
+      }
+    }
+    _numInstanceMutex.unlock();
+  }
+
+  // Call load_component_Library in each node
+  CORBA::Boolean ret = true;
+  for (CORBA::ULong i = 0; i < _infos.nodes.length(); i++)
+  {
+    MESSAGE("Call load_component_Library work node : " << i);
+    CORBA::Object_var object = _orb->string_to_object(_infos.nodes[i]);
+    Engines::Container_var node = Engines::Container::_narrow(object);
+    if (!CORBA::is_nil(node))
+    {
+      try 
+      {
+	node->load_component_Library(componentName);
+	MESSAGE("Call load_component_Library done node : " << i);
+      }
+      catch (...)
+      {
+	INFOS("Exception catch during load_component_Library of node : " << i);
+	ret = false;
+      }
+    }
+    else
+    {
+      INFOS("Cannot call load_component_Library node " << i << " ref is nil !");
+      ret = false;
+    }
+  }
+
+  // If ret is false -> lib is not loaded !
+  _libtype_map.erase(aCompName);
+  return ret;
+}
+
+// Il y a deux cas :
+// Composant sequentiel -> on le créer sur le noeud 0 (on pourrait faire une répartition de charge)
+// Composant parallèle -> création du proxy ici puis appel de la création de chaque objet participant
+// au composant parallèle
+Engines::Component_ptr 
+Container_proxy_impl_final::create_component_instance(const char* componentName, ::CORBA::Long studyId)
+{
+  std::string aCompName = componentName;
+  if (_libtype_map.count(aCompName) == 0)
+  {
+    // Component is not loaded !
+    INFOS("Proxy: component is not loaded !");
+    return Engines::Component::_nil();
+  }
+
+  // If it is a sequential component
+  if (_libtype_map[aCompName] == "seq")
+    return Engines::Container_proxy_impl::create_component_instance(componentName, studyId);
+
+  // Test if the component inside the parallel lib
+  // is parallel or sequential
+  bool parallel_component = (_parlibfct_map[aCompName]) (componentName);
+  if (!parallel_component)
+    return Engines::Container_proxy_impl::create_component_instance(componentName, studyId);
+
+  // Parallel Component !
+  Engines::Component_var component_proxy = Engines::Component::_nil();
+
+  // On commence par créer le proxy
+#ifndef WIN32
+  std::string impl_name = string ("lib") + aCompName + string("Engine.so");
+#else
+  std::string impl_name = aCompName + string("Engine.dll");
+#endif
+  void* handle = _library_map[impl_name];
+  std::string factory_name = aCompName + std::string("EngineProxy_factory");
+
+  MESSAGE("Creating component proxy : " << factory_name);
+  FACTORY_FUNCTION component_proxy_factory = (FACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
+
+  if (!component_proxy_factory)
+  {
+    INFOS("Can't resolve symbol: " + factory_name);
+#ifndef WIN32
+    INFOS("dlerror() result is : " << dlerror());
+#endif
+    return Engines::Component::_nil() ;
+  }
+  try {
+    _numInstanceMutex.lock() ; // lock on the instance number
+    _numInstance++ ;
+    int numInstance = _numInstance ;
+    _numInstanceMutex.unlock() ;
+
+    char aNumI[12];
+    sprintf( aNumI , "%d" , numInstance ) ;
+    string instanceName = aCompName + "_inst_" + aNumI ;
+    string component_registerName = _containerName + "/" + instanceName;
+
+    // --- Instanciate required CORBA object
+    PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
+    id = (component_proxy_factory) (_orb, 
+				    new paco_omni_fabrique(), 
+				    _poa, 
+				    _id, 
+				    instanceName.c_str(), 
+				    _parallel_object_topology.total) ;
+
+    // --- get reference & servant from id
+    CORBA::Object_var obj = _poa->id_to_reference(*id);
+    component_proxy = Engines::Component::_narrow(obj) ;
+
+    _cntInstances_map[impl_name] += 1;
+
+    // --- register the engine under the name
+    //     containerName(.dir)/instanceName(.object)
+    _NS->Register(component_proxy , component_registerName.c_str()) ;
+    MESSAGE(component_registerName.c_str() << " bound" ) ;
+  }
+  catch (...)
+  {
+    INFOS( "Exception catched in Proxy creation" );
+    return Engines::Component::_nil();
+  }
+
+  return component_proxy;
+}

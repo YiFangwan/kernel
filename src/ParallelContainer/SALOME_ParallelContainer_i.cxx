@@ -21,44 +21,38 @@
 //
 //  SALOME_ParallelContainer : implementation of container and engine for ParallelKernel
 //  File   : SALOME_ParallelContainer_i.cxx
-//  Author : Andr� RIBES, EDF
-//  Author : Paul RASCLE, EDF - MARC TAJCHMAN, CEA 
-//
-#include <SALOMEconfig.h>
-#ifndef WIN32
-#else
-#include <SALOME_Component.hxx>
-#endif
+//  Author : André RIBES, EDF
+
 #include "SALOME_ParallelContainer_i.hxx"
-
 #include "SALOME_Component_i.hxx"
-
 #include "SALOME_FileRef_i.hxx"
 #include "SALOME_FileTransfer_i.hxx"
 #include "SALOME_NamingService.hxx"
 #include "OpUtil.hxx"
+#include "utilities.h"
+#include "Basics_Utils.hxx"
 
 #include <string.h>
 #include <stdio.h>
 #ifndef WIN32
+#include <sys/time.h>
 #include <dlfcn.h>
 #include <unistd.h>
 #else
-#include "../../adm/win32/SALOME_WNT.hxx"
 #include <signal.h>
 #include <process.h>
+#include <direct.h>
 int SIGUSR1 = 1000;
 #endif
 
 #include <paco_omni.h>
-#include "utilities.h"
-#include "Basics_Utils.hxx"
+
+#include <Python.h>
+#include "Container_init_python.hxx"
+
 using namespace std;
 
 bool _Sleeping = false ;
-
-// Containers with name FactoryServer are started via rsh in LifeCycleCORBA
-// Other Containers are started via start_impl of FactoryServer
 
 extern "C" {void ActSigIntHandler() ; }
 #ifndef WIN32
@@ -67,31 +61,14 @@ extern "C" {void SigIntHandler(int, siginfo_t *, void *) ; }
 extern "C" {void SigIntHandler( int ) ; }
 #endif
 
-
-map<std::string, int> Engines_Parallel_Container_i::_cntInstances_map;
-map<std::string, void *> Engines_Parallel_Container_i::_library_map;
-map<std::string, void *> Engines_Parallel_Container_i::_toRemove_map;
-omni_mutex Engines_Parallel_Container_i::_numInstanceMutex ;
-
-//=============================================================================
-/*! 
- *  Default constructor, not for use
+/*! \class Engines_Parallel_Container_i
+ *  \brief C++ implementation of Engines::Container interface for parallel
+ *  container implemented with PaCO++
  */
-//=============================================================================
-
-Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb, 
-							    char * ior, 
-							    int rank) : 
-  InterfaceParallel_impl(orb,ior,rank), 
-  Engines::Container_serv(orb,ior,rank),
-  Engines::Container_base_serv(orb,ior,rank),
-  _numInstance(0)
-{
-}
 
 //=============================================================================
 /*! 
- *  Construtor to use
+ *  Construtor
  */
 //=============================================================================
 
@@ -101,32 +78,52 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
 							    PortableServer::POA_ptr poa,
 							    char *containerName ,
 							    int argc , char* argv[],
-							    bool activAndRegist,
 							    bool isServantAloneInProcess
 							   ) :
   InterfaceParallel_impl(orb,ior,rank), 
+  Engines::PACO_Container_serv(orb,ior,rank),
+  Engines::PACO_Container_base_serv(orb,ior,rank),
   Engines::Container_serv(orb,ior,rank),
   Engines::Container_base_serv(orb,ior,rank),
   _numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 {
-  _pid = (long)getpid();
-
-  if(activAndRegist)
-    ActSigIntHandler() ;
-
+  // Members init
+  _pid = getpid();
   _argc = argc ;
   _argv = argv ;
+  _hostname = Kernel_Utils::GetHostname();
+  _orb = CORBA::ORB::_duplicate(orb);
+  _poa = PortableServer::POA::_duplicate(poa);
 
-  string hostname = Kernel_Utils::GetHostname();
+  // Add CORBA object to the poa
+  _id = _poa->activate_object(this);
+  this->_remove_ref();
+  CORBA::Object_var container_node = _poa->id_to_reference(*_id);
 
-  _orb = CORBA::ORB::_duplicate(orb) ;
-  _poa = PortableServer::POA::_duplicate(poa) ;
+  // Adding this servant to SALOME
   _NS = new SALOME_NamingService();
-  _NS->init_orb( CORBA::ORB::_duplicate(_orb) );
-  _containerName = _NS->BuildContainerNameForNS(containerName, hostname.c_str());
+  _NS->init_orb(_orb);
+  _containerName = _NS->BuildContainerNameForNS(containerName, _hostname.c_str());
+  _NS->Register(container_node, _containerName.c_str());
 
+  // Init Python container part
+  CORBA::String_var sior =  _orb->object_to_string(container_node);
+  std::string myCommand="pyCont = SALOME_Container.SALOME_Container_i('";
+  myCommand += _containerName + "','";
+  myCommand += sior;
+  myCommand += "')\n";
+  Py_ACQUIRE_NEW_THREAD;
+  PyRun_SimpleString("import SALOME_Container\n");
+  PyRun_SimpleString((char*)myCommand.c_str());
+  Py_RELEASE_NEW_THREAD;
+
+  // Init FileTransfer service
   fileTransfer_i* aFileTransfer = new fileTransfer_i();
-  _fileTransfer = Engines::fileTransfer::_narrow(aFileTransfer->_this());
+  _fileTransfer = aFileTransfer->_this();
+  aFileTransfer->_remove_ref();
+
+  // Some signal handlers
+  ActSigIntHandler();
 }
 
 //=============================================================================
@@ -138,10 +135,14 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
 Engines_Parallel_Container_i::~Engines_Parallel_Container_i()
 {
   MESSAGE("Container_i::~Container_i()");
-  delete _id;
+  if (_id)
+    delete _id;
+  if(_NS)
+    delete _NS;
 }
 
 //=============================================================================
+//! Get container name
 /*! 
  *  CORBA attribute: Container name (see constructor)
  */
@@ -153,6 +154,42 @@ char* Engines_Parallel_Container_i::name()
 }
 
 //=============================================================================
+//! Get container working directory
+/*! 
+ *  CORBA attribute: Container working directory 
+ */
+//=============================================================================
+
+char* 
+Engines_Parallel_Container_i::workingdir()
+{
+  char wd[256];
+  getcwd (wd,256);
+  return CORBA::string_dup(wd) ;
+}
+
+//=============================================================================
+//! Get container log file name
+/*! 
+ *  CORBA attribute: Container log file name
+ */
+//=============================================================================
+
+char* 
+Engines_Parallel_Container_i::logfilename()
+{
+  return CORBA::string_dup(_logfilename.c_str()) ;
+}
+
+//! Set container log file name
+void 
+Engines_Parallel_Container_i::logfilename(const char* name)
+{
+  _logfilename=name;
+}
+
+//=============================================================================
+//! Get container host name
 /*! 
  *  CORBA method: Get the hostName of the Container (without domain extensions)
  */
@@ -160,12 +197,12 @@ char* Engines_Parallel_Container_i::name()
 
 char* Engines_Parallel_Container_i::getHostName()
 {
-  string s = Kernel_Utils::GetHostname();
-  MESSAGE("Engines_Parallel_Container_i::getHostName " << s);
-  return CORBA::string_dup(s.c_str()) ;
+  MESSAGE("Warning: getHostName of a parallel container returns the hostname of the first servant node");
+  return CORBA::string_dup(_hostname.c_str()) ;
 }
 
 //=============================================================================
+//! Get container PID
 /*! 
  *  CORBA method: Get the PID (process identification) of the Container
  */
@@ -173,10 +210,12 @@ char* Engines_Parallel_Container_i::getHostName()
 
 CORBA::Long Engines_Parallel_Container_i::getPID()
 {
-  return (CORBA::Long)getpid();
+  MESSAGE("Warning: getPID of a parallel container returns the PID of the first servant node");
+  return _pid;
 }
 
 //=============================================================================
+//! Ping the servant to check it is still alive
 /*! 
  *  CORBA method: check if servant is still alive
  */
@@ -184,10 +223,11 @@ CORBA::Long Engines_Parallel_Container_i::getPID()
 
 void Engines_Parallel_Container_i::ping()
 {
-  MESSAGE("Engines_Parallel_Container_i::ping() pid "<< getpid());
+  MESSAGE("Engines_Parallel_Container_i::ping() my pid is "<< _pid);
 }
 
 //=============================================================================
+//! Shutdown the container
 /*! 
  *  CORBA method, oneway: Server shutdown. 
  *  - Container name removed from naming service,
@@ -199,20 +239,40 @@ void Engines_Parallel_Container_i::ping()
 void Engines_Parallel_Container_i::Shutdown()
 {
   MESSAGE("Engines_Parallel_Container_i::Shutdown()");
+  /* For each component contained in this container
+  * tell it to self-destroy
+  */
+  std::map<std::string, Engines::Component_var>::iterator itm;
+  for (itm = _listInstances_map.begin(); itm != _listInstances_map.end(); itm++)
+  {
+    try
+    {
+      itm->second->destroy();
+    }
+    catch(const CORBA::Exception& e)
+    {
+      // ignore this entry and continue
+    }
+    catch(...)
+    {
+      // ignore this entry and continue
+    }
+  }
+
   _NS->Destroy_FullDirectory(_containerName.c_str());
-  //_remove_ref();
-  //_poa->deactivate_object(*_id);
+  _NS->Destroy_Name(_containerName.c_str());
+
   if(_isServantAloneInProcess)
   {
     MESSAGE("Effective Shutdown of container Begins...");
-    LocalTraceBufferPool* bp1 = LocalTraceBufferPool::instance();
-    bp1->deleteInstance(bp1);
-    _orb->shutdown(0);
+    if(!CORBA::is_nil(_orb))
+      _orb->shutdown(0);
   }
 }
 
 
 //=============================================================================
+//! load a new component class
 /*! 
  *  CORBA method: load a new component class (Python or C++ implementation)
  *  \param componentName like COMPONENT
@@ -225,54 +285,86 @@ void Engines_Parallel_Container_i::Shutdown()
 bool
 Engines_Parallel_Container_i::load_component_Library(const char* componentName)
 {
+  MESSAGE("Begin of load_component_Library : " << componentName)
   bool ret = false;
-  string aCompName = componentName;
-  // --- try dlopen C++ component
-
+  std::string aCompName = componentName;
 #ifndef WIN32
   string impl_name = string ("lib") + aCompName + string("Engine.so");
 #else
   string impl_name = aCompName + string("Engine.dll");
 #endif
 
-  SCRUTE(impl_name);
-
   _numInstanceMutex.lock(); // lock to be alone 
-  if (_toRemove_map[impl_name]) _toRemove_map.erase(impl_name);
-  if (_library_map[impl_name])
+
+  // Check if already loaded or imported in the container
+  if (_toRemove_map.count(impl_name) != 0) _toRemove_map.erase(impl_name);
+  if (_library_map.count(impl_name) != 0)
   {
     MESSAGE("Library " << impl_name << " already loaded");
-    _numInstanceMutex.unlock();
+    ret = true;
+  }
+  if (_library_map.count(aCompName) != 0)
+  {
+    MESSAGE("Python component already imported");
     ret = true;
   }
 
-  void* handle;
+  // --- try dlopen C++ component
+  if (!ret)
+  {
+    MESSAGE("Try to load C++ component");
+    void* handle;
 #ifndef WIN32
-  handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+    handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
 #else
-  handle = dlopen( impl_name.c_str() , 0 ) ;
+    handle = dlopen( impl_name.c_str() , 0 ) ;
 #endif
-  if ( handle )
-  {
-    _library_map[impl_name] = handle;
-    _numInstanceMutex.unlock();
-    ret = true;
-  }
-  else
-  {
-    cerr << "Can't load shared library : " << impl_name << endl;
-    cerr << "error dlopen: " << dlerror() << endl;
-    _numInstanceMutex.unlock();
-    ret = false;
+    if ( handle )
+    {
+      _library_map[impl_name] = handle;
+      MESSAGE("Library " << impl_name << " loaded");
+      ret = true;
+    }
+    else
+    {
+      std::cerr << "Can't load shared library : " << impl_name << std::endl;
+      std::cerr << "error of dlopen: " << dlerror() << std::endl;
+    }
   }
 
-  // To be sure that all the nodes of the component as loaded the library
-  _my_com->paco_barrier();
+  // --- try import Python component
+  if (!ret)
+  {
+    MESSAGE("Try to import Python component "<<componentName);
+    Py_ACQUIRE_NEW_THREAD;
+    PyObject *mainmod = PyImport_AddModule("__main__");
+    PyObject *globals = PyModule_GetDict(mainmod);
+    PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
+    PyObject *result = PyObject_CallMethod(pyCont,
+					   (char*)"import_component",
+					   (char*)"s",componentName);
+    int ret_p= PyInt_AsLong(result);
+    Py_XDECREF(result);
+    Py_RELEASE_NEW_THREAD;
 
+    if (ret_p) // import possible: Python component
+    {
+      _library_map[aCompName] = (void *)pyCont; // any non O value OK
+      MESSAGE("import Python: " << aCompName <<" OK");
+      ret = true;
+    }
+    else
+    {
+      std::cerr << "Error in importing Python component : " << aCompName << std::endl;
+    }
+  }
+
+  _numInstanceMutex.unlock();
   return ret;
 }
 
 //=============================================================================
+//! Create a new component instance
 /*! 
  *  CORBA method: Creates a new servant instance of a component.
  *  The servant registers itself to naming service and Registry.
@@ -288,7 +380,7 @@ Engines::Component_ptr
 Engines_Parallel_Container_i::create_component_instance(const char*genericRegisterName,
 							CORBA::Long studyId)
 {
-  cerr << "----------------- create_component_instance node : " << getMyRank() << endl;
+  MESSAGE("Begin of create_component_instance in node : " << getMyRank());
 
   if (studyId < 0)
   {
@@ -296,52 +388,38 @@ Engines_Parallel_Container_i::create_component_instance(const char*genericRegist
     return Engines::Component::_nil() ;
   }
 
-  Engines::Component_var iobject = Engines::Component::_nil() ;
-
-  // is it a parallel component ?
-  bool parallel = false;
-  string aCompName = genericRegisterName;
-  int par = aCompName.find("@PARALLEL@");
-  if (par>0) {
-    parallel = true;
-    aCompName = aCompName.substr(0,par);
-  }
-
-  //--- try C++
+  std::string aCompName = genericRegisterName;
 #ifndef WIN32
   string impl_name = string ("lib") + aCompName +string("Engine.so");
 #else
   string impl_name = aCompName +string("Engine.dll");
 #endif
+
+  // Test if the component lib is loaded
+  std::string type_of_lib("Not Loaded");
   void* handle = _library_map[impl_name];
-
-  if ( !handle )
+  if (handle)
+    type_of_lib = "cpp";
+  if (_library_map.count(aCompName) != 0 and !handle)
+    type_of_lib = "python";
+  
+  if (type_of_lib == "Not Loaded")
   {
-    cerr << "shared library " << impl_name <<"must be loaded before instance" << endl;;
-    return Engines::Component::_nil() ;
+    std::cerr << "Component library is not loaded or imported ! lib was : " << aCompName << std::endl;
+    return Engines::Component::_nil();
   }
+
+  Engines::Component_var iobject = Engines::Component::_nil();
+  if (type_of_lib == "cpp")
+    iobject = createCPPInstance(aCompName, handle, studyId);
   else
-  {
-    if (parallel) {
-      // Sequential component case
-      // Component parallel proxy created on node 0
-      iobject = createParallelInstance(aCompName,
-				       handle,
-				       studyId);
+    iobject = createPythonInstance(aCompName, studyId);
 
-    }
-    else {
-      // Sequential component case
-      iobject = createInstance(aCompName,
-			       handle,
-			       studyId);
-    }
-
-    return iobject._retn();
-  }
+  return iobject._retn();
 }
 
 //=============================================================================
+//! Find an existing (in the container) component instance
 /*! 
  *  CORBA method: Finds a servant instance of a component
  *  \param registeredName  Name of the component in Registry or Name Service,
@@ -375,6 +453,7 @@ Engines::Component_ptr Engines_Parallel_Container_i::find_component_instance( co
 }
 
 //=============================================================================
+//! Find or create a new component instance
 /*! 
  *  CORBA method: find or create an instance of the component (servant),
  *  load a new component class (dynamic library) if required,
@@ -391,15 +470,15 @@ Engines::Component_ptr Engines_Parallel_Container_i::find_component_instance( co
 Engines::Component_ptr Engines_Parallel_Container_i::load_impl( const char* genericRegisterName,
 								const char* componentName )
 {
-  string impl_name = string ("lib") + genericRegisterName +string("Engine.so");
-  Engines::Component_var iobject = Engines::Component::_nil() ;
+  Engines::Component_var iobject = Engines::Component::_nil();
   if (load_component_Library(genericRegisterName))
-    iobject = find_or_create_instance(genericRegisterName, impl_name);
+    iobject = find_or_create_instance(genericRegisterName);
   return iobject._retn();
 }
 
 
 //=============================================================================
+//! Remove the component instance from container
 /*! 
  *  CORBA method: Stops the component servant, and deletes all related objects
  *  \param component_i     Component to be removed
@@ -408,15 +487,26 @@ Engines::Component_ptr Engines_Parallel_Container_i::load_impl( const char* gene
 
 void Engines_Parallel_Container_i::remove_impl(Engines::Component_ptr component_i)
 {
-  ASSERT(! CORBA::is_nil(component_i));
-  string instanceName = component_i->instanceName() ;
-  MESSAGE("unload component " << instanceName);
-  _listInstances_map.erase(instanceName);
-  component_i->destroy() ;
-  _NS->Destroy_Name(instanceName.c_str());
+  ASSERT(!CORBA::is_nil(component_i));
+  string instanceName = component_i->instanceName();
+  _numInstanceMutex.lock() ; // lock to be alone (stl container write)
+  // Test if the component is in this container
+  std::map<std::string, Engines::Component_var>::iterator itm;
+  itm = _listInstances_map.find(instanceName);
+  if (itm != _listInstances_map.end())
+  {
+    MESSAGE("Unloading component " << instanceName);
+    _listInstances_map.erase(instanceName);
+    component_i->destroy() ;
+    _NS->Destroy_Name(instanceName.c_str());
+  }
+  else
+    std::cerr << "WARNING !!!! component instance was not in this container !!!" << std::endl;
+  _numInstanceMutex.unlock() ;
 }
 
 //=============================================================================
+//! Unload component libraries from the container
 /*! 
  *  CORBA method: Discharges unused libraries from the container.
  */
@@ -424,27 +514,31 @@ void Engines_Parallel_Container_i::remove_impl(Engines::Component_ptr component_
 
 void Engines_Parallel_Container_i::finalize_removal()
 {
-  MESSAGE("finalize unload : dlclose");
-  _numInstanceMutex.lock(); // lock to be alone
+  MESSAGE("Finalize removal : dlclose");
+  MESSAGE("WARNING FINALIZE DOES CURRENTLY NOTHING !!!");
+
   // (see decInstanceCnt, load_component_Library)
-  map<string, void *>::iterator ith;
-  for (ith = _toRemove_map.begin(); ith != _toRemove_map.end(); ith++)
-  {
-    void *handle = (*ith).second;
-    string impl_name= (*ith).first;
-    if (handle)
-    {
-      SCRUTE(handle);
-      SCRUTE(impl_name);
-      // 	  dlclose(handle);                // SALOME unstable after ...
-      // 	  _library_map.erase(impl_name);
-    }
-  }
+  //map<string, void *>::iterator ith;
+  //for (ith = _toRemove_map.begin(); ith != _toRemove_map.end(); ith++)
+  //{
+  //  void *handle = (*ith).second;
+  //  string impl_name= (*ith).first;
+  //  if (handle)
+  //  {
+  //    SCRUTE(handle);
+  //    SCRUTE(impl_name);
+  //    dlclose(handle);                // SALOME unstable after ...
+  //    _library_map.erase(impl_name);
+  //  }
+  //}
+
+  _numInstanceMutex.lock(); // lock to be alone
   _toRemove_map.clear();
   _numInstanceMutex.unlock();
 }
 
 //=============================================================================
+//! Kill the container
 /*! 
  *  CORBA method: Kill the container process with exit(0).
  *  To remove :  never returns !
@@ -453,9 +547,9 @@ void Engines_Parallel_Container_i::finalize_removal()
 
 bool Engines_Parallel_Container_i::Kill_impl()
 {
-  MESSAGE("Engines_Parallel_Container_i::Kill() pid "<< getpid() << " containerName "
-	  << _containerName.c_str() << " machineName "
-	  << Kernel_Utils::GetHostname().c_str());
+  MESSAGE("Engines_Parallel_Container_i::Kill() my pid is "<< _pid 
+	  << " my containerName is " << _containerName.c_str() 
+	  << " my machineName is " << _hostname.c_str());
   INFOS("===============================================================");
   INFOS("= REMOVE calls to Kill_impl in C++ container                  =");
   INFOS("===============================================================");
@@ -465,6 +559,95 @@ bool Engines_Parallel_Container_i::Kill_impl()
 }
 
 //=============================================================================
+//! Get or create a file reference object associated to a local file (to transfer it)
+/*! 
+ *  CORBA method: get or create a fileRef object associated to a local file
+ *  (a file on the computer on which runs the container server), which stores
+ *  a list of (machine, localFileName) corresponding to copies already done.
+ * 
+ *  \param  origFileName absolute path for a local file to copy on other
+ *          computers
+ *  \return a fileRef object associated to the file.
+ */
+//=============================================================================
+
+Engines::fileRef_ptr
+Engines_Parallel_Container_i::createFileRef(const char* origFileName)
+{
+  string origName(origFileName);
+  Engines::fileRef_var theFileRef = Engines::fileRef::_nil();
+
+  if (origName[0] != '/')
+  {
+    INFOS("path of file to copy must be an absolute path begining with '/'");
+    return Engines::fileRef::_nil();
+  }
+
+  if (CORBA::is_nil(_fileRef_map[origName]))
+  {
+    CORBA::Object_var obj=_poa->id_to_reference(*_id);
+    Engines::Container_var pCont = Engines::Container::_narrow(obj);
+    fileRef_i* aFileRef = new fileRef_i(pCont, origFileName);
+    theFileRef = Engines::fileRef::_narrow(aFileRef->_this());
+    _numInstanceMutex.lock() ; // lock to be alone (stl container write)
+    _fileRef_map[origName] = theFileRef;
+    _numInstanceMutex.unlock() ;
+  }
+
+  theFileRef =  Engines::fileRef::_duplicate(_fileRef_map[origName]);
+  ASSERT(! CORBA::is_nil(theFileRef));
+  return theFileRef._retn();
+}
+
+//=============================================================================
+/*! 
+ *  CORBA method:
+ *  \return a reference to the fileTransfer object
+ */
+//=============================================================================
+
+Engines::fileTransfer_ptr
+Engines_Parallel_Container_i::getFileTransfer()
+{
+  Engines::fileTransfer_var aFileTransfer
+    = Engines::fileTransfer::_duplicate(_fileTransfer);
+  return aFileTransfer._retn();
+}
+
+
+Engines::Salome_file_ptr 
+Engines_Parallel_Container_i::createSalome_file(const char* origFileName) 
+{
+  string origName(origFileName);
+  if (CORBA::is_nil(_Salome_file_map[origName]))
+  {
+    Salome_file_i* aSalome_file = new Salome_file_i();
+    try 
+    {
+      aSalome_file->setLocalFile(origFileName);
+      aSalome_file->recvFiles();
+    }
+    catch (const SALOME::SALOME_Exception& e)
+    {
+      return Engines::Salome_file::_nil();
+    }
+
+    Engines::Salome_file_var theSalome_file = Engines::Salome_file::_nil();
+    theSalome_file = Engines::Salome_file::_narrow(aSalome_file->_this());
+    _numInstanceMutex.lock() ; // lock to be alone (stl container write)
+    _Salome_file_map[origName] = theSalome_file;
+    _numInstanceMutex.unlock() ;
+  }
+
+  Engines::Salome_file_ptr theSalome_file =  
+    Engines::Salome_file::_duplicate(_Salome_file_map[origName]);
+  ASSERT(!CORBA::is_nil(theSalome_file));
+  return theSalome_file;
+}
+
+
+//=============================================================================
+//! Finds an already existing component instance or create a new instance
 /*! 
  *  C++ method: Finds an already existing servant instance of a component, or
  *              create an instance.
@@ -472,7 +655,6 @@ bool Engines_Parallel_Container_i::Kill_impl()
  *  \param genericRegisterName    Name of the component instance to register
  *                                in Registry & Name Service,
  *                                (without _inst_n suffix, like "COMPONENT")
- *  \param componentLibraryName   like "libCOMPONENTEngine.so"
  *  \return a loaded component
  * 
  *  example with names:
@@ -488,65 +670,44 @@ bool Engines_Parallel_Container_i::Kill_impl()
 //=============================================================================
 
 Engines::Component_ptr
-Engines_Parallel_Container_i::find_or_create_instance(string genericRegisterName,
-						      string componentLibraryName)
+Engines_Parallel_Container_i::find_or_create_instance(string genericRegisterName)
 {
-  string aGenRegisterName = genericRegisterName;
-  string impl_name = componentLibraryName;
-  void* handle = _library_map[impl_name];
-  if ( !handle )
+  Engines::Component_var iobject = Engines::Component::_nil();
+  try
   {
-    INFOS("shared library " << impl_name <<"must be loaded before instance");
-    return Engines::Component::_nil() ;
-  }
-  else
-  {
+    string aGenRegisterName = genericRegisterName;
     // --- find a registered instance in naming service, or create
-
-    string component_registerBase =
-      _containerName + "/" + aGenRegisterName;
-    Engines::Component_var iobject = Engines::Component::_nil() ;
-    try
+    string component_registerBase = _containerName + "/" + aGenRegisterName;
+    CORBA::Object_var obj = _NS->ResolveFirst(component_registerBase.c_str());
+    if (CORBA::is_nil( obj ))
     {
-      CORBA::Object_var obj =
-	_NS->ResolveFirst( component_registerBase.c_str());
-      if ( CORBA::is_nil( obj ) )
+      iobject = create_component_instance(genericRegisterName.c_str(), 
+					  0); // force multiStudy instance here !
+    }
+    else
+    { 
+      iobject = Engines::Component::_narrow(obj) ;
+      Engines_Component_i *servant = dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
+      ASSERT(servant)
+      int studyId = servant->getStudyId();
+      ASSERT (studyId >= 0);
+      if (studyId != 0)  // monoStudy instance: NOK
       {
-	iobject = createInstance(genericRegisterName,
-				 handle,
-				 0); // force multiStudy instance here !
-      }
-      else
-      { 
-	iobject = Engines::Component::_narrow( obj ) ;
-	Engines_Component_i *servant =
-	  dynamic_cast<Engines_Component_i*>
-	  (_poa->reference_to_servant(iobject));
-	ASSERT(servant)
-	  int studyId = servant->getStudyId();
-	ASSERT (studyId >= 0);
-	if (studyId == 0) // multiStudy instance, OK
-	{
-	  // No ReBind !
-	  MESSAGE(component_registerBase.c_str()<<" already bound");
-	}
-	else // monoStudy instance: NOK
-	{
-	  iobject = Engines::Component::_nil();
-	  INFOS("load_impl & find_component_instance methods "
-		<< "NOT SUITABLE for mono study components");
-	}
+	iobject = Engines::Component::_nil();
+	INFOS("load_impl & find_component_instance methods "
+	      << "NOT SUITABLE for mono study components");
       }
     }
-    catch (...)
-    {
-      INFOS( "Container_i::load_impl catched" ) ;
-    }
-    return iobject._retn();
   }
+  catch (...)
+  {
+    INFOS( "Container_i::load_impl catched" ) ;
+  }
+  return iobject._retn();
 }
 
 //=============================================================================
+//! Create a new Python component instance 
 /*! 
  *  C++ method: create a servant instance of a component.
  *  \param genericRegisterName    Name of the component instance to register
@@ -566,18 +727,77 @@ Engines_Parallel_Container_i::find_or_create_instance(string genericRegisterName
  *  component_registerName = /Containers/cli76ce/FactoryServer/COMPONENT_inst_1
  */
 //=============================================================================
-
 Engines::Component_ptr
-Engines_Parallel_Container_i::createInstance(string genericRegisterName,
-					     void *handle,
-					     int studyId)
+Engines_Parallel_Container_i::createPythonInstance(string genericRegisterName, int studyId)
+{
+
+  Engines::Component_var iobject = Engines::Component::_nil();
+
+  _numInstanceMutex.lock();
+  _numInstance++;
+  int numInstance = _numInstance;
+  _numInstanceMutex.unlock();
+  char aNumI[12];
+  sprintf( aNumI , "%d" , numInstance ) ;
+  string instanceName = genericRegisterName + "_inst_" + aNumI ;
+  string component_registerName = _containerName + "/" + instanceName;
+
+  Py_ACQUIRE_NEW_THREAD;
+  PyObject *mainmod = PyImport_AddModule("__main__");
+  PyObject *globals = PyModule_GetDict(mainmod);
+  PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
+  PyObject *result = PyObject_CallMethod(pyCont,
+					 (char*)"create_component_instance",
+					 (char*)"ssl",
+					 genericRegisterName.c_str(),
+					 instanceName.c_str(),
+					 studyId);
+  std::string iors = PyString_AsString(result);
+  Py_DECREF(result);
+  Py_RELEASE_NEW_THREAD;
+
+  if( iors!="" )
+  {
+    CORBA::Object_var obj = _orb->string_to_object(iors.c_str());
+    iobject = Engines::Component::_narrow(obj);
+    _listInstances_map[instanceName] = iobject;
+  }
+  else
+    std::cerr << "createPythonInstance ior is empty ! Error in creation" << std::endl;
+
+  return iobject._retn();
+}
+
+//=============================================================================
+//! Create a new CPP component instance 
+/*! 
+ *  C++ method: create a servant instance of a component.
+ *  \param genericRegisterName    Name of the component instance to register
+ *                                in Registry & Name Service,
+ *                                (without _inst_n suffix, like "COMPONENT")
+ *  \param handle                 loaded library handle
+ *  \param studyId                0 for multiStudy instance, 
+ *                                study Id (>0) otherwise
+ *  \return a loaded component
+ * 
+ *  example with names:
+ *  aGenRegisterName = COMPONENT (= first argument)
+ *  _containerName = /Containers/cli76ce/FactoryServer
+ *  factoryName = COMPONENTEngine_factory
+ *  component_registerBase = /Containers/cli76ce/FactoryServer/COMPONENT
+ *  instanceName = COMPONENT_inst_1
+ *  component_registerName = /Containers/cli76ce/FactoryServer/COMPONENT_inst_1
+ */
+//=============================================================================
+Engines::Component_ptr
+Engines_Parallel_Container_i::createCPPInstance(string genericRegisterName,
+						void *handle,
+						int studyId)
 {
   // --- find the factory
 
   string aGenRegisterName = genericRegisterName;
   string factory_name = aGenRegisterName + string("Engine_factory");
-
-  SCRUTE(factory_name) ;
 
   typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION)
     (CORBA::ORB_ptr,
@@ -586,14 +806,19 @@ Engines_Parallel_Container_i::createInstance(string genericRegisterName,
      const char *, 
      const char *) ;
 
-  FACTORY_FUNCTION Component_factory
-    = (FACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
+  FACTORY_FUNCTION Component_factory = NULL;
+#ifndef WIN32
+  Component_factory = (FACTORY_FUNCTION)dlsym( handle, factory_name.c_str() );
+#else
+  Component_factory = (FACTORY_FUNCTION)GetProcAddress( (HINSTANCE)handle, factory_name.c_str() );
+#endif
 
-  char *error ;
-  if ( (error = dlerror() ) != NULL)
+  if (!Component_factory)
   {
     INFOS("Can't resolve symbol: " + factory_name);
-    SCRUTE(error);
+#ifndef WIN32
+    INFOS("dlerror() result is : " << dlerror());
+#endif
     return Engines::Component::_nil() ;
   }
 
@@ -601,26 +826,31 @@ Engines_Parallel_Container_i::createInstance(string genericRegisterName,
   Engines::Component_var iobject = Engines::Component::_nil() ;
   try
   {
-    _numInstanceMutex.lock() ; // lock on the instance number
-    _numInstance++ ;
-    int numInstance = _numInstance ;
-    _numInstanceMutex.unlock() ;
+    _numInstanceMutex.lock(); 
+    _numInstance++;
+    int numInstance = _numInstance;
+    _numInstanceMutex.unlock();
 
     char aNumI[12];
-    sprintf( aNumI , "%d" , numInstance ) ;
-    string instanceName = aGenRegisterName + "_inst_" + aNumI ;
+    sprintf( aNumI , "%d" , numInstance );
+    string instanceName = aGenRegisterName + "_inst_" + aNumI;
     string component_registerName =
       _containerName + "/" + instanceName;
 
     // --- Instanciate required CORBA object
 
-    PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
+    PortableServer::ObjectId *id; //not owner, do not delete (nore use var)
     id = (Component_factory) ( _orb, _poa, _id, instanceName.c_str(),
-			       aGenRegisterName.c_str() ) ;
+			       aGenRegisterName.c_str() );
+    if (id == NULL)
+    {
+      INFOS("Factory function returns NULL !");
+      return iobject._retn();
+    }
 
     // --- get reference & servant from id
     CORBA::Object_var obj = _poa->id_to_reference(*id);
-    iobject = Engines::Component::_narrow(obj) ;
+    iobject = Engines::Component::_narrow(obj);
 
     Engines_Component_i *servant = 
       dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
@@ -628,19 +858,29 @@ Engines_Parallel_Container_i::createInstance(string genericRegisterName,
     servant->_remove_ref(); // compensate previous id_to_reference 
     _listInstances_map[instanceName] = iobject;
     _cntInstances_map[aGenRegisterName] += 1;
+#if defined(_DEBUG_) || defined(_DEBUG)
     bool ret_studyId = servant->setStudyId(studyId);
     ASSERT(ret_studyId);
+#else
+    servant->setStudyId(studyId);
+#endif
 
     // --- register the engine under the name
     //     containerName(.dir)/instanceName(.object)
-    _NS->Register(iobject , component_registerName.c_str()) ;
-    MESSAGE( component_registerName.c_str() << " bound" ) ;
+    _NS->Register(iobject , component_registerName.c_str());
+    MESSAGE( component_registerName.c_str() << " bound" );
   }
   catch (...)
   {
-    INFOS( "Container_i::createInstance exception catched" ) ;
+    INFOS( "Container_i::createInstance exception catched" );
   }
   return iobject._retn();
+}
+
+void
+Engines_Parallel_Container_i::create_paco_component_node_instance(const char* componentName,
+								  CORBA::Long studyId)
+{
 }
 
 Engines::Component_ptr
@@ -733,7 +973,6 @@ Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
   string instanceName = aGenRegisterName + "_inst_" + aNumI ;
 
   string component_registerName = _containerName + "/" + instanceName;
-  string hostname = Kernel_Utils::GetHostname();
 
   CORBA::Object_var temp = _NS->Resolve(component_registerName.c_str());
   Engines::Component_var obj_proxy = Engines::Component::_narrow(temp);
@@ -801,6 +1040,7 @@ Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
 }
 
 //=============================================================================
+//! Decrement component instance reference count
 /*! 
  *
  */
@@ -808,26 +1048,30 @@ Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
 
 void Engines_Parallel_Container_i::decInstanceCnt(string genericRegisterName)
 {
-  string aGenRegisterName =genericRegisterName;
-  MESSAGE("Engines_Parallel_Container_i::decInstanceCnt " << aGenRegisterName);
-  ASSERT(_cntInstances_map[aGenRegisterName] > 0); 
-  _numInstanceMutex.lock(); // lock to be alone
-  // (see finalize_removal, load_component_Library)
-  _cntInstances_map[aGenRegisterName] -= 1;
-  SCRUTE(_cntInstances_map[aGenRegisterName]);
-  if (_cntInstances_map[aGenRegisterName] == 0)
+  if(_cntInstances_map.count(genericRegisterName) !=0 )
   {
-    string impl_name =
-      Engines_Component_i::GetDynLibraryName(aGenRegisterName.c_str());
-    SCRUTE(impl_name);
-    void* handle = _library_map[impl_name];
-    ASSERT(handle);
-    _toRemove_map[impl_name] = handle;
+    string aGenRegisterName =genericRegisterName;
+    MESSAGE("Engines_Parallel_Container_i::decInstanceCnt " << aGenRegisterName);
+    ASSERT(_cntInstances_map[aGenRegisterName] > 0); 
+    _numInstanceMutex.lock(); // lock to be alone
+    // (see finalize_removal, load_component_Library)
+    _cntInstances_map[aGenRegisterName] -= 1;
+    SCRUTE(_cntInstances_map[aGenRegisterName]);
+    if (_cntInstances_map[aGenRegisterName] == 0)
+    {
+      string impl_name =
+	Engines_Component_i::GetDynLibraryName(aGenRegisterName.c_str());
+      SCRUTE(impl_name);
+      void* handle = _library_map[impl_name];
+      ASSERT(handle);
+      _toRemove_map[impl_name] = handle;
+    }
+    _numInstanceMutex.unlock();
   }
-  _numInstanceMutex.unlock();
 }
 
 //=============================================================================
+//! Indicate if container is a python one
 /*! 
  *  Retrieves only with container naming convention if it is a python container
  */
@@ -836,10 +1080,6 @@ void Engines_Parallel_Container_i::decInstanceCnt(string genericRegisterName)
 bool Engines_Parallel_Container_i::isPythonContainer(const char* ContainerName)
 {
   bool ret=false;
-  int len=strlen(ContainerName);
-  if(len>=2)
-    if(strcmp(ContainerName+len-2,"Py")==0)
-      ret=true;
   return ret;
 }
 
@@ -861,6 +1101,7 @@ void ActSigIntHandler()
   // (SIGINT | SIGUSR1) :
   // it must be only one signal ===> one call for SIGINT 
   // and an other one for SIGUSR1
+
 #ifndef WIN32
   if ( sigaction( SIGINT , &SigIntAct, NULL ) ) {
     perror("SALOME_Container main ") ;
@@ -870,6 +1111,12 @@ void ActSigIntHandler()
     perror("SALOME_Container main ") ;
     exit(0) ;
   }
+  if ( sigaction( SIGUSR2 , &SigIntAct, NULL ) )
+  {
+    perror("SALOME_Container main ") ;
+    exit(0) ;
+  }
+
   //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
   //             use of streams (and so on) should never be used because :
   //             streams of C++ are naturally thread-safe and use pthread_mutex_lock ===>
@@ -884,7 +1131,8 @@ void ActSigIntHandler()
 
 }
 
-void SetCpuUsed() ;
+void SetCpuUsed();
+void CallCancelThread();
 
 #ifndef WIN32
 void SigIntHandler(int what , siginfo_t * siginfo ,
@@ -908,6 +1156,10 @@ void SigIntHandler(int what , siginfo_t * siginfo ,
     ActSigIntHandler() ;
     if ( siginfo->si_signo == SIGUSR1 ) {
       SetCpuUsed() ;
+    }
+    else if ( siginfo->si_signo == SIGUSR2 )
+    {
+      CallCancelThread() ;
     }
     else {
       _Sleeping = true ;
@@ -950,120 +1202,3 @@ void SigIntHandler( int what ) {
 }
 #endif
 
-//=============================================================================
-/*! 
- *  CORBA method: get or create a fileRef object associated to a local file
- *  (a file on the computer on which runs the container server), which stores
- *  a list of (machine, localFileName) corresponding to copies already done.
- * 
- *  \param  origFileName absolute path for a local file to copy on other
- *          computers
- *  \return a fileRef object associated to the file.
- */
-//=============================================================================
-
-Engines::fileRef_ptr
-Engines_Parallel_Container_i::createFileRef(const char* origFileName)
-{
-  string origName(origFileName);
-  Engines::fileRef_var theFileRef = Engines::fileRef::_nil();
-
-  if (origName[0] != '/')
-  {
-    INFOS("path of file to copy must be an absolute path begining with '/'");
-    return Engines::fileRef::_nil();
-  }
-
-  if (CORBA::is_nil(_fileRef_map[origName]))
-  {
-    CORBA::Object_var obj=_poa->id_to_reference(*_id);
-    Engines::Container_var pCont = Engines::Container::_narrow(obj);
-    fileRef_i* aFileRef = new fileRef_i(pCont, origFileName);
-    theFileRef = Engines::fileRef::_narrow(aFileRef->_this());
-    _numInstanceMutex.lock() ; // lock to be alone (stl container write)
-    _fileRef_map[origName] = theFileRef;
-    _numInstanceMutex.unlock() ;
-  }
-
-  theFileRef =  Engines::fileRef::_duplicate(_fileRef_map[origName]);
-  ASSERT(! CORBA::is_nil(theFileRef));
-  return theFileRef._retn();
-}
-
-//=============================================================================
-/*! 
- *  CORBA method:
- *  \return a reference to the fileTransfer object
- */
-//=============================================================================
-
-Engines::fileTransfer_ptr
-Engines_Parallel_Container_i::getFileTransfer()
-{
-  Engines::fileTransfer_var aFileTransfer
-    = Engines::fileTransfer::_duplicate(_fileTransfer);
-  return aFileTransfer._retn();
-}
-
-
-Engines::Salome_file_ptr 
-Engines_Parallel_Container_i::createSalome_file(const char* origFileName) 
-{
-  string origName(origFileName);
-  if (CORBA::is_nil(_Salome_file_map[origName]))
-  {
-    Salome_file_i* aSalome_file = new Salome_file_i();
-    try 
-    {
-      aSalome_file->setLocalFile(origFileName);
-      aSalome_file->recvFiles();
-    }
-    catch (const SALOME::SALOME_Exception& e)
-    {
-      return Engines::Salome_file::_nil();
-    }
-
-    Engines::Salome_file_var theSalome_file = Engines::Salome_file::_nil();
-    theSalome_file = Engines::Salome_file::_narrow(aSalome_file->_this());
-    _numInstanceMutex.lock() ; // lock to be alone (stl container write)
-    _Salome_file_map[origName] = theSalome_file;
-    _numInstanceMutex.unlock() ;
-  }
-
-  Engines::Salome_file_ptr theSalome_file =  
-    Engines::Salome_file::_duplicate(_Salome_file_map[origName]);
-  ASSERT(!CORBA::is_nil(theSalome_file));
-  return theSalome_file;
-}
-
-//=============================================================================
-/*! 
- *  CORBA attribute: Container working directory 
- */
-//=============================================================================
-
-char* 
-Engines_Parallel_Container_i::workingdir()
-{
-  char wd[256];
-  getcwd (wd,256);
-  return CORBA::string_dup(wd) ;
-}
-
-//=============================================================================
-/*! 
- *  CORBA attribute: Container log file name
- */
-//=============================================================================
-
-char* 
-Engines_Parallel_Container_i::logfilename()
-{
-  return CORBA::string_dup(_logfilename.c_str()) ;
-}
-
-void 
-Engines_Parallel_Container_i::logfilename(const char* name)
-{
-  _logfilename=name;
-}

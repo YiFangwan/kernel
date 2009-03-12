@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!--
-//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//  Copyright (C) 2007-2009  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 //  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 //  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS 
@@ -21,29 +21,32 @@
 // 
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  File   : DSC_Engines.xml
+//  File   : SALOME_PACOExtension.xml
 //  Author : Andre RIBES, EDF
 -->
 <PaCO_Interface_description>
 <Module>
  <Name>Engines</Name>
  <Interface>
-  <Name>DSC</Name>
+  <Name>Parallel_Component</Name>
   <Method>
-   <Name>connect_provides_port</Name>
+   <Name>send_parallel_proxy_object</Name>
    <Type>distributed</Type>
- </Method>
- <Method>
-   <Name>connect_uses_port</Name>
-   <Type>distributed</Type>
- </Method>
+  </Method>
  </Interface>
  <Interface>
-   <Name>Superv_Component</Name>
+  <Name>PACO_Container</Name>
+ </Interface>
+ <Interface>
+   <Name>Parallel_DSC</Name>
    <Method>
-     <Name>init_service</Name>
+     <Name>set_paco_proxy</Name>
      <Type>distributed</Type>
    </Method>
  </Interface>
+ <Interface>
+  <Name>Parallel_Salome_file</Name>
+ </Interface>
 </Module>
 </PaCO_Interface_description>
+

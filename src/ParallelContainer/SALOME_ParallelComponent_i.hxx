@@ -38,7 +38,7 @@
 #include <map>
 #include <SALOMEconfig.h>
 
-#include "SALOME_ComponentPaCO_Engines_Parallel_Component_server.hxx"
+#include "SALOME_PACOExtensionPaCO_Engines_Parallel_Component_server.hxx"
 
 #include "NOTIFICATION.hxx"
 #include "RegistryConnexion.hxx"

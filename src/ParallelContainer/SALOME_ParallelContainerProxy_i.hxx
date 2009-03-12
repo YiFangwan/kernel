@@ -22,24 +22,51 @@
 //  SALOME_ParallelContainerProxy : implementation of container and engine for Parallel Kernel
 //  File   : SALOME_ParallelContainerProxy_i.hxx
 //  Author : André RIBES, EDF
-//
+
 #ifndef _SALOME_PARALLEL_CONTAINER_PROXY_I_HXX_
 #define _SALOME_PARALLEL_CONTAINER_PROXY_I_HXX_
 
 #include "utilities.h"
-#include "SALOME_ComponentPaCO_Engines_Container_server.hxx"
+#include "SALOME_PACOExtensionPaCO_Engines_PACO_Container_server.hxx"
+#include "SALOME_ParallelGlobalProcessVar_i.hxx"
+#include "SALOME_NamingService.hxx"
+#include <map>
+#include <dlfcn.h>
+#include <paco_omni.h>
 
 class Container_proxy_impl_final :
-  public Engines::Container_proxy_impl
+  virtual public Engines::PACO_Container_proxy_impl,
+  virtual public ParallelGlobalProcessVar_i
 {
   public:
     Container_proxy_impl_final(CORBA::ORB_ptr orb, 
-			       paco_fabrique_thread * fab_thread, 
+			       paco_fabrique_thread * fab_thread,
+			       PortableServer::POA_ptr poa,
+			       std::string containerName,
 			       bool is_a_return_proxy = false);
 
     virtual ~Container_proxy_impl_final();
 
     virtual void Shutdown();
+
+    virtual ::CORBA::Boolean load_component_Library(const char* componentName);
+    virtual Engines::Component_ptr create_component_instance(const char* componentName, ::CORBA::Long studyId);
+
+  private:
+    std::map<std::string, std::string> _libtype_map; // libname -> libtype (seq ou par)
+    typedef bool (*PACO_TEST_FUNCTION) (const char *);
+    typedef PortableServer::ObjectId * (*FACTORY_FUNCTION) (CORBA::ORB_ptr,
+							    paco_fabrique_thread *,
+							    PortableServer::POA_ptr,
+							    PortableServer::ObjectId *, 
+							    const char *,
+							    int);
+    std::map<std::string, PACO_TEST_FUNCTION> _parlibfct_map;
+    int _numInstance;
+    std::string _containerName;
+    PortableServer::POA_var _poa;
+    PortableServer::ObjectId * _id;
+    SALOME_NamingService *_NS;
 };
 
 #endif

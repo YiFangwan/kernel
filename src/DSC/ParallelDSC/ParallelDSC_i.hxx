@@ -32,7 +32,7 @@
 #include "DSC_interface.hxx"
 #include "SALOME_ParallelComponent_i.hxx"
 
-#include "DSC_EnginesPaCO_Engines_Parallel_DSC_server.hxx"
+#include "SALOME_PACOExtensionPaCO_Engines_Parallel_DSC_server.hxx"
 #include "SALOME_PortsPaCO.hxx"
 
 class Engines_ParallelDSC_i: 

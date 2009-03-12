@@ -101,7 +101,9 @@ int main(int argc, char* argv[])
 
     Container_proxy_impl_final * proxy = 
       new Container_proxy_impl_final(orb,
-				     new paco_omni_fabrique());
+				     new paco_omni_fabrique(),
+				     root_poa,
+				     containerName);
     // PaCO++ code
     paco_fabrique_manager* pfm = paco_getFabriqueManager();
     pfm->register_com("dummy", new paco_dummy_fabrique());
