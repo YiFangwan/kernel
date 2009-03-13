@@ -141,7 +141,7 @@ PAR_INCLUDES = SALOME_Exception.hxx SALOME_GenericObj.hxx SALOMEDS.hxx
 PAR_LIB = libSalomeParallelIDLKernel.la
 
 IDL_PACO = SALOME_ComponentPaCO.idl SALOME_PortsPaCO.idl DSC_EnginesPaCO.idl \
-	   SALOME_ParamPorts.idl SALOME_PACOExtension.idl
+	   SALOME_ParamPortsPaCO.idl SALOME_PACOExtensionPaCO.idl
 
 GEN_PACO = SALOME_ComponentPaCO_Engines_Container_server.cxx \
 	   SALOME_ComponentPaCO_Engines_Container_client.cxx \

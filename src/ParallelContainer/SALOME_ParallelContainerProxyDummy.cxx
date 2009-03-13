@@ -115,8 +115,9 @@ int main(int argc, char* argv[])
     serveur_topo.total = nbnodes;
     proxy->setTopology(serveur_topo);
 
-    PortableServer::ObjectId_var _id = root_poa->activate_object(proxy);
-    obj = root_poa->id_to_reference(_id);
+    //PortableServer::ObjectId_var _id = root_poa->activate_object(proxy);
+    //obj = root_poa->id_to_reference(_id);
+    obj = proxy->_this();
 
     // In the NamingService
     string hostname = Kernel_Utils::GetHostname();

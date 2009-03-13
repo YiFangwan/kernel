@@ -173,8 +173,9 @@ int main(int argc, char* argv[])
     proxy->setTopology(serveur_topo);
 
     // Activation
-    PortableServer::ObjectId_var _id = root_poa->activate_object(proxy);
-    obj = root_poa->id_to_reference(_id);
+    //PortableServer::ObjectId_var _id = root_poa->activate_object(proxy);
+    //obj = root_poa->id_to_reference(_id);
+    obj = proxy->_this();
 
     // in the NamingService
     string hostname = Kernel_Utils::GetHostname();

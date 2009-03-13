@@ -120,19 +120,26 @@ Container_proxy_impl_final::load_component_Library(const char* componentName)
 
       //Test if lib could contain a parallel component
 
-      std::string paco_test_fct_signature("isAPACO_Component");
+      std::string paco_test_fct_signature = aCompName + std::string("_isAPACO_Component");
+      INFOS("SIG is : " << paco_test_fct_signature);
       PACO_TEST_FUNCTION paco_test_fct = NULL;
 #ifndef WIN32
       paco_test_fct = (PACO_TEST_FUNCTION)dlsym(handle, paco_test_fct_signature.c_str());
 #else
       paco_test_fct = (PACO_TEST_FUNCTION)GetProcAddress((HINSTANCE)handle, paco_test_fct_signature.c_str());
 #endif
-      if (!paco_test_fct)
+      if (paco_test_fct)
       {
 	// PaCO Component found
 	MESSAGE("PACO LIB FOUND");
 	_libtype_map[aCompName] = "par";
-	_parlibfct_map[aCompName] = paco_test_fct;
+      }
+      else
+      {
+	MESSAGE("SEQ LIB FOUND");
+#ifndef WIN32
+	MESSAGE("dlerror() result is : " << dlerror());
+#endif
       }
     }
     _numInstanceMutex.unlock();
@@ -166,7 +173,8 @@ Container_proxy_impl_final::load_component_Library(const char* componentName)
   }
 
   // If ret is false -> lib is not loaded !
-  _libtype_map.erase(aCompName);
+  if (!ret)
+    _libtype_map.erase(aCompName);
   return ret;
 }
 
@@ -181,18 +189,12 @@ Container_proxy_impl_final::create_component_instance(const char* componentName,
   if (_libtype_map.count(aCompName) == 0)
   {
     // Component is not loaded !
-    INFOS("Proxy: component is not loaded !");
+    INFOS("Proxy: component is not loaded ! : " << aCompName);
     return Engines::Component::_nil();
   }
 
   // If it is a sequential component
   if (_libtype_map[aCompName] == "seq")
-    return Engines::Container_proxy_impl::create_component_instance(componentName, studyId);
-
-  // Test if the component inside the parallel lib
-  // is parallel or sequential
-  bool parallel_component = (_parlibfct_map[aCompName]) (componentName);
-  if (!parallel_component)
     return Engines::Container_proxy_impl::create_component_instance(componentName, studyId);
 
   // Parallel Component !
@@ -242,18 +244,62 @@ Container_proxy_impl_final::create_component_instance(const char* componentName,
     CORBA::Object_var obj = _poa->id_to_reference(*id);
     component_proxy = Engines::Component::_narrow(obj) ;
 
-    _cntInstances_map[impl_name] += 1;
+    if (!CORBA::is_nil(component_proxy))
+    {
+      _cntInstances_map[impl_name] += 1;
 
-    // --- register the engine under the name
-    //     containerName(.dir)/instanceName(.object)
-    _NS->Register(component_proxy , component_registerName.c_str()) ;
-    MESSAGE(component_registerName.c_str() << " bound" ) ;
+      // --- register the engine under the name
+      //     containerName(.dir)/instanceName(.object)
+      _NS->Register(component_proxy , component_registerName.c_str()) ;
+      MESSAGE(component_registerName.c_str() << " bound" ) ;
+    }
+    else
+    {
+      INFOS("The factory returns a nil object !");
+      return Engines::Component::_nil();
+    }
+      
   }
   catch (...)
   {
     INFOS( "Exception catched in Proxy creation" );
     return Engines::Component::_nil();
   }
+
+  // Create on each node a work node
+  for (CORBA::ULong i = 0; i < _infos.nodes.length(); i++)
+  {
+    MESSAGE("Call create_paco_component_node_instance on work node : " << i);
+    CORBA::Object_var object = _orb->string_to_object(_infos.nodes[i]);
+    Engines::PACO_Container_var node = Engines::PACO_Container::_narrow(object);
+    if (!CORBA::is_nil(node))
+    {
+      try 
+      {
+	node->create_paco_component_node_instance(componentName, studyId);
+	MESSAGE("Call create_paco_component_node_instance done on node : " << i);
+      }
+      catch (SALOME::SALOME_Exception & ex)
+      {
+	INFOS("SALOME_EXCEPTION : " << ex.details.text);
+	return Engines::Component::_nil();
+      }
+      catch (...)
+      {
+	INFOS("Unknown Exception catch during create_paco_component_node_instance on node : " << i);
+	return Engines::Component::_nil();
+      }
+    }
+    else
+    {
+      INFOS("Cannot call create_paco_component_node_instance on node " << i << " ref is nil !");
+      return Engines::Component::_nil();
+    }
+  }
+
+  // Start Parallel object
+  PaCO::InterfaceManager_var paco_proxy = PaCO::InterfaceManager::_narrow(component_proxy);
+  paco_proxy->start();
 
   return component_proxy;
 }

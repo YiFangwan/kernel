@@ -51,6 +51,8 @@
 #include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
 
+#include "Container_init_python.hxx"
+
 using namespace std;
 
 #ifdef _DEBUG_
@@ -147,6 +149,7 @@ int main(int argc, char* argv[])
   cerr << "Level provided : " << provided << endl;
   // Initialise the ORB.
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  KERNEL_PYTHON::init_python(argc,argv);
 
   // Code pour choisir le reseau infiniband .....
   /*	string hostname_temp = GetHostname();
@@ -196,6 +199,7 @@ int main(int argc, char* argv[])
 				       myid,
 				       root_poa,
 				       (char*) node_name.c_str(),
+				       containerName,
 				       argc, argv);
     // PaCO++ init
     paco_fabrique_manager * pfm = paco_getFabriqueManager();
@@ -206,10 +210,7 @@ int main(int argc, char* argv[])
     servant->setLibCom("mpi", &parallel_object_group);
     servant->setLibThread("omni");
 
-    // Activation
-    PortableServer::ObjectId * _id = root_poa->activate_object(servant);
-    servant->set_id(_id);
-    obj = root_poa->id_to_reference(*_id);
+    obj = servant->_this();
 
     // In the NamingService
     string hostname = Kernel_Utils::GetHostname();
@@ -225,6 +226,9 @@ int main(int argc, char* argv[])
     ns->Register(obj, _containerName.c_str());
     pman->activate();
     orb->run();
+    PyGILState_Ensure();
+    //Delete python container that destroy orb from python (pyCont._orb.destroy())
+    Py_Finalize();
   }
   catch (PaCO::PACO_Exception& e)
   {

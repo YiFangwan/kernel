@@ -54,14 +54,13 @@ class Container_proxy_impl_final :
 
   private:
     std::map<std::string, std::string> _libtype_map; // libname -> libtype (seq ou par)
-    typedef bool (*PACO_TEST_FUNCTION) (const char *);
+    typedef void (*PACO_TEST_FUNCTION) ();
     typedef PortableServer::ObjectId * (*FACTORY_FUNCTION) (CORBA::ORB_ptr,
 							    paco_fabrique_thread *,
 							    PortableServer::POA_ptr,
 							    PortableServer::ObjectId *, 
 							    const char *,
 							    int);
-    std::map<std::string, PACO_TEST_FUNCTION> _parlibfct_map;
     int _numInstance;
     std::string _containerName;
     PortableServer::POA_var _poa;

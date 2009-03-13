@@ -76,7 +76,8 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
 							    char * ior, 
 							    int rank,
 							    PortableServer::POA_ptr poa,
-							    char *containerName ,
+							    char *containerName,
+							    std::string proxy_containerName,
 							    int argc , char* argv[],
 							    bool isServantAloneInProcess
 							   ) :
@@ -104,7 +105,8 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
   _NS = new SALOME_NamingService();
   _NS->init_orb(_orb);
   _containerName = _NS->BuildContainerNameForNS(containerName, _hostname.c_str());
-  _NS->Register(container_node, _containerName.c_str());
+  _proxy_containerName = proxy_containerName;
+  //_NS->Register(container_node, _containerName.c_str());
 
   // Init Python container part
   CORBA::String_var sior =  _orb->object_to_string(container_node);
@@ -881,6 +883,87 @@ void
 Engines_Parallel_Container_i::create_paco_component_node_instance(const char* componentName,
 								  CORBA::Long studyId)
 {
+  // Init de la méthode
+  char * proxy_ior;
+  Engines::Component_PaCO_var work_node;
+  std::string aCompName = componentName;
+#ifndef WIN32
+  string impl_name = string ("lib") + aCompName +string("Engine.so");
+#else
+  string impl_name = aCompName +string("Engine.dll");
+#endif
+  void* handle = _library_map[impl_name];
+  _numInstanceMutex.lock() ; // lock on the instance number
+  _numInstance++ ;
+  _numInstanceMutex.unlock() ;
+  char aNumI[12];
+  sprintf( aNumI , "%d" , _numInstance ) ;
+  string instanceName = aCompName + "_inst_" + aNumI ;
+
+  // Step 1 : Get proxy !
+  string component_registerName = _proxy_containerName + "/" + instanceName;
+  CORBA::Object_var temp = _NS->Resolve(component_registerName.c_str());
+  Engines::Component_var obj_proxy = Engines::Component::_narrow(temp);
+  if (CORBA::is_nil(obj_proxy))
+  {
+    INFOS("Proxy reference from NamingService is nil !");
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "Proxy reference from NamingService is nil !";
+    throw SALOME::SALOME_Exception(es);
+  }
+  proxy_ior = _orb->object_to_string(obj_proxy);
+
+  // Get factory
+  string factory_name = aCompName + string("Engine_factory");
+  FACTORY_FUNCTION Component_factory = (FACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
+  if (!Component_factory)
+  {
+    INFOS("Can't resolve symbol : " + factory_name);
+#ifndef WIN32
+    INFOS("dlerror() result is : " << dlerror());
+#endif
+    std::string ex_text = "Can't resolve symbol : " + factory_name;
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = CORBA::string_dup(ex_text.c_str());
+    throw SALOME::SALOME_Exception(es);
+  }
+
+  try
+  {
+    char aNumI2[12];
+    sprintf(aNumI2 , "%d" , getMyRank()) ;
+    string instanceName = aCompName + "_inst_" + aNumI + "_work_node_" + aNumI2;
+    string component_registerName = _containerName + aNumI2 + "/" + instanceName;
+
+    // --- Instanciate work node
+    PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
+    id = (Component_factory) (_orb, proxy_ior, getMyRank(), _poa, _id, instanceName.c_str(), componentName);
+
+    // --- get reference & servant from id
+    CORBA::Object_var obj = _poa->id_to_reference(*id);
+    work_node = Engines::Component_PaCO::_narrow(obj) ;
+    if (CORBA::is_nil(work_node))
+    {
+      INFOS("work_node reference from factory is nil !");
+      SALOME::ExceptionStruct es;
+      es.type = SALOME::INTERNAL_ERROR;
+      es.text = "work_node reference from factory is nil !";
+      throw SALOME::SALOME_Exception(es);
+    }
+    work_node->deploy();
+    _NS->Register(work_node, component_registerName.c_str());
+    MESSAGE(component_registerName.c_str() << " bound" );
+  }
+  catch (...)
+  {
+    INFOS("Container_i::create_paco_component_node_instance exception catched");
+    SALOME::ExceptionStruct es;
+    es.type = SALOME::INTERNAL_ERROR;
+    es.text = "Container_i::create_paco_component_node_instance exception catched";
+    throw SALOME::SALOME_Exception(es);
+  }
 }
 
 Engines::Component_ptr

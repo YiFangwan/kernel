@@ -700,7 +700,7 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::MachineParameters& 
   MESSAGE("Creating component instance");
   // @PARALLEL@ permits to identify that the component requested
   // is a parallel component.
-  string name = string(componentName) + string("@PARALLEL@");
+  string name = string(componentName);
   Engines::Component_var myInstance = cont->create_component_instance(name.c_str(), studyId);
   if (CORBA::is_nil(myInstance))
     INFOS("create_component_instance returns a NULL component !");

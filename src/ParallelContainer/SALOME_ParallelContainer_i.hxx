@@ -63,6 +63,7 @@ public:
   Engines_Parallel_Container_i(CORBA::ORB_ptr orb, char * ior, int rank,
 		      PortableServer::POA_ptr poa,
 		      char * containerName ,
+		      std::string proxy_containerName,
                       int argc, char* argv[],
 		      bool isServantAloneInProcess = true);
   virtual ~Engines_Parallel_Container_i();
@@ -142,6 +143,7 @@ protected:
   std::string _hostname;
   std::string _library_path;
   std::string _containerName;
+  std::string _proxy_containerName;
   std::string _logfilename;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
@@ -160,6 +162,11 @@ protected:
   _fileRef_map_t _fileRef_map;
   _Salome_file_map_t _Salome_file_map;
 
+  typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION) (CORBA::ORB_ptr, char *, int,
+							   PortableServer::POA_ptr, 
+							   PortableServer::ObjectId *, 
+							   const char *, 
+							   const char *);
 };
 
 #endif
