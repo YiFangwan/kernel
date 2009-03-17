@@ -94,7 +94,7 @@ int main(int argc, char* argv[])
     system(aCommand);
 #endif
 
-    SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
+    SALOME_NamingService * ns = new SALOME_NamingService(orb);
 //    Engines::Container_proxy_impl * proxy = 
 //      new Engines::Container_proxy_impl(orb,
 //					new paco_omni_fabrique());
@@ -128,6 +128,7 @@ int main(int argc, char* argv[])
     ns->Register(pCont, _containerName.c_str());
     pman->activate();
     orb->run();
+    delete ns;
   }
   catch (PaCO::PACO_Exception& e)
   {

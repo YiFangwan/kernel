@@ -60,12 +60,14 @@ class CONTAINER_EXPORT Engines_Parallel_Container_i:
   virtual public PortableServer::RefCountServantBase
 {
 public:
-  Engines_Parallel_Container_i(CORBA::ORB_ptr orb, char * ior, int rank,
-		      PortableServer::POA_ptr poa,
-		      char * containerName ,
-		      std::string proxy_containerName,
-                      int argc, char* argv[],
-		      bool isServantAloneInProcess = true);
+  Engines_Parallel_Container_i(CORBA::ORB_ptr orb, 
+			       char * ior, 
+			       int rank,
+			       PortableServer::POA_ptr poa,
+			       std::string containerName ,
+			       std::string proxy_containerName,
+			       bool isServantAloneInProcess = true);
+
   virtual ~Engines_Parallel_Container_i();
 
   // --- CORBA methods
@@ -126,10 +128,6 @@ public:
   static void decInstanceCnt(std::string genericRegisterName);
 
   // --- needed for parallel components, Numerical Platon
-
-  int getArgc() { return _argc; }
-  char **getArgv() { return _argv; }
-
   void set_id(PortableServer::ObjectId * id) { _id = id;}
 
   Engines::fileRef_ptr createFileRef(const char* origFileName);
@@ -149,8 +147,6 @@ protected:
   PortableServer::POA_var _poa;
   PortableServer::ObjectId * _id;
   int _numInstance;
-  int    _argc;
-  char** _argv;
   CORBA::Long   _pid;
   bool   _isServantAloneInProcess;
   Engines::fileTransfer_var _fileTransfer;

@@ -198,9 +198,8 @@ int main(int argc, char* argv[])
 				       proxy_ior,
 				       myid,
 				       root_poa,
-				       (char*) node_name.c_str(),
-				       containerName,
-				       argc, argv);
+				       node_name,
+				       containerName);
     // PaCO++ init
     paco_fabrique_manager * pfm = paco_getFabriqueManager();
     pfm->register_com("mpi", new paco_mpi_fabrique());

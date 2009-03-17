@@ -76,11 +76,9 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
 							    char * ior, 
 							    int rank,
 							    PortableServer::POA_ptr poa,
-							    char *containerName,
+							    std::string containerName,
 							    std::string proxy_containerName,
-							    int argc , char* argv[],
-							    bool isServantAloneInProcess
-							   ) :
+							    bool isServantAloneInProcess) :
   InterfaceParallel_impl(orb,ior,rank), 
   Engines::PACO_Container_serv(orb,ior,rank),
   Engines::PACO_Container_base_serv(orb,ior,rank),
@@ -90,8 +88,6 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
 {
   // Members init
   _pid = getpid();
-  _argc = argc ;
-  _argv = argv ;
   _hostname = Kernel_Utils::GetHostname();
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(poa);
@@ -104,9 +100,8 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
   // Adding this servant to SALOME
   _NS = new SALOME_NamingService();
   _NS->init_orb(_orb);
-  _containerName = _NS->BuildContainerNameForNS(containerName, _hostname.c_str());
+  _containerName = _NS->BuildContainerNameForNS(containerName.c_str(), _hostname.c_str());
   _proxy_containerName = proxy_containerName;
-  //_NS->Register(container_node, _containerName.c_str());
 
   // Init Python container part
   CORBA::String_var sior =  _orb->object_to_string(container_node);

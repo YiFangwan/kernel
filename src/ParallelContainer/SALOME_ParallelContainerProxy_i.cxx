@@ -47,7 +47,12 @@ Container_proxy_impl_final::Container_proxy_impl_final(CORBA::ORB_ptr orb,
   _NS->init_orb(_orb);
 }
 
-Container_proxy_impl_final:: ~Container_proxy_impl_final() {}
+Container_proxy_impl_final:: ~Container_proxy_impl_final() {
+  if (_id)
+    delete _id;
+  if (_NS)
+    delete _NS;
+}
 
 void
 Container_proxy_impl_final::Shutdown()

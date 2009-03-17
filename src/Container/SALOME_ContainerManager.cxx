@@ -500,6 +500,8 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 	    MESSAGE("[FindOrStartParallelContainer] Deploying node : " << name);
 	    node->deploy();
 	  }
+
+	  MESSAGE ("[FindOrStartParallelContainer] Starting parallel object");
 	  proxy->start();
 	}
 	catch(CORBA::SystemException& e)

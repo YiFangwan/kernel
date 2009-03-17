@@ -148,7 +148,7 @@ int main(int argc, char* argv[])
     system(aCommand);
 #endif
 
-    SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
+    SALOME_NamingService * ns = new SALOME_NamingService(orb);
     // Get the proxy
     string proxyNameInNS = ns->BuildContainerNameForNS(containerName.c_str(), 
 						       hostname.c_str());
@@ -161,9 +161,8 @@ int main(int argc, char* argv[])
 									      proxy_ior,
 									      myid,
 									      root_poa,
-									      (char*) node_name.c_str(),
-									      containerName,
-									      argc, argv);
+									      node_name,
+									      containerName);
     // PaCO++ init
     paco_fabrique_manager * pfm = paco_getFabriqueManager();
     pfm->register_com("dummy", new paco_dummy_fabrique());
@@ -188,6 +187,8 @@ int main(int argc, char* argv[])
     PyGILState_Ensure();
     //Delete python container that destroy orb from python (pyCont._orb.destroy())
     Py_Finalize();
+    delete proxy_ior;
+    delete ns;
   }
   catch (PaCO::PACO_Exception& e)
   {
