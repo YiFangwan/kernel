@@ -58,23 +58,6 @@ bool Engines_Parallel_Component_i::_isMultiInstance = false;
 
 //=============================================================================
 /*! 
- *  Default constructor, not for use
- */
-//=============================================================================
-
-Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, char * ior, int rank) : 
-  InterfaceParallel_impl(orb,ior,rank), 
-  Engines::Component_serv(orb,ior,rank), 
-  Engines::Component_base_serv(orb,ior,rank), 
-  Engines::Parallel_Component_serv(orb,ior,rank),
-  Engines::Parallel_Component_base_serv(orb,ior,rank)
-{
-  //ASSERT(0);
-  INFOS("Default Constructor...");
-}
-
-//=============================================================================
-/*! 
  *  Standard Constructor for generic Component, used in derived class
  *  Connection to Registry and Notification
  *  \param orb Object Request broker given by Container
@@ -91,7 +74,8 @@ Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, c
 					 PortableServer::ObjectId * contId, 
 					 const char *instanceName,
 					 const char *interfaceName,
-                                         bool notif) :
+                                         bool notif,
+					 bool regist) :
   InterfaceParallel_impl(orb,ior,rank), 
   Engines::Component_serv(orb,ior,rank),
   Engines::Component_base_serv(orb,ior,rank),
@@ -105,18 +89,22 @@ Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, c
   _Executed(false) ,
   _graphName("") ,
   _nodeName(""),
- _studyId(-1)
+  _studyId(-1),
+  _CanceledThread(false)
 {
-  MESSAGE("Component constructor with instanceName "<< _instanceName);
+  MESSAGE("Parallel Component constructor with instanceName "<< _instanceName);
   //SCRUTE(pd_refCount);
   _orb = CORBA::ORB::_duplicate(orb);
   _poa = PortableServer::POA::_duplicate(poa);
   _contId = contId ;
   CORBA::Object_var o = _poa->id_to_reference(*contId); // container ior...
-  const CORBA::String_var the_ior = _orb->object_to_string(o);
-  _myConnexionToRegistry = new RegistryConnexion(0, 0, the_ior,"theSession",
-						 _instanceName.c_str());
 
+  if (regist)
+  {
+    CORBA::String_var the_ior = _orb->object_to_string(o);
+    _myConnexionToRegistry = new RegistryConnexion(0, 0, the_ior,"theSession",
+						   _instanceName.c_str());
+  }
   _notifSupplier = new NOTIFICATION_Supplier(instanceName, notif);
 
   deploy_mutex = new pthread_mutex_t();
@@ -135,11 +123,13 @@ Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, c
 
 Engines_Parallel_Component_i::~Engines_Parallel_Component_i()
 {
-  MESSAGE("Component destructor");
+  MESSAGE("Parallel Component destructor");
   Engines_Parallel_Container_i::decInstanceCnt(_interfaceName);
+  if(_myConnexionToRegistry)delete _myConnexionToRegistry;
+  if(_notifSupplier)delete _notifSupplier;
+
   pthread_mutex_destroy(deploy_mutex);
   delete deploy_mutex;
-
   if (_proxy)
     delete _proxy;
 }
@@ -188,7 +178,13 @@ CORBA::Long Engines_Parallel_Component_i::getStudyId()
 
 void Engines_Parallel_Component_i::ping()
 {
-  //  MESSAGE("Engines_Parallel_Component_i::ping_c() pid "<< getpid() << " threadid " << pthread_self());
+#ifndef WIN32
+  MESSAGE("Engines_Parallel_Component_i::ping() pid "<< getpid() << " threadid "
+          << pthread_self());
+#else
+  MESSAGE("Engines_Parallel_Component_i::ping() pid "<< _getpid()<< " threadid "
+          << pthread_self().p );
+#endif
 }
 
 //=============================================================================
@@ -207,14 +203,14 @@ void Engines_Parallel_Component_i::destroy()
   MESSAGE("Engines_Parallel_Component_i::destroy()");
   //SCRUTE(pd_refCount);
 
-  delete _notifSupplier;
+  if(_notifSupplier) delete _notifSupplier;
   _notifSupplier = 0;
-
-  delete _myConnexionToRegistry;
+  if(_myConnexionToRegistry) delete _myConnexionToRegistry;
   _myConnexionToRegistry = 0 ;
-  _poa->deactivate_object(*_id) ;
-  CORBA::release(_poa) ;
-  delete(_id) ;
+
+  if (_id)
+    delete(_id);
+
   //SCRUTE(pd_refCount);
   _thisObj->_remove_ref();
   //SCRUTE(pd_refCount);
@@ -231,7 +227,7 @@ void Engines_Parallel_Component_i::destroy()
 Engines::Container_ptr Engines_Parallel_Component_i::GetContainerRef()
 {
   MESSAGE("Engines_Parallel_Component_i::GetContainerRef");
-  CORBA::Object_ptr o = _poa->id_to_reference(*_contId) ;
+  CORBA::Object_var o = _poa->id_to_reference(*_contId) ;
   return Engines::Container::_narrow(o);
 }
 
@@ -288,10 +284,10 @@ Engines::FieldsDict* Engines_Parallel_Component_i::getProperties()
 void Engines_Parallel_Component_i::Names( const char * graphName ,
                                  const char * nodeName )
 {
-  _graphName = graphName ;
-  _nodeName = nodeName ;
-  INFOS("Engines_Parallel_Component_i::Names( '" << _graphName << "' , '"
-	<< _nodeName << "' )");
+  _graphName = graphName;
+  _nodeName = nodeName;
+  MESSAGE("Engines_Parallel_Component_i::Names( '" << _graphName << "' , '" 
+						   << _nodeName << "' )");
 }
 
 //=============================================================================
@@ -313,7 +309,7 @@ bool Engines_Parallel_Component_i::Kill_impl()
 #ifndef WIN32
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
     {
-      RetVal = Killer( _ThreadId , 0 ) ;
+      RetVal = Killer( _ThreadId , SIGUSR2 ) ;
       _ThreadId = (pthread_t ) -1 ;
     }
 
@@ -336,11 +332,19 @@ bool Engines_Parallel_Component_i::Kill_impl()
 
 bool Engines_Parallel_Component_i::Stop_impl()
 {
+#ifndef WIN32
   MESSAGE("Engines_Parallel_Component_i::Stop_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
           << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
+#else
+  MESSAGE("Engines_Parallel_Component_i::Stop_i() pthread_t "<< pthread_self().p
+          << " pid " << _getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId );
+#endif
   
 
   bool RetVal = false ;
@@ -368,11 +372,19 @@ bool Engines_Parallel_Component_i::Stop_impl()
 
 bool Engines_Parallel_Component_i::Suspend_impl()
 {
+#ifndef WIN32
   MESSAGE("Engines_Parallel_Component_i::Suspend_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
           << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
+#else
+  MESSAGE("Engines_Parallel_Component_i::Suspend_i() pthread_t "<< pthread_self().p
+          << " pid " << _getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId );
+#endif
 
   bool RetVal = false ;
 #ifndef WIN32
@@ -407,11 +419,19 @@ bool Engines_Parallel_Component_i::Suspend_impl()
 
 bool Engines_Parallel_Component_i::Resume_impl()
 {
+#ifndef WIN32
   MESSAGE("Engines_Parallel_Component_i::Resume_i() pthread_t "<< pthread_self()
           << " pid " << getpid() << " instanceName "
           << _instanceName.c_str() << " interface " << _interfaceName.c_str()
           << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
           << dec << " _ThreadId " << _ThreadId );
+#else
+  MESSAGE("Engines_Parallel_Component_i::Resume_i() pthread_t "<< pthread_self().p
+          << " pid " << _getpid() << " instanceName "
+          << _instanceName.c_str() << " interface " << _interfaceName.c_str()
+          << " machineName " << Kernel_Utils::GetHostname().c_str()<< " _id " << hex << _id
+          << dec << " _ThreadId " << _ThreadId );
+#endif
   bool RetVal = false ;
 #ifndef WIN32
   if ( _ThreadId > 0 && pthread_self() != _ThreadId )
@@ -547,8 +567,13 @@ PortableServer::ObjectId * Engines_Parallel_Component_i::getId()
 
 void Engines_Parallel_Component_i::beginService(const char *serviceName)
 {
+#ifndef WIN32
   MESSAGE(pthread_self() << "Send BeginService notification for " <<serviceName
-	  << endl << "Component instance : " << _instanceName << endl << endl);
+	  << endl << "Parallel Component instance : " << _instanceName << endl << endl);
+#else
+  MESSAGE(pthread_self().p << "Send BeginService notification for " <<serviceName
+	  << endl << "Parallel Component instance : " << _instanceName << endl << endl);
+#endif
 #ifndef WIN32
   _ThreadId = pthread_self() ;
 #else
@@ -614,10 +639,18 @@ void Engines_Parallel_Component_i::beginService(const char *serviceName)
 
 void Engines_Parallel_Component_i::endService(const char *serviceName)
 {
-  _ThreadCpuUsed = CpuUsed_impl() ;
+  if ( !_CanceledThread )
+    _ThreadCpuUsed = CpuUsed_impl() ;
+
+#ifndef WIN32
   MESSAGE(pthread_self() << " Send EndService notification for " << serviceName
-	  << endl << " Component instance : " << _instanceName << " StartUsed "
+	  << endl << " Parallel Component instance : " << _instanceName << " StartUsed "
           << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
+#else
+  MESSAGE(pthread_self().p << " Send EndService notification for " << serviceName
+	  << endl << " Parallel Component instance : " << _instanceName << " StartUsed "
+    << _StartUsed << " _ThreadCpuUsed "<< _ThreadCpuUsed << endl <<endl);
+#endif
   _ThreadId = 0 ;
 }
 
@@ -666,8 +699,13 @@ bool Engines_Parallel_Component_i::Killer( pthread_t ThreadId , int signum )
 	    }
 	  else
 	    {
+#ifndef WIN32
 	      MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
 		      << " pthread_canceled") ;
+#else
+        MESSAGE(pthread_self().p << "Killer : ThreadId " << ThreadId.p
+		      << " pthread_canceled") ;
+#endif
 	    }
 	}
       else
@@ -679,8 +717,13 @@ bool Engines_Parallel_Component_i::Killer( pthread_t ThreadId , int signum )
 	    }
 	  else 
 	    {
-	      MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
+#ifndef WIN32
+        MESSAGE(pthread_self() << "Killer : ThreadId " << ThreadId
 		      << " pthread_killed(" << signum << ")") ;
+#else
+        MESSAGE(pthread_self().p << "Killer : ThreadId " << ThreadId.p
+		      << " pthread_killed(" << signum << ")") ;
+#endif
 	    }
 	}
     }
@@ -695,7 +738,8 @@ bool Engines_Parallel_Component_i::Killer( pthread_t ThreadId , int signum )
 
 void SetCpuUsed()
 {
-  theEngines_Component->SetCurCpu() ;
+  if (theEngines_Component)
+    theEngines_Component->SetCurCpu();
 }
 
 //=============================================================================
@@ -746,6 +790,23 @@ long Engines_Parallel_Component_i::CpuUsed()
 
 
   return cpu ;
+}
+
+void CallCancelThread()
+{
+  if ( theEngines_Component )
+    theEngines_Component->CancelThread() ;
+}
+
+//=============================================================================
+/*!
+ *  C++ method:
+ */
+//=============================================================================
+
+void Engines_Parallel_Component_i::CancelThread()
+{
+  _CanceledThread = true;
 }
 
 //=============================================================================

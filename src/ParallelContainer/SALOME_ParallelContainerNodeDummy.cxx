@@ -187,7 +187,7 @@ int main(int argc, char* argv[])
     PyGILState_Ensure();
     //Delete python container that destroy orb from python (pyCont._orb.destroy())
     Py_Finalize();
-    delete proxy_ior;
+    CORBA::string_free(proxy_ior);
     delete ns;
   }
   catch (PaCO::PACO_Exception& e)
