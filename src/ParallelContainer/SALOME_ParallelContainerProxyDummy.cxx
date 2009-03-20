@@ -99,16 +99,17 @@ int main(int argc, char* argv[])
 //      new Engines::Container_proxy_impl(orb,
 //					new paco_omni_fabrique());
 
-    Container_proxy_impl_final * proxy = 
-      new Container_proxy_impl_final(orb,
-				     new paco_omni_fabrique(),
-				     root_poa,
-				     containerName);
     // PaCO++ code
     paco_fabrique_manager* pfm = paco_getFabriqueManager();
     pfm->register_com("dummy", new paco_dummy_fabrique());
-    proxy->setLibCom("dummy", proxy);
     pfm->register_thread("omnithread", new paco_omni_fabrique());
+
+    Container_proxy_impl_final * proxy = 
+      new Container_proxy_impl_final(orb,
+				     pfm->get_thread("omnithread"),
+				     root_poa,
+				     containerName);
+    proxy->setLibCom("dummy", proxy);
     proxy->setLibThread("omnithread");
     // Topo of the parallel object
     PaCO::PacoTopology_t serveur_topo;

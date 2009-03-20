@@ -30,6 +30,7 @@
 #include "SALOME_PACOExtensionPaCO_Engines_PACO_Container_server.hxx"
 #include "SALOME_ParallelGlobalProcessVar_i.hxx"
 #include "SALOME_NamingService.hxx"
+#include "RegistryConnexion.hxx"
 #include <map>
 #include <dlfcn.h>
 #include <paco_omni.h>
@@ -54,11 +55,26 @@ class Container_proxy_impl_final :
 
   private:
     std::map<std::string, std::string> _libtype_map; // libname -> libtype (seq ou par)
+
+    struct proxy_object
+    {
+      Engines::Component_var     proxy_corba_ref;
+      PortableServer::ObjectId * proxy_id;
+      RegistryConnexion *	 proxy_regist;
+    };
+
+    // Cette liste contient les references vers les différentes
+    // instances d'objets parallèles.
+    std::list<Container_proxy_impl_final::proxy_object> _par_obj_inst_list;
+
+    // Fonction de test pour savoir si les objets de la bib sont
+    // parallèles ou sequentiels
     typedef void (*PACO_TEST_FUNCTION) ();
     typedef PortableServer::ObjectId * (*FACTORY_FUNCTION) (CORBA::ORB_ptr,
 							    paco_fabrique_thread *,
 							    PortableServer::POA_ptr,
-							    PortableServer::ObjectId *, 
+							    PortableServer::ObjectId *,
+							    RegistryConnexion **,
 							    const char *,
 							    int);
     int _numInstance;
@@ -66,6 +82,8 @@ class Container_proxy_impl_final :
     PortableServer::POA_var _poa;
     PortableServer::ObjectId * _id;
     SALOME_NamingService *_NS;
+
+    paco_fabrique_thread * _fab_thread; 
 };
 
 #endif

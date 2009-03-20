@@ -236,7 +236,8 @@ void Engines_Parallel_Container_i::ping()
 void Engines_Parallel_Container_i::Shutdown()
 {
   MESSAGE("Engines_Parallel_Container_i::Shutdown()");
-  /* For each component contained in this container
+
+  /* For each seq component contained in this container
   * tell it to self-destroy
   */
   std::map<std::string, Engines::Component_var>::iterator itm;
@@ -255,6 +256,11 @@ void Engines_Parallel_Container_i::Shutdown()
       // ignore this entry and continue
     }
   }
+
+  // Destroy each parallel component node...
+  std::map<std::string, PortableServer::ObjectId *>::iterator i;
+  for (i = _par_obj_inst_map.begin(); i != _par_obj_inst_map.end(); i++)
+    _poa->deactivate_object(*(i->second));
 
   _NS->Destroy_FullDirectory(_containerName.c_str());
   _NS->Destroy_Name(_containerName.c_str());
@@ -791,23 +797,25 @@ Engines_Parallel_Container_i::createCPPInstance(string genericRegisterName,
 						void *handle,
 						int studyId)
 {
+  MESSAGE("Entering Engines_Parallel_Container_i::createCPPInstance");
+
   // --- find the factory
 
   string aGenRegisterName = genericRegisterName;
   string factory_name = aGenRegisterName + string("Engine_factory");
 
-  typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION)
+  typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION_2)
     (CORBA::ORB_ptr,
      PortableServer::POA_ptr, 
      PortableServer::ObjectId *, 
      const char *, 
      const char *) ;
 
-  FACTORY_FUNCTION Component_factory = NULL;
+  FACTORY_FUNCTION_2 Component_factory = NULL;
 #ifndef WIN32
-  Component_factory = (FACTORY_FUNCTION)dlsym( handle, factory_name.c_str() );
+  Component_factory = (FACTORY_FUNCTION_2)dlsym( handle, factory_name.c_str() );
 #else
-  Component_factory = (FACTORY_FUNCTION)GetProcAddress( (HINSTANCE)handle, factory_name.c_str() );
+  Component_factory = (FACTORY_FUNCTION_2)GetProcAddress( (HINSTANCE)handle, factory_name.c_str() );
 #endif
 
   if (!Component_factory)
@@ -935,6 +943,7 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
     // --- Instanciate work node
     PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
     id = (Component_factory) (_orb, proxy_ior, getMyRank(), _poa, _id, instanceName.c_str(), componentName);
+    CORBA::string_free(proxy_ior);
 
     // --- get reference & servant from id
     CORBA::Object_var obj = _poa->id_to_reference(*id);
@@ -949,6 +958,7 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
     }
     work_node->deploy();
     _NS->Register(work_node, component_registerName.c_str());
+    _par_obj_inst_map[instanceName] = id;
     MESSAGE(component_registerName.c_str() << " bound" );
   }
   catch (...)
@@ -959,162 +969,6 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
     es.text = "Container_i::create_paco_component_node_instance exception catched";
     throw SALOME::SALOME_Exception(es);
   }
-}
-
-Engines::Component_ptr
-Engines_Parallel_Container_i::createParallelInstance(string genericRegisterName,
-						     void *handle,
-						     int studyId)
-{
-  cerr << "----------------- createParallelInstance node : " << getMyRank() << endl;
-  // --- create instance
-  Engines::Component_var iobject = Engines::Component::_nil();
-  string aGenRegisterName = genericRegisterName;
-
-  //////////////////////////////////////////////////////////////////////////
-  // 1: Proxy Step
-  // Node 0 create the proxy
-  if (getMyRank() == 0) {
-    // --- find the factory
-    string factory_name = aGenRegisterName + string("EngineProxy_factory");
-
-    typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION)
-      (CORBA::ORB_ptr,
-       paco_fabrique_thread *,
-       PortableServer::POA_ptr,
-       PortableServer::ObjectId *, 
-       const char *,
-       int) ;
-
-    FACTORY_FUNCTION Component_factory
-      = (FACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
-
-    char *error ;
-    if ( (error = dlerror() ) != NULL) {
-      INFOS("Can't resolve symbol: " + factory_name);
-      SCRUTE(error);
-      return Engines::Component::_nil();
-    }
-    try {
-      _numInstanceMutex.lock() ; // lock on the instance number
-      _numInstance++ ;
-      int numInstance = _numInstance ;
-      _numInstanceMutex.unlock() ;
-
-      char aNumI[12];
-      sprintf( aNumI , "%d" , numInstance ) ;
-      string instanceName = aGenRegisterName + "_inst_" + aNumI ;
-      string component_registerName =
-	_containerName + "/" + instanceName;
-
-      // --- Instanciate required CORBA object
-      PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
-      id = (Component_factory) ( _orb, new paco_omni_fabrique(), _poa, _id, instanceName.c_str(), getTotalNode()) ;
-
-      // --- get reference & servant from id
-      CORBA::Object_var obj = _poa->id_to_reference(*id);
-      iobject = Engines::Component::_narrow(obj) ;
-
-      _listInstances_map[instanceName] = iobject;
-      _cntInstances_map[aGenRegisterName] += 1;
-
-      // --- register the engine under the name
-      //     containerName(.dir)/instanceName(.object)
-      _NS->Register(iobject , component_registerName.c_str()) ;
-      MESSAGE( component_registerName.c_str() << " bound" ) ;
-    }
-    catch (...)
-    {
-      INFOS( "Container_i::createParallelInstance exception catched in Proxy creation" ) ;
-    }
-  }
-  else {
-    // We have to have the same numIntance to be able to get the proxy reference 
-    // in the nameing service.
-    _numInstanceMutex.lock() ; // lock on the instance number
-    _numInstance++ ;
-    //    int numInstance = _numInstance ;
-    _numInstanceMutex.unlock() ;
-  }
-  cerr << "Node " << getMyRank() << " entering in paco_barrier()" << endl;
-  _my_com->paco_barrier();
-  cerr << "Node " << getMyRank() << " quitting paco_barrier()" << endl;
-
-  //////////////////////////////////////////////////////////////////////////
-  // 2: Nodes Step
-
-  char * proxy_ior;
-  Engines::Component_PaCO_var iobject2;
-
-  char aNumI[12];
-  sprintf( aNumI , "%d" , _numInstance ) ;
-  string instanceName = aGenRegisterName + "_inst_" + aNumI ;
-
-  string component_registerName = _containerName + "/" + instanceName;
-
-  CORBA::Object_var temp = _NS->Resolve(component_registerName.c_str());
-  Engines::Component_var obj_proxy = Engines::Component::_narrow(temp);
-  proxy_ior = _orb->object_to_string(obj_proxy);
-
-  // --- find the factory
-  string factory_name = aGenRegisterName + string("Engine_factory");
-
-  typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION)
-    (CORBA::ORB_ptr, char *, int,
-     PortableServer::POA_ptr, 
-     PortableServer::ObjectId *, 
-     const char *, 
-     const char *) ;
-
-  FACTORY_FUNCTION Component_factory
-    = (FACTORY_FUNCTION) dlsym(handle, factory_name.c_str());
-
-  char *error ;
-  if ( (error = dlerror() ) != NULL)
-  {
-    INFOS("Can't resolve symbol: " + factory_name);
-    SCRUTE(error);
-    return Engines::Component::_nil() ;
-  }
-  try
-  {
-    char aNumI2[12];
-    sprintf(aNumI2 , "%d" , getMyRank()) ;
-    string instanceName = aGenRegisterName + "_inst_node_" + aNumI2;
-    string component_registerName = _containerName + aNumI2 + "/" + instanceName;
-
-    // --- Instanciate required CORBA object
-
-    PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
-    id = (Component_factory) ( _orb, proxy_ior, getMyRank(), _poa, _id, instanceName.c_str(),
-			       aGenRegisterName.c_str() ) ;
-
-    // --- get reference & servant from id
-    CORBA::Object_var obj = _poa->id_to_reference(*id);
-    iobject2 = Engines::Component_PaCO::_narrow(obj) ;
-    _NS->Register(iobject2 , component_registerName.c_str()) ;
-    MESSAGE( component_registerName.c_str() << " bound" ) ;
-  }
-  catch (...)
-  {
-    INFOS( "Container_i::createParallelInstance exception catched" ) ;
-  }
-
-  //////////////////////////////////////////////////////////////////////////
-  // 3: Deployment Step
-
-  iobject2->deploy();
-  _my_com->paco_barrier();
-  cerr << "--------- createParallelInstance : End Deploy step ----------" << endl;  
-  if (getMyRank() == 0) {
-    PaCO::InterfaceManager_var proxy = PaCO::InterfaceManager::_narrow(iobject);
-    proxy->start();
-    _my_com->paco_barrier();
-  }
-  else
-    _my_com->paco_barrier();
-
-  return iobject._retn();
 }
 
 //=============================================================================

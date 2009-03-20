@@ -202,6 +202,7 @@ private:
   long      _ThreadCpuUsed ;
   bool      _Executed ;
   bool      _CanceledThread ;
+  bool	    _destroyed;
 };
 
 #endif

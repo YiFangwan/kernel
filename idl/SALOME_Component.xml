@@ -37,6 +37,14 @@
  <Interface>
   <Name>Component</Name>
   <Method>
+   <Name>ping</Name>
+   <Type>distributed</Type>
+  </Method>
+  <Method>
+   <Name>destroy</Name>
+   <Type>distributed</Type>
+  </Method>
+  <Method>
    <Name>setInputFileToService</Name>
    <Type>distributed</Type>
   </Method>

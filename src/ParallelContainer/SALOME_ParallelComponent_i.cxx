@@ -83,6 +83,7 @@ Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, c
   Engines::Parallel_Component_base_serv(orb,ior,rank),
   _instanceName(instanceName),
   _interfaceName(interfaceName),
+  _id(NULL),
   _myConnexionToRegistry(0),
   _ThreadId(0) ,
   _ThreadCpuUsed(0) ,
@@ -90,6 +91,7 @@ Engines_Parallel_Component_i::Engines_Parallel_Component_i(CORBA::ORB_ptr orb, c
   _graphName("") ,
   _nodeName(""),
   _studyId(-1),
+  _destroyed(false),
   _CanceledThread(false)
 {
   MESSAGE("Parallel Component constructor with instanceName "<< _instanceName);
@@ -127,6 +129,8 @@ Engines_Parallel_Component_i::~Engines_Parallel_Component_i()
   Engines_Parallel_Container_i::decInstanceCnt(_interfaceName);
   if(_myConnexionToRegistry)delete _myConnexionToRegistry;
   if(_notifSupplier)delete _notifSupplier;
+  if (_id)
+    delete(_id);
 
   pthread_mutex_destroy(deploy_mutex);
   delete deploy_mutex;
@@ -201,20 +205,12 @@ void Engines_Parallel_Component_i::ping()
 void Engines_Parallel_Component_i::destroy()
 {
   MESSAGE("Engines_Parallel_Component_i::destroy()");
-  //SCRUTE(pd_refCount);
-
-  if(_notifSupplier) delete _notifSupplier;
-  _notifSupplier = 0;
-  if(_myConnexionToRegistry) delete _myConnexionToRegistry;
-  _myConnexionToRegistry = 0 ;
-
-  if (_id)
-    delete(_id);
-
-  //SCRUTE(pd_refCount);
-  _thisObj->_remove_ref();
-  //SCRUTE(pd_refCount);
-  MESSAGE("Engines_Parallel_Component_i::destroyed") ;
+  MESSAGE("Object Instance will be deleted when Shutdown of the container will be called");
+  if (!_destroyed)
+  {
+    _remove_ref();
+    _destroyed = true;
+  }
 }
 
 //=============================================================================

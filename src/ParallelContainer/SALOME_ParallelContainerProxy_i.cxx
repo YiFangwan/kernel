@@ -38,6 +38,8 @@ Container_proxy_impl_final::Container_proxy_impl_final(CORBA::ORB_ptr orb,
   _containerName = containerName;
   _poa = PortableServer::POA::_duplicate(poa);
 
+  _fab_thread = fab_thread;
+
   // Add CORBA object to the poa
   _id = _poa->activate_object(this);
   this->_remove_ref();
@@ -52,11 +54,40 @@ Container_proxy_impl_final:: ~Container_proxy_impl_final() {
     delete _id;
   if (_NS)
     delete _NS;
+
+  // _fab_thread not deleted beacause fab_thread is managed
+  // by paco_fabrique_manager
 }
 
 void
 Container_proxy_impl_final::Shutdown()
 {
+  // We Start by destroying all the parallel object
+  std::list<Container_proxy_impl_final::proxy_object>::iterator itm;
+  for (itm = _par_obj_inst_list.begin(); itm != _par_obj_inst_list.end(); itm++)
+  {
+    try
+    {
+      ((*itm).proxy_corba_ref)->destroy();
+    }
+    catch(const CORBA::Exception& e)
+    {
+      // ignore this entry and continue
+    }
+    catch(...)
+    {
+      // ignore this entry and continue
+    }
+
+    // Destroy proxy object... parallel object nodes are
+    // destroyed into the Shutdown of each container nodes
+    _poa->deactivate_object(*((*itm).proxy_id));
+    if ((*itm).proxy_id)
+      delete (*itm).proxy_id;
+    if ((*itm).proxy_regist)
+      delete (*itm).proxy_regist;
+  }
+
   // We call shutdown in each node
   for (CORBA::ULong i = 0; i < _infos.nodes.length(); i++)
   {
@@ -237,21 +268,26 @@ Container_proxy_impl_final::create_component_instance(const char* componentName,
     string component_registerName = _containerName + "/" + instanceName;
 
     // --- Instanciate required CORBA object
-    PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
-    id = (component_proxy_factory) (_orb, 
-				    new paco_omni_fabrique(), 
-				    _poa, 
-				    _id, 
-				    instanceName.c_str(), 
-				    _parallel_object_topology.total) ;
+    Container_proxy_impl_final::proxy_object * proxy = new Container_proxy_impl_final::proxy_object();
+    
+    proxy->proxy_id = (component_proxy_factory) (_orb, 
+						 _fab_thread,
+						 _poa, 
+						 _id,
+						 &(proxy->proxy_regist),
+						 instanceName.c_str(), 
+						 _parallel_object_topology.total);
 
     // --- get reference & servant from id
-    CORBA::Object_var obj = _poa->id_to_reference(*id);
-    component_proxy = Engines::Component::_narrow(obj) ;
+    CORBA::Object_var obj = _poa->id_to_reference(*(proxy->proxy_id));
+    component_proxy = Engines::Component::_narrow(obj);
+    proxy->proxy_corba_ref = component_proxy;
 
     if (!CORBA::is_nil(component_proxy))
     {
       _cntInstances_map[impl_name] += 1;
+      _par_obj_inst_list.push_back(*proxy);
+      delete proxy;
 
       // --- register the engine under the name
       //     containerName(.dir)/instanceName(.object)

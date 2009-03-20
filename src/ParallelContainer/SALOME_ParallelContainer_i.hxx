@@ -102,11 +102,11 @@ public:
   virtual void Shutdown();
   char* getHostName();
   CORBA::Long getPID();
+
   //! Kill current container
   bool Kill_impl() ;
 
   // --- local C++ methods
-
   Engines::Component_ptr
   find_or_create_instance(std::string genericRegisterName);
 
@@ -118,11 +118,6 @@ public:
   Engines::Component_ptr
   createPythonInstance(std::string genericRegisterName,
 		       int studyId);
-
-  Engines::Component_ptr
-  createParallelInstance(std::string genericRegisterName,
-			 void *handle,
-			 int studyId);
 
   static bool isPythonContainer(const char* ContainerName);
   static void decInstanceCnt(std::string genericRegisterName);
@@ -157,6 +152,10 @@ protected:
   _listInstances_map_t _listInstances_map;
   _fileRef_map_t _fileRef_map;
   _Salome_file_map_t _Salome_file_map;
+
+  // Cette map contient les references vers les différentes
+  // instances d'objets parallèles.
+  std::map<std::string, PortableServer::ObjectId *> _par_obj_inst_map;
 
   typedef  PortableServer::ObjectId * (*FACTORY_FUNCTION) (CORBA::ORB_ptr, char *, int,
 							   PortableServer::POA_ptr, 
