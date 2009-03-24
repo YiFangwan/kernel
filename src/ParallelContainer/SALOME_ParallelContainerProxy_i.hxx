@@ -36,6 +36,9 @@
 #include <dlfcn.h>
 #include <paco_omni.h>
 
+#include <Python.h>
+#include "Container_init_python.hxx"
+
 class Container_proxy_impl_final :
   virtual public Engines::PACO_Container_proxy_impl,
   virtual public ParallelGlobalProcessVar_i

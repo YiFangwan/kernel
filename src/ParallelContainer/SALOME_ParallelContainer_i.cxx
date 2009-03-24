@@ -396,6 +396,9 @@ Engines_Parallel_Container_i::create_component_instance(const char*genericRegist
   string impl_name = aCompName +string("Engine.dll");
 #endif
 
+  _numInstanceMutex.lock();
+  _numInstance++;
+
   // Test if the component lib is loaded
   std::string type_of_lib("Not Loaded");
   void* handle = _library_map[impl_name];
@@ -407,6 +410,7 @@ Engines_Parallel_Container_i::create_component_instance(const char*genericRegist
   if (type_of_lib == "Not Loaded")
   {
     std::cerr << "Component library is not loaded or imported ! lib was : " << aCompName << std::endl;
+    _numInstanceMutex.unlock();
     return Engines::Component::_nil();
   }
 
@@ -416,6 +420,7 @@ Engines_Parallel_Container_i::create_component_instance(const char*genericRegist
   else
     iobject = createPythonInstance(aCompName, studyId);
 
+  _numInstanceMutex.unlock();
   return iobject._retn();
 }
 
@@ -734,10 +739,7 @@ Engines_Parallel_Container_i::createPythonInstance(string genericRegisterName, i
 
   Engines::Component_var iobject = Engines::Component::_nil();
 
-  _numInstanceMutex.lock();
-  _numInstance++;
   int numInstance = _numInstance;
-  _numInstanceMutex.unlock();
   char aNumI[12];
   sprintf( aNumI , "%d" , numInstance ) ;
   string instanceName = genericRegisterName + "_inst_" + aNumI ;
@@ -829,11 +831,7 @@ Engines_Parallel_Container_i::createCPPInstance(string genericRegisterName,
   Engines::Component_var iobject = Engines::Component::_nil() ;
   try
   {
-    _numInstanceMutex.lock(); 
-    _numInstance++;
     int numInstance = _numInstance;
-    _numInstanceMutex.unlock();
-
     char aNumI[12];
     sprintf( aNumI , "%d" , numInstance );
     string instanceName = aGenRegisterName + "_inst_" + aNumI;

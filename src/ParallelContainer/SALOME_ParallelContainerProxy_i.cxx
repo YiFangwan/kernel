@@ -48,6 +48,18 @@ Container_proxy_impl_final::Container_proxy_impl_final(CORBA::ORB_ptr orb,
   // Init SALOME Naming Service
   _NS = new SALOME_NamingService();
   _NS->init_orb(_orb);
+
+  // Init Python container part
+  CORBA::Object_var container_node = _poa->id_to_reference(*_id);
+  CORBA::String_var sior =  _orb->object_to_string(container_node);
+  std::string myCommand="pyCont = SALOME_Container.SALOME_Container_i('";
+  myCommand += _containerName + "','";
+  myCommand += sior;
+  myCommand += "')\n";
+  Py_ACQUIRE_NEW_THREAD;
+  PyRun_SimpleString("import SALOME_Container\n");
+  PyRun_SimpleString((char*)myCommand.c_str());
+  Py_RELEASE_NEW_THREAD;
 }
 
 Container_proxy_impl_final:: ~Container_proxy_impl_final() {
@@ -127,6 +139,7 @@ Container_proxy_impl_final::load_component_Library(const char* componentName)
   MESSAGE("Begin of load_component_Library on proxy : " << componentName)
   std::string aCompName = componentName;
 
+  CORBA::Boolean ret = true;
   if (_libtype_map.count(aCompName) == 0)
   {
     _numInstanceMutex.lock(); // lock to be alone
@@ -179,39 +192,68 @@ Container_proxy_impl_final::load_component_Library(const char* componentName)
 #endif
       }
     }
+    else
+    {
+      MESSAGE("Try to import Python component "<<componentName);
+      Py_ACQUIRE_NEW_THREAD;
+      PyObject *mainmod = PyImport_AddModule("__main__");
+      PyObject *globals = PyModule_GetDict(mainmod);
+      PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
+      PyObject *result = PyObject_CallMethod(pyCont,
+					     (char*)"import_component",
+					     (char*)"s",componentName);
+      int ret_p= PyInt_AsLong(result);
+      Py_XDECREF(result);
+      Py_RELEASE_NEW_THREAD;
+
+      if (ret_p) // import possible: Python component
+      {
+	MESSAGE("import Python: " << aCompName <<" OK");
+      }
+      else
+      {
+	MESSAGE("Error in importing Python component : " << aCompName);
+	ret = false;
+      }
+    }
     _numInstanceMutex.unlock();
   }
 
   // Call load_component_Library in each node
-  CORBA::Boolean ret = true;
-  for (CORBA::ULong i = 0; i < _infos.nodes.length(); i++)
+  if (ret)
   {
-    MESSAGE("Call load_component_Library work node : " << i);
-    CORBA::Object_var object = _orb->string_to_object(_infos.nodes[i]);
-    Engines::Container_var node = Engines::Container::_narrow(object);
-    if (!CORBA::is_nil(node))
+    for (CORBA::ULong i = 0; i < _infos.nodes.length(); i++)
     {
-      try 
+      MESSAGE("Call load_component_Library work node : " << i);
+      CORBA::Object_var object = _orb->string_to_object(_infos.nodes[i]);
+      Engines::Container_var node = Engines::Container::_narrow(object);
+      if (!CORBA::is_nil(node))
       {
-	node->load_component_Library(componentName);
-	MESSAGE("Call load_component_Library done node : " << i);
+	try 
+	{
+	  node->load_component_Library(componentName);
+	  MESSAGE("Call load_component_Library done node : " << i);
+	}
+	catch (...)
+	{
+	  INFOS("Exception catch during load_component_Library of node : " << i);
+	  ret = false;
+	}
       }
-      catch (...)
+      else
       {
-	INFOS("Exception catch during load_component_Library of node : " << i);
+	INFOS("Cannot call load_component_Library node " << i << " ref is nil !");
 	ret = false;
       }
-    }
-    else
-    {
-      INFOS("Cannot call load_component_Library node " << i << " ref is nil !");
-      ret = false;
     }
   }
 
   // If ret is false -> lib is not loaded !
   if (!ret)
+  {
+    INFOS("Cannot call load_component_Library " << aCompName);
     _libtype_map.erase(aCompName);
+  }
   return ret;
 }
 
@@ -232,7 +274,12 @@ Container_proxy_impl_final::create_component_instance(const char* componentName,
 
   // If it is a sequential component
   if (_libtype_map[aCompName] == "seq")
+  {
+    _numInstanceMutex.lock() ; // lock on the instance number
+    _numInstance++ ;
+    _numInstanceMutex.unlock() ;
     return Engines::Container_proxy_impl::create_component_instance(componentName, studyId);
+  }
 
   // Parallel Component !
   Engines::Component_var component_proxy = Engines::Component::_nil();

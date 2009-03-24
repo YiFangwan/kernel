@@ -49,6 +49,8 @@
 #include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
 
+#include "Container_init_python.hxx"
+
 #ifdef DEBUG_PARALLEL
 #include <signal.h>
 using namespace std;
@@ -72,6 +74,7 @@ int main(int argc, char* argv[])
 #endif
   // Initialise the ORB.
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  KERNEL_PYTHON::init_python(argc,argv);
 
   std::string containerName("");
   if(argc > 1) {
@@ -129,6 +132,9 @@ int main(int argc, char* argv[])
     ns->Register(pCont, _containerName.c_str());
     pman->activate();
     orb->run();
+    PyGILState_Ensure();
+    //Delete python container that destroy orb from python (pyCont._orb.destroy())
+    Py_Finalize();
     delete ns;
   }
   catch (PaCO::PACO_Exception& e)
