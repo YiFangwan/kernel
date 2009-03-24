@@ -143,6 +143,12 @@ PAR_LIB = libSalomeParallelIDLKernel.la
 IDL_PACO = SALOME_ComponentPaCO.idl SALOME_PortsPaCO.idl DSC_EnginesPaCO.idl \
 	   SALOME_ParamPortsPaCO.idl SALOME_PACOExtensionPaCO.idl
 
+IDL_PACO_PY = $(DESTDIR)$(salomepythondir)/SALOME_ComponentPaCO_idl.py \
+	      $(DESTDIR)$(salomepythondir)/SALOME_PortsPaCO_idl.py \
+	      $(DESTDIR)$(salomepythondir)/DSC_EnginesPaCO_idl.py \
+	      $(DESTDIR)$(salomepythondir)/SALOME_ParamPortsPaCO_idl.py \
+	      $(DESTDIR)$(salomepythondir)/SALOME_PACOExtensionPaCO_idl.py
+
 GEN_PACO = SALOME_ComponentPaCO_Engines_Container_server.cxx \
 	   SALOME_ComponentPaCO_Engines_Container_client.cxx \
 	   SALOME_ComponentPaCO_Engines_Component_server.cxx \
@@ -215,7 +221,7 @@ idldir = $(prefix)/idl/salome
 nodist_idl_DATA = ${XML} ${IDL_PACO} 
 nodist_salomeinclude_HEADERS = ${INCLUDES_PACO}
 
-BUILT_SOURCES = $(IDL_SOURCES) $(PAR) $(PAR_INCLUDES)
+BUILT_SOURCES = $(IDL_SOURCES) $(PAR) $(PAR_INCLUDES) $(IDL_PACO_PY)
 
 SALOME_ComponentPaCO.hxx SALOME_ComponentPaCO.cxx : SALOME_Component.idl SALOME_Component.xml
 SALOME_PortsPaCO.hxx SALOME_PortsPaCO.cxx : SALOME_Ports.idl SALOME_Ports.xml
@@ -264,6 +270,9 @@ if WITH_PACO_PARALLEL
 
 %.hxx: %.idl
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) -Wbh=.hxx -Wbs=.cxx $<
+
+$(DESTDIR)$(salomepythondir)/%_idl.py : %.idl
+	$(OMNIORB_IDL) $(IDLPYFLAGS) -I$(top_srcdir)/idl -I@PACOPATH@/idl -C$(DESTDIR)$(salomepythondir) $<
 
 endif
 
