@@ -223,11 +223,11 @@ nodist_salomeinclude_HEADERS = ${INCLUDES_PACO}
 
 BUILT_SOURCES = $(IDL_SOURCES) $(PAR) $(PAR_INCLUDES) $(IDL_PACO_PY)
 
-SALOME_ComponentPaCO.hxx SALOME_ComponentPaCO.cxx : SALOME_Component.idl SALOME_Component.xml
-SALOME_PortsPaCO.hxx SALOME_PortsPaCO.cxx : SALOME_Ports.idl SALOME_Ports.xml
-DSC_EnginesPaCO.hxx DSC_EnginesPaCO.cxx : DSC_Engines.idl DSC_Engines.xml
-SALOME_PACOExtensionPaCO.hxx SALOME_PACOExtensionPaCO.cxx : SALOME_PACOExtension.idl SALOME_PACOExtension.xml
-SALOME_ParamPortsPaCO.hxx SALOME_ParamPortsPaCO.cxx : SALOME_ParamPorts.idl SALOME_ParamPorts.xml
+SALOME_ComponentPaCO.idl SALOME_ComponentPaCO.hxx SALOME_ComponentPaCO.cxx : SALOME_Component.idl SALOME_Component.xml
+SALOME_PortsPaCO.idl SALOME_PortsPaCO.hxx SALOME_PortsPaCO.cxx : SALOME_Ports.idl SALOME_Ports.xml
+DSC_EnginesPaCO.idl DSC_EnginesPaCO.hxx DSC_EnginesPaCO.cxx : DSC_Engines.idl DSC_Engines.xml
+SALOME_PACOExtensionPaCO.idl SALOME_PACOExtensionPaCO.hxx SALOME_PACOExtensionPaCO.cxx : SALOME_PACOExtension.idl SALOME_PACOExtension.xml
+SALOME_ParamPortsPaCO.idl SALOME_ParamPortsPaCO.hxx SALOME_ParamPortsPaCO.cxx : SALOME_ParamPorts.idl SALOME_ParamPorts.xml
 
 lib_LTLIBRARIES = libSalomeIDLKernel.la $(PAR_LIB)
 
@@ -265,7 +265,7 @@ SK.cc.hh:
 
 if WITH_PACO_PARALLEL
 
-%PaCO.hxx %PaCO.cxx : %.idl %.xml
+%PaCO.idl %PaCO.hxx %PaCO.cxx : %.idl %.xml
 	$(OMNIORB_IDL) -p@PACOPATH@/lib/python -bpaco -Wb$(top_srcdir)/idl/$*.xml,$(srcdir):@PACOPATH@/idl $(top_srcdir)/idl/$*.idl
 
 %.hxx: %.idl
