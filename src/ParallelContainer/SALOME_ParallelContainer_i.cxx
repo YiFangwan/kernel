@@ -77,7 +77,6 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
 							    int rank,
 							    PortableServer::POA_ptr poa,
 							    std::string containerName,
-							    std::string proxy_containerName,
 							    bool isServantAloneInProcess) :
   InterfaceParallel_impl(orb,ior,rank), 
   Engines::PACO_Container_serv(orb,ior,rank),
@@ -101,7 +100,6 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
   _NS = new SALOME_NamingService();
   _NS->init_orb(_orb);
   _containerName = _NS->BuildContainerNameForNS(containerName.c_str(), _hostname.c_str());
-  _proxy_containerName = proxy_containerName;
 
   // Init Python container part
   CORBA::String_var sior =  _orb->object_to_string(container_node);
@@ -884,12 +882,15 @@ Engines_Parallel_Container_i::createCPPInstance(string genericRegisterName,
 
 void
 Engines_Parallel_Container_i::create_paco_component_node_instance(const char* componentName,
+								  const char* proxy_containerName,
 								  CORBA::Long studyId)
 {
   // Init de la méthode
   char * proxy_ior;
   Engines::Component_PaCO_var work_node;
   std::string aCompName = componentName;
+  std::string _proxy_containerName = proxy_containerName;
+
 #ifndef WIN32
   string impl_name = string ("lib") + aCompName +string("Engine.so");
 #else

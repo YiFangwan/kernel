@@ -27,6 +27,7 @@
 #define _SALOME_PARALLEL_CONTAINER_PROXY_I_HXX_
 
 #include "utilities.h"
+#include "Basics_Utils.hxx"
 #include "SALOME_PACOExtensionPaCO_Engines_PACO_Container_server.hxx"
 #include "SALOME_ParallelGlobalProcessVar_i.hxx"
 #include "SALOME_NamingService.hxx"
@@ -78,6 +79,7 @@ class Container_proxy_impl_final :
 							    const char *,
 							    int);
     int _numInstance;
+    std::string _hostname;
     std::string _containerName;
     PortableServer::POA_var _poa;
     PortableServer::ObjectId * _id;

@@ -35,7 +35,8 @@ Container_proxy_impl_final::Container_proxy_impl_final(CORBA::ORB_ptr orb,
   InterfaceManager_impl(orb, fab_thread, is_a_return_proxy)
 {
   _numInstance = 0;
-  _containerName = containerName;
+  _hostname = Kernel_Utils::GetHostname();
+  _containerName = _NS->BuildContainerNameForNS(containerName.c_str(), _hostname.c_str());
   _poa = PortableServer::POA::_duplicate(poa);
 
   _fab_thread = fab_thread;
@@ -317,7 +318,7 @@ Container_proxy_impl_final::create_component_instance(const char* componentName,
     {
       try 
       {
-	node->create_paco_component_node_instance(componentName, studyId);
+	node->create_paco_component_node_instance(componentName, _containerName.c_str(), studyId);
 	MESSAGE("Call create_paco_component_node_instance done on node : " << i);
       }
       catch (SALOME::SALOME_Exception & ex)

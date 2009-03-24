@@ -65,7 +65,6 @@ public:
 			       int rank,
 			       PortableServer::POA_ptr poa,
 			       std::string containerName ,
-			       std::string proxy_containerName,
 			       bool isServantAloneInProcess = true);
 
   virtual ~Engines_Parallel_Container_i();
@@ -87,8 +86,9 @@ public:
 	    const char* componentName);
 
   void
-  create_paco_component_node_instance( const char* componentName,
-				       CORBA::Long studyId); // 0 for multiStudy
+  create_paco_component_node_instance(const char* componentName,
+				      const char* proxy_containerName,
+				      CORBA::Long studyId); // 0 for multiStudy
 
   void remove_impl(Engines::Component_ptr component_i);
   void finalize_removal();
@@ -136,7 +136,6 @@ protected:
   std::string _hostname;
   std::string _library_path;
   std::string _containerName;
-  std::string _proxy_containerName;
   std::string _logfilename;
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
