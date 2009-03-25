@@ -84,6 +84,7 @@ int main(int argc, char* argv[])
   int nbnodes = 1;
   if(argc > 4) 
     sscanf(argv[4],"%d",&nbnodes);
+
   try {  
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     ASSERT(!CORBA::is_nil(obj));
@@ -98,9 +99,6 @@ int main(int argc, char* argv[])
 #endif
 
     SALOME_NamingService * ns = new SALOME_NamingService(orb);
-//    Engines::Container_proxy_impl * proxy = 
-//      new Engines::Container_proxy_impl(orb,
-//					new paco_omni_fabrique());
 
     // PaCO++ code
     paco_fabrique_manager* pfm = paco_getFabriqueManager();

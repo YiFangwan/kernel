@@ -58,15 +58,6 @@ using namespace std;
 #ifdef _DEBUG_
 #include <signal.h>
 
-void test(int sigval) {
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "SIGSEGV in :" << getpid() << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-  while (1) {}
-}
-
 void handler(int t) {
   cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
   cerr << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
@@ -193,12 +184,11 @@ int main(int argc, char* argv[])
 
     // Node creation
     string node_name = containerName + "Node";
-    Engines_Parallel_Container_i * servant = 
-      new Engines_Parallel_Container_i(CORBA::ORB::_duplicate(orb), 
-				       proxy_ior,
-				       myid,
-				       root_poa,
-				       node_name);
+    Engines_Parallel_Container_i * servant =  new Engines_Parallel_Container_i(CORBA::ORB::_duplicate(orb), 
+									       proxy_ior,
+									       myid,
+									       root_poa,
+									       node_name);
     // PaCO++ init
     paco_fabrique_manager * pfm = paco_getFabriqueManager();
     pfm->register_com("mpi", new paco_mpi_fabrique());
@@ -208,6 +198,7 @@ int main(int argc, char* argv[])
     servant->setLibCom("mpi", &parallel_object_group);
     servant->setLibThread("omni");
 
+    // Activation
     obj = servant->_this();
 
     // In the NamingService
@@ -227,6 +218,9 @@ int main(int argc, char* argv[])
     PyGILState_Ensure();
     //Delete python container that destroy orb from python (pyCont._orb.destroy())
     Py_Finalize();
+    MPI_Finalize();
+    CORBA::string_free(proxy_ior);
+    delete ns;
   }
   catch (PaCO::PACO_Exception& e)
   {
@@ -253,9 +247,6 @@ int main(int argc, char* argv[])
   {
     INFOS("Caught unknown exception.");
   }
-
-  MPI_Finalize();
-
   return 0 ;
 }
 

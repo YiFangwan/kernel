@@ -37,7 +37,7 @@
 //#include "SALOME_ComponentPaCO_Engines_Container_server.h"
 #include "SALOME_ParallelContainerProxy_i.hxx"
 #include <paco_omni.h>
-#include <paco_mpi.h>
+#include <paco_dummy.h>
 
 #include <mpi.h>
 
@@ -49,10 +49,12 @@
 #include "Utils_SINGLETON.hxx"
 #include "SALOMETraceCollector.hxx"
 #include "OpUtil.hxx"
-using namespace std;
+
+#include "Container_init_python.hxx"
 
 #ifdef _DEBUG_
 #include <signal.h>
+using namespace std;
 
 typedef void (*sighandler_t)(int);
 sighandler_t setsig(int sig, sighandler_t handler)
@@ -120,6 +122,7 @@ int main(int argc, char* argv[])
   int provided;
   MPI_Init_thread(&argc, &argv, MPI_THREAD_SERIALIZED ,&provided);
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
+  KERNEL_PYTHON::init_python(argc,argv);
 
 #ifdef _DEBUG_
   if(getenv ("DEBUGGER"))
@@ -151,22 +154,19 @@ int main(int argc, char* argv[])
 #endif
 
     SALOME_NamingService * ns = new SALOME_NamingService(CORBA::ORB::_duplicate(orb));
-//    Engines::Container_proxy_impl * proxy = 
-//      new Engines::Container_proxy_impl(orb, 
-//					new paco_omni_fabrique());
-    Container_proxy_impl_final * proxy = 
-      new Container_proxy_impl_final(orb,
-				     new paco_omni_fabrique(),
-				     root_poa,
-				     containerName);
 
     // PaCO++ code
     paco_fabrique_manager* pfm = paco_getFabriqueManager();
-    pfm->register_com("mpi", new paco_mpi_fabrique());
-    MPI_Comm parallel_object_group;
-    MPI_Comm_dup(MPI_COMM_WORLD, &parallel_object_group);
-    proxy->setLibCom("mpi", &parallel_object_group);
+    pfm->register_com("dummy", new paco_dummy_fabrique());
     pfm->register_thread("omnithread", new paco_omni_fabrique());
+
+    Container_proxy_impl_final * proxy =   new Container_proxy_impl_final(orb,
+									  pfm->get_thread("omnithread"),
+									  root_poa,
+									  containerName);
+
+    // PaCO++ code
+    proxy->setLibCom("dummy", proxy);
     proxy->setLibThread("omnithread");
     PaCO::PacoTopology_t serveur_topo;
     serveur_topo.total = nb_nodes;
@@ -186,6 +186,11 @@ int main(int argc, char* argv[])
     ns->Register(pCont, _containerName.c_str());
     pman->activate();
     orb->run();
+    PyGILState_Ensure();
+    //Delete python container that destroy orb from python (pyCont._orb.destroy())
+    Py_Finalize();
+    MPI_Finalize();
+    delete ns;
   }
   catch (PaCO::PACO_Exception& e)
   {
@@ -212,9 +217,6 @@ int main(int argc, char* argv[])
   {
     INFOS("Caught unknown exception.");
   }
-
-  MPI_Finalize();
-
   return 0 ;
 }
 
