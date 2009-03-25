@@ -101,6 +101,11 @@ Engines_Parallel_Container_i::Engines_Parallel_Container_i (CORBA::ORB_ptr orb,
   _NS->init_orb(_orb);
   _containerName = _NS->BuildContainerNameForNS(containerName.c_str(), _hostname.c_str());
 
+  // Ajout du numero de noeud
+  char node_number[12];
+  sprintf(node_number, "%d", getMyRank());
+  _containerName = _containerName + node_number;
+
   // Init Python container part
   CORBA::String_var sior =  _orb->object_to_string(container_node);
   std::string myCommand="pyCont = SALOME_Container.SALOME_Container_i('";
@@ -937,7 +942,7 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
     char aNumI2[12];
     sprintf(aNumI2 , "%d" , getMyRank()) ;
     string instanceName = aCompName + "_inst_" + aNumI + "_work_node_" + aNumI2;
-    string component_registerName = _containerName + aNumI2 + "/" + instanceName;
+    string component_registerName = _containerName + "/" + instanceName;
 
     // --- Instanciate work node
     PortableServer::ObjectId *id ; //not owner, do not delete (nore use var)
