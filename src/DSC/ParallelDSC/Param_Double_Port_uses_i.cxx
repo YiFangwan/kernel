@@ -28,6 +28,9 @@ Param_Double_Port_uses_i::Param_Double_Port_uses_i(Engines_ParallelDSC_i * par_c
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _fake_properties = new PortProperties_i();
+  _fake_prop_ref = _fake_properties->_this();
+  _fake_properties->_remove_ref();
+
   _par_compo = par_compo;
   _port_name = port_name;
   _provides_port = NULL;
@@ -40,8 +43,6 @@ Param_Double_Port_uses_i::Param_Double_Port_uses_i(Engines_ParallelDSC_i * par_c
 
 Param_Double_Port_uses_i::~Param_Double_Port_uses_i()
 {
-  if (_fake_properties)
-    delete _fake_properties;
   if (_provides_port)
   {
     _provides_port->stop();
@@ -54,7 +55,7 @@ Param_Double_Port_uses_i::add_port_to_component()
 {
     _par_compo->add_uses_port("IDL:Ports/Param_Double_Port:1.0", 
 			      _port_name.c_str(),
-			      _fake_properties->_this());
+			      _fake_prop_ref);
 }
 
 void

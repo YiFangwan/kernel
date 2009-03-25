@@ -173,6 +173,7 @@ Param_Double_Port_provides_i::init_port(Engines_ParallelDSC_i * par_compo,
     if (i == rank) {
       std::cerr << "Adding node of processor : " << i << std::endl;
       par_compo->add_parallel_provides_node_port(Ports::Port_PaCO::_narrow(port->_this()), port_name.c_str());
+      port->_remove_ref();
     }
     com->paco_barrier();
   }

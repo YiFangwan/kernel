@@ -206,6 +206,13 @@ int main(int argc, char* argv[])
   {
     INFOS("Caught CORBA::Exception.");
   }
+  catch(omniORB::fatalException& fe) 
+  {
+    INFOS("Caught omniORB::fatalException:");
+    INFOS(" file: " << fe.file());
+    INFOS(" line: " << fe.line());
+    INFOS(" mesg: " << fe.errmsg());
+  }
   catch(std::exception& exc)
   {
     INFOS("Caught std::exception - "<<exc.what()); 

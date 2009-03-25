@@ -55,7 +55,7 @@ class Param_Double_Port_uses_i
     Engines_ParallelDSC_i * _par_compo;
     Ports::Param_Double_Port_var _proxy_port;
     PortProperties_i *  _fake_properties;
-
+    Ports::PortProperties_var _fake_prop_ref;
     Ports::PaCO_Param_Double_Port * _provides_port;
 };
 #endif
