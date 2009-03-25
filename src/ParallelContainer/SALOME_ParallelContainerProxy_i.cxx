@@ -275,9 +275,10 @@ Container_proxy_impl_final::create_component_instance(const char* componentName,
   // If it is a sequential component
   if (_libtype_map[aCompName] == "seq")
   {
-    _numInstanceMutex.lock() ; // lock on the instance number
-    _numInstance++ ;
-    _numInstanceMutex.unlock() ;
+    _numInstanceMutex.lock(); // lock on the instance number
+    _numInstance++;
+    _numInstanceMutex.unlock();
+    Engines::PACO_Container_proxy_impl::updateInstanceNumber();
     return Engines::Container_proxy_impl::create_component_instance(componentName, studyId);
   }
 

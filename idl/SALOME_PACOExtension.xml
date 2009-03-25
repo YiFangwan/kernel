@@ -36,6 +36,10 @@
  </Interface>
  <Interface>
   <Name>PACO_Container</Name>
+   <Method>
+     <Name>updateInstanceNumber</Name>
+     <Type>distributed</Type>
+   </Method>
  </Interface>
  <Interface>
    <Name>Parallel_DSC</Name>

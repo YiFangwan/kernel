@@ -90,6 +90,8 @@ public:
 				      const char* proxy_containerName,
 				      CORBA::Long studyId); // 0 for multiStudy
 
+  void updateInstanceNumber();
+
   void remove_impl(Engines::Component_ptr component_i);
   void finalize_removal();
 

@@ -45,6 +45,8 @@ module Engines
     void create_paco_component_node_instance(in string registeredName,
 					     in string proxy_containerName,
 					     in long studyId) raises(SALOME::SALOME_Exception);
+
+    void updateInstanceNumber();
   };
 
 /*--------------------------------------------------------------------------------------------*/

@@ -902,9 +902,10 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
   void* handle = _library_map[impl_name];
   _numInstanceMutex.lock() ; // lock on the instance number
   _numInstance++ ;
+  int numInstance = _numInstance ;
   _numInstanceMutex.unlock() ;
   char aNumI[12];
-  sprintf( aNumI , "%d" , _numInstance ) ;
+  sprintf( aNumI , "%d" , numInstance ) ;
   string instanceName = aCompName + "_inst_" + aNumI ;
 
   // Step 1 : Get proxy !
@@ -914,6 +915,7 @@ Engines_Parallel_Container_i::create_paco_component_node_instance(const char* co
   if (CORBA::is_nil(obj_proxy))
   {
     INFOS("Proxy reference from NamingService is nil !");
+    INFOS("Proxy name was : " << component_registerName);
     SALOME::ExceptionStruct es;
     es.type = SALOME::INTERNAL_ERROR;
     es.text = "Proxy reference from NamingService is nil !";
@@ -1019,6 +1021,22 @@ bool Engines_Parallel_Container_i::isPythonContainer(const char* ContainerName)
   return ret;
 }
 
+
+// Cette méthode permet de tenir à jour le compteur des
+// instances pour le container parallèle.
+// En effet losrque l'on charge un composant séquentielle seul
+// le compteur du noeud 0 est augmenté, il faut donc tenir les autres 
+// noeuds à jour.
+void
+Engines_Parallel_Container_i::updateInstanceNumber()
+{
+  if (getMyRank() != 0)
+  {
+    _numInstanceMutex.lock();
+    _numInstance++;
+    _numInstanceMutex.unlock();
+  }
+}
 //=============================================================================
 /*! 
  *  
