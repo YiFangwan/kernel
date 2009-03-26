@@ -194,6 +194,11 @@ Container_proxy_impl_final::load_component_Library(const char* componentName)
     }
     else
     {
+      MESSAGE("Error in importing Cpp component : " << impl_name);
+#ifndef WIN32
+      MESSAGE("dlerror() result is : " << dlerror());
+#endif
+
       MESSAGE("Try to import Python component "<<componentName);
       Py_ACQUIRE_NEW_THREAD;
       PyObject *mainmod = PyImport_AddModule("__main__");

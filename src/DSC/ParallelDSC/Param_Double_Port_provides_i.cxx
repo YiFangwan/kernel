@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <string>
+#include <sstream>
 
 #include "Param_Double_Port_provides_i.hxx"
 
@@ -168,26 +169,55 @@ Param_Double_Port_provides_i::init_port(Engines_ParallelDSC_i * par_compo,
   GaBro * dislib_gabro = (GaBro *) method_ptr->getDistLibArg("param_results", "out");
   dislib_gabro->setEltSize(sizeof(CORBA::Double));
 
-  com->paco_barrier();
-
   // Enregistement du port 
-  for (int i = 0; i < totalNode; i++) {
+  for (int i = 0; i < totalNode; i++) 
+  {
+    std::ostringstream node_number;
+    node_number << i;
+    std::string event_name("AddNode");
+    event_name += node_number.str();
+    std::string tag_name = proxy_ior;
+
     if (i == rank) {
       std::cerr << "Adding node of processor : " << i << std::endl;
       par_compo->add_parallel_provides_node_port(Ports::Port_PaCO::_narrow(port->_this()), port_name.c_str());
       port->_remove_ref();
+      par_compo->InterfaceParallel_impl::_proxy->send_event(event_name.c_str(), tag_name.c_str());
     }
-    com->paco_barrier();
+
+    par_compo->wait_event(event_name.c_str(), tag_name.c_str());
   }
 
   // On démarre l'objet parallèle
-  if (rank == 0) {
+  std::string event_name("StartingProxy");
+  std::string tag_name = proxy_ior;
+  if (rank == 0) 
+  {
     proxy_node->start();
-    com->paco_barrier();
+    par_compo->InterfaceParallel_impl::_proxy->send_event(event_name.c_str(), tag_name.c_str());
   }
-  else
-    com->paco_barrier();
   return port;
+}
+
+void
+Param_Double_Port_provides_i::wait_init_port(Engines_ParallelDSC_i * par_compo, 
+					     std::string port_name,
+					     CORBA::ORB_ptr orb)
+{
+  int rank = par_compo->getMyRank();
+  int totalNode = par_compo->getTotalNode();
+  // Enregistement du port 
+  for (int i = 0; i < totalNode; i++) 
+  {
+    std::ostringstream node_number;
+    node_number << i;
+    std::string event_name("WaitingNode");
+    event_name += node_number.str();
+    std::string tag_name = (char * ) par_compo->get_proxy(port_name.c_str());
+    if (i == rank) 
+      par_compo->InterfaceParallel_impl::_proxy->send_event(event_name.c_str(), tag_name.c_str());
+    par_compo->wait_event(event_name.c_str(), tag_name.c_str());
+  }
 }
 
 void 
