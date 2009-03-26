@@ -104,6 +104,8 @@ Param_Double_Port_provides_i::init_port(Engines_ParallelDSC_i * par_compo,
   int totalNode = par_compo->getTotalNode();
   paco_com * com = par_compo->getCom();
 
+  MESSAGE("Configuration of Param_Double_Port_provides: rank = " << rank << " totalNode = " << totalNode);
+
   // DOIT ETRE DEJA FAIT AVANT !!!???
   paco_fabrique_manager* pfm = paco_getFabriqueManager();
   pfm->register_com("pdp_dummy", new paco_dummy_fabrique());
@@ -122,7 +124,7 @@ Param_Double_Port_provides_i::init_port(Engines_ParallelDSC_i * par_compo,
     // lorsque le composant sera détruit
     proxy_node = 
       new Ports::Param_Double_Port_proxy_impl(CORBA::ORB::_duplicate(orb),
-					      new paco_omni_fabrique());
+					      pfm->get_thread("pdp_thread"));
     proxy_node->setLibCom("pdp_dummy", proxy_node);
     proxy_node->setLibThread("pdp_thread");
     PaCO::PacoTopology_t serveur_topo;
