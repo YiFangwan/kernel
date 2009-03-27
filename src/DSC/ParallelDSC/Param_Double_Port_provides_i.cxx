@@ -196,6 +196,8 @@ Param_Double_Port_provides_i::init_port(Engines_ParallelDSC_i * par_compo,
     proxy_node->start();
     par_compo->InterfaceParallel_impl::_proxy->send_event(event_name.c_str(), tag_name.c_str());
   }
+
+  CORBA::string_free(proxy_ior);
   return port;
 }
 

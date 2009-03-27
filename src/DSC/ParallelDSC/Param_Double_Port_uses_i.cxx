@@ -87,6 +87,7 @@ Param_Double_Port_uses_i::start_port()
   dislib_gabro->setEltSize(sizeof(CORBA::Double));
 
   _provides_port->start();
+  delete uport;
 }
 
 void 
