@@ -151,7 +151,7 @@ Param_Double_Port_provides_i::init_port(Engines_ParallelDSC_i * par_compo,
   std::cerr << "Proxy ior is : " << proxy_ior << std::endl;
 
   port = new Param_Double_Port_provides_i(CORBA::ORB::_duplicate(orb), proxy_ior, rank);
-  port->copyGlobalContext(par_compo);
+  port->copyClientGlobalContext(par_compo);
 
   // Il faut maintenant configurer les bibliothèques
   // de redistributions de la fonction put
@@ -215,7 +215,9 @@ Param_Double_Port_provides_i::wait_init_port(Engines_ParallelDSC_i * par_compo,
     node_number << i;
     std::string event_name("WaitingNode");
     event_name += node_number.str();
-    std::string tag_name = (char * ) par_compo->get_proxy(port_name.c_str());
+    char * proxy_ior = (char * ) par_compo->get_proxy(port_name.c_str());
+    std::string tag_name(proxy_ior);
+    CORBA::string_free(proxy_ior);
     if (i == rank) 
       par_compo->InterfaceParallel_impl::_proxy->send_event(event_name.c_str(), tag_name.c_str());
     par_compo->wait_event(event_name.c_str(), tag_name.c_str());
