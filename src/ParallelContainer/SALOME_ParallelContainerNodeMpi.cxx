@@ -193,9 +193,7 @@ int main(int argc, char* argv[])
     paco_fabrique_manager * pfm = paco_getFabriqueManager();
     pfm->register_com("mpi", new paco_mpi_fabrique());
     pfm->register_thread("omni", new paco_omni_fabrique());
-    MPI_Comm parallel_object_group;
-    MPI_Comm_dup(MPI_COMM_WORLD, &parallel_object_group);
-    servant->setLibCom("mpi", &parallel_object_group);
+    servant->setLibCom("mpi", MPI_COMM_WORLD);
     servant->setLibThread("omni");
 
     // Activation
