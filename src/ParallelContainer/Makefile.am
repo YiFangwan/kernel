@@ -86,7 +86,7 @@ libSalomeParallelContainer_la_SOURCES  = SALOME_ParallelComponent_i.cxx \
 
 libSalomeParallelContainer_la_CXXFLAGS = $(COMMON_CPPFLAGS)
 
-libSalomeParallelContainer_la_LIBADD   = $(COMMON_LIBS)
+libSalomeParallelContainer_la_LIBADD   = $(COMMON_LIBS) @MPI_LIBS@
 
 libSalomeParallelContainer_la_LDFLAGS = -no-undefined -version-info=0:0:0
 
