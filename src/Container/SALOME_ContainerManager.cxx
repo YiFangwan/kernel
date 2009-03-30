@@ -145,32 +145,33 @@ void SALOME_ContainerManager::ShutdownContainers()
     for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
       SCRUTE((*iter));
     }
-    for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++){
-      SCRUTE((*iter));
-      CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
-      Engines::Container_var cont=Engines::Container::_narrow(obj);
-      if(!CORBA::is_nil(cont))
-        {
+    for(list<string>::iterator iter=lstCont.begin();iter!=lstCont.end();iter++)
+    {
+      try
+      {
+	SCRUTE((*iter));
+	CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
+	Engines::Container_var cont=Engines::Container::_narrow(obj);
+	if(!CORBA::is_nil(cont))
+	{
 	  MESSAGE("ShutdownContainers: " << (*iter));
-          try
-            {
-              cont->Shutdown();
-            }
-          catch(CORBA::SystemException& e)
-            {
-              INFOS("CORBA::SystemException ignored : " << e);
-            }
-          catch(CORBA::Exception&)
-            {
-              INFOS("CORBA::Exception ignored.");
-            }
-          catch(...)
-            {
-              INFOS("Unknown exception ignored.");
-            }
-        }
-      else 
-        MESSAGE("ShutdownContainers: no container ref for " << (*iter));
+	  cont->Shutdown();
+	}
+	else 
+	  MESSAGE("ShutdownContainers: no container ref for " << (*iter));
+      }
+      catch(CORBA::SystemException& e)
+      {
+	INFOS("CORBA::SystemException ignored : " << e);
+      }
+      catch(CORBA::Exception&)
+      {
+	INFOS("CORBA::Exception ignored.");
+      }
+      catch(...)
+      {
+	INFOS("Unknown exception ignored.");
+      }
     }
   }
 }
