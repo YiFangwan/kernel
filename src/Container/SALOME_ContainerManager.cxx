@@ -32,6 +32,7 @@
 #include <vector>
 #include "Utils_CorbaException.hxx"
 #include "Batch_Date.hxx"
+#include <sstream>
 
 #ifdef WITH_PACO_PARALLEL
 #include "PaCO++.hxx"
@@ -1222,14 +1223,26 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalParallelContainer(const std::s
   // This method knows the differences between the proxy and the nodes.
   // nb_component_nodes is not used in the same way if it is a proxy or 
   // a node.
+  
+  //command = "gdb --args ";
+  //command = "valgrind --tool=memcheck --log-file=val_log ";
+  //command += real_exe_name;
 
-  string command;
-  string parallelLib(CORBA::string_dup(params.parallelLib));
-  string hostname(CORBA::string_dup(params.hostname));
-  int par = exe_name.find("Proxy");
-  int nbproc = params.nb_component_nodes;
-  char buffer [33];
-  sprintf(buffer,"%d",nbproc);
+  std::string parallelLib(CORBA::string_dup(params.parallelLib));
+  std::string real_exe_name  = exe_name + parallelLib;
+
+  std::string hostname(CORBA::string_dup(params.hostname));
+
+  std::ostringstream tmp_string;
+  CORBA::Long nb_nodes = params.nb_component_nodes;
+  tmp_string << nb_nodes;
+  std::string nbproc = tmp_string.str();
+  
+  bool is_a_proxy = false; 
+  std::string::size_type loc_proxy = exe_name.find("Proxy");
+  if( loc_proxy != string::npos ) {
+    is_a_proxy = true;
+  } 
 
   Engines::MachineParameters_var rtn = new Engines::MachineParameters();
   rtn->container_name = params.container_name;
@@ -1241,125 +1254,119 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalParallelContainer(const std::s
   rtn->nb_node = params.nb_node;
   rtn->isMPI = params.isMPI;
 
-  string real_exe_name  = exe_name + parallelLib;
+  std::string log_env("");
+  char * get_val = getenv("PARALLEL_LOG");
+  if (get_val)
+    log_env = get_val;
+  std::string command_begin("");
+  std::string command_end("");
+  if(log_env == "xterm")
+  {
+    command_begin = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;";
+    command_end   = "\"&";
+  }
+  else if(log_env == "xterm_debug")
+  {
+    command_begin = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;";
+    command_end   = "; cat \" &";
+  }
+  else
+  {
+    // default into a file...
+    std::string logFilename = "/tmp/" + _NS->ContainerName(params) + "_" + hostname;
+    if (is_a_proxy)
+      logFilename += "_Proxy_";
+    else
+      logFilename += "_Node_";
+    logFilename += std::string(getenv("USER")) + ".log";
+    command_end = " > " + logFilename + " 2>&1 & ";
+  }
 
+  std::string command("");
   if (parallelLib == "Dummy")
   {
-    command = "";
-    //command = "gdb --args ";
-    //command = "valgrind --tool=memcheck --log-file=val_log ";
-    //command += real_exe_name;
-
-    if (par > 0)
+    if (is_a_proxy)
     {
-      string command_temp = real_exe_name;
-      command_temp += " " + _NS->ContainerName(rtn);
-      command_temp += " " + parallelLib;
-      command_temp += " " + hostname;
-      command_temp += " " + string(buffer);
-      command_temp += " -";
-      AddOmninamesParams(command_temp);
-      command += "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;" 
-	+  command_temp 
-	+ "\"&";
+      command =  real_exe_name;
+      command += " " + _NS->ContainerName(rtn);
+      command += " " + parallelLib;
+      command += " " + hostname;
+      command += " " + nbproc;
+      command += " -";
+      AddOmninamesParams(command);
+
+      command = command_begin + command + command_end;
     }
     else
     {
-      for (int i= 0; i < nbproc; i++)
+      for (int i= 0; i < nb_nodes; i++)
       {
-	string command_temp = real_exe_name;
+	std::ostringstream tmp;
+	tmp << i;
+	std::string proc_number = tmp.str();
 
-	// A refaire en C++
-	char buffer_temp [33];
-	sprintf(buffer_temp,"%d",i);
+	std::string command_tmp("");
+	command_tmp += real_exe_name;
+	command_tmp += " " + _NS->ContainerName(rtn);
+	command_tmp += " " + parallelLib;
+	command_tmp += " " + hostname;
+	command_tmp += " " + proc_number;
+	command_tmp += " -";
+	AddOmninamesParams(command_tmp);
 
-	command_temp += " " + _NS->ContainerName(rtn);
-	command_temp += " " + parallelLib;
-	command_temp += " " + hostname;
-	command_temp += " " + string(buffer_temp);
-	command_temp += " -";
-	AddOmninamesParams(command_temp);
-
-//	if (command != "")
-//	  command += ";";
-
-	command += "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;" 
-	  +  command_temp 
-	  + "\"&";
+	// On change _Node_ par _Nodex_ pour avoir chaque noeud
+	// sur un fichier
+	std::string command_end_tmp = command_end;
+	std::string::size_type loc_node = command_end_tmp.find("_Node_");
+	if (loc_node != std::string::npos)
+	  command_end_tmp.insert(loc_node+5, proc_number);
+	command += command_begin + command_tmp + command_end_tmp;
       }
     }
   }
-
   else if (parallelLib == "Mpi")
   {
     // Step 1 : check if MPI is started
+    // Required for lam -> lamboot
     if (_MpiStarted == false)
     {
       startMPI();
     }
 
-    if (par < 0)
+    if (is_a_proxy)
     {
-      // Nodes case
-
-      command = "mpirun -np " + string(buffer) + " ";
-      //      command += "gdb --args ";
-      command += real_exe_name;
-      command += " " + _NS->ContainerName(rtn);
-      command += " " + parallelLib;
-      command += " " + hostname;
-      command += " -";
-      AddOmninamesParams(command);
-    }
-    else                                          
-    {
-      // Proxy case
       command = "mpirun -np 1 ";
       command += real_exe_name;
       command += " " + _NS->ContainerName(rtn);
-      command += " " + string(buffer);
+      command += " " + nbproc;
       command += " " + parallelLib;
       command += " " + hostname;
       command += " -";
       AddOmninamesParams(command);
+
+      command = command_begin + command + command_end;
     }
-    // log choice
-    if (log == "default")
+    else                                          
     {
-      command += " > /tmp/";
-      command += _NS->ContainerName(rtn);
-      command += "_";
-      command += Kernel_Utils::GetHostname();
-      command += "_";
-      command += getenv( "USER" ) ;
-      command += ".log 2>&1 &" ;
-    }
-    if (log == "xterm")
-    {
-      command = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH;  " 
-	//	      + command + " \" &";
-	+ command + "; echo $LD_LIBRARY_PATH; cat \" &";
+      command = "mpirun -np " + nbproc + " ";
+      command += real_exe_name;
+      command += " " + _NS->ContainerName(rtn);
+      command += " " + parallelLib;
+      command += " " + hostname;
+      command += " -";
+      AddOmninamesParams(command);
+
+      command = command_begin + command + command_end;
     }
   }
   else
-    {
-      std::string message("Unknown parallelLib" + parallelLib);
-      throw SALOME_Exception(message.c_str());
-    }
+  {
+    std::string message("Unknown parallelLib : " + parallelLib);
+    throw SALOME_Exception(message.c_str());
+  }
 
+  MESSAGE("Parallel launch is: " << command);
   return command;
-
-  /*  if (log == "xterm")
-      {
-      command = "/usr/X11R6/bin/xterm -e \"export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; export PATH=$PATH; echo $LD_LIBRARY_PATH; echo $PATH; " + command + "; cat \" &";
-      }
-  */
-  /*  command = "cd ; rm " + fichier_commande + "; touch " + \
-      fichier_commande + "; echo \" export LD_LIBRARY_PATH=$LD_LIBRARY_PATH; " + \
-      command + " >& /tmp/ribes_" + fichier_commande + " & \" > " + fichier_commande + ";";
-      command += "ssh cn01 sh " + fichier_commande + " &";
-      cerr << "La commande : " << command << endl;
-  */
 }
 
 void SALOME_ContainerManager::startMPI()
