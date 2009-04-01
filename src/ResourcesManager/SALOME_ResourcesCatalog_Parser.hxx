@@ -92,5 +92,6 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesType
   };
 
 typedef std::map<std::string, ParserResourcesType> MapOfParserResourcesType;
+typedef std::map<std::string, ParserResourcesType>::iterator MapOfParserResourcesType_it;
 
 #endif //SALOME_RESOURCES_CATALOG_PARSER

@@ -106,7 +106,7 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
   xmlNodePtr aCurNode = xmlDocGetRootElement(theDoc);
 
   aCurNode = aCurNode->xmlChildrenNode;
-  
+ 
   // Processing the document nodes
   while(aCurNode != NULL)
     {

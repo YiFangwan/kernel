@@ -27,6 +27,7 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <list>
 #include "SALOME_ResourcesCatalog_Parser.hxx"
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "SALOME_LoadRateManager.hxx"
@@ -82,9 +83,9 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
 
     void DeleteResourceInCatalog(const char *hostname);
 
-    void WriteInXmlFile();
+    void WriteInXmlFile(std::string & xml_file);
 
-    const MapOfParserResourcesType& ParseXmlFile();
+    const MapOfParserResourcesType& ParseXmlFiles();
 
     const MapOfParserResourcesType& GetList() const;
 
@@ -101,13 +102,14 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
       throw(ResourcesException);
 
     //! will contain the path to the ressources catalog
-    std::string _path_resources;
+    std::list<std::string> _path_resources;
+    std::list<std::string>::iterator _path_resources_it;
 
     //! will contain the informations on the data type catalog(after parsing)
     MapOfParserResourcesType _resourcesList;
 
     //! will contain the informations on the data type catalog(after parsing)
-    MapOfParserResourcesType _resourcesBatchList;
+MapOfParserResourcesType _resourcesBatchList;
 
     SALOME_LoadRateManager _dynamicResourcesSelecter;
 
