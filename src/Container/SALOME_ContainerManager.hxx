@@ -108,10 +108,9 @@ protected:
 
   std::string GetMPIZeroNode(std::string machine);
 
-  // Parallel extension
+  // For PacO++ Parallel extension
   std::string BuildCommandToLaunchLocalParallelContainer(const std::string& exe_name, 
-							 const Engines::MachineParameters& params, 
-							 const std::string& log = "default");
+							 const Engines::MachineParameters& params); 
   void startMPI();
   bool _MpiStarted;
 

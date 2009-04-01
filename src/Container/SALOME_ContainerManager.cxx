@@ -426,7 +426,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 			     const Engines::MachineList& possibleComputers)
 {
   CORBA::Object_var obj;
-  PaCO::InterfaceManager_var proxy;
+  PaCO::InterfaceManager_var container_proxy;
   Engines::Container_ptr ret = Engines::Container::_nil();
   Engines::MachineParameters params(params_const);
 
@@ -435,102 +435,166 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
   // we have to verified the number of nodes of the container
   // if a user tell that.
   ret = FindContainer(params, possibleComputers);
-
   if(CORBA::is_nil(ret)) {
-    // Step 2 : Starting a new parallel container
-    INFOS("[FindOrStartParallelContainer] Starting a parallel container");
+    // Step 2 : Starting a new parallel container !
+    INFOS("[FindOrStartParallelContainer] Starting a PaCO++ parallel container");
 
-    // Step 2.1 : Choose a computer
-    string theMachine = _ResManager->FindFirst(possibleComputers);
+    // Step 3 : Choose a computer
+    std::string theMachine = _ResManager->FindFirst(possibleComputers);
+    //If the machine name is localhost use the real name
+    if(theMachine == "localhost")
+      theMachine=Kernel_Utils::GetHostname();
+
     if(theMachine == "") {
       INFOS("[FindOrStartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
       INFOS("[FindOrStartParallelContainer] No possible computer found");
       INFOS("[FindOrStartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
+      return ret;
     }
-    else {
-      INFOS("[FindOrStartParallelContainer] on machine : " << theMachine);
-      string command;
-      if(theMachine == Kernel_Utils::GetHostname()) {
-	// Step 3 : starting parallel container proxy
-	params.hostname = CORBA::string_dup(theMachine.c_str());
-	Engines::MachineParameters params_proxy(params);
-	try {
-	  command = BuildCommandToLaunchLocalParallelContainer("SALOME_ParallelContainerProxy", params_proxy, "xterm");
-	}
-	catch(const SALOME_Exception & ex){
-	  MESSAGE(ex.what());
-	  return Engines::Container::_nil();
-	}
-	// LaunchParallelContainer uses this value to know if it launches the proxy or the nodes
-	params_proxy.nb_component_nodes = 0;
-	obj = LaunchParallelContainer(command, params_proxy, _NS->ContainerName(params));
-	ret = Engines::Container::_narrow(obj);
-	proxy = PaCO::InterfaceManager::_narrow(obj);
+    INFOS("[FindOrStartParallelContainer] on machine : " << theMachine);
+    params.hostname = CORBA::string_dup(theMachine.c_str());
 
-	// Step 4 : starting parallel container nodes
-	command = BuildCommandToLaunchLocalParallelContainer("SALOME_ParallelContainerNode", params, "xterm");
-	string name = _NS->ContainerName(params) + "Node";
-	LaunchParallelContainer(command, params, name);
-	// Step 5 : connecting nodes and the proxy to actually create a parallel container
-	try {
-	  for (int i = 0; i < params.nb_component_nodes; i++) {
+    // Step 4 : starting parallel container proxy
+    Engines::MachineParameters params_proxy(params);
+    std::string command_proxy;
+    try 
+    {
+      command_proxy = BuildCommandToLaunchLocalParallelContainer("SALOME_ParallelContainerProxy", params_proxy);
+    }
+    catch(const SALOME_Exception & ex)
+    {
+      INFOS("[FindOrStartParallelContainer] Exception in BuildCommandToLaunchLocalParallelContainer");
+      INFOS(ex.what());
+      return ret;
+    }
+    params_proxy.nb_component_nodes = 0; // LaunchParallelContainer uses this value to know if it launches the proxy or the nodes
+    obj = LaunchParallelContainer(command_proxy, params_proxy, _NS->ContainerName(params_proxy));
+    if (CORBA::is_nil(obj))
+    {
+      INFOS("[FindOrStartParallelContainer] LaunchParallelContainer for proxy returns NIL !");
+      return ret;
+    }
+    try 
+    {
+      container_proxy = PaCO::InterfaceManager::_narrow(obj);
+    }
+    catch(CORBA::SystemException& e)
+    {
+      INFOS("[FindOrStartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
+      INFOS("CORBA::SystemException : " << e);
+      return ret;
+    }
+    catch(CORBA::Exception& e)
+    {
+      INFOS("[FindOrStartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
+      INFOS("CORBA::Exception" << e);
+      return ret;
+    }
+    catch(...)
+    {
+      INFOS("[FindOrStartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
+      INFOS("Unknown exception !");
+      return ret;
+    }
+    if (CORBA::is_nil(container_proxy))
+    {
+      INFOS("[FindOrStartParallelContainer] PaCO::InterfaceManager::_narrow returns NIL !");
+      return ret;
+    }
 
-	    char buffer [5];
-#ifndef WIN32
-	    snprintf(buffer,5,"%d",i);
-#else
-	    _snprintf(buffer,5,"%d",i);
-#endif
-	    string name_cont = name + string(buffer);
-
-	    string theNodeMachine(CORBA::string_dup(params.hostname));
-	    string containerNameInNS = _NS->BuildContainerNameForNS(name_cont.c_str(),theNodeMachine.c_str());
-	    int count = TIME_OUT_TO_LAUNCH_CONT;
-	    obj = _NS->Resolve(containerNameInNS.c_str());
-	    while (CORBA::is_nil(obj) && count) {
-	      INFOS("[FindOrStartParallelContainer] CONNECTION FAILED !!!!!!!!!!!!!!!!!!!!!!!!");
-#ifndef WIN32
-	      sleep(1) ;
-#else
-	      Sleep(1000);
-#endif
-	      count-- ;
-	      obj = _NS->Resolve(containerNameInNS.c_str());
-	    }
-
-	    PaCO::InterfaceParallel_var node = PaCO::InterfaceParallel::_narrow(obj);
-	    MESSAGE("[FindOrStartParallelContainer] Deploying node : " << name);
-	    node->deploy();
-	  }
-
-	  MESSAGE ("[FindOrStartParallelContainer] Starting parallel object");
-	  proxy->start();
-	}
-	catch(CORBA::SystemException& e)
-          {
-            INFOS("Caught CORBA::SystemException. : " << e);
-          }
-	catch(PortableServer::POA::ServantAlreadyActive&)
-          {
-            INFOS("Caught CORBA::ServantAlreadyActiveException");
-          }
-	catch(CORBA::Exception&)
-          {
-            INFOS("Caught CORBA::Exception.");
-          }
-	catch(std::exception& exc)
-          {
-            INFOS("Caught std::exception - "<<exc.what()); 
-          }
-	catch(...)
-          {
-            INFOS("Caught unknown exception.");
-          }
-	INFOS("[FindOrStartParallelContainer] node " << name << " deployed");
+    // Step 5 : starting parallel container nodes
+    std::string command_nodes;
+    Engines::MachineParameters params_nodes(params);
+    command_nodes = BuildCommandToLaunchLocalParallelContainer("SALOME_ParallelContainerNode", params_nodes);
+    std::string container_generic_node_name = _NS->ContainerName(params) + "Node";
+    obj = LaunchParallelContainer(command_nodes, params_nodes, container_generic_node_name);
+    if (CORBA::is_nil(obj))
+    {
+      INFOS("[FindOrStartParallelContainer] LaunchParallelContainer for nodes returns NIL !");
+      // Il faut tuer le proxy
+      try 
+      {
+	Engines::Container_var proxy = Engines::Container::_narrow(container_proxy);
+	proxy->Shutdown();
       }
-      else {
-	INFOS("[FindOrStartParallelContainer] Currently parallel containers are launched only on the local host");
+      catch (...)
+      {
+	INFOS("[FindOrStartParallelContainer] Exception catched from proxy Shutdown...");
       }
+      return ret;
+    }
+
+    // Step 6 : connecting nodes and the proxy to actually create a parallel container
+    for (int i = 0; i < params.nb_component_nodes; i++) 
+    {
+      std::ostringstream tmp;
+      tmp << i;
+      std::string proc_number = tmp.str();
+      std::string container_node_name = container_generic_node_name + proc_number;
+
+      std::string theNodeMachine(params_nodes.hostname);
+      std::string containerNameInNS = _NS->BuildContainerNameForNS(container_node_name.c_str(), theNodeMachine.c_str());
+      obj = _NS->Resolve(containerNameInNS.c_str());
+      if (CORBA::is_nil(obj)) 
+      {
+	INFOS("[FindOrStartParallelContainer] CONNECTION FAILED From Naming Service !");
+	INFOS("[FindOrStartParallelContainer] Container name is " << containerNameInNS);
+	return ret;
+      }
+      try
+      {
+	MESSAGE("[FindOrStartParallelContainer] Deploying node : " << container_node_name);
+	PaCO::InterfaceParallel_var node = PaCO::InterfaceParallel::_narrow(obj);
+	node->deploy();
+	MESSAGE("[FindOrStartParallelContainer] node " << container_node_name << " is deployed");
+      }
+      catch(CORBA::SystemException& e)
+      {
+	INFOS("[FindOrStartParallelContainer] Exception in deploying node : " << containerNameInNS);
+	INFOS("CORBA::SystemException : " << e);
+	return ret;
+      }
+      catch(CORBA::Exception& e)
+      {
+	INFOS("[FindOrStartParallelContainer] Exception in deploying node : " << containerNameInNS);
+	INFOS("CORBA::Exception" << e);
+	return ret;
+      }
+      catch(...)
+      {
+	INFOS("[FindOrStartParallelContainer] Exception in deploying node : " << containerNameInNS);
+	INFOS("Unknown exception !");
+	return ret;
+      }
+    }
+
+    // Step 7 : starting parallel container
+    try 
+    {
+      MESSAGE ("[FindOrStartParallelContainer] Starting parallel object");
+      container_proxy->start();
+      MESSAGE ("[FindOrStartParallelContainer] Parallel object is started");
+      ret = Engines::Container::_narrow(container_proxy);
+    }
+    catch(CORBA::SystemException& e)
+    {
+      INFOS("Caught CORBA::SystemException. : " << e);
+    }
+    catch(PortableServer::POA::ServantAlreadyActive&)
+    {
+      INFOS("Caught CORBA::ServantAlreadyActiveException");
+    }
+    catch(CORBA::Exception&)
+    {
+      INFOS("Caught CORBA::Exception.");
+    }
+    catch(std::exception& exc)
+    {
+      INFOS("Caught std::exception - "<<exc.what()); 
+    }
+    catch(...)
+    {
+      INFOS("Caught unknown exception.");
     }
   }
   return ret;
@@ -648,25 +712,28 @@ SALOME_ContainerManager::LaunchParallelContainer(const std::string& command,
 						 const std::string& name)
 {
   CORBA::Object_ptr obj = CORBA::Object::_nil();
-  string containerNameInNS;
-  MESSAGE("[LaunchParallelContainer] : command to launch...");
-  MESSAGE(command);
-  if (params.nb_component_nodes == 0) {
-    INFOS("[LaunchParallelContainer] launching the proxy of the parallel container");
-    int status = system(command.c_str());
-    if (status == -1) {
-      INFOS("[LaunchParallelContainer] failed : system command status -1");
-    }
-    else if (status == 217) {
-      INFOS("[LaunchParallelContainer] failed : system command status 217");
-    }
+  std::string containerNameInNS;
+  std::string theMachine(params.hostname);
+  int count = TIME_OUT_TO_LAUNCH_CONT;
 
-    int count = TIME_OUT_TO_LAUNCH_CONT;
-    string theMachine(CORBA::string_dup(params.hostname));
-    containerNameInNS = _NS->BuildContainerNameForNS((char*) name.c_str(),theMachine.c_str());
+  INFOS("[LaunchParallelContainer] Begin");
+  int status = system(command.c_str());
+  if (status == -1) {
+    INFOS("[LaunchParallelContainer] failed : system command status -1");
+    return obj;
+  }
+  else if (status == 217) {
+    INFOS("[LaunchParallelContainer] failed : system command status 217");
+    return obj;
+  }
 
-    INFOS("[LaunchParallelContainer]  Waiting for Parallel Container proxy on " << theMachine);
-    while (CORBA::is_nil(obj) && count) {
+  if (params.nb_component_nodes == 0) 
+  {
+    // Proxy We have launch a proxy
+    containerNameInNS = _NS->BuildContainerNameForNS((char*) name.c_str(), theMachine.c_str());
+    INFOS("[LaunchParallelContainer]  Waiting for Parallel Container proxy " << containerNameInNS << " on " << theMachine);
+    while (CORBA::is_nil(obj) && count) 
+    {
 #ifndef WIN32
       sleep(1) ;
 #else
@@ -676,34 +743,19 @@ SALOME_ContainerManager::LaunchParallelContainer(const std::string& command,
       obj = _NS->Resolve(containerNameInNS.c_str());
     }
   }
-  else {
+  else 
+  {
     INFOS("[LaunchParallelContainer] launching the nodes of the parallel container");
-    int status = system(command.c_str());
-    if (status == -1) {
-      INFOS("[LaunchParallelContainer] failed : system command status -1");
-    }
-    else if (status == 217) {
-      INFOS("[LaunchParallelContainer] failed : system command status 217");
-    }
     // We are waiting all the nodes
-    for (int i = 0; i < params.nb_component_nodes; i++) {
-      obj = CORBA::Object::_nil();
-      int count = TIME_OUT_TO_LAUNCH_CONT;
-
+    for (int i = 0; i < params.nb_component_nodes; i++) 
+    {
       // Name of the node
-      char buffer [5];
-#ifndef WIN32
-      snprintf(buffer,5,"%d",i);
-#else
-      _snprintf(buffer,5,"%d",i);
-#endif
-
-      string name_cont = name + string(buffer);
-
-      // I don't like this...
-      string theMachine(CORBA::string_dup(params.hostname));
-      containerNameInNS = _NS->BuildContainerNameForNS((char*) name_cont.c_str(),theMachine.c_str());
-      cerr << "[LaunchContainer]  Waiting for Parllel Container node " << containerNameInNS << " on " << theMachine << endl;
+      std::ostringstream tmp;
+      tmp << i;
+      std::string proc_number = tmp.str();
+      std::string container_node_name = name + proc_number;
+      containerNameInNS = _NS->BuildContainerNameForNS((char*) container_node_name.c_str(), theMachine.c_str());
+      INFOS("[LaunchParallelContainer]  Waiting for Parallel Container node " << containerNameInNS << " on " << theMachine);
       while (CORBA::is_nil(obj) && count) {
 #ifndef WIN32
 	sleep(1) ;
@@ -713,12 +765,16 @@ SALOME_ContainerManager::LaunchParallelContainer(const std::string& command,
 	count-- ;
 	obj = _NS->Resolve(containerNameInNS.c_str());
       }
+      if (CORBA::is_nil(obj))
+      {
+	INFOS("[LaunchParallelContainer] Launch of node failed (or not found) !");
+	return obj;
+      }
     }
   }
-
-  if ( CORBA::is_nil(obj) ) {
+  if (CORBA::is_nil(obj)) 
     INFOS("[LaunchParallelContainer] failed");
-  }
+  
   return obj;
 }
 
@@ -1217,8 +1273,7 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
 //=============================================================================
 string 
 SALOME_ContainerManager::BuildCommandToLaunchLocalParallelContainer(const std::string& exe_name,
-								    const Engines::MachineParameters& params,
-								    const std::string& log)
+								    const Engines::MachineParameters& params)
 {
   // This method knows the differences between the proxy and the nodes.
   // nb_component_nodes is not used in the same way if it is a proxy or 
