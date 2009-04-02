@@ -67,10 +67,11 @@ public:
 
   static const char *_ContainerManagerNameInNS;
 
-  // Parallel extension
+  // PaCO++ Parallel extension
   Engines::Container_ptr
-  FindOrStartParallelContainer(const Engines::MachineParameters& params,
-			       const Engines::MachineList& possibleComputer);
+  StartParallelContainer(const Engines::MachineParameters& params,
+			 Engines::ResPolicy policy,
+			 const Engines::MachineList& possibleComputer);
 protected:
   Engines::Container_ptr
   FindContainer(const Engines::MachineParameters& params,

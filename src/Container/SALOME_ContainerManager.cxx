@@ -219,7 +219,7 @@ StartContainer(const Engines::MachineParameters& params,
 #ifdef WITH_PACO_PARALLEL
   std::string parallelLib(params.parallelLib);
   if (parallelLib != "")
-    return FindOrStartParallelContainer(params, possibleComputers);
+    return StartParallelContainer(params, policy, possibleComputers);
 #endif
   string containerNameInNS;
   Engines::Container_ptr ret = Engines::Container::_nil();
@@ -422,7 +422,8 @@ StartContainer(const Engines::MachineParameters& params,
 //=============================================================================
 Engines::Container_ptr
 SALOME_ContainerManager::
-FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
+StartParallelContainer(const Engines::MachineParameters& params_const,
+			     Engines::ResPolicy policy,
 			     const Engines::MachineList& possibleComputers)
 {
   CORBA::Object_var obj;
@@ -437,7 +438,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
   ret = FindContainer(params, possibleComputers);
   if(CORBA::is_nil(ret)) {
     // Step 2 : Starting a new parallel container !
-    INFOS("[FindOrStartParallelContainer] Starting a PaCO++ parallel container");
+    INFOS("[StartParallelContainer] Starting a PaCO++ parallel container");
 
     // Step 3 : Choose a computer
     std::string theMachine = _ResManager->FindFirst(possibleComputers);
@@ -446,12 +447,12 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
       theMachine=Kernel_Utils::GetHostname();
 
     if(theMachine == "") {
-      INFOS("[FindOrStartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
-      INFOS("[FindOrStartParallelContainer] No possible computer found");
-      INFOS("[FindOrStartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
+      INFOS("[StartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
+      INFOS("[StartParallelContainer] No possible computer found");
+      INFOS("[StartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
       return ret;
     }
-    INFOS("[FindOrStartParallelContainer] on machine : " << theMachine);
+    INFOS("[StartParallelContainer] on machine : " << theMachine);
     params.hostname = CORBA::string_dup(theMachine.c_str());
 
     // Step 4 : starting parallel container proxy
@@ -463,7 +464,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
     }
     catch(const SALOME_Exception & ex)
     {
-      INFOS("[FindOrStartParallelContainer] Exception in BuildCommandToLaunchLocalParallelContainer");
+      INFOS("[StartParallelContainer] Exception in BuildCommandToLaunchLocalParallelContainer");
       INFOS(ex.what());
       return ret;
     }
@@ -471,7 +472,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
     obj = LaunchParallelContainer(command_proxy, params_proxy, _NS->ContainerName(params_proxy));
     if (CORBA::is_nil(obj))
     {
-      INFOS("[FindOrStartParallelContainer] LaunchParallelContainer for proxy returns NIL !");
+      INFOS("[StartParallelContainer] LaunchParallelContainer for proxy returns NIL !");
       return ret;
     }
     try 
@@ -480,25 +481,25 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
     }
     catch(CORBA::SystemException& e)
     {
-      INFOS("[FindOrStartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
+      INFOS("[StartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
       INFOS("CORBA::SystemException : " << e);
       return ret;
     }
     catch(CORBA::Exception& e)
     {
-      INFOS("[FindOrStartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
+      INFOS("[StartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
       INFOS("CORBA::Exception" << e);
       return ret;
     }
     catch(...)
     {
-      INFOS("[FindOrStartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
+      INFOS("[StartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
       INFOS("Unknown exception !");
       return ret;
     }
     if (CORBA::is_nil(container_proxy))
     {
-      INFOS("[FindOrStartParallelContainer] PaCO::InterfaceManager::_narrow returns NIL !");
+      INFOS("[StartParallelContainer] PaCO::InterfaceManager::_narrow returns NIL !");
       return ret;
     }
 
@@ -510,7 +511,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
     obj = LaunchParallelContainer(command_nodes, params_nodes, container_generic_node_name);
     if (CORBA::is_nil(obj))
     {
-      INFOS("[FindOrStartParallelContainer] LaunchParallelContainer for nodes returns NIL !");
+      INFOS("[StartParallelContainer] LaunchParallelContainer for nodes returns NIL !");
       // Il faut tuer le proxy
       try 
       {
@@ -519,7 +520,7 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
       }
       catch (...)
       {
-	INFOS("[FindOrStartParallelContainer] Exception catched from proxy Shutdown...");
+	INFOS("[StartParallelContainer] Exception catched from proxy Shutdown...");
       }
       return ret;
     }
@@ -537,32 +538,32 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
       obj = _NS->Resolve(containerNameInNS.c_str());
       if (CORBA::is_nil(obj)) 
       {
-	INFOS("[FindOrStartParallelContainer] CONNECTION FAILED From Naming Service !");
-	INFOS("[FindOrStartParallelContainer] Container name is " << containerNameInNS);
+	INFOS("[StartParallelContainer] CONNECTION FAILED From Naming Service !");
+	INFOS("[StartParallelContainer] Container name is " << containerNameInNS);
 	return ret;
       }
       try
       {
-	MESSAGE("[FindOrStartParallelContainer] Deploying node : " << container_node_name);
+	MESSAGE("[StartParallelContainer] Deploying node : " << container_node_name);
 	PaCO::InterfaceParallel_var node = PaCO::InterfaceParallel::_narrow(obj);
 	node->deploy();
-	MESSAGE("[FindOrStartParallelContainer] node " << container_node_name << " is deployed");
+	MESSAGE("[StartParallelContainer] node " << container_node_name << " is deployed");
       }
       catch(CORBA::SystemException& e)
       {
-	INFOS("[FindOrStartParallelContainer] Exception in deploying node : " << containerNameInNS);
+	INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
 	INFOS("CORBA::SystemException : " << e);
 	return ret;
       }
       catch(CORBA::Exception& e)
       {
-	INFOS("[FindOrStartParallelContainer] Exception in deploying node : " << containerNameInNS);
+	INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
 	INFOS("CORBA::Exception" << e);
 	return ret;
       }
       catch(...)
       {
-	INFOS("[FindOrStartParallelContainer] Exception in deploying node : " << containerNameInNS);
+	INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
 	INFOS("Unknown exception !");
 	return ret;
       }
@@ -571,9 +572,9 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
     // Step 7 : starting parallel container
     try 
     {
-      MESSAGE ("[FindOrStartParallelContainer] Starting parallel object");
+      MESSAGE ("[StartParallelContainer] Starting parallel object");
       container_proxy->start();
-      MESSAGE ("[FindOrStartParallelContainer] Parallel object is started");
+      MESSAGE ("[StartParallelContainer] Parallel object is started");
       ret = Engines::Container::_narrow(container_proxy);
     }
     catch(CORBA::SystemException& e)
@@ -611,12 +612,13 @@ FindOrStartParallelContainer(const Engines::MachineParameters& params_const,
 //=============================================================================
 Engines::Container_ptr
 SALOME_ContainerManager::
-FindOrStartParallelContainer(const Engines::MachineParameters& params,
-			     const Engines::MachineList& possibleComputers)
+StartParallelContainer(const Engines::MachineParameters& params,
+		       Engines::ResPolicy policy,
+		       const Engines::MachineList& possibleComputers)
 {
   Engines::Container_ptr ret = Engines::Container::_nil();
-  INFOS("[FindOrStartParallelContainer] is disabled !");
-  INFOS("[FindOrStartParallelContainer] recompile SALOME Kernel to enable parallel extension");
+  INFOS("[StartParallelContainer] is disabled !");
+  INFOS("[StartParallelContainer] recompile SALOME Kernel to enable parallel extension");
   return ret;
 }
 #endif
