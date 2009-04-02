@@ -114,7 +114,7 @@ void ResourceDataToSort::Print() const
     cout << _memInMB << endl;
   }
 
-void ParserResourcesType::Print() const
+void ParserResourcesType::Print()
 {
   ostringstream oss;
   oss << endl <<
@@ -133,11 +133,21 @@ void ParserResourcesType::Print() const
     "OS : " << OS << endl <<
     "batchQueue : " << batchQueue << endl <<
     "userCommands : " << userCommands << endl <<
+    "use : " << use << endl <<
+    "NbOfProc : " << nbOfProc << endl <<
     "Modules : " << endl;
 
   for(int i=0;i<ModulesList.size();i++)
     oss << "Module " << i+1 << " called : " << ModulesList[i] << endl;
 
+  
+  std::list<ParserResourcesClusterMembersType>::iterator it;
+  for(it = ClusterMembersList.begin(); 
+      it != ClusterMembersList.end();
+      it++)
+  {
+    oss << "Cluster member  called : " << (*it).HostName << endl;
+  }
   cout << oss.str() << endl;
 
 }
@@ -161,4 +171,7 @@ void ParserResourcesType::Clear()
   userCommands = "";
   ModulesList.clear();
   OS = "";
+  use = "";
+  ClusterMembersList.clear();
+  nbOfProc = 1;
 }

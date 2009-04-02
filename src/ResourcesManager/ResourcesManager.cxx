@@ -184,7 +184,9 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 #if defined(_DEBUG_) || defined(_DEBUG)
 	  cerr << "ResourcesManager_cpp::GetFittingResources : SALOME_Exception" << endl;
 #endif
-	  throw ResourcesException("unknown host");
+	  std::string error("GetFittinResouces : ResourcesManager doesn't find the host requested : ");
+	  error += hostname;
+	  throw ResourcesException(error);
 	}
       }
   }
