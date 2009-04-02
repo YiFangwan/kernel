@@ -135,8 +135,9 @@ struct BatchParameters
 
       \return Container's CORBA reference.
     */
-    Container FindOrStartParallelContainer( in MachineParameters params,
-					    in MachineList possibleComputers);
+    Container StartParallelContainer(in MachineParameters params,
+				     in ResPolicy policy,
+				     in MachineList possibleComputers);
 
     //!  Start a new container satisfying the constraints given by input parameters.
     Container StartContainer( in MachineParameters params,

@@ -684,7 +684,7 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::MachineParameters& 
   }
 
   MESSAGE("Starting Parallel Container");
-  Engines::Container_var cont = _ContManager->FindOrStartParallelContainer(params, listOfMachines);
+  Engines::Container_var cont = _ContManager->StartParallelContainer(params, Engines::P_FIRST, listOfMachines);
   if (CORBA::is_nil(cont)) {
     INFOS("FindOrStartParallelContainer() returns a NULL container !");
     return Engines::Component::_nil();
