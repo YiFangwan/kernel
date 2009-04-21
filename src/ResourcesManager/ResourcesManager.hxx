@@ -41,10 +41,12 @@
 struct machineParams{
   std::string hostname;
   std::string OS;
+  std::string parallelLib;
   unsigned int nb_node;
   unsigned int nb_proc_per_node;
   unsigned int cpu_clock;
   unsigned int mem_mb;
+  unsigned int nb_component_nodes;
 };
 
 class RESOURCESMANAGER_EXPORT ResourcesException
@@ -109,7 +111,7 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     MapOfParserResourcesType _resourcesList;
 
     //! will contain the informations on the data type catalog(after parsing)
-MapOfParserResourcesType _resourcesBatchList;
+    MapOfParserResourcesType _resourcesBatchList;
 
     SALOME_LoadRateManager _dynamicResourcesSelecter;
 

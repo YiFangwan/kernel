@@ -130,7 +130,7 @@ ResourcesManager_cpp::~ResourcesManager_cpp()
 
 std::vector<std::string> 
 ResourcesManager_cpp::GetFittingResources(const machineParams& params,
-				      const std::vector<std::string>& componentList) throw(ResourcesException)
+					  const std::vector<std::string>& componentList) throw(ResourcesException)
 {
   vector <std::string> vec;
 
@@ -140,6 +140,36 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "GetFittingResources " << hostname << " " << Kernel_Utils::GetHostname().c_str() << endl;
 #endif
+
+  // PaCO++ parallel container case
+  std::string parallelLib(params.parallelLib);
+  if (params.nb_component_nodes > 0 and parallelLib != "")
+  {
+#if defined(_DEBUG_) || defined(_DEBUG)
+    std::cerr << "[GetFittingResources] ParallelContainer case" << std::endl;
+    std::cerr << "[GetFittingResources] parallelLib is " << parallelLib << std::endl;
+    std::cerr << "[GetFittingResources] nb_component_nodes is " << params.nb_component_nodes << std::endl;
+#endif
+
+    // Currently we only support parallel containers that define a hostname target
+    if (hostname[0] != '\0')
+    {
+      // Special case of localhost -> put containers into the real computer name
+      if (strcmp(hostname, "localhost") == 0)
+	vec.push_back(Kernel_Utils::GetHostname().c_str());
+      else 
+      {
+	// Try find the resource into the map
+	if (_resourcesList.find(hostname) != _resourcesList.end())
+	  vec.push_back(hostname);
+	else
+	  std::cerr << "[GetFittingResources] ParallelContainer hostname does not exist into the resource list !" << std::endl;
+      }
+    }
+    else
+      std::cerr << "[GetFittingResources] ParallelContainer hostname is empty -> cannot find a possible resource" << std::endl;
+    return vec;
+  }
 
   if (hostname[0] != '\0'){
 

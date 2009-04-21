@@ -153,6 +153,8 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& p
   p.nb_proc_per_node = params.nb_proc_per_node;
   p.cpu_clock = params.cpu_clock;
   p.mem_mb = params.mem_mb;
+  p.parallelLib = params.parallelLib;
+  p.nb_component_nodes = params.nb_component_nodes;
 
   vector<string> cl;
   for(unsigned int i=0;i<componentList.length();i++)
