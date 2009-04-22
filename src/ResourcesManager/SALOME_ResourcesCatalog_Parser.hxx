@@ -77,6 +77,7 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesClusterMembersType
   std::string HostName;
   AccessProtocolType Protocol;
   std::string UserName;
+  std::string AppliPath;
   ResourceDataToSort DataForSort;
 };
 

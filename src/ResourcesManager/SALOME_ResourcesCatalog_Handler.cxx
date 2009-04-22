@@ -341,6 +341,19 @@ SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserRe
     std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
     return false;
   }
+
+  if (xmlHasProp(member_descr, (const xmlChar*)test_appli_path))
+  {
+    xmlChar* appli_path = xmlGetProp(member_descr, (const xmlChar*)test_appli_path);
+    resource.AppliPath = (const char*)appli_path;
+    xmlFree(appli_path);
+  }
+  else
+  {
+    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a AppliPath" << std::endl;
+    std::cerr << "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" << std::endl;
+    return false;
+  }
 }
 
 bool
