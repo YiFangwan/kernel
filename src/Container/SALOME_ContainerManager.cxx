@@ -35,7 +35,7 @@
 #include <sstream>
 
 #ifdef WITH_PACO_PARALLEL
-#include "PaCO++.hxx"
+#include "PaCOPP.hxx"
 #endif
 
 #define TIME_OUT_TO_LAUNCH_CONT 61
