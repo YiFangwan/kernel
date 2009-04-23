@@ -128,9 +128,9 @@ int main(int argc, char* argv[])
   if(argc > 1) {
     containerName = argv[1];
   }
-  std::string hostname("");
+  std::string proxy_hostname("");
   if(argc > 3) {
-    hostname = argv[3];
+    proxy_hostname = argv[3];
   }
   int myid = 0;
   if(argc > 4) 
@@ -151,7 +151,7 @@ int main(int argc, char* argv[])
     SALOME_NamingService * ns = new SALOME_NamingService(orb);
     // Get the proxy
     string proxyNameInNS = ns->BuildContainerNameForNS(containerName.c_str(), 
-						       hostname.c_str());
+						       proxy_hostname.c_str());
     obj = ns->Resolve(proxyNameInNS.c_str());
     char * proxy_ior = orb->object_to_string(obj);
 
