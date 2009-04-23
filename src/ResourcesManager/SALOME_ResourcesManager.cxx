@@ -25,6 +25,7 @@
 #include "OpUtil.hxx"
 
 #include <stdlib.h>
+#include <stdio.h>
 #ifndef WIN32
 #include <unistd.h>
 #else
@@ -238,3 +239,75 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
   return p_ptr;
 }
 
+std::string 
+SALOME_ResourcesManager::getMachineFile(std::string hostname, CORBA::Long nb_procs, 
+					std::string parallelLib)
+{
+  std::string machine_file_name("");
+
+  if (parallelLib == "Dummy")
+  {
+    MESSAGE("[getMachineFile] parallelLib is Dummy");
+    MapOfParserResourcesType resourcesList = _rm.GetList();
+    if (resourcesList.find(hostname) != resourcesList.end())
+    {
+      ParserResourcesType resource = resourcesList[hostname];
+
+      // Check if resource is cluster or not
+      if (resource.ClusterMembersList.empty())
+      {
+	//It is not a cluster so we create a cluster with one machine
+	ParserResourcesClusterMembersType fake_node;
+	fake_node.HostName = resource.HostName;
+	fake_node.Protocol = resource.Protocol;
+	fake_node.UserName = resource.UserName;
+	fake_node.AppliPath = resource.AppliPath;
+	fake_node.DataForSort = resource.DataForSort;
+
+	resource.ClusterMembersList.push_front(fake_node);
+      }
+
+      // Creating list of machines for creating the machine file
+      std::list<std::string> list_of_machines;
+      std::list<ParserResourcesClusterMembersType>::iterator cluster_it = 
+	resource.ClusterMembersList.begin();
+      while (cluster_it != resource.ClusterMembersList.end())
+      {
+	// For each member of the cluster we add a nbOfNodes * nbOfProcPerNode in the list
+	unsigned int number_of_proc = (*cluster_it).DataForSort._nbOfNodes * 
+				      (*cluster_it).DataForSort._nbOfProcPerNode;
+	for (unsigned int i = 0; i < number_of_proc; i++)
+	  list_of_machines.push_back((*cluster_it).HostName);
+	cluster_it++;
+      }
+
+      // Creating machine file
+      machine_file_name = tmpnam(NULL);
+      std::ofstream machine_file(machine_file_name.c_str(), ios_base::out);
+
+      CORBA::Long machine_number = 0;
+      std::list<std::string>::iterator it = list_of_machines.begin();
+      while (machine_number != nb_procs)
+      {
+	// Adding a new node to the machine file
+	machine_file << *it << endl;
+
+	// counting...
+	it++;
+	if (it == list_of_machines.end())
+	  it = list_of_machines.begin();
+	machine_number++;
+      }
+    }
+    else
+      INFOS("[getMachineFile] Error hostname not found in resourcesList -> " << hostname);
+  }
+  else if (parallelLib == "Mpi")
+  {
+    MESSAGE("[getMachineFile] parallelLib is Mpi");
+  }
+  else
+    INFOS("[getMachineFile] Error parallelLib is not handled -> " << parallelLib);
+
+  return machine_file_name;
+}

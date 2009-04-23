@@ -63,20 +63,21 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
 
     ~SALOME_ResourcesManager();
 
+    // CORBA Methods
     Engines::MachineList *
     GetFittingResources(const Engines::MachineParameters& params,
                         const Engines::CompoList& componentList);
-
     char* FindFirst(const Engines::MachineList& listOfMachines);
-
     Engines::MachineParameters* GetMachineParameters(const char *hostname);
 
+    // Cpp Methods
     void Shutdown();
+    ResourcesManager_cpp *GetImpl() { return &_rm; }
+    std::string getMachineFile(std::string hostname, CORBA::Long nb_procs,
+			       std::string parallelLib);
+
 
     static const char *_ResourcesManagerNameInNS;
-
-    ResourcesManager_cpp *GetImpl() { return &_rm; }
-
   protected:
     
     SALOME_NamingService *_NS;
