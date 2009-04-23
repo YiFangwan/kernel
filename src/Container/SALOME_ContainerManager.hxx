@@ -81,12 +81,6 @@ protected:
   FindContainer(const Engines::MachineParameters& params,
 		const char *theMachine);
 
-  // Parallel extension
-  CORBA::Object_ptr 
-  LaunchParallelContainer(const std::string& command, 
-			  const Engines::MachineParameters& params,
-			  const std::string& name);
-
   void fillBatchLaunchedContainers();
 
   std::string BuildCommandToLaunchRemoteContainer(const std::string& machine,
@@ -110,8 +104,16 @@ protected:
   std::string GetMPIZeroNode(std::string machine);
 
   // For PacO++ Parallel extension
-  std::string BuildCommandToLaunchLocalParallelContainer(const std::string& exe_name, 
-							 const Engines::MachineParameters& params); 
+  typedef std::vector<std::string> actual_launch_machine_t;
+  std::string BuildCommandToLaunchParallelContainer(const std::string& exe_name, 
+						    const Engines::MachineParameters& params,
+						    SALOME_ContainerManager::actual_launch_machine_t & vect_machine, 
+						    const std::string proxy_hostname = ""); 
+  CORBA::Object_ptr 
+  LaunchParallelContainer(const std::string& command, 
+			  const Engines::MachineParameters& params,
+			  const std::string& name,
+			  SALOME_ContainerManager::actual_launch_machine_t & vect_machine);
   void startMPI();
   bool _MpiStarted;
 
