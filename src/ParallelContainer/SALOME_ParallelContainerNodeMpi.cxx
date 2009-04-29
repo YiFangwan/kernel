@@ -207,10 +207,17 @@ int main(int argc, char* argv[])
     char buffer [5];
     snprintf(buffer, 5, "%d", myid);
     node_name = node_name + buffer;
+
+    // We register nodes in two different parts
+    // In the real machine name and in the proxy machine
     string _containerName = ns->BuildContainerNameForNS(node_name.c_str(),
 							hostname.c_str());
-    cerr << "---------" << _containerName << "----------" << endl;
+    string _proxymachine_containerName = ns->BuildContainerNameForNS(node_name.c_str(),
+								     proxy_hostname.c_str());
+    cerr << "Register container node : " << _containerName << endl;
+    cerr << "Register container node : " << _proxymachine_containerName << endl;
     ns->Register(obj, _containerName.c_str());
+    ns->Register(obj, _proxymachine_containerName.c_str());
     pman->activate();
     orb->run();
     PyGILState_Ensure();
