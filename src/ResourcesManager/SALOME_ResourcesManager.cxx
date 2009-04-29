@@ -305,6 +305,52 @@ SALOME_ResourcesManager::getMachineFile(std::string hostname, CORBA::Long nb_pro
   else if (parallelLib == "Mpi")
   {
     MESSAGE("[getMachineFile] parallelLib is Mpi");
+
+    MapOfParserResourcesType resourcesList = _rm.GetList();
+    if (resourcesList.find(hostname) != resourcesList.end())
+    {
+      ParserResourcesType resource = resourcesList[hostname];
+      // Check if resource is cluster or not
+      if (resource.ClusterMembersList.empty())
+      {
+	//It is not a cluster so we create a cluster with one machine
+	ParserResourcesClusterMembersType fake_node;
+	fake_node.HostName = resource.HostName;
+	fake_node.Protocol = resource.Protocol;
+	fake_node.UserName = resource.UserName;
+	fake_node.AppliPath = resource.AppliPath;
+	fake_node.DataForSort = resource.DataForSort;
+
+	resource.ClusterMembersList.push_front(fake_node);
+      }
+
+      // Choose mpi implementation -> each MPI implementation has is own machinefile...
+      if (resource.mpi == lam)
+      {
+	// Creating machine file
+	machine_file_name = tmpnam(NULL);
+	std::ofstream machine_file(machine_file_name.c_str(), ios_base::out);
+
+	// We add all cluster machines to the file
+	std::list<ParserResourcesClusterMembersType>::iterator cluster_it = 
+	  resource.ClusterMembersList.begin();
+	while (cluster_it != resource.ClusterMembersList.end())
+	{
+	  unsigned int number_of_proc = (*cluster_it).DataForSort._nbOfNodes * 
+	    (*cluster_it).DataForSort._nbOfProcPerNode;
+	  machine_file << (*cluster_it).HostName << " cpu=" << number_of_proc << endl;
+	  cluster_it++;
+	}
+      }
+      else if (resource.mpi == nompi)
+      {
+	INFOS("[getMachineFile] Error hostname MPI implementation was defined for " << hostname);
+      }
+      else
+	INFOS("[getMachineFile] Error hostname MPI implementation not currenly handled for " << hostname);
+    }
+    else
+      INFOS("[getMachineFile] Error hostname not found in resourcesList -> " << hostname);
   }
   else
     INFOS("[getMachineFile] Error parallelLib is not handled -> " << parallelLib);

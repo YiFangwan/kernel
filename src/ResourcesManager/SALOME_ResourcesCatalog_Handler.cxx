@@ -229,6 +229,27 @@ SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, Parser
     return false;
   }
 
+  if (xmlHasProp(cluster_descr, (const xmlChar*)test_mpi))
+  {
+    xmlChar* mpi = xmlGetProp(cluster_descr, (const xmlChar*)test_mpi);
+    std::string anMpi = (const char*)mpi;
+    xmlFree(mpi);
+    if (anMpi == "lam")
+      resource.mpi = lam;
+    else if (anMpi == "mpich1")
+      resource.mpi = mpich1;
+    else if (anMpi == "mpich2")
+      resource.mpi = mpich2;
+    else if (anMpi == "openmpi")
+      resource.mpi = openmpi;
+    else if  (anMpi == "slurm")
+      resource.mpi = slurm;
+    else if  (anMpi == "prun")
+      resource.mpi = prun;
+    else
+      resource.mpi = nompi;
+  }
+
   // Parsing des membres du cluster 
   xmlNodePtr aCurSubNode = cluster_descr->xmlChildrenNode;
   while(aCurSubNode != NULL)
