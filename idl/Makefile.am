@@ -272,6 +272,7 @@ if WITH_PACO_PARALLEL
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) -Wbh=.hxx -Wbs=.cxx $<
 
 $(DESTDIR)$(salomepythondir)/%_idl.py : %.idl
+	$(MKDIR_P) $(DESTDIR)$(salomepythondir)
 	$(OMNIORB_IDL) $(IDLPYFLAGS) -I$(top_srcdir)/idl -I@PACOPATH@/idl -C$(DESTDIR)$(salomepythondir) $<
 
 endif
