@@ -80,7 +80,6 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
     Engines::ContainerManager::_narrow(obj);
 
   _NS->Register(refContMan,_ContainerManagerNameInNS);
-  _MpiStarted = false;
   _isAppliSalomeDefined = (getenv("APPLI") != 0);
   MESSAGE("constructor end");
 }
@@ -508,7 +507,16 @@ StartParallelContainer(const Engines::MachineParameters& params_const,
     std::string command_nodes;
     Engines::MachineParameters params_nodes(params);
     SALOME_ContainerManager::actual_launch_machine_t nodes_machines;
-    command_nodes = BuildCommandToLaunchParallelContainer("SALOME_ParallelContainerNode", params_nodes, nodes_machines, proxy_machine[0]);
+    try 
+    {
+      command_nodes = BuildCommandToLaunchParallelContainer("SALOME_ParallelContainerNode", params_nodes, nodes_machines, proxy_machine[0]);
+    }
+    catch(const SALOME_Exception & ex)
+    {
+      INFOS("[StartParallelContainer] Exception in BuildCommandToLaunchParallelContainer");
+      INFOS(ex.what());
+      return ret;
+    }
     std::string container_generic_node_name = _NS->ContainerName(params) + "Node";
     obj = LaunchParallelContainer(command_nodes, params_nodes, container_generic_node_name, nodes_machines);
     if (CORBA::is_nil(obj))
@@ -1343,6 +1351,11 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
 						      params.nb_component_nodes,
 						      parallelLib);
     }
+    if (machine_file_name == "")
+    {
+      INFOS("[BuildCommandToLaunchParallelContainer] Error machine_file was not generated for machine " << hostname);
+      throw SALOME_Exception("Error machine_file was not generated");
+    }
     MESSAGE("[BuildCommandToLaunchParallelContainer] machine_file_name is : " << machine_file_name);
   }
 
@@ -1488,40 +1501,146 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
   }
   else if (parallelLib == "Mpi")
   {
-    // Step 1 : check if MPI is started
-    // Required for lam -> lamboot
-    if (_MpiStarted == false)
+    // Step 0: if remote we have to copy the file
+    // to the first machine of the file
+    std::string remote_machine("");
+    if (remote)
     {
-      startMPI();
+      std::ifstream * machine_file = NULL;
+      machine_file = new std::ifstream(machine_file_name.c_str());
+      // Get first word of the line
+      // For MPI implementation the first word is the 
+      // machine name
+      std::getline(*machine_file, remote_machine, ' ');
+      machine_file->close();
+      MESSAGE("[BuildCommandToLaunchParallelContainer] machine file name extracted is " << remote_machine)
+
+      // We want to launch a command like : 
+      // scp mpi_machine_file user@machine:Path
+      std::string command_remote("");
+      const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(remote_machine);
+      if (resInfo.Protocol == rsh)
+	command_remote = "rcp ";
+      else 
+	command_remote = "scp ";
+
+      command_remote += machine_file_name;
+      command_remote += " ";
+      command_remote += resInfo.UserName;
+      command_remote += "@";
+      command_remote += remote_machine;
+      command_remote += ":";
+      command_remote += machine_file_name;
+
+      int status = system(command_remote.c_str());
+      if (status == -1)
+      {
+	INFOS("copy of the mpi machine file failed !");
+	return "";
+      }
     }
 
     if (is_a_proxy)
     {
-      command = "mpirun -np 1 ";
-      command += real_exe_name;
+      std::string command_remote("");
+      if (remote)
+      {
+	// We want to launch a command like : 
+	// ssh user@machine distantPath/runRemote.sh hostNS portNS
+	const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(remote_machine);
+	if (resInfo.Protocol == rsh)
+	  command_remote = "rsh ";
+	else 
+	  command_remote = "ssh ";
+	command_remote += resInfo.UserName;
+	command_remote += "@";
+	command_remote += remote_machine;
+	command_remote += " ";
+	command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
+	command_remote += "/runRemote.sh ";
+	ASSERT(getenv("NSHOST")); 
+	command_remote += getenv("NSHOST"); // hostname of CORBA name server
+	command_remote += " ";
+	ASSERT(getenv("NSPORT"));
+	command_remote += getenv("NSPORT"); // port of CORBA name server
+	command_remote += " ";
+
+	hostname = remote_machine;
+      }
+
+      // We use Dummy proxy for MPI parallel containers
+      real_exe_name  = exe_name + "Dummy";
+      command =  real_exe_name;
       command += " " + _NS->ContainerName(rtn);
-      command += " " + nbproc;
-      command += " " + parallelLib;
+      command += " Dummy";
       command += " " + hostname;
+      command += " " + nbproc;
       command += " -";
       AddOmninamesParams(command);
 
-      command = command_begin + command + command_end;
+      command = command_begin + command_remote + command + command_end;
       vect_machine.push_back(hostname);
     }
     else                                          
     {
-      command = "mpirun -np " + nbproc + " ";
-      command += real_exe_name;
-      command += " " + _NS->ContainerName(rtn);
-      command += " " + parallelLib;
-      command += " " + proxy_hostname;
-      command += " -";
-      AddOmninamesParams(command);
+      std::string command_remote("");
+      if (remote)
+      {
+	const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(remote_machine);
+	if (resInfo.Protocol == rsh)
+	  command_remote = "rsh ";
+	else 
+	  command_remote = "ssh ";
+	command_remote += resInfo.UserName;
+	command_remote += "@";
+	command_remote += remote_machine;
+	command_remote += " ";
 
-      command = command_begin + command + command_end;
+	std::string new_real_exe_name("");
+	new_real_exe_name += resInfo.AppliPath; // path relative to user@machine $HOME
+	new_real_exe_name += "/runRemote.sh ";
+	ASSERT(getenv("NSHOST")); 
+	new_real_exe_name += getenv("NSHOST"); // hostname of CORBA name server
+	new_real_exe_name += " ";
+	ASSERT(getenv("NSPORT"));
+	new_real_exe_name += getenv("NSPORT"); // port of CORBA name server
+	new_real_exe_name += " ";
+
+	real_exe_name = new_real_exe_name + real_exe_name;
+	hostname = remote_machine;
+      }
+
+      const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(hostname);
+      if (resInfo.mpi == lam)
+      {
+	command = "mpiexec -ssi boot ";
+	if (resInfo.Protocol == rsh)
+	  command += "rsh ";
+	else 
+	  command += "ssh ";
+	command += "-machinefile " + machine_file_name + " "; 
+	command += "-n " + nbproc + " ";
+	command += real_exe_name;
+	command += " " + _NS->ContainerName(rtn);
+	command += " " + parallelLib;
+	command += " " + proxy_hostname;
+	command += " -";
+	AddOmninamesParams(command);
+      }
+      else
+      {
+	command = "mpirun -np " + nbproc + " ";
+	command += real_exe_name;
+	command += " " + _NS->ContainerName(rtn);
+	command += " " + parallelLib;
+	command += " " + proxy_hostname;
+	command += " -";
+	AddOmninamesParams(command);
+      }
+
+      command = command_begin + command_remote + command + command_end;
       for (int i= 0; i < nb_nodes; i++)
-	vect_machine.push_back(hostname);
+	vect_machine.push_back(proxy_hostname);
     }
   }
   else
@@ -1532,33 +1651,6 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
 
   MESSAGE("Parallel launch is: " << command);
   return command;
-}
-
-void SALOME_ContainerManager::startMPI()
-{
-  cerr << "----------------------------------------------" << endl;
-  cerr << "----------------------------------------------" << endl;
-  cerr << "----------------------------------------------" << endl;
-  cerr << "-Only Lam on Localhost is currently supported-" << endl;
-  cerr << "----------------------------------------------" << endl;
-  cerr << "----------------------------------------------" << endl;
-  cerr << "----------------------------------------------" << endl;
-
-  int status = system("lamboot");
-  if (status == -1)
-  {
-    INFOS("lamboot failed : system command status -1");
-    _MpiStarted = true;
-  }
-  else if (status == 217)
-  {
-    INFOS("lamboot failed : system command status 217");
-    _MpiStarted = true;
-  }
-  else
-    {
-      _MpiStarted = true;
-    }
 }
 
 string SALOME_ContainerManager::GetMPIZeroNode(string machine)

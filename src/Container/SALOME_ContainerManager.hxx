@@ -114,9 +114,6 @@ protected:
 			  const Engines::MachineParameters& params,
 			  const std::string& name,
 			  SALOME_ContainerManager::actual_launch_machine_t & vect_machine);
-  void startMPI();
-  bool _MpiStarted;
-
   CORBA::ORB_var _orb;
   PortableServer::POA_var _poa;
 
