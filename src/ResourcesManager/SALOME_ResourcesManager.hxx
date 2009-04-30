@@ -64,12 +64,12 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     ~SALOME_ResourcesManager();
 
     Engines::MachineList *
-    GetFittingResources(const Engines::MachineParameters& params,
-                        const Engines::CompoList& componentList);
+    GetFittingResources(const Engines::MachineParameters& params);
 
     char* FindFirst(const Engines::MachineList& listOfMachines);
+    char* Find(const char *policy, const Engines::MachineList& listOfMachines);
 
-    Engines::MachineParameters* GetMachineParameters(const char *hostname);
+    Engines::MachineDefinition* GetMachineParameters(const char *hostname);
 
     void Shutdown();
 

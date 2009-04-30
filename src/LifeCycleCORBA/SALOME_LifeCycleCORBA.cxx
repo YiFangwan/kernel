@@ -51,6 +51,7 @@
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_Component_i.hxx"
 #include "SALOME_NamingService.hxx"
+#include "SALOME_FileTransferCORBA.hxx"
 
 using namespace std;
 
@@ -133,13 +134,12 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
-  Engines::CompoList clist;
-  clist.length(1);
-  clist[0] = componentName;
-  Engines::MachineList_var listOfMachines =
-    _ResManager->GetFittingResources(params, clist);
+  Engines::MachineParameters parms(params);
+  parms.componentList.length(1);
+  parms.componentList[0] = componentName;
+  Engines::MachineList_var listOfMachines = _ResManager->GetFittingResources(parms);
 
-  Engines::Component_var compo = _FindComponent(params,
+  Engines::Component_var compo = _FindComponent(parms,
 						componentName,
 						studyId,
 						listOfMachines);
@@ -167,16 +167,13 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
-  Engines::CompoList clist;
-  clist.length(1);
-  clist[0] = componentName;
-  Engines::MachineList_var listOfMachines =
-    _ResManager->GetFittingResources(params, clist);
+  Engines::MachineParameters parms(params);
+  parms.componentList.length(1);
+  parms.componentList[0] = componentName;
 
-  Engines::Component_var compo = _LoadComponent(params,
+  Engines::Component_var compo = _LoadComponent(parms,
 						componentName,
-						studyId,
-						listOfMachines);
+						studyId);
 
   return compo._retn();
 }
@@ -203,22 +200,20 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
   if (! isKnownComponentClass(componentName))
     return Engines::Component::_nil();
 
-  Engines::CompoList clist;
-  clist.length(1);
-  clist[0] = componentName;
-  Engines::MachineList_var listOfMachines =
-    _ResManager->GetFittingResources(params,clist);
+  Engines::MachineParameters parms(params);
+  parms.componentList.length(1);
+  parms.componentList[0] = componentName;
+  Engines::MachineList_var listOfMachines = _ResManager->GetFittingResources(parms);
 
-  Engines::Component_var compo = _FindComponent(params,
+  Engines::Component_var compo = _FindComponent(parms,
 						componentName,
 						studyId,
 						listOfMachines);
 
   if(CORBA::is_nil(compo))
-    compo = _LoadComponent(params,
+    compo = _LoadComponent(parms,
 			   componentName,
-			   studyId,
-			   listOfMachines);
+			   studyId);
 
   return compo._retn();
 }
@@ -368,13 +363,17 @@ void SALOME_LifeCycleCORBA::preSet( Engines::MachineParameters& params)
 {
   params.container_name = "";
   params.hostname = "";
+  //param.componentList = 0;
+  //param.computerList = 0;
   params.OS = "";
   params.mem_mb = 0;
   params.cpu_clock = 0;
   params.nb_proc_per_node = 0;
   params.nb_node = 0;
   params.isMPI = false;
-
+  params.workingdir = "";
+  params.mode = "";
+  params.policy = "";
   params.parallelLib = "";
   params.nb_component_nodes = 0;
 }
@@ -623,7 +622,6 @@ _FindComponent(const Engines::MachineParameters& params,
  *  \param params         machine parameters like type or name...
  *  \param componentName  the name of component class
  *  \param studyId        default = 0  : multistudy instance
- *  \param listOfMachines list of machine address
  *  \return a CORBA reference of the component instance, or _nil if problem
  */
 //=============================================================================
@@ -632,15 +630,12 @@ Engines::Component_ptr
 SALOME_LifeCycleCORBA::
 _LoadComponent(const Engines::MachineParameters& params, 
 	      const char *componentName,
-	      int studyId,
-	      const Engines::MachineList& listOfMachines)
+	      int studyId)
 {
   MESSAGE("_LoadComponent, required " << params.container_name <<
 	  " " << componentName << " " << NbProc(params));
 
-  Engines::Container_var cont =
-    _ContManager->FindOrStartContainer(params,
-				       listOfMachines);
+  Engines::Container_var cont = _ContManager->FindOrStartContainer(params);
   if (CORBA::is_nil(cont)) return Engines::Component::_nil();
 
   bool isLoadable = cont->load_component_Library(componentName);
@@ -672,19 +667,12 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::MachineParameters& 
   MESSAGE("Number of component nodes : " << params.nb_component_nodes);
   MESSAGE("Component Name : " << componentName);*/
 
-  Engines::CompoList clist;
-  clist.length(1);
-  clist[0] = componentName;
-  MESSAGE("Building a list of machines");
-  Engines::MachineList_var listOfMachines = _ResManager->GetFittingResources(params, clist);
-  if (listOfMachines->length() == 0)
-  {
-    INFOS("No matching machines founded !");
-    return Engines::Component::_nil();
-  }
+  Engines::MachineParameters parms(params);
+  parms.componentList.length(1);
+  parms.componentList[0] = componentName;
 
   MESSAGE("Starting Parallel Container");
-  Engines::Container_var cont = _ContManager->FindOrStartParallelContainer(params, listOfMachines);
+  Engines::Container_var cont = _ContManager->FindOrStartParallelContainer(parms);
   if (CORBA::is_nil(cont)) {
     INFOS("FindOrStartParallelContainer() returns a NULL container !");
     return Engines::Component::_nil();
@@ -705,5 +693,35 @@ SALOME_LifeCycleCORBA::Load_ParallelComponent(const Engines::MachineParameters& 
   if (CORBA::is_nil(myInstance))
     INFOS("create_component_instance returns a NULL component !");
   return myInstance._retn();
+}
+
+/*! \brief copy a file from a source host to a destination host
+ * \param hostSrc the source host
+ * \param fileSrc the file to copy from the source host to the destination host
+ * \param hostDest the destination host
+ * \param fileDest the destination file
+ */
+void SALOME_LifeCycleCORBA::copyFile(const char* hostSrc, const char* fileSrc, const char* hostDest, const char* fileDest)
+{
+  if(strcmp(hostDest,"localhost") == 0)
+    {
+      //if localhost use a shortcut
+      SALOME_FileTransferCORBA transfer(hostSrc,fileSrc);
+      transfer.getLocalFile(fileDest);
+      return;
+    }
+
+  Engines::ContainerManager_var contManager = getContainerManager();
+
+  Engines::MachineParameters params;
+  preSet(params);
+
+  params.hostname = hostDest;
+  Engines::Container_var containerDest = contManager->FindOrStartContainer(params);
+
+  params.hostname = hostSrc;
+  Engines::Container_var containerSrc = contManager->FindOrStartContainer(params);
+
+  containerDest->copyFile(containerSrc,fileSrc,fileDest);
 }
 

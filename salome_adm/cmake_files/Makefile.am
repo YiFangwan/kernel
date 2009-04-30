@@ -33,4 +33,5 @@ FindPLATFORM.cmake \
 FindPTHREADS.cmake \
 FindPYTHON.cmake \
 FindSWIG.cmake \
-install_python_from_idl.cmake
+install_python_from_idl.cmake \
+install_and_compile_python_file.cmake
