@@ -36,8 +36,10 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS=
 
 # Scripts to be installed
-dist_salomescript_SCRIPTS = \
+dist_salomescript_PYTHON = \
 	LifeCycleCORBA_SWIGTest.py \
+	testresourcemanager.py \
+	testcontainermanager.py \
 	TestLifeCycleCORBA_SWIG.py
 
 #
@@ -67,3 +69,8 @@ lib_LTLIBRARIES =
 # ===============================================================
 #
 bin_PROGRAMS =
+
+install-data-hook:
+	@for f in $(dist_salomescript_PYTHON) ; do \
+          chmod -f a+x $(DESTDIR)$(salomescriptdir)/$$f ; \
+        done

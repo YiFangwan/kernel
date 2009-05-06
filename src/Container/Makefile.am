@@ -44,7 +44,7 @@ salomeinclude_HEADERS = \
 	Salome_file_i.hxx
 
 # Scripts to be installed
-dist_salomescript_DATA =\
+dist_salomescript_PYTHON =\
 	SALOME_ComponentPy.py \
 	SALOME_Container.py
 
@@ -168,3 +168,7 @@ TestSalome_file_LDADD =\
 	$(CORBA_LIBS) \
 	$(PYTHON_LIBS)
 
+install-data-hook:
+	@for f in $(dist_salomescript_PYTHON) ; do \
+          chmod -f a+x $(DESTDIR)$(salomescriptdir)/$$f ; \
+        done

@@ -271,9 +271,9 @@ if WITH_PACO_PARALLEL
 %.hxx: %.idl
 	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) -Wbh=.hxx -Wbs=.cxx $<
 
-$(DESTDIR)$(salomepythondir)/%_idl.py : %.idl
-	$(MKDIR_P) $(DESTDIR)$(salomepythondir)
-	$(OMNIORB_IDL) $(IDLPYFLAGS) -I$(top_srcdir)/idl -I@PACOPATH@/idl -C$(DESTDIR)$(salomepythondir) $<
+#$(DESTDIR)$(salomepythondir)/%_idl.py : %.idl
+#	$(MKDIR_P) $(DESTDIR)$(salomepythondir)
+#	$(OMNIORB_IDL) $(IDLPYFLAGS) -I$(top_srcdir)/idl -I@PACOPATH@/idl -C$(DESTDIR)$(salomepythondir) $<
 
 endif
 
@@ -282,6 +282,11 @@ install-exec-local: $(IDL_FILES:%=$(top_srcdir)/idl/%)
 	ls $^ | while read file; do \
 	  $(OMNIORB_IDL) $(IDLPYFLAGS) -C$(DESTDIR)$(salomepythondir) $$file ; \
 	done
+if WITH_PACO_PARALLEL
+	ls $(top_builddir)/idl/*.idl | while read file; do \
+	  $(OMNIORB_IDL) $(IDLPYFLAGS) -I$(top_srcdir)/idl -I@PACOPATH@/idl -C$(DESTDIR)$(salomepythondir) $$file ; \
+	done
+endif
 
 # uninstall-local removes too much, but it works in distcheck
 uninstall-local:

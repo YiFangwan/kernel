@@ -92,6 +92,7 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesType
   MpiImplType mpi;
   std::string UserName;
   std::string AppliPath;
+  std::vector<std::string> ComponentsList;
   std::vector<std::string> ModulesList;
   std::string OS;
   std::string batchQueue;

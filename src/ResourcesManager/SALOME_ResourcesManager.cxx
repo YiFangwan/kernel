@@ -67,9 +67,7 @@ SALOME_ResourcesManager(CORBA::ORB_ptr orb,
   _poa = PortableServer::POA::_duplicate(poa) ;
   PortableServer::ObjectId_var id = _poa->activate_object(this);
   CORBA::Object_var obj = _poa->id_to_reference(id);
-  Engines::SalomeLauncher_var refContMan =
-    Engines::SalomeLauncher::_narrow(obj);
-
+  Engines::ResourcesManager_var refContMan = Engines::ResourcesManager::_narrow(obj);
   _NS->Register(refContMan,_ResourcesManagerNameInNS);
   MESSAGE("SALOME_ResourcesManager constructor end");
 }
@@ -125,26 +123,24 @@ void SALOME_ResourcesManager::Shutdown()
   _NS->Destroy_Name(_ResourcesManagerNameInNS);
   PortableServer::ObjectId_var oid = _poa->servant_to_id(this);
   _poa->deactivate_object(oid);
-  //_remove_ref();
 }
 
 //=============================================================================
+//! get the name of resources fitting the specified constraints (params)
 /*!
- *  get the list of name of ressources fitting for the specified module.
  *  If hostname specified, check it is local or known in resources catalog.
  *
  *  Else
  *  - select first machines with corresponding OS (all machines if
  *    parameter OS empty),
- *  - then select the sublist of machines on witch the module is known
+ *  - then select the sublist of machines on which the component is known
  *    (if the result is empty, that probably means that the inventory of
- *    modules is probably not done, so give complete list from previous step)
+ *    components is probably not done, so give complete list from previous step)
  */ 
 //=============================================================================
 
 Engines::MachineList *
-SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& params,
-					     const Engines::CompoList& componentList)
+SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& params)
 {
 //   MESSAGE("ResourcesManager::GetFittingResources");
   machineParams p;
@@ -157,13 +153,15 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& p
   p.parallelLib = params.parallelLib;
   p.nb_component_nodes = params.nb_component_nodes;
 
-  vector<string> cl;
-  for(unsigned int i=0;i<componentList.length();i++)
-    cl.push_back(string(componentList[i]));
+  for(unsigned int i=0;i<params.componentList.length();i++)
+    p.componentList.push_back(string(params.componentList[i]));
+
+  for(unsigned int i=0;i<params.computerList.length();i++)
+    p.computerList.push_back(string(params.computerList[i]));
   
   Engines::MachineList *ret=new Engines::MachineList;
   try{
-      vector <std::string> vec = _rm.GetFittingResources(p,cl);
+      vector <std::string> vec = _rm.GetFittingResources(p);
       ret->length(vec.size());
       for(unsigned int i=0;i<vec.size();i++)
 	(*ret)[i] = (vec[i]).c_str();
@@ -189,14 +187,22 @@ SALOME_ResourcesManager::FindFirst(const Engines::MachineList& listOfMachines)
   for(unsigned int i=0;i<listOfMachines.length();i++)
     ml.push_back(string(listOfMachines[i]));
 
-  return CORBA::string_dup(_rm.FindFirst(ml).c_str());
+  return CORBA::string_dup(_rm.Find("first",ml).c_str());
 }
 
-Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const char *hostname)
+char *
+SALOME_ResourcesManager::Find(const char* policy, const Engines::MachineList& listOfMachines)
+{
+  vector<string> ml;
+  for(unsigned int i=0;i<listOfMachines.length();i++)
+    ml.push_back(string(listOfMachines[i]));
+  return CORBA::string_dup(_rm.Find(policy,ml).c_str());
+}
+
+Engines::MachineDefinition* SALOME_ResourcesManager::GetMachineParameters(const char *hostname)
 {
   ParserResourcesType resource = _rm.GetResourcesList(string(hostname));
-  Engines::MachineParameters *p_ptr = new Engines::MachineParameters;
-  p_ptr->container_name = CORBA::string_dup("");
+  Engines::MachineDefinition *p_ptr = new Engines::MachineDefinition;
   p_ptr->hostname = CORBA::string_dup(resource.HostName.c_str());
   p_ptr->alias = CORBA::string_dup(resource.Alias.c_str());
   if( resource.Protocol == rsh )
@@ -205,9 +211,9 @@ Engines::MachineParameters* SALOME_ResourcesManager::GetMachineParameters(const 
     p_ptr->protocol = "ssh";
   p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
   p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
-  p_ptr->modList.length(resource.ModulesList.size());
-  for(unsigned int i=0;i<resource.ModulesList.size();i++)
-    p_ptr->modList[i] = CORBA::string_dup(resource.ModulesList[i].c_str());
+  p_ptr->componentList.length(resource.ComponentsList.size());
+  for(unsigned int i=0;i<resource.ComponentsList.size();i++)
+    p_ptr->componentList[i] = CORBA::string_dup(resource.ComponentsList[i].c_str());
   p_ptr->OS = CORBA::string_dup(resource.OS.c_str());
   p_ptr->mem_mb = resource.DataForSort._memInMB;
   p_ptr->cpu_clock = resource.DataForSort._CPUFreqMHz;

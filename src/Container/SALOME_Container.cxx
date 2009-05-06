@@ -32,7 +32,7 @@
 #endif
 
 #include <iostream>
-#include <strstream>
+#include <sstream>
 #include <string>
 #include <stdio.h>
 #include <time.h>

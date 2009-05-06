@@ -92,7 +92,6 @@ void SALOME_Launcher::Shutdown()
   _ResManager->Shutdown();
   PortableServer::ObjectId_var oid = _poa->servant_to_id(this);
   _poa->deactivate_object(oid);
-  //_remove_ref();
   if(!CORBA::is_nil(_orb))
     _orb->shutdown(0);
 }
@@ -199,12 +198,11 @@ SALOME_Launcher::testBatch(const Engines::MachineParameters& params)
   try
   {
     // find a cluster matching the structure params
-    Engines::CompoList aCompoList ;
-    Engines::MachineList *aMachineList = _ResManager->GetFittingResources(params, aCompoList);
+    Engines::MachineList *aMachineList = _ResManager->GetFittingResources(params);
     if (aMachineList->length() == 0)
       throw SALOME_Exception("No resources have been found with your parameters");
 
-    const Engines::MachineParameters* p = _ResManager->GetMachineParameters((*aMachineList)[0]);
+    const Engines::MachineDefinition* p = _ResManager->GetMachineParameters((*aMachineList)[0]);
     string clustername(p->alias);
     INFOS("Choose cluster" <<  clustername);
     

@@ -58,7 +58,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
     void PrepareDocToXmlFile(xmlDocPtr theDoc);
 
   private :
-    std::string previous_module_name;
+    std::string previous_component_name;
 
     ParserResourcesType _resource;
     MapOfParserResourcesType& _resources_list;
@@ -74,8 +74,11 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
     const char *test_mpi;
     const char *test_user_name;
     const char *test_appli_path;
+    // for compatibility
     const char *test_modules;
     const char *test_module_name;
+    const char *test_components;
+    const char *test_component_name;
     const char *test_os;
     const char *test_mem_in_mb;
     const char *test_cpu_freq_mhz;

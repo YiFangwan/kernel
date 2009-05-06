@@ -41,7 +41,7 @@
 #include <iostream>
 
 #ifdef WIN32
-# if defined LIFECYCLECORBA_EXPORTS
+# if defined LIFECYCLECORBA_EXPORTS || defined SalomeLifeCycleCORBA_EXPORTS
 #  define LIFECYCLECORBA_EXPORT __declspec( dllexport )
 # else
 #  define LIFECYCLECORBA_EXPORT __declspec( dllimport )
@@ -98,10 +98,11 @@ public:
 
   int NbProc(const Engines::MachineParameters& params);
 
-  void preSet(Engines::MachineParameters& params);
+  static void preSet(Engines::MachineParameters& outparams);
 
   Engines::ContainerManager_ptr getContainerManager();
   Engines::ResourcesManager_ptr getResourcesManager();
+  void copyFile(const char* hostSrc, const char* fileSrc, const char* hostDest, const char* fileDest);
 
   void shutdownServers();
   static void killOmniNames();
@@ -122,8 +123,7 @@ protected:
   Engines::Component_ptr
   _LoadComponent(const Engines::MachineParameters& params,
 		 const char *componentName,
-		 int studyId,
-		 const Engines::MachineList& listOfMachines);
+		 int studyId);
   
   SALOME_NamingService *_NS;
   Engines::ContainerManager_var _ContManager;

@@ -36,7 +36,7 @@
 
 
 #ifdef WIN32
-# ifdef SALOMERESOURCESMANAGER_EXPORTS
+# if defined SALOMERESOURCESMANAGER_EXPORTS || defined SalomeResourcesManager_EXPORTS
 #  define SALOMERESOURCESMANAGER_EXPORT __declspec( dllexport )
 # else
 #  define SALOMERESOURCESMANAGER_EXPORT __declspec( dllimport )
@@ -65,10 +65,10 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
 
     // CORBA Methods
     Engines::MachineList *
-    GetFittingResources(const Engines::MachineParameters& params,
-                        const Engines::CompoList& componentList);
+    GetFittingResources(const Engines::MachineParameters& params);
     char* FindFirst(const Engines::MachineList& listOfMachines);
-    Engines::MachineParameters* GetMachineParameters(const char *hostname);
+    char* Find(const char *policy, const Engines::MachineList& listOfMachines);
+    Engines::MachineDefinition* GetMachineParameters(const char *hostname);
 
     // Cpp Methods
     void Shutdown();

@@ -31,6 +31,9 @@
 #include "SALOME_ResourcesCatalog_Parser.hxx"
 #include "SALOME_ResourcesCatalog_Handler.hxx"
 #include "SALOME_LoadRateManager.hxx"
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 // --- WARNING ---
 // The call of BuildTempFileToLaunchRemoteContainer and RmTmpFile must be done
@@ -47,6 +50,8 @@ struct machineParams{
   unsigned int cpu_clock;
   unsigned int mem_mb;
   unsigned int nb_component_nodes;
+  std::vector<std::string> componentList;
+  std::vector<std::string> computerList;
 };
 
 class RESOURCESMANAGER_EXPORT ResourcesException
@@ -68,16 +73,13 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     ~ResourcesManager_cpp();
 
     std::vector<std::string> 
-    GetFittingResources(const machineParams& params,
-                        const std::vector<std::string>& componentList) throw(ResourcesException);
+    GetFittingResources(const machineParams& params) throw(ResourcesException);
 
-    std::string FindFirst(const std::vector<std::string>& listOfMachines);
-    std::string FindNext(const std::vector<std::string>& listOfMachines);
-    std::string FindBest(const std::vector<std::string>& listOfMachines);
+    std::string Find(const std::string& policy, const std::vector<std::string>& listOfMachines);
 
     int AddResourceInCatalog
     (const machineParams& paramsOfNewResources,
-     const std::vector<std::string>& modulesOnNewResources,
+     const std::vector<std::string>& componentsOnNewResources,
      const char *alias,
      const char *userName,
      AccessModeType mode,
@@ -99,7 +101,7 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
 				   const char *OS) const
       throw(ResourcesException);
 
-    void KeepOnlyResourcesWithModule(std::vector<std::string>& hosts,
+    void KeepOnlyResourcesWithComponent(std::vector<std::string>& hosts,
 				     const std::vector<std::string>& componentList) const
       throw(ResourcesException);
 
@@ -113,10 +115,11 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
     //! will contain the informations on the data type catalog(after parsing)
     MapOfParserResourcesType _resourcesBatchList;
 
-    SALOME_LoadRateManager _dynamicResourcesSelecter;
+    //! a map that contains all the available load rate managers (the key is the name)
+    std::map<std::string , LoadRateManager*> _resourceManagerMap;
 
-    //! different behaviour if $APPLI exists (SALOME Application) 
-    bool _isAppliSalomeDefined;    
+    //! contain the time where resourcesList was created
+    time_t _lasttime;
   };
 
 #endif // __RESOURCESMANAGER_HXX__

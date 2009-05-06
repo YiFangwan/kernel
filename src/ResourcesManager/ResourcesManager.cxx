@@ -28,8 +28,6 @@
 #include <map>
 #include <list>
 
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <libxml/parser.h>
 
 #include <algorithm>
@@ -38,6 +36,9 @@
 
 using namespace std;
 
+static LoadRateManagerFirst first;
+static LoadRateManagerCycl cycl;
+static LoadRateManagerAltCycl altcycl;
 //=============================================================================
 /*!
  * just for test
@@ -51,6 +52,11 @@ ResourcesManager_cpp(const char *xmlFilePath)
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "ResourcesManager_cpp constructor" << endl;
 #endif
+  _resourceManagerMap["first"]=&first;
+  _resourceManagerMap["cycl"]=&cycl;
+  _resourceManagerMap["altcycl"]=&altcycl;
+  _resourceManagerMap["best"]=&altcycl;
+  _resourceManagerMap[""]=&altcycl;
 }
 
 //=============================================================================
@@ -69,6 +75,11 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "ResourcesManager_cpp constructor" << endl;
 #endif
+  _resourceManagerMap["first"]=&first;
+  _resourceManagerMap["cycl"]=&cycl;
+  _resourceManagerMap["altcycl"]=&altcycl;
+  _resourceManagerMap["best"]=&altcycl;
+  _resourceManagerMap[""]=&altcycl;
 
   std::string default_file("");
   if (getenv("APPLI") != 0)
@@ -95,6 +106,8 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
     _path_resources.push_back(user_file);
   }
 
+  _lasttime=0;
+
   ParseXmlFiles();
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "ResourcesManager_cpp constructor end";
@@ -115,22 +128,21 @@ ResourcesManager_cpp::~ResourcesManager_cpp()
 }
 
 //=============================================================================
+//! get the list of resource names fitting constraints given by params
 /*!
- *  get the list of name of ressources fitting for the specified module.
- *  If hostname specified, check it is local or known in resources catalog.
+ *  If hostname is specified, check if it is local or known in resources catalog.
  *
  *  Else
  *  - select first machines with corresponding OS (all machines if
  *    parameter OS empty),
- *  - then select the sublist of machines on witch the module is known
+ *  - then select the sublist of machines on which the component is known
  *    (if the result is empty, that probably means that the inventory of
- *    modules is probably not done, so give complete list from previous step)
+ *    components is probably not done, so give complete list from previous step)
  */ 
 //=============================================================================
 
 std::vector<std::string> 
-ResourcesManager_cpp::GetFittingResources(const machineParams& params,
-					  const std::vector<std::string>& componentList) throw(ResourcesException)
+ResourcesManager_cpp::GetFittingResources(const machineParams& params) throw(ResourcesException)
 {
   vector <std::string> vec;
 
@@ -223,10 +235,13 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
     
   else{
     // --- Search for available resources sorted by priority
+    vec=params.computerList;
+
     SelectOnlyResourcesWithOS(vec, params.OS.c_str());
       
-    KeepOnlyResourcesWithModule(vec, componentList);
-	
+    KeepOnlyResourcesWithComponent(vec, params.componentList);
+
+    //if hosts list (vec) is empty, ignore componentList constraint and use only OS constraint
     if (vec.size() == 0)
       SelectOnlyResourcesWithOS(vec, params.OS.c_str());
     
@@ -265,25 +280,25 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params,
 //=============================================================================
 /*!
  *  add an entry in the ressources catalog  xml file.
- *  Return 0 if OK (KERNEL found in new resources modules) else throw exception
+ *  Return 0 if OK (KERNEL found in new resources components) else throw exception
  */ 
 //=============================================================================
 
 int
 ResourcesManager_cpp::
 AddResourceInCatalog(const machineParams& paramsOfNewResources,
-                     const vector<string>& modulesOnNewResources,
+                     const vector<string>& componentsOnNewResources,
                      const char *alias,
                      const char *userName,
                      AccessModeType mode,
                      AccessProtocolType prot)
 throw(ResourcesException)
 {
-  vector<string>::const_iterator iter = find(modulesOnNewResources.begin(),
-					     modulesOnNewResources.end(),
+  vector<string>::const_iterator iter = find(componentsOnNewResources.begin(),
+					     componentsOnNewResources.end(),
 					     "KERNEL");
 
-  if (iter != modulesOnNewResources.end())
+  if (iter != componentsOnNewResources.end())
     {
       ParserResourcesType newElt;
       newElt.DataForSort._hostName = paramsOfNewResources.hostname;
@@ -291,7 +306,7 @@ throw(ResourcesException)
       newElt.Protocol = prot;
       newElt.Mode = mode;
       newElt.UserName = userName;
-      newElt.ModulesList = modulesOnNewResources;
+      newElt.ComponentsList = componentsOnNewResources;
       newElt.OS = paramsOfNewResources.OS;
       newElt.DataForSort._memInMB = paramsOfNewResources.mem_mb;
       newElt.DataForSort._CPUFreqMHz = paramsOfNewResources.cpu_clock;
@@ -365,63 +380,83 @@ void ResourcesManager_cpp::WriteInXmlFile(std::string & xml_file)
 
 const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
 {
-  // Nettoyage des variables (est-ce vraiment utile ?)
-  _resourcesList.clear();
-  _resourcesBatchList.clear();
-
-  // On parse tous les fichiers
+  // Parse file only if its modification time is greater than lasttime (last registered modification time)
+  bool to_parse = false;
   for(_path_resources_it = _path_resources.begin(); _path_resources_it != _path_resources.end(); ++_path_resources_it)
   {
-    MapOfParserResourcesType _resourcesList_tmp;
-    MapOfParserResourcesType _resourcesBatchList_tmp;
-    SALOME_ResourcesCatalog_Handler* handler =
-      new SALOME_ResourcesCatalog_Handler(_resourcesList_tmp, _resourcesBatchList_tmp);
-    const char* aFilePath = (*_path_resources_it).c_str();
-    FILE* aFile = fopen(aFilePath, "r");
- 
-    if (aFile != NULL)
+    struct stat statinfo;
+    int result = stat((*_path_resources_it).c_str(), &statinfo);
+    if (result < 0)
     {
-      xmlDocPtr aDoc = xmlReadFile(aFilePath, NULL, 0);
-      if (aDoc != NULL)
-      {
-	handler->ProcessXmlDocument(aDoc);
+      std::cerr << "Error in method stat for file : " << (*_path_resources_it).c_str() << " no new xml file is parsed" << std::endl;
+      return _resourcesList;
+    }
 
-	// adding new resources to the file
-	for (MapOfParserResourcesType_it i = _resourcesList_tmp.begin(); i != _resourcesList_tmp.end(); ++i)
+    if(statinfo.st_mtime > _lasttime)
+    {
+      to_parse = true;
+      _lasttime = statinfo.st_mtime;
+    }
+  }
+
+  if (to_parse)
+  {
+    _resourcesList.clear();
+    _resourcesBatchList.clear();
+    // On parse tous les fichiers
+    for(_path_resources_it = _path_resources.begin(); _path_resources_it != _path_resources.end(); ++_path_resources_it)
+    {
+      MapOfParserResourcesType _resourcesList_tmp;
+      MapOfParserResourcesType _resourcesBatchList_tmp;
+      SALOME_ResourcesCatalog_Handler* handler =
+	new SALOME_ResourcesCatalog_Handler(_resourcesList_tmp, _resourcesBatchList_tmp);
+      const char* aFilePath = (*_path_resources_it).c_str();
+      FILE* aFile = fopen(aFilePath, "r");
+
+      if (aFile != NULL)
+      {
+	xmlDocPtr aDoc = xmlReadFile(aFilePath, NULL, 0);
+	if (aDoc != NULL)
 	{
-	  MapOfParserResourcesType_it j = _resourcesList.find(i->first);
-	  if (j == _resourcesList.end())
+	  handler->ProcessXmlDocument(aDoc);
+
+	  // adding new resources to the file
+	  for (MapOfParserResourcesType_it i = _resourcesList_tmp.begin(); i != _resourcesList_tmp.end(); ++i)
 	  {
-	    _resourcesList[i->first] = i->second;
+	    MapOfParserResourcesType_it j = _resourcesList.find(i->first);
+	    if (j == _resourcesList.end())
+	    {
+	      _resourcesList[i->first] = i->second;
+	    }
+	    else
+	    {
+	      std::cerr << "ParseXmlFiles Warning, to resource with the same name was found, taking the first declaration : " << i->first << std::endl;
+	    }
 	  }
-	  else
+	  for (MapOfParserResourcesType_it i = _resourcesBatchList_tmp.begin(); i != _resourcesBatchList_tmp.end(); ++i)
 	  {
-	    std::cerr << "ParseXmlFiles Warning, to resource with the same name was found, taking the first declaration : " << i->first << std::endl;
+	    MapOfParserResourcesType_it j = _resourcesBatchList.find(i->first);
+	    if (j == _resourcesBatchList.end())
+	    {
+	      _resourcesBatchList[i->first] = i->second;
+	    }
+	    else
+	    {
+	      std::cerr << "ParseXmlFiles Warning, to resource with the same name was found, taking the first declaration : " << i->first << std::endl;
+	    }
 	  }
 	}
-	for (MapOfParserResourcesType_it i = _resourcesBatchList_tmp.begin(); i != _resourcesBatchList_tmp.end(); ++i)
-	{
-	  MapOfParserResourcesType_it j = _resourcesBatchList.find(i->first);
-	  if (j == _resourcesBatchList.end())
-	  {
-	    _resourcesBatchList[i->first] = i->second;
-	  }
-	  else
-	  {
-	    std::cerr << "ParseXmlFiles Warning, to resource with the same name was found, taking the first declaration : " << i->first << std::endl;
-	  }
-	}
+	else
+	  std::cerr << "ResourcesManager_cpp: could not parse file " << aFilePath << std::endl;
+	// Free the document
+	xmlFreeDoc(aDoc);
+	fclose(aFile);
       }
       else
-	std::cerr << "ResourcesManager_cpp: could not parse file " << aFilePath << std::endl;
-      // Free the document
-      xmlFreeDoc(aDoc);
-      fclose(aFile);
-    }
-    else
-      std::cerr << "ResourcesManager_cpp: file " << aFilePath << " is not readable." << std::endl;
+	std::cerr << "ResourcesManager_cpp: file " << aFilePath << " is not readable." << std::endl;
 
-    delete handler;
+      delete handler;
+    }
   }
   return _resourcesList;
 }
@@ -433,41 +468,15 @@ const MapOfParserResourcesType& ResourcesManager_cpp::ParseXmlFiles()
 //=============================================================================
 
 const MapOfParserResourcesType& ResourcesManager_cpp::GetList() const
-  {
-    return _resourcesList;
-  }
-
-
-//=============================================================================
-/*!
- *  dynamically obtains the first machines
- */ 
-//=============================================================================
-
-string ResourcesManager_cpp::FindFirst(const std::vector<std::string>& listOfMachines)
 {
-  return _dynamicResourcesSelecter.FindFirst(listOfMachines);
+  return _resourcesList;
 }
 
-//=============================================================================
-/*!
- *  dynamically obtains the best machines
- */ 
-//=============================================================================
-
-string ResourcesManager_cpp::FindNext(const std::vector<std::string>& listOfMachines)
+string ResourcesManager_cpp::Find(const std::string& policy, const std::vector<std::string>& listOfMachines)
 {
-  return _dynamicResourcesSelecter.FindNext(listOfMachines,_resourcesList);
-}
-//=============================================================================
-/*!
- *  dynamically obtains the best machines
- */ 
-//=============================================================================
-
-string ResourcesManager_cpp::FindBest(const std::vector<std::string>& listOfMachines)
-{
-  return _dynamicResourcesSelecter.FindBest(listOfMachines);
+  if(_resourceManagerMap.count(policy)==0)
+    return _resourceManagerMap[""]->Find(listOfMachines,_resourcesList);
+  return _resourceManagerMap[policy]->Find(listOfMachines,_resourcesList);
 }
 
 //=============================================================================
@@ -483,41 +492,56 @@ throw(ResourcesException)
 {
   string base(OS);
 
-  for (map<string, ParserResourcesType>::const_iterator iter =
-         _resourcesList.begin();
-       iter != _resourcesList.end();
-       iter++)
+  if(hosts.size()==0)
     {
-      if ( (*iter).second.OS == base || base.size() == 0)
-        hosts.push_back((*iter).first);
+      //No constraint on computer list : take all known resources with OS
+      map<string, ParserResourcesType>::const_iterator iter;
+      for (iter = _resourcesList.begin(); iter != _resourcesList.end(); iter++)
+        {
+          if ( (*iter).second.OS == base || base.size() == 0)
+            hosts.push_back((*iter).first);
+        }
+    }
+  else
+    {
+      //a computer list is given : take only resources with OS on those computers
+      vector<string> vec=hosts;
+      hosts.clear();
+      vector<string>::iterator iter;
+      for (iter = vec.begin(); iter != vec.end(); iter++)
+        {
+          MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
+          if(it != _resourcesList.end())
+            if ( (*it).second.OS == base || base.size() == 0 )
+              hosts.push_back(*iter);
+        }
     }
 }
 
 
 //=============================================================================
 /*!
- *  Gives a sublist of machines on which the module is known.
+ *  Gives a sublist of machines on which the component is known.
  */ 
 //=============================================================================
 
 //Warning need an updated parsed list : _resourcesList
-void ResourcesManager_cpp::KeepOnlyResourcesWithModule( vector<string>& hosts, const vector<string>& componentList) const
+void ResourcesManager_cpp::KeepOnlyResourcesWithComponent( vector<string>& hosts, const vector<string>& componentList) const
 throw(ResourcesException)
 {
   for (vector<string>::iterator iter = hosts.begin(); iter != hosts.end();)
     {
       MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
-      const vector<string>& mapOfModulesOfCurrentHost = (((*it).second).ModulesList);
+      const vector<string>& mapOfComponentsOfCurrentHost = (((*it).second).ComponentsList);
 
       bool erasedHost = false;
-      if( mapOfModulesOfCurrentHost.size() > 0 ){
+      if( mapOfComponentsOfCurrentHost.size() > 0 ){
 	for(unsigned int i=0;i<componentList.size();i++){
           const char* compoi = componentList[i].c_str();
-	  vector<string>::const_iterator itt = find(mapOfModulesOfCurrentHost.begin(),
-					      mapOfModulesOfCurrentHost.end(),
+	  vector<string>::const_iterator itt = find(mapOfComponentsOfCurrentHost.begin(),
+					      mapOfComponentsOfCurrentHost.end(),
 					      compoi);
-// 					      componentList[i]);
-	  if (itt == mapOfModulesOfCurrentHost.end()){
+	  if (itt == mapOfComponentsOfCurrentHost.end()){
 	    erasedHost = true;
 	    break;
 	  }

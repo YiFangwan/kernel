@@ -45,7 +45,7 @@
 class SALOME_NamingService;
 
 #ifdef WIN32
-# ifdef CONTAINER_EXPORTS
+# if defined CONTAINER_EXPORTS || defined SalomeParallelContainer_EXPORTS
 #  define CONTAINER_EXPORT __declspec( dllexport )
 # else
 #  define CONTAINER_EXPORT __declspec( dllimport )
@@ -131,6 +131,7 @@ public:
   Engines::fileTransfer_ptr getFileTransfer();
 
   virtual Engines::Salome_file_ptr createSalome_file(const char* origFileName);
+  void copyFile(Engines::Container_ptr container, const char* remoteFile, const char* localFile);
 
 protected:
 

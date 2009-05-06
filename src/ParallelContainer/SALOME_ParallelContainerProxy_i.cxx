@@ -126,6 +126,8 @@ Container_proxy_impl_final::Shutdown()
   }
 
   INFOS("Shutdown Parallel Proxy");
+  _NS->Destroy_FullDirectory(_containerName.c_str());
+  _NS->Destroy_Name(_containerName.c_str());
   if(!CORBA::is_nil(_orb))
     _orb->shutdown(0);
 }

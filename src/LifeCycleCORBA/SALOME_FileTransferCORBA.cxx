@@ -130,12 +130,7 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
       params.container_name = _containerName.c_str();
       params.hostname = _refMachine.c_str();
 
-      Engines::CompoList clist;
-      Engines::MachineList_var listOfMachines =
-	resManager->GetFittingResources(params, clist);
-
-      container = contManager->FindOrStartContainer(params,
-						    listOfMachines);
+      container = contManager->FindOrStartContainer(params);
       if (CORBA::is_nil(container))
 	{
 	  INFOS("machine " << _refMachine << " unreachable");
@@ -145,7 +140,7 @@ string SALOME_FileTransferCORBA::getLocalFile(string localFile)
       _theFileRef = container->createFileRef(_origFileName.c_str());
       if (CORBA::is_nil(_theFileRef))
 	{
-	  INFOS("imposssible to create fileRef on " << _refMachine);
+	  INFOS("impossible to create fileRef on " << _refMachine);
 	  return "";
 	}
     }

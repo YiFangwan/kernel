@@ -135,10 +135,11 @@ void ParserResourcesType::Print()
     "userCommands : " << userCommands << endl <<
     "use : " << use << endl <<
     "NbOfProc : " << nbOfProc << endl <<
-    "Modules : " << endl;
+    "Modules : " << endl <<
+    "Components : " << endl;
 
-  for(int i=0;i<ModulesList.size();i++)
-    oss << "Module " << i+1 << " called : " << ModulesList[i] << endl;
+  for(int i=0;i<ComponentsList.size();i++)
+    oss << "Component " << i+1 << " called : " << ComponentsList[i] << endl;
 
   
   std::list<ParserResourcesClusterMembersType>::iterator it;
@@ -169,7 +170,7 @@ void ParserResourcesType::Clear()
   AppliPath = "";
   batchQueue = "";
   userCommands = "";
-  ModulesList.clear();
+  ComponentsList.clear();
   OS = "";
   use = "";
   ClusterMembersList.clear();
