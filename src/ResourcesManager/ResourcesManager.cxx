@@ -27,7 +27,12 @@
 #include <string.h>
 #include <map>
 #include <list>
-
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifdef WNT
+#else
+#include <unistd.h>
+#endif
 #include <libxml/parser.h>
 
 #include <algorithm>
