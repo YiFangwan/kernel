@@ -127,6 +127,7 @@ echo
 # production.m4
 AC_ENABLE_DEBUG(no)
 AC_ENABLE_PRODUCTION(no)
+AC_ENABLE_MPI_SEQ_CONTAINER(no)
 
 echo
 echo ---------------------------------------------
@@ -403,6 +404,9 @@ echo ---------------------------------------------
 echo
 
 CHECK_HTML_GENERATORS
+
+# Additional conditional to avoid compilation of non-portable code
+AM_CONDITIONAL(WINDOWS, 0)
 
 echo
 echo ============================================================
