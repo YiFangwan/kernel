@@ -37,6 +37,8 @@
 #include "CalciumProvidesPort.hxx"
 
 #include "calcium_integer_port_uses.hxx"
+#include "calcium_long_port_uses.hxx"
+#include "calcium_intc_port_uses.hxx"
 #include "calcium_real_port_uses.hxx"
 #include "calcium_double_port_uses.hxx"
 #include "calcium_string_port_uses.hxx"

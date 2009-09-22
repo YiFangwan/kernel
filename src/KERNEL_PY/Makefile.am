@@ -36,18 +36,16 @@ if CORBA_GEN
 		Help.py \
 		PyInterp.py \
 		salome.py \
-		salome_shared_modules.py \
 		batchmode_salome.py \
-		import_hook.py \
 		salome_test.py \
 		salome_kernel.py \
 		salome_study.py \
 		salome_iapp.py \
 		salome_ComponentGUI.py \
-		omnipatch.py \
 		iparameters.py \
 		salome_version.py \
-		salome_notebook.py
+		salome_notebook.py \
+    salome_genericobj.py
 endif
 
 sharedpkgpython_PYTHON = kernel_shared_modules.py

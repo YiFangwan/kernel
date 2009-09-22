@@ -85,9 +85,11 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
   char **argv = &xargv;
   CORBA::ORB_var orb = CORBA::ORB_init(argc, argv);
   //  LocalTraceCollector *myThreadTrace = SALOMETraceCollector::instance(orb);
+  _NSnew=0;
   if (!ns)
     {
       _NS = new SALOME_NamingService(orb);
+      _NSnew=_NS;
     }
   else _NS = ns;
   //add try catch
@@ -115,6 +117,7 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
 
 SALOME_LifeCycleCORBA::~SALOME_LifeCycleCORBA()
 {
+  if(_NSnew)delete _NSnew;
 }
 
 //=============================================================================
@@ -274,7 +277,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
     {
       // containerName doesn't contain "/" => Local container
       params->container_name=CORBA::string_dup(stContainer);
-      params->hostname=CORBA::string_dup(Kernel_Utils::GetHostname().c_str());
+      params->hostname="";
     }
   else 
     {
@@ -534,6 +537,8 @@ void SALOME_LifeCycleCORBA::killOmniNames()
   string portNumber (::getenv ("NSPORT") );
   if ( !portNumber.empty() ) 
     {
+#ifdef WNT
+#else
       string cmd ;
       cmd = string( "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*")
         + portNumber
@@ -544,6 +549,7 @@ void SALOME_LifeCycleCORBA::killOmniNames()
       }
       catch ( ... ) {
       }
+#endif
     }
   
   // NPAL 18309  (Kill Notifd)
@@ -729,5 +735,23 @@ void SALOME_LifeCycleCORBA::copyFile(const char* hostSrc, const char* fileSrc, c
   Engines::Container_var containerSrc = contManager->FindOrStartContainer(params);
 
   containerDest->copyFile(containerSrc,fileSrc,fileDest);
+}
+
+/*! \brief get the naming service used by the life cycle
+ *
+ *  \return the naming service
+ */
+SALOME_NamingService * SALOME_LifeCycleCORBA::namingService()
+{
+  return _NS;
+}
+
+/*! \brief get the orb used by the life cycle
+ *
+ *  \return the orb
+ */
+CORBA::ORB_ptr SALOME_LifeCycleCORBA::orb()
+{
+  return _NS->orb();
 }
 

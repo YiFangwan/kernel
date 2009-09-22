@@ -83,6 +83,11 @@ map<std::string, void *> Engines_Container_i::_library_map;
 map<std::string, void *> Engines_Container_i::_toRemove_map;
 omni_mutex Engines_Container_i::_numInstanceMutex ;
 
+static PyObject* _pyCont;
+
+int checkifexecutable(const std::string&);
+int findpathof(std::string&, const std::string&);
+
 /*! \class Engines_Container_i
  *  \brief C++ implementation of Engines::Container interface
  *
@@ -191,14 +196,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 
     if (!_isSupervContainer)
     {
-#ifdef WIN32
-
-      PyEval_AcquireLock();
-      PyThreadState *myTstate = PyThreadState_New(KERNEL_PYTHON::_interp);
-      PyThreadState *myoldTstate = PyThreadState_Swap(myTstate);
-#else
-      Py_ACQUIRE_NEW_THREAD;
-#endif
+      PyGILState_STATE gstate = PyGILState_Ensure();
 
 #ifdef WIN32
       // mpv: this is temporary solution: there is a unregular crash if not
@@ -210,7 +208,11 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
 #endif
       PyRun_SimpleString("import SALOME_Container\n");
       PyRun_SimpleString((char*)myCommand.c_str());
-      Py_RELEASE_NEW_THREAD;
+      PyObject *mainmod = PyImport_AddModule("__main__");
+      PyObject *globals = PyModule_GetDict(mainmod);
+      _pyCont = PyDict_GetItemString(globals, "pyCont");
+
+      PyGILState_Release(gstate);
     }
 
     fileTransfer_i* aFileTransfer = new fileTransfer_i();
@@ -350,11 +352,10 @@ void Engines_Container_i::Shutdown()
           // ignore this entry and continue
         }
     }
+  _listInstances_map.clear();
 
   _NS->Destroy_FullDirectory(_containerName.c_str());
   _NS->Destroy_Name(_containerName.c_str());
-  //_remove_ref();
-  //_poa->deactivate_object(*_id);
   if(_isServantAloneInProcess)
   {
     MESSAGE("Effective Shutdown of container Begins...");
@@ -404,8 +405,8 @@ int findpathof(string& pth, const string& exe)
 {
   string path( getenv("PATH") );
   if ( path.size() == 0 )
-	  return 0;
-	
+         return 0;
+       
   char path_spr =
 #ifdef WIN32
                   ';';
@@ -519,9 +520,11 @@ Engines_Container_i::load_component_Library(const char* componentName)
     return true;
   }
 
+  std::string retso="";
 #ifndef WIN32
   void* handle;
   handle = dlopen( impl_name.c_str() , RTLD_LAZY ) ;
+  if ( !handle )retso=dlerror();
 #else
   HINSTANCE handle;
   handle = LoadLibrary( impl_name.c_str() );
@@ -538,6 +541,7 @@ Engines_Container_i::load_component_Library(const char* componentName)
   // --- try import Python component
 
   INFOS("try import Python component "<<componentName);
+  std::string retpy;
   if (_isSupervContainer)
   {
     INFOS("Supervision Container does not support Python Component Engines");
@@ -549,22 +553,20 @@ Engines_Container_i::load_component_Library(const char* componentName)
   }
   else
   {
-    Py_ACQUIRE_NEW_THREAD;
-    PyObject *mainmod = PyImport_AddModule("__main__");
-    PyObject *globals = PyModule_GetDict(mainmod);
-    PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
-    PyObject *result = PyObject_CallMethod(pyCont,
+    PyGILState_STATE gstate = PyGILState_Ensure(); 
+    PyObject *result = PyObject_CallMethod(_pyCont,
       (char*)"import_component",
       (char*)"s",componentName);
-    int ret= PyInt_AsLong(result);
-    Py_XDECREF(result);
-    SCRUTE(ret);
-    Py_RELEASE_NEW_THREAD;
 
-    if (ret) // import possible: Python component
+    retpy=PyString_AsString(result);
+    Py_XDECREF(result);
+    SCRUTE(retpy);
+    PyGILState_Release(gstate);
+
+    if (retpy=="") // import possible: Python component
     {
       _numInstanceMutex.lock() ; // lock to be alone (stl container write)
-      _library_map[aCompName] = (void *)pyCont; // any non O value OK
+      _library_map[aCompName] = (void *)_pyCont; // any non O value OK
       _numInstanceMutex.unlock() ;
       MESSAGE("import Python: "<<aCompName<<" OK");
       return true;
@@ -578,7 +580,9 @@ Engines_Container_i::load_component_Library(const char* componentName)
 
   INFOS( "Impossible to load component: " << componentName );
   INFOS( "Can't load shared library: " << impl_name );
+  std::cerr << retso << std::endl;
   INFOS( "Can't import Python module: " << componentName );
+  std::cerr << retpy << std::endl;
   INFOS( "Can't execute program: " << executable );
   return false;
 }
@@ -627,11 +631,8 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
     string component_registerName =
       _containerName + "/" + instanceName;
 
-    Py_ACQUIRE_NEW_THREAD;
-    PyObject *mainmod = PyImport_AddModule("__main__");
-    PyObject *globals = PyModule_GetDict(mainmod);
-    PyObject *pyCont = PyDict_GetItemString(globals, "pyCont");
-    PyObject *result = PyObject_CallMethod(pyCont,
+    PyGILState_STATE gstate = PyGILState_Ensure(); 
+    PyObject *result = PyObject_CallMethod(_pyCont,
       (char*)"create_component_instance",
       (char*)"ssl",
       aCompName.c_str(),
@@ -640,7 +641,7 @@ Engines_Container_i::create_component_instance(const char*genericRegisterName,
     string iors = PyString_AsString(result);
     Py_DECREF(result);
     SCRUTE(iors);
-    Py_RELEASE_NEW_THREAD;
+    PyGILState_Release(gstate);
 
     if( iors!="" )
     {
@@ -1155,22 +1156,16 @@ Engines_Container_i::createInstance(std::string genericRegisterName,
     Engines_Component_i *servant =
       dynamic_cast<Engines_Component_i*>(_poa->reference_to_servant(iobject));
     ASSERT(servant);
-    //SCRUTE(servant->pd_refCount);
-    servant->_remove_ref(); // compensate previous id_to_reference 
-    //SCRUTE(servant->pd_refCount);
+    //SCRUTE(servant->_refcount_value());
     _numInstanceMutex.lock() ; // lock to be alone (stl container write)
     _listInstances_map[instanceName] = iobject;
     _cntInstances_map[aGenRegisterName] += 1;
     _numInstanceMutex.unlock() ;
     SCRUTE(aGenRegisterName);
     SCRUTE(_cntInstances_map[aGenRegisterName]);
-    //SCRUTE(servant->pd_refCount);
-#if defined(_DEBUG_) || defined(_DEBUG)
-    bool ret_studyId = servant->setStudyId(studyId);
-    ASSERT(ret_studyId);
-#else
     servant->setStudyId(studyId);
-#endif
+    servant->_remove_ref(); // do not need servant any more (remove ref from reference_to_servant)
+    //SCRUTE(servant->_refcount_value());
 
     // --- register the engine under the name
     //     containerName(.dir)/instanceName(.object)
@@ -1243,6 +1238,7 @@ void ActSigIntHandler()
 #ifndef WIN32
   struct sigaction SigIntAct ;
   SigIntAct.sa_sigaction = &SigIntHandler ;
+  sigemptyset(&SigIntAct.sa_mask);
   SigIntAct.sa_flags = SA_SIGINFO ;
 #endif
 

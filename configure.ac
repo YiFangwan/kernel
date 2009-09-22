@@ -24,14 +24,14 @@
 # ================================================================
 #AC_PREREQ(2.59)
 #
-AC_INIT([Salome2 Project], [5.1.1], [paul.rascle@edf.fr], [SalomeKERNEL])
+AC_INIT([Salome2 Project], [5.1.2], [paul.rascle@edf.fr], [SalomeKERNEL])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
 AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE([tar-pax])
+AM_INIT_AUTOMAKE([tar-pax -Wno-portability])
 #AC_CONFIG_HEADER([config.h])
 
 XVERSION=`echo $VERSION | awk -F. '{printf("0x%02x%02x%02x",$1,$2,$3)}'`
@@ -92,6 +92,9 @@ AC_ARG_WITH(onlylauncher,
 	[],
 	[with_onlylauncher="no"])
 AM_CONDITIONAL(WITHONLYLAUNCHER, test x$with_onlylauncher = xyes)
+if test "$with_onlylauncher" != "yes"; then
+  AC_DEFINE([HAVE_SALOME_CONFIG], [], [True if SALOMEconfig.h file is used])
+fi
 
 # ----------------------------------------------------------------------------
 
@@ -118,6 +121,7 @@ echo ---------------------------------------------
 echo
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
+AC_LOCAL_INSTALL
 
 echo
 echo ---------------------------------------------
@@ -173,6 +177,14 @@ AC_CXX_HAVE_SSTREAM
 
 # Testing linker
 AC_LINKER_OPTIONS
+
+echo
+echo ---------------------------------------------
+echo testing Fortran INTEGER size for CALCIUM 
+echo ---------------------------------------------
+echo
+
+CHECK_CALCIUM
 
 echo
 echo ---------------------------------------------
@@ -406,7 +418,7 @@ echo
 CHECK_HTML_GENERATORS
 
 # Additional conditional to avoid compilation of non-portable code
-AM_CONDITIONAL(WINDOWS, 0)
+AM_CONDITIONAL(WINDOWS, [ test ])
 
 echo
 echo ============================================================
@@ -530,78 +542,82 @@ echo
 # autoscan, the Makefile list is generated in the output file configure.scan.
 # This could be helpfull to update de configuration.
 AC_OUTPUT([ \
-	./KERNEL_version.h \
-	./salome_adm/unix/SALOMEconfig.ref \
-	./salome_adm/Makefile \
-	./salome_adm/cmake_files/Makefile \
-	./salome_adm/unix/Makefile \
-	./salome_adm/unix/config_files/Makefile \
-	Makefile \
-	./bin/Makefile \
-	./bin/VERSION \
-	./doc/Makefile \
-	./doc/salome/Makefile \
-	./doc/salome/tui/Makefile \
-  ./doc/salome/tui/doxyfile \
-	./doc/salome/gui/Makefile \
-  ./doc/salome/gui/doxyfile \
-	./idl/Makefile \
-	./resources/Makefile \
-	./resources/KERNELCatalog.xml \
-	./resources/CatalogResources.xml \
-	./src/Makefile \
-	./src/Basics/Makefile \
-	./src/Basics/Test/Makefile \
-	./src/Batch/Makefile \
-	./src/Batch_SWIG/Makefile \
-	./src/Communication/Makefile \
-	./src/Communication_SWIG/Makefile \
-	./src/Container/Makefile \
-	./src/ParallelContainer/Makefile \
-	./src/DF/Makefile \
-	./src/DSC/Makefile \
-	./src/DSC/DSC_Basic/Makefile \
-	./src/DSC/DSC_User/Makefile \
-	./src/DSC/DSC_User/Basic/Makefile \
-	./src/DSC/DSC_User/Datastream/Makefile \
-	./src/DSC/DSC_User/Datastream/Palm/Makefile \
-	./src/DSC/DSC_User/Datastream/Calcium/Makefile \
-	./src/DSC/ParallelDSC/Makefile \
-	./src/DSC/DSC_Python/Makefile \
-	./src/GenericObj/Makefile \
-	./src/HDFPersist/Makefile \
-	./src/KERNEL_PY/Makefile \
-	./src/Launcher/Makefile \
-	./src/LifeCycleCORBA/Makefile \
-	./src/LifeCycleCORBA/Test/Makefile \
-	./src/LifeCycleCORBA_SWIG/Makefile \
-	./src/LifeCycleCORBA_SWIG/Test/Makefile \
-	./src/Logger/Makefile \
-	./src/Logger/Test/Makefile \
-	./src/ModuleCatalog/Makefile \
-	./src/ModuleGenerator/Makefile \
-	./src/ModuleGenerator/testIDLparser \
-	./src/MPIContainer/Makefile \
-	./src/NamingService/Makefile \
-	./src/NamingService/Test/Makefile \
-	./src/Notification/Makefile \
-	./src/NOTIFICATION_SWIG/Makefile \
-	./src/Registry/Makefile \
-	./src/ResourcesManager/Makefile \
-	./src/SALOMEDS/Makefile \
-	./src/SALOMEDS/Test/Makefile \
-	./src/SALOMEDSClient/Makefile \
-	./src/SALOMEDSImpl/Makefile \
-	./src/SALOMEDSImpl/Test/Makefile \
-	./src/SALOMELocalTrace/Makefile \
-	./src/SALOMELocalTrace/Test/Makefile \
-	./src/SALOMETraceCollector/Makefile \
-	./src/SALOMETraceCollector/Test/Makefile \
-	./src/TestContainer/Makefile \
-	./src/TestMPIContainer/Makefile \
-	./src/TOOLSDS/Makefile \
-	./src/UnitTests/Makefile \
-	./src/Utils/Makefile \
-	./src/Utils/Test/Makefile \
+  KERNEL_version.h \
+  salome_adm/unix/SALOMEconfig.ref \
+  salome_adm/Makefile \
+  salome_adm/cmake_files/Makefile \
+  salome_adm/unix/Makefile \
+  salome_adm/unix/config_files/Makefile \
+  Makefile \
+  bin/Makefile \
+  bin/VERSION \
+  doc/Makefile \
+  doc/salome/Makefile \
+  doc/salome/tui/Makefile \
+  doc/salome/tui/doxyfile \
+  doc/salome/gui/Makefile \
+  doc/salome/gui/doxyfile \
+  idl/Makefile \
+  idl/Calcium_Ports.idl \
+  resources/Makefile \
+  resources/KERNELCatalog.xml \
+  resources/CatalogResources.xml \
+  src/Makefile \
+  src/Basics/Makefile \
+  src/Basics/Test/Makefile \
+  src/Batch/Makefile \
+  src/Batch_SWIG/Makefile \
+  src/Communication/Makefile \
+  src/Communication_SWIG/Makefile \
+  src/Container/Makefile \
+  src/ParallelContainer/Makefile \
+  src/DF/Makefile \
+  src/DSC/Makefile \
+  src/DSC/DSC_Basic/Makefile \
+  src/DSC/DSC_User/Makefile \
+  src/DSC/DSC_User/Basic/Makefile \
+  src/DSC/DSC_User/Datastream/Makefile \
+  src/DSC/DSC_User/Datastream/Palm/Makefile \
+  src/DSC/DSC_User/Datastream/Calcium/Makefile \
+  src/DSC/DSC_User/Datastream/Calcium/calcium_integer_port_uses.hxx \
+  src/DSC/DSC_User/Datastream/Calcium/CalciumProvidesPort.hxx \
+  src/DSC/DSC_User/Datastream/Calcium/CalciumFortranInt.h \
+  src/DSC/ParallelDSC/Makefile \
+  src/DSC/DSC_Python/Makefile \
+  src/GenericObj/Makefile \
+  src/HDFPersist/Makefile \
+  src/KERNEL_PY/Makefile \
+  src/Launcher/Makefile \
+  src/LifeCycleCORBA/Makefile \
+  src/LifeCycleCORBA/Test/Makefile \
+  src/LifeCycleCORBA_SWIG/Makefile \
+  src/LifeCycleCORBA_SWIG/Test/Makefile \
+  src/Logger/Makefile \
+  src/Logger/Test/Makefile \
+  src/ModuleCatalog/Makefile \
+  src/ModuleGenerator/Makefile \
+  src/ModuleGenerator/testIDLparser \
+  src/MPIContainer/Makefile \
+  src/NamingService/Makefile \
+  src/NamingService/Test/Makefile \
+  src/Notification/Makefile \
+  src/NOTIFICATION_SWIG/Makefile \
+  src/Registry/Makefile \
+  src/ResourcesManager/Makefile \
+  src/SALOMEDS/Makefile \
+  src/SALOMEDS/Test/Makefile \
+  src/SALOMEDSClient/Makefile \
+  src/SALOMEDSImpl/Makefile \
+  src/SALOMEDSImpl/Test/Makefile \
+  src/SALOMELocalTrace/Makefile \
+  src/SALOMELocalTrace/Test/Makefile \
+  src/SALOMETraceCollector/Makefile \
+  src/SALOMETraceCollector/Test/Makefile \
+  src/TestContainer/Makefile \
+  src/TestMPIContainer/Makefile \
+  src/TOOLSDS/Makefile \
+  src/UnitTests/Makefile \
+  src/Utils/Makefile \
+  src/Utils/Test/Makefile \
 ])
 

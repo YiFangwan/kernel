@@ -49,9 +49,8 @@ using namespace std;
 SALOMEDS::SObject_ptr SALOMEDS_SObject_i::New(const SALOMEDSImpl_SObject& theImpl, CORBA::ORB_ptr theORB)
 {
   SALOMEDS_SObject_i* so_servant = new SALOMEDS_SObject_i(theImpl, theORB);
-  SALOMEDS::SObject_var so  = SALOMEDS::SObject::_narrow(so_servant->_this());
 
-  return so._retn();
+  return so_servant->_this();
 }
 
 
@@ -154,7 +153,7 @@ CORBA::Boolean SALOMEDS_SObject_i::FindAttribute (SALOMEDS::GenericAttribute_out
   SALOMEDS::Locker lock;
   DF_Attribute* anAttr = NULL;
   if(_impl->FindAttribute(anAttr, (char*)aTypeOfAttribute)) {
-    anAttribute = SALOMEDS::GenericAttribute::_duplicate(SALOMEDS_GenericAttribute_i::CreateAttribute(anAttr, _orb));
+    anAttribute = SALOMEDS_GenericAttribute_i::CreateAttribute(anAttr, _orb);
     return true;
   }
 
@@ -180,7 +179,7 @@ SALOMEDS::ListOfAttributes* SALOMEDS_SObject_i::GetAllAttributes()
     for(int i = 0; i < length; i++) {
       SALOMEDSImpl_GenericAttribute* anAttr = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(aSeq[i]);
       SALOMEDS::GenericAttribute_var anAttribute;
-      anAttribute = SALOMEDS::GenericAttribute::_duplicate(SALOMEDS_GenericAttribute_i::CreateAttribute(anAttr, _orb));
+      anAttribute = SALOMEDS_GenericAttribute_i::CreateAttribute(anAttr, _orb);
       if (!CORBA::is_nil(anAttribute)) {
 	SeqOfAttr[i] = anAttribute;
       }

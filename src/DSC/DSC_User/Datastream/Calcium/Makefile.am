@@ -38,8 +38,8 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 			calcium_uses_port.hxx \
 			CalciumGenericUsesPort.hxx \
 			calcium_provides_port.hxx \
-			CalciumProvidesPort.hxx \
-			calcium_integer_port_uses.hxx \
+			calcium_intc_port_uses.hxx \
+			calcium_long_port_uses.hxx \
 			calcium_real_port_uses.hxx \
 			calcium_double_port_uses.hxx \
 			calcium_string_port_uses.hxx \
@@ -49,18 +49,28 @@ salomeinclude_HEADERS = calcium_port_factory.hxx \
 			CalciumException.hxx \
 			CalciumTypes.hxx \
 			CalciumCxxInterface.hxx \
+			CalciumMacroCInterface.hxx \
+			CalciumCInterface.hxx \
 			CalciumInterface.hxx \
 			Copy2UserSpace.hxx \
 			Copy2CorbaSpace.hxx \
 			CalciumPortTraits.hxx \
 			calcium.h \
+			calciumf.h \
 			Calcium.hxx \
 			calciumP.h \
 			calciumE.h \
 			version.h \
 			calcium.hf
 
-EXTRA_DIST=fortoc.h
+nodist_salomeinclude_HEADERS = calcium_integer_port_uses.hxx CalciumProvidesPort.hxx CalciumFortranInt.h
+
+EXTRA_DIST=fortoc.h calcium_integer_port_uses.hxx.in CalciumProvidesPort.hxx.in CalciumFortranInt.h.in
+
+calcium_integer_port_uses.hxx: calcium_integer_port_uses.hxx.in
+CalciumProvidesPort.hxx     : CalciumProvidesPort.hxx.in
+CalciumFortranInt.h      : CalciumFortranInt.h.in
+
 #
 # ===============================================================
 # Local definitions
@@ -71,6 +81,7 @@ EXTRA_DIST=fortoc.h
 COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Palm \
+		 -I$(top_srcdir)/src/DSC/DSC_User/Datastream/Calcium \
 		 -I$(top_srcdir)/src/DSC/DSC_User/Basic \
 		 -I$(top_srcdir)/src/DSC/DSC_Basic \
 		 -I$(top_srcdir)/src/SALOMELocalTrace \
@@ -78,8 +89,8 @@ COMMON_CPPFLAGS= -I$(top_srcdir)/src/DSC/DSC_User \
 		 -I$(top_srcdir)/src/Utils \
 		 -I$(top_srcdir)/src/Container \
 		 -I$(top_srcdir)/src/Notification \
-		 -I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h \
 		 -I$(top_builddir)/idl \
+		 -I$(top_builddir)/src/DSC/DSC_User/Datastream/Calcium \
 		 @CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @BOOST_CPPFLAGS@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
@@ -99,6 +110,7 @@ libSalomeCalcium_la_SOURCES  = calcium_port_factory.cxx \
 			       CalciumCouplingPolicy.cxx \
 			       CorbaTypes2CalciumTypes.cxx \
 			       CalciumTypes2CorbaTypes.cxx \
+                               CalciumCInterface.cxx \
 			       CalciumProvidesPort.cxx \
 			       Calcium.cxx \
 			       calcium_destructors_port_uses.cxx
@@ -130,3 +142,4 @@ test_DataIdContainer_LDADD   = libSalomeCalcium.la $(top_builddir)/src/Utils/lib
 
 test_DataIdContainer_LDFLAGS = $(COMMON_LIBS)
 
+CLEANFILES = calcium_integer_port_uses.hxx CalciumProvidesPort.hxx CalciumFortranInt.h

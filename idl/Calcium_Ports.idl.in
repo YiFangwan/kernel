@@ -19,7 +19,7 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-//  File   : Calcium_Ports.idl
+//  File   : SALOME_Ports.idl
 //  Author : Eric Fayolle, EDF
 //
 #ifndef _CALCIUM_PORTS_IDL_
@@ -27,13 +27,8 @@
 
 #include "SALOME_Ports.idl"
 
-/*! \file Calcium_Ports.idl \brief interfaces for Calcium ports
-*/
-
 module Ports {
 
-/*! \brief module that contains interfaces to define Calcium ports 
-*/
   module Calcium_Ports {
 
     const long UNLIMITED_STORAGE_LEVEL = -70;   
@@ -51,16 +46,29 @@ module Ports {
       void disconnect(in DisconnectDirective mode);
     };
 
-    typedef sequence<long>    seq_long;
-    typedef sequence<float>   seq_float;
-    typedef sequence<double>  seq_double;
-    typedef sequence<string>  seq_string;
-    typedef sequence<boolean> seq_boolean;
-    typedef seq_float         seq_complex;
+    typedef sequence<long>                      seq_long;
+    typedef sequence<long long>                 seq_long_long;
+    typedef sequence< @CALCIUM_IDL_INT_F77@ >   seq_integer;
 
+    typedef sequence<float>     seq_float;
+    typedef sequence<double>    seq_double;
+    typedef sequence<string>    seq_string;
+    typedef sequence<boolean>   seq_boolean;
+    typedef seq_float           seq_complex;
+
+    //Fortran int size conforming port  
     interface Calcium_Integer_Port : Calcium_Port {
+      void put (in seq_integer data, in double time, in long tag);
+    };
+
+    interface Calcium_Intc_Port : Calcium_Port {
       void put (in seq_long data, in double time, in long tag);
     };
+
+    interface Calcium_Long_Port : Calcium_Port {
+      void put (in seq_long_long data, in double time, in long tag);
+    };
+
 
     interface Calcium_Real_Port : Calcium_Port {
       void put (in seq_float data, in double time, in long tag);

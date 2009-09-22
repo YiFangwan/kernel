@@ -54,7 +54,6 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
 	-I$(srcdir)/../Utils \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@LIBXML_INCLUDES@ \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
@@ -101,4 +100,5 @@ libResourcesManager_la_CPPFLAGS =\
 
 libResourcesManager_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libResourcesManager_la_LIBADD  =\
+	../Basics/libSALOMEBasics.la \
 	@LIBXML_LIBS@

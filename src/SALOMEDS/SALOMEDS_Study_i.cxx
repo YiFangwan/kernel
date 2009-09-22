@@ -25,6 +25,7 @@
 //
 #include "utilities.h"
 #include "SALOMEDS_Study_i.hxx"
+#include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
 #include "SALOMEDS_GenericAttribute_i.hxx"
 #include "SALOMEDS_AttributeStudyProperties_i.hxx"
@@ -55,6 +56,8 @@
 
 using namespace std;
 
+std::map<SALOMEDSImpl_Study* , SALOMEDS_Study_i*> SALOMEDS_Study_i::_mapOfStudies;
+
 //============================================================================
 /*! Function : SALOMEDS_Study_i
  *  Purpose  : SALOMEDS_Study_i constructor
@@ -76,6 +79,15 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(SALOMEDSImpl_Study* theImpl,
 //============================================================================
 SALOMEDS_Study_i::~SALOMEDS_Study_i()
 {
+  //delete the builder servant
+  PortableServer::POA_var poa=_builder->_default_POA();
+  PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
+  poa->deactivate_object(anObjectId.in());
+  _builder->_remove_ref();
+  
+  //delete implementation
+  delete _impl;
+  _mapOfStudies.erase(_impl);
 }  
 
 //============================================================================
@@ -421,14 +433,14 @@ SALOMEDS::ChildIterator_ptr SALOMEDS_Study_i::NewChildIterator(SALOMEDS::SObject
 {
   SALOMEDS::Locker lock; 
 
-  SALOMEDSImpl_SObject aSO = _impl->GetSObject(theSO->GetID());
+  CORBA::String_var anID=theSO->GetID();
+  SALOMEDSImpl_SObject aSO = _impl->GetSObject(anID.in());
   SALOMEDSImpl_ChildIterator anItr(aSO);
 
   //Create iterator
   SALOMEDS_ChildIterator_i* it_servant = new SALOMEDS_ChildIterator_i(anItr, _orb);
-  SALOMEDS::ChildIterator_var it = SALOMEDS::ChildIterator::_narrow(it_servant->_this()); 
 
-  return it;
+  return it_servant->_this();
 }
 
 
@@ -582,6 +594,18 @@ SALOMEDS::Study_ptr SALOMEDS_Study_i::GetStudy(const DF_Label& theLabel, CORBA::
   return SALOMEDS::Study::_nil();
 }
 
+SALOMEDS_Study_i* SALOMEDS_Study_i::GetStudyServant(SALOMEDSImpl_Study* aStudyImpl, CORBA::ORB_ptr orb)
+{
+  if (_mapOfStudies.find(aStudyImpl) != _mapOfStudies.end()) 
+    return _mapOfStudies[aStudyImpl];
+  else
+    {
+      SALOMEDS_Study_i *Study_servant = new SALOMEDS_Study_i(aStudyImpl, orb);
+      _mapOfStudies[aStudyImpl]=Study_servant;
+      return Study_servant;
+    }
+}
+
 void SALOMEDS_Study_i::IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute) 
 {
   SALOMEDS::Locker lock; 
@@ -661,12 +685,13 @@ void SALOMEDS_Study_i::Close()
   SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
   for (; itcomponent->More(); itcomponent->Next()) {
     SALOMEDS::SComponent_var sco = itcomponent->Value();
-    MESSAGE ( "Look for an engine for data type :"<< sco->ComponentDataType());
+    CORBA::String_var compodatatype=sco->ComponentDataType();
+    MESSAGE ( "Look for an engine for data type :"<< compodatatype);
     // if there is an associated Engine call its method for closing
     CORBA::String_var IOREngine;
     if (sco->ComponentIOR(IOREngine)) {
       // we have found the associated engine to write the data 
-      MESSAGE ( "We have found an engine for data type :"<< sco->ComponentDataType());
+      MESSAGE ( "We have found an engine for data type :"<< compodatatype);
       //_narrow can throw a corba exception
       try
         {
@@ -685,7 +710,12 @@ void SALOMEDS_Study_i::Close()
       catch (CORBA::Exception&) 
         {/*pass*/ }
     }
+    sco->Destroy();
   }
+
+  //Does not need any more this iterator
+  itcomponent->Destroy();
+
 
   _impl->Close();
 }

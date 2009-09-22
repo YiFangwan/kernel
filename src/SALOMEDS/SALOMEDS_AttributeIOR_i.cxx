@@ -36,6 +36,7 @@ char* SALOMEDS_AttributeIOR_i::Value()
   return c_s._retn();
 }
 
+
 void SALOMEDS_AttributeIOR_i::SetValue(const char* value) 
 {
   SALOMEDS::Locker lock;
@@ -44,3 +45,6 @@ void SALOMEDS_AttributeIOR_i::SetValue(const char* value)
   string anExtStr((char *)Str.in());
   dynamic_cast<SALOMEDSImpl_AttributeIOR*>(_impl)->SetValue(anExtStr);
 }
+
+SALOMEDS_AttributeIOR_i::~SALOMEDS_AttributeIOR_i()
+{}

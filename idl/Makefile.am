@@ -26,7 +26,7 @@
 #
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-AM_CXXFLAGS = -fPIC
+AM_CXXFLAGS += -fPIC
 
 BASEIDL_FILES = \
   SALOME_Exception.idl \
@@ -46,7 +46,6 @@ BASEIDL_FILES = \
   nstest.idl \
   DSC_Engines.idl \
   SALOME_Ports.idl \
-  Calcium_Ports.idl \
   Palm_Ports.idl \
   SALOME_PACOExtension.idl \
   SALOME_ParamPorts.idl
@@ -71,7 +70,8 @@ EXTRA_DIST= $(BASEIDL_FILES) $(MPIIDL_FILES) $(OTHER_IDL_FILES) \
 	    SALOME_PACOExtension.xml SALOME_ParamPorts.xml
 
 # This variable defines the files to be installed
-salomeidl_DATA = $(IDL_FILES)
+salomeidl_DATA        = $(IDL_FILES)
+nodist_salomeidl_DATA = Calcium_Ports.idl
 
 # Sources built from idl files
 # BUILT_SOURCE = first thing done on make all
@@ -212,8 +212,8 @@ XML           = SALOME_Component.xml DSC_Engines.xml SALOME_Ports.xml \
 endif
 
 idldir = $(prefix)/idl/salome
-nodist_idl_DATA = ${XML} ${IDL_PACO} 
-nodist_salomeinclude_HEADERS = ${INCLUDES_PACO}
+nodist_idl_DATA = ${XML} ${IDL_PACO} Calcium_Ports.idl
+nodist_salomeinclude_HEADERS = ${INCLUDES_PACO} 
 
 BUILT_SOURCES = $(IDL_SOURCES) $(PAR) $(PAR_INCLUDES)
 
@@ -226,54 +226,49 @@ SALOME_ParamPortsPaCO.idl SALOME_ParamPortsPaCO.hxx SALOME_ParamPortsPaCO.cxx : 
 lib_LTLIBRARIES = libSalomeIDLKernel.la $(PAR_LIB)
 
 nodist_libSalomeIDLKernel_la_SOURCES = $(IDL_SOURCES) $(DYNIDL_SRCS)
-libSalomeIDLKernel_la_CPPFLAGS =-I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h \
-				-I$(top_builddir)/idl \
+libSalomeIDLKernel_la_CPPFLAGS =-I$(top_builddir)/idl \
 				@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 libSalomeIDLKernel_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libSalomeIDLKernel_la_LIBADD  = @CORBA_LIBS@
 
 nodist_libSalomeParallelIDLKernel_la_SOURCES = $(PAR) $(GEN_PACO)
-libSalomeParallelIDLKernel_la_CPPFLAGS =-I$(top_builddir)/salome_adm/unix -include SALOMEconfig.h \
-					-I$(top_builddir)/idl \
+libSalomeParallelIDLKernel_la_CPPFLAGS =-I$(top_builddir)/idl \
 					@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ \
 					@PACO_INCLUDES@
 libSalomeParallelIDLKernel_la_LDFLAGS = -no-undefined -version-info=0:0:0
 libSalomeParallelIDLKernel_la_LIBADD  = libSalomeIDLKernel.la @PACO_LIBS@
 
 # These variables defines the building process of CORBA files
-OMNIORB_IDL         = @OMNIORB_IDL@
-OMNIORB_IDLCXXFLAGS = @OMNIORB_IDLCXXFLAGS@
-OMNIORB_IDLPYFLAGS  = @OMNIORB_IDLPYFLAGS@ -I$(top_builddir)/salome/idl
-IDLCXXFLAGS = -bcxx @IDLCXXFLAGS@ -Wba -I$(top_builddir)/salome/idl
-IDLPYFLAGS  = @IDLPYFLAGS@
+IDLCXXFLAGS = -bcxx @IDLCXXFLAGS@ -I$(srcdir) -I$(top_builddir)/salome/idl
+IDLPYFLAGS  = @IDLPYFLAGS@ -I$(srcdir)
 
 # potential problem on parallel make on the following - multiple outputs
 SUFFIXES = .idl .hh SK.cc
 .idlSK.cc:
-	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
+	$(IDL) $(IDLCXXFLAGS) $<
 SK.cc.hh:
 
 #Dummy rule to replace the following one (for parallel make)
 #.idl.hh:
-#	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) $<
+#	$(IDL) $(IDLCXXFLAGS) $<
 
 if WITH_PACO_PARALLEL
 
 %PaCO.idl %PaCO.hxx %PaCO.cxx : %.idl %.xml
-	$(OMNIORB_IDL) -p@PACOPATH@/lib/python -bpaco -Wb$(top_srcdir)/idl/$*.xml,$(srcdir):@PACOPATH@/idl $(top_srcdir)/idl/$*.idl
+	$(IDL) -p@PACOPATH@/lib/python -bpaco -Wb$(top_srcdir)/idl/$*.xml,$(srcdir):@PACOPATH@/idl $(top_srcdir)/idl/$*.idl
 
-%.hxx: %.idl
-	$(OMNIORB_IDL) $(IDLCXXFLAGS) $(OMNIORB_IDLCXXFLAGS) -Wbh=.hxx -Wbs=.cxx $<
+.idl.hxx:
+	$(IDL) $(IDLCXXFLAGS) -Wbh=.hxx -Wbs=.cxx $<
 endif
 
-install-exec-local: $(IDL_FILES:%=$(top_srcdir)/idl/%)
+install-exec-local: $(IDL_FILES:%=$(top_srcdir)/idl/%) Calcium_Ports.idl
 	$(INSTALL) -d  $(DESTDIR)$(salomepythondir)
 	ls $^ | while read file; do \
-	  $(OMNIORB_IDL) $(IDLPYFLAGS) -C$(DESTDIR)$(salomepythondir) $$file ; \
+	  $(IDL) $(IDLPYFLAGS) -C$(DESTDIR)$(salomepythondir) $$file ; \
 	done
 if WITH_PACO_PARALLEL
 	ls $(top_builddir)/idl/*.idl | while read file; do \
-	  $(OMNIORB_IDL) $(IDLPYFLAGS) -I$(top_srcdir)/idl -I@PACOPATH@/idl -C$(DESTDIR)$(salomepythondir) $$file ; \
+	  $(IDL) $(IDLPYFLAGS) -I$(top_srcdir)/idl -I@PACOPATH@/idl -C$(DESTDIR)$(salomepythondir) $$file ; \
 	done
 endif
 
@@ -282,13 +277,13 @@ uninstall-local:
 	rm -rf $(DESTDIR)$(salomepythondir)/*
 
 mostlyclean-local:
-	-rm -f *.hh *.cc .depidl
+	-rm -f *.hh *.cc .depidl Calcium_Ports.idl
 
 # we use cpp to generate dependencies between idl files.
 # option x c tells the preprocessor to consider idl as a c file.
 # if an idl is modified, all idl dependencies are rebuilt
 
-.depidl: $(IDL_FILES)
+.depidl: $(IDL_FILES) Calcium_Ports.idl
 	@echo "" > $@
 	@for dep in $^ dummy; do \
 	  if [ $$dep != "dummy" ]; then \
@@ -300,5 +295,6 @@ mostlyclean-local:
 
 -include .depidl
 
-CLEANFILES = *PaCO* *.hxx *.cxx
+CLEANFILES = *PaCO* *.hxx *.cxx Calcium_Ports.idl
+
 
