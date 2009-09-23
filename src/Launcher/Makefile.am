@@ -52,7 +52,7 @@ COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
 	@MPI_INCLUDES@ \
 	@LIBXML_INCLUDES@ \
-	-I$(srcdir)/../Batch \
+	@LIBBATCH_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
@@ -74,8 +74,8 @@ COMMON_LIBS =\
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
-	../Batch/libSalomeBatch.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la \
+	@LIBBATCH_LIBS@ \
 	@MPI_LIBS@ \
 	@CORBA_LIBS@ \
 	@LIBXML_LIBS@ \
@@ -111,8 +111,8 @@ libLauncher_la_SOURCES=\
 	Launcher.cxx
 
 libLauncher_la_CPPFLAGS =\
-	-I$(srcdir)/../Batch \
 	-I$(srcdir)/../ResourcesManager \
+	@LIBBATCH_INCLUDES@ \
 	@MPI_INCLUDES@ \
 	@LIBXML_INCLUDES@
 
@@ -121,8 +121,8 @@ libLauncher_la_LDFLAGS  =\
 	@LDEXPDYNFLAGS@
 
 libLauncher_la_LIBADD =\
-	../Batch/libSalomeBatch.la \
 	../ResourcesManager/libResourcesManager.la \
+	@LIBBATCH_LIBS@ \
 	@MPI_LIBS@ \
 	@LIBXML_LIBS@
 
@@ -144,6 +144,7 @@ SALOME_LauncherServer_CPPFLAGS=\
 SALOME_LauncherServer_LDADD =\
 	libSalomeLauncher.la \
 	../Basics/libSALOMEBasics.la \
+	$(LIBBATCH_LIBS) \
 	$(MPI_LIBS) \
 	$(CORBA_LIBS) \
 	$(LIBXML_LIBS) \

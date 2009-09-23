@@ -19,13 +19,12 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "Launcher.hxx"
 
-#include "Batch_Date.hxx"
-#include "Batch_FactBatchManager_eLSF.hxx"
-#include "Batch_FactBatchManager_ePBS.hxx"
-#include "Batch_BatchManager_eClient.hxx"
-#include "Batch_FactBatchManager_eSGE.hxx"
+#include <Batch/Batch_Date.hxx>
+#include <Batch/Batch_FactBatchManager_eLSF.hxx>
+#include <Batch/Batch_FactBatchManager_ePBS.hxx>
+#include <Batch/Batch_BatchManager_eClient.hxx>
+#include <Batch/Batch_FactBatchManager_eSGE.hxx>
 #include "SALOME_Launcher_Handler.hxx"
 #include "Launcher.hxx"
 #include <iostream>
@@ -171,7 +170,7 @@ long Launcher_cpp::submitJob( const std::string xmlExecuteFile,
     _jobmap[ pair<string,long>(cname,jobId) ] = job;
   }
   catch(const Batch::EmulationException &ex){
-    throw LauncherException(ex.msg.c_str());
+    throw LauncherException(ex.message.c_str());
   }
 
   return jobId;
@@ -276,7 +275,7 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     _jobmap[ pair<string,long>(clustername,jobId) ] = job;    
   }
   catch(const Batch::EmulationException &ex){
-    throw LauncherException(ex.msg.c_str());
+    throw LauncherException(ex.message.c_str());
   }
 
   return jobId;
@@ -315,7 +314,7 @@ string Launcher_cpp::queryJob( long id,
     par = jinfo.getParametre();
   }
   catch(const Batch::EmulationException &ex){
-    throw LauncherException(ex.msg.c_str());
+    throw LauncherException(ex.message.c_str());
   }
 
   return par[STATE];
@@ -413,16 +412,17 @@ void Launcher_cpp::getResultsJob( const std::string directory,
 Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserResourcesType& params ) throw(LauncherException)
 {
 
-  std::string hostname, protocol, mpi;
+  std::string hostname, mpi;
+  Batch::CommunicationProtocolType protocol;
   Batch::FactBatchManager_eClient* fact;
 
   hostname = params.Alias;
   switch(params.Protocol){
   case rsh:
-    protocol = "rsh";
+    protocol = Batch::RSH;
     break;
   case ssh:
-    protocol = "ssh";
+    protocol = Batch::SSH;
     break;
   default:
     throw LauncherException("unknown protocol");
@@ -482,7 +482,7 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserReso
 #endif
     throw LauncherException("no batchmanager for that cluster");
   }
-  return (*fact)(hostname.c_str(),protocol.c_str(),mpi.c_str());
+  return (*fact)(hostname.c_str(), protocol, mpi.c_str());
 }
 
 string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const string dirForTmpFiles, const ParserResourcesType& params)

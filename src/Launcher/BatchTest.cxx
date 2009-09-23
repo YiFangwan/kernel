@@ -21,8 +21,8 @@
 //
 #include "BatchTest.hxx"
 
-#include "Batch_Date.hxx"
-#include "MpiImpl.hxx"
+#include <Batch/Batch_Date.hxx>
+#include <Batch/Batch_MpiImpl.hxx>
 #include "utilities.h"
 
 #include <sys/stat.h>
