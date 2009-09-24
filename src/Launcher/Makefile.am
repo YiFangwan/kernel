@@ -64,6 +64,10 @@ COMMON_CPPFLAGS=\
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
+if WITH_LIBBATCH
+  COMMON_CPPFLAGS += -DWITH_LIBBATCH
+endif
+
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
 	../Registry/libRegistry.la \
@@ -91,15 +95,9 @@ if WITHONLYLAUNCHER
 else
   lib_LTLIBRARIES = libLauncher.la libSalomeLauncher.la
 endif
-
 libSalomeLauncher_la_SOURCES=\
+	BatchTest.cxx \
 	SALOME_Launcher.cxx 
-
-if WITH_BATCH
-  libSalomeLauncher_la_SOURCES += BatchTest.cxx
-else
-  libSalomeLauncher_la_SOURCES += DummyBatchTest.cxx
-endif
 
 libSalomeLauncher_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
@@ -113,19 +111,18 @@ libSalomeLauncher_la_LIBADD =\
 
 libLauncher_la_SOURCES=\
 	SALOME_Launcher_Parser.cxx \
-	SALOME_Launcher_Handler.cxx
-
-if WITH_BATCH
-  libLauncher_la_SOURCES += Launcher.cxx
-else
-  libLauncher_la_SOURCES += DummyLauncher.cxx
-endif
+	SALOME_Launcher_Handler.cxx  \
+	Launcher.cxx
 
 libLauncher_la_CPPFLAGS =\
 	-I$(srcdir)/../ResourcesManager \
 	@LIBBATCH_INCLUDES@ \
 	@MPI_INCLUDES@ \
 	@LIBXML_INCLUDES@
+
+if WITH_LIBBATCH
+  libLauncher_la_CPPFLAGS += -DWITH_LIBBATCH
+endif
 
 libLauncher_la_LDFLAGS  =\
 	-no-undefined -version-info=0:0:0 \

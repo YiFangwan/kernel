@@ -364,7 +364,7 @@ echo --------------------------------------------------------------
 echo
 
 CHECK_LIBBATCH
-AM_CONDITIONAL(WITH_BATCH, [test x"$libbatch_ok" = xyes])
+AM_CONDITIONAL(WITH_LIBBATCH, [test x"$libbatch_ok" = xyes])
 
 echo
 echo ============================================================
