@@ -91,9 +91,15 @@ if WITHONLYLAUNCHER
 else
   lib_LTLIBRARIES = libLauncher.la libSalomeLauncher.la
 endif
+
 libSalomeLauncher_la_SOURCES=\
-	BatchTest.cxx \
 	SALOME_Launcher.cxx 
+
+if WITH_BATCH
+  libSalomeLauncher_la_SOURCES += BatchTest.cxx
+else
+  libSalomeLauncher_la_SOURCES += DummyBatchTest.cxx
+endif
 
 libSalomeLauncher_la_CPPFLAGS =\
 	$(COMMON_CPPFLAGS)
@@ -107,8 +113,13 @@ libSalomeLauncher_la_LIBADD =\
 
 libLauncher_la_SOURCES=\
 	SALOME_Launcher_Parser.cxx \
-	SALOME_Launcher_Handler.cxx  \
-	Launcher.cxx
+	SALOME_Launcher_Handler.cxx
+
+if WITH_BATCH
+  libLauncher_la_SOURCES += Launcher.cxx
+else
+  libLauncher_la_SOURCES += DummyLauncher.cxx
+endif
 
 libLauncher_la_CPPFLAGS =\
 	-I$(srcdir)/../ResourcesManager \

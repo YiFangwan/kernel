@@ -321,7 +321,7 @@ string Launcher_cpp::queryJob( long id,
 }
 
 string Launcher_cpp::queryJob( long id, 
-			       const std::string clusterName)
+			       const std::string clusterName) throw (LauncherException)
 {
   machineParams params;
   params.hostname = clusterName;
@@ -359,7 +359,7 @@ void Launcher_cpp::deleteJob( const long id,
 }
 
 void Launcher_cpp::deleteJob( long id, 
-			      const std::string clusterName)
+			      const std::string clusterName) throw (LauncherException)
 {
   machineParams params;
   params.hostname = clusterName;
@@ -396,7 +396,7 @@ void Launcher_cpp::getResultsJob( const string directory,
 
 void Launcher_cpp::getResultsJob( const std::string directory, 
 				  long id, 
-				  const std::string clusterName)
+				  const std::string clusterName) throw (LauncherException)
 {
   machineParams params;
   params.hostname = clusterName;

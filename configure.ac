@@ -221,14 +221,6 @@ echo
 
 CHECK_LIBXML
 
-echo
-echo ---------------------------------------------
-echo Testing libBatch
-echo ---------------------------------------------
-echo
-
-CHECK_LIBBATCH
-
 if test x$with_onlylauncher = xno; then
 echo
 echo ---------------------------------------------
@@ -366,6 +358,15 @@ echo
 CHECK_CPPUNIT
 
 echo
+echo --------------------------------------------------------------
+echo Testing libBatch only required for batch functions in Launcher
+echo --------------------------------------------------------------
+echo
+
+CHECK_LIBBATCH
+AM_CONDITIONAL(WITH_BATCH, [test x"$libbatch_ok" = xyes])
+
+echo
 echo ============================================================
 echo testing products required only for documentation generation
 echo ============================================================
@@ -420,12 +421,12 @@ function check_fatal_error {
 
 if test x$with_onlylauncher = xno; then
   if test x$corba_gen = xtrue; then
-    basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok libxml_ok libbatch_ok"
+    basic_mandatory_products="cc_ok threads_ok python_ok swig_ok hdf5_ok libxml_ok"
   else
-    basic_mandatory_products="cc_ok threads_ok hdf5_ok libxml_ok libbatch_ok"
+    basic_mandatory_products="cc_ok threads_ok hdf5_ok libxml_ok"
   fi
 else
-  basic_mandatory_products="cc_ok threads_ok libxml_ok libbatch_ok"
+  basic_mandatory_products="cc_ok threads_ok libxml_ok"
 fi
 
 echo --- General mandatory products - Light configuration:
@@ -450,12 +451,17 @@ echo --- Kernel parallel extensions:
 summary $parallel_products
 echo
 
-optional_products="cppunit_ok numpy_ok"
+optional_products="cppunit_ok numpy_ok libbatch_ok"
 echo --- Optional products:
 echo ["    These products are optional because the KERNEL functions"]
 echo ["    using them are built only if the products are detected."]
 summary $optional_products
 echo
+if test x$libbatch_ok = xno; then
+  echo ["    Warning: Batch functions will not be available in"]
+  echo ["    Salome Launcher because they require libBatch."]
+  echo
+fi
 
 htmldoc_products="doxygen_ok graphviz_ok rst2html_ok"
 
