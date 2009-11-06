@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -63,14 +64,6 @@ class NamingServer(Server):
           #print "Can't create " + upath
           pass
 
-        #os.system("touch " + upath + "/dummy")
-        for fname in os.listdir(upath):
-          try:
-            if not fname.startswith("."): os.remove(upath + "/" + fname)
-          except:
-            pass
-        #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
-
         if verbose(): print "Name Service... ",
         #hname=os.environ["HOST"] #commands.getoutput("hostname")
         if sys.platform == "win32":
@@ -88,6 +81,27 @@ class NamingServer(Server):
         aPort = ll[-1]
         #aPort=(ss.join().split(':'))[2];
         #aPort=re.findall("\d+", ss[0])[0]
+
+        # \begin{E.A.}
+        # put the log files of omniNames in different directory with port reference,
+        # it is cleaner on linux and it is a fix for salome since it is impossible to
+        # remove the log files if the corresponding omniNames has not been killed.
+        # \end{E.A.}
+        
+        upath += "/omniNames_%s"%(aPort)
+        try:
+           os.mkdir(upath)
+        except:
+           #print "Can't create " + upath
+           pass
+        
+        #os.system("touch " + upath + "/dummy")
+        for fname in os.listdir(upath):
+          try:
+             os.remove(upath + "/" + fname)
+          except:
+            pass
+        #os.system("rm -f " + upath + "/omninames* " + upath + "/dummy " + upath + "/*.log")
 
         #aSedCommand="s/.*NameService=corbaname::" + hname + ":\([[:digit:]]*\)/\1/"
         #print "sed command = ", aSedCommand

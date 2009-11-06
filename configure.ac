@@ -24,14 +24,14 @@
 # ================================================================
 #AC_PREREQ(2.59)
 #
-AC_INIT([Salome2 Project], [5.1.1], [paul.rascle@edf.fr], [SalomeKERNEL])
+AC_INIT([Salome2 Project], [5.1.3], [paul.rascle@edf.fr], [SalomeKERNEL])
 
 # AC_CONFIG_AUX_DIR defines an alternative directory where to find the auxiliary
 # scripts such as config.guess, install-sh, ...
 AC_CONFIG_AUX_DIR(salome_adm/unix/config_files)
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
-AM_INIT_AUTOMAKE([tar-pax])
+AM_INIT_AUTOMAKE([tar-pax -Wno-portability])
 #AC_CONFIG_HEADER([config.h])
 
 XVERSION=`echo $VERSION | awk -F. '{printf("0x%02x%02x%02x",$1,$2,$3)}'`
@@ -86,11 +86,15 @@ AC_ARG_ENABLE(corba_gen,
   esac],[corba_gen=true])
 AM_CONDITIONAL(CORBA_GEN, test x$corba_gen = xtrue)
 
-# ---- option to build only launcher, resources manager and batch classes
+# ---- option to build only launcher and resources manager
 AC_ARG_WITH(onlylauncher,
-	    --with-onlylauncher,
-	    [],[with_onlylauncher="no"])
+	[AC_HELP_STRING([--with-onlylauncher],[Build only launcher and resources manager [default=no]])],
+	[],
+	[with_onlylauncher="no"])
 AM_CONDITIONAL(WITHONLYLAUNCHER, test x$with_onlylauncher = xyes)
+if test "$with_onlylauncher" != "yes"; then
+  AC_DEFINE([HAVE_SALOME_CONFIG], [], [True if SALOMEconfig.h file is used])
+fi
 
 # ----------------------------------------------------------------------------
 
@@ -117,6 +121,7 @@ echo ---------------------------------------------
 echo
 AC_PROG_MAKE_SET
 AC_PROG_INSTALL
+AC_LOCAL_INSTALL
 
 echo
 echo ---------------------------------------------
@@ -149,6 +154,7 @@ echo
 cc_ok=no
 AC_PROG_CC
 AC_PROG_CXX
+AC_LANG(C++)
 AC_CXX_WARNINGS
 AC_CXX_TEMPLATE_OPTIONS
 AC_DEPEND_FLAG
@@ -172,6 +178,14 @@ AC_CXX_HAVE_SSTREAM
 
 # Testing linker
 AC_LINKER_OPTIONS
+
+echo
+echo ---------------------------------------------
+echo testing Fortran INTEGER size for CALCIUM 
+echo ---------------------------------------------
+echo
+
+CHECK_CALCIUM
 
 echo
 echo ---------------------------------------------
@@ -337,58 +351,20 @@ echo ============================================================
 echo
 
 echo
-echo ---------------------------------------------
-echo Testing Batch
-echo ---------------------------------------------
-echo
-
-dnl Several batch systems (OpenPBS, LSF, ...) can be operated using
-dnl the Batch classes library integrated in the KERNEL module. The
-dnl checking process tests here the presence of underlying batch
-dnl softwares. If none is detected, the KERNEL is declared to be
-dnl "without batch". 
-
-echo testing OpenPBS
-echo ---------------
-openpbs_ok=no
-CHECK_OPENPBS
-dnl openpbs_ok is set to yes by CHECK_OPENPBS
-
-echo testing LSF
-echo -----------
-lsf_ok=no
-CHECK_LSF
-dnl lsf_ok is set to yes by CHECK_LSF
-echo lsf = $lsf_ok
-
-echo testing Local batch system
-echo --------------------------
-localbatch_ok=no
-CHECK_LOCAL
-dnl localbatch_ok is set to yes by CHECK_LOCAL
-
-WITH_BATCH=no
-test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes
-
-AC_ARG_ENABLE(batch,
-  [AC_HELP_STRING([--enable-batch],[Batch [default=yes]])],
-  [case "${enableval}" in
-     yes) test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes;;
-     no)  WITH_BATCH=no ;;
-     *) AC_MSG_ERROR(bad value ${enableval} for --enable-batch) ;;
-  esac],[test x$openpbs_ok = xyes || test x$lsf_ok = xyes || test x$localbatch_ok = xyes && WITH_BATCH=yes])
-
-echo Batch mode = $WITH_BATCH
-
-AC_SUBST(WITH_BATCH)
-AM_CONDITIONAL(WITH_BATCH, [test x"$WITH_BATCH" = xyes])
-
-echo
 echo ----------------------------------------------
 echo testing CPPUNIT only required for unit testing
 echo ----------------------------------------------
 echo
 CHECK_CPPUNIT
+
+echo
+echo --------------------------------------------------------------
+echo Testing libBatch only required for batch functions in Launcher
+echo --------------------------------------------------------------
+echo
+
+CHECK_LIBBATCH
+AM_CONDITIONAL(WITH_LIBBATCH, [test x"$libbatch_ok" = xyes])
 
 echo
 echo ============================================================
@@ -405,7 +381,7 @@ echo
 CHECK_HTML_GENERATORS
 
 # Additional conditional to avoid compilation of non-portable code
-AM_CONDITIONAL(WINDOWS, 0)
+AM_CONDITIONAL(WINDOWS, [ test ])
 
 echo
 echo ============================================================
@@ -466,13 +442,6 @@ if test x$with_onlylauncher = xno; then
     check_fatal_error $corba_mandatory_products
   else
     echo --- CORBA products not required - option --disable-corba-gen
-    if test x"$WITH_BATCH" = xyes; then
-      echo --- BATCH mode mandatory products - default configuration:
-      summary "python_ok"
-      check_fatal_error "python_ok"
-    else 
-    echo --- Python not required - option --enable-batch=no
-    fi
   fi
 fi
 echo
@@ -482,12 +451,17 @@ echo --- Kernel parallel extensions:
 summary $parallel_products
 echo
 
-optional_products="cppunit_ok openpbs_ok lsf_ok numpy_ok"
+optional_products="cppunit_ok numpy_ok libbatch_ok"
 echo --- Optional products:
 echo ["    These products are optional because the KERNEL functions"]
 echo ["    using them are built only if the products are detected."]
 summary $optional_products
 echo
+if test x$libbatch_ok = xno; then
+  echo ["    Warning: Batch functions will not be available in"]
+  echo ["    Salome Launcher because they require libBatch."]
+  echo
+fi
 
 htmldoc_products="doxygen_ok graphviz_ok rst2html_ok"
 
@@ -529,78 +503,80 @@ echo
 # autoscan, the Makefile list is generated in the output file configure.scan.
 # This could be helpfull to update de configuration.
 AC_OUTPUT([ \
-	./KERNEL_version.h \
-	./salome_adm/unix/SALOMEconfig.ref \
-	./salome_adm/Makefile \
-	./salome_adm/cmake_files/Makefile \
-	./salome_adm/unix/Makefile \
-	./salome_adm/unix/config_files/Makefile \
-	Makefile \
-	./bin/Makefile \
-	./bin/VERSION \
-	./doc/Makefile \
-	./doc/salome/Makefile \
-	./doc/salome/tui/Makefile \
-  ./doc/salome/tui/doxyfile \
-	./doc/salome/gui/Makefile \
-  ./doc/salome/gui/doxyfile \
-	./idl/Makefile \
-	./resources/Makefile \
-	./resources/KERNELCatalog.xml \
-	./resources/CatalogResources.xml \
-	./src/Makefile \
-	./src/Basics/Makefile \
-	./src/Basics/Test/Makefile \
-	./src/Batch/Makefile \
-	./src/Batch_SWIG/Makefile \
-	./src/Communication/Makefile \
-	./src/Communication_SWIG/Makefile \
-	./src/Container/Makefile \
-	./src/ParallelContainer/Makefile \
-	./src/DF/Makefile \
-	./src/DSC/Makefile \
-	./src/DSC/DSC_Basic/Makefile \
-	./src/DSC/DSC_User/Makefile \
-	./src/DSC/DSC_User/Basic/Makefile \
-	./src/DSC/DSC_User/Datastream/Makefile \
-	./src/DSC/DSC_User/Datastream/Palm/Makefile \
-	./src/DSC/DSC_User/Datastream/Calcium/Makefile \
-	./src/DSC/ParallelDSC/Makefile \
-	./src/DSC/DSC_Python/Makefile \
-	./src/GenericObj/Makefile \
-	./src/HDFPersist/Makefile \
-	./src/KERNEL_PY/Makefile \
-	./src/Launcher/Makefile \
-	./src/LifeCycleCORBA/Makefile \
-	./src/LifeCycleCORBA/Test/Makefile \
-	./src/LifeCycleCORBA_SWIG/Makefile \
-	./src/LifeCycleCORBA_SWIG/Test/Makefile \
-	./src/Logger/Makefile \
-	./src/Logger/Test/Makefile \
-	./src/ModuleCatalog/Makefile \
-	./src/ModuleGenerator/Makefile \
-	./src/ModuleGenerator/testIDLparser \
-	./src/MPIContainer/Makefile \
-	./src/NamingService/Makefile \
-	./src/NamingService/Test/Makefile \
-	./src/Notification/Makefile \
-	./src/NOTIFICATION_SWIG/Makefile \
-	./src/Registry/Makefile \
-	./src/ResourcesManager/Makefile \
-	./src/SALOMEDS/Makefile \
-	./src/SALOMEDS/Test/Makefile \
-	./src/SALOMEDSClient/Makefile \
-	./src/SALOMEDSImpl/Makefile \
-	./src/SALOMEDSImpl/Test/Makefile \
-	./src/SALOMELocalTrace/Makefile \
-	./src/SALOMELocalTrace/Test/Makefile \
-	./src/SALOMETraceCollector/Makefile \
-	./src/SALOMETraceCollector/Test/Makefile \
-	./src/TestContainer/Makefile \
-	./src/TestMPIContainer/Makefile \
-	./src/TOOLSDS/Makefile \
-	./src/UnitTests/Makefile \
-	./src/Utils/Makefile \
-	./src/Utils/Test/Makefile \
+  KERNEL_version.h \
+  salome_adm/unix/SALOMEconfig.ref \
+  salome_adm/Makefile \
+  salome_adm/cmake_files/Makefile \
+  salome_adm/unix/Makefile \
+  salome_adm/unix/config_files/Makefile \
+  Makefile \
+  bin/Makefile \
+  bin/VERSION \
+  doc/Makefile \
+  doc/salome/Makefile \
+  doc/salome/tui/Makefile \
+  doc/salome/tui/doxyfile \
+  doc/salome/gui/Makefile \
+  doc/salome/gui/doxyfile \
+  idl/Makefile \
+  idl/Calcium_Ports.idl \
+  resources/Makefile \
+  resources/KERNELCatalog.xml \
+  resources/CatalogResources.xml \
+  src/Makefile \
+  src/Basics/Makefile \
+  src/Basics/Test/Makefile \
+  src/Communication/Makefile \
+  src/Communication_SWIG/Makefile \
+  src/Container/Makefile \
+  src/ParallelContainer/Makefile \
+  src/DF/Makefile \
+  src/DSC/Makefile \
+  src/DSC/DSC_Basic/Makefile \
+  src/DSC/DSC_User/Makefile \
+  src/DSC/DSC_User/Basic/Makefile \
+  src/DSC/DSC_User/Datastream/Makefile \
+  src/DSC/DSC_User/Datastream/Palm/Makefile \
+  src/DSC/DSC_User/Datastream/Calcium/Makefile \
+  src/DSC/DSC_User/Datastream/Calcium/calcium_integer_port_uses.hxx \
+  src/DSC/DSC_User/Datastream/Calcium/CalciumProvidesPort.hxx \
+  src/DSC/DSC_User/Datastream/Calcium/CalciumFortranInt.h \
+  src/DSC/ParallelDSC/Makefile \
+  src/DSC/DSC_Python/Makefile \
+  src/GenericObj/Makefile \
+  src/HDFPersist/Makefile \
+  src/KERNEL_PY/Makefile \
+  src/Launcher/Makefile \
+  src/LifeCycleCORBA/Makefile \
+  src/LifeCycleCORBA/Test/Makefile \
+  src/LifeCycleCORBA_SWIG/Makefile \
+  src/LifeCycleCORBA_SWIG/Test/Makefile \
+  src/Logger/Makefile \
+  src/Logger/Test/Makefile \
+  src/ModuleCatalog/Makefile \
+  src/ModuleGenerator/Makefile \
+  src/ModuleGenerator/testIDLparser \
+  src/MPIContainer/Makefile \
+  src/NamingService/Makefile \
+  src/NamingService/Test/Makefile \
+  src/Notification/Makefile \
+  src/NOTIFICATION_SWIG/Makefile \
+  src/Registry/Makefile \
+  src/ResourcesManager/Makefile \
+  src/SALOMEDS/Makefile \
+  src/SALOMEDS/Test/Makefile \
+  src/SALOMEDSClient/Makefile \
+  src/SALOMEDSImpl/Makefile \
+  src/SALOMEDSImpl/Test/Makefile \
+  src/SALOMELocalTrace/Makefile \
+  src/SALOMELocalTrace/Test/Makefile \
+  src/SALOMETraceCollector/Makefile \
+  src/SALOMETraceCollector/Test/Makefile \
+  src/TestContainer/Makefile \
+  src/TestMPIContainer/Makefile \
+  src/TOOLSDS/Makefile \
+  src/UnitTests/Makefile \
+  src/Utils/Makefile \
+  src/Utils/Test/Makefile \
 ])
 

@@ -50,6 +50,10 @@ SALOMEDS_GenericAttribute_i::SALOMEDS_GenericAttribute_i(DF_Attribute* theImpl, 
   _impl = theImpl;
 }
 
+SALOMEDS_GenericAttribute_i::~SALOMEDS_GenericAttribute_i()
+{
+}
+
 void SALOMEDS_GenericAttribute_i::CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection) 
 {
   SALOMEDS::Locker lock;
@@ -83,7 +87,7 @@ char* SALOMEDS_GenericAttribute_i::Type()
     return CORBA::string_dup(type.c_str());
   }    
 
-  return (char*)"";
+  return CORBA::string_dup("");
 }
 
 char* SALOMEDS_GenericAttribute_i::GetClassType()
@@ -94,7 +98,7 @@ char* SALOMEDS_GenericAttribute_i::GetClassType()
     return CORBA::string_dup(class_type.c_str());
   }
 
-  return (char*)"";
+  return CORBA::string_dup("");
 }
 
 

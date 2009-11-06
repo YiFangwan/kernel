@@ -35,6 +35,7 @@
 #include "DSC_Exception.hxx"
 #include <vector>
 
+//#define MYDEBUG
 
 /*! \class Superv_Component_i
  *  \brief This class implements DSC_User component.
@@ -43,7 +44,7 @@
  *  a programming level for service's developpers who want to use DSC ports.
  *
  *  This class has two level for using and declare ports. The higher level proposes
- *  operations to add ports that are provided by default by Salomé like Calcium ports.
+ *  operations to add ports that are provided by default by SALOME like Calcium ports.
  *  It provides too some methods to add their own DSC_User ports.
  *
  *  \note This class doesn't implement the init_service CORBA operation.
@@ -255,6 +256,12 @@ public:
    */
   virtual port_factory * get_factory(const std::string & factory_name);
 
+  /*!
+   */
+  static long dscTimeOut;
+  static void setTimeOut();
+  void beginService(const char *serviceName);
+
 private:   
   // Factory map
   typedef std::map<std::string, port_factory*> factory_map_t;
@@ -267,7 +274,18 @@ private:
     ~superv_port_t()
     {
       if(u_ref)delete u_ref;
-      if(p_ref)delete p_ref;
+      if(p_ref)
+        {
+          // do not delete CORBA servant : deactivate it and then call _remove_ref or delete
+          PortableServer::ServantBase* servant=dynamic_cast<PortableServer::ServantBase*>(p_ref);
+          if(servant)
+            {
+              PortableServer::POA_var poa =servant->_default_POA();
+              PortableServer::ObjectId_var oid = poa->servant_to_id(servant);
+              poa->deactivate_object(oid);
+              servant->_remove_ref();
+            }
+        }
     };
     // For uses ports.
     uses_port * u_ref;
@@ -297,7 +315,7 @@ Superv_Component_i::add_port(const char * port_fab_type,
   assert(port_name);
   SpecificPortType * retPort; 
 
-#ifdef _DEBUG_
+#ifdef MYDEBUG
   std::cout << "---- Superv_Component_i::add_port :  Mark 0 ----  " << port_name << "----" << std::endl;
 #endif
     
@@ -307,26 +325,26 @@ Superv_Component_i::add_port(const char * port_fab_type,
     add_port(port, port_name);
     retPort = dynamic_cast<SpecificPortType *>(port);
     if ( retPort == NULL ) { delete port;  
-      throw BadCast( LOC("La conversion vers le type de port demandé n'est pas possible " ));
+      throw BadCast( LOC("Can't cast to asked port type " ));
     }
   }
   else if (s_port_type == "uses") {
     uses_port * port = create_uses_data_port(port_fab_type);
     add_port(port, port_name);
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "---- Superv_Component_i::add_port :  Mark 1 ----  " << port << "----" << std::endl;
     std::cout << "---- Superv_Component_i::add_port :  Mark 1 ----   get_repository_id()" << port->get_repository_id() << std::endl;
 #endif
     retPort = dynamic_cast<SpecificPortType *>(port);
-#ifdef _DEBUG_
+#ifdef MYDEBUG
     std::cout << "---- Superv_Component_i::add_port :  Mark 2 ----  " << retPort << "----" << std::endl;
 #endif
     if ( retPort == NULL ) { delete port;  
-      throw BadCast( LOC("La conversion vers le type de port demandé n'est pas possible " ));
+      throw BadCast( LOC("Can't cast to asked port type " ));
     }
   }
   else
-    throw BadType(LOC(OSS()<< "Le port_type doit être soit 'provides' soit 'uses' not "
+    throw BadType(LOC(OSS()<< "port_type must be either 'provides' either 'uses' not "
 		      << port_type));
   
   return retPort;
@@ -363,17 +381,16 @@ Superv_Component_i::get_port( const char * port_name)
     
     }
   } catch (const Engines::DSC::PortNotDefined&) {
-    throw PortNotDefined( LOC(OSS()<< "Le port "
-			      << port_name <<" n'existe pas."));
+    throw PortNotDefined( LOC(OSS()<< "port "
+			      << port_name <<" does not exist."));
   } catch (const Engines::DSC::PortNotConnected&) {
-    throw PortNotConnected( LOC(OSS()<< "Le port " << port_name 
-				<< " n'est pas connecté."));
+    throw PortNotConnected( LOC(OSS()<< "port " << port_name 
+				<< " is not connected."));
   }
   
   retPort = dynamic_cast<SpecificPortType *>(port);
   if ( retPort == NULL ) {
-    delete port; 
-    throw BadCast( LOC("La conversion vers le type de port demandé n'est pas possible " ));
+    throw BadCast( LOC("Can't cast to required port type " ));
   }
 
   return retPort;

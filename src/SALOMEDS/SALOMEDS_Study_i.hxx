@@ -48,9 +48,10 @@
 class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
 private:
-  CORBA::ORB_ptr                 _orb;
+  CORBA::ORB_var                 _orb;
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
+  static std::map<SALOMEDSImpl_Study*, SALOMEDS_Study_i*> _mapOfStudies;
 
 public:
 
@@ -244,6 +245,7 @@ public:
   virtual void  StudyId(CORBA::Short id);
 
   static SALOMEDS::Study_ptr GetStudy(const DF_Label& theLabel, CORBA::ORB_ptr orb);
+  static SALOMEDS_Study_i* GetStudyServant(SALOMEDSImpl_Study*, CORBA::ORB_ptr orb);
 
   static void IORUpdated(SALOMEDSImpl_AttributeIOR* theAttribute);
 
@@ -302,17 +304,25 @@ public:
 
   virtual void SetBoolean(const char* theVarName, CORBA::Boolean theValue);
 
+  virtual void SetString(const char* theVarName, const char* theValue);
+
+  virtual void SetStringAsDouble(const char* theVarName, CORBA::Double theValue);
+
   virtual CORBA::Double GetReal(const char* theVarName);
   
   virtual CORBA::Long GetInteger(const char* theVarName);
 
   virtual CORBA::Boolean GetBoolean(const char* theVarName);
 
+  virtual char* GetString(const char* theVarName);
+
   virtual CORBA::Boolean IsReal(const char* theVarName);
   
   virtual CORBA::Boolean IsInteger(const char* theVarName);
 
   virtual CORBA::Boolean IsBoolean(const char* theVarName);
+
+  virtual CORBA::Boolean IsString(const char* theVarName);
 
   virtual CORBA::Boolean IsVariable(const char* theVarName);
 

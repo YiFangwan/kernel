@@ -1,3 +1,4 @@
+#  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -127,13 +128,13 @@ class client:
 
    # --------------------------------------------------------------------------
 
-   def waitNS(self,name,typobj=None,maxcount=60):
+   def waitNS(self,name,typobj=None,maxcount=240):
       count=0
       delta=0.5
       print "Searching %s in Naming Service " % name,
       while(1):
           count += 1
-          if count > maxcount : raise "Impossible de trouver %s" % name
+          if count > maxcount : raise RuntimeError, "Impossible de trouver %s" % name
           obj=self.Resolve(name)
           if obj : 
               print " found in %s seconds " % ((count-1)*delta)
@@ -160,7 +161,7 @@ class client:
          try:
            os.kill(thePID,0)
          except:
-           raise "Process %d for %s not found" % (thePID,theName)
+           raise RuntimeError, "Process %d for %s not found" % (thePID,theName)
          aCount += 1
          anObj = self.Resolve(theName)
          if anObj: 
@@ -208,7 +209,7 @@ class client:
       print "Searching %s in Naming Service " % name,
       while(1):
           count += 1
-          if count > maxcount : raise "Impossible de trouver %s" % name
+          if count > maxcount : raise RuntimeError, "Impossible de trouver %s" % name
           obj=self.ResolveLogger(name)
           if obj : 
               print " found in %s seconds " % ((count-1)*delta)

@@ -1,3 +1,4 @@
+#  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -479,7 +480,11 @@ import VISU
 import visu_gui
 
 medFileName = "pointe.med"
-medFile = os.getenv('DATA_DIR') + '/MedFiles/' + medFileName
+if sys.platform != "win32":
+    medFile = os.getenv('DATA_DIR') + '/MedFiles/' + medFileName
+else:
+    medFile = os.getenv('DATA_DIR') + '\\MedFiles\\' + medFileName
+    pass
 print "Load ", medFile
 
 studyCurrent = salome.myStudyName
@@ -494,7 +499,7 @@ try:
                if sys.platform != "win32":
                  tmpDir = "/tmp/"
                else:
-                 tmpDir = os.getenv('TEMP') + '/'
+                 tmpDir = os.getenv('TEMP') + '\\'
 	       medFileNew = tmpDir + str(random.randint(0,1000000)) + "_" + medFileName
 	       print " -- Copy " + medFile + " to " + medFileNew
 
@@ -505,7 +510,9 @@ try:
 	       os.system(copyCommand + " " + medFile + " " + medFileNew)
 
 	       medFile = medFileNew
-	       os.system("chmod 755 " + medFile)
+	       if sys.platform != "win32":
+	           os.system("chmod 755 " + medFile)
+		   pass
 
        if os.access(medFile, os.W_OK) :
            med_comp.readStructFileWithFieldType(medFile,studyCurrent)

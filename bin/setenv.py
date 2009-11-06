@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -142,10 +143,6 @@ def get_config(silent=False):
         modules_list.remove("GUI")
         pass
 
-    if "SUPERV" in modules_list and not 'supervContainer' in args['standalone']:
-        args['standalone'].append("supervContainer")
-        pass
-   
     return args, modules_list, modules_root_dir
 
 # -----------------------------------------------------------------------------
@@ -154,12 +151,15 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
     """Add to the PATH-variables modules specific paths"""
     
     import os
-    from salome_utils import getTmpDir, generateFileName, makeTmpDir
+    from salome_utils import getTmpDir, generateFileName, makeTmpDir, getPortNumber
 
     # create temporary directory for environment files needed by modules from the list
-    tmp_dir = getTmpDir()
-    env_dir = generateFileName(tmp_dir, prefix="env", with_port=True)
-    makeTmpDir(env_dir)
+    port = getPortNumber(False)
+    if port:
+	tmp_dir = getTmpDir()
+	env_dir = generateFileName(tmp_dir, prefix="env", with_port=True)
+	makeTmpDir(env_dir)
+	pass
 
     python_version="python%d.%d" % sys.version_info[0:2]
     modules_root_dir_list = []
@@ -198,13 +198,15 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
                                   salome_subdir,
                                   "shared_modules"),
                      "PYTHONPATH")
-
+		     
             # set environment by modules from the list
-            try:
-                mod=__import__(module.lower()+"_setenv")
-                mod.set_env(args)
-                pass
-            except:
+            if port:
+                try:
+                    mod=__import__(module.lower()+"_setenv")
+                    mod.set_env(args)
+                    pass
+                except:
+                    pass
                 pass
             pass
         pass
@@ -223,12 +225,7 @@ def set_env(args, modules_list, modules_root_dir, silent=False):
     if args['logger']:
         os.environ["SALOME_trace"]="with_logger"
 
-    # set environment for SUPERV module
-    os.environ["ENABLE_MACRO_NODE"]="1"
     # set resources variables if not yet set
-    # Done now by launchConfigureParser.py
-    #if os.getenv("GUI_ROOT_DIR"):
-        #if not os.getenv("SalomeAppConfig"): os.environ["SalomeAppConfig"] =  os.getenv("GUI_ROOT_DIR") + "/share/salome/resources/gui"
 
     os.environ["CSF_SALOMEDS_ResourcesDefaults"] \
     = os.path.join(modules_root_dir["KERNEL"],"share",

@@ -28,6 +28,7 @@
 
 #include "SALOMEDS.idl"
 #include "SALOME_Exception.idl"
+#include "SALOME_PyNode.idl"
 
 /*! \file SALOME_Component.idl \brief interfaces for Component and Container
 */
@@ -50,6 +51,12 @@ module Engines
   {
     string key;
     any value;
+  };
+
+  //!  Structure data type to hold reference on data 
+  struct dataref
+  {
+    string ref;
   };
 
   typedef sequence<KeyValuePair> FieldsDict;
@@ -186,6 +193,13 @@ module Engines
       \param localFile the local file to create by copy
      */
     void copyFile(in Container contai, in string remoteFile, in string localFile);
+
+    //! Create a PyNode in the container
+    /*!
+      \param nodeName the name of the PyNode
+      \param code python code as text to load in the node
+     */
+    PyNode createPyNode(in string nodeName, in string code)  raises(SALOME::SALOME_Exception);
   };
 
   /*! \brief Interface of the %component.
@@ -202,15 +216,6 @@ module Engines
 
     //!  Determines whether the server has already been loaded or not.
     void ping();
-
-//    
-//       Set study associated to component instance
-//       \param studyId
-//       (=0:  multistudy component instance,
-//        >0: study id associated to this instance
-//       \return false if already set with a different value (change not possible)
-//     
-//     boolean setStudyId(in long studyId);
 
     //!  Get study associated to component instance
     /*!

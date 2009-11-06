@@ -1,3 +1,4 @@
+#  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -183,12 +184,12 @@ def getAppName():
 
 # ---
 
-def getPortNumber():
+def getPortNumber(use_default=True):
     """
     Get current naming server port number:
     1. try NSPORT environment variable
     1. if fails, try to parse config file defined by OMNIORB_CONFIG environment variable
-    2. if fails, return 2809 as default port number
+    2. if fails, return 2809 as default port number (if use_default is True) or None (id use_default is False)
     """
     import os
     try:
@@ -197,7 +198,8 @@ def getPortNumber():
         pass
     port = getPortFromORBcfg()
     if port is not None: return port
-    return 2809      # '2809' is default port number
+    if use_default: return 2809 # '2809' is default port number
+    return None
 
 # ---
 
@@ -351,22 +353,40 @@ def generateFileName( dir, prefix = None, suffix = None, extension = None,
 
 # ---
 
-def makeTmpDir( path ):
+def makeTmpDir( path, mode=0777 ):
     """
     Make temporary directory with the specified path.
     If the directory exists then clear its contents.
 
     Parameters:
     - path : absolute path to the directory to be created.
+    - mode : access mode
     """
     import os
-
     if os.path.exists( path ):
-        os.system( "rm -rf " + path + "/*" )
+        import sys
+        if sys.platform == "win32":
+            os.system( "rmdir /S /Q " + '"' + path + '"' )
+            os.system( "mkdir " + '"' + path + '"' )
+        else:
+            os.system( "rm -rf " + path + "/*" )
+            pass
         pass
     else:
-        os.makedirs( path, 0777 )
-        pass
+	dirs = path.split("/")
+	shift1 = shift2 = 0
+	if not dirs[0]: shift1 = 1
+	if dirs[-1]: shift2 = 1
+	for i in range(1+shift1,len(dirs)+shift2):
+    	    p = "/".join(dirs[:i])
+	    try:
+		os.mkdir(p, mode)
+		os.chmod(p, mode)
+    	    except:
+		pass
+	    pass
+	pass
+    pass
 
 # ---
 
@@ -399,10 +419,20 @@ def uniteFiles( src_file, dest_file ):
         dest.writelines( dest_lines )
         dest.close()
 
-        command = "cat " + src_file + " >> " + dest_file
+        import sys
+        if sys.platform == "win32":
+            command = "type " + '"' + src_file + '"' + " >> " + '"' + dest_file + '"'
+        else:
+            command = "cat " + src_file + " >> " + dest_file
+            pass
         pass
     else:
-        command = "cp " + src_file + " " + dest_file
+        import sys
+        if sys.platform == "win32":
+            command = "copy " + '"' + src_file + '"' + " " + '"' + dest_file + '"' + " > nul"
+        else:
+            command = "cp " + src_file + " " + dest_file
+            pass
         pass
 
     os.system( command )

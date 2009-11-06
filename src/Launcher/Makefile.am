@@ -52,7 +52,7 @@ COMMON_CPPFLAGS=\
 	@PYTHON_INCLUDES@ \
 	@MPI_INCLUDES@ \
 	@LIBXML_INCLUDES@ \
-	-I$(srcdir)/../Batch \
+	@LIBBATCH_INCLUDES@ \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../NamingService \
@@ -61,9 +61,12 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../Notification \
 	-I$(srcdir)/../ResourcesManager \
 	-I$(srcdir)/../Container \
-	-I$(top_builddir)/salome_adm/unix \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
+
+if WITH_LIBBATCH
+  COMMON_CPPFLAGS += -DWITH_LIBBATCH
+endif
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS =\
@@ -75,8 +78,8 @@ COMMON_LIBS =\
 	../Utils/libOpUtil.la \
 	../SALOMELocalTrace/libSALOMELocalTrace.la \
 	../Basics/libSALOMEBasics.la \
-	../Batch/libSalomeBatch.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la \
+	@LIBBATCH_LIBS@ \
 	@MPI_LIBS@ \
 	@CORBA_LIBS@ \
 	@LIBXML_LIBS@ \
@@ -112,18 +115,22 @@ libLauncher_la_SOURCES=\
 	Launcher.cxx
 
 libLauncher_la_CPPFLAGS =\
-	-I$(srcdir)/../Batch \
 	-I$(srcdir)/../ResourcesManager \
+	@LIBBATCH_INCLUDES@ \
 	@MPI_INCLUDES@ \
 	@LIBXML_INCLUDES@
+
+if WITH_LIBBATCH
+  libLauncher_la_CPPFLAGS += -DWITH_LIBBATCH
+endif
 
 libLauncher_la_LDFLAGS  =\
 	-no-undefined -version-info=0:0:0 \
 	@LDEXPDYNFLAGS@
 
 libLauncher_la_LIBADD =\
-	../Batch/libSalomeBatch.la \
-	../ResourcesManager/libSalomeResourcesManager.la \
+	../ResourcesManager/libResourcesManager.la \
+	@LIBBATCH_LIBS@ \
 	@MPI_LIBS@ \
 	@LIBXML_LIBS@
 
@@ -145,6 +152,7 @@ SALOME_LauncherServer_CPPFLAGS=\
 SALOME_LauncherServer_LDADD =\
 	libSalomeLauncher.la \
 	../Basics/libSALOMEBasics.la \
+	$(LIBBATCH_LIBS) \
 	$(MPI_LIBS) \
 	$(CORBA_LIBS) \
 	$(LIBXML_LIBS) \

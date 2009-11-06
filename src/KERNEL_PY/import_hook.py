@@ -1,3 +1,4 @@
+#  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -149,14 +150,14 @@ def ensure_fromlist(m, fromlist, recursive=0):
             l.append((subname,submod))
     return l
 
-def import_hook(name, globals=None, locals=None, fromlist=None):
+def import_hook(name, globals=None, locals=None, fromlist=None, *args):
     """ Import replacement for sharing modules among multiple interpreters
         Mostly update sys.modules before doing real import
     """
     #print "import_hook",name,fromlist
     m=get_shared_imported(name,fromlist)
 
-    module= original_import(name, globals, locals, fromlist)
+    module= original_import(name, globals, locals, fromlist, *args)
 
     if fromlist:
        #when fromlist is specified, module is the real module

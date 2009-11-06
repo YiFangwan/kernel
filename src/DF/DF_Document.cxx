@@ -103,6 +103,7 @@ void DF_Document::Clear()
     delete vn[i];
 
   _root._node->Reset();
+  _root.Nullify();
 }
 
 //Returns true if this document is empty

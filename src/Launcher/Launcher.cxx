@@ -19,13 +19,15 @@
 //
 //  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
-#include "Launcher.hxx"
 
-#include "Batch_Date.hxx"
-#include "Batch_FactBatchManager_eLSF.hxx"
-#include "Batch_FactBatchManager_ePBS.hxx"
-#include "Batch_BatchManager_eClient.hxx"
-#include "Batch_FactBatchManager_eSGE.hxx"
+#ifdef WITH_LIBBATCH
+#include <Batch/Batch_Date.hxx>
+#include <Batch/Batch_FactBatchManager_eLSF.hxx>
+#include <Batch/Batch_FactBatchManager_ePBS.hxx>
+#include <Batch/Batch_BatchManager_eClient.hxx>
+#include <Batch/Batch_FactBatchManager_eSGE.hxx>
+#endif
+
 #include "SALOME_Launcher_Handler.hxx"
 #include "Launcher.hxx"
 #include <iostream>
@@ -62,12 +64,15 @@ Launcher_cpp::~Launcher_cpp()
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "Launcher_cpp destructor" << endl;
 #endif
+
+#ifdef WITH_LIBBATCH
   std::map < string, Batch::BatchManager_eClient * >::const_iterator it1;
   for(it1=_batchmap.begin();it1!=_batchmap.end();it1++)
     delete it1->second;
   std::map < std::pair<std::string,long> , Batch::Job* >::const_iterator it2;
   for(it2=_jobmap.begin();it2!=_jobmap.end();it2++)
     delete it2->second;
+#endif
 }
 
 //=============================================================================
@@ -80,6 +85,7 @@ Launcher_cpp::~Launcher_cpp()
 long Launcher_cpp::submitJob( const std::string xmlExecuteFile,
                   const std::string clusterName) throw(LauncherException)
 {
+#ifdef WITH_LIBBATCH
 #if defined(_DEBUG_) || defined(_DEBUG)
   cout << "BEGIN OF Launcher_cpp::submitJob" << endl;
 #endif
@@ -171,10 +177,14 @@ long Launcher_cpp::submitJob( const std::string xmlExecuteFile,
     _jobmap[ pair<string,long>(cname,jobId) ] = job;
   }
   catch(const Batch::EmulationException &ex){
-    throw LauncherException(ex.msg.c_str());
+    throw LauncherException(ex.message.c_str());
   }
 
   return jobId;
+#else
+  throw LauncherException("Method Launcher_cpp::submitJob is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
 }
 
 //=============================================================================
@@ -192,6 +202,7 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
 				    const batchParams& batch_params,
 				    const machineParams& params) throw(LauncherException)
 {
+#ifdef WITH_LIBBATCH
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "BEGIN OF Launcher_cpp::submitSalomeJob" << endl;
 #endif
@@ -241,18 +252,11 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     for(int i=0;i<filesToExport.size();i++)
       param[INFILE] += Batch::Couple( filesToExport[i], getRemoteFile(tmpdir,filesToExport[i]) );
 
-    ostringstream file_name_output;
-    file_name_output << "~/" << tmpdir << "/" << "output.log*";
-    ostringstream file_name_error;
-    file_name_error << "~/" << tmpdir << "/" << "error.log*";
-    ostringstream file_container_log;
-    file_container_log << "~/" << tmpdir << "/" << "YACS_Server*";
-    param[OUTFILE] = Batch::Couple( "", file_name_output.str());
-    param[OUTFILE] += Batch::Couple( "", file_name_error.str());
-    param[OUTFILE] += Batch::Couple( "", file_container_log.str());
-
+    param[OUTFILE] = Batch::Couple( "", "~/" + tmpdir + "/" + "output.log*" );
+    param[OUTFILE] += Batch::Couple( "", "~/" + tmpdir + "/" + "error.log*" );
+    param[OUTFILE] += Batch::Couple( "", "~/" + tmpdir + "/" + "YACS_Server*" );
     for(int i=0;i<filesToImport.size();i++)
-      param[OUTFILE] += Batch::Couple( "", filesToImport[i] );
+      param[OUTFILE] += Batch::Couple( "", "~/" + tmpdir + "/" + filesToImport[i] );
 
     param[NBPROC] = batch_params.nb_proc;
     param[WORKDIR] = batch_params.batch_directory;
@@ -276,10 +280,14 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     _jobmap[ pair<string,long>(clustername,jobId) ] = job;    
   }
   catch(const Batch::EmulationException &ex){
-    throw LauncherException(ex.msg.c_str());
+    throw LauncherException(ex.message.c_str());
   }
 
   return jobId;
+#else
+  throw LauncherException("Method Launcher_cpp::submitSalomeJob is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
 }
 
 //=============================================================================
@@ -292,6 +300,7 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
 string Launcher_cpp::queryJob( long id, 
 			       const machineParams& params) throw(LauncherException)
 {
+#ifdef WITH_LIBBATCH
   if(!_ResManager)
     throw LauncherException("You must set Resources Manager to Launcher!!");
 
@@ -315,14 +324,18 @@ string Launcher_cpp::queryJob( long id,
     par = jinfo.getParametre();
   }
   catch(const Batch::EmulationException &ex){
-    throw LauncherException(ex.msg.c_str());
+    throw LauncherException(ex.message.c_str());
   }
 
   return par[STATE];
+#else
+  throw LauncherException("Method Launcher_cpp::queryJob is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
 }
 
 string Launcher_cpp::queryJob( long id, 
-			       const std::string clusterName)
+			       const std::string clusterName) throw (LauncherException)
 {
   machineParams params;
   params.hostname = clusterName;
@@ -339,6 +352,7 @@ string Launcher_cpp::queryJob( long id,
 void Launcher_cpp::deleteJob( const long id, 
 			      const machineParams& params) throw(LauncherException)
 {
+#ifdef WITH_LIBBATCH
   if(!_ResManager)
     throw LauncherException("You must set Resources Manager to Launcher!!");
 
@@ -357,10 +371,14 @@ void Launcher_cpp::deleteJob( const long id,
   Batch::JobId jobId( _batchmap[clustername], oss.str() );
 
   jobId.deleteJob();
+#else
+  throw LauncherException("Method Launcher_cpp::deleteJob is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
 }
 
 void Launcher_cpp::deleteJob( long id, 
-			      const std::string clusterName)
+			      const std::string clusterName) throw (LauncherException)
 {
   machineParams params;
   params.hostname = clusterName;
@@ -378,6 +396,7 @@ void Launcher_cpp::getResultsJob( const string directory,
 				  const long id, 
 				  const machineParams& params) throw(LauncherException)
 {
+#ifdef WITH_LIBBATCH
   if(!_ResManager)
     throw LauncherException("You must set Resources Manager to Launcher!!");
 
@@ -393,11 +412,15 @@ void Launcher_cpp::getResultsJob( const string directory,
   Batch::Job* job = _jobmap[ pair<string,long>(clustername,id) ];
 
   _batchmap[clustername]->importOutputFiles( *job, directory );
+#else
+  throw LauncherException("Method Launcher_cpp::getResultsJob is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
 }
 
 void Launcher_cpp::getResultsJob( const std::string directory, 
 				  long id, 
-				  const std::string clusterName)
+				  const std::string clusterName) throw (LauncherException)
 {
   machineParams params;
   params.hostname = clusterName;
@@ -412,17 +435,18 @@ void Launcher_cpp::getResultsJob( const std::string directory,
 
 Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserResourcesType& params ) throw(LauncherException)
 {
-
-  std::string hostname, protocol, mpi;
+#ifdef WITH_LIBBATCH
+  std::string hostname, mpi;
+  Batch::CommunicationProtocolType protocol;
   Batch::FactBatchManager_eClient* fact;
 
   hostname = params.Alias;
   switch(params.Protocol){
   case rsh:
-    protocol = "rsh";
+    protocol = Batch::RSH;
     break;
   case ssh:
-    protocol = "ssh";
+    protocol = Batch::SSH;
     break;
   default:
     throw LauncherException("unknown protocol");
@@ -482,14 +506,20 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserReso
 #endif
     throw LauncherException("no batchmanager for that cluster");
   }
-  return (*fact)(hostname.c_str(),protocol.c_str(),mpi.c_str());
+  return (*fact)(hostname.c_str(), protocol, mpi.c_str());
+#else
+  throw LauncherException("Method Launcher_cpp::FactoryBatchManager is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
 }
 
 string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const string dirForTmpFiles, const ParserResourcesType& params)
 {
+#ifdef WITH_LIBBATCH
 #ifndef WIN32 //TODO: need for porting on Windows
   int idx = dirForTmpFiles.find("Batch/");
   std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
+  std::string dfilelogtemp = params.AppliPath + "/" + filelogtemp;
 
   string::size_type p1 = fileToExecute.find_last_of("/");
   string::size_type p2 = fileToExecute.find_last_of(".");
@@ -503,8 +533,8 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
 
   // Begin
   tempOutputFile << "#! /bin/sh -f" << endl ;
-  tempOutputFile << "cd " ;
-  tempOutputFile << params.AppliPath << endl ;
+  tempOutputFile << "cd ~/" ;
+  tempOutputFile << dirForTmpFiles << endl ;
   tempOutputFile << "export SALOME_BATCH=1\n";
   tempOutputFile << "export PYTHONPATH=~/" ;
   tempOutputFile << dirForTmpFiles ;
@@ -523,9 +553,9 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   // Code for rank 0 : launch runAppli and a container
   // RunAppli
   if(params.ModulesList.size()>0)
-    tempOutputFile << "  ./runAppli --terminal --modules=" ;
+    tempOutputFile << "  " << params.AppliPath << "/runAppli --terminal --modules=" ;
   else
-    tempOutputFile << "  ./runAppli --terminal ";
+    tempOutputFile << "  " << params.AppliPath << "/runAppli --terminal ";
   for ( int i = 0 ; i < params.ModulesList.size() ; i++ ) {
     tempOutputFile << params.ModulesList[i] ;
     if ( i != params.ModulesList.size()-1 )
@@ -538,7 +568,7 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   // Wait NamingService
   tempOutputFile << "  current=0\n"
 		 << "  stop=20\n" 
-		 << "  while ! test -f " << filelogtemp << "\n"
+		 << "  while ! test -f " << dfilelogtemp << "\n"
 		 << "  do\n"
 		 << "    sleep 2\n"
 		 << "    let current=current+1\n"
@@ -547,7 +577,7 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
 		 << "      exit\n"
 		 << "    fi\n"
 		 << "  done\n"
-		 << "  port=`cat " << filelogtemp << "`\n";
+		 << "  port=`cat " << dfilelogtemp << "`\n";
     
   // Wait other containers
   tempOutputFile << "  for ((ip=1; ip < ";
@@ -557,14 +587,14 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   tempOutputFile << "    arglist=\"$arglist YACS_Server_\"$ip" << endl ;
   tempOutputFile << "  done" << endl ;
   tempOutputFile << "  sleep 5" << endl ;
-  tempOutputFile << "  ./runSession waitContainers.py $arglist" << endl ;
+  tempOutputFile << "  " << params.AppliPath << "/runSession waitContainers.py $arglist" << endl ;
   
   // Launch user script
-  tempOutputFile << "  ./runSession python ~/" << dirForTmpFiles << "/" << fileNameToExecute << ".py" << endl;
+  tempOutputFile << "  " << params.AppliPath << "/runSession python ~/" << dirForTmpFiles << "/" << fileNameToExecute << ".py" << endl;
 
   // Stop application
-  tempOutputFile << "  rm " << filelogtemp << "\n"
-		 << "  ./runSession shutdownSalome.py" << endl;
+  tempOutputFile << "  rm " << dfilelogtemp << "\n"
+		 << "  " << params.AppliPath << "/runSession shutdownSalome.py" << endl;
 
   // -------------------------------------
   // Other nodes launch a container
@@ -573,7 +603,7 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   // Wait NamingService
   tempOutputFile << "  current=0\n"
 		 << "  stop=20\n" 
-		 << "  while ! test -f " << filelogtemp << "\n"
+		 << "  while ! test -f " << dfilelogtemp << "\n"
 		 << "  do\n"
 		 << "    sleep 2\n"
 		 << "    let current=current+1\n"
@@ -582,10 +612,10 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
 		 << "      exit\n"
 		 << "    fi\n"
 		 << "  done\n"
-		 << "  port=`cat " << filelogtemp << "`\n";
+		 << "  port=`cat " << dfilelogtemp << "`\n";
 
   // Launching container
-  tempOutputFile << "  ./runSession SALOME_Container YACS_Server_";
+  tempOutputFile << "  " << params.AppliPath << "/runSession SALOME_Container YACS_Server_";
   tempOutputFile << mpiImpl->rank()
 		 << " > ~/" << dirForTmpFiles << "/YACS_Server_" 
 		 << mpiImpl->rank() << "_container_log." << filelogtemp
@@ -605,10 +635,15 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
   return "";
 #endif
     
+#else
+  throw LauncherException("Method Launcher_cpp::buildSalomeCouplingScript is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
 }
 
 MpiImpl *Launcher_cpp::FactoryMpiImpl(MpiImplType mpi) throw(LauncherException)
 {
+#ifdef WITH_LIBBATCH
   switch(mpi){
   case lam:
     return new MpiImpl_LAM();
@@ -629,11 +664,15 @@ MpiImpl *Launcher_cpp::FactoryMpiImpl(MpiImplType mpi) throw(LauncherException)
     oss << mpi << " : not yet implemented";
     throw LauncherException(oss.str().c_str());
   }
-
+#else
+  throw LauncherException("Method Launcher_cpp::FactoryMpiImpl is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
 }
 
 string Launcher_cpp::getTmpDirForBatchFiles()
 {
+#ifdef WITH_LIBBATCH
   string ret;
   string thedate;
 
@@ -652,6 +691,10 @@ string Launcher_cpp::getTmpDirForBatchFiles()
   ret = string("Batch/");
   ret += thedate;
   return ret;
+#else
+  throw LauncherException("Method Launcher_cpp::getTmpDirForBatchFiles is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
 }
 
 string Launcher_cpp::getRemoteFile( std::string remoteDir, std::string localFile )

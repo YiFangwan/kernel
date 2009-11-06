@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+#  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -34,11 +35,13 @@
 import os
 import sys
 import string
+import traceback
 from omniORB import CORBA, PortableServer
 import SALOMEDS 
 import Engines, Engines__POA
 from SALOME_NamingServicePy import *
 from SALOME_ComponentPy import *
+import SALOME_PyNode
 
 from SALOME_utilities import *
 from Utils_Identity import getShortHostName
@@ -46,7 +49,7 @@ from launchConfigureParser import verbose
 
 #=============================================================================
 
-#define an implementation of the container interface
+#define an implementation of the container interface for embedding in Container implemented in C++
 
 class SALOME_Container_i:
     _orb = None
@@ -67,20 +70,17 @@ class SALOME_Container_i:
 
     #-------------------------------------------------------------------------
 
-    #def __del__(self ):
-    #  self._orb.destroy()
-
     def import_component(self, componentName):
         MESSAGE( "SALOME_Container_i::import_component" )
-        ret=0
+        ret=""
         try:
             if verbose(): print "try import ",componentName
             __import__(componentName)
             if verbose(): print "import ",componentName," successful"
-            ret=1
         except:
+            import traceback
+            ret=traceback.format_exc(10)
             if verbose():
-              import traceback
               traceback.print_exc()
               print "import ",componentName," not possible"
         return ret
@@ -110,3 +110,14 @@ class SALOME_Container_i:
         return comp_iors 
         
 
+    def create_pynode(self,nodeName,code):
+        try:
+          node=SALOME_PyNode.PyNode_i(nodeName,code,self._poa)
+          id_o = self._poa.activate_object(node)
+          comp_o = self._poa.id_to_reference(id_o)
+          comp_iors = self._orb.object_to_string(comp_o)
+          return 0,comp_iors
+        except:
+          exc_typ,exc_val,exc_fr=sys.exc_info()
+          l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+          return 1,"".join(l)

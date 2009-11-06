@@ -1,3 +1,4 @@
+#  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -56,6 +57,8 @@ batch_nam      = "batch"
 test_nam       = "test"
 play_nam       = "play"
 gdb_session_nam = "gdb_session"
+ddd_session_nam = "ddd_session"
+shutdown_servers_nam = "shutdown_servers"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -69,11 +72,11 @@ script_nam     = "pyscript"
 
 # possible choices for the "embedded" and "standalone" parameters
 embedded_choices   = [ "registry", "study", "moduleCatalog", "cppContainer", "SalomeAppEngine" ]
-standalone_choices = [ "registry", "study", "moduleCatalog", "cppContainer", "pyContainer", "supervContainer"]
+standalone_choices = [ "registry", "study", "moduleCatalog", "cppContainer", "pyContainer"]
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
-boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam, pinter_nam )
+boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam, pinter_nam, shutdown_servers_nam )
 intKeys = ( interp_nam, )
 
 # values of list type
@@ -451,7 +454,9 @@ def CreateOptionParser (theAdditionalOptions=[]):
     help_str  = "Python script(s) to be imported. Python scripts are imported "
     help_str += "in the order of their appearance. In GUI mode python scripts "
     help_str += "are imported in the embedded python interpreter of current study, "
-    help_str += "otherwise in an external python interpreter"
+    help_str += "otherwise in an external python interpreter. "
+    help_str += "Note: this option is obsolete. Instead you can pass Python script(s) "
+    help_str += "directly as positional parameter."
     o_u = optparse.Option("-u",
                           "--execute",
                           metavar="<script1,script2,...>",
@@ -625,6 +630,26 @@ def CreateOptionParser (theAdditionalOptions=[]):
                             dest="gdb_session", default=False,
                             help=help_str)
     
+    # ddd session
+    help_str = "Launch session with ddd"
+    o_ddd = optparse.Option("--ddd-session",
+                            action="store_true",
+                            dest="ddd_session", default=False,
+                            help=help_str)
+    
+    # shutdown-servers. Default: False.
+    help_str  = "1 to shutdown standalone servers when leaving python interpreter, "
+    help_str += "0 to keep the standalone servers as daemon [default]. "
+    help_str += "This option is only useful in batchmode "
+    help_str += "(terminal mode or without showing desktop)."
+    o_shutdown = optparse.Option("--shutdown-servers",
+                                 metavar="<1/0>",
+                                 #type="choice", choices=boolean_choices,
+                                 type="string",
+                                 action="callback", callback=store_boolean, callback_args=('shutdown_servers',),
+                                 dest="shutdown_servers",
+                                 help=help_str)
+    
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -647,7 +672,10 @@ def CreateOptionParser (theAdditionalOptions=[]):
                 o_nspl,
                 o_test,  # Write/read test script file with help of TestRecorder
                 o_play,  # Reproducing test script with help of TestRecorder
-                o_gdb]
+                o_gdb,
+                o_ddd,
+                o_shutdown,
+                ]
 
     #std_options = ["gui", "desktop", "log_file", "py_scripts", "resources",
     #               "xterm", "modules", "embedded", "standalone",
@@ -656,7 +684,7 @@ def CreateOptionParser (theAdditionalOptions=[]):
 
     opt_list += theAdditionalOptions
 
-    a_usage = "%prog [options] [STUDY_FILE]"
+    a_usage = "%prog [options] [STUDY_FILE] [PYTHON_FILE [PYTHON_FILE ...]]"
     version_str = "Salome %s" % version()
     pars = optparse.OptionParser(usage=a_usage, version=version_str, option_list=opt_list)
 
@@ -851,8 +879,6 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         if args["session_gui"]:
             if cmd_opts.splash is not None:
                 args[splash_nam] = cmd_opts.splash
-        if len(cmd_args) > 0:
-            args["study_hdf"] = cmd_args[0]
     else:
         args["session_gui"] = False
         args[splash_nam] = False
@@ -874,6 +900,13 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
         listlist = cmd_opts.py_scripts
         for listi in listlist:
             args[script_nam] += re.split( "[:;,]", listi)
+    for arg in cmd_args:
+        if arg[-3:] == ".py":
+            args[script_nam].append(arg)
+        elif not args["study_hdf"]:
+            args["study_hdf"] = arg
+            pass
+        pass
 
     # xterm
     if cmd_opts.xterm is not None: args[xterm_nam] = cmd_opts.xterm
@@ -931,6 +964,17 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     if cmd_opts.gdb_session is not None:
         args[gdb_session_nam] = cmd_opts.gdb_session
 
+    # Ddd session in xterm
+    if cmd_opts.ddd_session is not None:
+        args[ddd_session_nam] = cmd_opts.ddd_session
+
+    # Shutdown servers
+    if cmd_opts.shutdown_servers is None:
+        args[shutdown_servers_nam] = 0
+    else:
+        args[shutdown_servers_nam] = cmd_opts.shutdown_servers
+        pass
+        
     ####################################################
     # Add <theAdditionalOptions> values to args
     for add_opt in theAdditionalOptions:

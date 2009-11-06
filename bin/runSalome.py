@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -30,7 +31,7 @@ import orbmodule
 import setenv
 from server import *
 from launchConfigureParser import verbose
-#process_id = {} move to server.py
+from server import process_id
 
 # -----------------------------------------------------------------------------
 
@@ -80,7 +81,7 @@ def kill_salome(args):
 
 # -----------------------------------------------------------------------------
 #
-# Definition des classes d'objets pour le lancement des Server CORBA
+# Class definitions to launch CORBA Servers
 #
 
 class InterpServer(Server):
@@ -88,7 +89,6 @@ class InterpServer(Server):
         self.args=args
         env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
         self.CMD=['xterm', '-e']+ env_ld_library_path + ['python']
-        #self.CMD=['xterm', '-e', 'python']
        
     def run(self):
         global process_id
@@ -195,17 +195,6 @@ class ContainerPYServer(Server):
 
 # ---
 
-class ContainerSUPERVServer(Server):
-    def __init__(self,args):
-        self.args=args
-        self.initArgs()
-   #  if sys.platform == "win32":
-#          self.CMD=[os.environ["KERNEL_ROOT_DIR"] + "/win32/" + os.environ["BIN_ENV"] + "/" + 'SALOME_Container' + ".exe",'SuperVisionContainer']
-# else:
-        self.CMD=['SALOME_Container','SuperVisionContainer']
-
-# ---
-
 class LoggerServer(Server):
     def __init__(self,args):
         self.args=args
@@ -258,8 +247,6 @@ class SessionServer(Server):
             self.SCMD2+=['CPP']
         if 'pyContainer' in self.args['standalone'] or 'pyContainer' in self.args['embedded']:
             self.SCMD2+=['PY']
-        if 'supervContainer' in self.args['standalone']:
-            self.SCMD2+=['SUPERV']
         if self.args['gui']:
             session_gui = True
             if self.args.has_key('session_gui'):
@@ -320,7 +307,7 @@ class SessionServer(Server):
         elif self.args.has_key('play'):
             self.CMD+=['-play'] + self.args['play']
 
-        if self.args["gdb_session"]:
+        if self.args["gdb_session"] or self.args["ddd_session"]:
             f = open(".gdbinit4salome", "w")
             f.write("set args ")
             args = " ".join(self.CMD[1:])
@@ -329,7 +316,11 @@ class SessionServer(Server):
             f.write(args)
             f.write("\n")
             f.close()
-            self.CMD = ["xterm", "-e", "gdb", "--command=.gdbinit4salome", self.CMD[0]]
+            if self.args["ddd_session"]:
+                self.CMD = ["ddd", "--command=.gdbinit4salome", self.CMD[0]]
+            elif self.args["gdb_session"]:
+                self.CMD = ["xterm", "-e", "gdb", "--command=.gdbinit4salome", self.CMD[0]]
+                pass
             pass
         
 # ---
@@ -407,9 +398,6 @@ def startGUI():
     import SALOME
     import SALOMEDS
     import SALOME_ModuleCatalog
-    reload(Engines)
-    reload(SALOME)
-    reload(SALOMEDS)
     import SALOME_Session_idl
     session=clt.waitNS("/Kernel/Session",SALOME.Session)
     session.GetInterface()
@@ -423,7 +411,7 @@ def startSalome(args, modules_list, modules_root_dir):
     if verbose(): print "startSalome ", args
     
     #
-    # Initialisation ORB et Naming Service
+    # Initialisation ORB and Naming Service
     #
    
     clt=orbmodule.client(args)
@@ -440,8 +428,8 @@ def startSalome(args, modules_list, modules_root_dir):
       f.write(os.environ['NSPORT'])
       f.close()
 
-    # (non obligatoire) Lancement Logger Server
-    # et attente de sa disponibilite dans le naming service
+    # Launch Logger Server (optional)
+    # and wait until it is registered in naming service
     #
 
     if args['logger']:
@@ -458,7 +446,7 @@ def startSalome(args, modules_list, modules_root_dir):
       myServer=NotifyServer(args,modules_root_dir)
       myServer.run()
 
-    # Lancement Session Server (to show splash ASAP)
+    # Launch  Session Server (to show splash ASAP)
     #
 
     if args["gui"]:
@@ -467,8 +455,8 @@ def startSalome(args, modules_list, modules_root_dir):
         mySessionServ.run()
 
     #
-    # Lancement Registry Server,
-    # attente de la disponibilite du Registry dans le Naming Service
+    # Launch Registry Server,
+    # and wait until it is registered in naming service
     #
 
     if ('registry' not in args['embedded']) | (args["gui"] == 0) :
@@ -480,10 +468,9 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNSPID("/Registry",myServer.PID)
 
     #
-    # Lancement Catalog Server,
-    # attente de la disponibilite du Catalog Server dans le Naming Service
+    # Launch Catalog Server,
+    # and wait until it is registered in naming service
     #
-    
 
     if ('moduleCatalog' not in args['embedded']) | (args["gui"] == 0):
         cataServer=CatalogServer(args)
@@ -496,8 +483,8 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNSPID("/Kernel/ModulCatalog",cataServer.PID,SALOME_ModuleCatalog.ModuleCatalog)
 
     #
-    # Lancement SalomeDS Server,
-    # attente de la disponibilite du SalomeDS dans le Naming Service
+    # Launch SalomeDS Server,
+    # and wait until it is registered in naming service
     #
 
     #print "ARGS = ",args
@@ -511,7 +498,7 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNSPID("/myStudyManager",myServer.PID)
 
     #
-    # Lancement LauncherServer
+    # Launch LauncherServer
     #
     
     myCmServer = LauncherServer(args)
@@ -537,8 +524,8 @@ def startSalome(args, modules_list, modules_root_dir):
     theComputer = getShortHostName()
     
     #
-    # Lancement Container C++ local,
-    # attente de la disponibilite du Container C++ local dans le Naming Service
+    # Launch local C++ Container (FactoryServer),
+    # and wait until it is registered in naming service
     #
 
     if ('cppContainer' in args['standalone']) | (args["gui"] == 0) : 
@@ -550,9 +537,8 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNSPID("/Containers/" + theComputer + "/FactoryServer",myServer.PID)
 
     #
-    # Lancement Container Python local,
-    # attente de la disponibilite du Container Python local
-    # dans le Naming Service
+    # Launch local Python Container (FactoryServerPy),
+    # and wait until it is registered in naming service
     #
 
     if 'pyContainer' in args['standalone']:
@@ -564,21 +550,7 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNSPID("/Containers/" + theComputer + "/FactoryServerPy",myServer.PID)
 
     #
-    # Lancement Container Supervision local,
-    # attente de la disponibilite du Container Supervision local
-    # dans le Naming Service
-    #
-
-    if 'supervContainer' in args['standalone']:
-        myServer=ContainerSUPERVServer(args)
-        myServer.run()
-        if sys.platform == "win32":
-          clt.waitNS("/Containers/" + theComputer + "/SuperVisionContainer")
-        else:
-          clt.waitNSPID("/Containers/" + theComputer + "/SuperVisionContainer",myServer.PID)
-  
-    #
-    # Attente de la disponibilite du Session Server dans le Naming Service
+    # Wait until Session Server is registered in naming service
     #
     
     if args["gui"]:
@@ -587,9 +559,6 @@ def startSalome(args, modules_list, modules_root_dir):
         import SALOME
         import SALOMEDS
         import SALOME_ModuleCatalog
-        reload(Engines)
-        reload(SALOME)
-        reload(SALOMEDS)
         import SALOME_Session_idl
         if sys.platform == "win32":
           session=clt.waitNS("/Kernel/Session",SALOME.Session)
@@ -626,7 +595,7 @@ def startSalome(args, modules_list, modules_root_dir):
             anInterp=InterpServer(args)
             anInterp.run()
 
-    # set PYTHONINSPECT variable
+    # set PYTHONINSPECT variable (python interpreter in interactive mode)
     if args['pinter']:
         os.environ["PYTHONINSPECT"]="1"
         import readline
@@ -678,7 +647,7 @@ def useSalome(args, modules_list, modules_root_dir):
     """%filedict
     
     #
-    #  Impression arborescence Naming Service
+    #  Print Naming Service directory list
     #
     
     if clt != None:
@@ -686,6 +655,22 @@ def useSalome(args, modules_list, modules_root_dir):
             print
             print " --- registered objects tree in Naming Service ---"
             clt.showNS()
+            pass
+        
+        if not args['gui'] or not args['session_gui']:
+            if args['shutdown_servers']:
+                class __utils__(object):
+                    def __init__(self, port):
+                        self.port = port
+                        import killSalomeWithPort
+                        self.killSalomeWithPort = killSalomeWithPort
+                        return
+                    def __del__(self):
+                        self.killSalomeWithPort.killMyPort(self.port)
+                        return
+                    pass
+                args['shutdown_servers'] = __utils__(args['port'])
+                pass
             pass
         
         # run python scripts, passed via --execute option
@@ -699,13 +684,14 @@ def useSalome(args, modules_list, modules_root_dir):
             if toimport[ i ] == 'killall':
                 clt.showNS()
                 killAllPorts()
-                import sys
                 sys.exit(0)
             else:
                 scrname = toimport[ i ]
                 if len(scrname) > 2 and (len(scrname) - string.rfind(scrname, ".py") == 3):
                     print 'executing',scrname
+                    sys.path.insert( 0, os.path.dirname(scrname))
                     execfile(scrname,globals())
+                    del sys.path[0]
                 else:
                     print 'importing',scrname
                     doimport = 'import ' + scrname
@@ -752,7 +738,7 @@ def searchFreePort(args, save_config=1):
     os.remove( tmp_file );
     #
     def portIsUsed(port, data):
-        regObj = re.compile( "tcp.*:([0-9]+).*:.*listen", re.IGNORECASE );
+        regObj = re.compile( ".*tcp.*:([0-9]+).*:.*listen", re.IGNORECASE );
         for item in data:
             try:
                 p = int(regObj.match(item).group(1))
@@ -834,7 +820,7 @@ def searchFreePort(args, save_config=1):
             msg  = "\n"
             msg += "Can't find a free port to launch omniNames\n"
             msg += "Try to kill the running servers and then launch SALOME again.\n"
-            raise msg
+            raise RuntimeError, msg
         NSPORT=NSPORT+1
         pass
     return
@@ -856,7 +842,6 @@ def no_main():
 
 def main():
     """Salome launch as a main application"""
-    import sys
     from salome_utils import getHostName
     print "runSalome running on %s" % getHostName()
     args, modules_list, modules_root_dir = setenv.get_config()

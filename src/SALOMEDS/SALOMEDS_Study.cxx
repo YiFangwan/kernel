@@ -104,7 +104,7 @@ std::string SALOMEDS_Study::GetPersistentReference()
     SALOMEDS::Locker lock;
     aRef = _local_impl->GetPersistentReference();
   }
-  else aRef = _corba_impl->GetPersistentReference();
+  else aRef = (CORBA::String_var)_corba_impl->GetPersistentReference();
   return aRef;
 }
 
@@ -567,7 +567,7 @@ _PTR(AttributeStudyProperties) SALOMEDS_Study::GetProperties()
     SALOMEDS::Locker lock;
     aProp = new SALOMEDS_AttributeStudyProperties(_local_impl->GetProperties());
   }
-  else aProp = new SALOMEDS_AttributeStudyProperties(_corba_impl->GetProperties());
+  else aProp = new SALOMEDS_AttributeStudyProperties((SALOMEDS::AttributeStudyProperties_var)_corba_impl->GetProperties());
   return _PTR(AttributeStudyProperties)(aProp);
 }
  
@@ -717,6 +717,30 @@ void SALOMEDS_Study::SetBoolean(const string& theVarName, const bool theValue)
     _corba_impl->SetBoolean((char*)theVarName.c_str(),theValue);
 }
 
+void SALOMEDS_Study::SetString(const string& theVarName, const string& theValue)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->SetStringVariable(theVarName,
+				   theValue,
+				   SALOMEDSImpl_GenericVariable::STRING_VAR);
+  }
+  else 
+    _corba_impl->SetString((char*)theVarName.c_str(),(char*)theValue.c_str());
+}
+
+void SALOMEDS_Study::SetStringAsDouble(const string& theVarName, const double theValue)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->SetStringVariableAsDouble(theVarName,
+					   theValue,
+					   SALOMEDSImpl_GenericVariable::STRING_VAR);
+  }
+  else 
+    _corba_impl->SetStringAsDouble((char*)theVarName.c_str(),theValue);
+}
+
 double SALOMEDS_Study::GetReal(const string& theVarName)
 {
   double aResult;
@@ -750,6 +774,18 @@ bool SALOMEDS_Study::GetBoolean(const string& theVarName)
   }
   else 
     aResult = _corba_impl->GetBoolean((char*)theVarName.c_str());
+  return aResult;
+}
+
+std::string SALOMEDS_Study::GetString(const string& theVarName)
+{
+  std::string aResult;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = _local_impl->GetStringVariableValue(theVarName);
+  }
+  else 
+    aResult = _corba_impl->GetString((char*)theVarName.c_str());
   return aResult;
 }
 
@@ -789,6 +825,19 @@ bool SALOMEDS_Study::IsBoolean(const string& theVarName)
   }
   else
     aResult = _corba_impl->IsBoolean((char*)theVarName.c_str());
+  return aResult;
+}
+
+bool SALOMEDS_Study::IsString(const string& theVarName)
+{
+  bool aResult;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    aResult = _local_impl->IsTypeOf(theVarName, 
+				    SALOMEDSImpl_GenericVariable::STRING_VAR);
+  }
+  else
+    aResult = _corba_impl->IsString((char*)theVarName.c_str());
   return aResult;
 }
 

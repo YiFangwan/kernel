@@ -23,10 +23,9 @@
 #include "CalciumInterface.hxx"
 #include "calcium.h"
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <exception>
-
-//#define _DEBUG_
 
 PySupervCompo::PySupervCompo( CORBA::ORB_ptr orb,
                               PortableServer::POA_ptr poa,
@@ -45,6 +44,9 @@ PySupervCompo::~PySupervCompo()
 
 extern "C" 
 {
+  void cp_exit(int);
+  void setDependency(provides_port*, char*, CalciumTypes::DependencyType);
+
   void cp_exit(int err)
     {
       throw CalciumException(err,LOC("Abort coupling"));
@@ -84,9 +86,11 @@ extern "C"
 
   void create_calcium_port(Superv_Component_i* compo,char* name,char* type,char *mode,char* depend)
   {
-#ifdef _DEBUG_
-    std::cerr << "create_calcium_port: " << name << " " << type << " " << mode << " " << depend << std::endl;
-#endif
+    std::stringstream msg;
+    msg << type << " " << mode << " " << depend;
+    CORBA::String_var componentName=compo->instanceName();
+    std::string containerName=compo->getContainerName();
+    Engines_DSC_interface::writeEvent("create_calcium_port",containerName,componentName,name,"",msg.str().c_str());
 
     if(std::string(mode) == "IN")
       {

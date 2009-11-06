@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+#! /usr/bin/env python
+#  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -41,5 +42,12 @@ sys.argv = argv[1:]
 #args, modules_list, modules_root_dir = setenv.get_config()
 #runSalome.set_env(args, modules_list, modules_root_dir)
 setenv.main(True);
+
+if sys.platform == "win32":
+    if len(argv) >= 2:
+        # Fix a problem of spaces in argv[1]
+        argv[1] = '"%s"'%(argv[1])
+        pass
+    pass
 
 os.execvp(argv[0],argv)

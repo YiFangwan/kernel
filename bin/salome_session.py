@@ -1,3 +1,4 @@
+#  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 #  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
@@ -96,7 +97,7 @@ def searchFreePort():
             msg  = ""
             msg += "Can not find a free port to launch omniNames\n"
             msg += "Kill the running servers and try again.\n"
-            raise msg
+            raise RuntimeError, msg
         NSPORT = NSPORT+1
         pass
     os.environ['NSHOST'] = hostname

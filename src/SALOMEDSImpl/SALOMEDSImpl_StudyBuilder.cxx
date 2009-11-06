@@ -36,6 +36,7 @@
 
 #include <HDFOI.hxx>
 #include <stdlib.h> 
+#include <string.h> 
 
 using namespace std;
 
@@ -204,6 +205,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObject(const SALOMEDSImpl_SObject& anObjec
 
   SALOMEDSImpl_AttributeIOR* anAttr = NULL; //Remove from IORLabel map
   if ((anAttr=(SALOMEDSImpl_AttributeIOR*)Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+    _study->DeleteIORLabelMapItem(anAttr->Value());
   }
 
   Lab.ForgetAllAttributes();
@@ -239,6 +241,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const SALOMEDSImpl_SObj
   }
   SALOMEDSImpl_AttributeIOR* anAttr = NULL; //Remove from IORLabel map
   if ((anAttr=(SALOMEDSImpl_AttributeIOR*)Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+    _study->DeleteIORLabelMapItem(anAttr->Value());
   }
 
   DF_ChildIterator it(Lab, true);
@@ -251,6 +254,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const SALOMEDSImpl_SObj
     }
     SALOMEDSImpl_AttributeIOR* anAttr = NULL; //Remove from IORLabel map
     if ((anAttr=(SALOMEDSImpl_AttributeIOR*)aLabel.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+      _study->DeleteIORLabelMapItem(anAttr->Value());
     }
   }
 
@@ -532,6 +536,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveAttribute(const SALOMEDSImpl_SObject& anOb
   if (aTypeOfAttribute == string("AttributeIOR")) { // Remove from IORLabel map
     SALOMEDSImpl_AttributeIOR* anAttr = NULL;
     if ((anAttr=(SALOMEDSImpl_AttributeIOR*)Lab.FindAttribute(SALOMEDSImpl_AttributeIOR::GetID()))) {
+      _study->DeleteIORLabelMapItem(anAttr->Value());
     }
   }
 
