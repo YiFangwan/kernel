@@ -22,18 +22,12 @@
 #ifndef __LAUNCHER_HXX__
 #define __LAUNCHER_HXX__
 
-#ifdef WIN32
-# if defined LAUNCHER_EXPORTS || defined Launcher_EXPORTS
-#  define LAUNCHER_EXPORT __declspec(dllexport)
-# else
-#  define LAUNCHER_EXPORT __declspec(dllimport)
-# endif
-#else
-# define LAUNCHER_EXPORT
-#endif
+#include "Launcher_Utils.hxx"
+#include "Launcher_Job.hxx"
 
-#include <SALOME_ResourcesCatalog_Parser.hxx>
 #include "ResourcesManager.hxx"
+#include <SALOME_ResourcesCatalog_Parser.hxx>
+
 #include "SALOME_Launcher_Parser.hxx"
 
 #include <string>
@@ -51,14 +45,6 @@ struct batchParams{
   std::string expected_during_time;
   std::string mem;
   unsigned long nb_proc;
-};
-
-class LAUNCHER_EXPORT LauncherException
-{
-public:
-  const std::string msg;
-
-  LauncherException(const std::string m) : msg(m) {}
 };
 
 class LAUNCHER_EXPORT Launcher_cpp
@@ -86,17 +72,26 @@ public:
 
   void SetResourcesManager( ResourcesManager_cpp* rm ) { _ResManager = rm; }
 
+  // New interface
+  void createJob(Launcher::Job * new_job);
+  void launchJob(int job_id);
+  const char * getJobState(int job_id);
+  void getJobResults(int job_id, std::string directory);
+  void removeJob(int job_id);
+
 protected:
 
   std::string buildSalomeCouplingScript(const std::string fileToExecute, const std::string dirForTmpFiles, const ParserResourcesType& params);
   MpiImpl *FactoryMpiImpl(MpiImplType mpiImpl) throw(LauncherException);
-  Batch::BatchManager_eClient *FactoryBatchManager( const ParserResourcesType& params ) throw(LauncherException);
+  Batch::BatchManager_eClient *FactoryBatchManager(ParserResourcesType& params ) throw(LauncherException);
   std::string getTmpDirForBatchFiles();
   std::string getRemoteFile( std::string remoteDir, std::string localFile );
   std::string getHomeDir(const ParserResourcesType& p, const std::string & tmpdir);  
 
   std::map <std::string,Batch::BatchManager_eClient*> _batchmap;
   std::map < std::pair<std::string,long> , Batch::Job* > _jobmap;
+
+  std::map <int, Launcher::Job *> _launcher_job_map;
   ResourcesManager_cpp *_ResManager;
   bool check(const batchParams& batch_params);
   long getWallTime(std::string edt);

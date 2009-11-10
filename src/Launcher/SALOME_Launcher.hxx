@@ -59,6 +59,12 @@ public:
   void deleteJob( CORBA::Long jobId, const Engines::MachineParameters& params);
   void getResultsJob( const char * directory, CORBA::Long jobId, const Engines::MachineParameters& params );
 
+  CORBA::Long createJob(const Engines::JobParameters & job_parameters);
+  void launchJob(CORBA::Long job_id);
+  char * getJobState(CORBA::Long job_id);
+  void getJobResults(CORBA::Long job_id, const char * directory);
+  void removeJob(CORBA::Long job_id);
+
   CORBA::Boolean testBatch(const Engines::MachineParameters& params);
 
   void Shutdown();
@@ -73,6 +79,8 @@ protected:
   SALOME_ContainerManager *_ContManager;
   SALOME_ResourcesManager *_ResManager;
   SALOME_NamingService *_NS;
+
+  int _job_cpt;
 
   Launcher_cpp _l;
 };

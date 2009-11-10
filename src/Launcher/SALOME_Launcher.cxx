@@ -25,6 +25,10 @@
 #include "SALOME_ContainerManager.hxx"
 #include "Utils_CorbaException.hxx"
 
+
+#include "Launcher_Job_Command.hxx"
+#include "Launcher_Job_YACSFile.hxx"
+
 #ifdef WIN32
 # include <process.h>
 #else
@@ -63,6 +67,8 @@ SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa
   Engines::SalomeLauncher_var refContMan = Engines::SalomeLauncher::_narrow(obj);
 
   _NS->Register(refContMan,_LauncherNameInNS);
+
+  _job_cpt = 0;
   MESSAGE("SALOME_Launcher constructor end");
 }
 
@@ -184,6 +190,162 @@ CORBA::Long SALOME_Launcher::submitSalomeJob( const char * fileToExecute ,
   return jobId;
 }
 
+CORBA::Long 
+SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
+{
+  std::string job_type = job_parameters.job_type.in();
+  
+  if (job_type != "command" and job_type != "yacs_file")
+  {
+    std::string message("SALOME_Launcher::createJob: bad job type: ");
+    message += job_type;
+    THROW_SALOME_CORBA_EXCEPTION(message.c_str(), SALOME::INTERNAL_ERROR);
+  }
+
+  Launcher::Job * new_job; // It is Launcher_cpp that is going to destroy it
+
+  if (job_type == "command")
+  {
+    std::string command = job_parameters.command.in();
+    if (command == "")
+    {
+      std::string message("SALOME_Launcher::createJob: command is empty !");
+      THROW_SALOME_CORBA_EXCEPTION(message.c_str(), SALOME::INTERNAL_ERROR);
+    }
+    Launcher::Job_Command * job = new Launcher::Job_Command(command);
+    new_job = job;
+
+    std::string env_file = job_parameters.env_file.in();
+    job->setEnvFile(env_file);
+  }
+  else if (job_type == "yacs_file")
+  {
+    std::string yacs_file = job_parameters.yacs_file.in();
+    if (yacs_file == "")
+    {
+      std::string message("SALOME_Launcher::createJob: yacs_file is empty !");
+      THROW_SALOME_CORBA_EXCEPTION(message.c_str(), SALOME::INTERNAL_ERROR);
+    }
+    new_job = new Launcher::Job_YACSFile(yacs_file);
+  }
+
+  // Not thread safe... TODO !
+  new_job->setNumber(_job_cpt);
+  _job_cpt++;
+  // End Not thread safe
+ 
+  // Directories
+  std::string work_directory = job_parameters.work_directory.in();
+  std::string local_directory = job_parameters.local_directory.in();
+  std::string result_directory = job_parameters.result_directory.in();
+  new_job->setWorkDirectory(work_directory);
+  new_job->setLocalDirectory(local_directory);
+  new_job->setResultDirectory(result_directory);
+
+  // Files
+  for (CORBA::ULong i = 0; i < job_parameters.in_files.length(); i++)
+    new_job->add_in_file(job_parameters.in_files[i].in());
+  for (CORBA::ULong i = 0; i < job_parameters.out_files.length(); i++)
+    new_job->add_out_file(job_parameters.out_files[i].in());
+  
+  // Expected During Time
+  try
+  {
+    std::string expected_during_time = job_parameters.expected_during_time.in();
+    new_job->setExpectedDuringTime(expected_during_time);
+  }
+  catch(const LauncherException &ex){
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
+  }
+   
+  // Resources requirements
+  try
+  {
+    machineParams p;
+    p.hostname = job_parameters.resource_required.hostname;
+    p.OS = job_parameters.resource_required.OS;
+    p.nb_node = job_parameters.resource_required.nb_node;
+    p.nb_proc_per_node = job_parameters.resource_required.nb_proc_per_node;
+    p.cpu_clock = job_parameters.resource_required.cpu_clock;
+    p.mem_mb = job_parameters.resource_required.mem_mb;
+    new_job->setMachineRequiredParams(p);
+  }
+  catch(const LauncherException &ex){
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
+  }
+
+  try
+  {
+    _l.createJob(new_job);
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }
+  return new_job->getNumber();
+}
+
+void 
+SALOME_Launcher::launchJob(CORBA::Long job_id)
+{
+  try
+  {
+    _l.launchJob(job_id);
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }
+}
+
+char *
+SALOME_Launcher::getJobState(CORBA::Long job_id)
+{
+  std::string result;
+  try
+  {
+    result = _l.getJobState(job_id);
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }
+  return CORBA::string_dup(result.c_str());
+}
+
+void
+SALOME_Launcher::getJobResults(CORBA::Long job_id, const char * directory)
+{
+  try
+  {
+    _l.getJobResults(job_id, directory);
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }
+}
+
+void 
+SALOME_Launcher::removeJob(CORBA::Long job_id)
+{
+  try
+  {
+    _l.removeJob(job_id);
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
+  }
+}
+
 //=============================================================================
 /*! CORBA Method:
  *  the test batch configuration 
@@ -302,4 +464,3 @@ void SALOME_Launcher::getResultsJob( const char *directory,
     THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::BAD_PARAM);
   }
 }
-

@@ -26,6 +26,7 @@
 #include <Batch/Batch_FactBatchManager_ePBS.hxx>
 #include <Batch/Batch_BatchManager_eClient.hxx>
 #include <Batch/Batch_FactBatchManager_eSGE.hxx>
+#include <Batch/Batch_FactBatchManager_eSSH.hxx>
 #endif
 
 #include "SALOME_Launcher_Handler.hxx"
@@ -61,10 +62,7 @@ Launcher_cpp::Launcher_cpp()
 
 Launcher_cpp::~Launcher_cpp()
 {
-#if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << "Launcher_cpp destructor" << endl;
-#endif
-
+  LAUNCHER_MESSAGE("Launcher_cpp destructor");
 #ifdef WITH_LIBBATCH
   std::map < string, Batch::BatchManager_eClient * >::const_iterator it1;
   for(it1=_batchmap.begin();it1!=_batchmap.end();it1++)
@@ -72,6 +70,10 @@ Launcher_cpp::~Launcher_cpp()
   std::map < std::pair<std::string,long> , Batch::Job* >::const_iterator it2;
   for(it2=_jobmap.begin();it2!=_jobmap.end();it2++)
     delete it2->second;
+
+  std::map<int, Launcher::Job *>::const_iterator it_job;
+  for(it_job = _launcher_job_map.begin(); it_job != _launcher_job_map.end(); it_job++)
+    delete it_job->second;
 #endif
 }
 
@@ -128,7 +130,7 @@ long Launcher_cpp::submitJob( const std::string xmlExecuteFile,
       _batchmap[cname] = FactoryBatchManager(p);
       // TODO: Add a test for the cluster !
     }
-    
+
   try{
 
     // directory on cluster to put files to execute
@@ -226,8 +228,21 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
   if (aMachineList.size() == 0)
     throw LauncherException("No resources have been found with your parameters");
 
+  std::cerr << "Machine name is : " << aMachineList[0] << std::endl;
   ParserResourcesType p = _ResManager->GetResourcesList(aMachineList[0]);
   string clustername(p.Alias);
+  if (clustername == "")
+  {
+    throw LauncherException("Alias is not defined in machine configuration, please correct your Resource File");
+  }
+  if (p.Batch == ssh_batch)
+  {
+    std::cerr << "p.batch value = " << p.Batch << std::endl;
+    std::cerr << "ssh_batch machine detected !" << std::endl;
+  }
+  else
+     std::cerr << "p.batch value = " << p.Batch << std::endl;
+    
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "Choose cluster: " <<  clustername << endl;
 #endif
@@ -236,7 +251,9 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
   map < string, Batch::BatchManager_eClient * >::const_iterator it = _batchmap.find(clustername);
   if(it == _batchmap.end())
     {
+      std::cerr << "BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB" << std::endl;
       _batchmap[clustername] = FactoryBatchManager(p);
+      std::cerr << "CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC" << std::endl;
       // TODO: Add a test for the cluster !
     }
     
@@ -248,21 +265,44 @@ long Launcher_cpp::submitSalomeJob( const string fileToExecute ,
     Batch::Parametre param;
     param[USER] = p.UserName;
     param[EXECUTABLE] = buildSalomeCouplingScript(fileToExecute,tmpdir,p);
-    param[INFILE] = Batch::Couple( fileToExecute, getRemoteFile(tmpdir,fileToExecute) );
+    param[INFILE] = Batch::Couple( "/tmp/" + param[EXECUTABLE].str(), getRemoteFile(tmpdir, param[EXECUTABLE].str()) );
+    param[INFILE] += Batch::Couple( fileToExecute, getRemoteFile(tmpdir,fileToExecute) );
     for(int i=0;i<filesToExport.size();i++)
       param[INFILE] += Batch::Couple( filesToExport[i], getRemoteFile(tmpdir,filesToExport[i]) );
 
     param[OUTFILE] = Batch::Couple( "", "~/" + tmpdir + "/" + "output.log*" );
     param[OUTFILE] += Batch::Couple( "", "~/" + tmpdir + "/" + "error.log*" );
     param[OUTFILE] += Batch::Couple( "", "~/" + tmpdir + "/" + "YACS_Server*" );
+    
     for(int i=0;i<filesToImport.size();i++)
-      param[OUTFILE] += Batch::Couple( "", "~/" + tmpdir + "/" + filesToImport[i] );
+    {
+      if (filesToImport[i].find("/") == std::string::npos)
+	param[OUTFILE] += Batch::Couple( "", "~/" + tmpdir + "/" + filesToImport[i] );
+      else
+	param[OUTFILE] += Batch::Couple( "", filesToImport[i] );
+    }
 
     param[NBPROC] = batch_params.nb_proc;
-    param[WORKDIR] = batch_params.batch_directory;
+    //param[WORKDIR] = batch_params.batch_directory;
+    param[WORKDIR] = "~";
     param[TMPDIR] = tmpdir;
-    param[MAXWALLTIME] = getWallTime(batch_params.expected_during_time);
-    param[MAXRAMSIZE] = getRamSize(batch_params.mem);
+    if (p.Batch == ssh_batch)
+    {
+      std::cerr << "WallTime == " << getWallTime(batch_params.expected_during_time)*60 << std::endl;
+      param[MAXWALLTIME] = getWallTime(batch_params.expected_during_time)*60;
+    }
+    else
+      param[MAXWALLTIME] = getWallTime(batch_params.expected_during_time);
+    if(getRamSize(batch_params.mem) != 0)
+    {
+      if (p.Batch == ssh_batch)
+      {
+	std::cerr << "RamSize in kbytes == " << getRamSize(batch_params.mem) * 1024 << std::endl;
+	param[MAXRAMSIZE] = getRamSize(batch_params.mem) * 1024;
+      }
+      else
+	param[MAXRAMSIZE] = getRamSize(batch_params.mem);
+    }
     param[HOMEDIR] = getHomeDir(p, tmpdir);
     param[QUEUE] = p.batchQueue;
 
@@ -433,7 +473,7 @@ void Launcher_cpp::getResultsJob( const std::string directory,
  */ 
 //=============================================================================
 
-Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserResourcesType& params ) throw(LauncherException)
+Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager(ParserResourcesType& params ) throw(LauncherException)
 {
 #ifdef WITH_LIBBATCH
   std::string hostname, mpi;
@@ -472,7 +512,11 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserReso
     mpi = "prun";
     break;
   case nompi:
-    throw LauncherException("you must specified an mpi implementation for batch manager");
+    std::cerr << "No MPI detected - switch to single machine case" << std::endl;
+    if (protocol == Batch::SSH)
+      params.Batch = ssh_batch;
+    else
+      throw LauncherException("you must specified an mpi implementation for batch manager or a ssh computer");
     break;
   default:
     throw LauncherException("unknown mpi implementation");
@@ -500,6 +544,12 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserReso
 #endif
     fact = new Batch::FactBatchManager_eSGE;
     break;
+  case ssh_batch:
+#if defined(_DEBUG_) || defined(_DEBUG)
+    cout << "Instantiation of SSH batch manager" << endl;
+#endif
+    fact = new Batch::FactBatchManager_eSSH;
+    break;
   default:
 #if defined(_DEBUG_) || defined(_DEBUG)
     cerr << "BATCH = " << params.Batch << endl;
@@ -508,7 +558,7 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager( const ParserReso
   }
   return (*fact)(hostname.c_str(), protocol, mpi.c_str());
 #else
-  throw LauncherException("Method Launcher_cpp::FactoryBatchManager is not available "
+M@M@  throw LauncherException("Method Launcher_cpp::FactoryBatchManager is not available "
                           "(libBatch was not present at compilation time)");
 #endif
 }
@@ -517,124 +567,155 @@ string Launcher_cpp::buildSalomeCouplingScript(const string fileToExecute, const
 {
 #ifdef WITH_LIBBATCH
 #ifndef WIN32 //TODO: need for porting on Windows
+
   int idx = dirForTmpFiles.find("Batch/");
   std::string filelogtemp = dirForTmpFiles.substr(idx+6, dirForTmpFiles.length());
   std::string dfilelogtemp = params.AppliPath + "/" + filelogtemp;
-
   string::size_type p1 = fileToExecute.find_last_of("/");
   string::size_type p2 = fileToExecute.find_last_of(".");
   std::string fileNameToExecute = fileToExecute.substr(p1+1,p2-p1-1);
   std::string TmpFileName = "/tmp/runSalome_" + fileNameToExecute + ".sh";
-
-  MpiImpl* mpiImpl = FactoryMpiImpl(params.mpi);
-
   ofstream tempOutputFile;
   tempOutputFile.open(TmpFileName.c_str(), ofstream::out );
 
-  // Begin
-  tempOutputFile << "#! /bin/sh -f" << endl ;
-  tempOutputFile << "cd ~/" ;
-  tempOutputFile << dirForTmpFiles << endl ;
-  tempOutputFile << "export SALOME_BATCH=1\n";
-  tempOutputFile << "export PYTHONPATH=~/" ;
-  tempOutputFile << dirForTmpFiles ;
-  tempOutputFile << ":$PYTHONPATH" << endl ;
 
-  // Adding user script
-  std::string script = params.userCommands;
-  if (script != "")
-    tempOutputFile << script << endl;
-  // Test node rank
-  tempOutputFile << "if test \"" ;
-  tempOutputFile << mpiImpl->rank() ;
-  tempOutputFile << "\" = \"0\"; then" << endl ;
-
-  // -----------------------------------------------
-  // Code for rank 0 : launch runAppli and a container
-  // RunAppli
-  if(params.ModulesList.size()>0)
-    tempOutputFile << "  " << params.AppliPath << "/runAppli --terminal --modules=" ;
-  else
-    tempOutputFile << "  " << params.AppliPath << "/runAppli --terminal ";
-  for ( int i = 0 ; i < params.ModulesList.size() ; i++ ) {
-    tempOutputFile << params.ModulesList[i] ;
-    if ( i != params.ModulesList.size()-1 )
-      tempOutputFile << "," ;
-  }
-  tempOutputFile << " --standalone=registry,study,moduleCatalog --ns-port-log="
-		 << filelogtemp 
-		 << " &\n";
-
-  // Wait NamingService
-  tempOutputFile << "  current=0\n"
-		 << "  stop=20\n" 
-		 << "  while ! test -f " << dfilelogtemp << "\n"
-		 << "  do\n"
-		 << "    sleep 2\n"
-		 << "    let current=current+1\n"
-		 << "    if [ \"$current\" -eq \"$stop\" ] ; then\n"
-		 << "      echo Error Naming Service failed ! >&2"
-		 << "      exit\n"
-		 << "    fi\n"
-		 << "  done\n"
-		 << "  port=`cat " << dfilelogtemp << "`\n";
-    
-  // Wait other containers
-  tempOutputFile << "  for ((ip=1; ip < ";
-  tempOutputFile << mpiImpl->size();
-  tempOutputFile << " ; ip++))" << endl;
-  tempOutputFile << "  do" << endl ;
-  tempOutputFile << "    arglist=\"$arglist YACS_Server_\"$ip" << endl ;
-  tempOutputFile << "  done" << endl ;
-  tempOutputFile << "  sleep 5" << endl ;
-  tempOutputFile << "  " << params.AppliPath << "/runSession waitContainers.py $arglist" << endl ;
-  
-  // Launch user script
-  tempOutputFile << "  " << params.AppliPath << "/runSession python ~/" << dirForTmpFiles << "/" << fileNameToExecute << ".py" << endl;
-
-  // Stop application
-  tempOutputFile << "  rm " << dfilelogtemp << "\n"
-		 << "  " << params.AppliPath << "/runSession shutdownSalome.py" << endl;
-
-  // -------------------------------------
-  // Other nodes launch a container
-  tempOutputFile << "else" << endl ;
-
-  // Wait NamingService
-  tempOutputFile << "  current=0\n"
-		 << "  stop=20\n" 
-		 << "  while ! test -f " << dfilelogtemp << "\n"
-		 << "  do\n"
-		 << "    sleep 2\n"
-		 << "    let current=current+1\n"
-		 << "    if [ \"$current\" -eq \"$stop\" ] ; then\n"
-		 << "      echo Error Naming Service failed ! >&2"
-		 << "      exit\n"
-		 << "    fi\n"
-		 << "  done\n"
-		 << "  port=`cat " << dfilelogtemp << "`\n";
-
-  // Launching container
-  tempOutputFile << "  " << params.AppliPath << "/runSession SALOME_Container YACS_Server_";
-  tempOutputFile << mpiImpl->rank()
-		 << " > ~/" << dirForTmpFiles << "/YACS_Server_" 
-		 << mpiImpl->rank() << "_container_log." << filelogtemp
-		 << " 2>&1\n";
-  tempOutputFile << "fi" << endl ;
-  tempOutputFile.flush();
-  tempOutputFile.close();
-  chmod(TmpFileName.c_str(), 0x1ED);
+  if (params.Batch == ssh_batch)
+  {
+    tempOutputFile << "#! /bin/sh -f" << endl ;
+    tempOutputFile << "cd ~/" ;
+    tempOutputFile << dirForTmpFiles << endl ;
+    tempOutputFile << params.AppliPath << "/runAppli --terminal  --ns-port-log=" << filelogtemp << endl;
+    tempOutputFile << "current=0\n"
+		   << "stop=20\n" 
+		   << "while ! test -f " << dfilelogtemp << "\n"
+		   << "do\n"
+		   << "  sleep 2\n"
+		   << "  let current=current+1\n"
+		   << "  if [ \"$current\" -eq \"$stop\" ] ; then\n"
+		   << "    echo Error Naming Service failed ! >&2"
+		   << "    exit\n"
+		   << "  fi\n"
+		   << "done\n"
+		   << "port=`cat " << dfilelogtemp << "`\n";
+    tempOutputFile << params.AppliPath << "/runSession driver " << fileNameToExecute << ".xml" << endl;
+    tempOutputFile << params.AppliPath << "/runSession killSalomeWithPort.py $port" << endl;
+    tempOutputFile.flush();
+    tempOutputFile.close();
+    chmod(TmpFileName.c_str(), 0x1ED);
 #if defined(_DEBUG_) || defined(_DEBUG)
-  cerr << TmpFileName.c_str() << endl;
+    cerr << TmpFileName.c_str() << endl;
+#endif
+    return "runSalome_" + fileNameToExecute + ".sh";
+  }
+  else
+  {
+
+    MpiImpl* mpiImpl = FactoryMpiImpl(params.mpi);
+
+    // Begin
+    tempOutputFile << "#! /bin/sh -f" << endl ;
+    tempOutputFile << "cd ~/" ;
+    tempOutputFile << dirForTmpFiles << endl ;
+    tempOutputFile << "export SALOME_BATCH=1\n";
+    tempOutputFile << "export PYTHONPATH=~/" ;
+    tempOutputFile << dirForTmpFiles ;
+    tempOutputFile << ":$PYTHONPATH" << endl ;
+
+    // Adding user script
+    std::string script = params.userCommands;
+    if (script != "")
+      tempOutputFile << script << endl;
+    // Test node rank
+    tempOutputFile << "if test \"" ;
+    tempOutputFile << mpiImpl->rank() ;
+    tempOutputFile << "\" = \"0\"; then" << endl ;
+
+    // -----------------------------------------------
+    // Code for rank 0 : launch runAppli and a container
+    // RunAppli
+    if(params.ModulesList.size()>0)
+      tempOutputFile << "  " << params.AppliPath << "/runAppli --terminal --modules=" ;
+    else
+      tempOutputFile << "  " << params.AppliPath << "/runAppli --terminal ";
+    for ( int i = 0 ; i < params.ModulesList.size() ; i++ ) {
+      tempOutputFile << params.ModulesList[i] ;
+      if ( i != params.ModulesList.size()-1 )
+	tempOutputFile << "," ;
+    }
+    tempOutputFile << " --standalone=registry,study,moduleCatalog --ns-port-log="
+      << filelogtemp 
+      << " &\n";
+
+    // Wait NamingService
+    tempOutputFile << "  current=0\n"
+      << "  stop=20\n" 
+      << "  while ! test -f " << dfilelogtemp << "\n"
+      << "  do\n"
+      << "    sleep 2\n"
+      << "    let current=current+1\n"
+      << "    if [ \"$current\" -eq \"$stop\" ] ; then\n"
+      << "      echo Error Naming Service failed ! >&2"
+      << "      exit\n"
+      << "    fi\n"
+      << "  done\n"
+      << "  port=`cat " << dfilelogtemp << "`\n";
+
+    // Wait other containers
+    tempOutputFile << "  for ((ip=1; ip < ";
+    tempOutputFile << mpiImpl->size();
+    tempOutputFile << " ; ip++))" << endl;
+    tempOutputFile << "  do" << endl ;
+    tempOutputFile << "    arglist=\"$arglist YACS_Server_\"$ip" << endl ;
+    tempOutputFile << "  done" << endl ;
+    tempOutputFile << "  sleep 5" << endl ;
+    tempOutputFile << "  " << params.AppliPath << "/runSession waitContainers.py $arglist" << endl ;
+
+    // Launch user script
+    tempOutputFile << "  " << params.AppliPath << "/runSession python ~/" << dirForTmpFiles << "/" << fileNameToExecute << ".py" << endl;
+
+    // Stop application
+    tempOutputFile << "  rm " << dfilelogtemp << "\n"
+      << "  " << params.AppliPath << "/runSession shutdownSalome.py" << endl;
+
+    // -------------------------------------
+    // Other nodes launch a container
+    tempOutputFile << "else" << endl ;
+
+    // Wait NamingService
+    tempOutputFile << "  current=0\n"
+      << "  stop=20\n" 
+      << "  while ! test -f " << dfilelogtemp << "\n"
+      << "  do\n"
+      << "    sleep 2\n"
+      << "    let current=current+1\n"
+      << "    if [ \"$current\" -eq \"$stop\" ] ; then\n"
+      << "      echo Error Naming Service failed ! >&2"
+      << "      exit\n"
+      << "    fi\n"
+      << "  done\n"
+      << "  port=`cat " << dfilelogtemp << "`\n";
+
+    // Launching container
+    tempOutputFile << "  " << params.AppliPath << "/runSession SALOME_Container YACS_Server_";
+    tempOutputFile << mpiImpl->rank()
+      << " > ~/" << dirForTmpFiles << "/YACS_Server_" 
+      << mpiImpl->rank() << "_container_log." << filelogtemp
+      << " 2>&1\n";
+    tempOutputFile << "fi" << endl ;
+    tempOutputFile.flush();
+    tempOutputFile.close();
+    chmod(TmpFileName.c_str(), 0x1ED);
+#if defined(_DEBUG_) || defined(_DEBUG)
+    cerr << TmpFileName.c_str() << endl;
 #endif
 
-  delete mpiImpl;
+    delete mpiImpl;
 
-  return TmpFileName;
+    return TmpFileName;
+  }  
 #else
   return "";
 #endif
-    
 #else
   throw LauncherException("Method Launcher_cpp::buildSalomeCouplingScript is not available "
                           "(libBatch was not present at compilation time)");
@@ -753,7 +834,7 @@ bool Launcher_cpp::check(const batchParams& batch_params)
 #endif
 
   // check memory (check the format)
-  std::string mem_info;
+  std::string mem_info = batch_params.mem;
   std::string mem_value = batch_params.mem;
   if (mem_value != "") {
     std::string begin_mem_value = mem_value.substr(0, mem_value.length()-2);
@@ -906,4 +987,225 @@ std::string Launcher_cpp::getHomeDir(const ParserResourcesType& p, const std::st
   std::getline(file_home, home);
   file_home.close();
   return home;
+}
+
+//=============================================================================
+/*!
+ * Add a job into the launcher - check resource and choose one 
+ */ 
+//=============================================================================
+void 
+Launcher_cpp::createJob(Launcher::Job * new_job)
+{
+  LAUNCHER_MESSAGE("Creating a new job");
+  
+  // First step take a resource
+  // Two cases: hostname is defined -> GetFittingResources will check if resource exists
+  //		hostname is not defined -> Try to find a good resource
+  // Note: We use Alias parameter to get the real name of the machine -> To change ????
+  std::vector<std::string> ResourceList;
+  machineParams params = new_job->getMachineRequiredParams();
+  try{
+    ResourceList = _ResManager->GetFittingResources(params);
+  }
+  catch(const ResourcesException &ex){
+    throw LauncherException(ex.msg.c_str());
+  }
+  if (ResourceList.size() == 0)
+  {
+    LAUNCHER_INFOS("No adequate resource found for the job, number " << new_job->getNumber() << " - deleting it");
+    delete new_job;
+    throw LauncherException("No resource found the job");
+  }
+
+  // Second step configure the job with the resource selected - the first of the list
+  ParserResourcesType machine_definition = _ResManager->GetResourcesList(ResourceList[0]);
+  if (machine_definition.Alias == "")
+  {
+    LAUNCHER_INFOS("Alias is not defined for the resource selected: " << machine_definition.HostName);
+    delete new_job;
+    std::string mess = "Alias is not defined for the resource selected: ";
+    mess += machine_definition.HostName;
+    throw LauncherException(mess);
+  }
+  new_job->setMachineDefinition(machine_definition);
+
+  // Part dependent of LIBBATCH - Without it we delete the job and send an exception
+#ifdef WITH_LIBBATCH
+  // Third step search batch manager for the resource into the map -> instanciate one if does not exist
+  std::string machine_name = machine_definition.Alias;
+  std::map<std::string, Batch::BatchManager_eClient *>::const_iterator it = _batchmap.find(machine_name);
+  if(it == _batchmap.end())
+  {
+    try 
+    {
+      _batchmap[machine_name] = FactoryBatchManager(machine_definition);
+    }
+    catch(const LauncherException &ex)
+    {
+      LAUNCHER_INFOS("Error during creation of the batch manager of the resource, mess: " << ex.msg);
+      delete new_job;
+      throw ex;
+    }
+  }
+
+  // Final step - add job to the jobs map
+  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(new_job->getNumber());
+  if (it_job == _launcher_job_map.end())
+    _launcher_job_map[new_job->getNumber()] = new_job;
+  else
+  {
+    LAUNCHER_INFOS("A job as already the same id: " << new_job->getNumber());
+    delete new_job;
+    throw LauncherException("A job as already the same id - job is not created !");
+  }
+  LAUNCHER_MESSAGE("New Job created");
+#else  
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot create a job !!!");
+  delete new_job;
+  throw LauncherException("Method Launcher_cpp::createJob is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
+}
+
+//=============================================================================
+/*!
+ * Launch a job 
+ */ 
+//=============================================================================
+void 
+Launcher_cpp::launchJob(int job_id)
+{
+  LAUNCHER_MESSAGE("Launch a job");
+
+  // Check if job exist
+  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
+  if (it_job == _launcher_job_map.end())
+  {
+    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
+    throw LauncherException("Cannot find the job, is it created ?");
+  }
+
+  Launcher::Job * job = it_job->second;
+
+  // Check job state (cannot launch a job already launched...)
+  if (job->getState() != "CREATED")
+  {
+    LAUNCHER_INFOS("Bad state of the job: " << job->getState());
+    throw LauncherException("Bad state of the job: " + job->getState());
+  }
+
+  // Part dependent of LIBBATCH - Without it we delete the job and send an exception
+#ifdef WITH_LIBBATCH
+
+  std::string machine_name = job->getMachineDefinition().Alias;
+  try {
+    Batch::JobId batch_manager_job_id = _batchmap[machine_name]->submitJob(*(job->getBatchJob()));
+    job->setBatchManagerJobId(batch_manager_job_id);
+    job->setState("QUEUED");
+  }
+  catch(const Batch::EmulationException &ex)
+  {
+    LAUNCHER_INFOS("Job is not launched, exception in submitJob: " << ex.message);
+    throw LauncherException(ex.message.c_str());
+  }
+  LAUNCHER_MESSAGE("Job launched");
+
+#else  
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot launch a job !!!");
+  throw LauncherException("Method Launcher_cpp::launchJob is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
+}
+
+//=============================================================================
+/*!
+ * Get job state
+ */ 
+//=============================================================================
+const char *
+Launcher_cpp::getJobState(int job_id)
+{
+  LAUNCHER_MESSAGE("Get job state");
+
+  // Check if job exist
+  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
+  if (it_job == _launcher_job_map.end())
+  {
+    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
+    throw LauncherException("Cannot find the job, is it created ?");
+  }
+
+  Launcher::Job * job = it_job->second;
+  std::string state = job->updateJobState();
+
+  return state.c_str();
+}
+
+//=============================================================================
+/*!
+ * Get Job result - the result directory could be changed
+ */ 
+//=============================================================================
+void
+Launcher_cpp::getJobResults(int job_id, std::string directory)
+{
+  LAUNCHER_MESSAGE("Get Job results");
+
+  // Check if job exist
+  std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(job_id);
+  if (it_job == _launcher_job_map.end())
+  {
+    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
+    throw LauncherException("Cannot find the job, is it created ?");
+  }
+
+  Launcher::Job * job = it_job->second;
+
+  // Part dependent of LIBBATCH 
+  // We may have to check job state and only get files when job is fisnished or in error...
+  // We may also change default result directory...
+#ifdef WITH_LIBBATCH
+
+  std::string machine_name = job->getMachineDefinition().Alias;
+  try 
+  {
+    if (directory != "")
+      _batchmap[machine_name]->importOutputFiles(*(job->getBatchJob()), directory);
+    else
+      _batchmap[machine_name]->importOutputFiles(*(job->getBatchJob()), job->getResultDirectory());
+  }
+  catch(const Batch::EmulationException &ex)
+  {
+    LAUNCHER_INFOS("getJobResult is maybe incomplete, exception: " << ex.message);
+    throw LauncherException(ex.message.c_str());
+  }
+  LAUNCHER_MESSAGE("getJobResult ended");
+
+#else  
+  LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot get job results!!!");
+  throw LauncherException("Method Launcher_cpp::getJobResults is not available "
+                          "(libBatch was not present at compilation time)");
+#endif
+}
+
+//=============================================================================
+/*!
+ * Remove the job - into the Launcher and its batch manager
+ */ 
+//=============================================================================
+void
+Launcher_cpp::removeJob(int job_id)
+{
+  LAUNCHER_MESSAGE("Remove Job");
+
+  // Check if job exist
+  std::map<int, Launcher::Job *>::iterator it_job = _launcher_job_map.find(job_id);
+  if (it_job == _launcher_job_map.end())
+  {
+    LAUNCHER_INFOS("Cannot find the job, is it created ? job number: " << job_id);
+    throw LauncherException("Cannot find the job, is it created ?");
+  }
+
+  _launcher_job_map.erase(it_job); // Erase call delete on it_job->second
 }

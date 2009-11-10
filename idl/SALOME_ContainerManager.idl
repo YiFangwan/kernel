@@ -110,8 +110,9 @@ struct MachineDefinition
   string batch;
   long nb_component_nodes;
 };
+
 //! exception thrown if a computer is not found in the catalog
-  exception NotFound {};
+exception NotFound {};
 
 //!  Structure used for Salome Batch Job parameters
 struct BatchParameters
@@ -124,6 +125,37 @@ struct BatchParameters
   string mem; 
   //! Number of processors requested
   long nb_proc; 
+};
+
+struct JobParameters
+{
+  //! Job Type - Could be equal to "command" or "yacs_file"
+  string job_type;
+
+  //! YACS file
+  string yacs_file;
+
+  //! Command
+  string command;
+  string env_file; 
+
+  // Common values
+  FilesList in_files;
+  FilesList out_files;
+  string work_directory;
+  string local_directory;
+  string result_directory;
+  /*! Time for the batch (has to be like this : hh:mm) - Could be empty, in
+       this case, default value of the selected resource will be used.
+  */
+  string expected_during_time; 
+  MachineParameters resource_required;
+  // This two values are defined into MachineParameters
+  // Memory is expressed in megabytes
+  //long proc_nb;
+  //! Minimum of memory needed (has to be like : 32gb or 512mb)
+  //string mem; 
+
 };
 
 /*! \brief Interface of the %salomelauncher
@@ -146,9 +178,14 @@ struct BatchParameters
     boolean testBatch(in MachineParameters params) raises (SALOME::SALOME_Exception);
 
     void Shutdown();
-
     long getPID();
 
+    // New Launcher interface
+    long   createJob    (in Engines::JobParameters job_parameters) raises (SALOME::SALOME_Exception);
+    void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
+    string getJobState  (in long job_id)                           raises (SALOME::SALOME_Exception);
+    void   getJobResults(in long job_id, in string directory)      raises (SALOME::SALOME_Exception);
+    void   removeJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
   } ;
   
 /*! \brief Interface of the %containerManager

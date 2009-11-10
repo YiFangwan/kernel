@@ -468,6 +468,7 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
 
   if (xmlHasProp(machine_descr, (const xmlChar*)test_batch))
   {
+    std::cerr << "COUCOU !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
     xmlChar* batch = xmlGetProp(machine_descr, (const xmlChar*)test_batch);
     std::string aBatch = (const char*)batch;
     xmlFree(batch);
@@ -477,6 +478,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
       resource.Batch = lsf;
     else if  (aBatch == "sge")
       resource.Batch = sge;
+    else if  (aBatch == "ssh_batch")
+      resource.Batch = ssh_batch;
     else
       resource.Batch = none;
   }
@@ -654,6 +657,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
 	case sge:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "sge");
           break;
+	case ssh_batch:
+	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ssh_batch");
+          break;
         default:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");
         }
@@ -742,6 +748,9 @@ void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
           break;
 	case sge:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "sge");
+          break;
+	case ssh_batch:
+	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "ssh_batch");
           break;
         default:
 	  xmlNewProp(node, BAD_CAST test_batch, BAD_CAST "");
