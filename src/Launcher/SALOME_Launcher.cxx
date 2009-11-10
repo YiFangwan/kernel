@@ -251,8 +251,8 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   // Expected During Time
   try
   {
-    std::string expected_during_time = job_parameters.expected_during_time.in();
-    new_job->setExpectedDuringTime(expected_during_time);
+    std::string maximum_during_time = job_parameters.maximum_during_time.in();
+    new_job->setMaximumDuringTime(maximum_during_time);
   }
   catch(const LauncherException &ex){
     INFOS(ex.msg.c_str());

@@ -145,17 +145,14 @@ struct JobParameters
   string work_directory;
   string local_directory;
   string result_directory;
+
   /*! Time for the batch (has to be like this : hh:mm) - Could be empty, in
        this case, default value of the selected resource will be used.
   */
-  string expected_during_time; 
+  string maximum_during_time; 
   MachineParameters resource_required;
-  // This two values are defined into MachineParameters
-  // Memory is expressed in megabytes
-  //long proc_nb;
-  //! Minimum of memory needed (has to be like : 32gb or 512mb)
-  //string mem; 
-
+  // Memory is expressed in megabytes -> mem_mb
+  // Number of Processors -> nb_node
 };
 
 /*! \brief Interface of the %salomelauncher

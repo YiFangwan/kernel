@@ -29,8 +29,8 @@ Launcher::Job::Job()
   _work_directory = "";
   _local_directory = "";
   _result_directory = "";
-  _expected_during_time = "";
-  _expected_during_time_in_second = -1;
+  _maximum_during_time = "";
+  _maximum_during_time_in_second = -1;
   _machine_required_params.hostname = "";
   _machine_required_params.OS = "";
   _machine_required_params.nb_node = -1;
@@ -142,11 +142,11 @@ Launcher::Job::add_out_file(const std::string & file)
 }
 
 void 
-Launcher::Job::setExpectedDuringTime(const std::string & expected_during_time)
+Launcher::Job::setMaximumDuringTime(const std::string & maximum_during_time)
 {
-  checkExpectedDuringTime(expected_during_time);
-  _expected_during_time_in_second = convertExpectedDuringTime(expected_during_time);
-  _expected_during_time = expected_during_time;
+  checkMaximumDuringTime(maximum_during_time);
+  _maximum_during_time_in_second = convertMaximumDuringTime(maximum_during_time);
+  _maximum_during_time = maximum_during_time;
 }
 
 void 
@@ -187,9 +187,9 @@ Launcher::Job::get_out_files()
 }
 
 std::string 
-Launcher::Job::getExpectedDuringTime()
+Launcher::Job::getMaximumDuringTime()
 {
-  return _expected_during_time;
+  return _maximum_during_time;
 }
 
 machineParams 
@@ -199,10 +199,10 @@ Launcher::Job::getMachineRequiredParams()
 }
 
 void 
-Launcher::Job::checkExpectedDuringTime(const std::string & expected_during_time)
+Launcher::Job::checkMaximumDuringTime(const std::string & maximum_during_time)
 {
   std::string result("");
-  std::string edt_value = expected_during_time;
+  std::string edt_value = maximum_during_time;
   if (edt_value != "") {
     std::string begin_edt_value = edt_value.substr(0, 2);
     std::string mid_edt_value = edt_value.substr(2, 1);
@@ -243,7 +243,7 @@ Launcher::Job::checkMachineRequiredParams(const machineParams & machine_required
 }
 
 long 
-Launcher::Job::convertExpectedDuringTime(const std::string & edt)
+Launcher::Job::convertMaximumDuringTime(const std::string & edt)
 {
   long hh, mm, ret;
 
@@ -375,8 +375,8 @@ Launcher::Job::common_job_params()
   }
 
   // Time
-  if (_expected_during_time_in_second != -1)
-    params[MAXWALLTIME] = _expected_during_time_in_second;
+  if (_maximum_during_time_in_second != -1)
+    params[MAXWALLTIME] = _maximum_during_time_in_second;
 
   return params;
 }

@@ -64,7 +64,7 @@ namespace Launcher
       void setResultDirectory(const std::string & result_directory);
       void add_in_file(const std::string & file);
       void add_out_file(const std::string & file);
-      void setExpectedDuringTime(const std::string & expected_during_time);
+      void setMaximumDuringTime(const std::string & maximum_during_time);
       void setMachineRequiredParams(const machineParams & machine_required_params);
 
       std::string getWorkDirectory();
@@ -72,17 +72,17 @@ namespace Launcher
       std::string getResultDirectory();
       const std::list<std::string> & get_in_files();
       const std::list<std::string> & get_out_files();
-      std::string getExpectedDuringTime();
+      std::string getMaximumDuringTime();
       machineParams getMachineRequiredParams();
       
       std::string updateJobState();
 
       // Checks
-      void checkExpectedDuringTime(const std::string & expected_during_time);
+      void checkMaximumDuringTime(const std::string & maximum_during_time);
       void checkMachineRequiredParams(const machineParams & machine_required_params);
 
       // Helps
-      long convertExpectedDuringTime(const std::string & expected_during_time);
+      long convertMaximumDuringTime(const std::string & maximum_during_time);
 
       // Abstract class
       virtual void update_job() = 0;
@@ -99,8 +99,8 @@ namespace Launcher
       std::string _result_directory;
       std::list<std::string> _in_files;
       std::list<std::string> _out_files;
-      std::string _expected_during_time;
-      long _expected_during_time_in_second;
+      std::string _maximum_during_time;
+      long _maximum_during_time_in_second;
       machineParams _machine_required_params;
 
 #ifdef WITH_LIBBATCH
