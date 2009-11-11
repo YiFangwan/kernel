@@ -298,44 +298,6 @@ public:
 
   virtual SALOMEDS::ListOfStrings* GetLockerID();
 
-  virtual void SetReal(const char* theVarName, CORBA::Double theValue);
-  
-  virtual void SetInteger(const char* theVarName, CORBA::Long theValue);
-
-  virtual void SetBoolean(const char* theVarName, CORBA::Boolean theValue);
-
-  virtual void SetString(const char* theVarName, const char* theValue);
-
-  virtual void SetStringAsDouble(const char* theVarName, CORBA::Double theValue);
-
-  virtual CORBA::Double GetReal(const char* theVarName);
-  
-  virtual CORBA::Long GetInteger(const char* theVarName);
-
-  virtual CORBA::Boolean GetBoolean(const char* theVarName);
-
-  virtual char* GetString(const char* theVarName);
-
-  virtual CORBA::Boolean IsReal(const char* theVarName);
-  
-  virtual CORBA::Boolean IsInteger(const char* theVarName);
-
-  virtual CORBA::Boolean IsBoolean(const char* theVarName);
-
-  virtual CORBA::Boolean IsString(const char* theVarName);
-
-  virtual CORBA::Boolean IsVariable(const char* theVarName);
-
-  virtual SALOMEDS::ListOfStrings* GetVariableNames();
-
-  virtual CORBA::Boolean RemoveVariable(const char* theVarName);
-
-  virtual CORBA::Boolean RenameVariable(const char* theVarName, const char* theNewVarName);
-
-  virtual CORBA::Boolean IsVariableUsed(const char* theVarName);
-  
-  virtual SALOMEDS::ListOfListOfStrings* ParseVariables(const char* theVars);
-
   virtual char* GetDefaultScript(const char* theModuleName, const char* theShift);
 
   virtual CORBA::Boolean DumpStudy(const char* thePath, const char* theBaseName, CORBA::Boolean isPublished);

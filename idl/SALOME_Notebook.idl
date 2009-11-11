@@ -1,0 +1,81 @@
+//  Copyright (C) 2007-2008  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+//  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+//  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+//  This library is free software; you can redistribute it and/or
+//  modify it under the terms of the GNU Lesser General Public
+//  License as published by the Free Software Foundation; either
+//  version 2.1 of the License.
+//
+//  This library is distributed in the hope that it will be useful,
+//  but WITHOUT ANY WARRANTY; without even the implied warranty of
+//  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+//  Lesser General Public License for more details.
+//
+//  You should have received a copy of the GNU Lesser General Public
+//  License along with this library; if not, write to the Free Software
+//  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+//  See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+//  File   : Notebook.idl
+//  Author : Alexandre SOLOVYOV
+//  $Header$
+//
+/*!  \file Notebook.idl  \brief This file contains a set of interfaces used for notebook
+     (model parametrization) functionality
+*/
+
+#ifndef _NOTEBOOK_IDL_
+#define _NOTEBOOK_IDL_
+
+#include "SALOME_Exception.idl"
+#include "SALOME_GenericObj.idl"
+
+/*! \brief
+     This package contains the interfaces used for notebook
+     (model parametrization) functionality
+*/
+module SALOME
+{
+  //! This interface describes parameterized object
+  interface ParameterizedObject : GenericObj
+  {
+    //return object's entry
+    string GetEntry();
+
+    //validity status
+    boolean IsValid();
+
+    //update management
+    void SetToUpdate();
+    void Update();
+  };
+
+  //! This enumeration describes data types supported by notebook functionality
+  enum ParamType { TBoolean, TInteger, TReal, TExpression, TString };
+
+  //! This interface describes parameter object
+  interface Parameter : ParameterizedObject
+  {
+    void SetValue( in string expr );
+    ParamType GetType();
+
+    string  AsString()  raises(SALOME_Exception);
+    long    AsInteger() raises(SALOME_Exception);
+    double  AsDouble()  raises(SALOME_Exception);
+    boolean AsBoolean() raises(SALOME_Exception);
+  };
+
+  interface Notebook : GenericObj
+  {
+    //dependency management
+    void AddDependency( in ParameterizedObject obj, in ParameterizedObject dep );
+    void RemoveDependency( in ParameterizedObject obj, in ParameterizedObject dep );
+    void ClearDependencies( in ParameterizedObject obj );
+    void Update( in ParameterizedObject obj );
+  };
+};
+
+#endif

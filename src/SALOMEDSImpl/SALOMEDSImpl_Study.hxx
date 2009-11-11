@@ -48,7 +48,6 @@
 #include "SALOMEDSImpl_Callback.hxx"
 #include "SALOMEDSImpl_Driver.hxx" 
 #include "SALOMEDSImpl_ChildIterator.hxx" 
-#include "SALOMEDSImpl_GenericVariable.hxx"
 
 class SALOMEDSImpl_StudyManager;
 class SALOMEDSImpl_GenericAttribute;
@@ -73,7 +72,6 @@ private:
   std::map<std::string, SALOMEDSImpl_SObject> _mapOfSO;
   std::map<std::string, SALOMEDSImpl_SComponent> _mapOfSCO;
   std::map<std::string, DF_Label> myIORLabels;
-  std::vector<SALOMEDSImpl_GenericVariable*> myNoteBookVars;
 
   SALOMEDSImpl_SObject   _FindObject(const SALOMEDSImpl_SObject& SO,
     const std::string& anObjectName,
@@ -82,10 +80,6 @@ private:
   SALOMEDSImpl_SObject   _FindObjectIOR(const SALOMEDSImpl_SObject& SO,
     const std::string& anObjectIOR,
     bool& _find);
-
-  std::string _GetStudyVariablesScript();
-  std::string _GetNoteBookAccessor();
-  std::string _GetNoteBookAccess();
 
 public:
 
@@ -258,54 +252,6 @@ public:
   //Returns an ID of the study locker
   std::vector<std::string> GetLockerID();
 
-  //Managing of variables
-  void SetVariable(const std::string& theVarName,
-                   const double theValue, 
-                   const SALOMEDSImpl_GenericVariable::VariableTypes);
-
-  void SetStringVariable(const std::string& theVarName,
-			 const std::string& theValue, 
-			 const SALOMEDSImpl_GenericVariable::VariableTypes);
-
-  void SetStringVariableAsDouble(const std::string& theVarName,
-				 const double theValue, 
-				 const SALOMEDSImpl_GenericVariable::VariableTypes);
-  
-  double GetVariableValue(const std::string& theVarName);
-
-  std::string GetStringVariableValue(const std::string& theVarName);
-
-  bool IsTypeOf(const std::string& theVarName,
-                SALOMEDSImpl_GenericVariable::VariableTypes theType) const;
-        
-  bool IsVariable(const std::string& theVarName) const;
-
-
-  std::vector<std::string> GetVariableNames() const;
-
-  void AddVariable(SALOMEDSImpl_GenericVariable* theVariable);
-
-  SALOMEDSImpl_GenericVariable* GetVariable(const std::string& theName) const;
-
-  bool RemoveVariable(const std::string& theVarName);
-
-  bool RenameVariable(const std::string& theVarName, const std::string& theNewVarName);
-
-  bool IsVariableUsed(const std::string& theVarName);
-
-  bool FindVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
-			     SALOMEDSImpl_SObject theSObject,
-			     const std::string& theName);
-  bool FindVariableAttribute(const std::string& theName);
-
-  void ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* theStudyBuilder,
-				SALOMEDSImpl_SObject theSObject,
-				const std::string& theSource,
-				const std::string& theDest);
-  void ReplaceVariableAttribute(const std::string& theSource, const std::string& theDest);
-
-  std::vector< std::vector<std::string> > ParseVariables(const std::string& theVariables) const;
-
   //Returns a callback 
   SALOMEDSImpl_Callback* GetCallback() { return _cb; }
 
@@ -314,6 +260,5 @@ public:
 
   friend class SALOMEDSImpl_StudyManager;    
   friend class SALOMEDSImpl_GenericAttribute;
-  friend class SALOMEDSImpl_GenericVariable;
 };
 #endif

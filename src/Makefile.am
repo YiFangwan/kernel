@@ -54,7 +54,8 @@ SUBDIR_CORBA = \
   ModuleGenerator \
   Communication \
   Communication_SWIG \
-  DSC
+  DSC \
+  Notebook
 
 SUBDIR_CPPUNIT_BASE= \
   Basics/Test \

@@ -559,6 +559,7 @@ AC_OUTPUT([ \
   src/MPIContainer/Makefile \
   src/NamingService/Makefile \
   src/NamingService/Test/Makefile \
+  src/Notebook/Makefile \
   src/Notification/Makefile \
   src/NOTIFICATION_SWIG/Makefile \
   src/Registry/Makefile \

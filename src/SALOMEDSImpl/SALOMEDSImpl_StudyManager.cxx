@@ -32,7 +32,6 @@
 #include "SALOMEDSImpl_Tool.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
-#include "SALOMEDSImpl_ScalarVariable.hxx"
 #include <map>
 
 #include "HDFOI.hxx"
@@ -58,7 +57,9 @@ static void ReadAttributes(SALOMEDSImpl_Study*, const SALOMEDSImpl_SObject&, HDF
 static void BuildTree (SALOMEDSImpl_Study*, HDFgroup*);
 static void Translate_IOR_to_persistentID (const SALOMEDSImpl_SObject&,
 					   SALOMEDSImpl_Driver*, bool isMultiFile, bool isASCII);
+/*ASL:
 static void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup);
+*/
 
 //============================================================================
 /*! Function : SALOMEDSImpl_StudyManager
@@ -126,7 +127,9 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
   // open the HDFFile
   HDFfile *hdf_file =0;
   HDFgroup *hdf_group_study_structure =0;
+/*ASL:
   HDFgroup *hdf_notebook_vars = 0; 
+*/
 
   char* aC_HDFUrl;
   string aHDFUrl;
@@ -190,12 +193,14 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
       return NULL;
     }
 
+/*ASL:
   //Read and create notebook variables 
   if(hdf_file->ExistInternalObject("NOTEBOOK_VARIABLES")) {
     hdf_notebook_vars  = new HDFgroup("NOTEBOOK_VARIABLES",hdf_file);
     ReadNoteBookVariables(Study,hdf_notebook_vars);
     hdf_notebook_vars =0; //will be deleted by hdf_sco_group destructor
   }
+*/
 
   hdf_file->CloseOnDisk();
   hdf_group_study_structure = new HDFgroup("STUDY_STRUCTURE",hdf_file);
@@ -473,8 +478,11 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
   HDFgroup *hdf_group_study_structure =0;
   HDFgroup *hdf_sco_group =0;
   HDFgroup *hdf_sco_group2 =0;
+
+  /*ASL:
   HDFgroup *hdf_notebook_vars =0; 
   HDFgroup *hdf_notebook_var  = 0;
+  */
 
   HDFgroup *hdf_group_datacomponent =0;
   HDFdataset *hdf_dataset =0;
@@ -654,6 +662,8 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
 	hdf_soo_group->CloseOnDisk();
 	hdf_soo_group=0; // will be deleted by hdf_group_study_structure destructor
       }
+
+      /*ASL
       //-----------------------------------------------------------------------
       //5 - Write the NoteBook Variables
       //-----------------------------------------------------------------------
@@ -709,6 +719,8 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
       hdf_notebook_vars = 0; //will be deleted by hdf_sco_group destructor
         
       if (aLocked) aStudy->GetProperties()->SetLocked(true);
+      */
+
       //-----------------------------------------------------------------------
       //6 - Write the Study Properties
       //-----------------------------------------------------------------------
@@ -1337,6 +1349,7 @@ static void Translate_IOR_to_persistentID (const SALOMEDSImpl_SObject& so,
   }
 }
 
+/*ASL:
 void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup)
 {
   if(!theGroup)
@@ -1419,3 +1432,4 @@ void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup)
   
   theGroup->CloseOnDisk();
 }
+*/
