@@ -44,6 +44,11 @@ namespace Launcher
 
       virtual void update_job();
 
+#ifdef WITH_LIBBATCH
+    protected:
+      std::string buildCommandScript(Batch::Parametre params);
+#endif
+
     private:
       std::string _command;
       std::string _env_file;

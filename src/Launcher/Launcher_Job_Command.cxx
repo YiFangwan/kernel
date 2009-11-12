@@ -58,11 +58,58 @@ Launcher::Job_Command::update_job()
 #ifdef WITH_LIBBATCH
   Batch::Parametre params = common_job_params();
 
-  std::string command = "";
-  if (_env_file != "")
-    command = "source " + _env_file + "\n";
-  command += _command;
-  params[EXECUTABLE] = command;
+  // log
+  std::string log_file        = "command.log";
+  std::string log_local_file  = _result_directory + "/" + log_file;
+  std::string log_remote_file = _work_directory   + "/" + log_file;
+  params[OUTFILE] += Batch::Couple(log_local_file, log_remote_file);
+
+  params[EXECUTABLE] = buildCommandScript(params);
   _batch_job->setParametre(params);
 #endif
 }
+
+#ifdef WITH_LIBBATCH
+std::string 
+Launcher::Job_Command::buildCommandScript(Batch::Parametre params)
+{
+  // parameters
+  std::string work_directory = params[WORKDIR].str();
+
+  // File name
+  std::string::size_type p1 = _command.find_last_of("/");
+  std::string::size_type p2 = _command.find_last_of(".");
+  std::string command_name = _command.substr(p1+1,p2-p1-1);
+  
+  time_t rawtime;
+  time(&rawtime);
+  std::string launch_date = ctime(&rawtime);
+  int i = 0 ;
+  for (;i < launch_date.size(); i++) 
+    if (launch_date[i] == '/' or 
+	launch_date[i] == '-' or 
+	launch_date[i] == ':' or
+	launch_date[i] == ' ') 
+      launch_date[i] = '_';
+  launch_date.erase(--launch_date.end()); // Last caracter is a \n
+  
+  std::string launch_date_port_file = launch_date;
+  std::string launch_script = "/tmp/runCommand_" + command_name + "_" + launch_date + ".sh";
+  std::ofstream launch_script_stream;
+  launch_script_stream.open(launch_script.c_str(), std::ofstream::out);
+   
+  // Script
+  launch_script_stream << "#! /bin/sh -f" << std::endl;
+  launch_script_stream << "cd " << work_directory << std::endl;
+  if (_env_file != "")
+     launch_script_stream << "source " << _env_file << std::endl;
+  launch_script_stream << _command << " > command.log 2>&1" << std::endl;
+
+  // Return
+  launch_script_stream.flush();
+  launch_script_stream.close();
+  chmod(launch_script.c_str(), 0x1ED);
+  chmod(_command.c_str(), 0x1ED);
+  return launch_script;
+}
+#endif

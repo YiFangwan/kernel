@@ -89,6 +89,7 @@ Launcher::Job_YACSFile::update_job()
 #endif
 }
 
+#ifdef WITH_LIBBATCH
 std::string 
 Launcher::Job_YACSFile::buildSalomeCouplingScript(Batch::Parametre params)
 {
@@ -149,3 +150,4 @@ Launcher::Job_YACSFile::buildSalomeCouplingScript(Batch::Parametre params)
   chmod(launch_script.c_str(), 0x1ED);
   return launch_script;
 }
+#endif
