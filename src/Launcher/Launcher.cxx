@@ -1028,7 +1028,19 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
     mess += machine_definition.HostName;
     throw LauncherException(mess);
   }
-  new_job->setMachineDefinition(machine_definition);
+
+  // Set machine definition to the job
+  // The job will check if the definitions needed
+  try 
+  {
+    new_job->setMachineDefinition(machine_definition);
+  }
+  catch(const LauncherException &ex)
+  {
+    LAUNCHER_INFOS("Error in the definition of the resource, mess: " << ex.msg);
+    delete new_job;
+    throw ex;
+  }
 
   // Part dependent of LIBBATCH - Without it we delete the job and send an exception
 #ifdef WITH_LIBBATCH

@@ -94,6 +94,13 @@ Launcher::Job::getNumber()
 void 
 Launcher::Job::setMachineDefinition(const ParserResourcesType & machine_definition)
 {
+  // Check machine_definition
+  if (machine_definition.UserName == "")
+  {
+    std::string mess = "Machine definition must define a user name !, machine name is: " + machine_definition.HostName;
+    throw LauncherException(mess);
+  }
+
   _machine_definition = machine_definition;
 }
 
@@ -331,7 +338,11 @@ Launcher::Job::common_job_params()
     _work_directory += thedate;
   }
   params[WORKDIR] = _work_directory;
-  params[TMPDIR] = _work_directory;
+  params[TMPDIR] = _work_directory; // To Compatibility -- remove ??? TODO
+
+  // If result_directory is not defined, we use HOME environnement
+  if (_result_directory == "")
+    _result_directory = getenv("HOME");
 
   // _in_files
   for(std::list<std::string>::iterator it = _in_files.begin(); it != _in_files.end(); it++)
@@ -357,12 +368,9 @@ Launcher::Job::common_job_params()
   {
     std::string file = *it;
 
-    // local file -> If result_directory is not defined, we use HOME environnement
-    std::string result_directory = _result_directory;
-    if (result_directory == "")
-      result_directory = getenv("HOME");
+    // local file 
     size_t found = file.find_last_of("/");
-    std::string local_file = result_directory +  "/" + file.substr(found+1);
+    std::string local_file = _result_directory +  "/" + file.substr(found+1);
 
     // remote file -> If file is not an absolute path, we apply _work_directory
     std::string remote_file;

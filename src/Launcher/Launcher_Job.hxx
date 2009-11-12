@@ -55,7 +55,7 @@ namespace Launcher
       void setNumber(const int & number);
       int getNumber();
 
-      void setMachineDefinition(const ParserResourcesType & machine_definition);
+      virtual void setMachineDefinition(const ParserResourcesType & machine_definition);
       ParserResourcesType getMachineDefinition();
       
       // Common parameters
@@ -87,7 +87,7 @@ namespace Launcher
       // Abstract class
       virtual void update_job() = 0;
 
-    private:
+    protected:
       int _number;
 
       std::string _state;

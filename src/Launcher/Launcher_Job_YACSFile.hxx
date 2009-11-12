@@ -40,10 +40,14 @@ namespace Launcher
       void setYACSFile(const std::string & yacs_file);
       std::string getYACSFile();
 
+      virtual void setMachineDefinition(const ParserResourcesType & machine_definition);
+
       virtual void update_job();
 
+#ifdef WITH_LIBBATCH
     protected:
-      std::string buildSalomeCouplingScript();
+      std::string buildSalomeCouplingScript(Batch::Parametre params);
+#endif
 
     private:
       std::string _yacs_file;
