@@ -32,10 +32,14 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 #
 # header files  
 salomeinclude_HEADERS = SALOME_ParameterizedObject.hxx \
-    SALOME_Parameter.hxx \
-    SALOME_Notebook.hxx \
-    SALOME_IndexMap.hxx
-
+    SALOME_Parameter.hxx   \
+    SALOME_Notebook.hxx    \
+    SALOME_Eval.hxx        \
+    SALOME_EvalExpr.hxx    \
+    SALOME_EvalParser.hxx  \
+    SALOME_EvalSet.hxx     \
+    SALOME_EvalVariant.hxx   
+    
 # Scripts to be installed
 dist_salomescript_PYTHON=
 
@@ -68,7 +72,11 @@ COMMON_LIBS =
 lib_LTLIBRARIES = libSalomeNotebook.la
 libSalomeNotebook_la_SOURCES = SALOME_ParameterizedObject.cxx \
     SALOME_Parameter.cxx \
-    SALOME_Notebook.cxx
+    SALOME_Notebook.cxx  \
+    SALOME_EvalExpr.cxx  \
+    SALOME_EvalParser.cxx  \
+    SALOME_EvalSet.cxx  \
+    SALOME_EvalVariant.cxx  
 
 libSalomeNotebook_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeNotebook_la_LDFLAGS  = -Wl,-E -no-undefined -version-info=0:0:0 @LDEXPDYNFLAGS@
