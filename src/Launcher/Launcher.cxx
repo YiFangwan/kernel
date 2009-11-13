@@ -511,17 +511,10 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager(ParserResourcesTy
   case prun:
     mpi = "prun";
     break;
-  case nompi:
-    std::cerr << "No MPI detected - switch to single machine case" << std::endl;
-    if (protocol == Batch::SSH)
-      params.Batch = ssh_batch;
-    else
-      throw LauncherException("you must specified an mpi implementation for batch manager or a ssh computer");
-    break;
   default:
-    throw LauncherException("unknown mpi implementation");
-    break;
-  }    
+    mpi = "nompi";
+  }
+
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "Instanciation of batch manager" << endl;
 #endif
@@ -558,8 +551,8 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager(ParserResourcesTy
   }
   return (*fact)(hostname.c_str(), protocol, mpi.c_str());
 #else
-M@M@  throw LauncherException("Method Launcher_cpp::FactoryBatchManager is not available "
-                          "(libBatch was not present at compilation time)");
+  throw LauncherException("Method Launcher_cpp::FactoryBatchManager is not available "
+			  "(libBatch was not present at compilation time)");
 #endif
 }
 
@@ -1058,6 +1051,12 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
       LAUNCHER_INFOS("Error during creation of the batch manager of the resource, mess: " << ex.msg);
       delete new_job;
       throw ex;
+    }
+    catch(const Batch::EmulationException &ex)
+    {
+      LAUNCHER_INFOS("Error during creation of the batch manager of the resource, mess: " << ex.message);
+      delete new_job;
+      throw LauncherException(ex.message);
     }
   }
 

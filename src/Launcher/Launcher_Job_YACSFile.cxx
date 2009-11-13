@@ -75,13 +75,6 @@ Launcher::Job_YACSFile::update_job()
   std::string remote_file = _work_directory + "/" + _yacs_file.substr(found+1);
   params[INFILE] += Batch::Couple(local_file, remote_file);
 
-  // logs
-  // local file -> If result_directory is not defined, we use HOME environnement
-  std::string log_directory   = "logs";
-  std::string log_local_file  = _result_directory + "/" + log_directory;
-  std::string log_remote_file = _work_directory   + "/" + log_directory;
-  params[OUTFILE] += Batch::Couple(log_local_file, log_remote_file);
-
   params[EXECUTABLE] = buildSalomeCouplingScript(params);
 
   // Add in files -> yacs_file and launch_script
@@ -121,7 +114,6 @@ Launcher::Job_YACSFile::buildSalomeCouplingScript(Batch::Parametre params)
   // Begin of script
   launch_script_stream << "#! /bin/sh -f" << std::endl;
   launch_script_stream << "cd " << work_directory << std::endl;
-  launch_script_stream << "mkdir logs" << std::endl;
   launch_script_stream << "export SALOME_TMP_DIR=" << work_directory << "/logs" << std::endl;
 
   // -- Generates Catalog Resources

@@ -58,6 +58,32 @@ Launcher::Job_Command::update_job()
 #ifdef WITH_LIBBATCH
   Batch::Parametre params = common_job_params();
 
+  // Files
+  // local file -> If file is not an absolute path, we apply _local_directory
+  // remote file -> get only file name from _in_files
+
+  // Copy command file
+  std::string local_file;
+  if (_command.substr(0, 1) == std::string("/"))
+    local_file = _command;
+  else
+    local_file = _local_directory + "/" + _command;
+  size_t found = _command.find_last_of("/");
+  std::string remote_file = _work_directory + "/" + _command.substr(found+1);
+  params[INFILE] += Batch::Couple(local_file, remote_file);
+
+  // Copy env file
+  if (_env_file != "")
+  {
+    if (_env_file.substr(0, 1) == std::string("/"))
+      local_file = _env_file;
+    else
+      local_file = _local_directory + "/" + _env_file;
+    found = _env_file.find_last_of("/");
+    remote_file = _work_directory + "/" + _env_file.substr(found+1);
+    params[INFILE] += Batch::Couple(local_file, remote_file);
+  }
+
   // log
   std::string log_file        = "command.log";
   std::string log_local_file  = _result_directory + "/" + log_file;
@@ -80,6 +106,7 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params)
   std::string::size_type p1 = _command.find_last_of("/");
   std::string::size_type p2 = _command.find_last_of(".");
   std::string command_name = _command.substr(p1+1,p2-p1-1);
+  std::string command_file_name = _command.substr(p1+1);
   
   time_t rawtime;
   time(&rawtime);
@@ -102,8 +129,11 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params)
   launch_script_stream << "#! /bin/sh -f" << std::endl;
   launch_script_stream << "cd " << work_directory << std::endl;
   if (_env_file != "")
-     launch_script_stream << "source " << _env_file << std::endl;
-  launch_script_stream << _command << " > command.log 2>&1" << std::endl;
+  {
+    std::string::size_type last = _env_file.find_last_of("/");
+    launch_script_stream << "source " << _env_file.substr(last+1) << std::endl;
+  }
+  launch_script_stream << "./" << command_file_name << " > command.log 2>&1" << std::endl;
 
   // Return
   launch_script_stream.flush();
