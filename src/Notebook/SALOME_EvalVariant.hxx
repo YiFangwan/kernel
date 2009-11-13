@@ -182,9 +182,9 @@ class SALOME_EvalVariant
     };
     //
     bool toBool() const;
-    int  toInt(bool *ok = 0) const;
-    uint toUInt(bool *ok = 0) const;
-    double toDouble(bool *ok = 0) const;
+    int  toInt(bool *ok) const;
+    uint toUInt(bool *ok) const;
+    double toDouble(bool *ok) const;
     RString toString() const;
     SALOME_ListOfEvalVariant toList() const; 
     //

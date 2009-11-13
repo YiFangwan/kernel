@@ -431,6 +431,7 @@ double SALOME_EvalVariant::toDouble(bool *ok) const
 //=======================================================================
 RString SALOME_EvalVariant::toString() const
 {
+  bool bOk;
   char buffer[32];
   RString aS;
   //
@@ -439,7 +440,7 @@ RString SALOME_EvalVariant::toString() const
   if (aType == SALOME_EvalVariant_Boolean) {
     int iX;
     //
-    iX=toInt();
+    iX=toInt(&bOk);
     aS= iX? "true" : "false";
   }
   else if (aType == SALOME_EvalVariant_Int) {
