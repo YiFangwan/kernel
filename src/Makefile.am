@@ -69,7 +69,8 @@ SUBDIR_CPPUNIT_CORBA = \
   LifeCycleCORBA/Test \
   LifeCycleCORBA_SWIG/Test \
   SALOMEDSImpl/Test \
-  SALOMEDS/Test
+  SALOMEDS/Test \
+  Notebook/Test
 
 SUBDIR_CPPUNIT_GENERAL = \
   UnitTests
