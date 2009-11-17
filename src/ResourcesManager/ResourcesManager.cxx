@@ -86,8 +86,16 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
   _resourceManagerMap["best"]=&altcycl;
   _resourceManagerMap[""]=&altcycl;
 
-  std::string default_file("");
-  if (getenv("APPLI") != 0)
+  if (getenv("USER_CATALOG_RESOURCES_FILE") != 0)
+  {
+    std::string user_file("");
+    user_file = getenv("USER_CATALOG_RESOURCES_FILE");
+    _path_resources.push_back(user_file);
+  }
+  else
+  {
+    std::string default_file("");
+    if (getenv("APPLI") != 0)
     {
       default_file += getenv("HOME");
       default_file += "/";
@@ -95,7 +103,7 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
       default_file += "/CatalogResources.xml";
       _path_resources.push_back(default_file);
     }
-  else
+    else
     {
       if(!getenv("KERNEL_ROOT_DIR"))
 	throw ResourcesException("you must define KERNEL_ROOT_DIR environment variable!! -> cannot load a CatalogResources.xml");
@@ -103,12 +111,6 @@ ResourcesManager_cpp::ResourcesManager_cpp() throw(ResourcesException)
       default_file += "/share/salome/resources/kernel/CatalogResources.xml";
       _path_resources.push_back(default_file);
     }
-
-  if (getenv("USER_CATALOG_RESOURCES_FILE") != 0)
-  {
-    std::string user_file("");
-    user_file = getenv("USER_CATALOG_RESOURCES_FILE");
-    _path_resources.push_back(user_file);
   }
 
   _lasttime=0;
