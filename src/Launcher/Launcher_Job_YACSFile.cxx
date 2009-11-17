@@ -135,9 +135,9 @@ Launcher::Job_YACSFile::buildSalomeCouplingScript(Batch::Parametre params)
 		       << "    exit\n"
 		       << "  fi\n"
 		       << "done\n"
-		       << "port=`cat " << _machine_definition.AppliPath << "/" << launch_date_port_file << "`\n";
-  launch_script_stream << _machine_definition.AppliPath << "/runSession driver " << yacs_file_name << ".xml > logs/yacs_" << launch_date << ".log 2>&1" << std::endl;
-  launch_script_stream << _machine_definition.AppliPath << "/runSession killSalomeWithPort.py $port" << std::endl;
+		       << "appli_port=`cat " << _machine_definition.AppliPath << "/" << launch_date_port_file << "`\n";
+  launch_script_stream << _machine_definition.AppliPath << "/runSession -p $appli_port driver " << yacs_file_name << ".xml > logs/yacs_" << launch_date << ".log 2>&1" << std::endl;
+  launch_script_stream << _machine_definition.AppliPath << "/runSession -p $appli_port shutdownSalome.py" << std::endl;
 
   // Return
   launch_script_stream.flush();
