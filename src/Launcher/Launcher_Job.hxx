@@ -25,6 +25,8 @@
 #include "ResourcesManager.hxx"
 
 #include <stdlib.h>
+#include <time.h>
+#include <sys/stat.h>
 
 #include <string>
 #include <list>
@@ -66,6 +68,7 @@ namespace Launcher
       void add_out_file(const std::string & file);
       void setMaximumDuringTime(const std::string & maximum_during_time);
       void setMachineRequiredParams(const machineParams & machine_required_params);
+      void setQueue(const std::string & queue);
 
       std::string getWorkDirectory();
       std::string getLocalDirectory();
@@ -74,6 +77,7 @@ namespace Launcher
       const std::list<std::string> & get_out_files();
       std::string getMaximumDuringTime();
       machineParams getMachineRequiredParams();
+      std::string getQueue();
       
       std::string updateJobState();
 
@@ -83,6 +87,7 @@ namespace Launcher
 
       // Helps
       long convertMaximumDuringTime(const std::string & maximum_during_time);
+      std::string getLaunchDate();
 
       // Abstract class
       virtual void update_job() = 0;
@@ -102,6 +107,7 @@ namespace Launcher
       std::string _maximum_during_time;
       long _maximum_during_time_in_second;
       machineParams _machine_required_params;
+      std::string _queue;
 
 #ifdef WITH_LIBBATCH
     // Connection with LIBBATCH

@@ -480,6 +480,8 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager(ParserResourcesTy
   Batch::CommunicationProtocolType protocol;
   Batch::FactBatchManager_eClient* fact;
 
+  int nb_proc_per_node = params.DataForSort._nbOfProcPerNode;
+
   hostname = params.Alias;
   switch(params.Protocol){
   case rsh:
@@ -549,7 +551,7 @@ Batch::BatchManager_eClient *Launcher_cpp::FactoryBatchManager(ParserResourcesTy
 #endif
     throw LauncherException("no batchmanager for that cluster");
   }
-  return (*fact)(hostname.c_str(), protocol, mpi.c_str());
+  return (*fact)(hostname.c_str(), protocol, mpi.c_str(), nb_proc_per_node);
 #else
   throw LauncherException("Method Launcher_cpp::FactoryBatchManager is not available "
 			  "(libBatch was not present at compilation time)");

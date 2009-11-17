@@ -150,9 +150,15 @@ struct JobParameters
        this case, default value of the selected resource will be used.
   */
   string maximum_during_time; 
-  MachineParameters resource_required;
+
   // Memory is expressed in megabytes -> mem_mb
   // Number of Processors -> nb_node
+  MachineParameters resource_required;
+
+  /*!
+    Name of the batch queue choosed - optional
+  */
+  string queue;
 };
 
 /*! \brief Interface of the %salomelauncher

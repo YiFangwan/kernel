@@ -46,7 +46,7 @@ namespace Launcher
 
 #ifdef WITH_LIBBATCH
     protected:
-      std::string buildCommandScript(Batch::Parametre params);
+      std::string buildCommandScript(Batch::Parametre params, std::string launch_date);
 #endif
 
     private:

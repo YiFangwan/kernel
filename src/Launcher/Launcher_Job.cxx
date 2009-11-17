@@ -39,6 +39,7 @@ Launcher::Job::Job()
   _machine_required_params.mem_mb = -1;
   _machine_required_params.parallelLib = "";
   _machine_required_params.nb_component_nodes = -1;
+  _queue = "";
 
 #ifdef WITH_LIBBATCH
   _batch_job = new Batch::Job();
@@ -163,6 +164,12 @@ Launcher::Job::setMachineRequiredParams(const machineParams & machine_required_p
   _machine_required_params = machine_required_params;
 }
 
+void 
+Launcher::Job::setQueue(const std::string & queue)
+{
+  _queue = queue;
+}
+
 std::string 
 Launcher::Job::getWorkDirectory()
 {
@@ -203,6 +210,12 @@ machineParams
 Launcher::Job::getMachineRequiredParams()
 {
   return _machine_required_params;
+}
+
+std::string 
+Launcher::Job::getQueue()
+{
+  return _queue;
 }
 
 void 
@@ -268,6 +281,24 @@ Launcher::Job::convertMaximumDuringTime(const std::string & edt)
   ret = ret * 60;
 
   return ret;
+}
+
+std::string 
+Launcher::Job::getLaunchDate()
+{
+  time_t rawtime;
+  time(&rawtime);
+  std::string launch_date = ctime(&rawtime);
+  int i = 0 ;
+  for (;i < launch_date.size(); i++) 
+    if (launch_date[i] == '/' or 
+	launch_date[i] == '-' or 
+	launch_date[i] == ':' or
+	launch_date[i] == ' ') 
+      launch_date[i] = '_';
+  launch_date.erase(--launch_date.end()); // Last caracter is a \n
+
+  return launch_date;
 }
 
 std::string
@@ -387,6 +418,10 @@ Launcher::Job::common_job_params()
   // Time
   if (_maximum_during_time_in_second != -1)
     params[MAXWALLTIME] = _maximum_during_time_in_second;
+
+  // Queue
+  if (_queue != "")
+    params[QUEUE] = _queue;
 
   return params;
 }

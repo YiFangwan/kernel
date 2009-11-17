@@ -258,6 +258,11 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
     INFOS(ex.msg.c_str());
     THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
   }
+
+  // Queue
+  std::string queue = job_parameters.queue.in();
+  if (queue != "")
+    new_job->setQueue(queue);
    
   // Resources requirements
   try

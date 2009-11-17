@@ -85,19 +85,20 @@ Launcher::Job_Command::update_job()
   }
 
   // log
-  std::string log_file        = "command.log";
+  std::string launch_date = getLaunchDate(); 
+  std::string log_file        = "command_" + launch_date + ".log";
   std::string log_local_file  = _result_directory + "/" + log_file;
   std::string log_remote_file = _work_directory   + "/" + log_file;
   params[OUTFILE] += Batch::Couple(log_local_file, log_remote_file);
 
-  params[EXECUTABLE] = buildCommandScript(params);
+  params[EXECUTABLE] = buildCommandScript(params, launch_date);
   _batch_job->setParametre(params);
 #endif
 }
 
 #ifdef WITH_LIBBATCH
 std::string 
-Launcher::Job_Command::buildCommandScript(Batch::Parametre params)
+Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string launch_date)
 {
   // parameters
   std::string work_directory = params[WORKDIR].str();
@@ -107,18 +108,6 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params)
   std::string::size_type p2 = _command.find_last_of(".");
   std::string command_name = _command.substr(p1+1,p2-p1-1);
   std::string command_file_name = _command.substr(p1+1);
-  
-  time_t rawtime;
-  time(&rawtime);
-  std::string launch_date = ctime(&rawtime);
-  int i = 0 ;
-  for (;i < launch_date.size(); i++) 
-    if (launch_date[i] == '/' or 
-	launch_date[i] == '-' or 
-	launch_date[i] == ':' or
-	launch_date[i] == ' ') 
-      launch_date[i] = '_';
-  launch_date.erase(--launch_date.end()); // Last caracter is a \n
   
   std::string launch_date_port_file = launch_date;
   std::string launch_script = "/tmp/runCommand_" + command_name + "_" + launch_date + ".sh";
@@ -133,7 +122,7 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params)
     std::string::size_type last = _env_file.find_last_of("/");
     launch_script_stream << "source " << _env_file.substr(last+1) << std::endl;
   }
-  launch_script_stream << "./" << command_file_name << " > command.log 2>&1" << std::endl;
+  launch_script_stream << "./" << command_file_name << " > command_" << launch_date << ".log 2>&1" << std::endl;
 
   // Return
   launch_script_stream.flush();
