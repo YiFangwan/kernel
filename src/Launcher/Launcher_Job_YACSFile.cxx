@@ -91,10 +91,9 @@ Launcher::Job_YACSFile::buildSalomeCouplingScript(Batch::Parametre params)
   std::string::size_type p1 = _yacs_file.find_last_of("/");
   std::string::size_type p2 = _yacs_file.find_last_of(".");
   std::string yacs_file_name = _yacs_file.substr(p1+1,p2-p1-1);
-  std::string launch_date = getLaunchDate();
   
-  std::string launch_date_port_file = launch_date;
-  std::string launch_script = "/tmp/runSalome_" + yacs_file_name + "_" + launch_date + ".sh";
+  std::string launch_date_port_file = _launch_date;
+  std::string launch_script = "/tmp/runSalome_" + yacs_file_name + "_" + _launch_date + ".sh";
   std::ofstream launch_script_stream;
   launch_script_stream.open(launch_script.c_str(), std::ofstream::out);
    
@@ -107,7 +106,7 @@ Launcher::Job_YACSFile::buildSalomeCouplingScript(Batch::Parametre params)
   std::string machine_protocol = "ssh";
   if (_machine_definition.Protocol == rsh)
     machine_protocol = "rsh";
-  launch_script_stream << "CATALOG_FILE=" << work_directory << "/CatalogResources_" << launch_date << ".xml" << std::endl;
+  launch_script_stream << "CATALOG_FILE=" << work_directory << "/CatalogResources_" << _launch_date << ".xml" << std::endl;
   launch_script_stream << "export USER_CATALOG_RESOURCES_FILE=" << "$CATALOG_FILE" << std::endl;
 
   launch_script_stream << "echo '<!DOCTYPE ResourcesCatalog>'  > $CATALOG_FILE" << std::endl;
@@ -123,7 +122,7 @@ Launcher::Job_YACSFile::buildSalomeCouplingScript(Batch::Parametre params)
   launch_script_stream << "echo '</resources>' >> $CATALOG_FILE" << std::endl;
 
   // Launch SALOME with an appli
-  launch_script_stream << _machine_definition.AppliPath << "/runAppli --terminal  --ns-port-log=" << launch_date_port_file <<  " > logs/salome_" << launch_date << ".log 2>&1" << std::endl;
+  launch_script_stream << _machine_definition.AppliPath << "/runAppli --terminal  --ns-port-log=" << launch_date_port_file <<  " > logs/salome_" << _launch_date << ".log 2>&1" << std::endl;
   launch_script_stream << "current=0\n"
 		       << "stop=20\n" 
 		       << "while ! test -f " << _machine_definition.AppliPath << "/" << launch_date_port_file << "\n"
@@ -136,7 +135,7 @@ Launcher::Job_YACSFile::buildSalomeCouplingScript(Batch::Parametre params)
 		       << "  fi\n"
 		       << "done\n"
 		       << "appli_port=`cat " << _machine_definition.AppliPath << "/" << launch_date_port_file << "`\n";
-  launch_script_stream << _machine_definition.AppliPath << "/runSession -p $appli_port driver " << yacs_file_name << ".xml > logs/yacs_" << launch_date << ".log 2>&1" << std::endl;
+  launch_script_stream << _machine_definition.AppliPath << "/runSession -p $appli_port driver " << yacs_file_name << ".xml > logs/yacs_" << _launch_date << ".log 2>&1" << std::endl;
   launch_script_stream << _machine_definition.AppliPath << "/runSession -p $appli_port shutdownSalome.py" << std::endl;
 
   // Return

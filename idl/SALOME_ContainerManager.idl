@@ -149,7 +149,7 @@ struct JobParameters
   /*! Time for the batch (has to be like this : hh:mm) - Could be empty, in
        this case, default value of the selected resource will be used.
   */
-  string maximum_during_time; 
+  string maximum_duration; 
 
   // Memory is expressed in megabytes -> mem_mb
   // Number of Processors -> nb_node

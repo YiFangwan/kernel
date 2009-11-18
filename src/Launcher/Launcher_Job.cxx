@@ -25,12 +25,13 @@ Launcher::Job::Job()
 {
   _number = -1;
   _state = "CREATED";
+  _launch_date = getLaunchDate();
 
   _work_directory = "";
   _local_directory = "";
   _result_directory = "";
-  _maximum_during_time = "";
-  _maximum_during_time_in_second = -1;
+  _maximum_duration = "";
+  _maximum_duration_in_second = -1;
   _machine_required_params.hostname = "";
   _machine_required_params.OS = "";
   _machine_required_params.nb_node = -1;
@@ -150,11 +151,11 @@ Launcher::Job::add_out_file(const std::string & file)
 }
 
 void 
-Launcher::Job::setMaximumDuringTime(const std::string & maximum_during_time)
+Launcher::Job::setMaximumDuration(const std::string & maximum_duration)
 {
-  checkMaximumDuringTime(maximum_during_time);
-  _maximum_during_time_in_second = convertMaximumDuringTime(maximum_during_time);
-  _maximum_during_time = maximum_during_time;
+  checkMaximumDuration(maximum_duration);
+  _maximum_duration_in_second = convertMaximumDuration(maximum_duration);
+  _maximum_duration = maximum_duration;
 }
 
 void 
@@ -201,9 +202,9 @@ Launcher::Job::get_out_files()
 }
 
 std::string 
-Launcher::Job::getMaximumDuringTime()
+Launcher::Job::getMaximumDuration()
 {
-  return _maximum_during_time;
+  return _maximum_duration;
 }
 
 machineParams 
@@ -219,10 +220,10 @@ Launcher::Job::getQueue()
 }
 
 void 
-Launcher::Job::checkMaximumDuringTime(const std::string & maximum_during_time)
+Launcher::Job::checkMaximumDuration(const std::string & maximum_duration)
 {
   std::string result("");
-  std::string edt_value = maximum_during_time;
+  std::string edt_value = maximum_duration;
   if (edt_value != "") {
     std::string begin_edt_value = edt_value.substr(0, 2);
     std::string mid_edt_value = edt_value.substr(2, 1);
@@ -231,20 +232,20 @@ Launcher::Job::checkMaximumDuringTime(const std::string & maximum_during_time)
     long value;
     std::istringstream iss(begin_edt_value);
     if (!(iss >> value)) {
-      result = "[Launcher::Job::checkExpectedDuringTime] Error on definition ! : " + edt_value;
+      result = "[Launcher::Job::checkExpectedDuration] Error on definition ! : " + edt_value;
     }
     else if (value < 0) {
-      result = "[Launcher::Job::checkExpectedDuringTime] Error on definition time is negative ! : " + value;
+      result = "[Launcher::Job::checkExpectedDuration] Error on definition time is negative ! : " + value;
     }
     std::istringstream iss_2(end_edt_value);
     if (!(iss_2 >> value)) {
-      result = "[Launcher::Job::checkExpectedDuringTime] Error on definition ! : " + edt_value;
+      result = "[Launcher::Job::checkExpectedDuration] Error on definition ! : " + edt_value;
     }
     else if (value < 0) {
-      result = "[Launcher::Job::checkExpectedDuringTime] Error on definition time is negative ! : " + value;
+      result = "[Launcher::Job::checkExpectedDuration] Error on definition time is negative ! : " + value;
     }
     if (mid_edt_value != ":") {
-      result = "[Launcher::Job::checkExpectedDuringTime] Error on definition ! :" + edt_value;
+      result = "[Launcher::Job::checkExpectedDuration] Error on definition ! :" + edt_value;
     }
   }
   if (result != "")
@@ -263,7 +264,7 @@ Launcher::Job::checkMachineRequiredParams(const machineParams & machine_required
 }
 
 long 
-Launcher::Job::convertMaximumDuringTime(const std::string & edt)
+Launcher::Job::convertMaximumDuration(const std::string & edt)
 {
   long hh, mm, ret;
 
@@ -416,8 +417,8 @@ Launcher::Job::common_job_params()
   }
 
   // Time
-  if (_maximum_during_time_in_second != -1)
-    params[MAXWALLTIME] = _maximum_during_time_in_second;
+  if (_maximum_duration_in_second != -1)
+    params[MAXWALLTIME] = _maximum_duration_in_second;
 
   // Queue
   if (_queue != "")

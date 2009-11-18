@@ -66,7 +66,7 @@ namespace Launcher
       void setResultDirectory(const std::string & result_directory);
       void add_in_file(const std::string & file);
       void add_out_file(const std::string & file);
-      void setMaximumDuringTime(const std::string & maximum_during_time);
+      void setMaximumDuration(const std::string & maximum_duration);
       void setMachineRequiredParams(const machineParams & machine_required_params);
       void setQueue(const std::string & queue);
 
@@ -75,18 +75,18 @@ namespace Launcher
       std::string getResultDirectory();
       const std::list<std::string> & get_in_files();
       const std::list<std::string> & get_out_files();
-      std::string getMaximumDuringTime();
+      std::string getMaximumDuration();
       machineParams getMachineRequiredParams();
       std::string getQueue();
       
       std::string updateJobState();
 
       // Checks
-      void checkMaximumDuringTime(const std::string & maximum_during_time);
+      void checkMaximumDuration(const std::string & maximum_duration);
       void checkMachineRequiredParams(const machineParams & machine_required_params);
 
       // Helps
-      long convertMaximumDuringTime(const std::string & maximum_during_time);
+      long convertMaximumDuration(const std::string & maximum_duration);
       std::string getLaunchDate();
 
       // Abstract class
@@ -96,6 +96,7 @@ namespace Launcher
       int _number;
 
       std::string _state;
+      std::string _launch_date;
 
       ParserResourcesType _machine_definition;
 
@@ -104,8 +105,8 @@ namespace Launcher
       std::string _result_directory;
       std::list<std::string> _in_files;
       std::list<std::string> _out_files;
-      std::string _maximum_during_time;
-      long _maximum_during_time_in_second;
+      std::string _maximum_duration;
+      long _maximum_duration_in_second;
       machineParams _machine_required_params;
       std::string _queue;
 

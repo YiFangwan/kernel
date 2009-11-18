@@ -84,14 +84,7 @@ Launcher::Job_Command::update_job()
     params[INFILE] += Batch::Couple(local_file, remote_file);
   }
 
-  // log
-  std::string launch_date = getLaunchDate(); 
-  std::string log_file        = "command_" + launch_date + ".log";
-  std::string log_local_file  = _result_directory + "/" + log_file;
-  std::string log_remote_file = _work_directory   + "/" + log_file;
-  params[OUTFILE] += Batch::Couple(log_local_file, log_remote_file);
-
-  params[EXECUTABLE] = buildCommandScript(params, launch_date);
+  params[EXECUTABLE] = buildCommandScript(params, _launch_date);
   _batch_job->setParametre(params);
 #endif
 }
@@ -120,9 +113,9 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
   if (_env_file != "")
   {
     std::string::size_type last = _env_file.find_last_of("/");
-    launch_script_stream << "source " << _env_file.substr(last+1) << std::endl;
+    launch_script_stream << "source ./" << _env_file.substr(last+1) << std::endl;
   }
-  launch_script_stream << "./" << command_file_name << " > command_" << launch_date << ".log 2>&1" << std::endl;
+  launch_script_stream << "./" << command_file_name << " > " << work_directory <<"/logs/command_" << launch_date << ".log 2>&1" << std::endl;
 
   // Return
   launch_script_stream.flush();
