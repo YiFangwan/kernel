@@ -23,7 +23,6 @@
 Launcher::Job_Command::Job_Command(const std::string & command)
 {
   _command = command;
-  _env_file = "";
 }
 
 Launcher::Job_Command::~Job_Command() {}
@@ -38,18 +37,6 @@ std::string
 Launcher::Job_Command::getCommand()
 {
   return _command;
-}
-
-void 
-Launcher::Job_Command::setEnvFile(std::string & env_file)
-{
-  _env_file = env_file;
-}
-
-std::string
-Launcher::Job_Command::getEnvFile()
-{
-  return _env_file;
 }
 
 void
@@ -71,18 +58,6 @@ Launcher::Job_Command::update_job()
   size_t found = _command.find_last_of("/");
   std::string remote_file = _work_directory + "/" + _command.substr(found+1);
   params[INFILE] += Batch::Couple(local_file, remote_file);
-
-  // Copy env file
-  if (_env_file != "")
-  {
-    if (_env_file.substr(0, 1) == std::string("/"))
-      local_file = _env_file;
-    else
-      local_file = _local_directory + "/" + _env_file;
-    found = _env_file.find_last_of("/");
-    remote_file = _work_directory + "/" + _env_file.substr(found+1);
-    params[INFILE] += Batch::Couple(local_file, remote_file);
-  }
 
   params[EXECUTABLE] = buildCommandScript(params, _launch_date);
   _batch_job->setParametre(params);

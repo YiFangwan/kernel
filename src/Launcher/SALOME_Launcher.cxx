@@ -68,7 +68,6 @@ SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa
 
   _NS->Register(refContMan,_LauncherNameInNS);
 
-  _job_cpt = 0;
   MESSAGE("SALOME_Launcher constructor end");
 }
 
@@ -214,9 +213,6 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
     }
     Launcher::Job_Command * job = new Launcher::Job_Command(command);
     new_job = job;
-
-    std::string env_file = job_parameters.env_file.in();
-    job->setEnvFile(env_file);
   }
   else if (job_type == "yacs_file")
   {
@@ -228,11 +224,6 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
     }
     new_job = new Launcher::Job_YACSFile(yacs_file);
   }
-
-  // Not thread safe... TODO !
-  new_job->setNumber(_job_cpt);
-  _job_cpt++;
-  // End Not thread safe
  
   // Directories
   std::string work_directory = job_parameters.work_directory.in();
@@ -243,6 +234,8 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   new_job->setResultDirectory(result_directory);
 
   // Files
+  std::string env_file = job_parameters.env_file.in();
+  new_job->setEnvFile(env_file);
   for (CORBA::ULong i = 0; i < job_parameters.in_files.length(); i++)
     new_job->add_in_file(job_parameters.in_files[i].in());
   for (CORBA::ULong i = 0; i < job_parameters.out_files.length(); i++)

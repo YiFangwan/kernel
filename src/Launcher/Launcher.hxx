@@ -33,6 +33,8 @@
 #include <string>
 #include <vector>
 
+#include <pthread.h>
+
 class MpiImpl;
 
 namespace Batch{
@@ -101,6 +103,8 @@ protected:
   //! will contain the informations on the data type catalog(after parsing)
   ParserLauncherType _launch;
 
+  int _job_cpt; // job number counter
+  pthread_mutex_t * _job_cpt_mutex; // mutex for job counter
 };
 
 #endif

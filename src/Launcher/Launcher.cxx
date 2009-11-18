@@ -52,6 +52,9 @@ Launcher_cpp::Launcher_cpp()
 #if defined(_DEBUG_) || defined(_DEBUG)
   cerr << "Launcher_cpp constructor" << endl;
 #endif
+  _job_cpt = 0;
+  _job_cpt_mutex = new pthread_mutex_t();
+  pthread_mutex_init(_job_cpt_mutex, NULL);
 }
 
 //=============================================================================
@@ -75,6 +78,8 @@ Launcher_cpp::~Launcher_cpp()
   for(it_job = _launcher_job_map.begin(); it_job != _launcher_job_map.end(); it_job++)
     delete it_job->second;
 #endif
+  pthread_mutex_destroy(_job_cpt_mutex);
+  delete _job_cpt_mutex;
 }
 
 //=============================================================================
@@ -1062,7 +1067,12 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
     }
   }
 
+
   // Final step - add job to the jobs map
+  pthread_mutex_lock(_job_cpt_mutex);
+  new_job->setNumber(_job_cpt);
+  _job_cpt++;
+  pthread_mutex_unlock(_job_cpt_mutex);
   std::map<int, Launcher::Job *>::const_iterator it_job = _launcher_job_map.find(new_job->getNumber());
   if (it_job == _launcher_job_map.end())
     _launcher_job_map[new_job->getNumber()] = new_job;

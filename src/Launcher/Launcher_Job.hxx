@@ -69,6 +69,7 @@ namespace Launcher
       void setMaximumDuration(const std::string & maximum_duration);
       void setMachineRequiredParams(const machineParams & machine_required_params);
       void setQueue(const std::string & queue);
+      void setEnvFile(std::string & env_file);
 
       std::string getWorkDirectory();
       std::string getLocalDirectory();
@@ -78,6 +79,7 @@ namespace Launcher
       std::string getMaximumDuration();
       machineParams getMachineRequiredParams();
       std::string getQueue();
+      std::string getEnvFile();
       
       std::string updateJobState();
 
@@ -97,6 +99,7 @@ namespace Launcher
 
       std::string _state;
       std::string _launch_date;
+      std::string _env_file;
 
       ParserResourcesType _machine_definition;
 

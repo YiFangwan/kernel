@@ -39,8 +39,6 @@ namespace Launcher
       // Specific parameters
       void setCommand(const std::string & command);
       std::string getCommand();
-      void setEnvFile(std::string & env_file);
-      std::string getEnvFile();
 
       virtual void update_job();
 
@@ -51,7 +49,6 @@ namespace Launcher
 
     private:
       std::string _command;
-      std::string _env_file;
   };
 }
 

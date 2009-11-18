@@ -27,6 +27,7 @@ Launcher::Job::Job()
   _state = "CREATED";
   _launch_date = getLaunchDate();
 
+  _env_file = "";
   _work_directory = "";
   _local_directory = "";
   _result_directory = "";
@@ -110,6 +111,18 @@ ParserResourcesType
 Launcher::Job::getMachineDefinition()
 {
   return _machine_definition;
+}
+
+void 
+Launcher::Job::setEnvFile(std::string & env_file)
+{
+  _env_file = env_file;
+}
+
+std::string
+Launcher::Job::getEnvFile()
+{
+  return _env_file;
 }
 
 void 
@@ -377,6 +390,10 @@ Launcher::Job::common_job_params()
   // If result_directory is not defined, we use HOME environnement
   if (_result_directory == "")
     _result_directory = getenv("HOME");
+
+  //Env file
+  if (_env_file != "")
+    add_in_file(_env_file);
 
   // _in_files
   for(std::list<std::string>::iterator it = _in_files.begin(); it != _in_files.end(); it++)

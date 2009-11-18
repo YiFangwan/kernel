@@ -80,8 +80,6 @@ protected:
   SALOME_ResourcesManager *_ResManager;
   SALOME_NamingService *_NS;
 
-  int _job_cpt;
-
   Launcher_cpp _l;
 };
 
