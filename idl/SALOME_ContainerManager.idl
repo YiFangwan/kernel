@@ -137,9 +137,9 @@ struct JobParameters
 
   //! Command
   string command;
-  string env_file; 
 
   // Common values
+  string env_file; 
   FilesList in_files;
   FilesList out_files;
   string work_directory;
