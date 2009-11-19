@@ -32,6 +32,7 @@
 #include "SALOMEDS_AttributeParameter_i.hxx"
 #include "SALOMEDS_ChildIterator_i.hxx"
 #include "SALOMEDS_Driver_i.hxx"
+#include "SALOMEDS_StudyBuilder.hxx"
 #include "SALOMEDS.hxx"
 
 #include "SALOMEDSImpl_SObject.hxx"
@@ -928,4 +929,35 @@ CORBA::LongLong SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::L
 #endif  
   isLocal = (strcmp(theHostname, Kernel_Utils::GetHostname().c_str()) == 0 && pid == thePID)?1:0;
   return reinterpret_cast<CORBA::LongLong>(_impl);
+}
+
+SALOME::GenericObj_ptr SALOMEDS_Study_i::FindObjectByInternalEntry( const char* theComponent, const char* theEntry )
+{
+  SALOME::GenericObj_ptr aRes;
+  SALOMEDS::StudyBuilder_ptr aBuilder = NewBuilder();
+  SALOMEDS::SComponent_ptr aSComponent = FindComponent( theComponent );
+
+  if( !CORBA::is_nil( aSComponent ) )
+  {
+    SALOMEDS::GenericAttribute_ptr anAttr;
+    if( aBuilder->FindAttribute( aSComponent, anAttr, "AttributeIOR" ) )
+    {
+      SALOMEDS::AttributeIOR_ptr anAttrIOR = SALOMEDS::AttributeIOR::_narrow( anAttr );
+      CORBA::Object_var aCompObj = _orb->string_to_object( anAttrIOR->Value() );
+      Engines::Component_var aComponent = Engines::Component::_narrow( aCompObj );
+      aRes = aComponent->FindObjectByInternalEntry( theEntry );
+    }
+  }
+  return aRes;
+}
+
+SALOME::Notebook_ptr SALOMEDS_Study_i::GetNotebook()
+{
+  if( CORBA::is_nil( myNotebook ) )
+  {
+    SALOME_Notebook* aNb = new SALOME_Notebook( _this() );
+    myNotebook = aNb->_this();
+  }
+
+  return myNotebook._retn();
 }

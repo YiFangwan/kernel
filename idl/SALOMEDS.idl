@@ -32,6 +32,7 @@
 
 #include "SALOME_Exception.idl"
 #include "SALOME_GenericObj.idl"
+#include "SALOME_Notebook.idl"
 
 /*! \brief
      This package contains the interfaces used for creation, management
@@ -403,6 +404,15 @@ during each working session.
 /*! \brief  Get the list of IDs of the Study's lockers. 
 */
     ListOfStrings GetLockerID();
+
+/*! \brief  Access to notebook instance
+*/
+    SALOME::Notebook GetNotebook();
+
+/*! \brief  Find an object by its component and entry (usually internal entry not available on high level)
+    even if object is not published yet in study
+*/
+    SALOME::GenericObj FindObjectByInternalEntry( in string theComponent, in string theEntry );
   };
 
   //==========================================================================

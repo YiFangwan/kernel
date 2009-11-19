@@ -556,6 +556,15 @@ CORBA::Long Engines_Component_i::CpuUsed_impl()
   return cpu ;
 }
 
+//=============================================================================
+/*! 
+ *  CORBA method: 
+ */
+//=============================================================================
+SALOME::GenericObj_ptr Engines_Component_i::FindObjectByInternalEntry( const char* theEntry )
+{
+  return SALOME::GenericObj_ptr();
+}
 
 //=============================================================================
 /*! 

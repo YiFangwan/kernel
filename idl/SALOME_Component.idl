@@ -27,6 +27,7 @@
 #define _SALOME_COMPONENT_IDL_
 
 #include "SALOMEDS.idl"
+#include "SALOME_GenericObj.idl"
 #include "SALOME_Exception.idl"
 #include "SALOME_PyNode.idl"
 
@@ -417,6 +418,12 @@ module Engines
       \return an information about the given object.
     */
     string getObjectInfo(in long studyId, in string entry);
+
+    //! Find object by its internal entry (OCAF or other) even it is not published in the study
+    /*!
+       \param theEntry object entry
+    */
+    SALOME::GenericObj FindObjectByInternalEntry( in string theEntry );
   } ;
 
   //!  A block of binary data used for file transfer. The maximum size of the block is defined on server side.
@@ -465,7 +472,6 @@ module Engines
        \param block a data block to copy into the file identified by fileId
     */
     void putBlock(in long fileId, in fileBlock block);
-
   };
 
   //!  A file managed by a Salome_file. 

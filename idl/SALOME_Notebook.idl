@@ -30,7 +30,6 @@
 #ifndef _NOTEBOOK_IDL_
 #define _NOTEBOOK_IDL_
 
-#include "SALOME_Exception.idl"
 #include "SALOME_GenericObj.idl"
 
 /*! \brief
@@ -42,39 +41,88 @@ module SALOME
   //! This interface describes parameterized object
   interface ParameterizedObject : GenericObj
   {
-    //return object's entry
+    //! return object's entry
     string GetEntry();
 
-    //validity status
+    //! return object's component
+    string GetComponent();
+
+    //! validity status
     boolean IsValid();
 
-    //update management
-    void SetToUpdate();
+    //! update management
     void Update();
   };
 
   //! This enumeration describes data types supported by notebook functionality
-  enum ParamType { TBoolean, TInteger, TReal, TExpression, TString };
+  enum ParamType { TUnknown, TBoolean, TInteger, TReal, TString };
+
+
 
   //! This interface describes parameter object
   interface Parameter : ParameterizedObject
   {
-    void SetValue( in string expr );
+    //! change expression of the parameter
+    void SetExpr( in string expr );
+
+    //! change value of the parameter
+    void SetReal( in double value );
+
+    //! return type of parameter
     ParamType GetType();
 
-    string  AsString()  raises(SALOME_Exception);
-    long    AsInteger() raises(SALOME_Exception);
-    double  AsDouble()  raises(SALOME_Exception);
-    boolean AsBoolean() raises(SALOME_Exception);
+    //! convert parameter into string
+    string  AsString();
+
+    //! convert parameter into integer
+    long    AsInteger();
+
+    //! convert parameter into real
+    double  AsReal();
+
+    //! convert parameter into boolean
+    boolean AsBoolean();
   };
 
+
+  //! This interface describes parameters container: Notebook
   interface Notebook : GenericObj
   {
     //dependency management
-    void AddDependency( in ParameterizedObject obj, in ParameterizedObject dep );
+
+    //! add new dependency between objects
+    boolean AddDependency( in ParameterizedObject obj, in ParameterizedObject dep );
+
+    //! remove dependency between objects
     void RemoveDependency( in ParameterizedObject obj, in ParameterizedObject dep );
+
+    //! remove all dependencies of the object
     void ClearDependencies( in ParameterizedObject obj );
-    void Update( in ParameterizedObject obj );
+
+    //! set internal flags of update: it means that this object and all objects depending on it will be updated
+    void SetToUpdate( in ParameterizedObject obj );
+
+    //! update all objects marked as "need to update"
+    void Update();
+
+
+
+    //parameters management
+
+    //! add new parameter (expression) into notebook
+    boolean AddExpr( in string expr );
+
+    //! add new parameter (named expression) into notebook
+    boolean AddNameExpr( in string name, in string expr );
+
+    //! add new parameter (value) into notebook
+    boolean AddValue( in string name, in double value );
+
+    //! remove parameter from notebook
+    void Remove( in string name );
+
+    //! access to parameter from notebook
+    Parameter Param( in string name );
   };
 };
 

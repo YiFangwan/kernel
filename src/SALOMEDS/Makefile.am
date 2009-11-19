@@ -69,6 +69,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../GenericObj \
 	-I$(srcdir)/../SALOMEDSClient \
 	-I$(srcdir)/../LifeCycleCORBA \
+	-I$(srcdir)/../Notebook \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
@@ -84,6 +85,7 @@ COMMON_LIBS =\
 	../SALOMEDSImpl/libSalomeDSImpl.la \
 	../GenericObj/libSalomeGenericObj.la \
 	../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
+	../Notebook/libSalomeNotebook.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la\
 	@HDF5_LIBS@ 
 

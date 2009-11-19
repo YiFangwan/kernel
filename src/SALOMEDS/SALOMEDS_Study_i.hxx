@@ -32,6 +32,7 @@
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_GenericObj)
+#include CORBA_SERVER_HEADER(SALOME_Notebook)
 #include CORBA_SERVER_HEADER(SALOMEDS)
 
 #include <stdio.h>
@@ -44,6 +45,7 @@
 
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
+#include "SALOME_Notebook.hxx"
 
 class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
@@ -52,6 +54,7 @@ private:
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
   static std::map<SALOMEDSImpl_Study*, SALOMEDS_Study_i*> _mapOfStudies;
+  SALOME::Notebook_var           myNotebook;
 
 public:
 
@@ -305,5 +308,9 @@ public:
   virtual SALOMEDSImpl_Study* GetImpl() { return _impl; }
 
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+
+  virtual SALOME::GenericObj_ptr FindObjectByInternalEntry( const char* theComponent, const char* theEntry );
+
+  virtual SALOME::Notebook_ptr GetNotebook();
 };
 #endif

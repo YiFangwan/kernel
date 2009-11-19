@@ -47,6 +47,7 @@ SUBDIR_CORBA = \
   Launcher \
   LifeCycleCORBA \
   LifeCycleCORBA_SWIG \
+  Notebook \
   SALOMEDSClient \
   TOOLSDS \
   SALOMEDSImpl \
@@ -54,8 +55,7 @@ SUBDIR_CORBA = \
   ModuleGenerator \
   Communication \
   Communication_SWIG \
-  DSC \
-  Notebook
+  DSC
 
 SUBDIR_CPPUNIT_BASE= \
   Basics/Test \
