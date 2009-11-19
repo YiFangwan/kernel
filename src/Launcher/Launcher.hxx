@@ -56,53 +56,28 @@ public:
   Launcher_cpp();
   ~Launcher_cpp();
 
-  long submitJob(const std::string xmlExecuteFile,
-		 const std::string clusterName) throw(LauncherException);
-
-  long submitSalomeJob(const std::string fileToExecute ,
-		       const std::vector<std::string>& filesToExport ,
-		       const std::vector<std::string>& filesToImport ,
-		       const batchParams& batch_params,
-		       const machineParams& params) throw(LauncherException);
-
-  std::string queryJob( const long jobId, const machineParams& params) throw(LauncherException);
-  std::string queryJob( const long jobId, const std::string clusterName) throw(LauncherException);
-  void deleteJob( const long jobId, const machineParams& params) throw(LauncherException);
-  void deleteJob( const long jobId, const std::string clusterName) throw(LauncherException);
-  void getResultsJob( const std::string directory, const long jobId, const machineParams& params ) throw(LauncherException);
-  void getResultsJob( const std::string directory, const long jobId, const std::string clusterName ) throw (LauncherException);
-
-  void SetResourcesManager( ResourcesManager_cpp* rm ) { _ResManager = rm; }
-
-  // New interface
-  void createJob(Launcher::Job * new_job);
-  void launchJob(int job_id);
+  // Main interface
+  void         createJob(Launcher::Job * new_job);
+  void         launchJob(int job_id);
   const char * getJobState(int job_id);
-  void getJobResults(int job_id, std::string directory);
-  void removeJob(int job_id);
+  void         getJobResults(int job_id, std::string directory);
+  void         removeJob(int job_id);
+
+  // Useful methods
+  long createJobWithFile(std::string xmlExecuteFile, std::string clusterName);
+
+  // Lib methods
+  void SetResourcesManager( ResourcesManager_cpp* rm ) {_ResManager = rm;}
 
 protected:
 
-  std::string buildSalomeCouplingScript(const std::string fileToExecute, const std::string dirForTmpFiles, const ParserResourcesType& params);
-  MpiImpl *FactoryMpiImpl(MpiImplType mpiImpl) throw(LauncherException);
-  Batch::BatchManager_eClient *FactoryBatchManager(ParserResourcesType& params ) throw(LauncherException);
-  std::string getTmpDirForBatchFiles();
-  std::string getRemoteFile( std::string remoteDir, std::string localFile );
-  std::string getHomeDir(const ParserResourcesType& p, const std::string & tmpdir);  
+  // Methods used by user interface methods
+  Batch::BatchManager_eClient *FactoryBatchManager(ParserResourcesType& params);
+  ParserLauncherType ParseXmlFile(std::string xmlExecuteFile);
 
-  std::map <std::string,Batch::BatchManager_eClient*> _batchmap;
-  std::map < std::pair<std::string,long> , Batch::Job* > _jobmap;
-
-  std::map <int, Launcher::Job *> _launcher_job_map;
   ResourcesManager_cpp *_ResManager;
-  bool check(const batchParams& batch_params);
-  long getWallTime(std::string edt);
-  long getRamSize(std::string mem);
-  void ParseXmlFile(std::string xmlExecuteFile);
-
-  //! will contain the informations on the data type catalog(after parsing)
-  ParserLauncherType _launch;
-
+  std::map <std::string,Batch::BatchManager_eClient*> _batchmap;
+  std::map <int, Launcher::Job *> _launcher_job_map;  
   int _job_cpt; // job number counter
   pthread_mutex_t * _job_cpt_mutex; // mutex for job counter
 };

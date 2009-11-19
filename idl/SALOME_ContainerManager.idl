@@ -114,19 +114,6 @@ struct MachineDefinition
 //! exception thrown if a computer is not found in the catalog
 exception NotFound {};
 
-//!  Structure used for Salome Batch Job parameters
-struct BatchParameters
-{
-  //! Where batch command will be launched and log files will be created
-  string batch_directory; 
-  //! Time for the batch (has to be like this : hh:mm)
-  string expected_during_time; 
-  //! Minimum of memory needed (has to be like : 32gb or 512mb)
-  string mem; 
-  //! Number of processors requested
-  long nb_proc; 
-};
-
 struct JobParameters
 {
   //! Job Type - Could be equal to "command" or "yacs_file"
@@ -165,31 +152,23 @@ struct JobParameters
     This interface is used for interaction with the unique instance
     of SalomeLauncher
 */
-  interface SalomeLauncher
-  {
-    long submitJob( in string xmlExecuteFile,
-                    in string clusterName ) raises (SALOME::SALOME_Exception);
-    long submitSalomeJob( in string fileToExecute,
-			  in FilesList filesToExport,
-			  in FilesList filesToImport,
-			  in BatchParameters batch_params,
-			  in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    string queryJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    void deleteJob( in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
-    void getResultsJob( in string directory, in long jobId, in MachineParameters params ) raises (SALOME::SALOME_Exception);
+interface SalomeLauncher
+{
+  // Main methods
+  long   createJob    (in Engines::JobParameters job_parameters) raises (SALOME::SALOME_Exception);
+  void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
+  string getJobState  (in long job_id)                           raises (SALOME::SALOME_Exception);
+  void   getJobResults(in long job_id, in string directory)      raises (SALOME::SALOME_Exception);
+  void   removeJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
 
-    boolean testBatch(in MachineParameters params) raises (SALOME::SALOME_Exception);
+  // Useful methods
+  long    createJobWithFile(in string xmlJobFile, in string clusterName) raises (SALOME::SALOME_Exception);
+  boolean testBatch        (in MachineParameters params)		 raises (SALOME::SALOME_Exception);
 
-    void Shutdown();
-    long getPID();
-
-    // New Launcher interface
-    long   createJob    (in Engines::JobParameters job_parameters) raises (SALOME::SALOME_Exception);
-    void   launchJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
-    string getJobState  (in long job_id)                           raises (SALOME::SALOME_Exception);
-    void   getJobResults(in long job_id, in string directory)      raises (SALOME::SALOME_Exception);
-    void   removeJob    (in long job_id)                           raises (SALOME::SALOME_Exception);
-  } ;
+  // SALOME kernel service methods
+  void Shutdown();
+  long getPID();
+};
   
 /*! \brief Interface of the %containerManager
     This interface is used for interaction with the unique instance

@@ -117,6 +117,8 @@ void
 Launcher::Job::setEnvFile(std::string & env_file)
 {
   _env_file = env_file;
+  if (_env_file != "")
+    add_in_file(_env_file);
 }
 
 std::string
@@ -282,7 +284,7 @@ Launcher::Job::convertMaximumDuration(const std::string & edt)
   long hh, mm, ret;
 
   if( edt.size() == 0 )
-    return 0;
+    return -1;
 
   std::string::size_type pos = edt.find(":");
   std::string h = edt.substr(0,pos);
@@ -390,10 +392,6 @@ Launcher::Job::common_job_params()
   // If result_directory is not defined, we use HOME environnement
   if (_result_directory == "")
     _result_directory = getenv("HOME");
-
-  //Env file
-  if (_env_file != "")
-    add_in_file(_env_file);
 
   // _in_files
   for(std::list<std::string>::iterator it = _in_files.begin(); it != _in_files.end(); it++)

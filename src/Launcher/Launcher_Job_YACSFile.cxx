@@ -111,9 +111,10 @@ Launcher::Job_YACSFile::buildSalomeCouplingScript(Batch::Parametre params)
   std::string machine_protocol = "ssh";
   if (_machine_definition.Protocol == rsh)
     machine_protocol = "rsh";
+  
+  launch_script_stream << "if [ \"x$LIBBATCH_NODEFILE\" != \"x\" ]; then " << std::endl;
   launch_script_stream << "CATALOG_FILE=" << work_directory << "/CatalogResources_" << _launch_date << ".xml" << std::endl;
   launch_script_stream << "export USER_CATALOG_RESOURCES_FILE=" << "$CATALOG_FILE" << std::endl;
-
   launch_script_stream << "echo '<!DOCTYPE ResourcesCatalog>'  > $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '<resources>'                 >> $CATALOG_FILE" << std::endl;	
   launch_script_stream << "cat $LIBBATCH_NODEFILE | sort -u | while read host"  << std::endl;
@@ -125,6 +126,7 @@ Launcher::Job_YACSFile::buildSalomeCouplingScript(Batch::Parametre params)
   launch_script_stream << "echo '/>'                                                             >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "done"                                 << std::endl;
   launch_script_stream << "echo '</resources>' >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "fi" << std::endl;
 
   // Launch SALOME with an appli
   launch_script_stream << _machine_definition.AppliPath << "/runAppli --terminal  --ns-port-log=" << launch_date_port_file <<  " > logs/salome_" << _launch_date << ".log 2>&1" << std::endl;
