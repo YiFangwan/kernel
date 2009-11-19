@@ -27,40 +27,52 @@
 #define __SALOME_PARAMETER_H__
 
 #include <SALOME_ParameterizedObject.hxx>
+#include <SALOME_EvalExpr.hxx>
 
-class SALOME_Parameter: public POA_SALOME::Parameter, public SALOME_ParameterizedObject
+#include <string>
+
+class SALOME_Notebook;
+
+const std::string PARAM_COMPONENT = "<params>";
+
+class SALOME_Parameter : public virtual POA_SALOME::Parameter, public virtual SALOME_ParameterizedObject
 {
 public:
   //! standard constructor
-  SALOME_Parameter( bool val );
-  SALOME_Parameter( int val );
-  SALOME_Parameter( double val );
-  SALOME_Parameter( const char* val );
+  SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, double theValue );
+  SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, const std::string& theExpr );
+  SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theExpr );
   
   //! standard destructor
   virtual ~SALOME_Parameter();
 
   virtual char* GetEntry();
 
-  virtual void SetValue( const char* expr );
+  virtual char* GetComponent();
+
+  virtual CORBA::Boolean IsValid();
+
+  virtual void Update();
+
+  virtual void SetExpr( const char* theExpr );
+
+  virtual void SetReal( CORBA::Double theValue );
 
   virtual SALOME::ParamType GetType();
 
   virtual char*          AsString();
   virtual CORBA::Long    AsInteger();
-  virtual CORBA::Double  AsDouble();
+  virtual CORBA::Double  AsReal();
   virtual CORBA::Boolean AsBoolean();
 
-protected:
-  virtual SALOME_Parameter* Calculate();
-  virtual bool GetBoolean( const char* expr, bool& val );
+  SALOME_StringList Dependencies() const;
 
 private:
-  int myInt;
-  double myDouble;
-  char* myStr;
-  bool myBool;
-  SALOME::ParamType myType;
+  SALOME_Notebook* myNotebook;
+  std::string myName;
+  SALOME_EvalExpr myExpr;
+  SALOME_EvalVariant myResult;
+  bool myIsAnonimous, myIsCalculable;
 };
 
 #endif

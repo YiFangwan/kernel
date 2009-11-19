@@ -57,8 +57,8 @@ void NotebookTest::testParameterInt()
   bool bOk;
   int j;
   int aResult[aNb], aX;
-  RString aExp[aNb];
-  RString aA, aB, aC;
+  SALOME_String aExp[aNb];
+  SALOME_String aA, aB, aC;
   SALOME_EvalVariant aRVR, aRVA, aRVC, aRVB;
   SALOME_EvalVariantType aType;
   SALOME_EvalExprError aErr;
@@ -99,7 +99,7 @@ void NotebookTest::testParameterInt()
     aRVR=aEvalExpr.calculate();
     //
     aErr=aEvalExpr.error();
-    CPPUNIT_ASSERT(aErr==SALOME_EvalExpr_OK);
+    CPPUNIT_ASSERT(aErr==EvalExpr_OK);
     //
     aType=aRVR.type();
     CPPUNIT_ASSERT(aType==SALOME_EvalVariant_Int);
@@ -119,8 +119,8 @@ void NotebookTest::testParameterDouble()
   bool bOk;
   int j;
   double aResult[aNb], aX;
-  RString aExp[aNb];
-  RString aA, aB, aC;
+  SALOME_String aExp[aNb];
+  SALOME_String aA, aB, aC;
   SALOME_EvalVariant aRVR, aRVA, aRVC, aRVB;
   SALOME_EvalVariantType aType;
   SALOME_EvalExprError aErr;
@@ -162,7 +162,7 @@ void NotebookTest::testParameterDouble()
     aErr=aEvalExpr.error();
     //
     // 1. Check the result on validity
-    CPPUNIT_ASSERT(aErr==SALOME_EvalExpr_OK);
+    CPPUNIT_ASSERT(aErr==EvalExpr_OK);
     //
     // 2. Check the type of the result
     aType=aRVR.type();
@@ -183,9 +183,9 @@ void NotebookTest::testParameterString()
   const int aNb=8;
   //bool bOk;
   int j;
-  RString aResult[aNb], aX;
-  RString aExp[aNb];
-  RString aA, aB, aC, aD;
+  SALOME_String aResult[aNb], aX;
+  SALOME_String aExp[aNb];
+  SALOME_String aA, aB, aC, aD;
   SALOME_EvalVariant aRVR, aRVA, aRVC, aRVB, aRVD;
   SALOME_EvalVariantType aType, aTypeR[aNb];
   SALOME_EvalExprError aErr;
@@ -243,7 +243,7 @@ void NotebookTest::testParameterString()
     aErr=aEvalExpr.error();
     //
     // 1. Check the result on validity
-    CPPUNIT_ASSERT(aErr==SALOME_EvalExpr_OK);
+    CPPUNIT_ASSERT(aErr==EvalExpr_OK);
     //
     // 2. Check the type of the result
     aType=aRVR.type();
@@ -264,8 +264,8 @@ void NotebookTest::testParameterBoolean()
   const int aNb=4;
   int j;
   bool aResult[aNb], aX;
-  RString aExp[aNb];
-  RString aA, aB, aC, aD;
+  SALOME_String aExp[aNb];
+  SALOME_String aA, aB, aC, aD;
   SALOME_EvalVariant aRVR, aRVA, aRVC, aRVB, aRVD;
   SALOME_EvalVariantType aType, aTypeR[aNb];
   SALOME_EvalExprError aErr;
@@ -311,7 +311,7 @@ void NotebookTest::testParameterBoolean()
     aErr=aEvalExpr.error();
     //
     // 1. Check the result on validity
-    CPPUNIT_ASSERT(aErr==SALOME_EvalExpr_OK);
+    CPPUNIT_ASSERT(aErr==EvalExpr_OK);
     //
     // 2. Check the type of the result
     aType=aRVR.type();

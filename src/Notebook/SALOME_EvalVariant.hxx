@@ -98,7 +98,7 @@ class SALOME_EvalVariantData {
     void clear(){
       if (myType==SALOME_EvalVariant_String) {
 	if (myValue.myPtr) {
-	  RString *pStr=(RString *)myValue.myPtr;
+          SALOME_String *pStr=(SALOME_String *)myValue.myPtr;
           delete pStr;
           myValue.myPtr=NULL;
         }
@@ -129,17 +129,21 @@ class SALOME_EvalVariantData {
 //=======================================================================
 class SALOME_EvalVariant
 {
-  public:  
-    SALOME_EvalVariant(){
-    }; 
-    //
-    ~SALOME_EvalVariant(){
-      myData.clear();
-    };
-    //
-    SALOME_EvalVariant(const SALOME_EvalVariant& other) :
-      myData(other.myData) {
-    };
+public:  
+  SALOME_EvalVariant()
+  {
+  }; 
+  
+  //
+  ~SALOME_EvalVariant()
+  {
+    myData.clear();
+  };
+
+  //
+  SALOME_EvalVariant(const SALOME_EvalVariant& other) : myData(other.myData)
+  {
+  };
     //  
     SALOME_EvalVariant& operator=(const SALOME_EvalVariant& other) {
       myData=other.myData;
@@ -151,7 +155,7 @@ class SALOME_EvalVariant
     };
     //
     ////  
-    void operator=(const RString& aString); 
+  void operator=(const SALOME_String& aString); 
     void operator=(const bool theValue); 
     void operator=(const int theValue); 
     void operator=(const uint theValue); 
@@ -162,7 +166,7 @@ class SALOME_EvalVariant
     SALOME_EvalVariant(int i);
     SALOME_EvalVariant(uint ui);
     SALOME_EvalVariant(double d);
-    SALOME_EvalVariant(const RString& s);
+    SALOME_EvalVariant(const SALOME_String& s);
     SALOME_EvalVariant(const SALOME_ListOfEvalVariant& s);
     //
     SALOME_EvalVariantType type() const {
@@ -185,7 +189,7 @@ class SALOME_EvalVariant
     int  toInt(bool *ok) const;
     uint toUInt(bool *ok) const;
     double toDouble(bool *ok) const;
-    RString toString() const;
+    SALOME_String toString() const;
     SALOME_ListOfEvalVariant toList() const; 
     //
     const SALOME_EvalVariantData& Data() const{
@@ -248,7 +252,7 @@ class SALOME_EvalVariant
       return DataValue().myDouble;
     };
     //
-    const RString& DataValueString() const {
+  const SALOME_String& DataValueString() const {
       return *((string *)(DataValue().myPtr));
     };
     //

@@ -34,29 +34,27 @@
 #include <string>
 #include <list>
 #include <set>
-//
-using namespace std;
 
-typedef string RString;
-typedef list<string> RStringList;
-typedef RStringList::iterator  ListIteratorOfRStringList;
-typedef set<RString> SetOfRString;
-typedef SetOfRString::iterator SetIteratorOfSetOfRString;
-typedef pair< SetIteratorOfSetOfRString, bool > SetPair;
-
+typedef std::string                 SALOME_String;
+typedef std::list<SALOME_String>    SALOME_StringList;
+typedef SALOME_StringList::iterator SALOME_ListIteratorOfStringList;
+typedef std::set<SALOME_String>     SALOME_StringSet;
+typedef SALOME_StringSet::iterator  SALOME_SetIteratorOfStringSet;
+typedef std::pair< SALOME_SetIteratorOfStringSet, bool > SALOME_SetPair;
+  
 typedef enum
-  {
-    SALOME_EvalExpr_OK,               //!< No errors found
-    SALOME_EvalExpr_OperandsNotMatch, //!< Types of arguments are invalid for this operation
-    SALOME_EvalExpr_InvalidResult,    //!< Operation cannot find result (for example, division by zero)
-    SALOME_EvalExpr_InvalidOperation, //!< Unknown operation
-    SALOME_EvalExpr_OperationsNull,   //!< Internal operations pointer of parser is null
-    SALOME_EvalExpr_InvalidToken,     //!< Invalid token (neither operation, nor parameter of value)
-    SALOME_EvalExpr_CloseExpected,    //!< Closing bracket is expected
-    SALOME_EvalExpr_ExcessClose,      //!< Extra closing bracket is found
-    SALOME_EvalExpr_BracketsNotMatch, //!< Opening and closing brackets are of different type, e.g. [)
-    SALOME_EvalExpr_StackUnderflow,   //!< There are no arguments in the stack for the operation
-    SALOME_EvalExpr_ExcessData        //!< The parsing is finished, but there are more then one value in the stack
-  } SALOME_EvalExprError;
+{
+  EvalExpr_OK,               //!< No errors found
+  EvalExpr_OperandsNotMatch, //!< Types of arguments are invalid for this operation
+  EvalExpr_InvalidResult,    //!< Operation cannot find result (for example, division by zero)
+  EvalExpr_InvalidOperation, //!< Unknown operation
+  EvalExpr_OperationsNull,   //!< Internal operations pointer of parser is null
+  EvalExpr_InvalidToken,     //!< Invalid token (neither operation, nor parameter of value)
+  EvalExpr_CloseExpected,    //!< Closing bracket is expected
+  EvalExpr_ExcessClose,      //!< Extra closing bracket is found
+  EvalExpr_BracketsNotMatch, //!< Opening and closing brackets are of different type, e.g. [)
+  EvalExpr_StackUnderflow,   //!< There are no arguments in the stack for the operation
+  EvalExpr_ExcessData        //!< The parsing is finished, but there are more then one value in the stack
+} SALOME_EvalExprError;
 
 #endif

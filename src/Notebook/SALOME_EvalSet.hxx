@@ -26,20 +26,17 @@
 
 #ifndef SALOME_EvalSet_Header_File
 #define SALOME_EvalSet_Header_File
-//
+
+#include <list>
+#include <SALOME_Eval.hxx>
+#include <SALOME_EvalVariant.hxx>
+
 #ifdef WNT
 #pragma warning(disable : 4786)
 #endif
-//
-#include <string>
-#include <list>
-#include <SALOME_EvalVariant.hxx>
-//
-using namespace std;
-//
+
 class SALOME_EvalSet;
-typedef SALOME_EvalSet* SALOME_PEvalSet;
-typedef list<SALOME_EvalSet*> SALOME_ListOfPEvalSet;
+typedef std::list<SALOME_EvalSet*> SALOME_ListOfEvalSet;
 
 //=======================================================================
 //class : SALOME_EvalSet
@@ -49,40 +46,20 @@ class SALOME_EvalSet
 {
 public:
   SALOME_EvalSet();
-  //
   virtual ~SALOME_EvalSet();
-  //
-  virtual RString            name() const = 0;
-  //
-  virtual void               operationList( RStringList& ) const = 0;
-  //
-  virtual void               bracketsList(RStringList&, 
-                                          bool open ) const = 0;
-  //
-  virtual bool               createValue(const RString&, 
-                                          SALOME_EvalVariant& ) const;
-  //
-  virtual int                priority( const RString&, bool isBin ) const = 0;
-  //
-  virtual SALOME_EvalExprError  isValid(const RString&, 
-                                     const SALOME_EvalVariantType,
-                                     const SALOME_EvalVariantType) const = 0;
 
-  virtual SALOME_EvalExprError  calculate(const RString&, 
-                                       SALOME_EvalVariant&, 
-                                       SALOME_EvalVariant&) const = 0;
-  //
-  static bool contains(const SALOME_ListOfPEvalSet&, 
-                       const SALOME_EvalSet*);
-  //
-  static void insert  (SALOME_ListOfPEvalSet& aL, 
-                       const int aIndex,
-                       SALOME_EvalSet* pS);
-  //
+  virtual SALOME_String        name() const = 0;
+  virtual void                 operationList( SALOME_StringList& ) const = 0;
+  virtual void                 bracketsList( SALOME_StringList&, bool open ) const = 0;
+  virtual bool                 createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
+  virtual int                  priority( const SALOME_String&, bool isBin ) const = 0;
+  virtual SALOME_EvalExprError isValid(const SALOME_String&, const SALOME_EvalVariantType, const SALOME_EvalVariantType) const = 0;
+  virtual SALOME_EvalExprError calculate(const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant&) const = 0;
+
+  static bool contains( const SALOME_ListOfEvalSet&, const SALOME_EvalSet* );
+  static void insert( SALOME_ListOfEvalSet& aL, const int aIndex, SALOME_EvalSet* pS );
 };
-//
 
-//
 //=======================================================================
 //class : SALOME_EvalSetBase
 //purpose  : 
@@ -91,27 +68,22 @@ class SALOME_EvalSetBase : public SALOME_EvalSet
 {
 public:
   SALOME_EvalSetBase();
-  //
   virtual ~SALOME_EvalSetBase();
-  //
-  virtual void               operationList( RStringList& ) const;
-  virtual void               bracketsList ( RStringList&, bool open ) const;
 
-  virtual 
-    SALOME_EvalExprError     isValid(const RString&, 
-                             const SALOME_EvalVariantType a,
-                             const SALOME_EvalVariantType b) const;
+  virtual void                 operationList( SALOME_StringList& ) const;
+  virtual void                 bracketsList ( SALOME_StringList&, bool open ) const;
 
-  
+  virtual SALOME_EvalExprError isValid( const SALOME_String&, const SALOME_EvalVariantType a, const SALOME_EvalVariantType b) const;
 
 protected: 
-  void                       addTypes(const SALOME_ListOfEvalVariantType&);
-  void                       addOperations(const RStringList& );
+  void addTypes( const SALOME_ListOfEvalVariantType& );
+  void addOperations( const SALOME_StringList& );
 
 private:
-  RStringList                myOpers;
-  SALOME_ListOfEvalVariantType         myTypes;
+  SALOME_StringList            myOpers;
+  SALOME_ListOfEvalVariantType myTypes;
 };
+
 //=======================================================================
 //class : SALOME_EvalSetArithmetic
 //purpose  : 
@@ -122,19 +94,14 @@ public:
   SALOME_EvalSetArithmetic();
   virtual ~SALOME_EvalSetArithmetic();
 
-  virtual bool               createValue(const RString&, 
-                                         SALOME_EvalVariant& ) const;
+  virtual bool                 createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
+  virtual int                  priority( const SALOME_String&, bool isBin ) const;
+  virtual SALOME_EvalExprError calculate(const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
 
-  virtual int                priority(const RString&, 
-                                      bool isBin ) const;
-
-  virtual SALOME_EvalExprError calculate(const RString&, 
-                                      SALOME_EvalVariant&, 
-                                      SALOME_EvalVariant& ) const;
-
-  static RString             Name();
-  virtual RString            name() const;
+  static  SALOME_String        Name();
+  virtual SALOME_String        name() const;
 };
+
 //=======================================================================
 //class : SALOME_EvalSetLogic
 //purpose  : 
@@ -146,23 +113,17 @@ public:
 
   virtual ~SALOME_EvalSetLogic();
 
-  virtual bool               createValue(const RString&, 
-                                         SALOME_EvalVariant& ) const;
+  virtual bool                 createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
+  virtual int                  priority( const SALOME_String&, bool isBin ) const;
+  virtual SALOME_EvalExprError calculate( const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
 
-  virtual int                priority(const RString&, 
-                                      bool isBin ) const;
-
-  virtual SALOME_EvalExprError calculate(const RString&, 
-                                      SALOME_EvalVariant&, 
-                                      SALOME_EvalVariant& ) const;
-
-  static RString             Name();
-
-  virtual RString            name() const;
+  static  SALOME_String        Name();
+  virtual SALOME_String        name() const;
 
 private:
-  int                        intValue(const SALOME_EvalVariant& ) const;
+  int intValue(const SALOME_EvalVariant& ) const;
 };
+
 //=======================================================================
 //class : SALOME_EvalSetMath
 //purpose  : 
@@ -173,19 +134,14 @@ public:
   SALOME_EvalSetMath();
   virtual ~SALOME_EvalSetMath();
 
-  virtual bool               createValue(const RString&, 
-                                         SALOME_EvalVariant&) const;
+  virtual bool                 createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
+  virtual int                  priority( const SALOME_String&, bool isBin ) const;
+  virtual SALOME_EvalExprError calculate(const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
 
-  virtual int                priority   (const RString&, 
-                                         bool isBin) const;
-
-  virtual SALOME_EvalExprError  calculate  (const RString&, 
-    SALOME_EvalVariant&, 
-    SALOME_EvalVariant& ) const;
-
-  static RString             Name();
-  virtual RString            name() const;
+  static  SALOME_String        Name();
+  virtual SALOME_String        name() const;
 };
+
 //=======================================================================
 //class : SALOME_EvalSetString
 //purpose  : 
@@ -196,19 +152,14 @@ public:
   SALOME_EvalSetString();
   virtual ~SALOME_EvalSetString();
 
-  virtual bool              createValue(const RString&, 
-    SALOME_EvalVariant& ) const;
+  virtual bool                 createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
+  virtual int                  priority( const SALOME_String&, bool isBin ) const;
+  virtual SALOME_EvalExprError calculate(const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
 
-  virtual int               priority( const RString&, 
-    bool isBin ) const;
-
-  virtual SALOME_EvalExprError calculate( const RString&, 
-    SALOME_EvalVariant&, 
-    SALOME_EvalVariant& ) const;
-
-  static RString             Name();
-  virtual RString            name() const;
+  static  SALOME_String        Name();
+  virtual SALOME_String        name() const;
 };
+
 //=======================================================================
 //class : SALOME_EvalSetSets
 //purpose  : 
@@ -221,28 +172,21 @@ public:
 public:
   SALOME_EvalSetSets();
   virtual ~SALOME_EvalSetSets();
-  //
-  static RString             Name();
-  virtual RString            name() const;
-  //
-  virtual void bracketsList(RStringList&, bool open ) const;
-  //
-  virtual int priority(const RString&, bool isBin ) const;
 
-  virtual SALOME_EvalExprError isValid(const RString&, 
-                                    const SALOME_EvalVariantType,
-                                    const SALOME_EvalVariantType) const;
+  virtual int                  priority( const SALOME_String&, bool isBin ) const;
+  virtual SALOME_EvalExprError calculate(const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
+  virtual SALOME_EvalExprError isValid( const SALOME_String&, const SALOME_EvalVariantType, const SALOME_EvalVariantType ) const;
+  virtual void                 bracketsList( SALOME_StringList&, bool open ) const;
 
-  virtual SALOME_EvalExprError calculate(const RString&, 
-                                      SALOME_EvalVariant&, 
-                                      SALOME_EvalVariant& ) const;
+  static  SALOME_String        Name();
+  virtual SALOME_String        name() const;
 
-  static void add   (ValueSet&, const SALOME_EvalVariant& );
-  static void add   (ValueSet&, const ValueSet& );
-  static void remove(ValueSet&, const SALOME_EvalVariant& );
-  static void remove(ValueSet&, const ValueSet& );
-
+  static void add   ( ValueSet&, const SALOME_EvalVariant& );
+  static void add   ( ValueSet&, const ValueSet& );
+  static void remove( ValueSet&, const SALOME_EvalVariant& );
+  static void remove( ValueSet&, const ValueSet& );
 };
+
 //=======================================================================
 //class : SALOME_EvalSetConst
 //purpose  : 
@@ -253,24 +197,15 @@ public:
   SALOME_EvalSetConst();
   virtual ~SALOME_EvalSetConst();
 
-  static  RString            Name();
-  virtual RString            name() const;
+  static  SALOME_String        Name();
+  virtual SALOME_String        name() const;
 
-  virtual bool               createValue( const RString&, SALOME_EvalVariant& ) const;
-
-  virtual void               operationList( RStringList& ) const;
-
-  virtual void               bracketsList( RStringList&, bool open ) const;
-
-  virtual int                priority( const RString&, bool isBin ) const;
-  
-  virtual SALOME_EvalExprError isValid(const RString&, 
-                                     const SALOME_EvalVariantType,
-                                     const SALOME_EvalVariantType ) const;
-
-  virtual SALOME_EvalExprError calculate(const RString&, 
-                                      SALOME_EvalVariant&,
-                                      SALOME_EvalVariant& ) const;
+  virtual bool                 createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
+  virtual void                 operationList( SALOME_StringList& ) const;
+  virtual void                 bracketsList( SALOME_StringList&, bool open ) const;
+  virtual int                  priority( const SALOME_String&, bool isBin ) const;
+  virtual SALOME_EvalExprError isValid( const SALOME_String&, const SALOME_EvalVariantType, const SALOME_EvalVariantType ) const;
+  virtual SALOME_EvalExprError calculate( const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
 };
 
 #endif

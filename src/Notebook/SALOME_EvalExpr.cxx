@@ -31,19 +31,19 @@
 //function : 
 //purpose  : 
 //=======================================================================
-SALOME_EvalExpr::SALOME_EvalExpr(const RString& expr)
+SALOME_EvalExpr::SALOME_EvalExpr( const SALOME_String& expr )
 {
   myParser=NULL;
-  intialize( true, expr );
+  initialize( true, expr );
 }
 //=======================================================================
 //function : 
 //purpose  : 
 //=======================================================================
-SALOME_EvalExpr::SALOME_EvalExpr(const bool stdSets, const RString& expr)
+SALOME_EvalExpr::SALOME_EvalExpr( const bool stdSets, const SALOME_String& expr )
 {
   myParser=NULL;
-  intialize( stdSets, expr );
+  initialize( stdSets, expr );
 }
 //=======================================================================
 //function : ~
@@ -64,10 +64,10 @@ SALOME_EvalExprError SALOME_EvalExpr::error() const
   return myParser->error();
 }
 //=======================================================================
-//function : intialize
+//function : initialize
 //purpose  : 
 //=======================================================================
-void SALOME_EvalExpr::intialize(const bool stdSets, const RString& expr)
+void SALOME_EvalExpr::initialize( const bool stdSets, const SALOME_String& expr )
 {
   if (myParser) {
     delete myParser;
@@ -89,7 +89,7 @@ void SALOME_EvalExpr::intialize(const bool stdSets, const RString& expr)
 //function : calculate
 //purpose  : 
 //=======================================================================
-SALOME_EvalVariant SALOME_EvalExpr::calculate(const RString& expr)
+SALOME_EvalVariant SALOME_EvalExpr::calculate(const SALOME_String& expr)
 {
   if ( !expr.empty() ) {
     setExpression( expr );
@@ -100,7 +100,7 @@ SALOME_EvalVariant SALOME_EvalExpr::calculate(const RString& expr)
 //function : expression
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalExpr::expression() const
+SALOME_String SALOME_EvalExpr::expression() const
 {
   return myExpr;
 }
@@ -108,7 +108,7 @@ RString SALOME_EvalExpr::expression() const
 //function : setExpression
 //purpose  : 
 //=======================================================================
-void SALOME_EvalExpr::setExpression(const RString& expr)
+void SALOME_EvalExpr::setExpression(const SALOME_String& expr)
 {
   if ( expr == expression() ){
     return;
@@ -129,7 +129,7 @@ SALOME_EvalParser* SALOME_EvalExpr::parser() const
 //function : operationSets
 //purpose  : 
 //=======================================================================
-SALOME_ListOfPEvalSet SALOME_EvalExpr::operationSets() const
+SALOME_ListOfEvalSet SALOME_EvalExpr::operationSets() const
 {
   return myParser->operationSets();
 }
@@ -153,7 +153,7 @@ void SALOME_EvalExpr::removeOperationSet(SALOME_EvalSet* theSet)
 //function : operationSet
 //purpose  : 
 //=======================================================================
-SALOME_EvalSet* SALOME_EvalExpr::operationSet(const RString& name) const
+SALOME_EvalSet* SALOME_EvalExpr::operationSet(const SALOME_String& name) const
 {
   return myParser->operationSet( name );
 }

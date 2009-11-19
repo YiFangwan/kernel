@@ -25,230 +25,150 @@
 //
 
 #include <SALOME_Parameter.hxx>
+#include <SALOME_Notebook.hxx>
 #include <Utils_SALOME_Exception.hxx>
 #include <utilities.h>
 #include <stdio.h>
 
-SALOME_Parameter::SALOME_Parameter( bool val )
+SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, double theValue )
+: myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonimous( false ), myIsCalculable( false )
 {
-  myStr = 0;
-  myBool = val;
-  myType = SALOME::TBoolean;
 }
 
-SALOME_Parameter::SALOME_Parameter( int val )
+SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, const std::string& theExpr )
+: myNotebook( theNotebook ), myName( theName ), myExpr( theExpr ), myIsAnonimous( false ), myIsCalculable( true )
 {
-  myStr = 0;
-  myInt = val;
-  myType = SALOME::TInteger;
+  Update();
 }
 
-SALOME_Parameter::SALOME_Parameter( double val )
+SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theExpr )
+: myNotebook( theNotebook ), myName( theExpr ), myExpr( theExpr ), myIsAnonimous( true ), myIsCalculable( true )
 {
-  myStr = 0;
-  myDouble = val;
-  myType = SALOME::TReal;
-}
-
-SALOME_Parameter::SALOME_Parameter( const char* val )
-{
-  SetValue( val );
+  Update();
 }
 
 SALOME_Parameter::~SALOME_Parameter()
 {
-  free( myStr );
-}
-
-bool SALOME_Parameter::GetBoolean( const char* expr, bool& val )
-{
-  bool res = true;
-  if( strcmp( expr, "true" )==0 || strcmp( expr, "TRUE" )==0 )
-    val = true;
-
-  else if( strcmp( expr, "false" )==0 || strcmp( expr, "FALSE" )==0 )
-    val = false;
-
-  else
-    res = false;
-
-  return res;
-}
-
-void SALOME_Parameter::SetValue( const char* expr )
-{
-  if( sscanf( expr, "%lf", &myDouble ) == 1 )
-    myType = SALOME::TReal;
-
-  else if( sscanf( expr, "%i", &myInt ) == 1 )
-    myType = SALOME::TInteger;
-
-  else if( GetBoolean( expr, myBool ) )
-    myType = SALOME::TBoolean;
-
-  else if( true /* Expression check */ )
-  {
-    myType = SALOME::TExpression;
-    myStr = strdup( expr );
-  }
-  
-  else
-  {
-    myType = SALOME::TString;
-    myStr = strdup( expr );
-  }
-
-  SetIsValid( true );
-}
-
-SALOME::ParamType SALOME_Parameter::GetType()
-{
-  return myType;
-}
-
-char* SALOME_Parameter::AsString()
-{
-  if( !IsValid() )
-    throw SALOME_Exception( LOCALIZED( "Parameter is invalid" ) );
-
-  char buf[256]; const char* res;
-  switch( myType )
-  {
-  case SALOME::TBoolean:
-    res = myBool ? "true" : "false";
-    break;
-
-  case SALOME::TInteger:
-    sprintf( buf, "%i", myInt );
-    res = buf;
-    break;
-
-  case SALOME::TReal:
-    sprintf( buf, "%lf", myInt );
-    res = buf;
-    break;
-
-  case SALOME::TExpression:
-  case SALOME::TString:
-    res = myStr;
-    break;
-  }
-
-  return strdup( res );
-}
-
-CORBA::Long SALOME_Parameter::AsInteger()
-{
-  if( !IsValid() )
-    throw SALOME_Exception( LOCALIZED( "Parameter is invalid" ) );
-
-  CORBA::Long res = 0;
-  switch( myType )
-  {
-  case SALOME::TBoolean:
-    res = (int)myBool;
-    break;
-
-  case SALOME::TInteger:
-    res = myInt;
-    break;
-
-  case SALOME::TReal:
-    res = (int)myDouble;
-    break;
-
-  case SALOME::TExpression:
-    res = Calculate()->AsInteger();
-    break;
-
-  case SALOME::TString:
-    {
-      int val;
-      if( sscanf( myStr, "%i", &val ) == 0 )
-        throw SALOME_Exception( LOCALIZED( "Parameter can not be converted into Integer" ) );
-      res = val;
-      break;
-    }
-  }
-
-  return res;
-}
-
-CORBA::Double SALOME_Parameter::AsDouble()
-{
-  if( !IsValid() )
-    throw SALOME_Exception( LOCALIZED( "Parameter is invalid" ) );
-
-  CORBA::Double res = 0;
-  switch( myType )
-  {
-  case SALOME::TBoolean:
-    res = (double)myBool;
-    break;
-
-  case SALOME::TInteger:
-    res = (double)myInt;
-    break;
-
-  case SALOME::TReal:
-    res = myDouble;
-    break;
-
-  case SALOME::TExpression:
-    res = Calculate()->AsDouble();
-    break;
-
-  case SALOME::TString:
-    {
-      double val;
-      if( sscanf( myStr, "%lf", &val ) == 0 )
-        throw SALOME_Exception( LOCALIZED( "Parameter can not be converted into Real" ) );
-      res = val;
-      break;
-    }
-  }
-
-  return res;
-}
-
-CORBA::Boolean SALOME_Parameter::AsBoolean()
-{
-  bool res;
-  switch( myType )
-  {
-  case SALOME::TBoolean:
-    res = myBool;
-    break;
-
-  case SALOME::TInteger:
-    res = (bool)myInt;
-    break;
-
-  case SALOME::TReal:
-    res = (bool)myDouble;
-    break;
-
-  case SALOME::TExpression:
-    res = Calculate()->AsBoolean();
-    break;
-
-  case SALOME::TString:
-    {
-      if( !GetBoolean( myStr, res ) )
-        throw SALOME_Exception( LOCALIZED( "Parameter can not be converted into Boolean" ) );
-
-      break;
-    }
-  }
-  return res;
-}
-
-SALOME_Parameter* SALOME_Parameter::Calculate()
-{
-  return myType == SALOME::TExpression ? this : this;
 }
 
 char* SALOME_Parameter::GetEntry()
 {
-  return "";
+  return CORBA::string_dup( myName.c_str() );
+}
+
+char* SALOME_Parameter::GetComponent()
+{
+  return CORBA::string_dup( PARAM_COMPONENT.c_str() );
+}
+
+CORBA::Boolean SALOME_Parameter::IsValid()
+{
+  return myResult.isValid();
+}
+
+void SALOME_Parameter::Update()
+{
+  //printf( "Update of %s\n", GetEntry() );
+  if( myIsCalculable )
+  {
+    //1. Set parameters values
+    SALOME_StringList deps = myExpr.parser()->parameters();
+    SALOME_StringList::const_iterator it = deps.begin(), last = deps.end();
+    for( ; it!=last; it++ )
+    {
+      std::string aName = *it;
+      SALOME_Parameter* aParam = myNotebook->ParamPtr( const_cast<char*>( aName.c_str() ) );
+      if( aParam )
+      {
+        //printf( "\tset %s = %lf\n", aName.c_str(), aParam->AsReal() );
+        myExpr.parser()->setParameter( aName, aParam->myResult );
+      }
+      else
+      {
+        myResult = SALOME_EvalVariant();
+        return;
+      }
+    }
+
+    //2. Calculate
+    myResult = myExpr.calculate();
+    //printf( "\tresult = %lf\n", AsReal() );
+  }
+}
+
+void SALOME_Parameter::SetExpr( const char* theExpr )
+{
+  if( myIsAnonimous )
+    myNotebook->AddExpr( theExpr );
+
+  else
+  {
+    myExpr.setExpression( theExpr );
+    myIsCalculable = true;
+    Update();
+    myNotebook->SetToUpdate( _this() );
+  }
+}
+
+void SALOME_Parameter::SetReal( CORBA::Double theValue )
+{
+  if( myIsAnonimous )
+  {
+  }
+  else
+  {
+    myResult = theValue;
+    myIsCalculable = false;
+    Update();
+    myNotebook->SetToUpdate( _this() );
+  }
+}
+
+SALOME::ParamType SALOME_Parameter::GetType()
+{
+  switch( myResult.type() )
+  {
+  case SALOME_EvalVariant_Boolean:
+    return SALOME::TBoolean;
+
+  case SALOME_EvalVariant_Int:
+  case SALOME_EvalVariant_UInt:
+    return SALOME::TInteger;
+
+  case SALOME_EvalVariant_Double:
+    return SALOME::TReal;
+
+  case SALOME_EvalVariant_String:
+    return SALOME::TString;
+
+  default:
+    return SALOME::TUnknown;
+  }
+}
+
+char* SALOME_Parameter::AsString()
+{
+  return CORBA::string_dup( myResult.toString().c_str() );
+}
+
+CORBA::Long SALOME_Parameter::AsInteger()
+{
+  bool ok;
+  return myResult.toInt( &ok );
+}
+
+CORBA::Double SALOME_Parameter::AsReal()
+{
+  bool ok;
+  return myResult.toDouble( &ok );
+}
+
+CORBA::Boolean SALOME_Parameter::AsBoolean()
+{
+  return myResult.toBool();
+}
+
+SALOME_StringList SALOME_Parameter::Dependencies() const
+{
+  return myIsCalculable ? myExpr.parser()->parameters() : SALOME_StringList();
 }

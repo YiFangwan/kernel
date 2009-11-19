@@ -43,38 +43,37 @@ public:
   SALOME_EvalParser();
   virtual ~SALOME_EvalParser();
 
-  SALOME_EvalVariant           calculate();
-  SALOME_EvalVariant           calculate( const RString& );
-  bool               setExpression( const RString& );
+  SALOME_EvalVariant         calculate();
+  SALOME_EvalVariant         calculate( const SALOME_String& );
+  bool                       setExpression( const SALOME_String& );
 
-  SALOME_ListOfPEvalSet  operationSets() const;
-  SALOME_PEvalSet        operationSet( const RString& ) const;
-  void               removeOperationSet(SALOME_PEvalSet );
-  void               insertOperationSet(SALOME_PEvalSet, 
-                                        const int = -1 );
+  SALOME_ListOfEvalSet       operationSets() const;
+  SALOME_EvalSet*            operationSet( const SALOME_String& ) const;
+  void                       removeOperationSet( SALOME_EvalSet* );
+  void                       insertOperationSet( SALOME_EvalSet*, const int = -1 );
 
-  bool               autoDeleteOperationSets() const;
-  void               setAutoDeleteOperationSets( const bool );
+  bool                       autoDeleteOperationSets() const;
+  void                       setAutoDeleteOperationSets( const bool );
 
-  virtual void       clearParameters();
-  virtual bool       removeParameter( const RString& name );
-  virtual SALOME_EvalVariant   parameter( const RString& name ) const;
-  virtual bool       hasParameter( const RString& name ) const;
-  virtual void       setParameter( const RString& name, 
-                                   const SALOME_EvalVariant& value );
-  RStringList        parameters() const;
+  virtual void               clearParameters();
+  virtual bool               removeParameter( const SALOME_String& name );
+  virtual SALOME_EvalVariant parameter( const SALOME_String& name ) const;
+  virtual bool               hasParameter( const SALOME_String& name ) const;
+  virtual void               setParameter( const SALOME_String& name, const SALOME_EvalVariant& value );
+  SALOME_StringList          parameters() const;
 
-  SALOME_EvalExprError error() const;
+  SALOME_EvalExprError       error() const;
 
-  bool               firstInvalid( RString& ) const;
-  void               removeInvalids();
-  RString            dump() const;
+  bool                       firstInvalid( SALOME_String& ) const;
+  void                       removeInvalids();
+  SALOME_String              dump() const;
 
-  static RString     toString( const SALOME_ListOfEvalVariant& );
+  static SALOME_String       toString( const SALOME_ListOfEvalVariant& );
 
 protected:
   //! Types of postfix representation elements
-  typedef enum  {
+  typedef enum 
+  {
     Value, //!< Value (number, string, etc.)
     Param, //!< Parameter
     Open,  //!< Open bracket
@@ -85,88 +84,52 @@ protected:
   } PostfixItemType;
 
   //! Postfix representation element
-  typedef struct  {
-    SALOME_EvalVariant          myValue;
-    PostfixItemType   myType;
+  typedef struct 
+  {
+    SALOME_EvalVariant myValue;
+    PostfixItemType    myType;
   } PostfixItem;
 
-  typedef list<PostfixItem>       Postfix;   //!< postfix representation
-  typedef SALOME_ListOfPEvalSet       SetList;   //!< list of operations
-  typedef map <RString, SALOME_EvalVariant> ParamMap;  //!< parameter-to-value map
-  typedef map <RString, SALOME_EvalVariant>::value_type PairParamMap;
+  typedef list<PostfixItem>                 Postfix;   //!< postfix representation
+  typedef SALOME_ListOfEvalSet             SetList;   //!< list of operations
+  typedef map <SALOME_String, SALOME_EvalVariant> ParamMap;  //!< parameter-to-value map
+  typedef map <SALOME_String, SALOME_EvalVariant>::value_type PairParamMap;
 
 protected:
-  RString            dump( const Postfix& ) const;
+  SALOME_String dump( const Postfix& ) const;
 
-  virtual bool       prepare( const RString&, Postfix& );
+  virtual bool   prepare( const SALOME_String&, Postfix& );
+  virtual bool   setOperationTypes( Postfix& );
+  virtual bool   sort( const Postfix&, Postfix&, const SALOME_StringList&, const SALOME_StringList&, int f = -1, int l = -1 );
+  virtual bool   parse( const SALOME_String& );
+  virtual void   setError( const SALOME_EvalExprError );
 
-  virtual bool       setOperationTypes( Postfix& );
+  bool           calculate( const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& );
 
-  virtual bool       sort(const Postfix&, 
-                          Postfix&, 
-                          const RStringList&,
-                          const RStringList&, 
-                          int f = -1, 
-                          int l = -1 );
-
-  virtual bool       parse( const RString& );
-  virtual void       setError( const SALOME_EvalExprError );
-
-  bool               calculate(const RString&, 
-                               SALOME_EvalVariant&, 
-                               SALOME_EvalVariant& );
-
-  static int         search(const RStringList&, 
-                            const RString&,
-                            int offset, 
-                            int& matchLen, 
-                            int& listind );
-
-  static RString     note(const RString& str, 
-                          int pos, 
-                          int len );
-
-  static int         globalBrackets(const Postfix&, 
-                                    int, 
-                                    int );
+  static int           search( const SALOME_StringList&, const SALOME_String&, int offset, int& matchLen, int& listind );
+  static SALOME_String note( const SALOME_String& str, int pos, int len );
+  static int           globalBrackets( const Postfix&, int, int );
 
 private:
-  void               operationList(RStringList& ) const;
+  void operationList( SALOME_StringList& ) const;
+  void bracketsList( SALOME_StringList&, bool ) const;
+  bool createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
+  int  priority( const SALOME_String&, bool isBin ) const;
 
-  void               bracketsList(RStringList&, 
-                                  bool ) const;
+  SALOME_EvalExprError isValid( const SALOME_String&, const SALOME_EvalVariantType, const SALOME_EvalVariantType ) const;
+  SALOME_EvalExprError calculation( const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
 
-  bool               createValue(const RString&, 
-                                 SALOME_EvalVariant& ) const;
+  bool checkOperations() const;
+  void insert( Postfix& aL, const int aIndex, PostfixItem& aItem );
+  const PostfixItem& at( const Postfix& aL, const int aIndex );
+  void append( Postfix& aL, const Postfix& aL1 );
 
-  int                priority(const RString&, 
-                              bool isBin ) const;
-
-  SALOME_EvalExprError isValid(const RString&,
-                            const SALOME_EvalVariantType, 
-                            const SALOME_EvalVariantType ) const;
-
-  SALOME_EvalExprError calculation(const RString&, 
-                                 SALOME_EvalVariant&, 
-                                 SALOME_EvalVariant& ) const;
-
-  bool               checkOperations() const;
-  ////////////////////////////////////
-  void insert(Postfix& aL, 
-            const int aIndex,
-            PostfixItem& aItem);
-
-  const PostfixItem& at(const Postfix& aL, 
-                        const int aIndex);
-
-  void SALOME_EvalParser::append(Postfix& aL,
-                           const Postfix& aL1);
 private:
-  SALOME_ListOfPEvalSet mySets;
-  SALOME_EvalExprError myError;
-  ParamMap          myParams;
-  Postfix           myPostfix;
-  bool              myAutoDel;
+  SALOME_ListOfEvalSet  mySets;
+  SALOME_EvalExprError  myError;
+  ParamMap              myParams;
+  Postfix               myPostfix;
+  bool                  myAutoDel;
 };
 
 #endif

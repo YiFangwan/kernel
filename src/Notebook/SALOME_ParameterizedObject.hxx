@@ -31,16 +31,16 @@
 #include <SALOME_GenericObj_i.hh>
 #include <list>
 
-class SALOME_ParameterizedObject: public POA_SALOME::ParameterizedObject, public SALOME::GenericObj_i
+class SALOME_ParameterizedObject: public virtual POA_SALOME::ParameterizedObject, public virtual SALOME::GenericObj_i
 {
 public:
   //! standard constructor
   SALOME_ParameterizedObject();
-  
-  //! standard destructor
-  virtual ~SALOME_ParameterizedObject(); 
 
-  
+  //! standard destructor
+  virtual ~SALOME_ParameterizedObject();
+
+
   //return object's entry
   virtual char* GetEntry() = 0;
 

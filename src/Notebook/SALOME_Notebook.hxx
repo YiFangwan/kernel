@@ -28,23 +28,67 @@
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Notebook)
+#include CORBA_SERVER_HEADER(SALOMEDS)
 #include <SALOME_GenericObj_i.hh>
 #include <string>
 #include <list>
 #include <map>
 
-class SALOME_Notebook: public POA_SALOME::Notebook, public SALOME::GenericObj_i
+class SALOME_Parameter;
+
+class SALOME_Notebook : public virtual POA_SALOME::Notebook, public virtual SALOME::GenericObj_i
 {
 public:
-  SALOME_Notebook();
+  SALOME_Notebook( SALOMEDS::Study_ptr theStudy );
 
-  virtual void AddDependency( SALOME::ParameterizedObject_ptr obj, SALOME::ParameterizedObject_ptr ref );
-  virtual void RemoveDependency( SALOME::ParameterizedObject_ptr obj, SALOME::ParameterizedObject_ptr ref );
-  virtual void ClearDependencies( SALOME::ParameterizedObject_ptr obj );
-  virtual void Update( SALOME::ParameterizedObject_ptr obj );
+  virtual CORBA::Boolean AddDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
+  virtual void RemoveDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
+  virtual void ClearDependencies( SALOME::ParameterizedObject_ptr theObj );
+  virtual void SetToUpdate( SALOME::ParameterizedObject_ptr theObj );
+  virtual void Update();
+
+  virtual CORBA::Boolean AddExpr( const char* theExpr );
+  virtual CORBA::Boolean AddNameExpr( const char* theName, const char* theExpr );
+  virtual CORBA::Boolean AddValue( const char* theName, CORBA::Double theValue );
+  virtual void Remove( const char* theParamName );
+  virtual SALOME::Parameter_ptr Param( const char* theParamName );
+
+  SALOME_Parameter* ParamPtr( const char* theParamName ) const;
+
+protected:
+  bool AddParam( SALOME_Parameter* theParam );
+  bool AddDependencies( SALOME_Parameter* theParam );
+  bool AddDependency( const std::string& theObjKey, const std::string& theRefKey );
+  void ClearDependencies( const std::string& theObjKey );
 
 private:
-  std::map< std::string, std::list<std::string> > myDependencies;
+  std::string GetKey( SALOME::ParameterizedObject_ptr theObj );
+  std::string GetKey( const std::string& theParamName );
+
+  //! return list of objects that depend on object with given key
+  std::list<std::string> GetAllDependingOn( const std::string& theKey );
+  SALOME::ParameterizedObject_ptr FindObject( const std::string& theKey );
+
+private:
+  std::map< std::string, std::list<std::string> > myDeps;
+  std::map< std::string, SALOME_Parameter* > myParams;
+
+  friend class KeyHelper;
+  class KeyHelper
+  {
+  public:
+    KeyHelper( const std::string& theKey, SALOME_Notebook* theNotebook );
+    std::string key() const;
+    bool operator < ( const KeyHelper& theKH ) const;
+    bool operator == ( const std::string& theKey ) const;
+
+  private:
+    std::string myKey;
+    SALOME_Notebook* myNotebook;
+  };
+  std::list< KeyHelper > myToUpdate;
+
+  SALOMEDS::Study_var myStudy;
 };
 
 #endif

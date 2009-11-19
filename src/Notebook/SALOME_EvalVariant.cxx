@@ -39,8 +39,8 @@ SALOME_EvalVariantData::SALOME_EvalVariantData(const SALOME_EvalVariantData& oth
   //
   switch (myType) {
     case SALOME_EvalVariant_String: {
-      RString& aStr=*(RString *)(other.myValue.myPtr);
-      RString *pStr=new RString(aStr);
+      SALOME_String& aStr=*(SALOME_String *)(other.myValue.myPtr);
+      SALOME_String *pStr=new SALOME_String(aStr);
       myValue.myPtr=(void*)pStr;
     }
       break;
@@ -67,8 +67,8 @@ SALOME_EvalVariantData& SALOME_EvalVariantData::operator=(const SALOME_EvalVaria
   myType=other.myType;
   switch (myType) {
     case SALOME_EvalVariant_String: {
-      RString& aStr=*(string *)(other.myValue.myPtr);
-      RString *pStr=new RString(aStr);
+      SALOME_String& aStr=*(string *)(other.myValue.myPtr);
+      SALOME_String *pStr=new SALOME_String(aStr);
       myValue.myPtr=(void*)pStr;
     }
       break;
@@ -136,8 +136,8 @@ bool SALOME_EvalVariantData::operator==(const SALOME_EvalVariantData& theOther) 
         bRet=false;
       }
       else {
-        RString& myStr=*(RString *)(myValue.myPtr);
-        RString& aOther=*(RString *)(theOther.myValue.myPtr);
+        SALOME_String& myStr=*(SALOME_String *)(myValue.myPtr);
+        SALOME_String& aOther=*(SALOME_String *)(theOther.myValue.myPtr);
         bRet=myStr==aOther;
       }
     }
@@ -237,10 +237,10 @@ SALOME_EvalVariant::SALOME_EvalVariant(double theValue)
 //function : SALOME_EvalVariant
 //purpose  : 
 //=======================================================================
-SALOME_EvalVariant::SALOME_EvalVariant(const RString& theValue)
+SALOME_EvalVariant::SALOME_EvalVariant(const SALOME_String& theValue)
 {
   ChangeDataType()=SALOME_EvalVariant_String;
-  RString *p=new RString(theValue);
+  SALOME_String *p=new SALOME_String(theValue);
   ChangeDataValue().myPtr=(void*)p;
 }
 //=======================================================================
@@ -257,12 +257,12 @@ SALOME_EvalVariant::SALOME_EvalVariant(const SALOME_ListOfEvalVariant& theValue)
 //function : operator=
 //purpose  : 
 //=======================================================================
-void SALOME_EvalVariant::operator=(const RString& theValue)
+void SALOME_EvalVariant::operator=(const SALOME_String& theValue)
 {
   clear();
   //
   ChangeDataType()=SALOME_EvalVariant_String;
-  RString *p=new RString(theValue);
+  SALOME_String *p=new SALOME_String(theValue);
   ChangeDataValue().myPtr=(void*)p;
 }
 //=======================================================================
@@ -318,7 +318,7 @@ void SALOME_EvalVariant::operator=(const char* theValue)
   clear();
   //
   ChangeDataType()=SALOME_EvalVariant_String;
-  RString *p=new RString(theValue);
+  SALOME_String *p=new SALOME_String(theValue);
   ChangeDataValue().myPtr=(void*)p;
 }
 //=======================================================================
@@ -342,8 +342,8 @@ bool SALOME_EvalVariant::toBool() const
 	  return DataValueDouble() != 0.;
   }
   else if ( aType == SALOME_EvalVariant_String ) {
-    RString aZero("0"), aFalse("false");
-    const RString& aStr=DataValueString();
+    SALOME_String aZero("0"), aFalse("false");
+    const SALOME_String& aStr=DataValueString();
     return !(aStr==aZero || aStr==aFalse || aStr.empty());
   }
   return false;
@@ -373,7 +373,7 @@ int SALOME_EvalVariant::toInt(bool *ok) const
   else if (aType == SALOME_EvalVariant_String) {
     int iRet;
     //
-    const RString& aStr=DataValueString();
+    const SALOME_String& aStr=DataValueString();
     const char *pStr=aStr.c_str();
     iRet=atoi(pStr);
     return iRet;
@@ -417,7 +417,7 @@ double SALOME_EvalVariant::toDouble(bool *ok) const
   else if (aType == SALOME_EvalVariant_String) {
     double dRet;
     //
-    const RString& aStr=DataValueString();
+    const SALOME_String& aStr=DataValueString();
     const char *pStr=aStr.c_str();
     dRet=atof(pStr);
     return dRet;
@@ -429,11 +429,11 @@ double SALOME_EvalVariant::toDouble(bool *ok) const
 //function : toString
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalVariant::toString() const
+SALOME_String SALOME_EvalVariant::toString() const
 {
   bool bOk;
   char buffer[32];
-  RString aS;
+  SALOME_String aS;
   //
   SALOME_EvalVariantType aType=type();
   //
@@ -460,7 +460,7 @@ RString SALOME_EvalVariant::toString() const
     aS=buffer;
   }
   else if (aType == SALOME_EvalVariant_String) {
-    const RString& aStr=DataValueString();
+    const SALOME_String& aStr=DataValueString();
     aS=aStr;
   }
   return aS;

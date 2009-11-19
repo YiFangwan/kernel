@@ -28,14 +28,11 @@
 //
 #include <math.h>
 #include <SALOME_Eval.hxx>
-static 
-  int toInt(const RString& str, bool *ok);
-static 
-  double toDouble(const RString& str, bool *ok);
-static
-  RString tolower(const RString& str);
-static
-  RString toupper(const RString& str);
+
+int toInt(const SALOME_String& str, bool *ok);
+double toDouble(const SALOME_String& str, bool *ok);
+SALOME_String toLower(const SALOME_String& str);
+SALOME_String toUpper(const SALOME_String& str);
 
 //=======================================================================
 //function : SALOME_EvalSet
@@ -55,8 +52,7 @@ SALOME_EvalSet::~SALOME_EvalSet()
 //function : SALOME_EvalSet::createValue
 //purpose  : 
 //=======================================================================
-bool SALOME_EvalSet::createValue(const RString& str, 
-                             SALOME_EvalVariant& val) const
+bool SALOME_EvalSet::createValue(const SALOME_String& str, SALOME_EvalVariant& val) const
 {
   val=str;
   return false;
@@ -65,13 +61,12 @@ bool SALOME_EvalSet::createValue(const RString& str,
 //function : SALOME_EvalSet::contains
 //purpose  : 
 //=======================================================================
-bool SALOME_EvalSet::contains(const SALOME_ListOfPEvalSet& aL, 
-                              const SALOME_EvalSet* pS)
+bool SALOME_EvalSet::contains( const SALOME_ListOfEvalSet& aL, const SALOME_EvalSet* pS)
 {
   bool bRet;
   //
   bRet=false;
-  SALOME_ListOfPEvalSet::const_iterator aIt=aL.begin();
+  SALOME_ListOfEvalSet::const_iterator aIt=aL.begin();
   for(; aIt!=aL.end(); ++aIt) {
     const SALOME_EvalSet* pSx=*aIt;
     bRet=pSx==pS;
@@ -85,9 +80,7 @@ bool SALOME_EvalSet::contains(const SALOME_ListOfPEvalSet& aL,
 //function : SALOME_EvalSet::insert
 //purpose  : 
 //=======================================================================
-void SALOME_EvalSet::insert(SALOME_ListOfPEvalSet& aL, 
-                        const int aIndex,
-                        SALOME_EvalSet* pS)
+void SALOME_EvalSet::insert(SALOME_ListOfEvalSet& aL, const int aIndex, SALOME_EvalSet* pS)
 {
   int i;
   //
@@ -98,7 +91,7 @@ void SALOME_EvalSet::insert(SALOME_ListOfPEvalSet& aL,
     aL.push_back(pS);
   }
   else {
-    SALOME_ListOfPEvalSet::iterator aIt=aL.begin();
+    SALOME_ListOfEvalSet::iterator aIt=aL.begin();
     for(i=0; aIt!=aL.end(); ++aIt, ++i) {
       //const SALOME_EvalSet* pSx=*aIt;
       if (i==aIndex) {
@@ -127,10 +120,9 @@ SALOME_EvalSetBase::~SALOME_EvalSetBase()
 //function : SALOME_EvalSetBase::operationList
 //purpose  : 
 //=======================================================================
-void SALOME_EvalSetBase::operationList(RStringList& aList) const
+void SALOME_EvalSetBase::operationList( SALOME_StringList& aList ) const
 {
-  using namespace std;
-  RStringList::const_iterator aIt;
+  SALOME_StringList::const_iterator aIt;
   //
   aIt=myOpers.begin();
   for (; aIt!=myOpers.end(); ++aIt) {
@@ -141,7 +133,7 @@ void SALOME_EvalSetBase::operationList(RStringList& aList) const
 //function : SALOME_EvalSetBase::bracketsList
 //purpose  : 
 //=======================================================================
-void SALOME_EvalSetBase::bracketsList(RStringList& aList, 
+void SALOME_EvalSetBase::bracketsList(SALOME_StringList& aList, 
                                   bool bOpen) const
 {
   aList.push_back( bOpen ? "(" : ")" );
@@ -150,14 +142,15 @@ void SALOME_EvalSetBase::bracketsList(RStringList& aList,
 //function : SALOME_EvalSetBase::addOperations
 //purpose  : 
 //=======================================================================
-void SALOME_EvalSetBase::addOperations(const RStringList& aList)
+void SALOME_EvalSetBase::addOperations(const SALOME_StringList& aList)
 {
-  RStringList::const_iterator aIt;
-  SetOfRString aSet;
-  SetPair aSetPair;
+  SALOME_StringList::const_iterator aIt;
+  SALOME_StringSet aSet;
+  SALOME_SetPair aSetPair;
   //   
   aIt=aList.begin();
-  for (; aIt != aList.end(); ++aIt)  {
+  for (; aIt != aList.end(); ++aIt)
+  {
     aSetPair=aSet.insert(*aIt);
     if(aSetPair.second) { 
       myOpers.push_back( *aIt );
@@ -186,9 +179,9 @@ void SALOME_EvalSetBase::addTypes(const SALOME_ListOfEvalVariantType& aList)
 //function : SALOME_EvalSetBase::isValid
 //purpose  : 
 //=======================================================================
-SALOME_EvalExprError SALOME_EvalSetBase::isValid(const RString& op,
-                                          const SALOME_EvalVariantType t1, 
-                                          const SALOME_EvalVariantType t2 ) const
+SALOME_EvalExprError SALOME_EvalSetBase::isValid( const SALOME_String& op,
+                                                  const SALOME_EvalVariantType t1, 
+                                                  const SALOME_EvalVariantType t2 ) const
 {
   bool bContainsT1, bContainsT2;
   SALOME_SetOfEvalVariantType aSet;
@@ -212,13 +205,13 @@ SALOME_EvalExprError SALOME_EvalSetBase::isValid(const RString& op,
        ( t2 == SALOME_EvalVariant_Invalid || bContainsT2 ) &&
        ( t1 != SALOME_EvalVariant_Invalid || t2 != SALOME_EvalVariant_Invalid ) ) {
     if ( priority( op, t1 != SALOME_EvalVariant_Invalid && t2 != SALOME_EvalVariant_Invalid ) > 0 ) {
-      return SALOME_EvalExpr_OK;
+      return EvalExpr_OK;
     }
     else {
-      return SALOME_EvalExpr_InvalidOperation;
+      return EvalExpr_InvalidOperation;
     }
   }
-  return SALOME_EvalExpr_OperandsNotMatch;
+  return EvalExpr_OperandsNotMatch;
 }
 ////////////////////////////////////////////////////////////////////////
 //=======================================================================
@@ -228,8 +221,8 @@ SALOME_EvalExprError SALOME_EvalSetBase::isValid(const RString& op,
 SALOME_EvalSetArithmetic::SALOME_EvalSetArithmetic()
 : SALOME_EvalSetBase()
 {
-  RString aOp;
-  RStringList aStringList;
+  SALOME_String aOp;
+  SALOME_StringList aStringList;
   SALOME_ListOfEvalVariantType aTypes;
   //
   aOp="+";  aStringList.push_back(aOp);
@@ -261,7 +254,7 @@ SALOME_EvalSetArithmetic::~SALOME_EvalSetArithmetic()
 //function : SALOME_EvalSetArithmetic::Name
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalSetArithmetic::Name()
+SALOME_String SALOME_EvalSetArithmetic::Name()
 {
   return "Arithmetic";
 }
@@ -269,7 +262,7 @@ RString SALOME_EvalSetArithmetic::Name()
 //function : SALOME_EvalSetArithmetic::name
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalSetArithmetic::name()const
+SALOME_String SALOME_EvalSetArithmetic::name()const
 {
   return Name();
 }
@@ -277,7 +270,7 @@ RString SALOME_EvalSetArithmetic::name()const
 //function : SALOME_EvalSetArithmetic::createValue
 //purpose  : 
 //=======================================================================
-bool SALOME_EvalSetArithmetic::createValue(const RString& str, 
+bool SALOME_EvalSetArithmetic::createValue(const SALOME_String& str, 
                                        SALOME_EvalVariant& val ) const
 {
   bool ok;
@@ -307,7 +300,7 @@ bool SALOME_EvalSetArithmetic::createValue(const RString& str,
 //function : SALOME_EvalSetArithmetic::priority
 //purpose  : 
 //=======================================================================
-int SALOME_EvalSetArithmetic::priority(const RString& op, bool isBin) const
+int SALOME_EvalSetArithmetic::priority(const SALOME_String& op, bool isBin) const
 {
   if ( isBin )
   {
@@ -330,7 +323,7 @@ int SALOME_EvalSetArithmetic::priority(const RString& op, bool isBin) const
 //function : SALOME_EvalSetArithmetic::calculate
 //purpose  : 
 //=======================================================================
-SALOME_EvalExprError SALOME_EvalSetArithmetic::calculate(const RString& op, 
+SALOME_EvalExprError SALOME_EvalSetArithmetic::calculate(const SALOME_String& op, 
                                                   SALOME_EvalVariant& v1, 
                                                   SALOME_EvalVariant& v2 ) const
 {
@@ -338,7 +331,7 @@ SALOME_EvalExprError SALOME_EvalSetArithmetic::calculate(const RString& op,
   SALOME_EvalExprError err;
   SALOME_EvalVariantType aType1, aType2;  
   //  
-  err = SALOME_EvalExpr_OK;
+  err = EvalExpr_OK;
   //
   bValid1=v1.isValid();
   bValid2=v2.isValid();  
@@ -372,7 +365,7 @@ SALOME_EvalExprError SALOME_EvalSetArithmetic::calculate(const RString& op,
           }
         }
         else {
-          err = SALOME_EvalExpr_InvalidResult;
+          err = EvalExpr_InvalidResult;
         }
       }
       else if ( op == "<" ) {
@@ -413,7 +406,7 @@ SALOME_EvalExprError SALOME_EvalSetArithmetic::calculate(const RString& op,
           v1 = _v1 / _v2;
         }
         else{
-          err = SALOME_EvalExpr_InvalidResult;
+          err = EvalExpr_InvalidResult;
         }
       }
       else if ( op == "<" ){
@@ -457,19 +450,19 @@ SALOME_EvalExprError SALOME_EvalSetArithmetic::calculate(const RString& op,
 SALOME_EvalSetLogic::SALOME_EvalSetLogic()
 : SALOME_EvalSetBase()
 {
-  RString aOp;
-  RStringList aStringList;
+  SALOME_String aOp;
+  SALOME_StringList aStringList;
   SALOME_ListOfEvalVariantType aTypes;
   //
-  aOp="and";  aStringList.push_back(aOp);
+  aOp="and"; aStringList.push_back(aOp);
   aOp="&&";  aStringList.push_back(aOp);
   aOp="or";  aStringList.push_back(aOp);
   aOp="||";  aStringList.push_back(aOp);
-  aOp="xor";  aStringList.push_back(aOp);
-  aOp="not";  aStringList.push_back(aOp);
-  aOp="!";  aStringList.push_back(aOp);
-  aOp="imp";  aStringList.push_back(aOp);
-  aOp="=";  aStringList.push_back(aOp);
+  aOp="xor"; aStringList.push_back(aOp);
+  aOp="not"; aStringList.push_back(aOp);
+  aOp="!";   aStringList.push_back(aOp);
+  aOp="imp"; aStringList.push_back(aOp);
+  aOp="=";   aStringList.push_back(aOp);
   addOperations( aStringList );
   //
   aTypes.push_back( SALOME_EvalVariant_Boolean );
@@ -488,7 +481,7 @@ SALOME_EvalSetLogic::~SALOME_EvalSetLogic()
 //function : SALOME_EvalSetLogic::Name
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalSetLogic::Name()
+SALOME_String SALOME_EvalSetLogic::Name()
 {
   return "Logic";
 }
@@ -496,7 +489,7 @@ RString SALOME_EvalSetLogic::Name()
 //function : SALOME_EvalSetLogic::name
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalSetLogic::name() const
+SALOME_String SALOME_EvalSetLogic::name() const
 {
   return Name();
 }
@@ -504,10 +497,10 @@ RString SALOME_EvalSetLogic::name() const
 //function : SALOME_EvalSetLogic::createValue
 //purpose  : 
 //=======================================================================
-bool SALOME_EvalSetLogic::createValue(const RString& str, SALOME_EvalVariant& val)const
+bool SALOME_EvalSetLogic::createValue(const SALOME_String& str, SALOME_EvalVariant& val)const
 {
   bool ok = true;
-  RString valStr = tolower(str);
+  SALOME_String valStr = toLower(str);
   //
   if ( valStr == "true" || valStr == "yes" )
     val = SALOME_EvalVariant( true );
@@ -522,7 +515,7 @@ bool SALOME_EvalSetLogic::createValue(const RString& str, SALOME_EvalVariant& va
 //function : SALOME_EvalSetLogic::priority
 //purpose  : 
 //=======================================================================
-int SALOME_EvalSetLogic::priority(const RString& op, bool isBin) const
+int SALOME_EvalSetLogic::priority(const SALOME_String& op, bool isBin) const
 {
   if ( isBin )
   {
@@ -547,11 +540,9 @@ int SALOME_EvalSetLogic::priority(const RString& op, bool isBin) const
 //function : SALOME_EvalSetLogic::priority
 //purpose  : 
 //=======================================================================
-SALOME_EvalExprError SALOME_EvalSetLogic::calculate(const RString& op, 
-                                             SALOME_EvalVariant& v1, 
-                                             SALOME_EvalVariant& v2 ) const
+SALOME_EvalExprError SALOME_EvalSetLogic::calculate(const SALOME_String& op, SALOME_EvalVariant& v1, SALOME_EvalVariant& v2 ) const
 {
-  SALOME_EvalExprError err = SALOME_EvalExpr_OK;
+  SALOME_EvalExprError err = EvalExpr_OK;
   //
   int val1 = intValue( v1 );
   int val2 = intValue( v2 );
@@ -608,8 +599,8 @@ int SALOME_EvalSetLogic::intValue(const SALOME_EvalVariant& v) const
 SALOME_EvalSetMath::SALOME_EvalSetMath()
 : SALOME_EvalSetBase()
 {
-  RString aOp;
-  RStringList aStringList;
+  SALOME_String aOp;
+  SALOME_StringList aStringList;
   SALOME_ListOfEvalVariantType aTypes;
   //
   aOp="sqrt";  aStringList.push_back(aOp);
@@ -635,7 +626,7 @@ SALOME_EvalSetMath::~SALOME_EvalSetMath()
 //function : SALOME_EvalSetMath::Name
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalSetMath::Name()
+SALOME_String SALOME_EvalSetMath::Name()
 {
   return "Math";
 }
@@ -643,7 +634,7 @@ RString SALOME_EvalSetMath::Name()
 //function : SALOME_EvalSetMath::name
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalSetMath::name() const
+SALOME_String SALOME_EvalSetMath::name() const
 {
   return Name();
 }
@@ -651,7 +642,7 @@ RString SALOME_EvalSetMath::name() const
 //function : SALOME_EvalSetMath::createValue
 //purpose  : 
 //=======================================================================
-bool SALOME_EvalSetMath::createValue(const RString& str, SALOME_EvalVariant& val) const
+bool SALOME_EvalSetMath::createValue(const SALOME_String& str, SALOME_EvalVariant& val) const
 {
   bool ok = false;
   //
@@ -668,7 +659,7 @@ bool SALOME_EvalSetMath::createValue(const RString& str, SALOME_EvalVariant& val
 //function : SALOME_EvalSetMath::priority
 //purpose  : 
 //=======================================================================
-int SALOME_EvalSetMath::priority(const RString& op, bool isBin) const
+int SALOME_EvalSetMath::priority(const SALOME_String& op, bool isBin) const
 {
   if ( isBin ){
     return 0;
@@ -687,12 +678,10 @@ int SALOME_EvalSetMath::priority(const RString& op, bool isBin) const
 //function : SALOME_EvalSetMath::calculate
 //purpose  : 
 //=======================================================================
-SALOME_EvalExprError SALOME_EvalSetMath::calculate(const RString& op, 
-                                            SALOME_EvalVariant& v1, 
-                                            SALOME_EvalVariant& v2 ) const
+SALOME_EvalExprError SALOME_EvalSetMath::calculate(const SALOME_String& op, SALOME_EvalVariant& v1, SALOME_EvalVariant& v2 ) const
 {
   bool bOk;
-  SALOME_EvalExprError err = SALOME_EvalExpr_OK;
+  SALOME_EvalExprError err = EvalExpr_OK;
 
   double val = v2.toDouble(&bOk);
   if ( op == "sqrt" ) {
@@ -700,7 +689,7 @@ SALOME_EvalExprError SALOME_EvalSetMath::calculate(const RString& op,
       v2 = sqrt( val );
     }
     else {
-      err = SALOME_EvalExpr_InvalidResult;
+      err = EvalExpr_InvalidResult;
     }
   }
   else if ( op == "abs" )  {
@@ -735,8 +724,8 @@ SALOME_EvalExprError SALOME_EvalSetMath::calculate(const RString& op,
 SALOME_EvalSetString::SALOME_EvalSetString()
 : SALOME_EvalSetBase()
 {
-  RString aOp;
-  RStringList aStringList;
+  SALOME_String aOp;
+  SALOME_StringList aStringList;
   SALOME_ListOfEvalVariantType aTypes;
   //
   aOp="+";  aStringList.push_back(aOp);
@@ -768,7 +757,7 @@ SALOME_EvalSetString::~SALOME_EvalSetString()
 //function : SALOME_EvalSetString::Name
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalSetString::Name()
+SALOME_String SALOME_EvalSetString::Name()
 {
   return "String";    
 }
@@ -776,7 +765,7 @@ RString SALOME_EvalSetString::Name()
 //function : SALOME_EvalSetString::name
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalSetString::name()const
+SALOME_String SALOME_EvalSetString::name()const
 {
   return Name();    
 }
@@ -784,8 +773,7 @@ RString SALOME_EvalSetString::name()const
 //function : SALOME_EvalSetString::createValue
 //purpose  : 
 //=======================================================================
-bool SALOME_EvalSetString::createValue(const RString& str, 
-                                   SALOME_EvalVariant& val) const
+bool SALOME_EvalSetString::createValue(const SALOME_String& str, SALOME_EvalVariant& val) const
 {
   bool ok = false;
   const char* myString=str.c_str();
@@ -819,8 +807,7 @@ bool SALOME_EvalSetString::createValue(const RString& str,
 //function : SALOME_EvalSetString::priority
 //purpose  : 
 //=======================================================================
-int SALOME_EvalSetString::priority(const RString& op, 
-                               bool isBin) const
+int SALOME_EvalSetString::priority(const SALOME_String& op, bool isBin) const
 {
   if ( isBin )  {
     if ( op == "+" ) {
@@ -843,14 +830,13 @@ int SALOME_EvalSetString::priority(const RString& op,
 //function : SALOME_EvalSetString::calculate
 //purpose  : 
 //=======================================================================
-SALOME_EvalExprError SALOME_EvalSetString::calculate(const RString& op, 
-                                              SALOME_EvalVariant& v1,
-                                              SALOME_EvalVariant& v2) const
+SALOME_EvalExprError SALOME_EvalSetString::calculate(const SALOME_String& op, SALOME_EvalVariant& v1, SALOME_EvalVariant& v2) const
 {
-  SALOME_EvalExprError err = SALOME_EvalExpr_OK;
-  if ( v1.isValid() && v2.isValid() )  {
-    RString _v1 = v1.toString();
-    RString _v2 = v2.toString();
+  SALOME_EvalExprError err = EvalExpr_OK;
+  if ( v1.isValid() && v2.isValid() )
+  {
+    SALOME_String _v1 = v1.toString();
+    SALOME_String _v2 = v2.toString();
     if ( op == "+" )
       v1 = _v1 + _v2;
     else if ( op == "=" )
@@ -866,15 +852,16 @@ SALOME_EvalExprError SALOME_EvalSetString::calculate(const RString& op,
     else if ( op == ">=" )
       v1 = _v1 > _v2 || _v1 == _v2;
   }
-  else if ( !v1.isValid() && v2.isValid() )  {
-    RString val = v2.toString();
+  else if ( !v1.isValid() && v2.isValid() )
+  {
+    SALOME_String val = v2.toString();
     if ( op == "length" )
       v2 = (int)val.length();
     else if ( op == "lower" ) {
-      v2=tolower(val);
+      v2=toLower(val);
     }
     else if ( op == "upper" ) {
-      v2=toupper(val);
+      v2=toUpper(val);
     }
   }
   return err;
@@ -887,8 +874,8 @@ SALOME_EvalExprError SALOME_EvalSetString::calculate(const RString& op,
 SALOME_EvalSetSets::SALOME_EvalSetSets()
 : SALOME_EvalSetBase()
 {
-  RString aOp;
-  RStringList aStringList;
+  SALOME_String aOp;
+  SALOME_StringList aStringList;
   SALOME_ListOfEvalVariantType aTypes;
   //
   aOp="{";  aStringList.push_back(aOp);
@@ -916,7 +903,7 @@ SALOME_EvalSetSets::~SALOME_EvalSetSets()
 //function : SALOME_EvalSetSets::Name
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalSetSets::Name()
+SALOME_String SALOME_EvalSetSets::Name()
 {
   return "Sets";
 }
@@ -924,7 +911,7 @@ RString SALOME_EvalSetSets::Name()
 //function : SALOME_EvalSetSets::name
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalSetSets::name()const
+SALOME_String SALOME_EvalSetSets::name()const
 {
   return Name();
 }
@@ -932,8 +919,7 @@ RString SALOME_EvalSetSets::name()const
 //function : SALOME_EvalSetSets::bracketsList
 //purpose  : 
 //=======================================================================
-void SALOME_EvalSetSets::bracketsList(RStringList& aList, 
-                                  bool bOpen ) const
+void SALOME_EvalSetSets::bracketsList(SALOME_StringList& aList, bool bOpen ) const
 {
   aList.push_back( bOpen ? "{" : "}" );
   SALOME_EvalSetBase::bracketsList(aList, bOpen);
@@ -942,7 +928,7 @@ void SALOME_EvalSetSets::bracketsList(RStringList& aList,
 //function : SALOME_EvalSetSets::bracketsList
 //purpose  : 
 //=======================================================================
-int SALOME_EvalSetSets::priority(const RString& op, bool isBin) const
+int SALOME_EvalSetSets::priority(const SALOME_String& op, bool isBin) const
 {
   if ( isBin )  {
     if ( op == "=" || op == "<>" || op == "!=" )
@@ -965,21 +951,21 @@ int SALOME_EvalSetSets::priority(const RString& op, bool isBin) const
 //function : SALOME_EvalSetSets::isValid
 //purpose  : 
 //=======================================================================
-SALOME_EvalExprError SALOME_EvalSetSets::isValid(const RString& op,
-                                          const SALOME_EvalVariantType t1, 
-                                          const SALOME_EvalVariantType t2 ) const
+SALOME_EvalExprError SALOME_EvalSetSets::isValid(const SALOME_String& op,
+                                                 const SALOME_EvalVariantType t1,
+                                                 const SALOME_EvalVariantType t2 ) const
 {
   if ( op == "{" ) {
-    return SALOME_EvalExpr_OK;
+    return EvalExpr_OK;
   }
   if ( op != "in" ) {
     return SALOME_EvalSetBase::isValid( op, t1, t2 );
   }
   if ( t1 != SALOME_EvalVariant_Invalid && t2 == SALOME_EvalVariant_List ) {
-    return SALOME_EvalExpr_OK;
+    return EvalExpr_OK;
   }
   //else
-  return SALOME_EvalExpr_OperandsNotMatch;
+  return EvalExpr_OperandsNotMatch;
 }
 //=======================================================================
 //function : SALOME_EvalSetSets::add
@@ -1025,11 +1011,11 @@ void SALOME_EvalSetSets::remove(ValueSet& s1, const ValueSet& s2)
 //function : SALOME_EvalSetSets::calculate
 //purpose  : 
 //=======================================================================
-SALOME_EvalExprError SALOME_EvalSetSets::calculate(const RString& op, 
-                                            SALOME_EvalVariant& v1, 
-                                            SALOME_EvalVariant& v2 ) const
+SALOME_EvalExprError SALOME_EvalSetSets::calculate(const SALOME_String& op, 
+                                                   SALOME_EvalVariant& v1, 
+                                                   SALOME_EvalVariant& v2 ) const
 {
-  SALOME_EvalExprError err = SALOME_EvalExpr_OK;
+  SALOME_EvalExprError err = EvalExpr_OK;
   // !!!
   if ( op != "{" )  {
     if ( op == "}" ) {
@@ -1109,7 +1095,7 @@ SALOME_EvalSetConst::~SALOME_EvalSetConst()
 //function : SALOME_EvalSetConst::Name
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalSetConst::Name()
+SALOME_String SALOME_EvalSetConst::Name()
 {
   return "Const";
 }
@@ -1117,7 +1103,7 @@ RString SALOME_EvalSetConst::Name()
 //function : SALOME_EvalSetConst::name
 //purpose  : 
 //=======================================================================
-RString SALOME_EvalSetConst::name() const
+SALOME_String SALOME_EvalSetConst::name() const
 {
   return Name();
 }
@@ -1125,7 +1111,7 @@ RString SALOME_EvalSetConst::name() const
 //function : SALOME_EvalSetConst::createValue
 //purpose  : 
 //=======================================================================
-bool SALOME_EvalSetConst::createValue(const RString& str, SALOME_EvalVariant& val) const
+bool SALOME_EvalSetConst::createValue(const SALOME_String& str, SALOME_EvalVariant& val) const
 {
   bool ok = true;
   if ( str == "pi" )            // PI number
@@ -1143,21 +1129,21 @@ bool SALOME_EvalSetConst::createValue(const RString& str, SALOME_EvalVariant& va
 //function : SALOME_EvalSetConst::operationList
 //purpose  : 
 //=======================================================================
-void SALOME_EvalSetConst::operationList(RStringList&) const
+void SALOME_EvalSetConst::operationList(SALOME_StringList&) const
 {
 }
 //=======================================================================
 //function : SALOME_EvalSetConst::bracketsList
 //purpose  : 
 //=======================================================================
-void SALOME_EvalSetConst::bracketsList(RStringList& , bool) const
+void SALOME_EvalSetConst::bracketsList(SALOME_StringList& , bool) const
 {
 }
 //=======================================================================
 //function : SALOME_EvalSetConst::priority
 //purpose  : 
 //=======================================================================
-int SALOME_EvalSetConst::priority(const RString& /*op*/, bool /*isBin*/ ) const
+int SALOME_EvalSetConst::priority(const SALOME_String& /*op*/, bool /*isBin*/ ) const
 {
   return 0;
 }
@@ -1165,34 +1151,34 @@ int SALOME_EvalSetConst::priority(const RString& /*op*/, bool /*isBin*/ ) const
 //function : SALOME_EvalSetConst::isValid
 //purpose  : 
 //=======================================================================
-SALOME_EvalExprError SALOME_EvalSetConst::isValid(const RString& /*op*/, 
-					                                 const SALOME_EvalVariantType /*t1*/,
-					                                 const SALOME_EvalVariantType /*t2*/ ) const
+SALOME_EvalExprError SALOME_EvalSetConst::isValid(const SALOME_String& /*op*/, 
+                                                  const SALOME_EvalVariantType /*t1*/,
+                                                  const SALOME_EvalVariantType /*t2*/ ) const
 {
-  return SALOME_EvalExpr_InvalidOperation;
+  return EvalExpr_InvalidOperation;
 }
 //=======================================================================
 //function : SALOME_EvalSetConst::calculate
 //purpose  : 
 //=======================================================================
-SALOME_EvalExprError SALOME_EvalSetConst::calculate(const RString&, 
+SALOME_EvalExprError SALOME_EvalSetConst::calculate(const SALOME_String&, 
                                              SALOME_EvalVariant&, 
                                              SALOME_EvalVariant& ) const
 {
-  return SALOME_EvalExpr_InvalidOperation;
+  return EvalExpr_InvalidOperation;
 }
 
 /////////////////////////////////////////////////////////////////////////
 //=======================================================================
-//function : toupper
+//function : toUpper
 //purpose  : 
 //=======================================================================
-RString toupper(const RString& str)
+SALOME_String toUpper(const SALOME_String& str)
 {
   char aC;
   const char* mystring=str.c_str();
   size_t mylength, i;
-  RString aRet;
+  SALOME_String aRet;
   //
   aRet=str;
   if(mystring) {
@@ -1208,12 +1194,12 @@ RString toupper(const RString& str)
 //function : tolower
 //purpose  : 
 //=======================================================================
-RString tolower(const RString& str)
+SALOME_String toLower(const SALOME_String& str)
 {
   char aC;
   const char* mystring=str.c_str();
   size_t mylength, i;
-  RString aRet;
+  SALOME_String aRet;
   //
   aRet=str;
   if(mystring) {
@@ -1229,7 +1215,7 @@ RString tolower(const RString& str)
 //function : toDouble
 //purpose  : 
 //=======================================================================
-double toDouble(const RString& str, bool *ok)
+double toDouble(const SALOME_String& str, bool *ok)
 {
   char *ptr;
   const char* mystring=str.c_str();
@@ -1253,7 +1239,7 @@ double toDouble(const RString& str, bool *ok)
 //function : toInt
 //purpose  : 
 //=======================================================================
-int toInt(const RString& str, bool *ok)
+int toInt(const SALOME_String& str, bool *ok)
 {
   char *ptr;
   const char* mystring=str.c_str();

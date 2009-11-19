@@ -28,40 +28,30 @@
 #include <stack>
 #include <list>
 
-static
-  bool contains(const RStringList& aLS,
-              const RString& aS);
-static
-  RString trimmed(const RString& str);
-
-static
-  RString trimmed(const RString& str, const char aWhat);
-
-static
-  bool isSpace(const char aC);
-  
-static
-  int indexOf(const RStringList& aLS,
-              const RString& aS);
+bool          contains(const SALOME_StringList& aLS, const SALOME_String& aS);
+SALOME_String trimmed(const SALOME_String& str);
+SALOME_String trimmed(const SALOME_String& str, const char aWhat);
+bool          isSpace(const char aC);
+int           indexOf(const SALOME_StringList& aLS, const SALOME_String& aS);
 
 //=======================================================================
-//function : 
-//purpose  : 
+//function :
+//purpose  :
 //=======================================================================
 SALOME_EvalParser::SALOME_EvalParser()
 : myAutoDel( false )
 {
-  setError( SALOME_EvalExpr_OK );
+  setError( EvalExpr_OK );
 }
 //=======================================================================
 //function : ~
-//purpose  : 
+//purpose  :
 //=======================================================================
 SALOME_EvalParser::~SALOME_EvalParser()
 {
   if (autoDeleteOperationSets()) {
     //qDeleteAll( mySets );// !!!
-    SALOME_ListOfPEvalSet::const_iterator aIt = mySets.begin(); 
+    SALOME_ListOfEvalSet::const_iterator aIt = mySets.begin();
     for (; aIt != mySets.end() ; ++aIt )  {
       SALOME_EvalSet* pEvalSet=*aIt;
       if (pEvalSet) {
@@ -73,22 +63,22 @@ SALOME_EvalParser::~SALOME_EvalParser()
 }
 //=======================================================================
 //function : operationSets
-//purpose  : 
+//purpose  :
 //=======================================================================
-SALOME_ListOfPEvalSet SALOME_EvalParser::operationSets() const
+SALOME_ListOfEvalSet SALOME_EvalParser::operationSets() const
 {
   return mySets;
 }
 //=======================================================================
 //function : operationSet
-//purpose  : 
+//purpose  :
 //=======================================================================
-SALOME_EvalSet* SALOME_EvalParser::operationSet(const RString& theName) const
+SALOME_EvalSet* SALOME_EvalParser::operationSet(const SALOME_String& theName) const
 {
   SALOME_EvalSet* pSet;
   //
   pSet = NULL;
-  SALOME_ListOfPEvalSet::const_iterator it = mySets.begin(); 
+  SALOME_ListOfEvalSet::const_iterator it = mySets.begin();
   for (; it != mySets.end() && !pSet; ++it )  {
     if ( (*it)->name()==theName ) {
       pSet = *it;
@@ -98,15 +88,15 @@ SALOME_EvalSet* SALOME_EvalParser::operationSet(const RString& theName) const
 }
 //=======================================================================
 //function : insertOperationSet
-//purpose  : 
+//purpose  :
 //=======================================================================
-void SALOME_EvalParser::insertOperationSet(SALOME_EvalSet* theSet, 
+void SALOME_EvalParser::insertOperationSet(SALOME_EvalSet* theSet,
                                        const int idx)
 {
   if (SALOME_EvalSet::contains(mySets, theSet)) {
     return;
   }
-  //  
+  //
   int iSize=(int)mySets.size();
   int index = idx < 0 ? iSize : idx;
   if (index>iSize) {
@@ -116,7 +106,7 @@ void SALOME_EvalParser::insertOperationSet(SALOME_EvalSet* theSet,
 }
 //=======================================================================
 //function : removeOperationSet
-//purpose  : 
+//purpose  :
 //=======================================================================
 void SALOME_EvalParser::removeOperationSet(SALOME_EvalSet* theSet)
 {
@@ -125,7 +115,7 @@ void SALOME_EvalParser::removeOperationSet(SALOME_EvalSet* theSet)
 }
 //=======================================================================
 //function : autoDeleteOperationSets
-//purpose  : 
+//purpose  :
 //=======================================================================
 bool SALOME_EvalParser::autoDeleteOperationSets() const
 {
@@ -133,7 +123,7 @@ bool SALOME_EvalParser::autoDeleteOperationSets() const
 }
 //=======================================================================
 //function : setAutoDeleteOperationSets
-//purpose  : 
+//purpose  :
 //=======================================================================
 void SALOME_EvalParser::setAutoDeleteOperationSets( const bool theOn )
 {
@@ -141,26 +131,23 @@ void SALOME_EvalParser::setAutoDeleteOperationSets( const bool theOn )
 }
 //=======================================================================
 //function : search
-//purpose  : 
+//purpose  :
 //=======================================================================
-int SALOME_EvalParser::search(const RStringList& aList, 
-                          const RString& aStr,
-                          int offset, 
-                          int& matchLen, 
-                          int& listind )
+int SALOME_EvalParser::search(const SALOME_StringList& aList, const SALOME_String& aStr, int offset,  int& matchLen, int& listind )
 {
   int min = -1;
   int ind = 0;
   int pos;
   //static const basic_string <char>::size_type npos = -1;
   //
-  RStringList::const_iterator aIt = aList.begin(), aLast = aList.end();
-  for (ind = 0; aIt != aLast; aIt++, ind++ ) {
-    const RString& aStrX=*aIt;
-    
+  SALOME_StringList::const_iterator aIt = aList.begin(), aLast = aList.end();
+  for (ind = 0; aIt != aLast; aIt++, ind++ )
+  {
+    const SALOME_String& aStrX=*aIt;
+
     pos=(int)aStr.find(aStrX, offset);
-    if ( pos >= 0 && 
-         ( min < 0 || min > pos || 
+    if ( pos >= 0 &&
+         ( min < 0 || min > pos ||
           ( min == pos && matchLen < (int)aStrX.length())
          )
        )  {
@@ -168,7 +155,7 @@ int SALOME_EvalParser::search(const RStringList& aList,
       listind = ind;
       matchLen = (int)aStrX.length();
     }
-    
+
   }
   if ( min < 0 ){
     matchLen = 0;
@@ -177,11 +164,11 @@ int SALOME_EvalParser::search(const RStringList& aList,
 }
 //=======================================================================
 //function : note
-//purpose  : 
+//purpose  :
 //=======================================================================
-RString SALOME_EvalParser::note(const RString& aStr, int pos, int len )
+SALOME_String SALOME_EvalParser::note(const SALOME_String& aStr, int pos, int len )
 {
-  RString aStr1;
+  SALOME_String aStr1;
   //
   aStr1=aStr.substr(pos, len);
   aStr1=trimmed(aStr1);
@@ -191,22 +178,22 @@ RString SALOME_EvalParser::note(const RString& aStr, int pos, int len )
 
 //=======================================================================
 //function : prepare
-//purpose  : 
+//purpose  :
 //=======================================================================
-bool SALOME_EvalParser::prepare(const RString& expr, Postfix& post)
+bool SALOME_EvalParser::prepare(const SALOME_String& expr, Postfix& post)
 {
   int pos = 0;
   int len =(int)expr.length();
   stack<int> aBracketStack;
-  RStringList anOpers, anOpenBr, aCloseBr;
+  SALOME_StringList anOpers, anOpenBr, aCloseBr;
   if ( !checkOperations() )
     return false;
 
   bracketsList( anOpenBr, true );
   bracketsList( aCloseBr, false );
   operationList( anOpers );
-  
-  while ( pos < len && error() == SALOME_EvalExpr_OK )  {
+
+  while ( pos < len && error() == EvalExpr_OK )  {
     PostfixItem item;
     char aC=expr[pos];
     //
@@ -246,11 +233,11 @@ bool SALOME_EvalParser::prepare(const RString& expr, Postfix& post)
     }
     else if ( cPos == pos )  {
       if ( aBracketStack.size() == 0 )  {
-        setError( SALOME_EvalExpr_ExcessClose );
+        setError( EvalExpr_ExcessClose );
         break;
       }
       if ( br_ind != aBracketStack.top() )  {
-        setError( SALOME_EvalExpr_BracketsNotMatch );
+        setError( EvalExpr_BracketsNotMatch );
         break;
       }
       else {
@@ -278,7 +265,7 @@ bool SALOME_EvalParser::prepare(const RString& expr, Postfix& post)
     else  {
       mLen = 0;
       if ( oPos != pos && cPos != pos )   {
-	      int i; 
+	      int i;
         for ( i = pos + 1; i < (int)expr.length(); i++ )  {
           if ( isSpace(expr[i]) ) {
             break;
@@ -296,10 +283,10 @@ bool SALOME_EvalParser::prepare(const RString& expr, Postfix& post)
           vpos = opPos;
         }
 
-        while( vpos < (int)expr.length() && 
-               ( isalpha(expr[vpos]) || 
-                 isdigit(expr[vpos]) || 
-                 expr[vpos]=='_' ) 
+        while( vpos < (int)expr.length() &&
+               ( isalpha(expr[vpos]) ||
+                 isdigit(expr[vpos]) ||
+                 expr[vpos]=='_' )
                 ) {
           vpos++;
         }
@@ -324,28 +311,29 @@ bool SALOME_EvalParser::prepare(const RString& expr, Postfix& post)
         brValue--;
       }
       else {
-        setError( SALOME_EvalExpr_ExcessClose );
+        setError( EvalExpr_ExcessClose );
         break;
       }
     }
   }
   //
-  if ( brValue > 0 ) {
-    setError( SALOME_EvalExpr_CloseExpected );
+  if ( brValue > 0 )
+  {
+    setError( EvalExpr_CloseExpected );
   }
   //
-  return error() == SALOME_EvalExpr_OK;
+  return error() == EvalExpr_OK;
 }
 //=======================================================================
 //function : setOperationTypes
-//purpose  : 
+//purpose  :
 //=======================================================================
 bool SALOME_EvalParser::setOperationTypes( Postfix& post )
 {
   if ( !checkOperations() )
     return false;
 
-  RStringList anOpen, aClose;
+  SALOME_StringList anOpen, aClose;
   //
   bracketsList( anOpen, true );
   bracketsList( aClose, false );
@@ -374,7 +362,7 @@ bool SALOME_EvalParser::setOperationTypes( Postfix& post )
       (*anIt).myType = Post;
     //
     SALOME_EvalVariant& aRV=(*anIt).myValue;
-    RString  aRVS=aRV.toString();
+    SALOME_String  aRVS=aRV.toString();
     //
     if ( contains(anOpen, aRVS) ) {
       (*anIt).myType = Pre;
@@ -384,14 +372,14 @@ bool SALOME_EvalParser::setOperationTypes( Postfix& post )
     }
   }
 
-  return error() == SALOME_EvalExpr_OK;
+  return error() == EvalExpr_OK;
 }
 //=======================================================================
 //function : globalBrackets
-//purpose  : 
+//purpose  :
 //=======================================================================
-int SALOME_EvalParser::globalBrackets(const Postfix& post, 
-                                  int f, 
+int SALOME_EvalParser::globalBrackets(const Postfix& post,
+                                  int f,
                                   int l )
 {
   int i;
@@ -431,21 +419,17 @@ int SALOME_EvalParser::globalBrackets(const Postfix& post,
     if( br_num<min_br_num )
       min_br_num = br_num;
   }
-  
+
   //delete pPost;
   delete [] (PostfixItem *)pPost;
   return br+min_br_num;
 }
 //=======================================================================
 //function : sort
-//purpose  : 
+//purpose  :
 //=======================================================================
-bool SALOME_EvalParser::sort(const Postfix& post, 
-                         Postfix& res, 
-                         const RStringList& anOpen,
-                         const RStringList& aClose, 
-                         int f, 
-                         int l)
+bool SALOME_EvalParser::sort( const Postfix& post, Postfix& res, const SALOME_StringList& anOpen,
+                              const SALOME_StringList& aClose, int f, int l )
 {
   if ( l < f ){
     return true;
@@ -491,18 +475,18 @@ bool SALOME_EvalParser::sort(const Postfix& post,
             min = cur_pr;
             argmin.clear();
             argmin.push_back( f + i );
-            min_types.clear(); 
+            min_types.clear();
             min_types.push_back( tt );
           }
         }
       }
       else {
-        setError( SALOME_EvalExpr_InvalidOperation );
+        setError( EvalExpr_InvalidOperation );
         break;
       }
     }
     else if ( tt == Open ){
-      RString opBr = item.myValue.toString();
+      SALOME_String opBr = item.myValue.toString();
       int ind, brValue = 0;
       ind = indexOf(anOpen, opBr );
       while ( j <= l ) {
@@ -512,7 +496,7 @@ bool SALOME_EvalParser::sort(const Postfix& post,
 
         if ( anItem.myType == Close ) {
           brValue--;
-          RString clBr = anItem.myValue.toString();
+          SALOME_String clBr = anItem.myValue.toString();
           if ( indexOf(aClose, clBr ) == ind && brValue == 0 ){
             break;
           }
@@ -521,13 +505,13 @@ bool SALOME_EvalParser::sort(const Postfix& post,
       }
       //
       if ( brValue > 0 )      {
-        setError( SALOME_EvalExpr_CloseExpected );
+        setError( EvalExpr_CloseExpected );
         break;
       }
     }
   }
   //
-  if ( error() == SALOME_EvalExpr_OK ) {
+  if ( error() == EvalExpr_OK ) {
     if ( min >= 0 )  {
       Postfix one;
       list<Postfix> parts;
@@ -587,13 +571,13 @@ bool SALOME_EvalParser::sort(const Postfix& post,
       }
     }
   }
-  return error() == SALOME_EvalExpr_OK;
+  return error() == EvalExpr_OK;
 }
 //=======================================================================
 //function : parse
-//purpose  : 
+//purpose  :
 //=======================================================================
-bool SALOME_EvalParser::parse( const RString& expr )
+bool SALOME_EvalParser::parse( const SALOME_String& expr )
 {
   myPostfix.clear();
 
@@ -601,9 +585,9 @@ bool SALOME_EvalParser::parse( const RString& expr )
     return false;
 
   Postfix p;
-  RStringList opens, closes;
+  SALOME_StringList opens, closes;
 
-  setError( SALOME_EvalExpr_OK );
+  setError( EvalExpr_OK );
   bracketsList( opens, true );
   bracketsList( closes, false );
 
@@ -611,11 +595,9 @@ bool SALOME_EvalParser::parse( const RString& expr )
 }
 //=======================================================================
 //function : calculate
-//purpose  : 
+//purpose  :
 //=======================================================================
-bool SALOME_EvalParser::calculate(const RString& op, 
-                              SALOME_EvalVariant& v1, 
-                              SALOME_EvalVariant& v2 )
+bool SALOME_EvalParser::calculate(const SALOME_String& op, SALOME_EvalVariant& v1, SALOME_EvalVariant& v2 )
 {
   SALOME_EvalExprError aErr;
   SALOME_EvalVariantType aType1, aType2;
@@ -624,27 +606,27 @@ bool SALOME_EvalParser::calculate(const RString& op,
   aType2=v2.type();
   //
   aErr = isValid( op, aType1, aType2 );
-  if ( aErr == SALOME_EvalExpr_OK ){
+  if ( aErr == EvalExpr_OK ){
     aErr=calculation( op, v1, v2 );
     setError( aErr );
   }
   else{
     setError( aErr );
   }
-  return error() == SALOME_EvalExpr_OK;
+  return error() == EvalExpr_OK;
 }
 //=======================================================================
 //function : calculate
-//purpose  : 
+//purpose  :
 //=======================================================================
 SALOME_EvalVariant SALOME_EvalParser::calculate()
 {
   if ( !checkOperations() )
     return SALOME_EvalVariant();
 
-  setError( SALOME_EvalExpr_OK );
+  setError( EvalExpr_OK );
   //
-  RStringList anOpen, aClose;
+  SALOME_StringList anOpen, aClose;
   PostfixItemType aType;
   //
   bracketsList( anOpen, true );
@@ -652,10 +634,10 @@ SALOME_EvalVariant SALOME_EvalParser::calculate()
 
   stack<SALOME_EvalVariant> aStack;
   Postfix::iterator anIt = myPostfix.begin(), aLast = myPostfix.end();
-  for ( ; anIt != aLast && error() == SALOME_EvalExpr_OK; anIt++ )  {
-    const PostfixItem& aPostfixItem=*anIt; 
+  for ( ; anIt != aLast && error() == EvalExpr_OK; anIt++ )  {
+    const PostfixItem& aPostfixItem=*anIt;
     aType=aPostfixItem.myType;
-    RString nn = aPostfixItem.myValue.toString();
+    SALOME_String nn = aPostfixItem.myValue.toString();
     //
     if ( aType == Param ) {
       if ( hasParameter( nn ) )  {
@@ -664,11 +646,11 @@ SALOME_EvalVariant SALOME_EvalParser::calculate()
           aStack.push( v );
         }
         else {
-          setError( SALOME_EvalExpr_InvalidToken );
+          setError( EvalExpr_InvalidToken );
         }
       }
       else {
-        setError( SALOME_EvalExpr_InvalidToken );
+        setError( EvalExpr_InvalidToken );
       }
     }
     //
@@ -687,7 +669,7 @@ SALOME_EvalVariant SALOME_EvalParser::calculate()
         SALOME_ListOfEvalVariant aSet;
         while ( true ) {
           if ( aStack.empty() ) {
-            setError( SALOME_EvalExpr_StackUnderflow );
+            setError( EvalExpr_StackUnderflow );
             break;
           }
           if ( aStack.top().isValid() ) {
@@ -708,7 +690,7 @@ SALOME_EvalVariant SALOME_EvalParser::calculate()
       else if ( aStack.size() >= 1 )  {
         SALOME_EvalVariant inv;
         SALOME_EvalVariant *v1, *v2;
-        v1=&aStack.top(); 
+        v1=&aStack.top();
         v2 = &inv; //"post-" case
         if ( aType == Pre ) {
           v2 = &aStack.top();
@@ -717,7 +699,7 @@ SALOME_EvalVariant SALOME_EvalParser::calculate()
         calculate( nn, *v1, *v2 );
       }
       else {
-        setError( SALOME_EvalExpr_StackUnderflow );
+        setError( EvalExpr_StackUnderflow );
       }
     }//else if ( aType== Pre || aType == Post )  {
     else if ( aType == Binary )  {
@@ -727,53 +709,53 @@ SALOME_EvalVariant SALOME_EvalParser::calculate()
         calculate( nn, aStack.top(), v2 );
       }
       else {
-        setError( SALOME_EvalExpr_StackUnderflow );
+        setError( EvalExpr_StackUnderflow );
       }
     }
   }
   //
   SALOME_EvalVariant res;
-  if ( error() == SALOME_EvalExpr_OK )  {
+  if ( error() == EvalExpr_OK )  {
     int count;
-    
+
     count = (int)aStack.size();
     if ( count == 0 ) {
-      setError( SALOME_EvalExpr_StackUnderflow );
+      setError( EvalExpr_StackUnderflow );
     }
     else if( count == 1 ) {
       res = aStack.top();
     }
     else{
-      setError( SALOME_EvalExpr_ExcessData );
+      setError( EvalExpr_ExcessData );
     }
   }
   return res;
 }
 //=======================================================================
 //function : calculate
-//purpose  : 
+//purpose  :
 //=======================================================================
-SALOME_EvalVariant SALOME_EvalParser::calculate( const RString& expr )
+SALOME_EvalVariant SALOME_EvalParser::calculate( const SALOME_String& expr )
 {
   setExpression( expr );
   return calculate();
 }
 //=======================================================================
 //function : setExpression
-//purpose  : 
+//purpose  :
 //=======================================================================
-bool SALOME_EvalParser::setExpression( const RString& expr )
+bool SALOME_EvalParser::setExpression( const SALOME_String& expr )
 {
   return parse( expr );
 }
 //=======================================================================
 //function : hasParameter
-//purpose  : 
+//purpose  :
 //=======================================================================
-bool SALOME_EvalParser::hasParameter( const RString& name ) const
+bool SALOME_EvalParser::hasParameter( const SALOME_String& name ) const
 {
   bool bRet;
-  RString aStr;
+  SALOME_String aStr;
   ParamMap::const_iterator aIt;
   aStr=trimmed(name);
   aIt=myParams.find(aStr);
@@ -782,39 +764,38 @@ bool SALOME_EvalParser::hasParameter( const RString& name ) const
 }
 //=======================================================================
 //function : setParameter
-//purpose  : 
+//purpose  :
 //=======================================================================
-void SALOME_EvalParser::setParameter( const RString& name, const SALOME_EvalVariant& value )
+void SALOME_EvalParser::setParameter( const SALOME_String& name, const SALOME_EvalVariant& value )
 {
-  RString aStr;
+  SALOME_String aStr;
   //
   aStr=trimmed(name);
-  PairParamMap aPair(aStr, value);
-  myParams.insert(aPair);
+  myParams[aStr] = value;
 }
 //=======================================================================
 //function : removeParameter
-//purpose  : 
+//purpose  :
 //=======================================================================
-bool SALOME_EvalParser::removeParameter( const RString& name )
+bool SALOME_EvalParser::removeParameter( const SALOME_String& name )
 {
   int iRet;
-  RString aStr;
+  SALOME_String aStr;
   //
   aStr=trimmed(name);
   iRet=(int)myParams.erase(aStr);
   return iRet? true : false;
-  
+
 }
 //=======================================================================
 //function : parameter
-//purpose  : 
+//purpose  :
 //=======================================================================
-SALOME_EvalVariant SALOME_EvalParser::parameter( const RString& theName ) const
+SALOME_EvalVariant SALOME_EvalParser::parameter( const SALOME_String& theName ) const
 {
   SALOME_EvalVariant res;
   ParamMap::const_iterator aIt;
-  RString aStr;
+  SALOME_String aStr;
   aStr=trimmed(theName);
   aIt=myParams.find(theName);
   if (aIt!=myParams.end()) {
@@ -826,9 +807,9 @@ SALOME_EvalVariant SALOME_EvalParser::parameter( const RString& theName ) const
 }
 //=======================================================================
 //function : firstInvalid
-//purpose  : 
+//purpose  :
 //=======================================================================
-bool SALOME_EvalParser::firstInvalid( RString& name ) const
+bool SALOME_EvalParser::firstInvalid( SALOME_String& name ) const
 {
   ParamMap::const_iterator aIt = myParams.begin();
   for (; aIt != myParams.end(); aIt++ )  {
@@ -843,7 +824,7 @@ bool SALOME_EvalParser::firstInvalid( RString& name ) const
 }
 //=======================================================================
 //function : removeInvalids
-//purpose  : 
+//purpose  :
 //=======================================================================
 void SALOME_EvalParser::removeInvalids()
 {
@@ -862,7 +843,7 @@ void SALOME_EvalParser::removeInvalids()
 }
 //=======================================================================
 //function : error
-//purpose  : 
+//purpose  :
 //=======================================================================
 SALOME_EvalExprError SALOME_EvalParser::error() const
 {
@@ -870,7 +851,7 @@ SALOME_EvalExprError SALOME_EvalParser::error() const
 }
 //=======================================================================
 //function : setError
-//purpose  : 
+//purpose  :
 //=======================================================================
 
 void SALOME_EvalParser::setError(SALOME_EvalExprError err)
@@ -879,19 +860,19 @@ void SALOME_EvalParser::setError(SALOME_EvalExprError err)
 }
 //=======================================================================
 //function : dump
-//purpose  : 
+//purpose  :
 //=======================================================================
-RString SALOME_EvalParser::dump() const
+SALOME_String SALOME_EvalParser::dump() const
 {
   return dump( myPostfix );
 }
 //=======================================================================
 //function : dump
-//purpose  : 
+//purpose  :
 //=======================================================================
-RString SALOME_EvalParser::dump( const Postfix& post ) const
+SALOME_String SALOME_EvalParser::dump( const Postfix& post ) const
 {
-  RString res;
+  SALOME_String res;
   //
   if ( !checkOperations() ) {
     return res;
@@ -899,7 +880,7 @@ RString SALOME_EvalParser::dump( const Postfix& post ) const
   //
   Postfix::const_iterator anIt = post.begin();
   for (; anIt != post.end(); anIt++ )  {
-    if ((*anIt).myType == Value && 
+    if ((*anIt).myType == Value &&
         (*anIt).myValue.type() == SALOME_EvalVariant_String ) {
       res += "'" + (*anIt).myValue.toString() + "'";
     }
@@ -923,15 +904,15 @@ RString SALOME_EvalParser::dump( const Postfix& post ) const
 }
 //=======================================================================
 //function : parameters
-//purpose  : 
+//purpose  :
 //=======================================================================
-RStringList SALOME_EvalParser::parameters() const
+SALOME_StringList SALOME_EvalParser::parameters() const
 {
-  RStringList lst;
+  SALOME_StringList lst;
   Postfix::const_iterator anIt = myPostfix.begin();
   for (; anIt != myPostfix.end(); anIt++ )  {
     if ( (*anIt).myType == Param )    {
-      RString name = (*anIt).myValue.toString();
+      SALOME_String name = (*anIt).myValue.toString();
       if ( !contains(lst, name ) ) {
         lst.push_back( name );
       }
@@ -941,7 +922,7 @@ RStringList SALOME_EvalParser::parameters() const
 }
 //=======================================================================
 //function : clearParameters
-//purpose  : 
+//purpose  :
 //=======================================================================
 void SALOME_EvalParser::clearParameters()
 {
@@ -949,11 +930,11 @@ void SALOME_EvalParser::clearParameters()
 }
 //=======================================================================
 //function : toString
-//purpose  : 
+//purpose  :
 //=======================================================================
-RString SALOME_EvalParser::toString( const SALOME_ListOfEvalVariant& theList )
+SALOME_String SALOME_EvalParser::toString( const SALOME_ListOfEvalVariant& theList )
 {
-  RString res = "set : [ ";
+  SALOME_String res = "set : [ ";
   SALOME_ListOfEvalVariant::const_iterator aIt = theList.begin();
   for ( ; aIt != theList.end(); aIt++ )
     res += (*aIt).toString() + " ";
@@ -962,16 +943,16 @@ RString SALOME_EvalParser::toString( const SALOME_ListOfEvalVariant& theList )
 }
 //=======================================================================
 //function : operationList
-//purpose  : 
+//purpose  :
 //=======================================================================
-void SALOME_EvalParser::operationList( RStringList& theList ) const
+void SALOME_EvalParser::operationList( SALOME_StringList& theList ) const
 {
-  SALOME_ListOfPEvalSet::const_iterator aIt = mySets.begin();
+  SALOME_ListOfEvalSet::const_iterator aIt = mySets.begin();
   for (; aIt != mySets.end(); ++aIt )  {
-    RStringList custom;
+    SALOME_StringList custom;
     SALOME_EvalSet* aSet = *aIt;
     aSet->operationList( custom );
-    RStringList::const_iterator sIt = custom.begin();
+    SALOME_StringList::const_iterator sIt = custom.begin();
     for ( ; sIt != custom.end(); ++sIt )    {
       if ( !contains(theList, *sIt ) ) {
         theList.push_back( *sIt );
@@ -981,17 +962,16 @@ void SALOME_EvalParser::operationList( RStringList& theList ) const
 }
 //=======================================================================
 //function : operationList
-//purpose  : 
+//purpose  :
 //=======================================================================
-void SALOME_EvalParser::bracketsList(RStringList& theList, 
-                                 bool open ) const
-{ 
-  SALOME_ListOfPEvalSet::const_iterator it = mySets.begin();
+void SALOME_EvalParser::bracketsList( SALOME_StringList& theList, bool open ) const
+{
+  SALOME_ListOfEvalSet::const_iterator it = mySets.begin();
   for (; it != mySets.end(); ++it ) {
-    RStringList custom;
+    SALOME_StringList custom;
     SALOME_EvalSet* aSet = *it;
     aSet->bracketsList( custom, open );
-    RStringList::const_iterator sIt = custom.begin(); 
+    SALOME_StringList::const_iterator sIt = custom.begin();
     for (; sIt != custom.end(); ++sIt )    {
       if ( !contains(theList, *sIt ) )
         theList.push_back( *sIt );
@@ -1000,14 +980,13 @@ void SALOME_EvalParser::bracketsList(RStringList& theList,
 }
 //=======================================================================
 //function : createValue
-//purpose  : 
+//purpose  :
 //=======================================================================
-bool SALOME_EvalParser::createValue(const RString& str, 
-                                SALOME_EvalVariant& val) const
+bool SALOME_EvalParser::createValue( const SALOME_String& str, SALOME_EvalVariant& val ) const
 {
   bool ok = false;
   //
-  SALOME_ListOfPEvalSet::const_iterator it = mySets.begin(); 
+  SALOME_ListOfEvalSet::const_iterator it = mySets.begin();
   for (; it != mySets.end() && !ok; ++it ) {
     ok = (*it)->createValue( str, val );
   }
@@ -1015,14 +994,13 @@ bool SALOME_EvalParser::createValue(const RString& str,
 }
 //=======================================================================
 //function : priority
-//purpose  : 
+//purpose  :
 //=======================================================================
-int SALOME_EvalParser::priority(const RString& op, 
-                            bool isBin ) const
+int SALOME_EvalParser::priority( const SALOME_String& op, bool isBin ) const
 {
   int i = 0;
   int priority = 0;
-  SALOME_ListOfPEvalSet::const_iterator it = mySets.begin();
+  SALOME_ListOfEvalSet::const_iterator it = mySets.begin();
   for (; it != mySets.end() && priority <= 0; ++it, i++ ){
     priority = (*it)->priority( op, isBin );
   }
@@ -1030,19 +1008,18 @@ int SALOME_EvalParser::priority(const RString& op,
 }
 //=======================================================================
 //function : isValid
-//purpose  : 
+//purpose  :
 //=======================================================================
-SALOME_EvalExprError SALOME_EvalParser::isValid(const RString& op,
-                                         const SALOME_EvalVariantType t1, 
-                                         const SALOME_EvalVariantType t2 ) const
+SALOME_EvalExprError SALOME_EvalParser::isValid( const SALOME_String& op, const SALOME_EvalVariantType t1,
+                                                 const SALOME_EvalVariantType t2 ) const
 {
-  SALOME_EvalExprError err = SALOME_EvalExpr_OK;
+  SALOME_EvalExprError err = EvalExpr_OK;
   //
-  SALOME_ListOfPEvalSet::const_iterator it = mySets.begin();
+  SALOME_ListOfEvalSet::const_iterator it = mySets.begin();
   for (; it != mySets.end(); ++it )  {
     SALOME_EvalSet *pSet=*it;
     err = pSet->isValid( op, t1, t2 );
-    if ( err == SALOME_EvalExpr_OK ){
+    if ( err == EvalExpr_OK ){
       break;
     }
   }
@@ -1050,11 +1027,9 @@ SALOME_EvalExprError SALOME_EvalParser::isValid(const RString& op,
 }
 //=======================================================================
 //function : calculation
-//purpose  : 
+//purpose  :
 //=======================================================================
-SALOME_EvalExprError SALOME_EvalParser::calculation(const RString& op, 
-                                             SALOME_EvalVariant& v1, 
-                                             SALOME_EvalVariant& v2 ) const
+SALOME_EvalExprError SALOME_EvalParser::calculation( const SALOME_String& op, SALOME_EvalVariant& v1, SALOME_EvalVariant& v2 ) const
 {
   SALOME_EvalVariant nv1, nv2;
   SALOME_EvalSet *pSet;
@@ -1064,15 +1039,15 @@ SALOME_EvalExprError SALOME_EvalParser::calculation(const RString& op,
   aType1=v1.type();
   aType2=v2.type();
   //
-  SALOME_ListOfPEvalSet::const_iterator aIt = mySets.begin();
+  SALOME_ListOfEvalSet::const_iterator aIt = mySets.begin();
   for (; aIt != mySets.end(); ++aIt )  {
     pSet=*aIt;
     nv1 = v1;
     nv2 = v2;
     aErr=pSet->isValid( op, aType1, aType2);
-    if ( aErr == SALOME_EvalExpr_OK ) {
+    if ( aErr == EvalExpr_OK ) {
       aErr = pSet->calculate( op, nv1, nv2 );
-      if ( aErr == SALOME_EvalExpr_OK || aErr == SALOME_EvalExpr_InvalidResult )  {
+      if ( aErr == EvalExpr_OK || aErr == EvalExpr_InvalidResult )  {
         v1 = nv1;
         v2 = nv2;
         return aErr;
@@ -1080,11 +1055,11 @@ SALOME_EvalExprError SALOME_EvalParser::calculation(const RString& op,
     }
   }
   //
-  return SALOME_EvalExpr_InvalidOperation;
+  return EvalExpr_InvalidOperation;
 }
 //=======================================================================
 //function : checkOperations
-//purpose  : 
+//purpose  :
 //=======================================================================
 bool SALOME_EvalParser::checkOperations() const
 {
@@ -1092,12 +1067,12 @@ bool SALOME_EvalParser::checkOperations() const
     return true;
 
   SALOME_EvalParser* that = (SALOME_EvalParser*)this;
-  that->setError( SALOME_EvalExpr_OperationsNull );
+  that->setError( EvalExpr_OperationsNull );
   return false;
 }
 //=======================================================================
 //function : append
-//purpose  : 
+//purpose  :
 //=======================================================================
 void SALOME_EvalParser::append(Postfix& aL,
                            const Postfix& aL1)
@@ -1109,9 +1084,9 @@ void SALOME_EvalParser::append(Postfix& aL,
 }
 //=======================================================================
 //function : at
-//purpose  : 
+//purpose  :
 //=======================================================================
-const SALOME_EvalParser::PostfixItem& SALOME_EvalParser::at(const Postfix& aL, 
+const SALOME_EvalParser::PostfixItem& SALOME_EvalParser::at(const Postfix& aL,
                                                     const int aIndex)
 {
   int i;
@@ -1125,9 +1100,9 @@ const SALOME_EvalParser::PostfixItem& SALOME_EvalParser::at(const Postfix& aL,
 }
 //=======================================================================
 //function : insert
-//purpose  : 
+//purpose  :
 //=======================================================================
-void SALOME_EvalParser::insert(Postfix& aL, 
+void SALOME_EvalParser::insert(Postfix& aL,
                             const int aIndex,
                             PostfixItem& pS)
 {
@@ -1151,19 +1126,19 @@ void SALOME_EvalParser::insert(Postfix& aL,
 }
 //=======================================================================
 //function : indexOf
-//purpose  : 
+//purpose  :
 //=======================================================================
-int indexOf(const RStringList& aLS,
-            const RString& aS)
+int indexOf( const SALOME_StringList& aLS, const SALOME_String& aS )
 {
   int i, iRet;
-  RStringList::const_iterator aIt;
+  SALOME_StringList::const_iterator aIt;
   //
   iRet=-1;
   //
   aIt=aLS.begin();
-  for (i=0; aIt!=aLS.end(); ++aIt, ++i) {
-    const RString aSx=*aIt;
+  for (i=0; aIt!=aLS.end(); ++aIt, ++i)
+  {
+    const SALOME_String aSx=*aIt;
     if (aSx==aS) {
       iRet=i;
       break;
@@ -1173,19 +1148,18 @@ int indexOf(const RStringList& aLS,
 }
 //=======================================================================
 //function : contains
-//purpose  : 
+//purpose  :
 //=======================================================================
-bool contains(const RStringList& aLS,
-              const RString& aS)
+bool contains( const SALOME_StringList& aLS, const SALOME_String& aS )
 {
   bool bRet;
   //
   bRet=false;
-  RStringList::const_iterator aIt;
+  SALOME_StringList::const_iterator aIt;
   //
   aIt=aLS.begin();
   for (; aIt!=aLS.end(); ++aIt) {
-    const RString aSx=*aIt;
+    const SALOME_String aSx=*aIt;
     if (aSx==aS) {
       bRet=!bRet;
       break;
@@ -1197,7 +1171,7 @@ bool contains(const RStringList& aLS,
 
 //=======================================================================
 //function : isSpace
-//purpose  : 
+//purpose  :
 //=======================================================================
 bool isSpace(const char aC)
 {
@@ -1219,15 +1193,15 @@ bool isSpace(const char aC)
 }
 //=======================================================================
 //function : trimmed
-//purpose  : 
+//purpose  :
 //=======================================================================
-RString trimmed(const RString& str)
+SALOME_String trimmed(const SALOME_String& str)
 {
   char aWhat[]={
     '\t', '\n', '\v', '\f', '\r', ' '
   };
   int i, aNb;
-  RString aRet;
+  SALOME_String aRet;
   //
   aRet=str;
   aNb=sizeof(aWhat)/sizeof(aWhat[0]);
@@ -1238,19 +1212,19 @@ RString trimmed(const RString& str)
 }
 //=======================================================================
 //function : trimmed
-//purpose  : 
+//purpose  :
 //=======================================================================
-RString trimmed(const RString& str, const char aWhat)
+SALOME_String trimmed(const SALOME_String& str, const char aWhat)
 {
   char aX[2];
   size_t mylength, i;
-  RString aRet;
-  //  
+  SALOME_String aRet;
+  //
   const char* mystring=str.c_str();
   if(!mystring) {
     return aRet;
   }
-  //  
+  //
   mylength=strlen(mystring);
   if (!mylength) {
     return aRet;

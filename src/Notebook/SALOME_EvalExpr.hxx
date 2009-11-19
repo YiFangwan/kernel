@@ -34,34 +34,32 @@
 class SALOME_EvalExpr
 {
 public:
-  SALOME_EvalExpr(const RString& = RString());
-  SALOME_EvalExpr( const bool, const RString& = RString() );
+  SALOME_EvalExpr(const SALOME_String& = SALOME_String());
+  SALOME_EvalExpr( const bool, const SALOME_String& = SALOME_String() );
   ~SALOME_EvalExpr();
 
-  SALOME_EvalVariant           calculate( const RString& = RString() );
+  SALOME_EvalVariant   calculate( const SALOME_String& = SALOME_String() );
 
-  RString            expression() const;
-  void               setExpression( const RString& );
+  SALOME_String        expression() const;
+  void                 setExpression( const SALOME_String& );
 
-  SALOME_EvalExprError              error() const;
-  SALOME_EvalParser*     parser() const;
+  SALOME_EvalExprError error() const;
+  SALOME_EvalParser*   parser() const;
 
-  bool               autoDeleteOperationSets() const;
-  void               setAutoDeleteOperationSets( const bool );
+  bool                 autoDeleteOperationSets() const;
+  void                 setAutoDeleteOperationSets( const bool );
 
-  SALOME_ListOfPEvalSet  operationSets() const;
-  SALOME_EvalSet*        operationSet( const RString& ) const;
-  void               removeOperationSet(SALOME_EvalSet* );
-  void               insertOperationSet(SALOME_EvalSet*, 
-                                        const int = -1 );
-
-private:
-  void               intialize(const bool, 
-                               const RString& );
+  SALOME_ListOfEvalSet operationSets() const;
+  SALOME_EvalSet*      operationSet( const SALOME_String& ) const;
+  void                 removeOperationSet( SALOME_EvalSet* );
+  void                 insertOperationSet( SALOME_EvalSet*, const int = -1 );
 
 private:
-  RString            myExpr;
-  SALOME_EvalParser*     myParser;
+  void initialize( const bool, const SALOME_String& );
+
+private:
+  SALOME_String      myExpr;
+  SALOME_EvalParser* myParser;
 };
 
 #endif
