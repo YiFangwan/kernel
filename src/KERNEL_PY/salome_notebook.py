@@ -21,7 +21,7 @@
 #
 #
 #  File   : salome_notebook.py
-#  Author : Roman NIKOLAEV, Open CASCADE S.A.S.
+#  Author : Roman NIKOLAEV, Alexandre SOLOVYOV, Open CASCADE S.A.S.
 #  Module : SALOME
 #  $Header:
 """
