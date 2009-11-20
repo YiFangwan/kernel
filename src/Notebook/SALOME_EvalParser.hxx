@@ -70,6 +70,8 @@ public:
 
   static SALOME_String       toString( const SALOME_ListOfEvalVariant& );
 
+  bool isMonoParam() const;
+
 protected:
   //! Types of postfix representation elements
   typedef enum 
@@ -90,8 +92,8 @@ protected:
     PostfixItemType    myType;
   } PostfixItem;
 
-  typedef list<PostfixItem>                 Postfix;   //!< postfix representation
-  typedef SALOME_ListOfEvalSet             SetList;   //!< list of operations
+  typedef list<PostfixItem>    Postfix;   //!< postfix representation
+  typedef SALOME_ListOfEvalSet SetList;   //!< list of operations
   typedef map <SALOME_String, SALOME_EvalVariant> ParamMap;  //!< parameter-to-value map
   typedef map <SALOME_String, SALOME_EvalVariant>::value_type PairParamMap;
 
@@ -120,9 +122,9 @@ private:
   SALOME_EvalExprError calculation( const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
 
   bool checkOperations() const;
-  void insert( Postfix& aL, const int aIndex, PostfixItem& aItem );
-  const PostfixItem& at( const Postfix& aL, const int aIndex );
-  void append( Postfix& aL, const Postfix& aL1 );
+  static void insert( Postfix& aL, const int aIndex, PostfixItem& aItem );
+  static const PostfixItem& at( const Postfix& aL, const int aIndex );
+  static void append( Postfix& aL, const Postfix& aL1 );
 
 private:
   SALOME_ListOfEvalSet  mySets;

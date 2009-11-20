@@ -858,6 +858,16 @@ void SALOME_EvalParser::setError(SALOME_EvalExprError err)
 {
   myError = err;
 }
+
+//=======================================================================
+//function : isMonoParam
+//purpose  :
+//=======================================================================
+bool SALOME_EvalParser::isMonoParam() const
+{
+  return myError == EvalExpr_OK && myPostfix.size()==1 && myPostfix.begin()->myType == Param;
+}
+
 //=======================================================================
 //function : dump
 //purpose  :
