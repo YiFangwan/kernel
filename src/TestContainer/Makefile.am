@@ -97,10 +97,12 @@ TestContainer_SOURCES  = TestContainer.cxx
 TestContainer_CPPFLAGS = $(COMMON_CPPFLAGS)
 TestContainer_LDADD    = libSalomeTestComponentEngine.la \
 			 ../Basics/libSALOMEBasics.la \
+			 ${COMMON_LIBS} \
                          $(CORBA_LIBS)
 
 TestLogger_SOURCES     = TestLogger.cxx
 TestLogger_CPPFLAGS    = $(COMMON_CPPFLAGS)
 TestLogger_LDADD       = libSalomeTestComponentEngine.la \
 			 ../Basics/libSALOMEBasics.la \
+			 ${COMMON_LIBS} \
                          $(CORBA_LIBS)
