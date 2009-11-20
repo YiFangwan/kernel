@@ -312,3 +312,8 @@ class SALOME_ComponentPy_i (Engines__POA.Component):
     def getObjectInfo(self, studyId, entry):
         return ""
 
+    #-------------------------------------------------------------------------
+
+    def FindObjectByInternalEntry( self, studyId, entry ):
+        return None
+

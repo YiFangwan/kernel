@@ -115,7 +115,7 @@ public:
   virtual bool hasObjectInfo() { return false; }
   virtual char* getObjectInfo(CORBA::Long studyId, const char* entry) { return CORBA::string_dup(""); }
 
-  SALOME::GenericObj_ptr FindObjectByInternalEntry( const char* theEntry );
+  virtual SALOME::GenericObj_ptr FindObjectByInternalEntry( CORBA::Long studyId, const char* theEntry );
   
   // --- local C++ methods
 

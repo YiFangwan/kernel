@@ -561,9 +561,10 @@ CORBA::Long Engines_Component_i::CpuUsed_impl()
  *  CORBA method: 
  */
 //=============================================================================
-SALOME::GenericObj_ptr Engines_Component_i::FindObjectByInternalEntry( const char* theEntry )
+SALOME::GenericObj_ptr Engines_Component_i::FindObjectByInternalEntry( CORBA::Long studyId, const char* theEntry )
 {
-  return SALOME::GenericObj_ptr();
+  SALOME::GenericObj_var aRes;
+  return aRes._retn();
 }
 
 //=============================================================================
