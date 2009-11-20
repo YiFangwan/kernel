@@ -47,9 +47,9 @@ SUBDIR_CORBA = \
   Launcher \
   LifeCycleCORBA \
   LifeCycleCORBA_SWIG \
+  TOOLSDS \
   Notebook \
   SALOMEDSClient \
-  TOOLSDS \
   SALOMEDSImpl \
   SALOMEDS \
   ModuleGenerator \

@@ -68,6 +68,9 @@ public:
 
   SALOME_StringList Dependencies() const;
 
+  std::string Save() const;
+  static SALOME_Parameter* Load( const std::string& theData );
+
 private:
   SALOME_Notebook* myNotebook;
   std::string myName;

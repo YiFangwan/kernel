@@ -170,3 +170,23 @@ SALOME_StringList SALOME_Parameter::Dependencies() const
 {
   return myIsCalculable ? myExpr.parser()->parameters() : SALOME_StringList();
 }
+
+std::string SALOME_Parameter::Save() const
+{
+  char buf[256];
+  sprintf( buf, "%s %i %i ", myName.c_str(), (int)myIsAnonimous, (int)myIsCalculable );
+  std::string aRes = buf;
+  if( myIsCalculable )
+    aRes += myExpr.expression();
+  else
+  {
+    sprintf( buf, "%i %s", myResult.type(), myResult.toString().c_str() );
+    aRes += buf;
+  }
+  return aRes;
+}
+
+SALOME_Parameter* SALOME_Parameter::Load( const std::string& theData )
+{
+  return 0;
+}

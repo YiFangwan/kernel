@@ -39,7 +39,7 @@ class SALOME_Parameter;
 class SALOME_Notebook : public virtual POA_SALOME::Notebook, public virtual SALOME::GenericObj_i
 {
 public:
-  SALOME_Notebook( SALOMEDS::Study_ptr theStudy );
+  SALOME_Notebook( PortableServer::POA_ptr thePOA, SALOMEDS::Study_ptr theStudy );
 
   virtual CORBA::Boolean AddDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
   virtual void RemoveDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
@@ -52,6 +52,10 @@ public:
   virtual CORBA::Boolean AddValue( const char* theName, CORBA::Double theValue );
   virtual void Remove( const char* theParamName );
   virtual SALOME::Parameter_ptr Param( const char* theParamName );
+  virtual SALOME::StringList* Params();
+
+  virtual void Save( const char* theFileName );
+  virtual CORBA::Boolean Load( const char* theFileName );
 
   SALOME_Parameter* ParamPtr( const char* theParamName ) const;
 
@@ -60,6 +64,7 @@ protected:
   bool AddDependencies( SALOME_Parameter* theParam );
   bool AddDependency( const std::string& theObjKey, const std::string& theRefKey );
   void ClearDependencies( const std::string& theObjKey );
+  bool CheckParamName( const std::string& theParamName ) const;
 
 private:
   std::string GetKey( SALOME::ParameterizedObject_ptr theObj );

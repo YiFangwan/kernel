@@ -125,7 +125,7 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
   SALOMEDS_Study_i *Study_servant = SALOMEDS_Study_i::GetStudyServant(aStudyImpl, _orb);
   PortableServer::ObjectId_var servantid = _poa->activate_object(Study_servant); // to use poa registered in _mapOfPOA
   SALOMEDS::Study_var Study = Study_servant->_this();
-
+  
   // Register study in the naming service
   // Path to acces the study
   if(!_name_service->Change_Directory("/Study"))
@@ -139,6 +139,8 @@ SALOMEDS::Study_ptr SALOMEDS_StudyManager_i::NewStudy(const char* study_name)
   aStudyImpl->SetTransientReference((char*)IORStudy.in());
 
   _mapOfPOA[Study->StudyId()] = _poa;
+
+  Study->GetNotebook();
 
   return Study._retn();
 }
@@ -178,6 +180,8 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   // Path to acces the study
   if(!_name_service->Change_Directory("/Study")) MESSAGE( "Unable to access the study directory" )
   else _name_service->Register(Study, CORBA::string_dup(aStudyImpl->Name().c_str()));
+
+  Study->GetNotebook();
 
   return Study._retn();
 }

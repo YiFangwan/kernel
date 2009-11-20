@@ -27,7 +27,8 @@
 #include <SALOME_Notebook.hxx>
 #include <SALOME_Parameter.hxx>
 
-SALOME_Notebook::SALOME_Notebook( SALOMEDS::Study_ptr theStudy )
+SALOME_Notebook::SALOME_Notebook( PortableServer::POA_ptr thePOA, SALOMEDS::Study_ptr theStudy )
+: SALOME::GenericObj_i( thePOA )
 {
   myStudy = SALOMEDS::Study::_duplicate( theStudy );
 }
@@ -50,7 +51,7 @@ void SALOME_Notebook::ClearDependencies( SALOME::ParameterizedObject_ptr theObj 
 
 void SALOME_Notebook::SetToUpdate( SALOME::ParameterizedObject_ptr theObj )
 {
-  printf( "SetToUpdate: %s\n", GetKey( theObj ).c_str() );
+  //printf( "SetToUpdate: %s\n", GetKey( theObj ).c_str() );
 
   SALOME::Parameter_ptr aParam = SALOME::Parameter::_narrow( theObj );
   if( !CORBA::is_nil( aParam ) )
@@ -93,20 +94,22 @@ void SALOME_Notebook::SetToUpdate( SALOME::ParameterizedObject_ptr theObj )
         *uit = tmp;
       }
 
+  /*
   uit = myToUpdate.begin(); ulast = myToUpdate.end();
   for( ; uit!=ulast; uit++ )
     printf( "To update: %s\n", (*uit).key().c_str() );
+  */
 }
 
 void SALOME_Notebook::Update()
 {
-  printf( "Update\n" );
+  //printf( "Update\n" );
   std::list< KeyHelper > aPostponedUpdate;
   std::list<KeyHelper>::const_iterator it = myToUpdate.begin(), last = myToUpdate.end();
   for( ; it!=last; it++ )
   {
     std::string aKey = (*it).key();
-    printf( "key = %s\n", aKey.c_str() );
+    //printf( "key = %s\n", aKey.c_str() );
     SALOME::ParameterizedObject_ptr anObj = FindObject( aKey );
     if( CORBA::is_nil( anObj ) )
       aPostponedUpdate.push_back( *it );
@@ -139,6 +142,11 @@ void SALOME_Notebook::Remove( const char* theParamName )
   myParams.erase( theParamName );
 }
 
+SALOME::StringList* SALOME_Notebook::Params()
+{
+  return 0;
+}
+
 SALOME::Parameter_ptr SALOME_Notebook::Param( const char* theParamName )
 {
   //printf( "Param, name = %s\n", theParamName );
@@ -159,6 +167,9 @@ SALOME_Parameter* SALOME_Notebook::ParamPtr( const char* theParamName ) const
 bool SALOME_Notebook::AddParam( SALOME_Parameter* theParam )
 {
   std::string anEntry = theParam->GetEntry();
+  if( !CheckParamName( anEntry ) )
+    return false;
+
   //printf( "Add param: %s\n", anEntry.c_str() );
 
   std::map< std::string, SALOME_Parameter* >::const_iterator it = myParams.find( anEntry );
@@ -298,4 +309,60 @@ bool SALOME_Notebook::KeyHelper::operator < ( const KeyHelper& theKH ) const
 bool SALOME_Notebook::KeyHelper::operator == ( const std::string& theKey ) const
 {
   return myKey == theKey;
+}
+
+void SALOME_Notebook::Save( const char* theFileName )
+{
+  //printf( "SALOME_Notebook::Save into %s\n", theFileName );
+
+  FILE* aFile = fopen( theFileName, "w" );
+
+  fprintf( aFile, "\n\nnotebook\n" );
+
+  //1. Save dependencies
+  fprintf( aFile, "Dependencies\n" );
+  std::map< std::string, std::list<std::string> >::const_iterator dit = myDeps.begin(), dlast = myDeps.end();
+  for( ; dit!=dlast; dit++ )
+  {
+    fprintf( aFile, "%s -> ", dit->first.c_str() );
+    std::list<std::string>::const_iterator it = dit->second.begin(), last = dit->second.end();
+    for( ; it!=last; it++ )
+      fprintf( aFile, "%s ", it->c_str() );
+    fprintf( aFile, "\n" );
+  }
+
+  //2. Save parameters
+  fprintf( aFile, "Parameters\n" );
+  std::map< std::string, SALOME_Parameter* >::const_iterator pit = myParams.begin(), plast = myParams.end();
+  for( ; pit!=plast; pit++ )
+  {
+    fprintf( aFile, pit->second->Save().c_str() );
+    fprintf( aFile, "\n" );
+  }
+
+  //3. Save update list
+  fprintf( aFile, "Update\n" );
+  std::list< KeyHelper >::const_iterator uit = myToUpdate.begin(), ulast = myToUpdate.end();
+  for( ; uit!=ulast; uit++ )
+  {
+    fprintf( aFile, uit->key().c_str() );
+    fprintf( aFile, "\n" );
+  }
+
+  fclose( aFile );
+}
+
+CORBA::Boolean SALOME_Notebook::Load( const char* theFileName )
+{
+  return false;
+}
+
+bool SALOME_Notebook::CheckParamName( const std::string& theParamName ) const
+{
+  int len = theParamName.length();
+  if( len == 0 )
+    return false;
+
+  SALOME_EvalExpr anExpr( theParamName );
+  return anExpr.parser()->isMonoParam();
 }

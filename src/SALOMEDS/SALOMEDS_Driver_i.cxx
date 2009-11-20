@@ -26,6 +26,7 @@
 #include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS.hxx"
+#include <SALOME_NotebookDriver.hxx>
 #include <stdlib.h>
 
 using namespace std;  
@@ -237,23 +238,41 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(SALOMEDSImpl_Study* theStudy
 //                                          SALOMEDS_DriverFactory
 //###############################################################################################################
 
+SALOMEDS_DriverFactory_i::SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB)
+{
+  _orb = CORBA::ORB::_duplicate(theORB);
+  _name_service = new SALOME_NamingService(_orb);
+
+  SALOME_NotebookDriver* aDriver = new SALOME_NotebookDriver();
+  myNotebookDriver = aDriver->_this();
+}
+
+SALOMEDS_DriverFactory_i::~SALOMEDS_DriverFactory_i()
+{
+  delete _name_service;
+}
+
 SALOMEDSImpl_Driver* SALOMEDS_DriverFactory_i::GetDriverByType(const string& theComponentType)
 {
   CORBA::Object_var obj;
 
   string aFactoryType;
-  if (theComponentType == "SUPERV") aFactoryType = "SuperVisionContainer";
-  else aFactoryType = "FactoryServer";
+  if (theComponentType == "SUPERV")
+    aFactoryType = "SuperVisionContainer";
+  else
+    aFactoryType = "FactoryServer";
 
   SALOMEDS::unlock();
   obj = SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component(aFactoryType.c_str(), theComponentType.c_str());
   SALOMEDS::lock();
 
-  if (CORBA::is_nil(obj)) {
+  if (CORBA::is_nil(obj)) 
+  {
     obj = SALOME_LifeCycleCORBA(_name_service).FindOrLoad_Component("FactoryServerPy", theComponentType.c_str());
   }
 
-  if (!CORBA::is_nil(obj)) {
+  if (!CORBA::is_nil(obj))
+  {
     SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(obj);
     return new SALOMEDS_Driver_i(aDriver, _orb);
   }

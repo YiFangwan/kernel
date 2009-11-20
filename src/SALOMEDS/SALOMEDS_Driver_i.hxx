@@ -125,21 +125,17 @@ protected:
 
 public:
   
-  SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB) 
-    {
-      _orb = CORBA::ORB::_duplicate(theORB);
-      _name_service = new SALOME_NamingService(_orb);
-    }
+  SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB);
 
 
-  ~SALOMEDS_DriverFactory_i() 
-  {
-    delete _name_service;
-  }
+  ~SALOMEDS_DriverFactory_i();
    
   virtual SALOMEDSImpl_Driver* GetDriverByType(const std::string& theComponentType);
 
   virtual SALOMEDSImpl_Driver* GetDriverByIOR(const std::string& theIOR);
+
+private:
+  SALOMEDS::Driver_var myNotebookDriver;
 };
 
 #endif 

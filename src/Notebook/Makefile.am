@@ -34,6 +34,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS = \
     SALOME_Parameter.hxx   \
     SALOME_Notebook.hxx    \
+    SALOME_NotebookDriver.hxx \
     SALOME_Eval.hxx        \
     SALOME_EvalExpr.hxx    \
     SALOME_EvalParser.hxx  \
@@ -55,11 +56,12 @@ COMMON_CPPFLAGS = \
 	-I$(srcdir)/../SALOMELocalTrace \
 	-I$(srcdir)/../Basics \
 	-I$(srcdir)/../Utils \
+	-I$(srcdir)/../TOOLSDS \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
 # This local variable defines the list of dependant libraries common to all target in this package.
-COMMON_LIBS =
+COMMON_LIBS = ../TOOLSDS/libTOOLSDS.la
 
 
 #LDFLAGS+=  -lSalomeGenericObj -lSalomeLifeCycleCORBA
@@ -73,6 +75,7 @@ lib_LTLIBRARIES = libSalomeNotebook.la
 libSalomeNotebook_la_SOURCES = \
     SALOME_Parameter.cxx \
     SALOME_Notebook.cxx  \
+    SALOME_NotebookDriver.cxx \
     SALOME_EvalExpr.cxx  \
     SALOME_EvalParser.cxx  \
     SALOME_EvalSet.cxx  \
