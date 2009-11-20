@@ -423,7 +423,7 @@ module Engines
     /*!
        \param theEntry object entry
     */
-    SALOME::GenericObj FindObjectByInternalEntry( in string theEntry );
+    SALOME::GenericObj FindObjectByInternalEntry( in long studyId, in string theEntry );
   } ;
 
   //!  A block of binary data used for file transfer. The maximum size of the block is defined on server side.

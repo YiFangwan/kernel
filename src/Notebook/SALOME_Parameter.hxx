@@ -26,16 +26,17 @@
 #ifndef __SALOME_PARAMETER_H__
 #define __SALOME_PARAMETER_H__
 
-#include <SALOME_ParameterizedObject.hxx>
+#include <SALOMEconfig.h>
 #include <SALOME_EvalExpr.hxx>
-
+#include CORBA_SERVER_HEADER(SALOME_Notebook)
+#include <SALOME_GenericObj_i.hh>
 #include <string>
 
 class SALOME_Notebook;
 
 const std::string PARAM_COMPONENT = "<params>";
 
-class SALOME_Parameter : public virtual POA_SALOME::Parameter, public virtual SALOME_ParameterizedObject
+class SALOME_Parameter : public virtual POA_SALOME::Parameter, public virtual SALOME::GenericObj_i
 {
 public:
   //! standard constructor
@@ -52,7 +53,7 @@ public:
 
   virtual CORBA::Boolean IsValid();
 
-  virtual void Update();
+  virtual void Update( SALOME::Notebook_ptr theNotebook );
 
   virtual void SetExpr( const char* theExpr );
 

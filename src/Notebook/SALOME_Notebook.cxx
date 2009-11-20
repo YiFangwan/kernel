@@ -100,17 +100,18 @@ void SALOME_Notebook::SetToUpdate( SALOME::ParameterizedObject_ptr theObj )
 
 void SALOME_Notebook::Update()
 {
-  //printf( "Update\n" );
+  printf( "Update\n" );
   std::list< KeyHelper > aPostponedUpdate;
   std::list<KeyHelper>::const_iterator it = myToUpdate.begin(), last = myToUpdate.end();
   for( ; it!=last; it++ )
   {
     std::string aKey = (*it).key();
+    printf( "key = %s\n", aKey.c_str() );
     SALOME::ParameterizedObject_ptr anObj = FindObject( aKey );
     if( CORBA::is_nil( anObj ) )
       aPostponedUpdate.push_back( *it );
     else
-      anObj->Update();
+      anObj->Update( _this() );
   }
   myToUpdate = aPostponedUpdate;
 }
@@ -141,7 +142,12 @@ void SALOME_Notebook::Remove( const char* theParamName )
 SALOME::Parameter_ptr SALOME_Notebook::Param( const char* theParamName )
 {
   //printf( "Param, name = %s\n", theParamName );
-  return ParamPtr( theParamName )->_this();
+  SALOME_Parameter* aParam = ParamPtr( theParamName );
+  //printf( "Result = %i\n", (int)aParam );
+  SALOME::Parameter_var aRes;
+  if( aParam )
+    aRes = aParam->_this();
+  return aRes._retn();
 }
 
 SALOME_Parameter* SALOME_Notebook::ParamPtr( const char* theParamName ) const

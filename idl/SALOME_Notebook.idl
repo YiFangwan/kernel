@@ -38,6 +38,8 @@
 */
 module SALOME
 {
+  interface Notebook;
+
   //! This interface describes parameterized object
   interface ParameterizedObject : GenericObj
   {
@@ -51,7 +53,7 @@ module SALOME
     boolean IsValid();
 
     //! update management
-    void Update();
+    void Update( in Notebook nb );
   };
 
   //! This enumeration describes data types supported by notebook functionality

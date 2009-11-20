@@ -31,7 +31,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 # ===============================================================
 #
 # header files  
-salomeinclude_HEADERS = SALOME_ParameterizedObject.hxx \
+salomeinclude_HEADERS = \
     SALOME_Parameter.hxx   \
     SALOME_Notebook.hxx    \
     SALOME_Eval.hxx        \
@@ -70,7 +70,7 @@ COMMON_LIBS =
 # ===============================================================
 #
 lib_LTLIBRARIES = libSalomeNotebook.la
-libSalomeNotebook_la_SOURCES = SALOME_ParameterizedObject.cxx \
+libSalomeNotebook_la_SOURCES = \
     SALOME_Parameter.cxx \
     SALOME_Notebook.cxx  \
     SALOME_EvalExpr.cxx  \
