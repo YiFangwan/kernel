@@ -933,7 +933,7 @@ CORBA::LongLong SALOMEDS_Study_i::GetLocalImpl(const char* theHostname, CORBA::L
 
 SALOME::GenericObj_ptr SALOMEDS_Study_i::FindObjectByInternalEntry( const char* theComponent, const char* theEntry )
 {
-  SALOME::GenericObj_ptr aRes;
+  SALOME::GenericObj_var aRes;
   SALOMEDS::StudyBuilder_ptr aBuilder = NewBuilder();
   SALOMEDS::SComponent_ptr aSComponent = FindComponent( theComponent );
 
@@ -945,10 +945,10 @@ SALOME::GenericObj_ptr SALOMEDS_Study_i::FindObjectByInternalEntry( const char* 
       SALOMEDS::AttributeIOR_ptr anAttrIOR = SALOMEDS::AttributeIOR::_narrow( anAttr );
       CORBA::Object_var aCompObj = _orb->string_to_object( anAttrIOR->Value() );
       Engines::Component_var aComponent = Engines::Component::_narrow( aCompObj );
-      aRes = aComponent->FindObjectByInternalEntry( theEntry );
+      aRes = aComponent->FindObjectByInternalEntry( StudyId(), theEntry );
     }
   }
-  return aRes;
+  return aRes._retn();
 }
 
 SALOME::Notebook_ptr SALOMEDS_Study_i::GetNotebook()
