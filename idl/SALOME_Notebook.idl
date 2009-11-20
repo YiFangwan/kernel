@@ -87,6 +87,8 @@ module SALOME
   };
 
 
+  typedef sequence<string> StringList;
+
   //! This interface describes parameters container: Notebook
   interface Notebook : GenericObj
   {
@@ -125,6 +127,18 @@ module SALOME
 
     //! access to parameter from notebook
     Parameter Param( in string name );
+
+    //! return list of all variables names
+    StringList Params();
+
+
+    //persistence management
+
+    //! save notebook into text file
+    void Save( in string name );
+
+    //! load notebook from text file
+    boolean Load( in string name );
   };
 };
 
