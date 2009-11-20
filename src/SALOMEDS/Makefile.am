@@ -290,11 +290,13 @@ SALOMEDS_Server_CPPFLAGS = $(COMMON_CPPFLAGS)
 SALOMEDS_Server_LDADD    = libSalomeDS.la \
 	../Basics/libSALOMEBasics.la \
 	$(HDF5_LIBS) \
-	$(CORBA_LIBS)
+	$(CORBA_LIBS) \
+	$(COMMON_LIBS)
 
 SALOMEDS_Client_SOURCES  = SALOMEDS_Client.cxx
 SALOMEDS_Client_CPPFLAGS = $(COMMON_CPPFLAGS)
 SALOMEDS_Client_LDADD    = libSalomeDS.la \
 	../Basics/libSALOMEBasics.la \
 	$(HDF5_LIBS) \
-	$(CORBA_LIBS)
+	$(CORBA_LIBS) \
+	$(COMMON_LIBS)
