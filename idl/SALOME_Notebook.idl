@@ -40,6 +40,16 @@ module SALOME
 {
   interface Notebook;
 
+  //! Data types supported by notebook functionality
+  enum ParamType { TUnknown, TBoolean, TInteger, TReal, TString };
+
+  //! List of strings
+  typedef sequence<string> StringArray;
+
+  //! Types of dependencies set
+  enum DependenciesType { Objects, Parameters, All };
+
+
   //! This interface describes parameterized object
   interface ParameterizedObject : GenericObj
   {
@@ -52,12 +62,16 @@ module SALOME
     //! validity status
     boolean IsValid();
 
+    /*!
+     *  Set list of parameters that this object depends on
+     *  \param theParameters is a sequence containing names of notebook variables used for object creation
+     *    if parameter is empty string, it means that parameter is not used in this position
+     */
+    void SetParameters ( in Notebook theNotebook, in StringArray theParameters );
+
     //! update management
     void Update( in Notebook nb );
   };
-
-  //! This enumeration describes data types supported by notebook functionality
-  enum ParamType { TUnknown, TBoolean, TInteger, TReal, TString };
 
 
 
@@ -65,16 +79,27 @@ module SALOME
   interface Parameter : ParameterizedObject
   {
     //! change expression of the parameter
-    void SetExpr( in string expr );
+    void SetExpression( in string expr );
+
+    //! change value of the parameter
+    void SetBoolean( in boolean value );
+
+    //! change value of the parameter
+    void SetInteger( in long value );
 
     //! change value of the parameter
     void SetReal( in double value );
 
+    //! change value of the parameter
+    void SetString( in string value );
+
+
+
     //! return type of parameter
     ParamType GetType();
 
-    //! convert parameter into string
-    string  AsString();
+    //! convert parameter into boolean
+    boolean AsBoolean();
 
     //! convert parameter into integer
     long    AsInteger();
@@ -82,12 +107,12 @@ module SALOME
     //! convert parameter into real
     double  AsReal();
 
-    //! convert parameter into boolean
-    boolean AsBoolean();
+    //! convert parameter into string
+    string  AsString();
   };
 
 
-  typedef sequence<string> StringList;
+
 
   //! This interface describes parameters container: Notebook
   interface Notebook : GenericObj
@@ -98,10 +123,10 @@ module SALOME
     boolean AddDependency( in ParameterizedObject obj, in ParameterizedObject dep );
 
     //! remove dependency between objects
-    void RemoveDependency( in ParameterizedObject obj, in ParameterizedObject dep );
+    boolean RemoveDependency( in ParameterizedObject obj, in ParameterizedObject dep );
 
     //! remove all dependencies of the object
-    void ClearDependencies( in ParameterizedObject obj );
+    void ClearDependencies( in ParameterizedObject obj, in DependenciesType type );
 
     //! set internal flags of update: it means that this object and all objects depending on it will be updated
     void SetToUpdate( in ParameterizedObject obj );
@@ -114,31 +139,46 @@ module SALOME
     //parameters management
 
     //! add new parameter (expression) into notebook
-    boolean AddExpr( in string expr );
+    boolean AddExpression( in string expr );
 
     //! add new parameter (named expression) into notebook
-    boolean AddNameExpr( in string name, in string expr );
+    boolean AddNamedExpression( in string name, in string expr );
 
-    //! add new parameter (value) into notebook
-    boolean AddValue( in string name, in double value );
+    //! add new parameter (boolean value) into notebook
+    boolean AddBoolean( in string name, in boolean value );
+
+    //! add new parameter (integer value) into notebook
+    boolean AddInteger( in string name, in long value );
+
+    //! add new parameter (double value) into notebook
+    boolean AddReal( in string name, in double value );
+
+    //! add new parameter (string value) into notebook
+    boolean AddString( in string name, in string value );
 
     //! remove parameter from notebook
-    void Remove( in string name );
+    boolean Remove( in string name );
 
     //! access to parameter from notebook
-    Parameter Param( in string name );
+    Parameter GetParameter( in string name );
 
-    //! return list of all variables names
-    StringList Params();
+    //! return list of all names of parameters (without anonimous ones)
+    StringArray Parameters();
+
+    //! return list of necessary (by dependencies), but absent parameters
+    StringArray AbsentParameters();
 
 
     //persistence management
 
     //! save notebook into text file
-    void Save( in string name );
+    boolean Save( in string filename );
 
     //! load notebook from text file
-    boolean Load( in string name );
+    boolean Load( in string filename );
+
+    //! load notebook from text file
+    boolean DumpPython( in string filename );
   };
 };
 
