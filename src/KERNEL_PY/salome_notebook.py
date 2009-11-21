@@ -24,6 +24,7 @@
 #  Author : Roman NIKOLAEV, Alexandre SOLOVYOV, Open CASCADE S.A.S.
 #  Module : SALOME
 #  $Header:
+
 """
 Module salome_notebook gives access to Salome Notebook.
 """
@@ -31,47 +32,9 @@ Module salome_notebook gives access to Salome Notebook.
 import salome
 import SALOME
 
-class PseudoStudyForNoteBook(object):
-    
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
-        pass
-    
-    def GetVariableNames(self):
-        return self.kwargs.keys()
-    
-    def IsVariable(self, variableName):
-        return variableName in self.kwargs
-    
-    def IsReal(self, variableName):
-        val = self.kwargs[variableName]
-        try:
-            float(val)
-            return True
-        except:
-            pass
-        return False
-    
-    IsInteger = IsReal
-    IsBoolean = IsReal
-    
-    def IsString(self, variableName):
-        return not self.IsReal(variableName)
-    
-    def GetString(self, variableName):
-        return self.kwargs[variableName]
-    
-    def GetReal(self, variableName):
-        return float(self.kwargs[variableName])
-    
-    GetInteger = GetReal
-    GetBoolean = GetReal
-    
-    pass
-
 class NoteBook:
     
-    def __init__(self, Study):
+    def __init__( self, Study ):
         self.myNotebook = Study.GetNotebook()
 
     def getNotebook( self ):
@@ -80,117 +43,65 @@ class NoteBook:
     def update( self ):
         self.myNotebook.Update()
         
-    def set(self, variableName, variable):
+    def set( self, variableName, variable ):
 	"""
 	Create (or modify) variable with name "variableName" 
 	and value equal "theValue".
 	"""
 
-        aParam = self.myNotebook.Param(variableName)
-        if type(variable) == float:
+        aParam = self.myNotebook.GetParameter( variableName )
+        if type( variable ) == float:
             if aParam == None:
-                self.myNotebook.AddValue(variableName, variable)
+                self.myNotebook.AddReal( variableName, variable )
             else:
-                aParam.SetReal(variable)
+                aParam.SetReal( variable )
                 
-        elif type(variable) == str:
+        elif type( variable ) == str:
             if aParam == None:
-                self.myStudy.AddExpr(variableName, variable)
+                self.myStudy.AddExpression( variableName, variable )
             else:
-                aParam.SetExpr(variable)
+                aParam.SetExpression( variable )
             
-        #elif type(variable) == int:
-        #    self.myStudy.SetInteger(variableName, variable)
+        elif type( variable ) == int:
+            if aParam == None:
+                self.myStudy.AddInteger( variableName, variable )
+            else:
+                aParam.SetInteger( variable )
             
-        #elif type(variable) == bool:
-        #    self.myStudy.SetBoolean(variableName, variable)            
+        elif type( variable ) == bool:
+            if aParam == None:
+                self.myStudy.AddBoolean( variableName, variable )
+            else:
+                aParam.SetBoolean( variable )
             
-    def get(self, variableName):
+    def get( self, variableName ):
 	"""
 	Return value of the variable with name "variableName".
 	"""
         aResult = None
-        aParam = self.myNotebook.Param(variableName)
+        aParam = self.myNotebook.GetParameter( variableName )
         if aParam != None:
 
             if aParam.GetType() == SALOME.TReal:
                 aResult = aParam.AsReal()
 
-            #elif self.myStudy.IsInteger(variableName):
-            #    aResult = self.myStudy.GetInteger(variableName)
+            elif aParam.GetType() == SALOME.TInteger:
+                aResult = aParam.AsInteger()
 
-            #elif self.myStudy.IsBoolean(variableName):
-            #    aResult = self.myStudy.GetBoolean(variableName)
+            elif aParam.GetType() == SALOME.TBoolean:
+                aResult = aParam.AsBoolean()
 
-            #elif self.myStudy.IsString(variableName):
-            #    aResult = self.myStudy.GetString(variableName)
-            #    aResult_orig = aResult
-            #    l = self.myStudy.GetVariableNames()
-            #    l.remove(variableName)
-            #    # --
-            #    # To avoid the smallest strings to be replaced first,
-            #    # the list is sorted by decreasing lengths
-            #    # --
-            #    l.sort(key=str.__len__)
-            #    l.reverse()
-            #    for name in l:
-            #        if aResult.find(name) >= 0:
-            #            val = self.get(name)
-            #            aResult = aResult.replace(name, "%s"%(val))
-            #            pass
-            #        pass
-            #    try:
-            #        aResult = eval(aResult)
-            #    except Exception, e:
-            #        msg = str(e)
-            #        msg += "\n"
-            #        msg += "A problem occurs while parsing "
-            #        msg += "the variable %s "%(variableName.__repr__())
-            #        msg += "with value %s ..."%(aResult_orig.__repr__())
-            #        msg += "\n"
-            #        msg += "Please, check your notebook !"
-            #        raise Exception(msg)
-                pass
+            elif aParam.GetType() == SALOME.TString:
+                aResult = aParam.AsString()
                 
         return aResult
     
-#    def isVariable(self, variableName): 
-#	"""
-#	Return true if variable with name "variableName" 
-#	exists in the study, otherwise return false.
-#	"""
-#        return self.myStudy.IsVariable(variableName)
-#
-#    def setAs(self, variableName, typ):
-#        value = self.get(variableName)
-#        value = float(typ(value))
-#        self.myStudy.SetStringAsDouble(variableName, value)
-#        return
-#    
-#    def setAsReal(self, variableName):
-#        self.setAs(variableName, float)
-#        return
-#    
-#    def setAsInteger(self, variableName):
-#        self.setAs(variableName, int)
-#        return
-#    
-#    def setAsBool(self, variableName):
-#        self.setAs(variableName, bool)
-#        return
-#    
-#    def check(self):
-#        for variableName in self.myStudy.GetVariableNames():
-#            self.get(variableName)
-#            pass
-#        return
-#    
-#    pass
-
-def checkThisNoteBook(**kwargs):
-    study = PseudoStudyForNoteBook(**kwargs)
-    note_book = NoteBook(study)
-    note_book.check()
-    return
+    def isVariable( self, variableName ): 
+	"""
+	Return true if variable with name "variableName" 
+	exists in the study, otherwise return false.
+	"""
+        aParam = self.myNotebook.GetParameter( variableName )
+        return aParam != None
 
 notebook = NoteBook(salome.myStudy)
