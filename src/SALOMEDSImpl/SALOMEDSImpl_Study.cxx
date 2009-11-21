@@ -1173,12 +1173,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
 
   fp << aBatchModeScript << ".salome_init()" << endl << endl;
 
-  //ASL: fp << _GetNoteBookAccess();
-
   fp << "sys.path.insert( 0, r\'" << thePath << "\')" << endl << endl;
-
-  //Dump NoteBook Variables
-  //ASL: fp << _GetStudyVariablesScript();
 
   //Check if it's necessary to dump visual parameters
   bool isDumpVisuals = SALOMEDSImpl_IParameters::isDumpPython(this);

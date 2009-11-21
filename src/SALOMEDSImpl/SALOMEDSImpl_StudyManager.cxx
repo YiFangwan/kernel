@@ -57,9 +57,6 @@ static void ReadAttributes(SALOMEDSImpl_Study*, const SALOMEDSImpl_SObject&, HDF
 static void BuildTree (SALOMEDSImpl_Study*, HDFgroup*);
 static void Translate_IOR_to_persistentID (const SALOMEDSImpl_SObject&,
 					   SALOMEDSImpl_Driver*, bool isMultiFile, bool isASCII);
-/*ASL:
-static void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup);
-*/
 
 //============================================================================
 /*! Function : SALOMEDSImpl_StudyManager
@@ -127,9 +124,6 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
   // open the HDFFile
   HDFfile *hdf_file =0;
   HDFgroup *hdf_group_study_structure =0;
-/*ASL:
-  HDFgroup *hdf_notebook_vars = 0; 
-*/
 
   char* aC_HDFUrl;
   string aHDFUrl;
@@ -192,15 +186,6 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
       _errorCode = string(eStr);
       return NULL;
     }
-
-/*ASL:
-  //Read and create notebook variables 
-  if(hdf_file->ExistInternalObject("NOTEBOOK_VARIABLES")) {
-    hdf_notebook_vars  = new HDFgroup("NOTEBOOK_VARIABLES",hdf_file);
-    ReadNoteBookVariables(Study,hdf_notebook_vars);
-    hdf_notebook_vars =0; //will be deleted by hdf_sco_group destructor
-  }
-*/
 
   hdf_file->CloseOnDisk();
   hdf_group_study_structure = new HDFgroup("STUDY_STRUCTURE",hdf_file);
@@ -478,11 +463,6 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
   HDFgroup *hdf_group_study_structure =0;
   HDFgroup *hdf_sco_group =0;
   HDFgroup *hdf_sco_group2 =0;
-
-  /*ASL:
-  HDFgroup *hdf_notebook_vars =0; 
-  HDFgroup *hdf_notebook_var  = 0;
-  */
 
   HDFgroup *hdf_group_datacomponent =0;
   HDFdataset *hdf_dataset =0;
@@ -1348,88 +1328,3 @@ static void Translate_IOR_to_persistentID (const SALOMEDSImpl_SObject& so,
     Translate_IOR_to_persistentID (current, engine, isMultiFile, isASCII);
   }
 }
-
-/*ASL:
-void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup)
-{
-  if(!theGroup)
-    return;
-
-  HDFgroup* new_group =0;
-  HDFdataset* new_dataset =0;
-  
-  char aVarName[HDF_NAME_MAX_LEN+1];
-  char *currentVarType = 0;
-  char *currentVarValue = 0;
-  char *currentVarIndex = 0;
-  int order = 0;
-  //Open HDF group with notebook variables
-  theGroup->OpenOnDisk();
-
-  //Get Nb of variables
-  int aNbVars = theGroup->nInternalObjects();
-
-  map<int,SALOMEDSImpl_GenericVariable*> aVarsMap;
-
-  for( int iVar=0;iVar < aNbVars;iVar++ ) {
-    theGroup->InternalObjectIndentify(iVar,aVarName);
-    hdf_object_type type = theGroup->InternalObjectType(aVarName);
-    if(type == HDF_GROUP) {
-
-      //Read Variable
-      new_group = new HDFgroup(aVarName,theGroup);
-      new_group->OpenOnDisk();
-
-      //Read Type
-      new_dataset = new HDFdataset("VARIABLE_TYPE",new_group);
-      new_dataset->OpenOnDisk();
-      currentVarType = new char[new_dataset->GetSize()+1];
-      new_dataset->ReadFromDisk(currentVarType);
-      new_dataset->CloseOnDisk();
-      new_dataset = 0; //will be deleted by hdf_sco_group destructor
-
-      //Read Order
-      if(new_group->ExistInternalObject("VARIABLE_INDEX")) {
-        new_dataset = new HDFdataset("VARIABLE_INDEX",new_group);
-        new_dataset->OpenOnDisk();
-        currentVarIndex = new char[new_dataset->GetSize()+1];
-        new_dataset->ReadFromDisk(currentVarIndex);
-        new_dataset->CloseOnDisk();
-        new_dataset = 0; //will be deleted by hdf_sco_group destructor
-        order = atoi(currentVarIndex);
-        delete [] currentVarIndex;
-      }
-      else
-        order = iVar;
-      
-      //Read Value
-      new_dataset = new HDFdataset("VARIABLE_VALUE",new_group);
-      new_dataset->OpenOnDisk();
-      currentVarValue = new char[new_dataset->GetSize()+1];
-      new_dataset->ReadFromDisk(currentVarValue);
-      new_dataset->CloseOnDisk();
-      new_dataset = 0; //will be deleted by hdf_sco_group destructor
-
-      new_group->CloseOnDisk();
-      new_group = 0;  //will be deleted by hdf_sco_group destructor
-      
-      SALOMEDSImpl_GenericVariable::VariableTypes aVarType =
-        SALOMEDSImpl_GenericVariable::String2VariableType(string(currentVarType));
-      delete [] currentVarType;
-
-      //Create variable and add it in the study
-      SALOMEDSImpl_GenericVariable* aVariable = 
-        new SALOMEDSImpl_ScalarVariable(aVarType,string(aVarName));
-      aVariable->Load(string(currentVarValue));
-      aVarsMap.insert(make_pair<int,SALOMEDSImpl_GenericVariable*>(order,aVariable));
-      delete [] currentVarValue;
-    }
-  }
-  
-  map<int,SALOMEDSImpl_GenericVariable*>::const_iterator it= aVarsMap.begin();
-  for(;it!=aVarsMap.end();it++)
-    theStudy->AddVariable((*it).second);
-  
-  theGroup->CloseOnDisk();
-}
-*/
