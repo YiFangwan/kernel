@@ -40,24 +40,27 @@ class SALOME_Parameter : public virtual POA_SALOME::Parameter, public virtual SA
 {
 public:
   //! standard constructor
+  SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, bool theValue );
+  SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, int theValue );
   SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, double theValue );
-  SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, const std::string& theExpr );
+  SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, const std::string& theData, bool isExpr );
   SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theExpr );
   
   //! standard destructor
   virtual ~SALOME_Parameter();
 
   virtual char* GetEntry();
-
   virtual char* GetComponent();
-
   virtual CORBA::Boolean IsValid();
 
   virtual void Update( SALOME::Notebook_ptr theNotebook );
+  virtual void SetParameters ( SALOME::Notebook_ptr theNotebook, const SALOME::StringArray& theParameters );
 
-  virtual void SetExpr( const char* theExpr );
-
+  virtual void SetExpression( const char* theExpr );
+  virtual void SetBoolean( CORBA::Boolean theValue );
+  virtual void SetInteger( CORBA::Long theValue );
   virtual void SetReal( CORBA::Double theValue );
+  virtual void SetString( const char* theValue );
 
   virtual SALOME::ParamType GetType();
 
@@ -70,6 +73,11 @@ public:
 
   std::string Save() const;
   static SALOME_Parameter* Load( const std::string& theData );
+
+  bool IsAnonimous() const;
+  bool IsCalculable() const;
+
+  std::string Expression() const;
 
 private:
   SALOME_Notebook* myNotebook;

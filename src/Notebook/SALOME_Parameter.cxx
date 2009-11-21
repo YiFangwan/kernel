@@ -30,15 +30,31 @@
 #include <utilities.h>
 #include <stdio.h>
 
+SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, bool theValue )
+: myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonimous( false ), myIsCalculable( false )
+{
+}
+
+SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, int theValue )
+: myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonimous( false ), myIsCalculable( false )
+{
+}
+
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, double theValue )
 : myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonimous( false ), myIsCalculable( false )
 {
 }
 
-SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, const std::string& theExpr )
-: myNotebook( theNotebook ), myName( theName ), myExpr( theExpr ), myIsAnonimous( false ), myIsCalculable( true )
+SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, const std::string& theData, bool isExpr )
+: myNotebook( theNotebook ), myName( theName ), myIsAnonimous( false ), myIsCalculable( isExpr )
 {
-  Update( SALOME::Notebook_ptr() );
+  if( isExpr )
+  {
+    myExpr.setExpression( theData );
+    Update( SALOME::Notebook_ptr() );
+  }
+  else
+    myResult = theData;
 }
 
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theExpr )
@@ -66,6 +82,10 @@ CORBA::Boolean SALOME_Parameter::IsValid()
   return myResult.isValid();
 }
 
+void SALOME_Parameter::SetParameters( SALOME::Notebook_ptr /*theNotebook*/, const SALOME::StringArray& /*theParameters*/ )
+{
+}
+
 void SALOME_Parameter::Update( SALOME::Notebook_ptr /*theNotebook*/ )
 {
   //printf( "Update of %s\n", GetEntry() );
@@ -77,7 +97,7 @@ void SALOME_Parameter::Update( SALOME::Notebook_ptr /*theNotebook*/ )
     for( ; it!=last; it++ )
     {
       std::string aName = *it;
-      SALOME_Parameter* aParam = myNotebook->ParamPtr( const_cast<char*>( aName.c_str() ) );
+      SALOME_Parameter* aParam = myNotebook->GetParameterPtr( const_cast<char*>( aName.c_str() ) );
       if( aParam )
       {
         //printf( "\tset %s = %lf\n", aName.c_str(), aParam->AsReal() );
@@ -96,10 +116,10 @@ void SALOME_Parameter::Update( SALOME::Notebook_ptr /*theNotebook*/ )
   }
 }
 
-void SALOME_Parameter::SetExpr( const char* theExpr )
+void SALOME_Parameter::SetExpression( const char* theExpr )
 {
   if( myIsAnonimous )
-    myNotebook->AddExpr( theExpr );
+    myNotebook->AddExpression( theExpr );
 
   else
   {
@@ -109,7 +129,46 @@ void SALOME_Parameter::SetExpr( const char* theExpr )
   }
 }
 
+void SALOME_Parameter::SetBoolean( CORBA::Boolean theValue )
+{
+  if( myIsAnonimous )
+  {
+  }
+  else
+  {
+    myResult = theValue;
+    myIsCalculable = false;
+    myNotebook->SetToUpdate( _this() );
+  }
+}
+
+void SALOME_Parameter::SetInteger( CORBA::Long theValue )
+{
+  if( myIsAnonimous )
+  {
+  }
+  else
+  {
+    myResult = (int)theValue;
+    myIsCalculable = false;
+    myNotebook->SetToUpdate( _this() );
+  }
+}
+
 void SALOME_Parameter::SetReal( CORBA::Double theValue )
+{
+  if( myIsAnonimous )
+  {
+  }
+  else
+  {
+    myResult = theValue;
+    myIsCalculable = false;
+    myNotebook->SetToUpdate( _this() );
+  }
+}
+
+void SALOME_Parameter::SetString( const char* theValue )
 {
   if( myIsAnonimous )
   {
@@ -189,4 +248,19 @@ std::string SALOME_Parameter::Save() const
 SALOME_Parameter* SALOME_Parameter::Load( const std::string& theData )
 {
   return 0;
+}
+
+bool SALOME_Parameter::IsAnonimous() const
+{
+  return myIsAnonimous;
+}
+
+bool SALOME_Parameter::IsCalculable() const
+{
+  return myIsCalculable;
+}
+
+std::string SALOME_Parameter::Expression() const
+{
+  return myExpr.expression();
 }
