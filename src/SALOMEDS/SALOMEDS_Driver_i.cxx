@@ -225,7 +225,17 @@ SALOMEDSImpl_TMPFile* SALOMEDS_Driver_i::DumpPython(SALOMEDSImpl_Study* theStudy
 
   SALOMEDS::unlock();
   CORBA::Boolean aValidScript, aPublished = isPublished;
-  Engines::TMPFile_var aStream = aComponent->DumpPython(st.in(), aPublished, aValidScript);
+  Engines::TMPFile_var aStream;
+  if( CORBA::is_nil( aComponent ) )
+  {
+    SALOME_NotebookDriver* aNbDriver = dynamic_cast<SALOME_NotebookDriver*>
+      ( st_servant->_default_POA()->reference_to_servant( _driver ) );
+    if( aNbDriver )
+      aStream = aNbDriver->DumpPython( st._retn(), aValidScript );
+  }
+  else
+    aStream = aComponent->DumpPython(st.in(), aPublished, aValidScript);
+
   SALOMEDSImpl_TMPFile* aTMPFile = new Engines_TMPFile_i(aStream._retn());
   theStreamLength = aTMPFile->Size();
   isValidScript = aValidScript;
@@ -242,9 +252,6 @@ SALOMEDS_DriverFactory_i::SALOMEDS_DriverFactory_i(CORBA::ORB_ptr theORB)
 {
   _orb = CORBA::ORB::_duplicate(theORB);
   _name_service = new SALOME_NamingService(_orb);
-
-  SALOME_NotebookDriver* aDriver = new SALOME_NotebookDriver();
-  myNotebookDriver = aDriver->_this();
 }
 
 SALOMEDS_DriverFactory_i::~SALOMEDS_DriverFactory_i()

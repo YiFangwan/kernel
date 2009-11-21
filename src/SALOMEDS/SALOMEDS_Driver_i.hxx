@@ -133,9 +133,6 @@ public:
   virtual SALOMEDSImpl_Driver* GetDriverByType(const std::string& theComponentType);
 
   virtual SALOMEDSImpl_Driver* GetDriverByIOR(const std::string& theIOR);
-
-private:
-  SALOMEDS::Driver_var myNotebookDriver;
 };
 
 #endif 
