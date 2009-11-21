@@ -38,15 +38,19 @@ CORBA::Boolean SALOME_Notebook::AddDependency( SALOME::ParameterizedObject_ptr t
   return AddDependency( GetKey( theObj ), GetKey( theRef ) );
 }
 
-void SALOME_Notebook::RemoveDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef )
+CORBA::Boolean SALOME_Notebook::RemoveDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef )
 {
   std::string anObjKey = GetKey( theObj ), aRefKey = GetKey( theRef );
-  myDeps[anObjKey].remove( aRefKey );
+  std::map< std::string, std::list<std::string> >::iterator it = myDeps.find( anObjKey );
+  bool ok = it != myDeps.end();
+  if( ok )
+    it->second.remove( aRefKey );
+  return ok;
 }
 
-void SALOME_Notebook::ClearDependencies( SALOME::ParameterizedObject_ptr theObj )
+void SALOME_Notebook::ClearDependencies( SALOME::ParameterizedObject_ptr theObj, SALOME::DependenciesType theType )
 {
-  ClearDependencies( GetKey( theObj ) );
+  ClearDependencies( GetKey( theObj ), theType );
 }
 
 void SALOME_Notebook::SetToUpdate( SALOME::ParameterizedObject_ptr theObj )
@@ -59,7 +63,7 @@ void SALOME_Notebook::SetToUpdate( SALOME::ParameterizedObject_ptr theObj )
     std::string anEntry = aParam->GetEntry();
     SALOME_Parameter* aParamPtr = myParams[anEntry];
     std::string aKey = GetKey( anEntry );
-    ClearDependencies( aKey );
+    ClearDependencies( aKey, SALOME::All );
     AddDependencies( aParamPtr );
   }
 
@@ -83,16 +87,7 @@ void SALOME_Notebook::SetToUpdate( SALOME::ParameterizedObject_ptr theObj )
     if( find( myToUpdate.begin(), myToUpdate.end(), *it ) == myToUpdate.end() )
       myToUpdate.push_back( KeyHelper( *it, this ) );
 
-  //myToUpdate.sort();
-  std::list<KeyHelper>::iterator uit = myToUpdate.begin(), uit1, ulast = myToUpdate.end();
-  for( ; uit!=ulast; uit++ )
-    for( uit1=uit, uit1++; uit1!=ulast; uit1++ )
-      if( *uit1 < *uit )
-      {
-        KeyHelper tmp = *uit1;
-        *uit1 = *uit;
-        *uit = tmp;
-      }
+  Sort( myToUpdate );
 
   /*
   uit = myToUpdate.begin(); ulast = myToUpdate.end();
@@ -119,38 +114,96 @@ void SALOME_Notebook::Update()
   myToUpdate = aPostponedUpdate;
 }
 
-CORBA::Boolean SALOME_Notebook::AddExpr( const char* theExpr )
+CORBA::Boolean SALOME_Notebook::AddExpression( const char* theExpr )
 {
   return AddParam( new SALOME_Parameter( this, theExpr ) );
 }
 
-CORBA::Boolean SALOME_Notebook::AddNameExpr( const char* theName, const char* theExpr )
+CORBA::Boolean SALOME_Notebook::AddNamedExpression( const char* theName, const char* theExpr )
 {
-  return AddParam( new SALOME_Parameter( this, theName, theExpr ) );
+  return AddParam( new SALOME_Parameter( this, theName, theExpr, true ) );
 }
 
-CORBA::Boolean SALOME_Notebook::AddValue( const char* theName, CORBA::Double theValue )
+CORBA::Boolean SALOME_Notebook::AddBoolean( const char* theName, CORBA::Boolean theValue )
 {
   return AddParam( new SALOME_Parameter( this, theName, theValue ) );
 }
 
-void SALOME_Notebook::Remove( const char* theParamName )
+CORBA::Boolean SALOME_Notebook::AddInteger( const char* theName, CORBA::Long theValue )
+{
+  return AddParam( new SALOME_Parameter( this, theName, (int)theValue ) );
+}
+
+CORBA::Boolean SALOME_Notebook::AddReal( const char* theName, CORBA::Double theValue )
+{
+  return AddParam( new SALOME_Parameter( this, theName, theValue ) );
+}
+
+CORBA::Boolean SALOME_Notebook::AddString( const char* theName, const char* theValue )
+{
+  return AddParam( new SALOME_Parameter( this, theName, theValue, false ) );
+}
+
+CORBA::Boolean SALOME_Notebook::Remove( const char* theParamName )
 {
   std::string aKey = GetKey( theParamName );
-  ClearDependencies( aKey );
+  ClearDependencies( aKey, SALOME::All );
+  bool ok = myDeps.find( aKey ) != myDeps.end() && myParams.find( aKey ) != myParams.end();
   myDeps.erase( aKey );
   myParams.erase( theParamName );
+  return ok;
 }
 
-SALOME::StringList* SALOME_Notebook::Params()
+SALOME::StringArray* SALOME_Notebook::GenerateList( const std::list<std::string>& theList ) const
 {
-  return 0;
+  SALOME::StringArray_var aRes = new SALOME::StringArray();
+  aRes->length( theList.size() );
+  std::list<std::string>::const_iterator nit = theList.begin(), nlast = theList.end();
+  for( int i=0; nit!=nlast; nit++, i++ )
+    aRes[i] = CORBA::string_dup( nit->c_str() );
+    
+  return aRes._retn();
 }
 
-SALOME::Parameter_ptr SALOME_Notebook::Param( const char* theParamName )
+SALOME::StringArray* SALOME_Notebook::Parameters()
+{
+  std::list<std::string> aNames;
+  std::map< std::string, SALOME_Parameter* >::const_iterator it = myParams.begin(), last = myParams.end();
+  for( ; it!=last; it++ )
+  {
+    std::string anEntry = it->second->GetEntry();
+    if( !it->second->IsAnonimous() && find( aNames.begin(), aNames.end(), anEntry ) == aNames.end() )
+      aNames.push_back( anEntry );
+  }
+
+  aNames.sort();
+  return GenerateList( aNames );
+}
+
+SALOME::StringArray* SALOME_Notebook::AbsentParameters()
+{
+  std::list<std::string> anAbsents;
+  std::map< std::string, std::list<std::string> >::const_iterator it = myDeps.begin(), last = myDeps.end();
+  for( ; it!=last; it++ )
+  {
+    std::list<std::string>::const_iterator pit = it->second.begin(), plast = it->second.end();
+    for( ; pit!=plast; pit++ )
+    {
+      std::string anEntry, aComponent = GetComponent( *pit, anEntry );
+      if( aComponent == PARAM_COMPONENT && !GetParameterPtr( anEntry.c_str() ) && 
+          find( anAbsents.begin(), anAbsents.end(), anEntry ) == anAbsents.end() )
+        anAbsents.push_back( anEntry );
+    }
+  }
+
+  anAbsents.sort();
+  return GenerateList( anAbsents );
+}
+
+SALOME::Parameter_ptr SALOME_Notebook::GetParameter( const char* theParamName )
 {
   //printf( "Param, name = %s\n", theParamName );
-  SALOME_Parameter* aParam = ParamPtr( theParamName );
+  SALOME_Parameter* aParam = GetParameterPtr( theParamName );
   //printf( "Result = %i\n", (int)aParam );
   SALOME::Parameter_var aRes;
   if( aParam )
@@ -158,7 +211,7 @@ SALOME::Parameter_ptr SALOME_Notebook::Param( const char* theParamName )
   return aRes._retn();
 }
 
-SALOME_Parameter* SALOME_Notebook::ParamPtr( const char* theParamName ) const
+SALOME_Parameter* SALOME_Notebook::GetParameterPtr( const char* theParamName ) const
 {
   std::map< std::string, SALOME_Parameter* >::const_iterator it = myParams.find( theParamName );
   return it==myParams.end() ? 0 : it->second;
@@ -167,7 +220,7 @@ SALOME_Parameter* SALOME_Notebook::ParamPtr( const char* theParamName ) const
 bool SALOME_Notebook::AddParam( SALOME_Parameter* theParam )
 {
   std::string anEntry = theParam->GetEntry();
-  if( !CheckParamName( anEntry ) )
+  if( !theParam->IsAnonimous() && !CheckParamName( anEntry ) )
     return false;
 
   //printf( "Add param: %s\n", anEntry.c_str() );
@@ -176,7 +229,7 @@ bool SALOME_Notebook::AddParam( SALOME_Parameter* theParam )
   if( it!=myParams.end() )
   {
     delete it->second;
-    ClearDependencies( GetKey( anEntry ) );
+    ClearDependencies( GetKey( anEntry ), SALOME::All );
   }
 
   bool ok = AddDependencies( theParam );
@@ -223,10 +276,30 @@ bool SALOME_Notebook::AddDependency( const std::string& theObjKey, const std::st
   return ok;
 }
 
-void SALOME_Notebook::ClearDependencies( const std::string& theObjKey )
+void SALOME_Notebook::ClearDependencies( const std::string& theObjKey, SALOME::DependenciesType theType )
 {
   //printf( "Clear dependencies: %s\n", theObjKey.c_str() );
-  myDeps.erase( theObjKey );
+
+  std::map< std::string, std::list<std::string> >::iterator it = myDeps.find( theObjKey );
+  if( it == myDeps.end() )
+    return;
+
+  std::list<std::string> aNewDeps;
+  if( theType != SALOME::All )
+  {
+    std::list<std::string>::const_iterator dit = it->second.begin(), dlast = it->second.end();
+    for( ; dit!=dlast; dit++ )
+    {
+      SALOME::Parameter_ptr aParam = SALOME::Parameter::_narrow( FindObject( *dit ) );
+      if( ( !CORBA::is_nil( aParam ) && theType == SALOME::Objects ) || theType == SALOME::Parameters )
+        aNewDeps.push_back( *dit );
+    }
+  }
+
+  if( aNewDeps.size() == 0 )
+    myDeps.erase( theObjKey );
+  else
+    it->second = aNewDeps;
 }
 
 std::string SALOME_Notebook::GetKey( SALOME::ParameterizedObject_ptr theObj )
@@ -271,12 +344,18 @@ std::list<std::string> SALOME_Notebook::GetAllDependingOn( const std::string& th
   return aDeps;
 }
 
-SALOME::ParameterizedObject_ptr SALOME_Notebook::FindObject( const std::string& theKey )
+std::string SALOME_Notebook::GetComponent( const std::string& theKey, std::string& theEntry ) const
 {
   int aPos = theKey.find( "#" );
-  std::string aComponent = theKey.substr( 0, aPos ), anEntry = theKey.substr( aPos+1, theKey.length()-aPos-1 );
+  theEntry = theKey.substr( aPos+1, theKey.length()-aPos-1 );
+  return theKey.substr( 0, aPos );
+}
+
+SALOME::ParameterizedObject_ptr SALOME_Notebook::FindObject( const std::string& theKey )
+{
+  std::string anEntry, aComponent = GetComponent( theKey, anEntry );
   if( aComponent == PARAM_COMPONENT )
-    return Param( anEntry.c_str() );
+    return GetParameter( anEntry.c_str() );
   else
     return SALOME::ParameterizedObject::_narrow( myStudy->FindObjectByInternalEntry( aComponent.c_str(), anEntry.c_str() ) );
 }
@@ -311,11 +390,13 @@ bool SALOME_Notebook::KeyHelper::operator == ( const std::string& theKey ) const
   return myKey == theKey;
 }
 
-void SALOME_Notebook::Save( const char* theFileName )
+CORBA::Boolean SALOME_Notebook::Save( const char* theFileName )
 {
   //printf( "SALOME_Notebook::Save into %s\n", theFileName );
 
   FILE* aFile = fopen( theFileName, "w" );
+  if( !aFile )
+    return false;
 
   fprintf( aFile, "\n\nnotebook\n" );
 
@@ -350,11 +431,67 @@ void SALOME_Notebook::Save( const char* theFileName )
   }
 
   fclose( aFile );
+  return true;
 }
+
+typedef enum { Start, Title, Dependencies, Parameters, Update } LoadState;
 
 CORBA::Boolean SALOME_Notebook::Load( const char* theFileName )
 {
-  return false;
+  //printf( "SALOME_Notebook::Load\n" );
+  //LoadState state = Start;
+  FILE* aFile = fopen( theFileName, "r" );
+  if( !aFile )
+    return false;
+
+  char buf[256];
+  while( !feof( aFile ) )
+  {
+    fscanf( aFile, "%s", buf );
+    printf( "loaded line = %s\n", buf );
+  }
+
+  fclose( aFile );
+  return true;
+}
+
+CORBA::Boolean SALOME_Notebook::DumpPython( const char* theFileName )
+{
+  FILE* aFile = fopen( theFileName, "w" );
+  if( !aFile )
+    return false;
+  
+  fprintf( aFile, "from salome_notebook import *\n" );
+  std::list< KeyHelper > aParams;
+  std::map< std::string, SALOME_Parameter* >::const_iterator it = myParams.begin(), last = myParams.end();
+  for( ; it!=last; it++ )
+    aParams.push_back( KeyHelper( it->first, this ) );
+
+  Sort( aParams );
+  std::list< KeyHelper >::const_iterator pit = aParams.begin(), plast = aParams.end();
+  std::string anEntry;
+  for( ; pit!=plast; pit++ )
+  {
+    GetComponent( pit->key(), anEntry );
+    fprintf( aFile, "notebook.set( " );
+
+    SALOME_Parameter* aParam = GetParameterPtr( anEntry.c_str() );
+    if( aParam->IsAnonimous() )
+      fprintf( aFile, "\"%s\"", aParam->Expression().c_str() );
+    else
+    {
+      fprintf( aFile, "\"%s\", ", anEntry.c_str() );
+      if( aParam->IsCalculable() )
+        fprintf( aFile, "\"%s\"", aParam->Expression().c_str() );
+      else
+        fprintf( aFile, "%s", aParam->AsString() );
+    }
+
+    fprintf( aFile, " )\n" );
+  }
+
+  fclose( aFile );
+  return true;
 }
 
 bool SALOME_Notebook::CheckParamName( const std::string& theParamName ) const
@@ -365,4 +502,17 @@ bool SALOME_Notebook::CheckParamName( const std::string& theParamName ) const
 
   SALOME_EvalExpr anExpr( theParamName );
   return anExpr.parser()->isMonoParam();
+}
+
+void SALOME_Notebook::Sort( std::list< KeyHelper >& theList ) const
+{
+  std::list<KeyHelper>::iterator uit = theList.begin(), uit1, ulast = theList.end();
+  for( ; uit!=ulast; uit++ )
+    for( uit1=uit, uit1++; uit1!=ulast; uit1++ )
+      if( *uit1 < *uit )
+      {
+        KeyHelper tmp = *uit1;
+        *uit1 = *uit;
+        *uit = tmp;
+      }
 }

@@ -42,42 +42,44 @@ public:
   SALOME_Notebook( PortableServer::POA_ptr thePOA, SALOMEDS::Study_ptr theStudy );
 
   virtual CORBA::Boolean AddDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
-  virtual void RemoveDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
-  virtual void ClearDependencies( SALOME::ParameterizedObject_ptr theObj );
+  virtual CORBA::Boolean RemoveDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
+  virtual void ClearDependencies( SALOME::ParameterizedObject_ptr theObj, SALOME::DependenciesType theType );
   virtual void SetToUpdate( SALOME::ParameterizedObject_ptr theObj );
   virtual void Update();
 
-  virtual CORBA::Boolean AddExpr( const char* theExpr );
-  virtual CORBA::Boolean AddNameExpr( const char* theName, const char* theExpr );
-  virtual CORBA::Boolean AddValue( const char* theName, CORBA::Double theValue );
-  virtual void Remove( const char* theParamName );
-  virtual SALOME::Parameter_ptr Param( const char* theParamName );
-  virtual SALOME::StringList* Params();
+  virtual CORBA::Boolean AddExpression( const char* theExpr );
+  virtual CORBA::Boolean AddNamedExpression( const char* theName, const char* theExpr );
+  virtual CORBA::Boolean AddBoolean( const char* theName, CORBA::Boolean theValue );
+  virtual CORBA::Boolean AddInteger( const char* theName, CORBA::Long theValue );
+  virtual CORBA::Boolean AddReal( const char* theName, CORBA::Double theValue );
+  virtual CORBA::Boolean AddString( const char* theName, const char* theValue );
+  virtual CORBA::Boolean Remove( const char* theParamName );
+  virtual SALOME::Parameter_ptr GetParameter( const char* theParamName );
+  virtual SALOME::StringArray* Parameters();
+  virtual SALOME::StringArray* AbsentParameters();
 
-  virtual void Save( const char* theFileName );
+  virtual CORBA::Boolean Save( const char* theFileName );
   virtual CORBA::Boolean Load( const char* theFileName );
+  virtual CORBA::Boolean DumpPython( const char* theFileName );
 
-  SALOME_Parameter* ParamPtr( const char* theParamName ) const;
+  SALOME_Parameter* GetParameterPtr( const char* theParamName ) const;
 
 protected:
   bool AddParam( SALOME_Parameter* theParam );
   bool AddDependencies( SALOME_Parameter* theParam );
   bool AddDependency( const std::string& theObjKey, const std::string& theRefKey );
-  void ClearDependencies( const std::string& theObjKey );
+  void ClearDependencies( const std::string& theObjKey, SALOME::DependenciesType theType );
   bool CheckParamName( const std::string& theParamName ) const;
+  SALOME::StringArray* GenerateList( const std::list<std::string>& theList ) const;
+  std::string GetComponent( const std::string& theKey, std::string& theEntry ) const;
 
 private:
   std::string GetKey( SALOME::ParameterizedObject_ptr theObj );
   std::string GetKey( const std::string& theParamName );
-
-  //! return list of objects that depend on object with given key
   std::list<std::string> GetAllDependingOn( const std::string& theKey );
   SALOME::ParameterizedObject_ptr FindObject( const std::string& theKey );
 
 private:
-  std::map< std::string, std::list<std::string> > myDeps;
-  std::map< std::string, SALOME_Parameter* > myParams;
-
   friend class KeyHelper;
   class KeyHelper
   {
@@ -91,8 +93,13 @@ private:
     std::string myKey;
     SALOME_Notebook* myNotebook;
   };
-  std::list< KeyHelper > myToUpdate;
 
+  void Sort( std::list< KeyHelper >& theList ) const;
+
+private:
+  std::map< std::string, std::list<std::string> > myDeps;
+  std::map< std::string, SALOME_Parameter* > myParams;
+  std::list< KeyHelper > myToUpdate;
   SALOMEDS::Study_var myStudy;
 };
 
