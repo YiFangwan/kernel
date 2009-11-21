@@ -11,12 +11,12 @@ SALOME_NotebookDriver::~SALOME_NotebookDriver()
 {
 }
 
-std::string SALOME_NotebookDriver::GetFileName( SALOMEDS::SComponent_ptr theComponent, bool isMultiFile ) const
+std::string SALOME_NotebookDriver::GetFileName( SALOMEDS::Study_ptr theStudy, bool isMultiFile ) const
 {
   // Prepare a file name to open
   std::string aNameWithExt;
   if( isMultiFile )
-    aNameWithExt = SALOMEDS_Tool::GetNameFromPath( theComponent->GetStudy()->URL() ).c_str();
+    aNameWithExt = SALOMEDS_Tool::GetNameFromPath( theStudy->URL() ).c_str();
   aNameWithExt += "_Notebook.dat";
   return aNameWithExt;
 }
@@ -32,17 +32,16 @@ SALOMEDS::TMPFile* SALOME_NotebookDriver::Save( SALOMEDS::SComponent_ptr theComp
   SALOMEDS::ListOfFileNames_var aSeq = new SALOMEDS::ListOfFileNames;
   aSeq->length( 1 );
 
-  std::string aNameWithExt = GetFileName( theComponent, isMultiFile );
+  std::string aNameWithExt = GetFileName( theComponent->GetStudy(), isMultiFile );
   aSeq[0] = CORBA::string_dup( aNameWithExt.c_str() );
 
   // Build a full file name of temporary file
   std::string aFullName = std::string( aTmpDir.c_str() ) + aNameWithExt;
 
   // Save Notebook component into this file
-  theComponent->GetStudy()->GetNotebook()->Save( aFullName.c_str() );
-
-  // Convert a file to the byte stream
-  aStreamFile = SALOMEDS_Tool::PutFilesToStream( aTmpDir.c_str(), aSeq.in(), isMultiFile );
+  if( theComponent->GetStudy()->GetNotebook()->Save( aFullName.c_str() ) )
+    // Convert a file to the byte stream
+    aStreamFile = SALOMEDS_Tool::PutFilesToStream( aTmpDir.c_str(), aSeq.in(), isMultiFile );
 
   // Remove the created file and tmp directory
   if( !isMultiFile )
@@ -69,7 +68,7 @@ CORBA::Boolean SALOME_NotebookDriver::Load( SALOMEDS::SComponent_ptr theComponen
     SALOMEDS_Tool::PutStreamToFiles( theStream, aTmpDir.c_str(), isMultiFile );
 
   // Prepare a file name to open
-  std::string aNameWithExt = GetFileName( theComponent, isMultiFile );
+  std::string aNameWithExt = GetFileName( theComponent->GetStudy(), isMultiFile );
   std::string aFullName = std::string( aTmpDir.c_str() ) + aNameWithExt;
 
   // Open document
@@ -142,4 +141,34 @@ SALOMEDS::SObject_ptr SALOME_NotebookDriver::PasteInto( const SALOMEDS::TMPFile&
 {
   SALOMEDS::SObject_var aRes;
   return aRes._retn();
+}
+
+Engines::TMPFile* SALOME_NotebookDriver::DumpPython( SALOMEDS::Study_ptr theStudy, bool& isValid ) const
+{
+  Engines::TMPFile_var aStreamFile;
+
+  // Get a temporary directory to store a file
+  std::string aTmpDir = SALOMEDS_Tool::GetTmpDir();
+
+  // Create a list to store names of created files
+  SALOMEDS::ListOfFileNames_var aSeq = new SALOMEDS::ListOfFileNames;
+  aSeq->length( 1 );
+
+  std::string aNameWithExt = GetFileName( theStudy, false );
+  aSeq[0] = CORBA::string_dup( aNameWithExt.c_str() );
+
+  // Build a full file name of temporary file
+  std::string aFullName = std::string( aTmpDir.c_str() ) + aNameWithExt;
+
+  // Dump Notebook component into python file
+  isValid = theStudy->GetNotebook()->DumpPython( aFullName.c_str() );
+  if( isValid )
+    // Convert a file to the byte stream
+    aStreamFile = (Engines::TMPFile*)SALOMEDS_Tool::PutFilesToStream( aTmpDir.c_str(), aSeq.in(), false );
+
+  // Remove the created file and tmp directory
+  SALOMEDS_Tool::RemoveTemporaryFiles( aTmpDir.c_str(), aSeq.in(), true );
+
+  // Return the created byte stream
+  return aStreamFile._retn();
 }
