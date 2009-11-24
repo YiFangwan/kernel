@@ -30,9 +30,11 @@
 #include CORBA_SERVER_HEADER(SALOME_Notebook)
 #include CORBA_SERVER_HEADER(SALOMEDS)
 #include <SALOME_GenericObj_i.hh>
+#include <Utils_Mutex.hxx>
 #include <string>
 #include <list>
 #include <map>
+#include <vector>
 
 class SALOME_Parameter;
 
@@ -54,24 +56,30 @@ public:
   virtual CORBA::Boolean AddReal( const char* theName, CORBA::Double theValue );
   virtual CORBA::Boolean AddString( const char* theName, const char* theValue );
   virtual CORBA::Boolean Remove( const char* theParamName );
+  virtual CORBA::Boolean Rename( const char* theOldName, const char* theNewName );
   virtual SALOME::Parameter_ptr GetParameter( const char* theParamName );
   virtual SALOME::StringArray* Parameters();
   virtual SALOME::StringArray* AbsentParameters();
 
   virtual CORBA::Boolean Save( const char* theFileName );
   virtual CORBA::Boolean Load( const char* theFileName );
-  virtual CORBA::Boolean DumpPython( const char* theFileName );
+  virtual char*          DumpPython();
+  virtual char*          Dump();
 
   SALOME_Parameter* GetParameterPtr( const char* theParamName ) const;
+  void UpdateAnonymous( const char* theOldName, SALOME_Parameter* theParam );
+
+  static std::vector<std::string> Split( const std::string& theData, const std::string& theSeparator, bool theIsKeepEmpty );
 
 protected:
-  bool AddParam( SALOME_Parameter* theParam );
+  bool AddParameter( SALOME_Parameter* theParam );
   bool AddDependencies( SALOME_Parameter* theParam );
   bool AddDependency( const std::string& theObjKey, const std::string& theRefKey );
   void ClearDependencies( const std::string& theObjKey, SALOME::DependenciesType theType );
   bool CheckParamName( const std::string& theParamName ) const;
   SALOME::StringArray* GenerateList( const std::list<std::string>& theList ) const;
   std::string GetComponent( const std::string& theKey, std::string& theEntry ) const;
+  bool ParseDependencies( const std::string& theData );
 
 private:
   std::string GetKey( SALOME::ParameterizedObject_ptr theObj );
@@ -94,13 +102,26 @@ private:
     SALOME_Notebook* myNotebook;
   };
 
-  void Sort( std::list< KeyHelper >& theList ) const;
+  typedef struct
+  {
+    std::string myName, myExpr;
+    std::list< KeyHelper > myObjects;
+    bool myIsRename;
+  } SubstitutionInfo;
 
 private:
-  std::map< std::string, std::list<std::string> > myDeps;
-  std::map< std::string, SALOME_Parameter* > myParams;
+  void Sort( std::list< KeyHelper >& theList ) const;
+  bool Substitute( SubstitutionInfo& theSubstitution );
+  SubstitutionInfo CreateSubstitution( const std::string& theName, const std::string& theExpr, bool theIsRename );
+  void AddSubstitution( const std::string& theName, const std::string& theExpr, bool theIsRename );
+
+private:
+  std::map< std::string, std::list<std::string> > myDependencies;
+  std::map< std::string, SALOME_Parameter* > myParameters;
   std::list< KeyHelper > myToUpdate;
+  std::list<SubstitutionInfo> mySubstitutions;
   SALOMEDS::Study_var myStudy;
+  Utils_Mutex myMutex;
 };
 
 #endif

@@ -74,17 +74,18 @@ public:
   std::string Save() const;
   static SALOME_Parameter* Load( const std::string& theData );
 
-  bool IsAnonimous() const;
+  bool IsAnonymous() const;
   bool IsCalculable() const;
 
   std::string Expression() const;
+  void Substitute( const std::string& theName, const SALOME_EvalExpr& theExpr );
 
 private:
   SALOME_Notebook* myNotebook;
   std::string myName;
   SALOME_EvalExpr myExpr;
   SALOME_EvalVariant myResult;
-  bool myIsAnonimous, myIsCalculable;
+  bool myIsAnonymous, myIsCalculable;
 };
 
 #endif

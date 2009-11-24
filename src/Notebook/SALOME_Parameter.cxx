@@ -31,36 +31,36 @@
 #include <stdio.h>
 
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, bool theValue )
-: myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonimous( false ), myIsCalculable( false )
+: myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonymous( false ), myIsCalculable( false )
 {
 }
 
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, int theValue )
-: myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonimous( false ), myIsCalculable( false )
+: myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonymous( false ), myIsCalculable( false )
 {
 }
 
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, double theValue )
-: myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonimous( false ), myIsCalculable( false )
+: myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonymous( false ), myIsCalculable( false )
 {
 }
 
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, const std::string& theData, bool isExpr )
-: myNotebook( theNotebook ), myName( theName ), myIsAnonimous( false ), myIsCalculable( isExpr )
+: myNotebook( theNotebook ), myName( theName ), myIsAnonymous( false ), myIsCalculable( isExpr )
 {
   if( isExpr )
   {
     myExpr.setExpression( theData );
-    Update( SALOME::Notebook_ptr() );
+    Update( SALOME::Notebook::_nil() );
   }
   else
     myResult = theData;
 }
 
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theExpr )
-: myNotebook( theNotebook ), myName( theExpr ), myExpr( theExpr ), myIsAnonimous( true ), myIsCalculable( true )
+: myNotebook( theNotebook ), myName( theExpr ), myExpr( theExpr ), myIsAnonymous( true ), myIsCalculable( true )
 {
-  Update( SALOME::Notebook_ptr() );
+  Update( SALOME::Notebook::_nil() );
 }
 
 SALOME_Parameter::~SALOME_Parameter()
@@ -118,7 +118,7 @@ void SALOME_Parameter::Update( SALOME::Notebook_ptr /*theNotebook*/ )
 
 void SALOME_Parameter::SetExpression( const char* theExpr )
 {
-  if( myIsAnonimous )
+  if( myIsAnonymous )
     myNotebook->AddExpression( theExpr );
 
   else
@@ -131,7 +131,7 @@ void SALOME_Parameter::SetExpression( const char* theExpr )
 
 void SALOME_Parameter::SetBoolean( CORBA::Boolean theValue )
 {
-  if( myIsAnonimous )
+  if( myIsAnonymous )
   {
   }
   else
@@ -144,7 +144,7 @@ void SALOME_Parameter::SetBoolean( CORBA::Boolean theValue )
 
 void SALOME_Parameter::SetInteger( CORBA::Long theValue )
 {
-  if( myIsAnonimous )
+  if( myIsAnonymous )
   {
   }
   else
@@ -157,7 +157,7 @@ void SALOME_Parameter::SetInteger( CORBA::Long theValue )
 
 void SALOME_Parameter::SetReal( CORBA::Double theValue )
 {
-  if( myIsAnonimous )
+  if( myIsAnonymous )
   {
   }
   else
@@ -170,7 +170,7 @@ void SALOME_Parameter::SetReal( CORBA::Double theValue )
 
 void SALOME_Parameter::SetString( const char* theValue )
 {
-  if( myIsAnonimous )
+  if( myIsAnonymous )
   {
   }
   else
@@ -233,7 +233,7 @@ SALOME_StringList SALOME_Parameter::Dependencies() const
 std::string SALOME_Parameter::Save() const
 {
   char buf[256];
-  sprintf( buf, "%s %i %i ", myName.c_str(), (int)myIsAnonimous, (int)myIsCalculable );
+  sprintf( buf, "%s %i %i?", myName.c_str(), (int)myIsAnonymous, (int)myIsCalculable );
   std::string aRes = buf;
   if( myIsCalculable )
     aRes += myExpr.expression();
@@ -247,12 +247,22 @@ std::string SALOME_Parameter::Save() const
 
 SALOME_Parameter* SALOME_Parameter::Load( const std::string& theData )
 {
+  std::vector<std::string> aParts = SALOME_Notebook::Split( theData, "?", false );
+  if( aParts.size() != 2 )
+    return 0;
+
+  char aName[256];
+  int anAnonym, aCalc;
+  if( sscanf( aParts[0].c_str(), "%s %i %i", aName, &anAnonym, &aCalc ) < 3 )
+    return 0;
+
+  printf( "load param: %s\n", aName );
   return 0;
 }
 
-bool SALOME_Parameter::IsAnonimous() const
+bool SALOME_Parameter::IsAnonymous() const
 {
-  return myIsAnonimous;
+  return myIsAnonymous;
 }
 
 bool SALOME_Parameter::IsCalculable() const
@@ -263,4 +273,18 @@ bool SALOME_Parameter::IsCalculable() const
 std::string SALOME_Parameter::Expression() const
 {
   return myExpr.expression();
+}
+
+void SALOME_Parameter::Substitute( const std::string& theName, const SALOME_EvalExpr& theExpr )
+{
+  if( !IsCalculable() )
+    return;
+  
+  myExpr.substitute( theName, theExpr );
+  if( IsAnonymous() )
+  {
+    std::string anOldName = myName;
+    myName = myExpr.expression();
+    myNotebook->UpdateAnonymous( anOldName.c_str(), this );
+  }
 }
