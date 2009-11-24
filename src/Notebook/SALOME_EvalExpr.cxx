@@ -165,6 +165,7 @@ bool SALOME_EvalExpr::autoDeleteOperationSets() const
 {
   return myParser->autoDeleteOperationSets();
 }
+
 //=======================================================================
 //function : setAutoDeleteOperationSets
 //purpose  : 
@@ -172,4 +173,14 @@ bool SALOME_EvalExpr::autoDeleteOperationSets() const
 void SALOME_EvalExpr::setAutoDeleteOperationSets(const bool on)
 {
   myParser->setAutoDeleteOperationSets( on );
+}
+
+//=======================================================================
+//function : substitute
+//purpose  : 
+//=======================================================================
+void SALOME_EvalExpr::substitute( const SALOME_String& theParamName, const SALOME_EvalExpr& theExpr )
+{
+  myParser->substitute( theParamName, theExpr.parser() );
+  myExpr = myParser->rebuildExpression();
 }

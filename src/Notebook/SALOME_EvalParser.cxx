@@ -869,6 +869,128 @@ bool SALOME_EvalParser::isMonoParam() const
 }
 
 //=======================================================================
+//function : substitute
+//purpose  :
+//=======================================================================
+void SALOME_EvalParser::substitute( const SALOME_String& theParamName, 
+                                    SALOME_EvalParser* theNewExpr )
+{
+  Postfix::iterator it = myPostfix.begin(), last = myPostfix.end();
+  for( ; it!=last; it++ )
+  {
+    //printf( "ELEM: %s\n", it->myValue.toString().c_str() );
+    if( it->myType == Param && it->myValue.toString() == theParamName )
+    {
+      Postfix::iterator removed = it; it++;
+      myPostfix.erase( removed );
+      //printf( "REMOVE:\n" );
+      Postfix::iterator nit = theNewExpr->myPostfix.begin(), nlast = theNewExpr->myPostfix.end();
+      for( ; nit!=nlast; nit++ )
+      {
+        myPostfix.insert( it, *nit );
+        //printf( "INSERT: %s\n", nit->myValue.toString().c_str() );
+      }
+      it--;
+    }
+  }
+}
+
+
+//=======================================================================
+//class    : RebultExprItem
+//purpose  : Reconstruction of expression by postfix form
+//=======================================================================
+class RebultExprItem
+{
+public:
+  RebultExprItem( const SALOME_EvalParser* theParser, const SALOME_String& theExpr = "" )
+    : myExpr( theExpr ), myParser( theParser )
+  {
+  }
+
+  int priority() const
+  {
+    return myOp.length() > 0 ? myParser->priority( myOp, myOpBin ) : 100000;
+  }
+
+  RebultExprItem concat( const SALOME_String& theOp, const RebultExprItem& theItem, bool theIsBin ) const
+  {
+    int pleft = priority(), pright = theItem.priority(),
+      pOp = myParser->priority( theOp, theIsBin );
+
+    //printf( "concat: '%s' (%i) and '%s' (%i) with op = %s (%i)\n",
+    //        myExpr.c_str(), pleft, theItem.myExpr.c_str(), pright,
+    //        theOp.c_str(), pOp );
+
+    SALOME_String aNewExpr = expression( pleft<pOp );
+    aNewExpr += theOp;
+    aNewExpr += theItem.expression( pright<pOp );
+    RebultExprItem aRes( myParser );
+    aRes.myExpr = aNewExpr;
+    aRes.myOp = theOp;
+    aRes.myOpBin = theIsBin;
+    return aRes;
+  }
+
+  SALOME_String expression( bool theIsAddBrackets ) const
+  {
+    if( theIsAddBrackets )
+      return "(" + myExpr + ")";
+    else
+      return myExpr;
+  }
+
+private:
+  const SALOME_EvalParser* myParser;
+  SALOME_String myExpr, myOp;
+  bool myOpBin;
+};
+
+//=======================================================================
+//function : rebuildExpression
+//purpose  :
+//=======================================================================
+SALOME_String SALOME_EvalParser::rebuildExpression() const
+{
+  std::stack<RebultExprItem> aStack;
+
+  Postfix::const_iterator it = myPostfix.begin(), last = myPostfix.end();
+  RebultExprItem anItem1( this ), anItem2( this );
+  for( ; it!=last; it++ )
+  {
+    SALOME_String aValue = it->myValue.toString();
+    switch( it->myType )
+    {
+    case Value:
+    case Param:
+      aStack.push( RebultExprItem( this, aValue ) );
+      break;
+
+    case Pre:
+      anItem1 = aStack.top(); aStack.pop();
+      anItem2 = RebultExprItem( this ).concat( aValue, anItem1, false );
+      aStack.push( anItem2 );
+      break;
+
+    case Post:
+      anItem1 = aStack.top(); aStack.pop();
+      anItem2 = anItem1.concat( aValue, RebultExprItem( this ), false );
+      aStack.push( anItem2 );
+      break;
+
+    case Binary:
+      anItem2 = aStack.top(); aStack.pop();
+      anItem1 = aStack.top(); aStack.pop();
+      anItem2 = anItem1.concat( aValue, anItem2, true );
+      aStack.push( anItem2 );
+      break;
+    }
+  }
+
+  return aStack.top().expression( false );
+}
+
+//=======================================================================
 //function : dump
 //purpose  :
 //=======================================================================

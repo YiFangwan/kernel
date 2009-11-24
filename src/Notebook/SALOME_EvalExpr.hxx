@@ -34,7 +34,7 @@
 class SALOME_EvalExpr
 {
 public:
-  SALOME_EvalExpr(const SALOME_String& = SALOME_String());
+  SALOME_EvalExpr( const SALOME_String& = SALOME_String() );
   SALOME_EvalExpr( const bool, const SALOME_String& = SALOME_String() );
   ~SALOME_EvalExpr();
 
@@ -53,6 +53,8 @@ public:
   SALOME_EvalSet*      operationSet( const SALOME_String& ) const;
   void                 removeOperationSet( SALOME_EvalSet* );
   void                 insertOperationSet( SALOME_EvalSet*, const int = -1 );
+
+  void                 substitute( const SALOME_String& theParamName, const SALOME_EvalExpr& theExpr );
 
 private:
   void initialize( const bool, const SALOME_String& );

@@ -72,6 +72,11 @@ public:
 
   bool isMonoParam() const;
 
+  void substitute( const SALOME_String& theParamName, 
+                   SALOME_EvalParser* theNewExpr );
+
+  SALOME_String rebuildExpression() const;
+
 protected:
   //! Types of postfix representation elements
   typedef enum 
@@ -127,6 +132,8 @@ private:
   static void append( Postfix& aL, const Postfix& aL1 );
 
 private:
+  friend class RebultExprItem;
+
   SALOME_ListOfEvalSet  mySets;
   SALOME_EvalExprError  myError;
   ParamMap              myParams;
