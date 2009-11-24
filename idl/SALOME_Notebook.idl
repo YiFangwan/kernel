@@ -117,6 +117,10 @@ module SALOME
   //! This interface describes parameters container: Notebook
   interface Notebook : GenericObj
   {
+    exception NotebookError {};
+    exception ExpressionError {};
+    exception CalculationError {};
+
     //dependency management
 
     //! add new dependency between objects
@@ -159,10 +163,13 @@ module SALOME
     //! remove parameter from notebook
     boolean Remove( in string name );
 
+    //! rename parameter in notebook
+    boolean Rename( in string oldName, in string newName );
+
     //! access to parameter from notebook
     Parameter GetParameter( in string name );
 
-    //! return list of all names of parameters (without anonimous ones)
+    //! return list of all names of parameters (without anonymous ones)
     StringArray Parameters();
 
     //! return list of necessary (by dependencies), but absent parameters
@@ -178,7 +185,14 @@ module SALOME
     boolean Load( in string filename );
 
     //! load notebook from text file
-    boolean DumpPython( in string filename );
+    string DumpPython();
+
+
+
+    //auxiliary methods
+
+    //! Dump of Notebook internal data structure for debug purposes
+    string Dump();
   };
 };
 
