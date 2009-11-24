@@ -86,6 +86,11 @@ void SALOME_Parameter::SetParameters( SALOME::Notebook_ptr /*theNotebook*/, cons
 {
 }
 
+SALOME::StringArray* SALOME_Parameter::GetParameters()
+{
+  return 0;
+}
+
 void SALOME_Parameter::Update( SALOME::Notebook_ptr /*theNotebook*/ )
 {
   //printf( "Update of %s\n", GetEntry() );
@@ -280,11 +285,17 @@ void SALOME_Parameter::Substitute( const std::string& theName, const SALOME_Eval
   if( !IsCalculable() )
     return;
   
+  if( myName == theName )
+  {
+    myName = theExpr.expression();
+    return;
+  }
+
   myExpr.substitute( theName, theExpr );
   if( IsAnonymous() )
   {
-    std::string anOldName = myName;
-    myName = myExpr.expression();
-    myNotebook->UpdateAnonymous( anOldName.c_str(), this );
+    std::string aNewName = myExpr.expression();
+    myNotebook->UpdateAnonymous( myName, aNewName );
+    myName = aNewName;
   }
 }

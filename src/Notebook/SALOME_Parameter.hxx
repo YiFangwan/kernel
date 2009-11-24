@@ -53,8 +53,9 @@ public:
   virtual char* GetComponent();
   virtual CORBA::Boolean IsValid();
 
-  virtual void Update( SALOME::Notebook_ptr theNotebook );
-  virtual void SetParameters ( SALOME::Notebook_ptr theNotebook, const SALOME::StringArray& theParameters );
+  virtual void                 Update( SALOME::Notebook_ptr theNotebook );
+  virtual void                 SetParameters( SALOME::Notebook_ptr theNotebook, const SALOME::StringArray& theParameters );
+  virtual SALOME::StringArray* GetParameters();
 
   virtual void SetExpression( const char* theExpr );
   virtual void SetBoolean( CORBA::Boolean theValue );

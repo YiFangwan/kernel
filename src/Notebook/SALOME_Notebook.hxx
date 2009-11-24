@@ -67,7 +67,7 @@ public:
   virtual char*          Dump();
 
   SALOME_Parameter* GetParameterPtr( const char* theParamName ) const;
-  void UpdateAnonymous( const char* theOldName, SALOME_Parameter* theParam );
+  void UpdateAnonymous( const std::string& theOldName, const std::string& theNewName );
 
   static std::vector<std::string> Split( const std::string& theData, const std::string& theSeparator, bool theIsKeepEmpty );
 

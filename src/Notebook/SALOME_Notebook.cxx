@@ -193,19 +193,35 @@ bool SALOME_Notebook::Substitute( SubstitutionInfo& theSubstitution )
     if( CORBA::is_nil( aParam ) )
     {
       //it is real object
+      SALOME::StringArray_var aParams = anObj->GetParameters();
+      int n = aParams->length();
+      //printf( "get params: %i\n", n );
+      for( int i=0; i<n; i++ )
+      {
+        //printf( "\t%s\n", aParams[i].in() );
+        if( anOldName == aParams[i].in() )
+        {
+          if( !isRename )
+            AddExpression( aNewName.c_str() );
+          aParams[i] = CORBA::string_dup( aNewName.c_str() );
+        }
+      }
+      anObj->SetParameters( _this(), aParams );
     }
     else
     {
       std::string
-        aName = aParam->GetEntry(),
+        aName    = aParam->GetEntry(),
         anOldKey = GetKey( aName ),
-        aNewKey = GetKey( aNewName );
+        aNewKey  = GetKey( aNewName );
+      SALOME_Parameter* aParamPtr = myParameters[aName];
+
+      aParamPtr->Substitute( anOldName, aNewName );
       if( aName == anOldName )
       {
         //it is renamed parameter
 
         //1. update parameters map
-        SALOME_Parameter* aParam = myParameters[anOldName];
         if( isRename )
         {
           std::list<std::string> aDeps = myDependencies[anOldKey];
@@ -213,12 +229,12 @@ bool SALOME_Notebook::Substitute( SubstitutionInfo& theSubstitution )
           myDependencies[aNewKey] = aDeps;
           
           myParameters.erase( anOldName );
-          myParameters[aNewName] = aParam;
+          myParameters[aNewName] = aParamPtr;
         }
         else
         {
           ClearDependencies( anOldKey, SALOME::All );
-          myParameters.erase( anOldName );
+          myParameters.erase( aName );
         }
 
         //2. update dependencies map
@@ -227,7 +243,7 @@ bool SALOME_Notebook::Substitute( SubstitutionInfo& theSubstitution )
         {
           std::list<std::string>::iterator dit = it->second.begin(), dlast = it->second.end(), dremove;
           for( ; dit!=dlast; )
-            if( *dit == anOldName )
+            if( *dit == anOldKey )
             {
               if( isRename )
               {
@@ -244,11 +260,6 @@ bool SALOME_Notebook::Substitute( SubstitutionInfo& theSubstitution )
             else
               dit++;
         }
-      }
-      else
-      {
-        SALOME_Parameter* aParamPtr = GetParameterPtr( aName.c_str() );
-        aParamPtr->Substitute( anOldName, anExpr );
       }
     }
   }
@@ -291,7 +302,7 @@ SALOME_Notebook::SubstitutionInfo SALOME_Notebook::CreateSubstitution( const std
   SubstitutionInfo anInfo;
   anInfo.myName = theName;
   anInfo.myExpr = theExpr;
-  anInfo.myIsRename = true;
+  anInfo.myIsRename = theIsRename;
   std::list<std::string> aDeps = GetAllDependingOn( GetKey( theName ) );
   anInfo.myObjects.clear();
   std::list<std::string>::const_iterator dit = aDeps.begin(), dlast = aDeps.end();
@@ -331,9 +342,9 @@ CORBA::Boolean SALOME_Notebook::Remove( const char* theParamName )
   return ok;
 }
 
-void SALOME_Notebook::UpdateAnonymous( const char* theOldName, SALOME_Parameter* theParam )
+void SALOME_Notebook::UpdateAnonymous( const std::string& theOldName, const std::string& theNewName )
 {
-  SubstitutionInfo anInfo = CreateSubstitution( theOldName, theParam->GetEntry(), true );
+  SubstitutionInfo anInfo = CreateSubstitution( theOldName, theNewName, true );
   Substitute( anInfo );
 }
 
@@ -786,7 +797,7 @@ char* SALOME_Notebook::Dump()
     aStr += " -> ";
     std::list<std::string>::const_iterator it = dit->second.begin(), last = dit->second.end();
     for( ; it!=last; it++ )
-      aStr += *it;
+      aStr += *it + " ";
     aStr += "\n";
   }
   aStr += "\n";
@@ -796,7 +807,7 @@ char* SALOME_Notebook::Dump()
   std::map< std::string, SALOME_Parameter* >::const_iterator pit = myParameters.begin(), plast = myParameters.end();
   for( ; pit!=plast; pit++ )
   {
-    aStr += pit->first + ": ";
+    aStr += pit->first + " (" + pit->second->GetEntry() + "): ";
     if( pit->second->IsAnonymous() )
       aStr += "[A] ";
     if( pit->second->IsCalculable() )
