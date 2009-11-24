@@ -63,11 +63,18 @@ module SALOME
     boolean IsValid();
 
     /*!
-     *  Set list of parameters that this object depends on
-     *  \param theParameters is a sequence containing names of notebook variables used for object creation
-     *    if parameter is empty string, it means that parameter is not used in this position
+     *  Set list of arguments that this object depends on
+     *  \param theParameters is a sequence containing names of notebook variables used for object creation.
+     *    Each sequence element corresponds to certain position.
+     *    If parameter is empty string, it means that parameter is not used in this position.
      */
-    void SetParameters ( in Notebook theNotebook, in StringArray theParameters );
+    void SetParameters( in Notebook theNotebook, in StringArray theParameters );
+
+    /*!
+     *  Get list of arguments that this object depends on.
+     *    Each sequence element corresponds to certain position.
+     */
+    StringArray GetParameters();
 
     //! update management
     void Update( in Notebook nb );
