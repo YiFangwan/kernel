@@ -32,7 +32,7 @@ Module salome_notebook gives access to Salome Notebook.
 import salome
 import SALOME
 
-class NoteBook:
+class Notebook:
     
     def __init__( self, Study ):
         self.myNotebook = Study.GetNotebook()
@@ -58,19 +58,19 @@ class NoteBook:
                 
         elif type( variable ) == str:
             if aParam == None:
-                self.myStudy.AddExpression( variableName, variable )
+                self.myNotebook.AddNamedExpression( variableName, variable )
             else:
                 aParam.SetExpression( variable )
             
         elif type( variable ) == int:
             if aParam == None:
-                self.myStudy.AddInteger( variableName, variable )
+                self.myNotebook.AddInteger( variableName, variable )
             else:
                 aParam.SetInteger( variable )
             
         elif type( variable ) == bool:
             if aParam == None:
-                self.myStudy.AddBoolean( variableName, variable )
+                self.myNotebook.AddBoolean( variableName, variable )
             else:
                 aParam.SetBoolean( variable )
             
@@ -104,4 +104,17 @@ class NoteBook:
         aParam = self.myNotebook.GetParameter( variableName )
         return aParam != None
 
-notebook = NoteBook(salome.myStudy)
+    def dump( self ):
+        return self.myNotebook.Dump()
+
+    def rename( self, oldname, newname ):
+        self.myNotebook.Rename( oldname, newname )
+
+    def remove( self, name ):
+        self.myNotebook.Remove( name )
+
+
+notebook = Notebook(salome.myStudy)
+
+def Parameter( varName ):
+    return notebook.getNotebook().GetParameter( varName )
