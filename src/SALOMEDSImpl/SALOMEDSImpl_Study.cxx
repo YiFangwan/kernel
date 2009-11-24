@@ -1137,6 +1137,10 @@ bool SALOMEDSImpl_Study::DumpStudy(const string& thePath,
     else
       aSeq.push_back(aCompType);
   }
+  
+  //The notebook should be first in the list
+  aSeq.erase( find( aSeq.begin(), aSeq.end(), "NOTEBOOK" ) );
+  aSeq.insert( aSeq.begin(), "NOTEBOOK" );
 
 #ifdef WIN32
   string aFileName =

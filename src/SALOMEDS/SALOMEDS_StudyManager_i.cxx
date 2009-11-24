@@ -36,6 +36,8 @@
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
+#include "SALOME_NotebookDriver.hxx"
+
 #include "Utils_CorbaException.hxx"
 #include "Utils_ExceptHandlers.hxx"
 #include "Basics_Utils.hxx"
@@ -181,7 +183,9 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   if(!_name_service->Change_Directory("/Study")) MESSAGE( "Unable to access the study directory" )
   else _name_service->Register(Study, CORBA::string_dup(aStudyImpl->Name().c_str()));
 
-  Study->GetNotebook();
+  SALOMEDS::SComponent_ptr aNotebookComponent = Study->FindComponent( "NOTEBOOK" );
+  SALOMEDS::StudyBuilder_var aBuilder = Study->NewBuilder();
+  aBuilder->LoadWith( aNotebookComponent, SALOME_NotebookDriver::getInstance() );
 
   return Study._retn();
 }

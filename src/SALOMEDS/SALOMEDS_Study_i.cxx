@@ -960,24 +960,26 @@ SALOME::Notebook_ptr SALOMEDS_Study_i::GetNotebook()
     SALOME_Notebook* aNb = new SALOME_Notebook( _default_POA(), _this() );
     myNotebook = aNb->_this();
 
-    //Creation of default component for the Notebook
-    SALOMEDS::GenericAttribute_var anAttr;
     SALOMEDS::StudyBuilder_var aStudyBuilder = NewBuilder();
-    SALOMEDS::SComponent_var aNotebookComponent = aStudyBuilder->NewComponent( "NOTEBOOK" );
+    SALOMEDS::SComponent_var aNotebookComponent = FindComponent( "NOTEBOOK" );
+    if( CORBA::is_nil( aNotebookComponent ) )
+    {
+      //Creation of default component for the Notebook
+      SALOMEDS::GenericAttribute_var anAttr;
+      aNotebookComponent = aStudyBuilder->NewComponent( "NOTEBOOK" );
 
-    anAttr = aStudyBuilder->FindOrCreateAttribute( aNotebookComponent, "AttributeName" );
-    SALOMEDS::AttributeName_var aName = SALOMEDS::AttributeName::_narrow( anAttr );
-    aName->SetValue( "Notebook" );
-    aName->Destroy();
+      anAttr = aStudyBuilder->FindOrCreateAttribute( aNotebookComponent, "AttributeName" );
+      SALOMEDS::AttributeName_var aName = SALOMEDS::AttributeName::_narrow( anAttr );
+      aName->SetValue( "Notebook" );
+      aName->Destroy();
 
-    anAttr = aStudyBuilder->FindOrCreateAttribute( aNotebookComponent, "AttributePixMap" );
-    SALOMEDS::AttributePixMap_var aPixMap = SALOMEDS::AttributePixMap::_narrow( anAttr );
-    aPixMap->SetPixMap( "ICON_OBJBROWSER_Notebook" );
-    aPixMap->Destroy();
+      anAttr = aStudyBuilder->FindOrCreateAttribute( aNotebookComponent, "AttributePixMap" );
+      SALOMEDS::AttributePixMap_var aPixMap = SALOMEDS::AttributePixMap::_narrow( anAttr );
+      aPixMap->SetPixMap( "ICON_OBJBROWSER_Notebook" );
+      aPixMap->Destroy();
 
-    SALOME_NotebookDriver* aDriver = new SALOME_NotebookDriver();
-    SALOMEDS::Driver_var aDriverVar = aDriver->_this();
-    aStudyBuilder->DefineComponentInstance( aNotebookComponent, aDriverVar._retn() );
+      aStudyBuilder->DefineComponentInstance( aNotebookComponent, SALOME_NotebookDriver::getInstance() );
+    }
   }
 
   return SALOME::Notebook::_duplicate( myNotebook );
