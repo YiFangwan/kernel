@@ -36,8 +36,11 @@ public:
   virtual CORBA::Boolean        CanPaste ( const char* theComponentName, CORBA::Long theObjectID );
   virtual SALOMEDS::SObject_ptr PasteInto( const SALOMEDS::TMPFile& theStream, CORBA::Long theObjectID,
                                            SALOMEDS::SObject_ptr theObject );
+
+  static SALOMEDS::Driver_ptr getInstance();
+
 protected:
-  std::string GetFileName( SALOMEDS::Study_ptr theStudy, bool isMultiFile ) const;
+  std::string GetFileName( SALOMEDS::SComponent_ptr theComponent, bool isMultiFile ) const;
 };
 
 #endif
