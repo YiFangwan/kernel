@@ -43,20 +43,20 @@ class SALOME_Notebook : public virtual POA_SALOME::Notebook, public virtual SALO
 public:
   SALOME_Notebook( PortableServer::POA_ptr thePOA, SALOMEDS::Study_ptr theStudy );
 
-  virtual CORBA::Boolean AddDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
-  virtual CORBA::Boolean RemoveDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
+  virtual void AddDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
+  virtual void RemoveDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
   virtual void ClearDependencies( SALOME::ParameterizedObject_ptr theObj, SALOME::DependenciesType theType );
   virtual void SetToUpdate( SALOME::ParameterizedObject_ptr theObj );
   virtual void Update();
 
-  virtual CORBA::Boolean AddExpression( const char* theExpr );
-  virtual CORBA::Boolean AddNamedExpression( const char* theName, const char* theExpr );
-  virtual CORBA::Boolean AddBoolean( const char* theName, CORBA::Boolean theValue );
-  virtual CORBA::Boolean AddInteger( const char* theName, CORBA::Long theValue );
-  virtual CORBA::Boolean AddReal( const char* theName, CORBA::Double theValue );
-  virtual CORBA::Boolean AddString( const char* theName, const char* theValue );
-  virtual CORBA::Boolean Remove( const char* theParamName );
-  virtual CORBA::Boolean Rename( const char* theOldName, const char* theNewName );
+  virtual void AddExpression( const char* theExpr );
+  virtual void AddNamedExpression( const char* theName, const char* theExpr );
+  virtual void AddBoolean( const char* theName, CORBA::Boolean theValue );
+  virtual void AddInteger( const char* theName, CORBA::Long theValue );
+  virtual void AddReal( const char* theName, CORBA::Double theValue );
+  virtual void AddString( const char* theName, const char* theValue );
+  virtual void Remove( const char* theParamName );
+  virtual void Rename( const char* theOldName, const char* theNewName );
   virtual SALOME::Parameter_ptr GetParameter( const char* theParamName );
   virtual SALOME::StringArray* Parameters();
   virtual SALOME::StringArray* AbsentParameters();
@@ -72,20 +72,21 @@ public:
   static std::vector<std::string> Split( const std::string& theData, const std::string& theSeparator, bool theIsKeepEmpty );
 
 protected:
-  bool AddParameter( SALOME_Parameter* theParam );
-  bool AddDependencies( SALOME_Parameter* theParam );
-  bool AddDependency( const std::string& theObjKey, const std::string& theRefKey );
+  void AddParameter( SALOME_Parameter* theParam );
+  void AddDependencies( SALOME_Parameter* theParam );
+  void AddDependency( const std::string& theObjKey, const std::string& theRefKey );
   void ClearDependencies( const std::string& theObjKey, SALOME::DependenciesType theType );
-  bool CheckParamName( const std::string& theParamName ) const;
+  bool CheckParamName( const std::string& theParamName, std::string& theMsg ) const;
   SALOME::StringArray* GenerateList( const std::list<std::string>& theList ) const;
   std::string GetComponent( const std::string& theKey, std::string& theEntry ) const;
-  bool ParseDependencies( const std::string& theData );
+  void ParseDependencies( const std::string& theData );
 
 private:
   std::string GetKey( SALOME::ParameterizedObject_ptr theObj );
   std::string GetKey( const std::string& theParamName );
   std::list<std::string> GetAllDependingOn( const std::string& theKey );
   SALOME::ParameterizedObject_ptr FindObject( const std::string& theKey );
+  void throwError( const std::string& theErrorMsg );
 
 private:
   friend class KeyHelper;

@@ -26,6 +26,44 @@
 
 #include <SALOME_Notebook.hxx>
 #include <SALOME_Parameter.hxx>
+#include <SALOME_EvalParser.hxx>
+
+std::string arg( const std::string& theStr, const std::string& theArg1 )
+{
+  std::string aRes = theStr;
+  while( true )
+  {
+    int aPos = aRes.find( "%1" );
+    if( aPos >= 0 )
+      aRes.replace( aPos, 2, theArg1 );
+    else
+      break;
+  }
+  return aRes;
+}
+
+std::string arg( const std::string& theStr, const std::string& theArg1, const std::string& theArg2 )
+{
+  std::string aRes = theStr;
+  while( true )
+  {
+    int aPos = aRes.find( "%1" );
+    if( aPos >= 0 )
+      aRes.replace( aPos, 2, theArg1 );
+    else
+    {
+      aPos = aRes.find( "%2" );
+      if( aPos >= 0 )
+        aRes.replace( aPos, 2, theArg1 );
+      else
+        break;
+    }
+  }
+  return aRes;
+}
+
+
+
 
 SALOME_Notebook::KeyHelper::KeyHelper( const std::string& theKey, SALOME_Notebook* theNotebook )
 : myKey( theKey ), myNotebook( theNotebook )
@@ -68,21 +106,21 @@ SALOME_Notebook::SALOME_Notebook( PortableServer::POA_ptr thePOA, SALOMEDS::Stud
   myStudy = SALOMEDS::Study::_duplicate( theStudy );
 }
 
-CORBA::Boolean SALOME_Notebook::AddDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef )
+void SALOME_Notebook::AddDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef )
 {
-  return AddDependency( GetKey( theObj ), GetKey( theRef ) );
+  AddDependency( GetKey( theObj ), GetKey( theRef ) );
 }
 
-CORBA::Boolean SALOME_Notebook::RemoveDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef )
+void SALOME_Notebook::RemoveDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef )
 {
   //Utils_Locker lock( &myMutex );
 
   std::string anObjKey = GetKey( theObj ), aRefKey = GetKey( theRef );
   std::map< std::string, std::list<std::string> >::iterator it = myDependencies.find( anObjKey );
-  bool ok = it != myDependencies.end();
-  if( ok )
+  if( it == myDependencies.end() )
+    throwError( arg( "Dependency between '%1' and '%2' is not found", theObj->GetEntry(), theObj->GetEntry() ) );
+  else
     it->second.remove( aRefKey );
-  return ok;
 }
 
 void SALOME_Notebook::ClearDependencies( SALOME::ParameterizedObject_ptr theObj, SALOME::DependenciesType theType )
@@ -267,34 +305,34 @@ bool SALOME_Notebook::Substitute( SubstitutionInfo& theSubstitution )
   return theSubstitution.myObjects.size() == 0;
 }
 
-CORBA::Boolean SALOME_Notebook::AddExpression( const char* theExpr )
+void SALOME_Notebook::AddExpression( const char* theExpr )
 {
-  return AddParameter( new SALOME_Parameter( this, theExpr ) );
+  AddParameter( new SALOME_Parameter( this, theExpr ) );
 }
 
-CORBA::Boolean SALOME_Notebook::AddNamedExpression( const char* theName, const char* theExpr )
+void SALOME_Notebook::AddNamedExpression( const char* theName, const char* theExpr )
 {
-  return AddParameter( new SALOME_Parameter( this, theName, theExpr, true ) );
+  AddParameter( new SALOME_Parameter( this, theName, theExpr, true ) );
 }
 
-CORBA::Boolean SALOME_Notebook::AddBoolean( const char* theName, CORBA::Boolean theValue )
+void SALOME_Notebook::AddBoolean( const char* theName, CORBA::Boolean theValue )
 {
-  return AddParameter( new SALOME_Parameter( this, theName, theValue ) );
+  AddParameter( new SALOME_Parameter( this, theName, theValue ) );
 }
 
-CORBA::Boolean SALOME_Notebook::AddInteger( const char* theName, CORBA::Long theValue )
+void SALOME_Notebook::AddInteger( const char* theName, CORBA::Long theValue )
 {
-  return AddParameter( new SALOME_Parameter( this, theName, (int)theValue ) );
+  AddParameter( new SALOME_Parameter( this, theName, (int)theValue ) );
 }
 
-CORBA::Boolean SALOME_Notebook::AddReal( const char* theName, CORBA::Double theValue )
+void SALOME_Notebook::AddReal( const char* theName, CORBA::Double theValue )
 {
-  return AddParameter( new SALOME_Parameter( this, theName, theValue ) );
+  AddParameter( new SALOME_Parameter( this, theName, theValue ) );
 }
 
-CORBA::Boolean SALOME_Notebook::AddString( const char* theName, const char* theValue )
+void SALOME_Notebook::AddString( const char* theName, const char* theValue )
 {
-  return AddParameter( new SALOME_Parameter( this, theName, theValue, false ) );
+  AddParameter( new SALOME_Parameter( this, theName, theValue, false ) );
 }
 
 SALOME_Notebook::SubstitutionInfo SALOME_Notebook::CreateSubstitution( const std::string& theName, const std::string& theExpr, bool theIsRename )
@@ -317,20 +355,29 @@ void SALOME_Notebook::AddSubstitution( const std::string& theName, const std::st
   mySubstitutions.push_back( CreateSubstitution( theName, theExpr, theIsRename ) );
 }
 
-CORBA::Boolean SALOME_Notebook::Rename( const char* theOldName, const char* theNewName )
+void SALOME_Notebook::Rename( const char* theOldName, const char* theNewName )
 {
   SALOME_Parameter* aParam = GetParameterPtr( theOldName );
-  bool ok = aParam && !aParam->IsAnonymous() && !GetParameterPtr( theNewName ) && CheckParamName( theNewName );
-  if( ok )
+  std::string aMsg;
+  if( !aParam )
+    aMsg = arg( "Name '%1' does not exist", theOldName );
+  else if( aParam->IsAnonymous() )
+    aMsg = arg( "Parameter '%1' is anonymous", theOldName );
+  else if( GetParameterPtr( theNewName ) )
+    aMsg = arg( "New name '%1' is already used", theNewName );
+
+  CheckParamName( theNewName, aMsg );
+
+  if( aMsg.length() == 0 )
     AddSubstitution( theOldName, theNewName, true );
-  return ok;
+  else
+    throwError( aMsg );
 }
 
-CORBA::Boolean SALOME_Notebook::Remove( const char* theParamName )
+void SALOME_Notebook::Remove( const char* theParamName )
 {
   SALOME_Parameter* aParam = GetParameterPtr( theParamName );
-  bool ok = aParam;
-  if( ok )
+  if( aParam )
   {
     std::string anExpr;
     if( aParam->IsCalculable() )
@@ -339,7 +386,8 @@ CORBA::Boolean SALOME_Notebook::Remove( const char* theParamName )
       anExpr = aParam->AsString();
     AddSubstitution( theParamName, anExpr, false );
   }
-  return ok;
+  else
+    throwError( arg( "The parameter '%1' is not found", theParamName ) );
 }
 
 void SALOME_Notebook::UpdateAnonymous( const std::string& theOldName, const std::string& theNewName )
@@ -417,16 +465,13 @@ SALOME_Parameter* SALOME_Notebook::GetParameterPtr( const char* theParamName ) c
   return it==myParameters.end() ? 0 : it->second;
 }
 
-bool SALOME_Notebook::AddParameter( SALOME_Parameter* theParam )
+void SALOME_Notebook::AddParameter( SALOME_Parameter* theParam )
 {
   //Utils_Locker lock( &myMutex );
 
-  if( !theParam )
-    return false;
-
-  std::string anEntry = theParam->GetEntry();
-  if( !theParam->IsAnonymous() && !CheckParamName( anEntry ) )
-    return false;
+  std::string anEntry = theParam->GetEntry(), aMsg;
+  if( !theParam->IsAnonymous() && !CheckParamName( anEntry, aMsg ) )
+    throwError( aMsg );
 
   //printf( "Add param: %s\n", anEntry.c_str() );
 
@@ -437,19 +482,18 @@ bool SALOME_Notebook::AddParameter( SALOME_Parameter* theParam )
     ClearDependencies( GetKey( anEntry ), SALOME::All );
   }
 
-  bool ok = AddDependencies( theParam );
-  //printf( "Add param: %s, Result = %i\n\n", anEntry.c_str(), ok );
-
-  if( !ok )
+  try
   {
-    //printf( "Removed\n" );
-    Remove( anEntry.c_str() );
+    AddDependencies( theParam );
   }
-
-  return ok;
+  catch( const SALOME::NotebookError& ex )
+  {
+    Remove( anEntry.c_str() );
+    throw ex;
+  }
 }
 
-bool SALOME_Notebook::AddDependencies( SALOME_Parameter* theParam )
+void SALOME_Notebook::AddDependencies( SALOME_Parameter* theParam )
 {
   //Utils_Locker lock( &myMutex );
 
@@ -459,30 +503,32 @@ bool SALOME_Notebook::AddDependencies( SALOME_Parameter* theParam )
   myParameters[anEntry] = theParam;
   SALOME_StringList aDeps = theParam->Dependencies();
   SALOME_StringList::const_iterator dit = aDeps.begin(), dlast = aDeps.end();
-  bool ok = true;
-  for( ; dit!=dlast && ok; dit++ )
+  for( ; dit!=dlast; dit++ )
   {
     std::string aKey = GetKey( *dit );
-    ok = AddDependency( aParamKey, aKey );
+    AddDependency( aParamKey, aKey );
     //printf( "add dep to %s, res = %i\n", aKey.c_str(), ok );
   }
-  return ok;
 }
 
-bool SALOME_Notebook::AddDependency( const std::string& theObjKey, const std::string& theRefKey )
+void SALOME_Notebook::AddDependency( const std::string& theObjKey, const std::string& theRefKey )
 {
   //Utils_Locker lock( &myMutex );
+  std::string anObjName, aRefName;
+  GetComponent( theObjKey, anObjName );
+  GetComponent( theRefKey, aRefName );
 
   std::list<std::string> aDeps = GetAllDependingOn( theObjKey );
   if( find( aDeps.begin(), aDeps.end(), theRefKey ) != aDeps.end () )
-    return false; //after creation a cyclic dependency could appear
+    throwError( arg( "Dependency %1 -> %2 creates a cyclic dependency", anObjName, aRefName ) );
+    //after creation a cyclic dependency could appear
 
   std::list<std::string>& aList = myDependencies[theObjKey];
   bool ok = find( aList.begin(), aList.end(), theRefKey ) == aList.end();
   if( ok )
     aList.push_back( theRefKey );
-
-  return ok;
+  else
+    throwError( arg( "Dependency %1 -> %2 is already created", anObjName, aRefName ) );
 }
 
 void SALOME_Notebook::ClearDependencies( const std::string& theObjKey, SALOME::DependenciesType theType )
@@ -515,12 +561,12 @@ void SALOME_Notebook::ClearDependencies( const std::string& theObjKey, SALOME::D
 
 std::string SALOME_Notebook::GetKey( SALOME::ParameterizedObject_ptr theObj )
 {
-  return std::string( theObj->GetComponent() ) + "#" + theObj->GetEntry();
+  return arg( "%1#%2", theObj->GetComponent(), theObj->GetEntry() );
 }
 
 std::string SALOME_Notebook::GetKey( const std::string& theParamName )
 {
-  return PARAM_COMPONENT + "#" + theParamName;
+  return arg( "%1#%2", PARAM_COMPONENT, theParamName );
 }
 
 std::list<std::string> SALOME_Notebook::GetAllDependingOn( const std::string& theKey )
@@ -634,45 +680,53 @@ CORBA::Boolean SALOME_Notebook::Load( const char* theFileName )
   const int BUF_SIZE = 256;
   char aBuf[BUF_SIZE];
   bool ok = true;
-  while( ok && fgets( aBuf, BUF_SIZE, aFile ) != NULL )
+  try
   {
-    int aLen = strlen( aBuf );
-    if( aLen > 0 )
-      aBuf[aLen - 1] = 0;
-
-    std::string aLine = aBuf;
-    printf( "Line: '%s'\n", aBuf );
-    if( aState == State::Start )
+    while( ok && fgets( aBuf, BUF_SIZE, aFile ) != NULL )
     {
-      if( aLine == "notebook" )
-        aState = State::Title;
+      int aLen = strlen( aBuf );
+      if( aLen > 0 )
+        aBuf[aLen - 1] = 0;
+
+      std::string aLine = aBuf;
+      printf( "Line: '%s'\n", aBuf );
+      if( aState == State::Start )
+      {
+        if( aLine == "notebook" )
+          aState = State::Title;
+      }
+      else if( aLine == "Dependencies" )
+        aState = State::Dependencies;
+      else if( aLine == "Parameters" )
+        aState = State::Parameters;     
+      else if( aLine == "Update" )
+        aState = State::Update;
+
+      else switch( aState )
+           {
+           case State::Start:
+           case State::Title:
+             ok = false;
+             break;
+
+           case State::Dependencies:
+             ParseDependencies( aLine );
+             break;
+
+           case State::Parameters:
+             AddParameter( SALOME_Parameter::Load( aLine ) );
+             break;
+
+           case State::Update:
+             myToUpdate.push_back( KeyHelper( aLine, this ) );
+             break;
+           }
     }
-    else if( aLine == "Dependencies" )
-      aState = State::Dependencies;
-    else if( aLine == "Parameters" )
-      aState = State::Parameters;     
-    else if( aLine == "Update" )
-      aState = State::Update;
-
-    else switch( aState )
-         {
-         case State::Start:
-         case State::Title:
-           ok = false;
-           break;
-
-         case State::Dependencies:
-           ok = ParseDependencies( aLine );
-           break;
-
-         case State::Parameters:
-           ok = AddParameter( SALOME_Parameter::Load( aLine ) );
-           break;
-
-         case State::Update:
-           myToUpdate.push_back( KeyHelper( aLine, this ) );
-           break;
-         }
+  }
+  catch( const SALOME::NotebookError& ex )
+  {
+    printf( "Exception: %s\n", ex.Reason.in() );
+    ok = false;
   }
 
   fclose( aFile );
@@ -698,18 +752,15 @@ std::vector<std::string> SALOME_Notebook::Split( const std::string& theData, con
   return aParts;
 }
 
-bool SALOME_Notebook::ParseDependencies( const std::string& theData )
+void SALOME_Notebook::ParseDependencies( const std::string& theData )
 {
   std::vector<std::string> aParts = Split( theData, " ", false );
   if( aParts.size() < 2 || aParts.at( 1 ) != "->" )
-    return false;
+    throwError( arg( "Incorrect parts format: %1", theData ) );
 
   std::string aKey = aParts[0];
-  bool ok = true;
   for( int i = 2, n = aParts.size(); i < n; i++ )
-    ok = AddDependency( aKey, aParts[i] ) && ok;
-    
-  return ok;
+    AddDependency( aKey, aParts[i] );
 }
 
 char* SALOME_Notebook::DumpPython()
@@ -755,17 +806,33 @@ char* SALOME_Notebook::DumpPython()
   return CORBA::string_dup( aRes.c_str() );
 }
 
-bool SALOME_Notebook::CheckParamName( const std::string& theParamName ) const
+bool SALOME_Notebook::CheckParamName( const std::string& theParamName, std::string& theMsg ) const
 {
   int len = theParamName.length();
   if( len == 0 )
+  {
+    theMsg = "The name should not be empty";
     return false;
+  }
 
   if( isdigit( theParamName[0] ) )
+  {
+    theMsg = "The name should not start by a digit";
     return false;
+  }
+
+  for( int i=0, n=theParamName.length(); i<n; i++ )
+    if( isspace( theParamName[i] ) )
+    {
+      theMsg = "The name should not contain white symbols";
+      return false;
+    }
 
   SALOME_EvalExpr anExpr( theParamName );
-  return anExpr.parser()->isMonoParam();
+  bool ok = anExpr.parser()->isMonoParam();
+  if( !ok )
+    theMsg = "The name should not be expression";
+  return ok;
 }
 
 void SALOME_Notebook::Sort( std::list< KeyHelper >& theList ) const
@@ -838,4 +905,11 @@ char* SALOME_Notebook::Dump()
   }
 
   return CORBA::string_dup( aStr.c_str() );
+}
+
+void SALOME_Notebook::throwError( const std::string& theErrorMsg )
+{
+  SALOME::NotebookError anError;
+  anError.Reason = CORBA::string_dup( theErrorMsg.c_str() );
+  throw anError;
 }
