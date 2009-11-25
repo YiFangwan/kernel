@@ -82,7 +82,8 @@ void SALOME_EvalExpr::initialize( const SALOME_String& theExpr, const bool isStd
 //=======================================================================
 SALOME_EvalVariant SALOME_EvalExpr::calculate( const SALOME_String& theExpr )
 {
-  setExpression( theExpr );
+  if( theExpr.length() > 0 )
+    setExpression( theExpr );
   return myParser->calculate();
 }
 
