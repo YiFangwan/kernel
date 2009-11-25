@@ -354,10 +354,10 @@ bool SALOME_EvalVariant::toBool() const
 //=======================================================================
 int SALOME_EvalVariant::toInt(bool *ok) const
 {
-  *ok=false;
-  //
+  if( ok )
+    *ok = true;
+
   SALOME_EvalVariantType aType=type();
-  //
   if (aType == SALOME_EvalVariant_Boolean ) {
 	  return (int)DataValueBoolean();
   }
@@ -372,10 +372,10 @@ int SALOME_EvalVariant::toInt(bool *ok) const
   }
   else if (aType == SALOME_EvalVariant_String) {
     int iRet;
-    //
-    const SALOME_String& aStr=DataValueString();
-    const char *pStr=aStr.c_str();
-    iRet=atoi(pStr);
+    const SALOME_String& aStr = DataValueString();
+    bool res = sscanf( aStr.c_str(), "%i", &iRet ) == 1;
+    if( ok )
+      *ok = res;
     return iRet;
   }
   return 0;
@@ -398,7 +398,8 @@ uint SALOME_EvalVariant::toUInt(bool *ok) const
 //=======================================================================
 double SALOME_EvalVariant::toDouble(bool *ok) const
 {
-  *ok=false;
+  if( ok )
+    *ok = true;
   //
   SALOME_EvalVariantType aType=type();
   //
@@ -417,9 +418,10 @@ double SALOME_EvalVariant::toDouble(bool *ok) const
   else if (aType == SALOME_EvalVariant_String) {
     double dRet;
     //
-    const SALOME_String& aStr=DataValueString();
-    const char *pStr=aStr.c_str();
-    dRet=atof(pStr);
+    const SALOME_String& aStr = DataValueString();
+    bool res = sscanf( aStr.c_str(), "%lf", &dRet ) == 1;
+    if( ok )
+      *ok = res;
     return dRet;
   }
   return 0.;
