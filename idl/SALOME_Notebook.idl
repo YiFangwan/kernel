@@ -97,7 +97,7 @@ module SALOME
     StringArray GetParameters();
 
     //! update management
-    void Update( in Notebook nb ) raises( CalculationError );
+    void Update( in Notebook nb ) raises( ExpressionError, CalculationError );
   };
 
 
@@ -106,7 +106,7 @@ module SALOME
   interface Parameter : ParameterizedObject
   {
     //! change expression of the parameter
-    void SetExpression( in string expr ) raises( ExpressionError );
+    void SetExpression( in string expr ) raises( NotebookError, ExpressionError );
 
     //! change value of the parameter
     void SetBoolean( in boolean value );
