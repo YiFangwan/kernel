@@ -83,6 +83,12 @@ public:
   void Substitute( const std::string& theName, const SALOME_EvalExpr& theExpr );
 
 private:
+  void ThrowTypeError( const std::string& theMsg );
+  void ThrowError( bool isCalc, const std::string& theMsg );
+  void InternalSetExpression( const std::string& theExpr );
+  void AnalyzeError();
+
+private:
   SALOME_Notebook* myNotebook;
   std::string myName;
   SALOME_EvalExpr myExpr;

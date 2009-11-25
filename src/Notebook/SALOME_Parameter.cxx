@@ -50,7 +50,7 @@ SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::str
 {
   if( isExpr )
   {
-    myExpr.setExpression( theData );
+    InternalSetExpression( theData );
     Update( SALOME::Notebook::_nil() );
   }
   else
@@ -104,19 +104,15 @@ void SALOME_Parameter::Update( SALOME::Notebook_ptr /*theNotebook*/ )
       std::string aName = *it;
       SALOME_Parameter* aParam = myNotebook->GetParameterPtr( const_cast<char*>( aName.c_str() ) );
       if( aParam )
-      {
         //printf( "\tset %s = %lf\n", aName.c_str(), aParam->AsReal() );
         myExpr.parser()->setParameter( aName, aParam->myResult );
-      }
       else
-      {
-        myResult = SALOME_EvalVariant();
-        return;
-      }
+        ThrowError( false, arg( "Parameter '%1' is not declared yet", aName ) );
     }
 
     //2. Calculate
     myResult = myExpr.calculate();
+    AnalyzeError();
     //printf( "\tresult = %lf\n", AsReal() );
   }
 }
@@ -128,7 +124,7 @@ void SALOME_Parameter::SetExpression( const char* theExpr )
 
   else
   {
-    myExpr.setExpression( theExpr );
+    InternalSetExpression( theExpr );
     myIsCalculable = true;
     myNotebook->SetToUpdate( _this() );
   }
@@ -216,13 +212,19 @@ char* SALOME_Parameter::AsString()
 CORBA::Long SALOME_Parameter::AsInteger()
 {
   bool ok;
-  return myResult.toInt( &ok );
+  int aRes = myResult.toInt( &ok );
+  if( !ok )
+    ThrowTypeError( "SALOME_Parameter::AsInteger(): " );
+  return aRes;
 }
 
 CORBA::Double SALOME_Parameter::AsReal()
 {
   bool ok;
-  return myResult.toDouble( &ok );
+  double aRes = myResult.toDouble( &ok );
+  if( !ok )
+    ThrowTypeError( "SALOME_Parameter::AsReal(): " );
+  return aRes;
 }
 
 CORBA::Boolean SALOME_Parameter::AsBoolean()
@@ -297,5 +299,106 @@ void SALOME_Parameter::Substitute( const std::string& theName, const SALOME_Eval
     std::string aNewName = myExpr.expression();
     myNotebook->UpdateAnonymous( myName, aNewName );
     myName = aNewName;
+  }
+}
+
+void SALOME_Parameter::ThrowTypeError( const std::string& theMsg )
+{
+  std::string aMsg = theMsg;
+  aMsg += "type is ";
+  switch( GetType() )
+  {
+  case SALOME::TBoolean:
+    aMsg += "boolean";
+    break;
+  case SALOME::TInteger:
+    aMsg += "integer";
+    break;
+  case SALOME::TReal:
+    aMsg += "real";
+    break;
+  case SALOME::TString:
+    aMsg += "string";
+    break;
+  default:
+    aMsg += "unknown";
+    break;
+  }
+
+  SALOME::TypeError anError;
+  anError.Reason = CORBA::string_dup( aMsg.c_str() );
+  throw anError;
+}
+
+void SALOME_Parameter::InternalSetExpression( const std::string& theExpr )
+{
+  myExpr.setExpression( theExpr );
+  AnalyzeError();
+}
+
+void SALOME_Parameter::AnalyzeError()
+{
+  std::string aMsg;
+  SALOME_EvalExprError anError = myExpr.parser()->error();
+  bool isCalcError = true;
+  switch( anError )
+  {
+  case EvalExpr_OperandsNotMatch:
+    aMsg = "Types of arguments are invalid";
+    break;
+  case EvalExpr_InvalidResult:
+    aMsg = "Invalid result";
+    break;
+  case EvalExpr_InvalidOperation:
+    aMsg = "Invalid operation";
+    isCalcError = false;
+    break;
+  case EvalExpr_OperationsNull:
+    aMsg = "Internal error";
+    isCalcError = false;
+    break;
+  case EvalExpr_InvalidToken:
+    aMsg = "Invalid token";
+    isCalcError = false;
+    break;
+  case EvalExpr_CloseExpected:
+    aMsg = "A closing bracket is expecting";
+    isCalcError = false;
+    break;
+  case EvalExpr_ExcessClose:
+    aMsg = "There is an excess closing bracket";
+    isCalcError = false;
+    break;
+  case EvalExpr_BracketsNotMatch:
+    aMsg = "Brackets of different types";
+    isCalcError = false;
+    break;
+  case EvalExpr_StackUnderflow:
+    aMsg = "Stack underflow (missing arguments of operation?)";
+    isCalcError = false;
+    break;
+  case EvalExpr_ExcessData:
+    aMsg = "Several expressions";
+    isCalcError = false;
+    break;
+  }
+
+  if( aMsg.length() > 0 )
+    ThrowError( isCalcError, aMsg );
+}
+
+void SALOME_Parameter::ThrowError( bool isCalc, const std::string& theMsg )
+{
+  if( isCalc )
+  {
+    SALOME::CalculationError anError;
+    anError.Reason = CORBA::string_dup( theMsg.c_str() );
+    throw anError;
+  }
+  else
+  {
+    SALOME::ExpressionError anError;
+    anError.Reason = CORBA::string_dup( theMsg.c_str() );
+    throw anError;
   }
 }
