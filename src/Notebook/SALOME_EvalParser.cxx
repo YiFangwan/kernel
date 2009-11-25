@@ -291,7 +291,7 @@ bool SALOME_EvalParser::prepare( const SALOME_String& theExpr, Postfix& thePostf
     char aChar = theExpr[aPos];
 
     while( aPos < aLen && isSpace( aChar ) )
-      aPos++;
+      aChar = theExpr[++aPos];
 
     if ( aPos >= aLen )
       break;
@@ -942,7 +942,7 @@ void SALOME_EvalParser::setError(SALOME_EvalExprError err)
 //=======================================================================
 bool SALOME_EvalParser::isMonoParam() const
 {
-  return myError == EvalExpr_OK && myPostfix.size()==1 && myPostfix.begin()->myType == Param;
+  return myError==EvalExpr_OK && myPostfix.size()==1 && myPostfix.begin()->myType==Param;
 }
 
 //=======================================================================
