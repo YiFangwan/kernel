@@ -18,21 +18,24 @@
 //
 // Author: André RIBES - EDF R&D
 
-#include "Launcher_Job_YACSFile.hxx"
+#include "Launcher_Job_PythonSALOME.hxx"
 
 
-Launcher::Job_YACSFile::Job_YACSFile() {}
+Launcher::Job_PythonSALOME::Job_PythonSALOME() {}
 
-Launcher::Job_YACSFile::~Job_YACSFile() {}
+Launcher::Job_PythonSALOME::~Job_PythonSALOME() {}
 
 void 
-Launcher::Job_YACSFile::setJobFile(const std::string & job_file)
+Launcher::Job_PythonSALOME::setJobFile(const std::string & job_file)
 {
   Launcher::Job::setJobFile(job_file);
 }
 
+#ifdef WITH_LIBBATCH
 void
-Launcher::Job_YACSFile::addJobTypeSpecificScript(std::ofstream & launch_script_stream)
+Launcher::Job_PythonSALOME::addJobTypeSpecificScript(std::ofstream & launch_script_stream)
 {
-  launch_script_stream << _machine_definition.AppliPath << "/runSession -p $appli_port driver " << _job_file_name << ".xml > logs/yacs_" << _launch_date << ".log 2>&1" << std::endl;
+  launch_script_stream << _machine_definition.AppliPath << "/runSession -p $appli_port python " << _job_file_name << ".py > logs/python_" << _launch_date << ".log 2>&1" << std::endl;
 }
+#endif
+

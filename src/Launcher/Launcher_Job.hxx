@@ -61,6 +61,7 @@ namespace Launcher
       ParserResourcesType getMachineDefinition();
       
       // Common parameters
+      virtual void setJobFile(const std::string & job_file);
       void setWorkDirectory(const std::string & work_directory);
       void setLocalDirectory(const std::string & local_directory);
       void setResultDirectory(const std::string & result_directory);
@@ -69,8 +70,9 @@ namespace Launcher
       void setMaximumDuration(const std::string & maximum_duration);
       void setMachineRequiredParams(const machineParams & machine_required_params);
       void setQueue(const std::string & queue);
-      void setEnvFile(std::string & env_file);
+      void setEnvFile(const std::string & env_file);
 
+      std::string getJobFile();
       std::string getWorkDirectory();
       std::string getLocalDirectory();
       std::string getResultDirectory();
@@ -103,6 +105,8 @@ namespace Launcher
 
       ParserResourcesType _machine_definition;
 
+      std::string _job_file;
+      std::string _job_file_name;
       std::string _work_directory;
       std::string _local_directory;
       std::string _result_directory;

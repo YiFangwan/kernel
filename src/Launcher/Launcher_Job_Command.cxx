@@ -20,45 +20,15 @@
 
 #include "Launcher_Job_Command.hxx"
 
-Launcher::Job_Command::Job_Command(const std::string & command)
-{
-  _command = command;
-}
+Launcher::Job_Command::Job_Command() {}
 
 Launcher::Job_Command::~Job_Command() {}
-
-void 
-Launcher::Job_Command::setCommand(const std::string & command)
-{
-  _command = command;
-}
-
-std::string 
-Launcher::Job_Command::getCommand()
-{
-  return _command;
-}
 
 void
 Launcher::Job_Command::update_job()
 {
 #ifdef WITH_LIBBATCH
   Batch::Parametre params = common_job_params();
-
-  // Files
-  // local file -> If file is not an absolute path, we apply _local_directory
-  // remote file -> get only file name from _in_files
-
-  // Copy command file
-  std::string local_file;
-  if (_command.substr(0, 1) == std::string("/"))
-    local_file = _command;
-  else
-    local_file = _local_directory + "/" + _command;
-  size_t found = _command.find_last_of("/");
-  std::string remote_file = _work_directory + "/" + _command.substr(found+1);
-  params[INFILE] += Batch::Couple(local_file, remote_file);
-
   params[EXECUTABLE] = buildCommandScript(params, _launch_date);
   _batch_job->setParametre(params);
 #endif
@@ -72,13 +42,11 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
   std::string work_directory = params[WORKDIR].str();
 
   // File name
-  std::string::size_type p1 = _command.find_last_of("/");
-  std::string::size_type p2 = _command.find_last_of(".");
-  std::string command_name = _command.substr(p1+1,p2-p1-1);
-  std::string command_file_name = _command.substr(p1+1);
+  std::string::size_type p1 = _job_file.find_last_of("/");
+  std::string command_file_name = _job_file.substr(p1+1);
   
   std::string launch_date_port_file = launch_date;
-  std::string launch_script = "/tmp/runCommand_" + command_name + "_" + launch_date + ".sh";
+  std::string launch_script = "/tmp/runCommand_" + _job_file_name + "_" + launch_date + ".sh";
   std::ofstream launch_script_stream;
   launch_script_stream.open(launch_script.c_str(), std::ofstream::out);
    
@@ -96,7 +64,7 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
   launch_script_stream.flush();
   launch_script_stream.close();
   chmod(launch_script.c_str(), 0x1ED);
-  chmod(_command.c_str(), 0x1ED);
+  chmod(_job_file.c_str(), 0x1ED);
   return launch_script;
 }
 #endif

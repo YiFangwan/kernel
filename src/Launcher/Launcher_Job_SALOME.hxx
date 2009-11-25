@@ -18,21 +18,35 @@
 //
 // Author: André RIBES - EDF R&D
 
-#include "Launcher_Job_YACSFile.hxx"
+#ifndef _LAUNCHER_JOB_SALOME_HXX_
+#define _LAUNCHER_JOB_SALOME_HXX_
 
+#include "Launcher_Job.hxx"
+#include "Launcher.hxx"
 
-Launcher::Job_YACSFile::Job_YACSFile() {}
+#ifdef WITH_LIBBATCH
+#include <Batch/Batch_Job.hxx>
+#endif
 
-Launcher::Job_YACSFile::~Job_YACSFile() {}
-
-void 
-Launcher::Job_YACSFile::setJobFile(const std::string & job_file)
+namespace Launcher
 {
-  Launcher::Job::setJobFile(job_file);
+  class Job_SALOME : virtual public Launcher::Job
+  {
+    public:
+      Job_SALOME();
+      virtual ~Job_SALOME();
+
+      virtual void setMachineDefinition(const ParserResourcesType & machine_definition);
+      virtual void update_job();
+
+#ifdef WITH_LIBBATCH
+    public:
+      std::string buildSalomeScript(Batch::Parametre params);
+      virtual void addJobTypeSpecificScript(std::ofstream & launch_script_stream) = 0;
+#endif
+  };
 }
 
-void
-Launcher::Job_YACSFile::addJobTypeSpecificScript(std::ofstream & launch_script_stream)
-{
-  launch_script_stream << _machine_definition.AppliPath << "/runSession -p $appli_port driver " << _job_file_name << ".xml > logs/yacs_" << _launch_date << ".log 2>&1" << std::endl;
-}
+#endif
+
+

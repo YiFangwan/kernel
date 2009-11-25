@@ -309,7 +309,8 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
   ParserLauncherType job_params = ParseXmlFile(xmlExecuteFile);
 
   // Creating a new job
-  Launcher::Job_Command * new_job = new Launcher::Job_Command(job_params.Command);
+  Launcher::Job_Command * new_job = new Launcher::Job_Command();
+  new_job->setJobFile(job_params.Command);
   new_job->setLocalDirectory(job_params.RefDirectory);
   new_job->setWorkDirectory(job_params.MachinesList[clusterName].WorkDirectory);
   new_job->setEnvFile(job_params.MachinesList[clusterName].EnvFile);

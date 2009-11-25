@@ -116,16 +116,11 @@ exception NotFound {};
 
 struct JobParameters
 {
-  //! Job Type - Could be equal to "command" or "yacs_file"
+  //! Job Type - Could be equal to "command" or "yacs_file" or "python_salome"
   string job_type;
 
-  //! YACS file
-  string yacs_file;
-
-  //! Command
-  string command;
-
   // Common values
+  string job_file;
   string env_file; 
   FilesList in_files;
   FilesList out_files;

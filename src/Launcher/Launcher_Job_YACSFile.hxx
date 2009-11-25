@@ -21,36 +21,18 @@
 #ifndef _LAUNCHER_JOB_YACSFILE_HXX_
 #define _LAUNCHER_JOB_YACSFILE_HXX_
 
-#include "Launcher_Job.hxx"
-#include "Launcher.hxx"
-
-#ifdef WITH_LIBBATCH
-#include <Batch/Batch_Job.hxx>
-#endif
+#include "Launcher_Job_SALOME.hxx"
 
 namespace Launcher
 {
-  class Job_YACSFile : virtual public Launcher::Job
+  class Job_YACSFile : virtual public Launcher::Job_SALOME
   {
     public:
-      Job_YACSFile(const std::string & yacs_file);
+      Job_YACSFile();
       virtual ~Job_YACSFile();
 
-      // Specific parameters
-      void setYACSFile(const std::string & yacs_file);
-      std::string getYACSFile();
-
-      virtual void setMachineDefinition(const ParserResourcesType & machine_definition);
-
-      virtual void update_job();
-
-#ifdef WITH_LIBBATCH
-    protected:
-      std::string buildSalomeCouplingScript(Batch::Parametre params);
-#endif
-
-    private:
-      std::string _yacs_file;
+      virtual void setJobFile(const std::string & job_file);
+      virtual void addJobTypeSpecificScript(std::ofstream & launch_script_stream);
   };
 }
 

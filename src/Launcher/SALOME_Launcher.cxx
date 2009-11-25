@@ -28,6 +28,7 @@
 
 #include "Launcher_Job_Command.hxx"
 #include "Launcher_Job_YACSFile.hxx"
+#include "Launcher_Job_PythonSALOME.hxx"
 
 #ifdef WIN32
 # include <process.h>
@@ -85,7 +86,7 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
 {
   std::string job_type = job_parameters.job_type.in();
   
-  if (job_type != "command" and job_type != "yacs_file")
+  if (job_type != "command" and job_type != "yacs_file" and job_type != "python_salome")
   {
     std::string message("SALOME_Launcher::createJob: bad job type: ");
     message += job_type;
@@ -95,26 +96,11 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   Launcher::Job * new_job; // It is Launcher_cpp that is going to destroy it
 
   if (job_type == "command")
-  {
-    std::string command = job_parameters.command.in();
-    if (command == "")
-    {
-      std::string message("SALOME_Launcher::createJob: command is empty !");
-      THROW_SALOME_CORBA_EXCEPTION(message.c_str(), SALOME::INTERNAL_ERROR);
-    }
-    Launcher::Job_Command * job = new Launcher::Job_Command(command);
-    new_job = job;
-  }
+    new_job = new Launcher::Job_Command();
   else if (job_type == "yacs_file")
-  {
-    std::string yacs_file = job_parameters.yacs_file.in();
-    if (yacs_file == "")
-    {
-      std::string message("SALOME_Launcher::createJob: yacs_file is empty !");
-      THROW_SALOME_CORBA_EXCEPTION(message.c_str(), SALOME::INTERNAL_ERROR);
-    }
-    new_job = new Launcher::Job_YACSFile(yacs_file);
-  }
+    new_job = new Launcher::Job_YACSFile();
+  else if (job_type == "python_salome")
+    new_job = new Launcher::Job_PythonSALOME();
  
   // Directories
   std::string work_directory = job_parameters.work_directory.in();
@@ -123,6 +109,18 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   new_job->setWorkDirectory(work_directory);
   new_job->setLocalDirectory(local_directory);
   new_job->setResultDirectory(result_directory);
+
+  // Job File
+  std::string job_file = job_parameters.job_file.in();
+  try
+  {
+    new_job->setJobFile(job_file);
+  }
+  catch(const LauncherException &ex)
+  {
+    INFOS(ex.msg.c_str());
+    THROW_SALOME_CORBA_EXCEPTION(ex.msg.c_str(),SALOME::INTERNAL_ERROR);
+  }
 
   // Files
   std::string env_file = job_parameters.env_file.in();

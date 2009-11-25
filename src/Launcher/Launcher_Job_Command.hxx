@@ -33,12 +33,8 @@ namespace Launcher
   class Job_Command : virtual public Launcher::Job
   {
     public:
-      Job_Command(const std::string & command);
+      Job_Command();
       virtual ~Job_Command();
-
-      // Specific parameters
-      void setCommand(const std::string & command);
-      std::string getCommand();
 
       virtual void update_job();
 
@@ -46,9 +42,6 @@ namespace Launcher
     protected:
       std::string buildCommandScript(Batch::Parametre params, std::string launch_date);
 #endif
-
-    private:
-      std::string _command;
   };
 }
 

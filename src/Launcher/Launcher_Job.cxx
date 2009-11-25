@@ -28,6 +28,8 @@ Launcher::Job::Job()
   _launch_date = getLaunchDate();
 
   _env_file = "";
+  _job_file = "";
+  _job_file_name = "";
   _work_directory = "";
   _local_directory = "";
   _result_directory = "";
@@ -98,13 +100,21 @@ void
 Launcher::Job::setMachineDefinition(const ParserResourcesType & machine_definition)
 {
   // Check machine_definition
+  std::string user_name = "";
   if (machine_definition.UserName == "")
   {
-    std::string mess = "Machine definition must define a user name !, machine name is: " + machine_definition.HostName;
-    throw LauncherException(mess);
+    user_name = getenv("USER");
+    if (user_name == "")
+    {
+      std::string mess = "You must define a user name: into your resource description or with env variable USER";
+      throw LauncherException(mess);
+    }
   }
+  else
+    user_name = machine_definition.UserName;
 
   _machine_definition = machine_definition;
+  _machine_definition.UserName = user_name;
 }
 
 ParserResourcesType 
@@ -114,7 +124,30 @@ Launcher::Job::getMachineDefinition()
 }
 
 void 
-Launcher::Job::setEnvFile(std::string & env_file)
+Launcher::Job::setJobFile(const std::string & job_file)
+{
+  // Check job file
+  if (job_file == "")
+  {
+    std::string mess = "Empty Job File is forbidden !";
+    throw LauncherException(mess);
+  }
+
+  _job_file = job_file;
+  std::string::size_type p1 = _job_file.find_last_of("/");
+  std::string::size_type p2 = _job_file.find_last_of(".");
+  _job_file_name = _job_file.substr(p1+1,p2-p1-1);
+  if (_job_file != "")
+    add_in_file(_job_file);
+}
+
+std::string
+Launcher::Job::getJobFile()
+{
+  return _job_file;
+}
+void 
+Launcher::Job::setEnvFile(const std::string & env_file)
 {
   _env_file = env_file;
   if (_env_file != "")
