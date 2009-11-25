@@ -41,7 +41,7 @@ class Notebook:
         return self.myNotebook
 
     def update( self ):
-        self.myNotebook.Update()
+        self.myNotebook.Update( 0 )
         
     def set( self, variableName, variable ):
 	"""
