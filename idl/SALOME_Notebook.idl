@@ -40,6 +40,26 @@ module SALOME
 {
   interface Notebook;
 
+  exception NotebookError
+  {
+    string Reason;
+  };
+
+  exception ExpressionError
+  {
+    string Reason;
+  };
+
+  exception CalculationError
+  {
+    string Reason;
+  };
+
+  exception TypeError
+  {
+    string Reason;
+  };
+
   //! Data types supported by notebook functionality
   enum ParamType { TUnknown, TBoolean, TInteger, TReal, TString };
 
@@ -77,7 +97,7 @@ module SALOME
     StringArray GetParameters();
 
     //! update management
-    void Update( in Notebook nb );
+    void Update( in Notebook nb ) raises( CalculationError );
   };
 
 
@@ -86,7 +106,7 @@ module SALOME
   interface Parameter : ParameterizedObject
   {
     //! change expression of the parameter
-    void SetExpression( in string expr );
+    void SetExpression( in string expr ) raises( ExpressionError );
 
     //! change value of the parameter
     void SetBoolean( in boolean value );
@@ -106,16 +126,16 @@ module SALOME
     ParamType GetType();
 
     //! convert parameter into boolean
-    boolean AsBoolean();
+    boolean AsBoolean() raises( TypeError );
 
     //! convert parameter into integer
-    long    AsInteger();
+    long    AsInteger() raises( TypeError );
 
     //! convert parameter into real
-    double  AsReal();
+    double  AsReal() raises( TypeError );
 
     //! convert parameter into string
-    string  AsString();
+    string  AsString() raises( TypeError );
   };
 
 
@@ -124,23 +144,19 @@ module SALOME
   //! This interface describes parameters container: Notebook
   interface Notebook : GenericObj
   {
-    exception NotebookError {};
-    exception ExpressionError {};
-    exception CalculationError {};
-
     //dependency management
 
     //! add new dependency between objects
-    boolean AddDependency( in ParameterizedObject obj, in ParameterizedObject dep );
+    void AddDependency( in ParameterizedObject obj, in ParameterizedObject dep ) raises( NotebookError );
 
     //! remove dependency between objects
-    boolean RemoveDependency( in ParameterizedObject obj, in ParameterizedObject dep );
+    void RemoveDependency( in ParameterizedObject obj, in ParameterizedObject dep ) raises( NotebookError );
 
     //! remove all dependencies of the object
     void ClearDependencies( in ParameterizedObject obj, in DependenciesType type );
 
     //! set internal flags of update: it means that this object and all objects depending on it will be updated
-    void SetToUpdate( in ParameterizedObject obj );
+    void SetToUpdate( in ParameterizedObject obj ) raises( NotebookError );
 
     //! update all objects marked as "need to update"
     void Update();
@@ -150,28 +166,28 @@ module SALOME
     //parameters management
 
     //! add new parameter (expression) into notebook
-    boolean AddExpression( in string expr );
+    void AddExpression( in string expr ) raises( NotebookError, ExpressionError );
 
     //! add new parameter (named expression) into notebook
-    boolean AddNamedExpression( in string name, in string expr );
+    void AddNamedExpression( in string name, in string expr ) raises( NotebookError, ExpressionError );
 
     //! add new parameter (boolean value) into notebook
-    boolean AddBoolean( in string name, in boolean value );
+    void AddBoolean( in string name, in boolean value ) raises( NotebookError );
 
     //! add new parameter (integer value) into notebook
-    boolean AddInteger( in string name, in long value );
+    void AddInteger( in string name, in long value ) raises( NotebookError );
 
     //! add new parameter (double value) into notebook
-    boolean AddReal( in string name, in double value );
+    void AddReal( in string name, in double value ) raises( NotebookError );
 
     //! add new parameter (string value) into notebook
-    boolean AddString( in string name, in string value );
+    void AddString( in string name, in string value ) raises( NotebookError );
 
     //! remove parameter from notebook
-    boolean Remove( in string name );
+    void Remove( in string name ) raises( NotebookError );
 
     //! rename parameter in notebook
-    boolean Rename( in string oldName, in string newName );
+    void Rename( in string oldName, in string newName ) raises( NotebookError );
 
     //! access to parameter from notebook
     Parameter GetParameter( in string name );
