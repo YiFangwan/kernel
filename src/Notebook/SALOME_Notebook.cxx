@@ -54,7 +54,7 @@ std::string arg( const std::string& theStr, const std::string& theArg1, const st
     {
       aPos = aRes.find( "%2" );
       if( aPos >= 0 )
-        aRes.replace( aPos, 2, theArg1 );
+        aRes.replace( aPos, 2, theArg2 );
       else
         break;
     }
@@ -65,7 +65,7 @@ std::string arg( const std::string& theStr, const std::string& theArg1, const st
 
 
 
-SALOME_Notebook::KeyHelper::KeyHelper( const std::string& theKey, SALOME_Notebook* theNotebook )
+SALOME_Notebook::KeyHelper::KeyHelper( const std::string& theKey, const SALOME_Notebook* theNotebook )
 : myKey( theKey ), myNotebook( theNotebook )
 {
 }
@@ -78,7 +78,10 @@ std::string SALOME_Notebook::KeyHelper::key() const
 bool SALOME_Notebook::KeyHelper::operator < ( const KeyHelper& theKH ) const
 {
   bool ok;
-  const std::list<std::string> &aList1 = myNotebook->myDependencies[myKey], &aList2 = myNotebook->myDependencies[theKH.myKey];
+  const std::list<std::string>
+    &aList1 = myNotebook->myDependencies.find( myKey )->second,
+    &aList2 = myNotebook->myDependencies.find( theKH.myKey )->second;
+
   if( find( aList1.begin(), aList1.end(), theKH.myKey ) != aList1.end() )
     ok = false;
   else if( find( aList2.begin(), aList2.end(), myKey ) != aList2.end() )
@@ -101,7 +104,7 @@ bool SALOME_Notebook::KeyHelper::operator == ( const std::string& theKey ) const
 
 
 SALOME_Notebook::SALOME_Notebook( PortableServer::POA_ptr thePOA, SALOMEDS::Study_ptr theStudy )
-: SALOME::GenericObj_i( thePOA )
+: SALOME::GenericObj_i( thePOA ), myUpdateOnlyParameters( false )
 {
   myStudy = SALOMEDS::Study::_duplicate( theStudy );
 }
@@ -118,7 +121,7 @@ void SALOME_Notebook::RemoveDependency( SALOME::ParameterizedObject_ptr theObj, 
   std::string anObjKey = GetKey( theObj ), aRefKey = GetKey( theRef );
   std::map< std::string, std::list<std::string> >::iterator it = myDependencies.find( anObjKey );
   if( it == myDependencies.end() )
-    throwError( arg( "Dependency between '%1' and '%2' is not found", theObj->GetEntry(), theObj->GetEntry() ) );
+    ThrowError( arg( "Dependency between '%1' and '%2' is not found", theObj->GetEntry(), theObj->GetEntry() ) );
   else
     it->second.remove( aRefKey );
 }
@@ -173,8 +176,17 @@ void SALOME_Notebook::SetToUpdate( SALOME::ParameterizedObject_ptr theObj )
   */
 }
 
+bool SALOME_Notebook::CanUpdate( SALOME::ParameterizedObject_ptr theObj ) const
+{
+  if( CORBA::is_nil( theObj ) )
+    return false;
+
+  return !myUpdateOnlyParameters || !CORBA::is_nil( SALOME::Parameter::_narrow( theObj ) );
+}
+
 void SALOME_Notebook::Update( CORBA::Boolean theOnlyParameters )
 {
+  myUpdateOnlyParameters = theOnlyParameters;
   //Utils_Locker lock( &myMutex );
 
   //1. Simple recompute
@@ -185,10 +197,10 @@ void SALOME_Notebook::Update( CORBA::Boolean theOnlyParameters )
     std::string aKey = (*it).key();
     //printf( "key = %s\n", aKey.c_str() );
     SALOME::ParameterizedObject_ptr anObj = FindObject( aKey );
-    if( CORBA::is_nil( anObj ) )
-      aPostponedUpdate.push_back( *it );
-    else
+    if( CanUpdate( anObj ) )
       anObj->Update( _this() );
+    else
+      aPostponedUpdate.push_back( *it );
   }
   myToUpdate = aPostponedUpdate;
 
@@ -221,7 +233,7 @@ bool SALOME_Notebook::Substitute( SubstitutionInfo& theSubstitution )
   for( ; it!=last; it++ )
   {
     SALOME::ParameterizedObject_ptr anObj = FindObject( it->key() );
-    if( CORBA::is_nil( anObj ) )
+    if( !CanUpdate( anObj ) )
     {
       aPostponedUpdate.push_back( *it );
       continue;
@@ -335,7 +347,7 @@ void SALOME_Notebook::AddString( const char* theName, const char* theValue )
   AddParameter( new SALOME_Parameter( this, theName, theValue, false ) );
 }
 
-SALOME_Notebook::SubstitutionInfo SALOME_Notebook::CreateSubstitution( const std::string& theName, const std::string& theExpr, bool theIsRename )
+SALOME_Notebook::SubstitutionInfo SALOME_Notebook::CreateSubstitution( const std::string& theName, const std::string& theExpr, bool theIsRename ) const
 {
   SubstitutionInfo anInfo;
   anInfo.myName = theName;
@@ -369,9 +381,12 @@ void SALOME_Notebook::Rename( const char* theOldName, const char* theNewName )
   CheckParamName( theNewName, aMsg );
 
   if( aMsg.length() == 0 )
+  {
     AddSubstitution( theOldName, theNewName, true );
+    Update( true );
+  }
   else
-    throwError( aMsg );
+    ThrowError( aMsg );
 }
 
 void SALOME_Notebook::Remove( const char* theParamName )
@@ -385,9 +400,10 @@ void SALOME_Notebook::Remove( const char* theParamName )
     else
       anExpr = aParam->AsString();
     AddSubstitution( theParamName, anExpr, false );
+    Update( true );
   }
   else
-    throwError( arg( "The parameter '%1' is not found", theParamName ) );
+    ThrowError( arg( "The parameter '%1' is not found", theParamName ) );
 }
 
 void SALOME_Notebook::UpdateAnonymous( const std::string& theOldName, const std::string& theNewName )
@@ -471,7 +487,7 @@ void SALOME_Notebook::AddParameter( SALOME_Parameter* theParam )
 
   std::string anEntry = theParam->GetEntry(), aMsg;
   if( !theParam->IsAnonymous() && !CheckParamName( anEntry, aMsg ) )
-    throwError( aMsg );
+    ThrowError( aMsg );
 
   //printf( "Add param: %s\n", anEntry.c_str() );
 
@@ -520,7 +536,7 @@ void SALOME_Notebook::AddDependency( const std::string& theObjKey, const std::st
 
   std::list<std::string> aDeps = GetAllDependingOn( theObjKey );
   if( find( aDeps.begin(), aDeps.end(), theRefKey ) != aDeps.end () )
-    throwError( arg( "Dependency %1 -> %2 creates a cyclic dependency", anObjName, aRefName ) );
+    ThrowError( arg( "Dependency %1 -> %2 creates a cyclic dependency", anObjName, aRefName ) );
     //after creation a cyclic dependency could appear
 
   std::list<std::string>& aList = myDependencies[theObjKey];
@@ -528,7 +544,7 @@ void SALOME_Notebook::AddDependency( const std::string& theObjKey, const std::st
   if( ok )
     aList.push_back( theRefKey );
   else
-    throwError( arg( "Dependency %1 -> %2 is already created", anObjName, aRefName ) );
+    ThrowError( arg( "Dependency %1 -> %2 is already created", anObjName, aRefName ) );
 }
 
 void SALOME_Notebook::ClearDependencies( const std::string& theObjKey, SALOME::DependenciesType theType )
@@ -559,22 +575,22 @@ void SALOME_Notebook::ClearDependencies( const std::string& theObjKey, SALOME::D
     it->second = aNewDeps;
 }
 
-std::string SALOME_Notebook::GetKey( SALOME::ParameterizedObject_ptr theObj )
+std::string SALOME_Notebook::GetKey( SALOME::ParameterizedObject_ptr theObj ) const
 {
   return GetKey( theObj->GetComponent(), theObj->GetEntry() );
 }
 
-std::string SALOME_Notebook::GetKey( const std::string& theComponent, const std::string& theEntry )
+std::string SALOME_Notebook::GetKey( const std::string& theComponent, const std::string& theEntry ) const
 {
   return arg( "%1#%2", theComponent, theEntry );
 }
 
-std::string SALOME_Notebook::GetKey( const std::string& theParamName )
+std::string SALOME_Notebook::GetKey( const std::string& theParamName ) const
 {
   return GetKey( PARAM_COMPONENT, theParamName );
 }
 
-std::list<std::string> SALOME_Notebook::GetAllDependingOn( const std::string& theKey )
+std::list<std::string> SALOME_Notebook::GetAllDependingOn( const std::string& theKey ) const
 {
   //Utils_Locker lock( &myMutex );
 
@@ -615,11 +631,11 @@ std::string SALOME_Notebook::GetComponent( const std::string& theKey, std::strin
   return theKey.substr( 0, aPos );
 }
 
-SALOME::ParameterizedObject_ptr SALOME_Notebook::FindObject( const std::string& theKey )
+SALOME::ParameterizedObject_ptr SALOME_Notebook::FindObject( const std::string& theKey ) const
 {
   std::string anEntry, aComponent = GetComponent( theKey, anEntry );
   if( aComponent == PARAM_COMPONENT )
-    return GetParameter( anEntry.c_str() );
+    return GetParameterPtr( anEntry.c_str() )->_this();
   else
     return SALOME::ParameterizedObject::_narrow( myStudy->FindObjectByInternalEntry( aComponent.c_str(), anEntry.c_str() ) );
 }
@@ -761,7 +777,7 @@ void SALOME_Notebook::ParseDependencies( const std::string& theData )
 {
   std::vector<std::string> aParts = Split( theData, " ", false );
   if( aParts.size() < 2 || aParts.at( 1 ) != "->" )
-    throwError( arg( "Incorrect parts format: %1", theData ) );
+    ThrowError( arg( "Incorrect parts format: %1", theData ) );
 
   std::string aKey = aParts[0];
   for( int i = 2, n = aParts.size(); i < n; i++ )
@@ -912,7 +928,7 @@ char* SALOME_Notebook::Dump()
   return CORBA::string_dup( aStr.c_str() );
 }
 
-void SALOME_Notebook::throwError( const std::string& theErrorMsg )
+void SALOME_Notebook::ThrowError( const std::string& theErrorMsg ) const
 {
   SALOME::NotebookError anError;
   anError.Reason = CORBA::string_dup( theErrorMsg.c_str() );

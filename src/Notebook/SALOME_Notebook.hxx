@@ -37,6 +37,10 @@
 #include <vector>
 
 class SALOME_Parameter;
+std::string arg( const std::string& theStr, const std::string& theArg1 );
+std::string arg( const std::string& theStr, const std::string& theArg1, const std::string& theArg2 );
+
+
 
 class SALOME_Notebook : public virtual POA_SALOME::Notebook, public virtual SALOME::GenericObj_i
 {
@@ -72,7 +76,7 @@ public:
 
   static std::vector<std::string> Split( const std::string& theData, const std::string& theSeparator, bool theIsKeepEmpty );
 
-protected:
+private:
   void AddParameter( SALOME_Parameter* theParam );
   void AddDependencies( SALOME_Parameter* theParam );
   void AddDependency( const std::string& theObjKey, const std::string& theRefKey );
@@ -82,27 +86,27 @@ protected:
   std::string GetComponent( const std::string& theKey, std::string& theEntry ) const;
   void ParseDependencies( const std::string& theData );
 
-private:
-  std::string GetKey( SALOME::ParameterizedObject_ptr theObj );
-  std::string GetKey( const std::string& theComponent, const std::string& theParamName );
-  std::string GetKey( const std::string& theParamName );
-  std::list<std::string> GetAllDependingOn( const std::string& theKey );
-  SALOME::ParameterizedObject_ptr FindObject( const std::string& theKey );
-  void throwError( const std::string& theErrorMsg );
+  std::string GetKey( SALOME::ParameterizedObject_ptr theObj ) const;
+  std::string GetKey( const std::string& theComponent, const std::string& theParamName ) const;
+  std::string GetKey( const std::string& theParamName ) const;
+  std::list<std::string> GetAllDependingOn( const std::string& theKey ) const;
+  SALOME::ParameterizedObject_ptr FindObject( const std::string& theKey ) const;
+  void ThrowError( const std::string& theErrorMsg ) const;
+  bool CanUpdate( SALOME::ParameterizedObject_ptr theObj ) const;
 
 private:
   friend class KeyHelper;
   class KeyHelper
   {
   public:
-    KeyHelper( const std::string& theKey, SALOME_Notebook* theNotebook );
+    KeyHelper( const std::string& theKey, const SALOME_Notebook* theNotebook );
     std::string key() const;
     bool operator < ( const KeyHelper& theKH ) const;
     bool operator == ( const std::string& theKey ) const;
 
   private:
     std::string myKey;
-    SALOME_Notebook* myNotebook;
+    const SALOME_Notebook* myNotebook;
   };
 
   typedef struct
@@ -115,7 +119,7 @@ private:
 private:
   void Sort( std::list< KeyHelper >& theList ) const;
   bool Substitute( SubstitutionInfo& theSubstitution );
-  SubstitutionInfo CreateSubstitution( const std::string& theName, const std::string& theExpr, bool theIsRename );
+  SubstitutionInfo CreateSubstitution( const std::string& theName, const std::string& theExpr, bool theIsRename ) const;
   void AddSubstitution( const std::string& theName, const std::string& theExpr, bool theIsRename );
 
 private:
@@ -125,6 +129,7 @@ private:
   std::list<SubstitutionInfo> mySubstitutions;
   SALOMEDS::Study_var myStudy;
   Utils_Mutex myMutex;
+  bool myUpdateOnlyParameters;
 };
 
 #endif
