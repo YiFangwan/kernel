@@ -23,58 +23,48 @@
 //  Author : Peter KURNEV
 //  Module : SALOME
 
-
-
 #include <SALOME_EvalExpr.hxx>
+#include <SALOME_EvalParser.hxx>
 
 //=======================================================================
-//function : 
+//function : Constructor
 //purpose  : 
 //=======================================================================
-SALOME_EvalExpr::SALOME_EvalExpr( const SALOME_String& expr )
+SALOME_EvalExpr::SALOME_EvalExpr( const SALOME_String& theExpr, const bool isStdSets )
 {
-  myParser=NULL;
-  initialize( true, expr );
+  myParser = 0;
+  initialize( theExpr, isStdSets );
 }
+
 //=======================================================================
-//function : 
-//purpose  : 
-//=======================================================================
-SALOME_EvalExpr::SALOME_EvalExpr( const bool stdSets, const SALOME_String& expr )
-{
-  myParser=NULL;
-  initialize( stdSets, expr );
-}
-//=======================================================================
-//function : ~
+//function : Destructor
 //purpose  : 
 //=======================================================================
 SALOME_EvalExpr::~SALOME_EvalExpr()
 {
-  if (myParser) {
-    delete myParser;
-  }
+  delete myParser;
 }
+
 //=======================================================================
 //function : error
 //purpose  : 
 //=======================================================================
 SALOME_EvalExprError SALOME_EvalExpr::error() const
 {
-  return myParser->error();
+  return myParser ? myParser->error() : EvalExpr_OK;
 }
+
 //=======================================================================
 //function : initialize
 //purpose  : 
 //=======================================================================
-void SALOME_EvalExpr::initialize( const bool stdSets, const SALOME_String& expr )
+void SALOME_EvalExpr::initialize( const SALOME_String& theExpr, const bool isStdSets )
 {
-  if (myParser) {
-    delete myParser;
-  }
+  delete myParser;
 
   myParser = new SALOME_EvalParser();
-  if ( stdSets )  {
+  if( isStdSets )
+  {
     myParser->setAutoDeleteOperationSets( true );
     myParser->insertOperationSet( new SALOME_EvalSetLogic() );
     myParser->insertOperationSet( new SALOME_EvalSetArithmetic() );
@@ -83,19 +73,19 @@ void SALOME_EvalExpr::initialize( const bool stdSets, const SALOME_String& expr 
     myParser->insertOperationSet( new SALOME_EvalSetSets() );
     myParser->insertOperationSet( new SALOME_EvalSetConst() );
   }
-  setExpression( expr );
+  setExpression( theExpr );
 }
+
 //=======================================================================
 //function : calculate
 //purpose  : 
 //=======================================================================
-SALOME_EvalVariant SALOME_EvalExpr::calculate(const SALOME_String& expr)
+SALOME_EvalVariant SALOME_EvalExpr::calculate( const SALOME_String& theExpr )
 {
-  if ( !expr.empty() ) {
-    setExpression( expr );
-  }
+  setExpression( theExpr );
   return myParser->calculate();
 }
+
 //=======================================================================
 //function : expression
 //purpose  : 
@@ -104,18 +94,20 @@ SALOME_String SALOME_EvalExpr::expression() const
 {
   return myExpr;
 }
+
 //=======================================================================
 //function : setExpression
 //purpose  : 
 //=======================================================================
-void SALOME_EvalExpr::setExpression(const SALOME_String& expr)
+void SALOME_EvalExpr::setExpression( const SALOME_String& theExpr )
 {
-  if ( expr == expression() ){
+  if( theExpr == expression() )
     return;
-  }
-  myExpr = expr;
+
+  myExpr = theExpr;
   myParser->setExpression( myExpr );
 }
+
 //=======================================================================
 //function : parser
 //purpose  : 
@@ -131,32 +123,36 @@ SALOME_EvalParser* SALOME_EvalExpr::parser() const
 //=======================================================================
 SALOME_ListOfEvalSet SALOME_EvalExpr::operationSets() const
 {
-  return myParser->operationSets();
+  return myParser ? myParser->operationSets() : SALOME_ListOfEvalSet();
 }
+
 //=======================================================================
 //function : insertOperationSet
 //purpose  : 
 //=======================================================================
-void SALOME_EvalExpr::insertOperationSet(SALOME_EvalSet* theSet, const int idx)
+void SALOME_EvalExpr::insertOperationSet( SALOME_EvalSet* theSet, const int theIndex )
 {
-  myParser->insertOperationSet(theSet, idx);
+  myParser->insertOperationSet( theSet, theIndex );
 }
+
 //=======================================================================
 //function : removeOperationSet
 //purpose  : 
 //=======================================================================
-void SALOME_EvalExpr::removeOperationSet(SALOME_EvalSet* theSet)
+void SALOME_EvalExpr::removeOperationSet( SALOME_EvalSet* theSet )
 {
-  myParser->removeOperationSet(theSet);
+  myParser->removeOperationSet( theSet );
 }
+
 //=======================================================================
 //function : operationSet
 //purpose  : 
 //=======================================================================
-SALOME_EvalSet* SALOME_EvalExpr::operationSet(const SALOME_String& name) const
+SALOME_EvalSet* SALOME_EvalExpr::operationSet( const SALOME_String& theName ) const
 {
-  return myParser->operationSet( name );
+  return myParser->operationSet( theName );
 }
+
 //=======================================================================
 //function : autoDeleteOperationSets
 //purpose  : 
@@ -170,9 +166,9 @@ bool SALOME_EvalExpr::autoDeleteOperationSets() const
 //function : setAutoDeleteOperationSets
 //purpose  : 
 //=======================================================================
-void SALOME_EvalExpr::setAutoDeleteOperationSets(const bool on)
+void SALOME_EvalExpr::setAutoDeleteOperationSets( const bool isAutoDel )
 {
-  myParser->setAutoDeleteOperationSets( on );
+  myParser->setAutoDeleteOperationSets( isAutoDel );
 }
 
 //=======================================================================
@@ -182,5 +178,5 @@ void SALOME_EvalExpr::setAutoDeleteOperationSets(const bool on)
 void SALOME_EvalExpr::substitute( const SALOME_String& theParamName, const SALOME_EvalExpr& theExpr )
 {
   myParser->substitute( theParamName, theExpr.parser() );
-  myExpr = myParser->rebuildExpression();
+  myExpr = myParser->reverseBuild();
 }

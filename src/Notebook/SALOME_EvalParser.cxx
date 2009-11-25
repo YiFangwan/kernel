@@ -28,14 +28,111 @@
 #include <stack>
 #include <list>
 
-bool          contains(const SALOME_StringList& aLS, const SALOME_String& aS);
-SALOME_String trimmed(const SALOME_String& str);
-SALOME_String trimmed(const SALOME_String& str, const char aWhat);
-bool          isSpace(const char aC);
-int           indexOf(const SALOME_StringList& aLS, const SALOME_String& aS);
+//=======================================================================
+//function : contains
+//purpose  :
+//=======================================================================
+bool contains( const SALOME_StringList& theList, const SALOME_String& theItem )
+{
+  return find( theList.begin(), theList.end(), theItem ) != theList.end();
+}
 
 //=======================================================================
-//function :
+//function : trimmed
+//purpose  :
+//=======================================================================
+SALOME_String trimmed( const SALOME_String& theStr, const char theTrimmed )
+{
+  char aX[2];
+  size_t mylength, i;
+  SALOME_String aRet;
+
+  const char* mystring=theStr.c_str();
+  if(!mystring) {
+    return aRet;
+  }
+
+  mylength=strlen(mystring);
+  if (!mylength) {
+    return aRet;
+  }
+
+  aX[1]=0;
+  for (i=0; i<mylength; ++i) {
+    char aC=mystring[i];
+    if (aC != theTrimmed) {
+      aX[0]=aC;
+      aRet.append(aX);
+    }
+  }
+  return aRet;
+}
+
+//=======================================================================
+//function : trimmed
+//purpose  :
+//=======================================================================
+SALOME_String trimmed( const SALOME_String& theStr )
+{
+  char aWhat[] = { '\t', '\n', '\v', '\f', '\r', ' ' };
+  int i, aNb;
+  SALOME_String aRet;
+  aRet = theStr;
+  aNb=sizeof(aWhat)/sizeof(aWhat[0]);
+  for (i=0; i<aNb; ++i) {
+    aRet = trimmed(aRet, aWhat[i]);
+  }
+  return aRet;
+}
+
+//=======================================================================
+//function : isSpace
+//purpose  :
+//=======================================================================
+bool isSpace( const char theChar )
+{
+  bool bRet;
+  char aWhat[]={
+    '\t', '\n', '\v', '\f', '\r', ' '
+  };
+  int i, aNb;
+  //
+  bRet=false;
+  aNb=sizeof(aWhat)/sizeof(aWhat[0]);
+  for (i=0; i<aNb; ++i) {
+    bRet=(theChar==aWhat[i]);
+    if (bRet) {
+      break;
+    }
+  }
+  return bRet;
+}
+
+//=======================================================================
+//function : indexOf
+//purpose  :
+//=======================================================================
+int indexOf( const SALOME_StringList& theList, const SALOME_String& theItem )
+{
+  int i, iRet;
+  SALOME_StringList::const_iterator aIt;
+  //
+  iRet=-1;
+  //
+  aIt=theList.begin();
+  for (i=0; aIt!=theList.end(); ++aIt, ++i)
+  {
+    const SALOME_String aSx=*aIt;
+    if (aSx==theItem) {
+      iRet=i;
+      break;
+    }
+  }
+  return iRet;
+}
+
+//=======================================================================
+//function : Constructor
 //purpose  :
 //=======================================================================
 SALOME_EvalParser::SALOME_EvalParser()
@@ -43,24 +140,21 @@ SALOME_EvalParser::SALOME_EvalParser()
 {
   setError( EvalExpr_OK );
 }
+
 //=======================================================================
-//function : ~
+//function : Destructor
 //purpose  :
 //=======================================================================
 SALOME_EvalParser::~SALOME_EvalParser()
 {
-  if (autoDeleteOperationSets()) {
-    //qDeleteAll( mySets );// !!!
-    SALOME_ListOfEvalSet::const_iterator aIt = mySets.begin();
-    for (; aIt != mySets.end() ; ++aIt )  {
-      SALOME_EvalSet* pEvalSet=*aIt;
-      if (pEvalSet) {
-        delete pEvalSet;
-        pEvalSet=NULL;
-      }
-    }
+  if( autoDeleteOperationSets() )
+  {
+    SALOME_ListOfEvalSet::const_iterator it = mySets.begin(), last = mySets.end();
+    for( ; it!=last; it++ )
+      delete *it;
   }
 }
+
 //=======================================================================
 //function : operationSets
 //purpose  :
@@ -69,50 +163,46 @@ SALOME_ListOfEvalSet SALOME_EvalParser::operationSets() const
 {
   return mySets;
 }
+
 //=======================================================================
 //function : operationSet
 //purpose  :
 //=======================================================================
-SALOME_EvalSet* SALOME_EvalParser::operationSet(const SALOME_String& theName) const
+SALOME_EvalSet* SALOME_EvalParser::operationSet( const SALOME_String& theName ) const
 {
-  SALOME_EvalSet* pSet;
-  //
-  pSet = NULL;
-  SALOME_ListOfEvalSet::const_iterator it = mySets.begin();
-  for (; it != mySets.end() && !pSet; ++it )  {
-    if ( (*it)->name()==theName ) {
+  SALOME_EvalSet* pSet = 0;
+  SALOME_ListOfEvalSet::const_iterator it = mySets.begin(), last = mySets.end();
+  for( ; it!=last && !pSet; it++ )
+    if( (*it)->name()==theName )
       pSet = *it;
-    }
-  }
   return pSet;
 }
+
 //=======================================================================
 //function : insertOperationSet
 //purpose  :
 //=======================================================================
-void SALOME_EvalParser::insertOperationSet(SALOME_EvalSet* theSet,
-                                       const int idx)
+void SALOME_EvalParser::insertOperationSet( SALOME_EvalSet* theSet, const int theIndex )
 {
-  if (SALOME_EvalSet::contains(mySets, theSet)) {
+  if( SALOME_EvalSet::contains( mySets, theSet ) )
     return;
-  }
-  //
-  int iSize=(int)mySets.size();
-  int index = idx < 0 ? iSize : idx;
-  if (index>iSize) {
-    index=iSize;
-  }
-  SALOME_EvalSet::insert(mySets, index, theSet);
+
+  int aSize = (int)mySets.size();
+  int anIndex = theIndex < 0 ? aSize : theIndex;
+  if( anIndex > aSize )
+    anIndex = aSize;
+  SALOME_EvalSet::insert( mySets, anIndex, theSet );
 }
+
 //=======================================================================
 //function : removeOperationSet
 //purpose  :
 //=======================================================================
-void SALOME_EvalParser::removeOperationSet(SALOME_EvalSet* theSet)
+void SALOME_EvalParser::removeOperationSet( SALOME_EvalSet* theSet )
 {
-  //mySets.removeAll( theSet );
-  mySets.remove(theSet);
+  mySets.remove( theSet );
 }
+
 //=======================================================================
 //function : autoDeleteOperationSets
 //purpose  :
@@ -121,19 +211,21 @@ bool SALOME_EvalParser::autoDeleteOperationSets() const
 {
   return myAutoDel;
 }
+
 //=======================================================================
 //function : setAutoDeleteOperationSets
 //purpose  :
 //=======================================================================
-void SALOME_EvalParser::setAutoDeleteOperationSets( const bool theOn )
+void SALOME_EvalParser::setAutoDeleteOperationSets( const bool isAutoDel )
 {
-  myAutoDel = theOn;
+  myAutoDel = isAutoDel;
 }
+
 //=======================================================================
 //function : search
 //purpose  :
 //=======================================================================
-int SALOME_EvalParser::search(const SALOME_StringList& aList, const SALOME_String& aStr, int offset,  int& matchLen, int& listind )
+int SALOME_EvalParser::search( const SALOME_StringList& aList, const SALOME_String& aStr, int offset,  int& matchLen, int& listind )
 {
   int min = -1;
   int ind = 0;
@@ -180,150 +272,140 @@ SALOME_String SALOME_EvalParser::note(const SALOME_String& aStr, int pos, int le
 //function : prepare
 //purpose  :
 //=======================================================================
-bool SALOME_EvalParser::prepare(const SALOME_String& expr, Postfix& post)
+bool SALOME_EvalParser::prepare( const SALOME_String& theExpr, Postfix& thePostfix )
 {
-  int pos = 0;
-  int len =(int)expr.length();
+  int aPos = 0;
+  int aLen = (int)theExpr.length();
   stack<int> aBracketStack;
   SALOME_StringList anOpers, anOpenBr, aCloseBr;
+
   if ( !checkOperations() )
     return false;
 
-  bracketsList( anOpenBr, true );
-  bracketsList( aCloseBr, false );
+  bracketsList( anOpenBr, aCloseBr );
   operationList( anOpers );
 
-  while ( pos < len && error() == EvalExpr_OK )  {
-    PostfixItem item;
-    char aC=expr[pos];
-    //
-    while ( pos < len && isSpace(aC) ) {
-      pos++;
-    }
-    //
-    if ( pos >= len ) {
+  while( aPos < aLen && error() == EvalExpr_OK )
+  {
+    PostfixItem anItem;
+    char aChar = theExpr[aPos];
+
+    while( aPos < aLen && isSpace( aChar ) )
+      aPos++;
+
+    if ( aPos >= aLen )
       break;
-    }
-    //
-    int mBrLen = 0, mLen = 0, br_ind = -1, op_ind = -1;
-    int oPos = search( anOpenBr, expr, pos, mBrLen, br_ind );
-    int cPos = oPos == pos ? -1 : search( aCloseBr, expr, pos, mBrLen, br_ind );
-    int opPos = search( anOpers, expr, pos, mLen, op_ind );
-    //
-    if ( aC=='\'')  {
-      int vpos = pos + 1;
-      while ( vpos < (int)expr.length() && expr[vpos] != '\'' ) {
+
+    int aBrLen = 0, mLen = 0, aBrInd = -1, anOpInd = -1;
+    int oPos = search( anOpenBr, theExpr, aPos, aBrLen, aBrInd );
+    int cPos = oPos == aPos ? -1 : search( aCloseBr, theExpr, aPos, aBrLen, aBrInd );
+    int opPos = search( anOpers, theExpr, aPos, mLen, anOpInd );
+
+    if( aChar=='\'')
+    {
+      int vpos = aPos + 1;
+      while ( vpos < aLen && theExpr[vpos] != '\'' )
         vpos++;
-      }
-      //
-      mLen = vpos - pos + 1;
-      //
-      int res = createValue( note( expr, pos, mLen ), item.myValue );
-      item.myType = res ? Value : Param;
-      post.push_back( item );
-      pos = vpos + 1;
+
+      mLen = vpos - aPos + 1;
+      bool ok = createValue( note( theExpr, aPos, mLen ), anItem.myValue );
+      anItem.myType = ok ? Value : Param;
+      thePostfix.push_back( anItem );
+      aPos = vpos + 1;
       continue;
     }
-    //
-    if ( oPos == pos )  {
-      aBracketStack.push( br_ind );
-      item.myValue = note( expr, pos, mBrLen );
-      item.myType = Open;
-      post.push_back( item );
+
+    if ( oPos == aPos )
+    {
+      aBracketStack.push( aBrInd );
+      anItem.myValue = note( theExpr, aPos, aBrLen );
+      anItem.myType = Open;
+      thePostfix.push_back( anItem );
     }
-    else if ( cPos == pos )  {
-      if ( aBracketStack.size() == 0 )  {
+    else if ( cPos == aPos )
+    {
+      if ( aBracketStack.size() == 0 )
+      {
         setError( EvalExpr_ExcessClose );
         break;
       }
-      if ( br_ind != aBracketStack.top() )  {
+      if ( aBrInd != aBracketStack.top() )
+      {
         setError( EvalExpr_BracketsNotMatch );
         break;
       }
-      else {
-        aBracketStack.pop();
-        item.myValue = note( expr, pos, mBrLen );
-        item.myType = Close;
-        post.push_back( item );
-      }
-    }
-    else {
-      mBrLen = 0;
-    }
-    //
-    if ( opPos == pos ) {
-      mBrLen = 0;
-      item.myValue = note( expr, pos, mLen );
-      item.myType = Binary;
-
-      if ( oPos == pos ) {
-        insert(post, (int)(post.size()-1), item);
-      }
       else
-        post.push_back( item );
-    }
-    else  {
-      mLen = 0;
-      if ( oPos != pos && cPos != pos )   {
-	      int i;
-        for ( i = pos + 1; i < (int)expr.length(); i++ )  {
-          if ( isSpace(expr[i]) ) {
-            break;
-          }
-        }
-        //
-        int vpos = i;
-        if ( oPos >= 0 && oPos < vpos ) {
-          vpos = oPos;
-        }
-        if ( cPos >= 0 && cPos < vpos ){
-          vpos = cPos;
-        }
-        if ( opPos >= 0 && opPos < vpos ){
-          vpos = opPos;
-        }
-
-        while( vpos < (int)expr.length() &&
-               ( isalpha(expr[vpos]) ||
-                 isdigit(expr[vpos]) ||
-                 expr[vpos]=='_' )
-                ) {
-          vpos++;
-        }
-        //
-        mLen = vpos - pos;
-        bool res = createValue( note( expr, pos, mLen ), item.myValue );
-        item.myType = res ? Value : Param;
-        post.push_back( item );
+      {
+        aBracketStack.pop();
+        anItem.myValue = note( theExpr, aPos, aBrLen );
+        anItem.myType = Close;
+        thePostfix.push_back( anItem );
       }
     }
-    pos += mBrLen + mLen;
+    else
+      aBrLen = 0;
+
+    if ( opPos == aPos )
+    {
+      aBrLen = 0;
+      anItem.myValue = note( theExpr, aPos, mLen );
+      anItem.myType = Binary;
+
+      if( oPos == aPos )
+        insert(thePostfix, (int)(thePostfix.size()-1), anItem);
+      else
+        thePostfix.push_back( anItem );
+    }
+    else
+    {
+      mLen = 0;
+      if( oPos != aPos && cPos != aPos )
+      {
+        int i;
+        for( i = aPos + 1; i < aLen; i++ )
+          if( isSpace( theExpr[i] ) )
+            break;
+
+        int vpos = i;
+        if ( oPos >= 0 && oPos < vpos )
+          vpos = oPos;
+        if ( cPos >= 0 && cPos < vpos )
+          vpos = cPos;
+        if ( opPos >= 0 && opPos < vpos )
+          vpos = opPos;
+
+        while( vpos < aLen && ( isalpha( theExpr[vpos] ) || isdigit( theExpr[vpos] ) || theExpr[vpos]=='_' ) )
+          vpos++;
+
+        mLen = vpos - aPos;
+        bool ok = createValue( note( theExpr, aPos, mLen ), anItem.myValue );
+        anItem.myType = ok ? Value : Param;
+        thePostfix.push_back( anItem );
+      }
+    }
+    aPos += aBrLen + mLen;
   }
 
   //Bracket checking
-  int brValue = 0;
-  for ( Postfix::iterator anIt = post.begin(); anIt != post.end(); ++anIt ) {
-    if ( (*anIt).myType == Open ){
-      brValue++;
-    }
-    else if ( (*anIt).myType == Close ) {
-      if ( brValue > 0 ){
-        brValue--;
-      }
-      else {
+  int aBrValue = 0;
+  for( Postfix::iterator it = thePostfix.begin(), last = thePostfix.end(); it != last; it++ )
+    if( it->myType == Open )
+      aBrValue++;
+    else if( it->myType == Close )
+      if( aBrValue > 0 )
+        aBrValue--;
+      else
+      {
         setError( EvalExpr_ExcessClose );
         break;
       }
-    }
-  }
-  //
-  if ( brValue > 0 )
-  {
+
+  if( aBrValue > 0 )
     setError( EvalExpr_CloseExpected );
-  }
-  //
+
   return error() == EvalExpr_OK;
 }
+
 //=======================================================================
 //function : setOperationTypes
 //purpose  :
@@ -334,9 +416,7 @@ bool SALOME_EvalParser::setOperationTypes( Postfix& post )
     return false;
 
   SALOME_StringList anOpen, aClose;
-  //
-  bracketsList( anOpen, true );
-  bracketsList( aClose, false );
+  bracketsList( anOpen, aClose );
 
   Postfix::iterator aPrev, aNext;
   Postfix::iterator anIt = post.begin();
@@ -588,8 +668,7 @@ bool SALOME_EvalParser::parse( const SALOME_String& expr )
   SALOME_StringList opens, closes;
 
   setError( EvalExpr_OK );
-  bracketsList( opens, true );
-  bracketsList( closes, false );
+  bracketsList( opens, closes );
 
   return prepare( expr, p ) && setOperationTypes( p ) && sort( p, myPostfix, opens, closes );
 }
@@ -625,12 +704,10 @@ SALOME_EvalVariant SALOME_EvalParser::calculate()
     return SALOME_EvalVariant();
 
   setError( EvalExpr_OK );
-  //
-  SALOME_StringList anOpen, aClose;
+
   PostfixItemType aType;
-  //
-  bracketsList( anOpen, true );
-  bracketsList( aClose, false );
+  SALOME_StringList anOpen, aClose;
+  bracketsList( anOpen, aClose );
 
   stack<SALOME_EvalVariant> aStack;
   Postfix::iterator anIt = myPostfix.begin(), aLast = myPostfix.end();
@@ -950,7 +1027,7 @@ private:
 //function : rebuildExpression
 //purpose  :
 //=======================================================================
-SALOME_String SALOME_EvalParser::rebuildExpression() const
+SALOME_String SALOME_EvalParser::reverseBuild() const
 {
   std::stack<RebultExprItem> aStack;
 
@@ -1096,18 +1173,25 @@ void SALOME_EvalParser::operationList( SALOME_StringList& theList ) const
 //function : operationList
 //purpose  :
 //=======================================================================
-void SALOME_EvalParser::bracketsList( SALOME_StringList& theList, bool open ) const
+void SALOME_EvalParser::bracketsList( SALOME_StringList& theOpens, SALOME_StringList& theCloses ) const
 {
-  SALOME_ListOfEvalSet::const_iterator it = mySets.begin();
-  for (; it != mySets.end(); ++it ) {
-    SALOME_StringList custom;
-    SALOME_EvalSet* aSet = *it;
-    aSet->bracketsList( custom, open );
-    SALOME_StringList::const_iterator sIt = custom.begin();
-    for (; sIt != custom.end(); ++sIt )    {
-      if ( !contains(theList, *sIt ) )
-        theList.push_back( *sIt );
-    }
+  SALOME_ListOfEvalSet::const_iterator it = mySets.begin(), last = mySets.end();
+  for( ; it!=last; it++ )
+  {
+    SALOME_StringList aCustom;
+
+    (*it)->bracketsList( aCustom, true );
+    SALOME_StringList::const_iterator sIt = aCustom.begin(), sLast = aCustom.end();
+    for( ; sIt != sLast; sIt++ )
+      if( !contains( theOpens, *sIt ) )
+        theOpens.push_back( *sIt );
+
+    aCustom.clear();
+    (*it)->bracketsList( aCustom, false );
+    sIt = aCustom.begin(); sLast = aCustom.end();
+    for( ; sIt != sLast; sIt++ )
+      if( !contains( theCloses, *sIt ) )
+        theCloses.push_back( *sIt );
   }
 }
 //=======================================================================
@@ -1234,9 +1318,7 @@ const SALOME_EvalParser::PostfixItem& SALOME_EvalParser::at(const Postfix& aL,
 //function : insert
 //purpose  :
 //=======================================================================
-void SALOME_EvalParser::insert(Postfix& aL,
-                            const int aIndex,
-                            PostfixItem& pS)
+void SALOME_EvalParser::insert( Postfix& aL, const int aIndex, const PostfixItem& pS )
 {
   int i;
   //
@@ -1256,121 +1338,3 @@ void SALOME_EvalParser::insert(Postfix& aL,
     }
   }
 }
-//=======================================================================
-//function : indexOf
-//purpose  :
-//=======================================================================
-int indexOf( const SALOME_StringList& aLS, const SALOME_String& aS )
-{
-  int i, iRet;
-  SALOME_StringList::const_iterator aIt;
-  //
-  iRet=-1;
-  //
-  aIt=aLS.begin();
-  for (i=0; aIt!=aLS.end(); ++aIt, ++i)
-  {
-    const SALOME_String aSx=*aIt;
-    if (aSx==aS) {
-      iRet=i;
-      break;
-    }
-  }
-  return iRet;
-}
-//=======================================================================
-//function : contains
-//purpose  :
-//=======================================================================
-bool contains( const SALOME_StringList& aLS, const SALOME_String& aS )
-{
-  bool bRet;
-  //
-  bRet=false;
-  SALOME_StringList::const_iterator aIt;
-  //
-  aIt=aLS.begin();
-  for (; aIt!=aLS.end(); ++aIt) {
-    const SALOME_String aSx=*aIt;
-    if (aSx==aS) {
-      bRet=!bRet;
-      break;
-    }
-  }
-  return bRet;
-}
-
-
-//=======================================================================
-//function : isSpace
-//purpose  :
-//=======================================================================
-bool isSpace(const char aC)
-{
-  bool bRet;
-  char aWhat[]={
-    '\t', '\n', '\v', '\f', '\r', ' '
-  };
-  int i, aNb;
-  //
-  bRet=false;
-  aNb=sizeof(aWhat)/sizeof(aWhat[0]);
-  for (i=0; i<aNb; ++i) {
-    bRet=(aC==aWhat[i]);
-    if (bRet) {
-      break;
-    }
-  }
-  return bRet;
-}
-//=======================================================================
-//function : trimmed
-//purpose  :
-//=======================================================================
-SALOME_String trimmed(const SALOME_String& str)
-{
-  char aWhat[]={
-    '\t', '\n', '\v', '\f', '\r', ' '
-  };
-  int i, aNb;
-  SALOME_String aRet;
-  //
-  aRet=str;
-  aNb=sizeof(aWhat)/sizeof(aWhat[0]);
-  for (i=0; i<aNb; ++i) {
-    aRet=trimmed(aRet, aWhat[i]);
-  }
-  return aRet;
-}
-//=======================================================================
-//function : trimmed
-//purpose  :
-//=======================================================================
-SALOME_String trimmed(const SALOME_String& str, const char aWhat)
-{
-  char aX[2];
-  size_t mylength, i;
-  SALOME_String aRet;
-  //
-  const char* mystring=str.c_str();
-  if(!mystring) {
-    return aRet;
-  }
-  //
-  mylength=strlen(mystring);
-  if (!mylength) {
-    return aRet;
-  }
-  //
-  aX[1]=0;
-  for (i=0; i<mylength; ++i) {
-    char aC=mystring[i];
-    if (aC != aWhat) {
-      aX[0]=aC;
-      aRet.append(aX);
-    }
-  }
-  return aRet;
-}
-
-

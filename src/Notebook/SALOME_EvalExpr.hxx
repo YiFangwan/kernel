@@ -27,37 +27,38 @@
 #define SALOME_EvalExpr_Header_File
 
 #include <SALOME_Eval.hxx>
-#include <SALOME_EvalVariant.hxx>
-#include <SALOME_EvalParser.hxx>
-#include <SALOME_EvalSet.hxx>
+
+class SALOME_EvalVariant;
+class SALOME_EvalParser;
+class SALOME_EvalSet;
+class SALOME_ListOfEvalSet;
 
 class SALOME_EvalExpr
 {
 public:
-  SALOME_EvalExpr( const SALOME_String& = SALOME_String() );
-  SALOME_EvalExpr( const bool, const SALOME_String& = SALOME_String() );
+  SALOME_EvalExpr( const SALOME_String& theExpr = SALOME_String(), const bool isStdSets = true );
   ~SALOME_EvalExpr();
 
-  SALOME_EvalVariant   calculate( const SALOME_String& = SALOME_String() );
+  SALOME_EvalVariant   calculate( const SALOME_String& theExpr = SALOME_String() );
 
   SALOME_String        expression() const;
-  void                 setExpression( const SALOME_String& );
+  void                 setExpression( const SALOME_String& theExpr );
 
   SALOME_EvalExprError error() const;
   SALOME_EvalParser*   parser() const;
 
   bool                 autoDeleteOperationSets() const;
-  void                 setAutoDeleteOperationSets( const bool );
+  void                 setAutoDeleteOperationSets( const bool isAutoDel );
 
   SALOME_ListOfEvalSet operationSets() const;
-  SALOME_EvalSet*      operationSet( const SALOME_String& ) const;
-  void                 removeOperationSet( SALOME_EvalSet* );
-  void                 insertOperationSet( SALOME_EvalSet*, const int = -1 );
+  SALOME_EvalSet*      operationSet( const SALOME_String& theName ) const;
+  void                 removeOperationSet( SALOME_EvalSet* theSet );
+  void                 insertOperationSet( SALOME_EvalSet* theSet, const int theIndex = -1 );
 
   void                 substitute( const SALOME_String& theParamName, const SALOME_EvalExpr& theExpr );
 
 private:
-  void initialize( const bool, const SALOME_String& );
+  void initialize( const SALOME_String& theExpr, const bool isStdSets );
 
 private:
   SALOME_String      myExpr;

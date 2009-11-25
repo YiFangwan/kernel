@@ -28,6 +28,7 @@
 
 #include <SALOMEconfig.h>
 #include <SALOME_EvalExpr.hxx>
+#include <SALOME_EvalVariant.hxx>
 #include CORBA_SERVER_HEADER(SALOME_Notebook)
 #include <SALOME_GenericObj_i.hh>
 #include <string>

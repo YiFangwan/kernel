@@ -25,14 +25,13 @@
 
 #ifndef SALOME_EvalParser_Header_File
 #define SALOME_EvalParser_Header_File
-//
+
 #ifdef WNT
 #pragma warning(disable : 4786)
 #endif
-//
+
 #include <list>
 #include <map>
-//
 #include <SALOME_EvalVariant.hxx>
 #include <SALOME_EvalSet.hxx>
 #include <SALOME_Eval.hxx>
@@ -43,39 +42,33 @@ public:
   SALOME_EvalParser();
   virtual ~SALOME_EvalParser();
 
-  SALOME_EvalVariant         calculate();
-  SALOME_EvalVariant         calculate( const SALOME_String& );
-  bool                       setExpression( const SALOME_String& );
-
-  SALOME_ListOfEvalSet       operationSets() const;
-  SALOME_EvalSet*            operationSet( const SALOME_String& ) const;
-  void                       removeOperationSet( SALOME_EvalSet* );
-  void                       insertOperationSet( SALOME_EvalSet*, const int = -1 );
-
-  bool                       autoDeleteOperationSets() const;
-  void                       setAutoDeleteOperationSets( const bool );
-
-  virtual void               clearParameters();
-  virtual bool               removeParameter( const SALOME_String& name );
-  virtual SALOME_EvalVariant parameter( const SALOME_String& name ) const;
-  virtual bool               hasParameter( const SALOME_String& name ) const;
-  virtual void               setParameter( const SALOME_String& name, const SALOME_EvalVariant& value );
-  SALOME_StringList          parameters() const;
-
-  SALOME_EvalExprError       error() const;
-
-  bool                       firstInvalid( SALOME_String& ) const;
+  bool                       setExpression ( const SALOME_String& theExpr );
+  SALOME_EvalExprError       error         () const;
+  SALOME_EvalVariant         calculate     ();
+  SALOME_EvalVariant         calculate     ( const SALOME_String& theExpr );
+  void                       substitute    ( const SALOME_String& theParamName, SALOME_EvalParser* theNewExpr );
+  SALOME_String              reverseBuild  () const;
+  bool                       firstInvalid  ( SALOME_String& theItem ) const;
   void                       removeInvalids();
+
+  SALOME_ListOfEvalSet       operationSets             () const;
+  SALOME_EvalSet*            operationSet              ( const SALOME_String& theName ) const;
+  void                       removeOperationSet        ( SALOME_EvalSet* theSet );
+  void                       insertOperationSet        ( SALOME_EvalSet* theSet, const int theIndex = -1 );
+  bool                       autoDeleteOperationSets   () const;
+  void                       setAutoDeleteOperationSets( const bool isAutoDel );
+
   SALOME_String              dump() const;
 
-  static SALOME_String       toString( const SALOME_ListOfEvalVariant& );
+  virtual void               clearParameters();
+  virtual bool               removeParameter( const SALOME_String& theName );
+  virtual SALOME_EvalVariant parameter      ( const SALOME_String& theName ) const;
+  virtual bool               hasParameter   ( const SALOME_String& theName ) const;
+  virtual void               setParameter   ( const SALOME_String& theName, const SALOME_EvalVariant& theValue );
+  SALOME_StringList          parameters     () const;
+  bool                       isMonoParam    () const;
 
-  bool isMonoParam() const;
-
-  void substitute( const SALOME_String& theParamName, 
-                   SALOME_EvalParser* theNewExpr );
-
-  SALOME_String rebuildExpression() const;
+  static SALOME_String       toString( const SALOME_ListOfEvalVariant& theList );
 
 protected:
   //! Types of postfix representation elements
@@ -105,31 +98,31 @@ protected:
 protected:
   SALOME_String dump( const Postfix& ) const;
 
-  virtual bool   prepare( const SALOME_String&, Postfix& );
-  virtual bool   setOperationTypes( Postfix& );
-  virtual bool   sort( const Postfix&, Postfix&, const SALOME_StringList&, const SALOME_StringList&, int f = -1, int l = -1 );
-  virtual bool   parse( const SALOME_String& );
-  virtual void   setError( const SALOME_EvalExprError );
+  virtual bool   prepare          ( const SALOME_String& theExpr, Postfix& thePostfix );
+  virtual bool   setOperationTypes( Postfix& thePostfix );
+  virtual bool   sort             ( const Postfix& theInitPostfix, Postfix& theResPostfix, const SALOME_StringList& theOpen,
+                                    const SALOME_StringList& theClose, int theFirst = -1, int theLast = -1 );
+  virtual bool   parse            ( const SALOME_String& theExpr );
+  virtual void   setError         ( const SALOME_EvalExprError theErr );
 
-  bool           calculate( const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& );
-
-  static int           search( const SALOME_StringList&, const SALOME_String&, int offset, int& matchLen, int& listind );
-  static SALOME_String note( const SALOME_String& str, int pos, int len );
-  static int           globalBrackets( const Postfix&, int, int );
+         bool          calculate     ( const SALOME_String& theExpr, SALOME_EvalVariant& theArg1, SALOME_EvalVariant& theArg2 );
+  static int           search        ( const SALOME_StringList& theList, const SALOME_String& theItem, int theOffset,
+                                       int& theMatchLen, int& theIndex );
+  static SALOME_String note          ( const SALOME_String& theStr, int thePos, int theLen );
+  static int           globalBrackets( const Postfix& thePostfix, int theFirst, int theLast );
 
 private:
-  void operationList( SALOME_StringList& ) const;
-  void bracketsList( SALOME_StringList&, bool ) const;
-  bool createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
-  int  priority( const SALOME_String&, bool isBin ) const;
+  void                 operationList  ( SALOME_StringList& theRes ) const;
+  void                 bracketsList   ( SALOME_StringList& theOpens, SALOME_StringList& theCloses ) const;
+  bool                 createValue    ( const SALOME_String& theStr, SALOME_EvalVariant& theRes ) const;
+  int                  priority       ( const SALOME_String& theOp, bool isBin ) const;
+  SALOME_EvalExprError isValid        ( const SALOME_String& theOp, SALOME_EvalVariantType theArg1, SALOME_EvalVariantType theArg2 ) const;
+  SALOME_EvalExprError calculation    ( const SALOME_String& theOp, SALOME_EvalVariant& theArg1, SALOME_EvalVariant& theArg2 ) const;
+  bool                 checkOperations() const;
 
-  SALOME_EvalExprError isValid( const SALOME_String&, const SALOME_EvalVariantType, const SALOME_EvalVariantType ) const;
-  SALOME_EvalExprError calculation( const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
-
-  bool checkOperations() const;
-  static void insert( Postfix& aL, const int aIndex, PostfixItem& aItem );
-  static const PostfixItem& at( const Postfix& aL, const int aIndex );
-  static void append( Postfix& aL, const Postfix& aL1 );
+  static void               insert( Postfix& thePostfix, const int theIndex, const PostfixItem& theItem );
+  static const PostfixItem& at    ( const Postfix& thePostfix, const int theIndex );
+  static void               append( Postfix& thePostfix, const Postfix& theAppendedPostfix );
 
 private:
   friend class RebultExprItem;

@@ -36,7 +36,10 @@
 #endif
 
 class SALOME_EvalSet;
-typedef std::list<SALOME_EvalSet*> SALOME_ListOfEvalSet;
+
+class SALOME_ListOfEvalSet : public std::list<SALOME_EvalSet*>
+{
+};
 
 //=======================================================================
 //class : SALOME_EvalSet

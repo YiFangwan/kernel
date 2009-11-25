@@ -26,7 +26,7 @@
 
 #include <SALOME_Parameter.hxx>
 #include <SALOME_Notebook.hxx>
-#include <Utils_SALOME_Exception.hxx>
+#include <SALOME_EvalParser.hxx>
 #include <utilities.h>
 #include <stdio.h>
 
