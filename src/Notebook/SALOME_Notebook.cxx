@@ -173,7 +173,7 @@ void SALOME_Notebook::SetToUpdate( SALOME::ParameterizedObject_ptr theObj )
   */
 }
 
-void SALOME_Notebook::Update()
+void SALOME_Notebook::Update( CORBA::Boolean theOnlyParameters )
 {
   //Utils_Locker lock( &myMutex );
 

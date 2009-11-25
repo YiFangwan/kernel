@@ -47,7 +47,7 @@ public:
   virtual void RemoveDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
   virtual void ClearDependencies( SALOME::ParameterizedObject_ptr theObj, SALOME::DependenciesType theType );
   virtual void SetToUpdate( SALOME::ParameterizedObject_ptr theObj );
-  virtual void Update();
+  virtual void Update( CORBA::Boolean theOnlyParameters );
 
   virtual void AddExpression( const char* theExpr );
   virtual void AddNamedExpression( const char* theName, const char* theExpr );
