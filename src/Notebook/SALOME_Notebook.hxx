@@ -65,6 +65,7 @@ public:
   virtual CORBA::Boolean Load( const char* theFileName );
   virtual char*          DumpPython();
   virtual char*          Dump();
+  virtual char*          GetParameters( const char* theComponent, const char* theEntry );
 
   SALOME_Parameter* GetParameterPtr( const char* theParamName ) const;
   void UpdateAnonymous( const std::string& theOldName, const std::string& theNewName );
@@ -83,6 +84,7 @@ protected:
 
 private:
   std::string GetKey( SALOME::ParameterizedObject_ptr theObj );
+  std::string GetKey( const std::string& theComponent, const std::string& theParamName );
   std::string GetKey( const std::string& theParamName );
   std::list<std::string> GetAllDependingOn( const std::string& theKey );
   SALOME::ParameterizedObject_ptr FindObject( const std::string& theKey );

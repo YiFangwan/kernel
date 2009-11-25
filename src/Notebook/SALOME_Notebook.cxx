@@ -561,12 +561,17 @@ void SALOME_Notebook::ClearDependencies( const std::string& theObjKey, SALOME::D
 
 std::string SALOME_Notebook::GetKey( SALOME::ParameterizedObject_ptr theObj )
 {
-  return arg( "%1#%2", theObj->GetComponent(), theObj->GetEntry() );
+  return GetKey( theObj->GetComponent(), theObj->GetEntry() );
+}
+
+std::string SALOME_Notebook::GetKey( const std::string& theComponent, const std::string& theEntry )
+{
+  return arg( "%1#%2", theComponent, theEntry );
 }
 
 std::string SALOME_Notebook::GetKey( const std::string& theParamName )
 {
-  return arg( "%1#%2", PARAM_COMPONENT, theParamName );
+  return GetKey( PARAM_COMPONENT, theParamName );
 }
 
 std::list<std::string> SALOME_Notebook::GetAllDependingOn( const std::string& theKey )
@@ -912,4 +917,26 @@ void SALOME_Notebook::throwError( const std::string& theErrorMsg )
   SALOME::NotebookError anError;
   anError.Reason = CORBA::string_dup( theErrorMsg.c_str() );
   throw anError;
+}
+
+char* SALOME_Notebook::GetParameters( const char* theComponent, const char* theEntry )
+{
+  std::string aRes, aKey = GetKey( theComponent, theEntry ), aComponent, aName;
+  std::map< std::string, std::list<std::string> >::const_iterator it = myDependencies.find( aKey );
+  if( it!=myDependencies.end() )
+  {
+    std::list<std::string>::const_iterator dit = it->second.begin(), dlast = it->second.end();
+    for( ; dit!=dlast; dit++ )
+    {
+      aComponent = GetComponent( *dit, aName );
+      if( aComponent==PARAM_COMPONENT )
+      {
+        if( aRes.length() > 0 )
+          aRes += ", ";
+        aRes += aName;
+      }
+    }
+  }
+
+  return CORBA::string_dup( aRes.c_str() );
 }
