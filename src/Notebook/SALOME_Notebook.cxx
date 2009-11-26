@@ -62,6 +62,69 @@ std::string arg( const std::string& theStr, const std::string& theArg1, const st
   return aRes;
 }
 
+std::vector<std::string> split( const std::string& theData, const std::string& theSeparator, bool theIsKeepEmpty )
+{
+  std::vector<std::string> aParts;
+  int aPrev = 0, anInd = 0;
+  while( true )
+  {
+    anInd = theData.find( theSeparator, aPrev );
+    if( anInd < 0 )
+      break;
+
+    std::string aPart = theData.substr( aPrev, anInd - aPrev );
+    if( aPart.length() > 0 || theIsKeepEmpty )
+      aParts.push_back( aPart );
+
+    aPrev = anInd + 1;
+  }
+  return aParts;
+}
+
+void save( FILE* theFile, const std::string& theData )
+{
+  short len = theData.length();
+  fwrite( &len, 1, sizeof( short ), theFile );
+  fwrite( theData.c_str(), 1, len, theFile );
+}
+
+void save( FILE* theFile, int theData )
+{
+  fwrite( &theData, 1, sizeof( int ), theFile );
+}
+
+bool load( FILE* theFile, std::string& theData )
+{
+  short len;
+  int rlen = fread( &len, 1, sizeof( short ), theFile );
+  if( rlen < sizeof( short ) )
+    return false;
+
+  char buf[1024];
+  rlen = fread( buf, 1, len, theFile );
+  if( rlen < len )
+    return false;
+
+  buf[len] = 0;
+  theData = buf;
+  //printf( "load: %s\n", theData.c_str() );
+  return true;
+}
+
+bool load( FILE* theFile, int& theData )
+{
+  int rlen = fread( &theData, 1, sizeof( int ), theFile );
+  if( rlen < sizeof( int ) )
+    return false;
+
+  //printf( "load: %i\n", theData );
+  return true;
+}
+
+
+
+
+
 
 
 
@@ -272,7 +335,8 @@ bool SALOME_Notebook::Substitute( SubstitutionInfo& theSubstitution )
         {
           std::list<std::string> aDeps = myDependencies[anOldKey];
           myDependencies.erase( anOldKey );
-          myDependencies[aNewKey] = aDeps;
+          if( aDeps.size() > 0 )
+            myDependencies[aNewKey] = aDeps;
           
           myParameters.erase( anOldName );
           myParameters[aNewName] = aParamPtr;
@@ -515,7 +579,7 @@ SALOME_Parameter* SALOME_Notebook::GetParameterPtr( const char* theParamName ) c
   return it==myParameters.end() ? 0 : it->second;
 }
 
-void SALOME_Notebook::AddParameter( SALOME_Parameter* theParam )
+void SALOME_Notebook::AddParameter( SALOME_Parameter* theParam, bool theAddDependencies )
 {
   //Utils_Locker lock( &myMutex );
 
@@ -526,15 +590,15 @@ void SALOME_Notebook::AddParameter( SALOME_Parameter* theParam )
   //printf( "Add param: %s\n", anEntry.c_str() );
 
   std::map< std::string, SALOME_Parameter* >::const_iterator it = myParameters.find( anEntry );
-  if( it!=myParameters.end() )
-  {
-    delete it->second;
-    ClearDependencies( GetKey( anEntry ), SALOME::All );
-  }
+  bool exists = it!=myParameters.end();
+  if( exists )
+    ThrowError( arg( "The parameter '%1' already exists", anEntry ) );
 
   try
   {
-    AddDependencies( theParam );
+    myParameters[anEntry] = theParam;
+    if( theAddDependencies && !exists )
+      AddDependencies( theParam );
   }
   catch( const SALOME::NotebookError& ex )
   {
@@ -550,7 +614,6 @@ void SALOME_Notebook::AddDependencies( SALOME_Parameter* theParam )
   //printf( "Dependencies search\n" );
   std::string anEntry = theParam->GetEntry();
   std::string aParamKey = GetKey( anEntry );
-  myParameters[anEntry] = theParam;
   SALOME_StringList aDeps = theParam->Dependencies();
   SALOME_StringList::const_iterator dit = aDeps.begin(), dlast = aDeps.end();
   for( ; dit!=dlast; dit++ )
@@ -682,83 +745,106 @@ CORBA::Boolean SALOME_Notebook::Save( const char* theFileName )
   if( !aFile )
     return false;
 
-  fprintf( aFile, "\n\nnotebook\n" );
+  save( aFile, "notebook" );
 
   //1. Save dependencies
-  fprintf( aFile, "Dependencies\n" );
+  save( aFile, "dependencies" );
   std::map< std::string, std::list<std::string> >::const_iterator dit = myDependencies.begin(), dlast = myDependencies.end();
   for( ; dit!=dlast; dit++ )
   {
-    fprintf( aFile, "%s -> ", dit->first.c_str() );
+    save( aFile, dit->first );
     std::list<std::string>::const_iterator it = dit->second.begin(), last = dit->second.end();
     for( ; it!=last; it++ )
-      fprintf( aFile, "%s ", it->c_str() );
-    fprintf( aFile, "\n" );
+      save( aFile, *it );
+    save( aFile, "end" );
   }
 
   //2. Save parameters
-  fprintf( aFile, "Parameters\n" );
-  std::map< std::string, SALOME_Parameter* >::const_iterator pit = myParameters.begin(), plast = myParameters.end();
+  save( aFile, "parameters" );
+  std::list<std::string> aNames = GetParameters();
+  std::list<std::string>::const_iterator pit = aNames.begin(), plast = aNames.end();
   for( ; pit!=plast; pit++ )
-  {
-    fprintf( aFile, pit->second->Save().c_str() );
-    fprintf( aFile, "\n" );
-  }
+    myParameters[*pit]->Save( aFile );
 
   //3. Save update list
-  fprintf( aFile, "Update\n" );
+  save( aFile, "recompute list" );
   std::list< KeyHelper >::const_iterator uit = myToUpdate.begin(), ulast = myToUpdate.end();
   for( ; uit!=ulast; uit++ )
-  {
-    fprintf( aFile, uit->key().c_str() );
-    fprintf( aFile, "\n" );
-  }
+    save( aFile, uit->key() );
 
   //4. Save substitutions list
+  save( aFile, "substitutions" );
   std::list<SubstitutionInfo>::const_iterator sit = mySubstitutions.begin(), slast = mySubstitutions.end();
+  for( ; sit!=slast; sit++ )
+    Save( aFile, *sit );
 
   fclose( aFile );
   return true;
 }
 
+bool SALOME_Notebook::Save( FILE* theFile, const SubstitutionInfo& theSubstitution ) const
+{
+  save( theFile, theSubstitution.myName );
+  save( theFile, theSubstitution.myExpr );
+  save( theFile, theSubstitution.myIsRename );
+  std::list< KeyHelper >::const_iterator it = theSubstitution.myObjects.begin(), last = theSubstitution.myObjects.end();
+  for( ; it!=last; it++ )
+    save( theFile, it->key() );
+  save( theFile, "end" );
+  return true;
+}
+
+SALOME_Notebook::SubstitutionInfo SALOME_Notebook::Load( FILE* theFile, const std::string& theFirstLine ) const
+{
+  printf( "load: %i\n", (int)this );
+  SubstitutionInfo aSubstitution;
+  aSubstitution.myName = theFirstLine;
+  load( theFile, aSubstitution.myExpr );
+  int isRename; load( theFile, isRename );
+  aSubstitution.myIsRename = isRename;
+
+  std::string aLine;
+  while( true )
+  {
+    load( theFile, aLine );
+    if( aLine == "end" )
+      break;
+    aSubstitution.myObjects.push_back( KeyHelper( aLine, this ) );
+  }
+  return aSubstitution;
+}
+
 namespace State
 {
-  typedef enum { Start, Title, Dependencies, Parameters, Update } LoadState;
+  typedef enum { Start, Title, Dependencies, Parameters, Recompute, Substitute } LoadState;
 }
 
 CORBA::Boolean SALOME_Notebook::Load( const char* theFileName )
 {
-  printf( "SALOME_Notebook::Load\n" );
-
   State::LoadState aState = State::Start;
   FILE* aFile = fopen( theFileName, "r" );
   if( !aFile )
     return false;
 
-  const int BUF_SIZE = 256;
-  char aBuf[BUF_SIZE];
   bool ok = true;
+  std::string aLine;
   try
   {
-    while( ok && fgets( aBuf, BUF_SIZE, aFile ) != NULL )
+    while( true )
     {
-      int aLen = strlen( aBuf );
-      if( aLen > 0 )
-        aBuf[aLen - 1] = 0;
+      if( !load( aFile, aLine ) )
+        break;
 
-      std::string aLine = aBuf;
-      printf( "Line: '%s'\n", aBuf );
-      if( aState == State::Start )
-      {
-        if( aLine == "notebook" )
-          aState = State::Title;
-      }
-      else if( aLine == "Dependencies" )
+      if( aState == State::Start && aLine == "notebook" )
+        aState = State::Title;
+      else if( aLine == "dependencies" )
         aState = State::Dependencies;
-      else if( aLine == "Parameters" )
+      else if( aLine == "parameters" )
         aState = State::Parameters;     
-      else if( aLine == "Update" )
-        aState = State::Update;
+      else if( aLine == "recompute list" )
+        aState = State::Recompute;
+      else if( aLine == "substitutions" )
+        aState = State::Substitute;
 
       else switch( aState )
            {
@@ -768,15 +854,25 @@ CORBA::Boolean SALOME_Notebook::Load( const char* theFileName )
              break;
 
            case State::Dependencies:
-             ParseDependencies( aLine );
+             ParseDependencies( aFile, aLine );
              break;
 
            case State::Parameters:
-             AddParameter( SALOME_Parameter::Load( aLine ) );
+           {
+             SALOME_Parameter* aParam = SALOME_Parameter::Load( this, aFile, aLine );
+             if( aParam )
+               AddParameter( aParam, false );
+             else
+               return false;
+             break;
+           }
+
+           case State::Recompute:
+             myToUpdate.push_back( KeyHelper( aLine, this ) );
              break;
 
-           case State::Update:
-             myToUpdate.push_back( KeyHelper( aLine, this ) );
+           case State::Substitute:
+             mySubstitutions.push_back( Load( aFile, aLine ) );
              break;
            }
     }
@@ -791,34 +887,16 @@ CORBA::Boolean SALOME_Notebook::Load( const char* theFileName )
   return ok;
 }
 
-std::vector<std::string> SALOME_Notebook::Split( const std::string& theData, const std::string& theSeparator, bool theIsKeepEmpty )
+void SALOME_Notebook::ParseDependencies( FILE* theFile, const std::string& theFirstLine )
 {
-  std::vector<std::string> aParts;
-  int aPrev = 0, anInd = 0;
+  std::string aKey = theFirstLine, aLine;
   while( true )
   {
-    anInd = theData.find( theSeparator, aPrev );
-    if( anInd < 0 )
+    load( theFile, aLine );
+    if( aLine == "end" )
       break;
-
-    std::string aPart = theData.substr( aPrev, anInd - aPrev );
-    if( aPart.length() > 0 || theIsKeepEmpty )
-      aParts.push_back( aPart );
-
-    aPrev = anInd + 1;
+    AddDependency( aKey, aLine );
   }
-  return aParts;
-}
-
-void SALOME_Notebook::ParseDependencies( const std::string& theData )
-{
-  std::vector<std::string> aParts = Split( theData, " ", false );
-  if( aParts.size() < 2 || aParts.at( 1 ) != "->" )
-    ThrowError( arg( "Incorrect parts format: %1", theData ) );
-
-  std::string aKey = aParts[0];
-  for( int i = 2, n = aParts.size(); i < n; i++ )
-    AddDependency( aKey, aParts[i] );
 }
 
 char* SALOME_Notebook::DumpPython()
@@ -908,6 +986,7 @@ void SALOME_Notebook::Sort( std::list< KeyHelper >& theList ) const
 
 char* SALOME_Notebook::Dump()
 {
+  printf( "dump: %i\n", (int)this );
   std::string aStr;
 
   //1. Dependencies

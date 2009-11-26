@@ -39,6 +39,11 @@
 class SALOME_Parameter;
 std::string arg( const std::string& theStr, const std::string& theArg1 );
 std::string arg( const std::string& theStr, const std::string& theArg1, const std::string& theArg2 );
+std::vector<std::string> split( const std::string& theData, const std::string& theSeparator, bool theIsKeepEmpty );
+void save( FILE* theFile, const std::string& theData );
+void save( FILE* theFile, int theData );
+bool load( FILE* theFile, std::string& theData );
+bool load( FILE* theFile, int& theData );
 
 
 
@@ -76,17 +81,15 @@ public:
   int               GetNewId();
   bool              HasDependency( const std::string& theObjKey, const std::string& theRefKey ) const;
 
-  static std::vector<std::string> Split( const std::string& theData, const std::string& theSeparator, bool theIsKeepEmpty );
-
 private:
-  void AddParameter( SALOME_Parameter* theParam );
+  void AddParameter( SALOME_Parameter* theParam, bool theAddDependencies = true );
   void AddDependencies( SALOME_Parameter* theParam );
   void AddDependency( const std::string& theObjKey, const std::string& theRefKey );
   void ClearDependencies( const std::string& theObjKey, SALOME::DependenciesType theType );
   bool CheckParamName( const std::string& theParamName, std::string& theMsg ) const;
   SALOME::StringArray* GenerateList( const std::list<std::string>& theList ) const;
   std::string GetComponent( const std::string& theKey, std::string& theEntry ) const;
-  void ParseDependencies( const std::string& theData );
+  void ParseDependencies( FILE* theFile, const std::string& theFirstLine );
   std::string GetKey( SALOME::ParameterizedObject_ptr theObj ) const;
   std::string GetKey( const std::string& theComponent, const std::string& theParamName ) const;
   std::string GetKey( const std::string& theParamName ) const;
@@ -122,6 +125,8 @@ private:
   bool Substitute( SubstitutionInfo& theSubstitution );
   SubstitutionInfo CreateSubstitution( const std::string& theName, const std::string& theExpr, bool theIsRename ) const;
   void AddSubstitution( const std::string& theName, const std::string& theExpr, bool theIsRename );
+  bool Save( FILE* theFile, const SubstitutionInfo& theSubstitution ) const;
+  SubstitutionInfo Load( FILE* theFile, const std::string& theFirstLine ) const;
 
 private:
   std::map< std::string, std::list<std::string> > myDependencies;

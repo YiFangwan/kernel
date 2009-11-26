@@ -242,32 +242,62 @@ SALOME_StringList SALOME_Parameter::Dependencies() const
   return myIsCalculable ? myExpr.parser()->parameters() : SALOME_StringList();
 }
 
-std::string SALOME_Parameter::Save() const
+void SALOME_Parameter::Save( FILE* theFile ) const
 {
-  char buf[256];
-  sprintf( buf, "%s %i %i %i?", myName.c_str(), myId, (int)myIsAnonymous, (int)myIsCalculable );
-  std::string aRes = buf;
+  save( theFile, myName );
+  save( theFile, myIsAnonymous );
+  save( theFile, myIsCalculable );
   if( myIsCalculable )
-    aRes += myExpr.expression();
+    save( theFile, myExpr.expression() );
   else
   {
-    sprintf( buf, "%i %s", myResult.type(), myResult.toString().c_str() );
-    aRes += buf;
+    save( theFile, (int)myResult.type() );
+    save( theFile, myResult.toString() );
   }
-  return aRes;
 }
 
-SALOME_Parameter* SALOME_Parameter::Load( const std::string& theData )
+SALOME_Parameter* SALOME_Parameter::Load( SALOME_Notebook* theNotebook, FILE* theFile, const std::string& theFirstLine )
 {
-  std::vector<std::string> aParts = SALOME_Notebook::Split( theData, "?", false );
-  if( aParts.size() != 2 )
-    return 0;
+  std::string aName = theFirstLine;
+  int isAnonymous, isCalculable;
+  load( theFile, isAnonymous );
+  load( theFile, isCalculable );
+  if( isCalculable )
+  {
+    std::string anExpr;
+    load( theFile, anExpr );
+    return isAnonymous ? new SALOME_Parameter( theNotebook, anExpr ) : new SALOME_Parameter( theNotebook, aName, anExpr, true );
+  }
+  else
+  {
+    int aResType;
+    std::string aValue;
+    load( theFile, aResType );
+    load( theFile, aValue );
+    switch( aResType )
+    {
+    case SALOME_EvalVariant_Boolean:
+      return new SALOME_Parameter( theNotebook, aName, aValue=="true" );
 
-  char aName[256];
-  int anAnonym, aCalc, anId;
-  if( sscanf( aParts[0].c_str(), "%s %i %i %i", aName, &anId, &anAnonym, &aCalc ) < 4 )
-    return 0;
+    case SALOME_EvalVariant_Int:
+    case SALOME_EvalVariant_UInt:
+    {
+      int value;
+      if( sscanf( aValue.c_str(), "%i", &value ) == 1 )
+        return new SALOME_Parameter( theNotebook, aName, value );
+    }
 
+    case SALOME_EvalVariant_Double:
+    {
+      double value;
+      if( sscanf( aValue.c_str(), "%lf", &value ) == 1 )
+        return new SALOME_Parameter( theNotebook, aName, value );
+    }
+
+    case SALOME_EvalVariant_String:
+      return new SALOME_Parameter( theNotebook, aName, aValue, false );
+    }
+  }
   return 0;
 }
 
@@ -293,14 +323,14 @@ char* SALOME_Parameter::GetExpression( CORBA::Boolean theForceConvert )
 
 void SALOME_Parameter::Substitute( const std::string& theName, const SALOME_EvalExpr& theExpr )
 {
-  if( !IsCalculable() )
-    return;
-  
   if( myName == theName )
   {
     myName = theExpr.expression();
     return;
   }
+
+  if( !IsCalculable() )
+    return;
 
   myExpr.substitute( theName, theExpr );
   if( IsAnonymous() )

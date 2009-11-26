@@ -60,8 +60,6 @@ SALOMEDS::TMPFile* SALOME_NotebookDriver::SaveASCII( SALOMEDS::SComponent_ptr th
 CORBA::Boolean SALOME_NotebookDriver::Load( SALOMEDS::SComponent_ptr theComponent, const SALOMEDS::TMPFile& theStream,
                                             const char* theURL, bool isMultiFile )
 {
-  printf( "SALOME_NotebookDriver::Load\n" );
-
   // Get a temporary directory for a file
   std::string aTmpDir = isMultiFile ? theURL : SALOMEDS_Tool::GetTmpDir();
 

@@ -73,8 +73,8 @@ public:
 
   virtual char* GetExpression( CORBA::Boolean theForceConvert );
 
-  std::string Save() const;
-  static SALOME_Parameter* Load( const std::string& theData );
+  void Save( FILE* theFile ) const;
+  static SALOME_Parameter* Load( SALOME_Notebook* theNotebook, FILE* theFile, const std::string& theFirstLine );
 
   bool IsAnonymous() const;
   bool IsCalculable() const;
