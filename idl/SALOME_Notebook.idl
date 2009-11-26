@@ -122,7 +122,7 @@ module SALOME
 
 
 
-    //! change expression of the parameter
+    //! get expression of the parameter
     string GetExpression( in boolean forceConvert );
 
     //! return type of parameter
@@ -199,7 +199,7 @@ module SALOME
     StringArray Parameters();
 
     //! return list of necessary (by dependencies), but absent parameters
-    StringArray AbsentParameters();
+    StringArray AbsentParameters( in string expr );
 
 
     //persistence management
