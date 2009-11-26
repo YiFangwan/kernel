@@ -474,8 +474,8 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
 
   if (xmlHasProp(machine_descr, (const xmlChar*)test_cluster_internal_protocol))
   {
-    xmlChar* protocol= xmlGetProp(machine_descr, (const xmlChar*)test_cluster_internal_protocol);
-    switch ( protocol[0])
+    xmlChar* iprotocol= xmlGetProp(machine_descr, (const xmlChar*)test_cluster_internal_protocol);
+    switch ( iprotocol[0])
     {
       case 'r':
 	resource.ClusterInternalProtocol = rsh;
@@ -488,10 +488,10 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
 	resource.ClusterInternalProtocol = rsh;
 	break;
     }
-    xmlFree(protocol);
+    xmlFree(iprotocol);
   }
   else
-    resource.ClusterInternalProtocol = rsh;
+    resource.ClusterInternalProtocol = resource.Protocol;
 
   if (xmlHasProp(machine_descr, (const xmlChar*)test_mode))
   {
