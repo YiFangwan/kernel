@@ -39,6 +39,7 @@
 #include <Batch/Batch_Job.hxx>
 #include <Batch/Batch_Date.hxx>
 #include <Batch/Batch_JobId.hxx>
+#include <Batch/Batch_EmulationException.hxx>
 #endif
 
 namespace Launcher

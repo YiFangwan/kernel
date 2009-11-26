@@ -290,7 +290,8 @@ Launcher_cpp::removeJob(int job_id)
     throw LauncherException("Cannot find the job, is it created ?");
   }
 
-  _launcher_job_map.erase(it_job); // Erase call delete on it_job->second
+  delete it_job->second;
+  _launcher_job_map.erase(it_job);
 }
 
 //=============================================================================
@@ -322,7 +323,7 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
 
   machineParams p;
   p.hostname = clusterName;
-  p.nb_node = job_params.NbOfProcesses;
+  p.nb_proc = job_params.NbOfProcesses;
   new_job->setMachineRequiredParams(p);
 
   createJob(new_job);

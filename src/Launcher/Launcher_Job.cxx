@@ -37,6 +37,7 @@ Launcher::Job::Job()
   _maximum_duration_in_second = -1;
   _machine_required_params.hostname = "";
   _machine_required_params.OS = "";
+  _machine_required_params.nb_proc = -1;
   _machine_required_params.nb_node = -1;
   _machine_required_params.nb_proc_per_node = -1;
   _machine_required_params.cpu_clock = -1;
@@ -55,7 +56,16 @@ Launcher::Job::~Job()
   LAUNCHER_MESSAGE("Deleting job number: " << _number);
 #ifdef WITH_LIBBATCH
   if (_batch_job_id.getReference() != "undefined")
-    _batch_job_id.deleteJob();
+  {
+    try 
+    {
+      _batch_job_id.deleteJob();
+    }
+    catch (const Batch::EmulationException &ex)
+    {
+      LAUNCHER_INFOS("WARNING: exception when deleting the job: " << ex.message);
+    }
+  }
   if (_batch_job)
     delete _batch_job;
 #endif
@@ -303,10 +313,10 @@ Launcher::Job::checkMaximumDuration(const std::string & maximum_duration)
 void 
 Launcher::Job::checkMachineRequiredParams(const machineParams & machine_required_params)
 {
-  // nb_node has be to > 0
-  if (machine_required_params.nb_node <= 0)
+  // nb_proc has be to > 0
+  if (machine_required_params.nb_proc <= 0)
   {
-    std::string message("[Launcher::Job::checkMachineRequiredParams] node number is not >0 ! ");
+    std::string message("[Launcher::Job::checkMachineRequiredParams] proc number is not > 0 ! ");
     throw LauncherException(message);
   }
 }
@@ -393,7 +403,7 @@ Launcher::Job::common_job_params()
   Batch::Parametre params;
 
   params[USER] = _machine_definition.UserName;
-  params[NBPROC] = _machine_required_params.nb_node;
+  params[NBPROC] = _machine_required_params.nb_proc;
 
   // Memory
   if (_machine_required_params.mem_mb > 0)
@@ -416,7 +426,7 @@ Launcher::Job::common_job_params()
       }
       i++ ;
     }
-    _work_directory = std::string("Batch/");
+    _work_directory = std::string("$HOME/Batch/");
     _work_directory += thedate;
   }
   params[WORKDIR] = _work_directory;

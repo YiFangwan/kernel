@@ -146,6 +146,7 @@ SALOME_ResourcesManager::GetFittingResources(const Engines::MachineParameters& p
   machineParams p;
   p.hostname = params.hostname;
   p.OS = params.OS;
+  p.nb_proc = params.nb_proc;
   p.nb_node = params.nb_node;
   p.nb_proc_per_node = params.nb_proc_per_node;
   p.cpu_clock = params.cpu_clock;

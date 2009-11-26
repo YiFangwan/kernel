@@ -1364,6 +1364,7 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
   rtn->cpu_clock = params.cpu_clock;
   rtn->nb_proc_per_node = params.nb_proc_per_node;
   rtn->nb_node = params.nb_node;
+  rtn->nb_proc = params.nb_proc;
   rtn->isMPI = params.isMPI;
 
   // Step 1 : local or remote launch ?

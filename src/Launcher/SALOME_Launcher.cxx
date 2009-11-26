@@ -152,6 +152,7 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
     machineParams p;
     p.hostname = job_parameters.resource_required.hostname;
     p.OS = job_parameters.resource_required.OS;
+    p.nb_proc = job_parameters.resource_required.nb_proc;
     p.nb_node = job_parameters.resource_required.nb_node;
     p.nb_proc_per_node = job_parameters.resource_required.nb_proc_per_node;
     p.cpu_clock = job_parameters.resource_required.cpu_clock;

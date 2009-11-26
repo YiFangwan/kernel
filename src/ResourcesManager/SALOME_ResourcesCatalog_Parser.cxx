@@ -27,6 +27,7 @@
 
 using namespace std;
 
+unsigned int ResourceDataToSort::_nbOfProcWanted = NULL_VALUE;
 unsigned int ResourceDataToSort::_nbOfNodesWanted = NULL_VALUE;
 unsigned int ResourceDataToSort::_nbOfProcPerNodeWanted = NULL_VALUE;
 unsigned int ResourceDataToSort::_CPUFreqMHzWanted = NULL_VALUE;
@@ -57,6 +58,19 @@ bool ResourceDataToSort::operator< (const ResourceDataToSort& other) const
 unsigned int ResourceDataToSort::GetNumberOfPoints() const
   {
     unsigned int ret = 0;
+    //priority 0 : Nb of proc
+
+    if (_nbOfProcWanted != NULL_VALUE)
+      {
+	unsigned int nb_proc = _nbOfNodes * _nbOfProcPerNode;
+        if (nb_proc == _nbOfProcWanted)
+          ret += 30000;
+        else if (nb_proc > _nbOfProcWanted)
+          ret += 20000;
+        else
+          ret += 10000;
+      }
+
     //priority 1 : Nb of nodes
 
     if (_nbOfNodesWanted != NULL_VALUE)

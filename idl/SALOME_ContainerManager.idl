@@ -53,6 +53,8 @@ struct MachineParameters
   MachineList computerList;
   //! required operating system 
   string OS;
+  //! required number of proc
+  long nb_proc;
   //! required memory size
   long mem_mb;
   //! required frequency

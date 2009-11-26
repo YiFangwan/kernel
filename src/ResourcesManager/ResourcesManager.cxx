@@ -253,6 +253,8 @@ ResourcesManager_cpp::GetFittingResources(const machineParams& params) throw(Res
       SelectOnlyResourcesWithOS(vec, params.OS.c_str());
     
     // --- set wanted parameters
+    ResourceDataToSort::_nbOfProcWanted = params.nb_proc;
+
     ResourceDataToSort::_nbOfNodesWanted = params.nb_node;
       
     ResourceDataToSort::_nbOfProcPerNodeWanted = params.nb_proc_per_node;

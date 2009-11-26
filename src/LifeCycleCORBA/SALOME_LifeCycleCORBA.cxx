@@ -360,6 +360,7 @@ SALOME_LifeCycleCORBA::isMpiContainer(const Engines::MachineParameters& params)
  *  - container_name = ""  : not relevant
  *  - hostname = ""        : not relevant
  *  - OS = ""              : not relevant
+ *  - nb_proc = 0          : not relevant
  *  - mem_mb = 0           : not relevant
  *  - cpu_clock = 0        : not relevant
  *  - nb_proc_per_node = 0 : not relevant
@@ -375,6 +376,7 @@ void SALOME_LifeCycleCORBA::preSet( Engines::MachineParameters& params)
   //param.componentList = 0;
   //param.computerList = 0;
   params.OS = "";
+  params.nb_proc = 0;
   params.mem_mb = 0;
   params.cpu_clock = 0;
   params.nb_proc_per_node = 0;

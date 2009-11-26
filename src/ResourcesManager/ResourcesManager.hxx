@@ -48,6 +48,7 @@ struct machineParams{
   std::string hostname;
   std::string OS;
   std::string parallelLib;
+  unsigned int nb_proc;
   unsigned int nb_node;
   unsigned int nb_proc_per_node;
   unsigned int cpu_clock;

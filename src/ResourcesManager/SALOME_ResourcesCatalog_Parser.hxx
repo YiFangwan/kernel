@@ -53,6 +53,7 @@ class RESOURCESMANAGER_EXPORT ResourceDataToSort
     unsigned int _nbOfProcPerNode;
     unsigned int _CPUFreqMHz;
     unsigned int _memInMB;
+    static unsigned int _nbOfProcWanted;
     static unsigned int _nbOfNodesWanted;
     static unsigned int _nbOfProcPerNodeWanted;
     static unsigned int _CPUFreqMHzWanted;

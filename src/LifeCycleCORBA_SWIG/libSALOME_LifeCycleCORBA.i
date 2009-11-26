@@ -153,6 +153,10 @@ using namespace std;
            {
              param->OS = CORBA::string_dup(PyString_AsString(value));
            }
+         else if (strcmp(keystr,"nb_proc")==0)
+           {
+             param->nb_proc = PyLong_AsLong(value);
+           }
          else if (strcmp(keystr,"mem_mb")==0)
            {
              param->mem_mb = PyLong_AsLong(value);
