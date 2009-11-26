@@ -796,7 +796,6 @@ bool SALOME_Notebook::Save( FILE* theFile, const SubstitutionInfo& theSubstituti
 
 SALOME_Notebook::SubstitutionInfo SALOME_Notebook::Load( FILE* theFile, const std::string& theFirstLine ) const
 {
-  printf( "load: %i\n", (int)this );
   SubstitutionInfo aSubstitution;
   aSubstitution.myName = theFirstLine;
   load( theFile, aSubstitution.myExpr );
@@ -986,7 +985,6 @@ void SALOME_Notebook::Sort( std::list< KeyHelper >& theList ) const
 
 char* SALOME_Notebook::Dump()
 {
-  printf( "dump: %i\n", (int)this );
   std::string aStr;
 
   //1. Dependencies
