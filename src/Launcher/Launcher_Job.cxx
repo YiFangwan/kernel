@@ -373,16 +373,16 @@ Launcher::Job::updateJobState()
     LAUNCHER_MESSAGE("State received is: " << par[STATE].str());
 
     // Patch until new LIBBATCH version
-    // eSSH Client and ePBS Client
-    if (par[STATE].str() == "Running" or par[STATE].str() == "E" or par[STATE].str() == "R")
+    // eSSH Client and ePBS Client and eSGE
+    if (par[STATE].str() == "Running" or par[STATE].str() == "E" or par[STATE].str() == "R" or par[STATE].str() == "r")
       _state = "RUNNING";
     else if (par[STATE].str() == "Stopped")
       _state = "PAUSED";
-    else if (par[STATE].str() == "Done" or par[STATE].str() == "U")
+    else if (par[STATE].str() == "Done" or par[STATE].str() == "U" or par[STATE].str() == "e")
       _state = "FINISHED";
-    else if (par[STATE].str() == "Dead")
+    else if (par[STATE].str() == "Dead" or par[STATE].str() == "Eqw")
       _state = "ERROR";
-    else if (par[STATE].str() == "Q")
+    else if (par[STATE].str() == "Q" or par[STATE].str() == "qw")
       _state = "QUEUED";
   }
 #endif

@@ -70,7 +70,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
 
   // -- Generates Catalog Resources
   std::string machine_protocol = "ssh";
-  if (_machine_definition.Protocol == rsh)
+  if (_machine_definition.ClusterInternalProtocol == rsh)
     machine_protocol = "rsh";
   
   launch_script_stream << "if [ \"x$LIBBATCH_NODEFILE\" != \"x\" ]; then " << std::endl;

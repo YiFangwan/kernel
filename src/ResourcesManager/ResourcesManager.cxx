@@ -300,7 +300,8 @@ AddResourceInCatalog(const machineParams& paramsOfNewResources,
                      const char *alias,
                      const char *userName,
                      AccessModeType mode,
-                     AccessProtocolType prot)
+                     AccessProtocolType prot,
+                     AccessProtocolType iprot)
 throw(ResourcesException)
 {
   vector<string>::const_iterator iter = find(componentsOnNewResources.begin(),
@@ -313,6 +314,7 @@ throw(ResourcesException)
       newElt.DataForSort._hostName = paramsOfNewResources.hostname;
       newElt.Alias = alias;
       newElt.Protocol = prot;
+      newElt.ClusterInternalProtocol = iprot;
       newElt.Mode = mode;
       newElt.UserName = userName;
       newElt.ComponentsList = componentsOnNewResources;

@@ -77,6 +77,7 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesClusterMembersType
 {
   std::string HostName;
   AccessProtocolType Protocol;
+  AccessProtocolType ClusterInternalProtocol;
   std::string UserName;
   std::string AppliPath;
   ResourceDataToSort DataForSort;
@@ -88,6 +89,7 @@ struct RESOURCESMANAGER_EXPORT ParserResourcesType
   std::string HostName;
   std::string Alias;
   AccessProtocolType Protocol;
+  AccessProtocolType ClusterInternalProtocol;
   AccessModeType Mode;
   BatchType Batch;
   MpiImplType mpi;

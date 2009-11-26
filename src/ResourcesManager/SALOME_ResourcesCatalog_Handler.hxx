@@ -69,6 +69,7 @@ class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
     const char *test_hostname;
     const char *test_alias;
     const char *test_protocol;
+    const char *test_cluster_internal_protocol;
     const char *test_mode;
     const char *test_batch;
     const char *test_mpi;

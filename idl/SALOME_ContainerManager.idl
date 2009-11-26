@@ -90,6 +90,8 @@ struct MachineDefinition
   string alias;
   //! protocol to use to start a remote container (ssh or rsh)
   string protocol;
+  //! cluster internal protocol to use to start a remote container (ssh or rsh) on the cluster
+  string iprotocol;
   //! login name to use to start a remote container
   string username;
   //! salome application to use to start a remote container

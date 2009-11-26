@@ -139,6 +139,7 @@ void ParserResourcesType::Print()
     "CPUFreqMHz : " << DataForSort._CPUFreqMHz << endl <<
     "MemInMB : " << DataForSort._memInMB << endl <<
     "Protocol : " << Protocol << endl <<
+    "ClusterInternalProtocol : " << ClusterInternalProtocol << endl <<
     "Mode : " << Mode << endl <<
     "Batch : " << Batch << endl <<
     "mpi : " << mpi << endl <<
@@ -177,6 +178,7 @@ void ParserResourcesType::Clear()
   HostName = "";
   Alias = "";
   Protocol = rsh;
+  ClusterInternalProtocol = rsh;
   Mode = interactive;
   Batch = none;
   mpi = nompi;

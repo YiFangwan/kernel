@@ -87,7 +87,8 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
      const char *alias,
      const char *userName,
      AccessModeType mode,
-     AccessProtocolType prot) throw(ResourcesException);
+     AccessProtocolType prot,
+     AccessProtocolType iprot) throw(ResourcesException);
 
     void DeleteResourceInCatalog(const char *hostname);
 

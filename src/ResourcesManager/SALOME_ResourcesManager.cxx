@@ -210,6 +210,10 @@ Engines::MachineDefinition* SALOME_ResourcesManager::GetMachineParameters(const 
     p_ptr->protocol = "rsh";
   else if( resource.Protocol == ssh )
     p_ptr->protocol = "ssh";
+  if( resource.ClusterInternalProtocol == rsh )
+    p_ptr->iprotocol = "rsh";
+  else if( resource.ClusterInternalProtocol == ssh )
+    p_ptr->iprotocol = "ssh";
   p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
   p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
   p_ptr->componentList.length(resource.ComponentsList.size());
@@ -267,6 +271,7 @@ SALOME_ResourcesManager::getMachineFile(std::string hostname, CORBA::Long nb_pro
 	ParserResourcesClusterMembersType fake_node;
 	fake_node.HostName = resource.HostName;
 	fake_node.Protocol = resource.Protocol;
+	fake_node.ClusterInternalProtocol = resource.ClusterInternalProtocol;
 	fake_node.UserName = resource.UserName;
 	fake_node.AppliPath = resource.AppliPath;
 	fake_node.DataForSort = resource.DataForSort;
@@ -324,6 +329,7 @@ SALOME_ResourcesManager::getMachineFile(std::string hostname, CORBA::Long nb_pro
 	ParserResourcesClusterMembersType fake_node;
 	fake_node.HostName = resource.HostName;
 	fake_node.Protocol = resource.Protocol;
+	fake_node.ClusterInternalProtocol = resource.ClusterInternalProtocol;
 	fake_node.UserName = resource.UserName;
 	fake_node.AppliPath = resource.AppliPath;
 	fake_node.DataForSort = resource.DataForSort;
