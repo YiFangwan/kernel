@@ -73,21 +73,22 @@ public:
 
   virtual char* GetExpression( CORBA::Boolean theForceConvert );
 
-  SALOME_StringList Dependencies() const;
-
   std::string Save() const;
   static SALOME_Parameter* Load( const std::string& theData );
 
   bool IsAnonymous() const;
   bool IsCalculable() const;
 
+  SALOME_StringList Dependencies() const;
   void Substitute( const std::string& theName, const SALOME_EvalExpr& theExpr );
+  int  GetId() const;
 
 private:
   void ThrowTypeError( const std::string& theMsg );
   void ThrowError( bool isCalc, const std::string& theMsg );
   void InternalSetExpression( const std::string& theExpr );
   void AnalyzeError();
+  void SetId();
 
 private:
   SALOME_Notebook* myNotebook;
@@ -95,6 +96,7 @@ private:
   SALOME_EvalExpr myExpr;
   SALOME_EvalVariant myResult;
   bool myIsAnonymous, myIsCalculable;
+  int myId;
 };
 
 #endif

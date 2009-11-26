@@ -33,21 +33,25 @@
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, bool theValue )
 : myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonymous( false ), myIsCalculable( false )
 {
+  SetId();
 }
 
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, int theValue )
 : myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonymous( false ), myIsCalculable( false )
 {
+  SetId();
 }
 
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, double theValue )
 : myNotebook( theNotebook ), myName( theName ), myResult( theValue ), myIsAnonymous( false ), myIsCalculable( false )
 {
+  SetId();
 }
 
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, const std::string& theData, bool isExpr )
 : myNotebook( theNotebook ), myName( theName ), myIsAnonymous( false ), myIsCalculable( isExpr )
 {
+  SetId();
   if( isExpr )
   {
     InternalSetExpression( theData );
@@ -60,6 +64,7 @@ SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::str
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theExpr )
 : myNotebook( theNotebook ), myName( theExpr ), myExpr( theExpr ), myIsAnonymous( true ), myIsCalculable( true )
 {
+  SetId();
   Update( SALOME::Notebook::_nil() );
 }
 
@@ -240,7 +245,7 @@ SALOME_StringList SALOME_Parameter::Dependencies() const
 std::string SALOME_Parameter::Save() const
 {
   char buf[256];
-  sprintf( buf, "%s %i %i?", myName.c_str(), (int)myIsAnonymous, (int)myIsCalculable );
+  sprintf( buf, "%s %i %i %i?", myName.c_str(), myId, (int)myIsAnonymous, (int)myIsCalculable );
   std::string aRes = buf;
   if( myIsCalculable )
     aRes += myExpr.expression();
@@ -259,11 +264,10 @@ SALOME_Parameter* SALOME_Parameter::Load( const std::string& theData )
     return 0;
 
   char aName[256];
-  int anAnonym, aCalc;
-  if( sscanf( aParts[0].c_str(), "%s %i %i", aName, &anAnonym, &aCalc ) < 3 )
+  int anAnonym, aCalc, anId;
+  if( sscanf( aParts[0].c_str(), "%s %i %i %i", aName, &anId, &anAnonym, &aCalc ) < 4 )
     return 0;
 
-  printf( "load param: %s\n", aName );
   return 0;
 }
 
@@ -406,4 +410,14 @@ void SALOME_Parameter::ThrowError( bool isCalc, const std::string& theMsg )
     anError.Reason = CORBA::string_dup( theMsg.c_str() );
     throw anError;
   }
+}
+
+void SALOME_Parameter::SetId()
+{
+  myId = myNotebook->GetNewId();
+}
+
+int SALOME_Parameter::GetId() const
+{
+  return myId;
 }

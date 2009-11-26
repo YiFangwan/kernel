@@ -63,7 +63,7 @@ public:
   virtual void Rename( const char* theOldName, const char* theNewName );
   virtual SALOME::Parameter_ptr GetParameter( const char* theParamName );
   virtual SALOME::StringArray* Parameters();
-  virtual SALOME::StringArray* AbsentParameters();
+  virtual SALOME::StringArray* AbsentParameters( const char* theExpr );
 
   virtual CORBA::Boolean Save( const char* theFileName );
   virtual CORBA::Boolean Load( const char* theFileName );
@@ -72,7 +72,9 @@ public:
   virtual char*          GetParameters( const char* theComponent, const char* theEntry );
 
   SALOME_Parameter* GetParameterPtr( const char* theParamName ) const;
-  void UpdateAnonymous( const std::string& theOldName, const std::string& theNewName );
+  void              UpdateAnonymous( const std::string& theOldName, const std::string& theNewName );
+  int               GetNewId();
+  bool              HasDependency( const std::string& theObjKey, const std::string& theRefKey ) const;
 
   static std::vector<std::string> Split( const std::string& theData, const std::string& theSeparator, bool theIsKeepEmpty );
 
@@ -85,7 +87,6 @@ private:
   SALOME::StringArray* GenerateList( const std::list<std::string>& theList ) const;
   std::string GetComponent( const std::string& theKey, std::string& theEntry ) const;
   void ParseDependencies( const std::string& theData );
-
   std::string GetKey( SALOME::ParameterizedObject_ptr theObj ) const;
   std::string GetKey( const std::string& theComponent, const std::string& theParamName ) const;
   std::string GetKey( const std::string& theParamName ) const;
@@ -93,9 +94,9 @@ private:
   SALOME::ParameterizedObject_ptr FindObject( const std::string& theKey ) const;
   void ThrowError( const std::string& theErrorMsg ) const;
   bool CanUpdate( SALOME::ParameterizedObject_ptr theObj ) const;
+  std::list<std::string> GetParameters() const;
 
 private:
-  friend class KeyHelper;
   class KeyHelper
   {
   public:
@@ -130,6 +131,7 @@ private:
   SALOMEDS::Study_var myStudy;
   Utils_Mutex myMutex;
   bool myUpdateOnlyParameters;
+  int myMaxId;
 };
 
 #endif
