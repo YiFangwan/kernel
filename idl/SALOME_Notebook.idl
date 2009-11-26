@@ -169,10 +169,10 @@ module SALOME
     //parameters management
 
     //! add new parameter (expression) into notebook
-    void AddExpression( in string expr ) raises( NotebookError, ExpressionError );
+    void AddExpression( in string expr ) raises( NotebookError, ExpressionError, CalculationError );
 
     //! add new parameter (named expression) into notebook
-    void AddNamedExpression( in string name, in string expr ) raises( NotebookError, ExpressionError );
+    void AddNamedExpression( in string name, in string expr ) raises( NotebookError, ExpressionError, CalculationError );
 
     //! add new parameter (boolean value) into notebook
     void AddBoolean( in string name, in boolean value ) raises( NotebookError );
