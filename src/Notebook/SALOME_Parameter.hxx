@@ -71,6 +71,8 @@ public:
   virtual CORBA::Double  AsReal();
   virtual CORBA::Boolean AsBoolean();
 
+  virtual char* GetExpression( CORBA::Boolean theForceConvert );
+
   SALOME_StringList Dependencies() const;
 
   std::string Save() const;
@@ -79,7 +81,6 @@ public:
   bool IsAnonymous() const;
   bool IsCalculable() const;
 
-  std::string Expression() const;
   void Substitute( const std::string& theName, const SALOME_EvalExpr& theExpr );
 
 private:

@@ -396,7 +396,7 @@ void SALOME_Notebook::Remove( const char* theParamName )
   {
     std::string anExpr;
     if( aParam->IsCalculable() )
-      anExpr = aParam->Expression();
+      anExpr = aParam->GetExpression( false );
     else
       anExpr = aParam->AsString();
     AddSubstitution( theParamName, anExpr, false );
@@ -815,7 +815,7 @@ char* SALOME_Notebook::DumpPython()
     if( aParam->IsCalculable() )
     {
       aRes += "\"";
-      aRes += aParam->Expression();
+      aRes += aParam->GetExpression( false );
       aRes += "\"";
     }
     else
@@ -899,7 +899,7 @@ char* SALOME_Notebook::Dump()
     if( pit->second->IsAnonymous() )
       aStr += "[A] ";
     if( pit->second->IsCalculable() )
-      aStr += pit->second->Expression() + " (val=" + pit->second->AsString() + ")";
+      aStr += std::string( pit->second->GetExpression( false ) ) + " (val=" + pit->second->AsString() + ")";
     else
       aStr += pit->second->AsString();
     aStr += "\n";

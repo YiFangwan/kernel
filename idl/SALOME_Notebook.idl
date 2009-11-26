@@ -122,6 +122,9 @@ module SALOME
 
 
 
+    //! change expression of the parameter
+    string GetExpression( in boolean forceConvert );
+
     //! return type of parameter
     ParamType GetType();
 

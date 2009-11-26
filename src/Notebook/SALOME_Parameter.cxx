@@ -277,9 +277,14 @@ bool SALOME_Parameter::IsCalculable() const
   return myIsCalculable;
 }
 
-std::string SALOME_Parameter::Expression() const
+char* SALOME_Parameter::GetExpression( CORBA::Boolean theForceConvert )
 {
-  return myExpr.expression();
+  const char* aRes;
+  if( IsCalculable() )
+    aRes = myExpr.expression().c_str();
+  else
+    aRes = theForceConvert ? myResult.toString().c_str() : "";
+  return CORBA::string_dup( aRes );
 }
 
 void SALOME_Parameter::Substitute( const std::string& theName, const SALOME_EvalExpr& theExpr )
