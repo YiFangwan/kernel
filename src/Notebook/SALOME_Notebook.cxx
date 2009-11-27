@@ -640,8 +640,8 @@ void SALOME_Notebook::AddDependency( const std::string& theObjKey, const std::st
   bool ok = find( aList.begin(), aList.end(), theRefKey ) == aList.end();
   if( ok )
     aList.push_back( theRefKey );
-  else
-    ThrowError( arg( "Dependency %1 -> %2 is already created", anObjName, aRefName ) );
+  //else
+  //  ThrowError( arg( "Dependency %1 -> %2 is already created", anObjName, aRefName ) );
 }
 
 void SALOME_Notebook::ClearDependencies( const std::string& theObjKey, SALOME::DependenciesType theType )
