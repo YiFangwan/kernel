@@ -73,6 +73,8 @@ class Notebook:
                 self.myNotebook.AddBoolean( variableName, variable )
             else:
                 aParam.SetBoolean( variable )
+
+        self.myNotebook.Update( 1 )
             
     def get( self, variableName ):
 	"""
