@@ -240,7 +240,8 @@ bool SALOME_Notebook::CanUpdate( SALOME::ParameterizedObject_ptr theObj ) const
   if( CORBA::is_nil( theObj ) )
     return false;
 
-  return !myUpdateOnlyParameters || !CORBA::is_nil( SALOME::Parameter::_narrow( theObj ) );
+  SALOME::Parameter_var aParam = SALOME::Parameter::_narrow( theObj );
+  return !myUpdateOnlyParameters || !CORBA::is_nil( aParam );
 }
 
 void SALOME_Notebook::Update( CORBA::Boolean theOnlyParameters )
@@ -660,7 +661,8 @@ void SALOME_Notebook::ClearDependencies( const std::string& theObjKey, SALOME::D
     std::list<std::string>::const_iterator dit = it->second.begin(), dlast = it->second.end();
     for( ; dit!=dlast; dit++ )
     {
-      SALOME::Parameter_var aParam = SALOME::Parameter::_narrow( FindObject( *dit ) );
+      SALOME::ParameterizedObject_var anObj = FindObject( *dit );
+      SALOME::Parameter_var aParam = SALOME::Parameter::_narrow( anObj );
       if( ( !CORBA::is_nil( aParam ) && theType == SALOME::Objects ) || theType == SALOME::Parameters )
         aNewDeps.push_back( *dit );
     }
@@ -730,11 +732,17 @@ std::string SALOME_Notebook::GetComponent( const std::string& theKey, std::strin
 
 SALOME::ParameterizedObject_ptr SALOME_Notebook::FindObject( const std::string& theKey ) const
 {
+  SALOME::ParameterizedObject_var aPObj;
   std::string anEntry, aComponent = GetComponent( theKey, anEntry );
-  if( aComponent == PARAM_COMPONENT )
-    return GetParameterPtr( anEntry.c_str() )->_this();
-  else
-    return SALOME::ParameterizedObject::_narrow( myStudy->FindObjectByInternalEntry( aComponent.c_str(), anEntry.c_str() ) );
+  if( aComponent == PARAM_COMPONENT ) {
+    SALOME_Notebook* that = const_cast<SALOME_Notebook*>( this );
+    aPObj = that->GetParameter( anEntry.c_str() );
+  }
+  else {
+    SALOME::GenericObj_var anObject = myStudy->FindObjectByInternalEntry( aComponent.c_str(), anEntry.c_str() );
+    aPObj = SALOME::ParameterizedObject::_narrow( anObject );
+  }
+  return aPObj._retn();
 }
 
 CORBA::Boolean SALOME_Notebook::Save( const char* theFileName )
@@ -919,7 +927,7 @@ char* SALOME_Notebook::DumpPython()
     GetComponent( pit->key(), anEntry );
 
     SALOME_Parameter* aParam = GetParameterPtr( anEntry.c_str() );
-    if( aParam->IsAnonymous() )
+    if( !aParam || aParam->IsAnonymous() )
       continue;
 
     aRes += "notebook.set( ";

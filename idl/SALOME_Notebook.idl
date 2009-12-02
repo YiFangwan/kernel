@@ -162,7 +162,7 @@ module SALOME
     void SetToUpdate( in ParameterizedObject obj ) raises( NotebookError );
 
     //! update all objects marked as "need to update"
-    void Update( in boolean onlyParameters );
+    void Update( in boolean onlyParameters ) raises( NotebookError, ExpressionError, CalculationError );
 
 
 
