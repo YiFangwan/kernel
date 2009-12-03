@@ -108,6 +108,8 @@ namespace Launcher
 
       std::string _job_file;
       std::string _job_file_name;
+      std::string _job_file_name_complete;
+
       std::string _work_directory;
       std::string _local_directory;
       std::string _result_directory;

@@ -35,7 +35,7 @@ Launcher::Job_PythonSALOME::setJobFile(const std::string & job_file)
 void
 Launcher::Job_PythonSALOME::addJobTypeSpecificScript(std::ofstream & launch_script_stream)
 {
-  launch_script_stream << _machine_definition.AppliPath << "/runSession -p $appli_port python " << _job_file_name << ".py > logs/python_" << _launch_date << ".log 2>&1" << std::endl;
+  launch_script_stream << _machine_definition.AppliPath << "/runSession -p $appli_port python " << _job_file_name_complete << " > logs/python_" << _launch_date << ".log 2>&1" << std::endl;
 }
 #endif
 

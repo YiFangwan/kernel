@@ -43,7 +43,6 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
 
   // File name
   std::string::size_type p1 = _job_file.find_last_of("/");
-  std::string command_file_name = _job_file.substr(p1+1);
   
   std::string launch_date_port_file = launch_date;
   std::string launch_script = "/tmp/runCommand_" + _job_file_name + "_" + launch_date + ".sh";
@@ -58,7 +57,7 @@ Launcher::Job_Command::buildCommandScript(Batch::Parametre params, std::string l
     std::string::size_type last = _env_file.find_last_of("/");
     launch_script_stream << "source ./" << _env_file.substr(last+1) << std::endl;
   }
-  launch_script_stream << "./" << command_file_name << " > " << work_directory <<"/logs/command_" << launch_date << ".log 2>&1" << std::endl;
+  launch_script_stream << "./" << _job_file_name_complete << " > " << work_directory <<"/logs/command_" << launch_date << ".log 2>&1" << std::endl;
 
   // Return
   launch_script_stream.flush();

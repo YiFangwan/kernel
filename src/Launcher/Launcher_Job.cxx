@@ -30,6 +30,7 @@ Launcher::Job::Job()
   _env_file = "";
   _job_file = "";
   _job_file_name = "";
+  _job_file_name_complete = "";
   _work_directory = "";
   _local_directory = "";
   _result_directory = "";
@@ -146,7 +147,9 @@ Launcher::Job::setJobFile(const std::string & job_file)
   _job_file = job_file;
   std::string::size_type p1 = _job_file.find_last_of("/");
   std::string::size_type p2 = _job_file.find_last_of(".");
+  _job_file_name_complete = _job_file.substr(p1+1);
   _job_file_name = _job_file.substr(p1+1,p2-p1-1);
+
   if (_job_file != "")
     add_in_file(_job_file);
 }
