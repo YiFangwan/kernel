@@ -68,6 +68,8 @@ public:
   SALOME_StringList          parameters     () const;
   bool                       isMonoParam    () const;
 
+  virtual bool               hasPostfix( const SALOME_String& theName ) const;
+
   static SALOME_String       toString( const SALOME_ListOfEvalVariant& theList );
 
 protected:

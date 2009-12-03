@@ -946,6 +946,19 @@ bool SALOME_EvalParser::isMonoParam() const
 }
 
 //=======================================================================
+//function : isMonoParam
+//purpose  :
+//=======================================================================
+bool SALOME_EvalParser::hasPostfix( const SALOME_String& theName ) const
+{
+  Postfix::const_iterator it = myPostfix.begin(), last = myPostfix.end();
+  for( ; it!=last; it++ )
+    if( it->myValue.toString() == theName )
+      return true;
+  return false;
+}
+
+//=======================================================================
 //function : substitute
 //purpose  :
 //=======================================================================

@@ -309,11 +309,25 @@ bool SALOME_Notebook::Substitute( SubstitutionInfo& theSubstitution )
       for( int i=0; i<n; i++ )
       {
         //printf( "\t%s\n", aParams[i].in() );
+        // the code below has been improved to take into account cases when
+        // a parameter is not just a variable name, but an expression
+        // (to discuss with ASL)
+        /*
         if( anOldName == aParams[i].in() )
         {
           if( !isRename )
             AddExpression( aNewName.c_str() );
           aParams[i] = CORBA::string_dup( aNewName.c_str() );
+        }
+        */
+        SALOME_EvalExpr aTmpExpr1( aParams[i].in() );
+        if( aTmpExpr1.parser()->hasPostfix( anOldName ) )
+        {
+          if( !isRename && anOldName == aParams[i].in() )
+            AddExpression( aNewName.c_str() );
+          SALOME_EvalExpr aTmpExpr2( aNewName );
+          aTmpExpr1.substitute( anOldName, aTmpExpr2 );
+          aParams[i] = CORBA::string_dup( aTmpExpr1.expression().c_str() );
         }
       }
       anObj->SetParameters( _this(), aParams );
