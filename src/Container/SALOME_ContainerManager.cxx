@@ -919,7 +919,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
             nbproc = params.nb_node * params.nb_proc_per_node;
         }
 
-      // "ssh user@machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
+      // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
         //  SALOME_Container containerName &"
 
       if (resInfo.Protocol == rsh)
@@ -931,8 +931,9 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
 
       if (resInfo.UserName != "")
         {
+          command += "-l ";
           command += resInfo.UserName;
-          command += "@";
+          command += " ";
         }
 
       command += machine;
@@ -1448,14 +1449,15 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
         MESSAGE("[BuildCommandToLaunchParallelContainer] machine file name extracted is " << machine_name)
 
         // We want to launch a command like : 
-        // ssh user@machine distantPath/runRemote.sh hostNS portNS
+        // ssh -l user machine distantPath/runRemote.sh hostNS portNS
         const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine_name);
         if (resInfo.Protocol == rsh)
           command_remote = "rsh ";
         else 
           command_remote = "ssh ";
+        command_remote += "-l ";
         command_remote += resInfo.UserName;
-        command_remote += "@";
+        command_remote += " ";
         command_remote += machine_name;
         command_remote += " ";
         command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
@@ -1496,14 +1498,15 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
           MESSAGE("[BuildCommandToLaunchParallelContainer] machine file name extracted is " << machine_name)
 
             // We want to launch a command like : 
-            // ssh user@machine distantPath/runRemote.sh hostNS portNS
+            // ssh -l user machine distantPath/runRemote.sh hostNS portNS
             const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine_name);
           if (resInfo.Protocol == rsh)
             command_remote = "rsh ";
           else 
             command_remote = "ssh ";
+          command_remote += "-l ";
           command_remote += resInfo.UserName;
-          command_remote += "@";
+          command_remote += " ";
           command_remote += machine_name;
           command_remote += " ";
           command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
@@ -1591,14 +1594,15 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
       if (remote)
       {
         // We want to launch a command like : 
-        // ssh user@machine distantPath/runRemote.sh hostNS portNS
+        // ssh -l user machine distantPath/runRemote.sh hostNS portNS
         const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(remote_machine);
         if (resInfo.Protocol == rsh)
           command_remote = "rsh ";
         else 
           command_remote = "ssh ";
+        command_remote += "-l ";
         command_remote += resInfo.UserName;
-        command_remote += "@";
+        command_remote += " ";
         command_remote += remote_machine;
         command_remote += " ";
         command_remote += resInfo.AppliPath; // path relative to user@machine $HOME
@@ -1636,8 +1640,9 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
           command_remote = "rsh ";
         else 
           command_remote = "ssh ";
+        command_remote += "-l ";
         command_remote += resInfo.UserName;
-        command_remote += "@";
+        command_remote += " ";
         command_remote += remote_machine;
         command_remote += " ";
 
