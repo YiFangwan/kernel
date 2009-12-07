@@ -41,7 +41,7 @@ class Notebook:
         return self.myNotebook
 
     def update( self ):
-        self.myNotebook.Update( 0 )
+        self.myNotebook.Update()
         
     def set( self, variableName, variable ):
 	"""
@@ -73,8 +73,6 @@ class Notebook:
                 self.myNotebook.AddBoolean( variableName, variable )
             else:
                 aParam.SetBoolean( variable )
-
-        self.myNotebook.Update( 1 )
             
     def get( self, variableName ):
 	"""
