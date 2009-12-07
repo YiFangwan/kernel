@@ -412,44 +412,43 @@ bool SALOME_EvalParser::prepare( const SALOME_String& theExpr, Postfix& thePostf
 //=======================================================================
 bool SALOME_EvalParser::setOperationTypes( Postfix& post )
 {
-  if ( !checkOperations() )
+  if( !checkOperations() )
     return false;
 
-  SALOME_StringList anOpen, aClose;
-  bracketsList( anOpen, aClose );
+  SALOME_StringList anOpens, aCloses;
+  bracketsList( anOpens, aCloses );
 
   Postfix::iterator aPrev, aNext;
-  Postfix::iterator anIt = post.begin();
-  for (; anIt != post.end(); ++anIt )  {
-    aPrev = anIt;
-    aPrev--;
-    aNext = anIt;
-    aNext++;
-    if ( (*anIt).myType != Binary ){
+  Postfix::iterator it = post.begin(), last = post.end();
+  for( ; it != last; it++ )
+  {
+    aPrev = it; aPrev--;
+    aNext = it; aNext++;
+
+    if( it->myType != Binary )
       continue;
-    }
-    //
-    if ( ( anIt == post.begin() || (*aPrev).myType == Open ||
-           (*aPrev).myType == Pre || (*aPrev).myType == Binary ) &&  aNext != post.end() &&
-         ( (*aNext).myType == Value || (*aNext).myType == Param ||
-           (*aNext).myType == Open  || (*aNext).myType == Binary ) )
-      (*anIt).myType = Pre;
-    //
-    else if ( anIt != post.begin() && ( (*aPrev).myType == Close || (*aPrev).myType == Param ||
-                                        (*aPrev).myType == Value || (*aPrev).myType == Pre ||
-                                        (*aPrev).myType == Post || (*aPrev).myType == Binary ) &&
-              ( aNext == post.end() || (*aNext).myType == Close ) )
-      (*anIt).myType = Post;
-    //
-    SALOME_EvalVariant& aRV=(*anIt).myValue;
-    SALOME_String  aRVS=aRV.toString();
-    //
-    if ( contains(anOpen, aRVS) ) {
-      (*anIt).myType = Pre;
-    }
-    else if ( contains(aClose, aRVS) ) {
-      (*anIt).myType = Post;
-    }
+
+    SALOME_String aValue = it->myValue.toString();
+
+    if( ( ( it == post.begin() || aPrev->myType == Open ||
+            aPrev->myType == Pre || aPrev->myType == Binary ) && aNext != post.end() &&
+          ( aNext->myType == Value || aNext->myType == Param ||
+            aNext->myType == Open  || aNext->myType == Binary ) )
+        && canBePrefix( aValue ) )
+      it->myType = Pre;
+
+    else if( ( it != post.begin() && ( aPrev->myType == Close || aPrev->myType == Param ||
+                                       aPrev->myType == Value || aPrev->myType == Pre ||
+                                       aPrev->myType == Post || aPrev->myType == Binary ) &&
+               ( aNext == post.end() || aNext->myType == Close ) ) 
+             && canBePostfix( aValue ) )
+      it->myType = Post;
+
+    if( contains( anOpens, aValue ) && canBePrefix( aValue ) )
+      it->myType = Pre;
+
+    else if( contains( aCloses, aValue ) && canBePostfix( aValue ) )
+      it->myType = Post;
   }
 
   return error() == EvalExpr_OK;
@@ -458,9 +457,7 @@ bool SALOME_EvalParser::setOperationTypes( Postfix& post )
 //function : globalBrackets
 //purpose  :
 //=======================================================================
-int SALOME_EvalParser::globalBrackets(const Postfix& post,
-                                  int f,
-                                  int l )
+int SALOME_EvalParser::globalBrackets(const Postfix& post, int f, int l )
 {
   int i;
   int start_br = 0;
@@ -670,13 +667,13 @@ bool SALOME_EvalParser::parse( const SALOME_String& expr )
   setError( EvalExpr_OK );
   bracketsList( opens, closes );
 
-  return prepare( expr, p ) && setOperationTypes( p ) && sort( p, myPostfix, opens, closes );
+  return prepare( expr, p ) && setOperationTypes( p ) && sort( p, myPostfix, opens, closes ) && checkStack();
 }
 //=======================================================================
 //function : calculate
 //purpose  :
 //=======================================================================
-bool SALOME_EvalParser::calculate(const SALOME_String& op, SALOME_EvalVariant& v1, SALOME_EvalVariant& v2 )
+bool SALOME_EvalParser::calculate( const SALOME_String& op, SALOME_EvalVariant& v1, SALOME_EvalVariant& v2 )
 {
   SALOME_EvalExprError aErr;
   SALOME_EvalVariantType aType1, aType2;
@@ -735,14 +732,15 @@ SALOME_EvalVariant SALOME_EvalParser::calculate()
       aStack.push( (*anIt).myValue );
     }
     //
-    else if ( aType == Pre || aType == Post )  {
+    else if ( aType == Pre || aType == Post )
+    {
       if ( contains(anOpen, nn ) )  {
         SALOME_EvalVariant inv;
         if ( calculate( nn, inv, inv ) ) {
           aStack.push( SALOME_EvalVariant() );
         }
       }
-      else if ( contains(aClose, nn ) )  {
+      else if ( contains( aClose, nn ) )  {
         SALOME_ListOfEvalVariant aSet;
         while ( true ) {
           if ( aStack.empty() ) {
@@ -943,19 +941,6 @@ void SALOME_EvalParser::setError(SALOME_EvalExprError err)
 bool SALOME_EvalParser::isMonoParam() const
 {
   return myError==EvalExpr_OK && myPostfix.size()==1 && myPostfix.begin()->myType==Param;
-}
-
-//=======================================================================
-//function : isMonoParam
-//purpose  :
-//=======================================================================
-bool SALOME_EvalParser::hasPostfix( const SALOME_String& theName ) const
-{
-  Postfix::const_iterator it = myPostfix.begin(), last = myPostfix.end();
-  for( ; it!=last; it++ )
-    if( it->myValue.toString() == theName )
-      return true;
-  return false;
 }
 
 //=======================================================================
@@ -1350,4 +1335,64 @@ void SALOME_EvalParser::insert( Postfix& aL, const int aIndex, const PostfixItem
       }
     }
   }
+}
+//=======================================================================
+//function : checkStack
+//purpose  :
+//=======================================================================
+bool SALOME_EvalParser::checkStack()
+{
+  int count = 0;
+  Postfix::const_iterator anIt = myPostfix.begin(), aLast = myPostfix.end();
+  for ( ; anIt != aLast; anIt++ )
+  {
+    switch( anIt->myType )
+    {
+    case Value:
+    case Param:
+      count++;
+      break;
+
+    case Binary:
+      count--;
+      if( count<=0 )
+        setError( EvalExpr_InvalidOperation );        
+      break;
+
+    case Open:
+    case Close:
+    case Pre:
+    case Post:
+      break;
+    }
+  }
+  if( count<=0 )
+    setError( EvalExpr_InvalidOperation );
+  else if( count > 1 )
+    setError( EvalExpr_ExcessData );
+  return error()==EvalExpr_OK;
+}
+//=======================================================================
+//function : canBePrefix
+//purpose  :
+//=======================================================================
+bool SALOME_EvalParser::canBePrefix( const SALOME_String& theOp ) const
+{
+  SALOME_ListOfEvalSet::const_iterator it = mySets.begin(), last = mySets.end();
+  for( ; it!=last; it++ )
+    if( (*it)->canBePrefix( theOp ) )
+      return true;
+  return false;
+}
+//=======================================================================
+//function : canBePostfix
+//purpose  :
+//=======================================================================
+bool SALOME_EvalParser::canBePostfix( const SALOME_String& theOp ) const
+{
+  SALOME_ListOfEvalSet::const_iterator it = mySets.begin(), last = mySets.end();
+  for( ; it!=last; it++ )
+    if( (*it)->canBePostfix( theOp ) )
+      return true;
+  return false;
 }

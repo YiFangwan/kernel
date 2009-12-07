@@ -68,8 +68,6 @@ public:
   SALOME_StringList          parameters     () const;
   bool                       isMonoParam    () const;
 
-  virtual bool               hasPostfix( const SALOME_String& theName ) const;
-
   static SALOME_String       toString( const SALOME_ListOfEvalVariant& theList );
 
 protected:
@@ -121,6 +119,9 @@ private:
   SALOME_EvalExprError isValid        ( const SALOME_String& theOp, SALOME_EvalVariantType theArg1, SALOME_EvalVariantType theArg2 ) const;
   SALOME_EvalExprError calculation    ( const SALOME_String& theOp, SALOME_EvalVariant& theArg1, SALOME_EvalVariant& theArg2 ) const;
   bool                 checkOperations() const;
+  bool                 checkStack();
+  bool                 canBePrefix ( const SALOME_String& theOp ) const;
+  bool                 canBePostfix( const SALOME_String& theOp ) const;
 
   static void               insert( Postfix& thePostfix, const int theIndex, const PostfixItem& theItem );
   static const PostfixItem& at    ( const Postfix& thePostfix, const int theIndex );
