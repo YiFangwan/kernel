@@ -56,7 +56,7 @@ public:
   virtual void RemoveDependency( SALOME::ParameterizedObject_ptr theObj, SALOME::ParameterizedObject_ptr theRef );
   virtual void ClearDependencies( SALOME::ParameterizedObject_ptr theObj, SALOME::DependenciesType theType );
   virtual void SetToUpdate( SALOME::ParameterizedObject_ptr theObj );
-  virtual void Update( CORBA::Boolean theOnlyParameters );
+  virtual void Update();
 
   virtual void AddExpression( const char* theExpr );
   virtual void AddNamedExpression( const char* theName, const char* theExpr );
@@ -70,6 +70,8 @@ public:
   virtual SALOME::StringArray* Parameters();
   virtual SALOME::StringArray* AbsentParameters( const char* theExpr );
 
+  virtual SALOME::Parameter_ptr Calculate( const char* theExpr );
+
   virtual CORBA::Boolean Save( const char* theFileName );
   virtual CORBA::Boolean Load( const char* theFileName );
   virtual char*          DumpPython();
@@ -82,6 +84,7 @@ public:
   bool              HasDependency( const std::string& theObjKey, const std::string& theRefKey ) const;
 
 private:
+  void Update( bool theOnlyParameters );
   void AddParameter( SALOME_Parameter* theParam, bool theAddDependencies = true );
   void AddDependencies( SALOME_Parameter* theParam );
   void AddDependency( const std::string& theObjKey, const std::string& theRefKey );
@@ -134,6 +137,7 @@ private:
   std::list< KeyHelper > myToUpdate;
   std::list<SubstitutionInfo> mySubstitutions;
   SALOMEDS::Study_var myStudy;
+  SALOME::Parameter_var myTmpParam;
   Utils_Mutex myMutex;
   bool myUpdateOnlyParameters;
   int myMaxId;

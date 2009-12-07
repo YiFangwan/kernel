@@ -244,7 +244,12 @@ bool SALOME_Notebook::CanUpdate( SALOME::ParameterizedObject_ptr theObj ) const
   return !myUpdateOnlyParameters || !CORBA::is_nil( aParam );
 }
 
-void SALOME_Notebook::Update( CORBA::Boolean theOnlyParameters )
+void SALOME_Notebook::Update()
+{
+  Update( false );
+}
+
+void SALOME_Notebook::Update( bool theOnlyParameters )
 {
   myUpdateOnlyParameters = theOnlyParameters;
   //Utils_Locker lock( &myMutex );
@@ -309,25 +314,11 @@ bool SALOME_Notebook::Substitute( SubstitutionInfo& theSubstitution )
       for( int i=0; i<n; i++ )
       {
         //printf( "\t%s\n", aParams[i].in() );
-        // the code below has been improved to take into account cases when
-        // a parameter is not just a variable name, but an expression
-        // (to discuss with ASL)
-        /*
         if( anOldName == aParams[i].in() )
         {
           if( !isRename )
             AddExpression( aNewName.c_str() );
           aParams[i] = CORBA::string_dup( aNewName.c_str() );
-        }
-        */
-        SALOME_EvalExpr aTmpExpr1( aParams[i].in() );
-        if( aTmpExpr1.parser()->hasPostfix( anOldName ) )
-        {
-          if( !isRename && anOldName == aParams[i].in() )
-            AddExpression( aNewName.c_str() );
-          SALOME_EvalExpr aTmpExpr2( aNewName );
-          aTmpExpr1.substitute( anOldName, aTmpExpr2 );
-          aParams[i] = CORBA::string_dup( aTmpExpr1.expression().c_str() );
         }
       }
       anObj->SetParameters( _this(), aParams );
@@ -1108,4 +1099,17 @@ bool SALOME_Notebook::HasDependency( const std::string& theObjKey, const std::st
 {
   std::map< std::string, std::list<std::string> >::const_iterator it = myDependencies.find( theObjKey );
   return it==myDependencies.end() ? false : find( it->second.begin(), it->second.end(), theRefKey ) != it->second.end();
+}
+
+SALOME::Parameter_ptr SALOME_Notebook::Calculate( const char* theExpr )
+{
+  if( CORBA::is_nil( myTmpParam ) )
+  {
+    SALOME_Parameter* aParam = new SALOME_Parameter( this, "__tmp__", 0.0 );
+    myTmpParam = aParam->_this();
+  }
+
+  myTmpParam->SetExpression( theExpr );
+  myTmpParam->Update( _this() );
+  return myTmpParam.in();
 }
