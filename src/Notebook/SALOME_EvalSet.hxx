@@ -56,8 +56,10 @@ public:
   virtual void                 bracketsList( SALOME_StringList&, bool open ) const = 0;
   virtual bool                 createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
   virtual int                  priority( const SALOME_String&, bool isBin ) const = 0;
-  virtual SALOME_EvalExprError isValid(const SALOME_String&, const SALOME_EvalVariantType, const SALOME_EvalVariantType) const = 0;
-  virtual SALOME_EvalExprError calculate(const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant&) const = 0;
+  virtual SALOME_EvalExprError isValid( const SALOME_String&, const SALOME_EvalVariantType, const SALOME_EvalVariantType ) const = 0;
+  virtual SALOME_EvalExprError calculate( const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const = 0;
+  virtual bool                 canBePrefix( const SALOME_String& ) const = 0;
+  virtual bool                 canBePostfix( const SALOME_String& ) const = 0;
 
   static bool contains( const SALOME_ListOfEvalSet&, const SALOME_EvalSet* );
   static void insert( SALOME_ListOfEvalSet& aL, const int aIndex, SALOME_EvalSet* pS );
@@ -100,6 +102,8 @@ public:
   virtual bool                 createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
   virtual int                  priority( const SALOME_String&, bool isBin ) const;
   virtual SALOME_EvalExprError calculate(const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
+  virtual bool                 canBePrefix( const SALOME_String& ) const;
+  virtual bool                 canBePostfix( const SALOME_String& ) const;
 
   static  SALOME_String        Name();
   virtual SALOME_String        name() const;
@@ -119,6 +123,8 @@ public:
   virtual bool                 createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
   virtual int                  priority( const SALOME_String&, bool isBin ) const;
   virtual SALOME_EvalExprError calculate( const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
+  virtual bool                 canBePrefix( const SALOME_String& ) const;
+  virtual bool                 canBePostfix( const SALOME_String& ) const;
 
   static  SALOME_String        Name();
   virtual SALOME_String        name() const;
@@ -140,6 +146,8 @@ public:
   virtual bool                 createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
   virtual int                  priority( const SALOME_String&, bool isBin ) const;
   virtual SALOME_EvalExprError calculate(const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
+  virtual bool                 canBePrefix( const SALOME_String& ) const;
+  virtual bool                 canBePostfix( const SALOME_String& ) const;
 
   static  SALOME_String        Name();
   virtual SALOME_String        name() const;
@@ -158,6 +166,8 @@ public:
   virtual bool                 createValue( const SALOME_String&, SALOME_EvalVariant& ) const;
   virtual int                  priority( const SALOME_String&, bool isBin ) const;
   virtual SALOME_EvalExprError calculate(const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
+  virtual bool                 canBePrefix( const SALOME_String& ) const;
+  virtual bool                 canBePostfix( const SALOME_String& ) const;
 
   static  SALOME_String        Name();
   virtual SALOME_String        name() const;
@@ -180,6 +190,8 @@ public:
   virtual SALOME_EvalExprError calculate(const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
   virtual SALOME_EvalExprError isValid( const SALOME_String&, const SALOME_EvalVariantType, const SALOME_EvalVariantType ) const;
   virtual void                 bracketsList( SALOME_StringList&, bool open ) const;
+  virtual bool                 canBePrefix( const SALOME_String& ) const;
+  virtual bool                 canBePostfix( const SALOME_String& ) const;
 
   static  SALOME_String        Name();
   virtual SALOME_String        name() const;
@@ -209,6 +221,8 @@ public:
   virtual int                  priority( const SALOME_String&, bool isBin ) const;
   virtual SALOME_EvalExprError isValid( const SALOME_String&, const SALOME_EvalVariantType, const SALOME_EvalVariantType ) const;
   virtual SALOME_EvalExprError calculate( const SALOME_String&, SALOME_EvalVariant&, SALOME_EvalVariant& ) const;
+  virtual bool                 canBePrefix( const SALOME_String& ) const;
+  virtual bool                 canBePostfix( const SALOME_String& ) const;
 };
 
 #endif

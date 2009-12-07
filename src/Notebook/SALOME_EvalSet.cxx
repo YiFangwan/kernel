@@ -442,6 +442,24 @@ SALOME_EvalExprError SALOME_EvalSetArithmetic::calculate(const SALOME_String& op
   }
   return err;
 }
+//=======================================================================
+//function : SALOME_EvalSetArithmetic::canBePrefix
+//purpose  : 
+//=======================================================================
+bool SALOME_EvalSetArithmetic::canBePrefix( const SALOME_String& theOp ) const
+{
+  return theOp=="+" || theOp=="-";
+}
+//=======================================================================
+//function : SALOME_EvalSetArithmetic::canBePostfix
+//purpose  : 
+//=======================================================================
+bool SALOME_EvalSetArithmetic::canBePostfix( const SALOME_String& ) const
+{
+  return false;
+}
+
+
 /////////////////////////////////////////////////////////////////////////
 //=======================================================================
 //function : SALOME_EvalSetLogic::SALOME_EvalSetLogic
@@ -591,6 +609,23 @@ int SALOME_EvalSetLogic::intValue(const SALOME_EvalVariant& v) const
   }
   return res;
 }
+//=======================================================================
+//function : SALOME_EvalSetLogic::canBePrefix
+//purpose  : 
+//=======================================================================
+bool SALOME_EvalSetLogic::canBePrefix( const SALOME_String& theOp ) const
+{
+  return theOp=="!";
+}
+//=======================================================================
+//function : SALOME_EvalSetLogic::canBePostfix
+//purpose  : 
+//=======================================================================
+bool SALOME_EvalSetLogic::canBePostfix( const SALOME_String& ) const
+{
+  return false;
+}
+
 /////////////////////////////////////////////////////////////////////////
 //=======================================================================
 //function : SALOME_EvalSetMath::SALOME_EvalSetMath
@@ -716,6 +751,26 @@ SALOME_EvalExprError SALOME_EvalSetMath::calculate(const SALOME_String& op, SALO
 
   return err;
 }
+//=======================================================================
+//function : SALOME_EvalSetMath::canBePrefix
+//purpose  : 
+//=======================================================================
+bool SALOME_EvalSetMath::canBePrefix( const SALOME_String& theOp ) const
+{
+  return theOp=="sqrt" || theOp=="abs" || theOp=="sin" || theOp=="cos" || theOp=="rad2grad" || theOp=="grad2rad";
+}
+//=======================================================================
+//function : SALOME_EvalSetMath::canBePostfix
+//purpose  : 
+//=======================================================================
+bool SALOME_EvalSetMath::canBePostfix( const SALOME_String& ) const
+{
+  return false;
+}
+
+
+
+
 /////////////////////////////////////////////////////////////////////////
 //=======================================================================
 //function : SALOME_EvalSetString::SALOME_EvalSetString
@@ -866,6 +921,24 @@ SALOME_EvalExprError SALOME_EvalSetString::calculate(const SALOME_String& op, SA
   }
   return err;
 }
+//=======================================================================
+//function : SALOME_EvalSetString::canBePrefix
+//purpose  : 
+//=======================================================================
+bool SALOME_EvalSetString::canBePrefix( const SALOME_String& theOp ) const
+{
+  return theOp=="length" || theOp=="lower" || theOp=="upper";
+}
+//=======================================================================
+//function : SALOME_EvalSetString::canBePostfix
+//purpose  : 
+//=======================================================================
+bool SALOME_EvalSetString::canBePostfix( const SALOME_String& ) const
+{
+  return false;
+}
+
+
 /////////////////////////////////////////////////////////////////////////
 //=======================================================================
 //function : SALOME_EvalSetSets::SALOME_EvalSetSets
@@ -1075,6 +1148,24 @@ SALOME_EvalExprError SALOME_EvalSetSets::calculate(const SALOME_String& op,
   
   return err;
 }
+//=======================================================================
+//function : SALOME_EvalSetSets::canBePrefix
+//purpose  : 
+//=======================================================================
+bool SALOME_EvalSetSets::canBePrefix( const SALOME_String& theOp ) const
+{
+  return theOp=="{" || theOp=="count";
+}
+//=======================================================================
+//function : SALOME_EvalSetSets::canBePostfix
+//purpose  : 
+//=======================================================================
+bool SALOME_EvalSetSets::canBePostfix( const SALOME_String& theOp ) const
+{
+  return theOp=="}";
+}
+
+
 /////////////////////////////////////////////////////////////////////////
 //=======================================================================
 //function : SALOME_EvalSetConst::SALOME_EvalSetConst
@@ -1167,6 +1258,25 @@ SALOME_EvalExprError SALOME_EvalSetConst::calculate(const SALOME_String&,
 {
   return EvalExpr_InvalidOperation;
 }
+//=======================================================================
+//function : SALOME_EvalSetConst::canBePrefix
+//purpose  : 
+//=======================================================================
+bool SALOME_EvalSetConst::canBePrefix( const SALOME_String& theOp ) const
+{
+  return false;
+}
+//=======================================================================
+//function : SALOME_EvalSetConst::canBePostfix
+//purpose  : 
+//=======================================================================
+bool SALOME_EvalSetConst::canBePostfix( const SALOME_String& theOp ) const
+{
+  return false;
+}
+
+
+
 
 /////////////////////////////////////////////////////////////////////////
 //=======================================================================
