@@ -162,7 +162,7 @@ module SALOME
     void SetToUpdate( in ParameterizedObject obj ) raises( NotebookError );
 
     //! update all objects marked as "need to update"
-    void Update( in boolean onlyParameters ) raises( NotebookError, ExpressionError, CalculationError );
+    void Update() raises( NotebookError, ExpressionError, CalculationError );
 
 
 
@@ -194,6 +194,10 @@ module SALOME
 
     //! access to parameter from notebook
     Parameter GetParameter( in string name );
+
+    //! access to temporary parameter in order to calculate an expression
+    //! with notebook parameters without creation of anonymous variable
+    Parameter Calculate( in string expr ) raises( ExpressionError, CalculationError );
 
     //! return list of all names of parameters (without anonymous ones)
     StringArray Parameters();
