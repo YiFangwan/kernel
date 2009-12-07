@@ -85,7 +85,9 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const string& Da
   //Always create component under main label.
   DF_Label L  = _doc->Main();
 
-  DF_Label NL = L.NewChild();
+  // VSR: Temporarily hard-coded using tag 0 for NOTEBOOK since there is no method
+  //      to create component at the pre-defined tag
+  DF_Label NL = DataType == "NOTEBOOK" ? L.FindChild(0, 1) : L.NewChild();
 
   SALOMEDSImpl_AttributeComment::Set(NL, DataType);
 
