@@ -122,6 +122,12 @@ void SALOME_Parameter::Update( SALOME::Notebook_ptr /*theNotebook*/ )
   }
 }
 
+void SALOME_Parameter::Update()
+{
+  myNotebook->SetToUpdate( _this() );
+  myNotebook->Update();
+}
+
 void SALOME_Parameter::SetExpression( const char* theExpr )
 {
   if( myIsAnonymous )
@@ -130,8 +136,7 @@ void SALOME_Parameter::SetExpression( const char* theExpr )
   else
   {
     InternalSetExpression( theExpr );
-    myIsCalculable = true;
-    myNotebook->SetToUpdate( _this() );
+    Update();
   }
 }
 
@@ -144,7 +149,7 @@ void SALOME_Parameter::SetBoolean( CORBA::Boolean theValue )
   {
     myResult = theValue;
     myIsCalculable = false;
-    myNotebook->SetToUpdate( _this() );
+    Update();
   }
 }
 
@@ -157,7 +162,7 @@ void SALOME_Parameter::SetInteger( CORBA::Long theValue )
   {
     myResult = (int)theValue;
     myIsCalculable = false;
-    myNotebook->SetToUpdate( _this() );
+    Update();
   }
 }
 
@@ -170,7 +175,7 @@ void SALOME_Parameter::SetReal( CORBA::Double theValue )
   {
     myResult = theValue;
     myIsCalculable = false;
-    myNotebook->SetToUpdate( _this() );
+    Update();
   }
 }
 
@@ -183,7 +188,7 @@ void SALOME_Parameter::SetString( const char* theValue )
   {
     myResult = theValue;
     myIsCalculable = false;
-    myNotebook->SetToUpdate( _this() );
+    Update();
   }
 }
 
@@ -371,12 +376,27 @@ void SALOME_Parameter::ThrowTypeError( const std::string& theMsg )
 
 void SALOME_Parameter::InternalSetExpression( const std::string& theExpr )
 {
-  myExpr.setExpression( theExpr );
-  AnalyzeError();
+  std::string anOldExpr = myExpr.expression();
+  bool anOldCalc = myIsCalculable;
+  try
+  {
+    myExpr.setExpression( theExpr );
+    myIsCalculable = true;
+    AnalyzeError();
+  }
+  catch( SALOME::ExpressionError anError )
+  {
+    myExpr.setExpression( anOldExpr );
+    myIsCalculable = anOldCalc;
+    throw anError;
+  }
 }
 
 void SALOME_Parameter::AnalyzeError()
 {
+  if( !myIsCalculable )
+    return;
+
   std::string aMsg;
   SALOME_EvalExprError anError = myExpr.parser()->error();
   bool isCalcError = true;

@@ -89,6 +89,7 @@ private:
   void InternalSetExpression( const std::string& theExpr );
   void AnalyzeError();
   void SetId();
+  void Update();
 
 private:
   SALOME_Notebook* myNotebook;
