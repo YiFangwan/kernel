@@ -32,7 +32,6 @@
 #include "SALOMEDSImpl_Tool.hxx"
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
-#include <map>
 
 #include "HDFOI.hxx"
 #include <iostream>
@@ -57,6 +56,7 @@ static void ReadAttributes(SALOMEDSImpl_Study*, const SALOMEDSImpl_SObject&, HDF
 static void BuildTree (SALOMEDSImpl_Study*, HDFgroup*);
 static void Translate_IOR_to_persistentID (const SALOMEDSImpl_SObject&,
 					   SALOMEDSImpl_Driver*, bool isMultiFile, bool isASCII);
+static void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup, std::map<int, std::list<std::string> >& theVarsMap );
 
 //============================================================================
 /*! Function : SALOMEDSImpl_StudyManager
@@ -124,6 +124,7 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
   // open the HDFFile
   HDFfile *hdf_file =0;
   HDFgroup *hdf_group_study_structure =0;
+  HDFgroup *hdf_notebook_vars = 0; 
 
   char* aC_HDFUrl;
   string aHDFUrl;
@@ -186,6 +187,14 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
       _errorCode = string(eStr);
       return NULL;
     }
+
+  //Read and create notebook variables 
+  if( hdf_file->ExistInternalObject( "NOTEBOOK_VARIABLES" ) )
+  {
+    hdf_notebook_vars  = new HDFgroup( "NOTEBOOK_VARIABLES", hdf_file );
+    ReadNoteBookVariables( Study, hdf_notebook_vars, myVariables );
+    hdf_notebook_vars = 0; //will be deleted by hdf_sco_group destructor
+  }
 
   hdf_file->CloseOnDisk();
   hdf_group_study_structure = new HDFgroup("STUDY_STRUCTURE",hdf_file);
@@ -642,64 +651,6 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
 	hdf_soo_group->CloseOnDisk();
 	hdf_soo_group=0; // will be deleted by hdf_group_study_structure destructor
       }
-
-      /*ASL
-      //-----------------------------------------------------------------------
-      //5 - Write the NoteBook Variables
-      //-----------------------------------------------------------------------
-
-      //5.1 Create group to store all note book variables
-      hdf_notebook_vars = new HDFgroup("NOTEBOOK_VARIABLES",hdf_file);
-      hdf_notebook_vars->CreateOnDisk();
-      
-      string varValue;
-      string varType;
-      string varIndex;
-
-      for(int i=0 ;i < aStudy->myNoteBookVars.size(); i++ ){
-        // For each variable create HDF group
-        hdf_notebook_var = new HDFgroup((char*)aStudy->myNoteBookVars[i]->Name().c_str(),hdf_notebook_vars);
-        hdf_notebook_var->CreateOnDisk();
-
-        // Save Variable type
-        varType = aStudy->myNoteBookVars[i]->SaveType();
-        name_len = (hdf_int32) varType.length();
-        size[0] = name_len +1 ;
-        hdf_dataset = new HDFdataset("VARIABLE_TYPE",hdf_notebook_var,HDF_STRING,size,1);
-        hdf_dataset->CreateOnDisk();
-        hdf_dataset->WriteOnDisk((char*)varType.c_str());
-        hdf_dataset->CloseOnDisk();
-        hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-        
-        char buffer[256];
-        sprintf(buffer,"%d",i);
-        varIndex= string(buffer);
-        name_len = (hdf_int32) varIndex.length();
-        size[0] = name_len +1 ;
-        hdf_dataset = new HDFdataset("VARIABLE_INDEX",hdf_notebook_var,HDF_STRING,size,1);
-        hdf_dataset->CreateOnDisk();
-        hdf_dataset->WriteOnDisk((char*)varIndex.c_str());
-        hdf_dataset->CloseOnDisk();
-        hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-        
-        
-        // Save Variable value
-        varValue = aStudy->myNoteBookVars[i]->Save();
-        name_len = (hdf_int32) varValue.length();
-        size[0] = name_len +1 ;
-        hdf_dataset = new HDFdataset("VARIABLE_VALUE",hdf_notebook_var,HDF_STRING,size,1);
-        hdf_dataset->CreateOnDisk();
-        hdf_dataset->WriteOnDisk((char*)varValue.c_str());
-        hdf_dataset->CloseOnDisk();
-        hdf_dataset=0; //will be deleted by hdf_sco_group destructor
-        hdf_notebook_var->CloseOnDisk();
-        hdf_notebook_var = 0; //will be deleted by hdf_sco_group destructor
-      }
-      hdf_notebook_vars->CloseOnDisk();
-      hdf_notebook_vars = 0; //will be deleted by hdf_sco_group destructor
-        
-      if (aLocked) aStudy->GetProperties()->SetLocked(true);
-      */
 
       //-----------------------------------------------------------------------
       //6 - Write the Study Properties
@@ -1204,6 +1155,16 @@ SALOMEDSImpl_SObject SALOMEDSImpl_StudyManager::Paste(const SALOMEDSImpl_SObject
   return SALOMEDSImpl_Study::SObject(aStartLabel);
 }
 
+//============================================================================
+/*! Function : GetOldStyleNotebookData
+ *  Purpose  :
+ */
+//============================================================================
+std::map<int, std::list<std::string> > SALOMEDSImpl_StudyManager::GetOldStyleNotebookData() const
+{
+  return myVariables;
+}
+
 //#######################################################################################################
 //#                                     STATIC PRIVATE FUNCTIONS
 //#######################################################################################################
@@ -1328,3 +1289,78 @@ static void Translate_IOR_to_persistentID (const SALOMEDSImpl_SObject& so,
     Translate_IOR_to_persistentID (current, engine, isMultiFile, isASCII);
   }
 }
+
+void ReadNoteBookVariables( SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup, std::map<int, std::list<std::string> >& theVarsMap )
+{
+  theVarsMap.clear();
+  if(!theGroup)
+    return;
+
+  HDFgroup* new_group =0;
+  HDFdataset* new_dataset =0;
+  
+  char aVarName[HDF_NAME_MAX_LEN+1];
+  char *currentVarType = 0;
+  char *currentVarValue = 0;
+  char *currentVarIndex = 0;
+  int order = 0;
+  //Open HDF group with notebook variables
+  theGroup->OpenOnDisk();
+
+  //Get Nb of variables
+  int aNbVars = theGroup->nInternalObjects();
+
+  for( int iVar = 0; iVar < aNbVars; iVar++ )
+  {
+    theGroup->InternalObjectIndentify(iVar, aVarName);
+    hdf_object_type type = theGroup->InternalObjectType(aVarName);
+    if(type == HDF_GROUP) {
+
+      //Read Variable
+      new_group = new HDFgroup(aVarName,theGroup);
+      new_group->OpenOnDisk();
+
+      //Read Type
+      new_dataset = new HDFdataset("VARIABLE_TYPE",new_group);
+      new_dataset->OpenOnDisk();
+      currentVarType = new char[new_dataset->GetSize()+1];
+      new_dataset->ReadFromDisk(currentVarType);
+      new_dataset->CloseOnDisk();
+      new_dataset = 0; //will be deleted by hdf_sco_group destructor
+
+      //Read Order
+      if(new_group->ExistInternalObject("VARIABLE_INDEX")) {
+        new_dataset = new HDFdataset("VARIABLE_INDEX",new_group);
+        new_dataset->OpenOnDisk();
+        currentVarIndex = new char[new_dataset->GetSize()+1];
+        new_dataset->ReadFromDisk(currentVarIndex);
+        new_dataset->CloseOnDisk();
+        new_dataset = 0; //will be deleted by hdf_sco_group destructor
+        order = atoi(currentVarIndex);
+        delete [] currentVarIndex;
+      }
+      else
+        order = iVar;
+      
+      //Read Value
+      new_dataset = new HDFdataset("VARIABLE_VALUE",new_group);
+      new_dataset->OpenOnDisk();
+      currentVarValue = new char[new_dataset->GetSize()+1];
+      new_dataset->ReadFromDisk(currentVarValue);
+      new_dataset->CloseOnDisk();
+      new_dataset = 0; //will be deleted by hdf_sco_group destructor
+
+      new_group->CloseOnDisk();
+      new_group = 0;  //will be deleted by hdf_sco_group destructor
+      
+      std::list<std::string> var_data;
+      var_data.push_back( aVarName );
+      var_data.push_back( currentVarType );
+      var_data.push_back( currentVarValue );
+      theVarsMap[order] = var_data;      
+    }
+  }
+  
+  theGroup->CloseOnDisk();
+}
+

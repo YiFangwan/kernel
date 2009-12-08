@@ -32,6 +32,8 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <list>
+#include <map>
 
 #include "DF_Application.hxx"
 #include "SALOMEDSImpl_Study.hxx"
@@ -138,6 +140,11 @@ public:
   std::string GetErrorCode() { return _errorCode; }
   virtual bool IsError() { return _errorCode != ""; }
 
+
+  std::map<int, std::list<std::string> > GetOldStyleNotebookData() const;
+
+private:
+  std::map<int, std::list<std::string> > myVariables;
 };
 
 #endif 

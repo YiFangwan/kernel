@@ -204,6 +204,12 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO,
   if(!isDone && _impl->IsError()) {
     THROW_SALOME_CORBA_EXCEPTION(_impl->GetErrorCode().c_str(),SALOME::BAD_PARAM);
   }
+
+  SALOMEDS::Study_var aStudy = anSCO->GetStudy();
+  SALOME::Notebook_var aNotebookVar = aStudy->GetNotebook();
+  SALOME_Notebook* aNotebook = dynamic_cast<SALOME_Notebook*>( _default_POA()->reference_to_servant( aNotebookVar ) );
+  if( aNotebook )
+    aNotebook->RebuildLinks();
 }
 
 
