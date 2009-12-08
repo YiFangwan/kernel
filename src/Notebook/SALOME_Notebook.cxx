@@ -200,7 +200,11 @@ void SALOME_Notebook::SetToUpdate( SALOME::ParameterizedObject_ptr theObj )
   if( !CORBA::is_nil( aParam ) )
   {
     std::string anEntry = aParam->GetEntry();
-    SALOME_Parameter* aParamPtr = myParameters[anEntry];
+    std::map< std::string, SALOME_Parameter* >::const_iterator pit = myParameters.find( anEntry );
+    if( pit == myParameters.end() )
+      return;
+
+    SALOME_Parameter* aParamPtr = pit->second;
     std::string aKey = GetKey( anEntry );
     ClearDependencies( aKey, SALOME::All );
     AddDependencies( aParamPtr );
