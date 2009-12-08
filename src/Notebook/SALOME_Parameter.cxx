@@ -51,7 +51,6 @@ SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::str
 SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::string& theName, const std::string& theData, bool isExpr )
 : myNotebook( theNotebook ), myName( theName ), myIsAnonymous( false ), myIsCalculable( isExpr )
 {
-  SetId();
   if( isExpr )
     InternalSetExpression( theData, false );
   else
@@ -368,6 +367,7 @@ void SALOME_Parameter::InternalSetExpression( const std::string& theExpr, bool i
       Update();
     else
       Update( SALOME::Notebook::_nil() );
+    SetId();
   }
   catch( SALOME::ExpressionError anError )
   {
