@@ -53,10 +53,7 @@ SALOME_Parameter::SALOME_Parameter( SALOME_Notebook* theNotebook, const std::str
 {
   SetId();
   if( isExpr )
-  {
-    InternalSetExpression( theData );
-    Update( SALOME::Notebook::_nil() );
-  }
+    InternalSetExpression( theData, false );
   else
     myResult = theData;
 }
@@ -132,20 +129,13 @@ void SALOME_Parameter::SetExpression( const char* theExpr )
 {
   if( myIsAnonymous )
     myNotebook->AddExpression( theExpr );
-
   else
-  {
-    InternalSetExpression( theExpr );
-    Update();
-  }
+    InternalSetExpression( theExpr, true );
 }
 
 void SALOME_Parameter::SetBoolean( CORBA::Boolean theValue )
 {
-  if( myIsAnonymous )
-  {
-  }
-  else
+  if( !myIsAnonymous )
   {
     myResult = theValue;
     myIsCalculable = false;
@@ -155,10 +145,7 @@ void SALOME_Parameter::SetBoolean( CORBA::Boolean theValue )
 
 void SALOME_Parameter::SetInteger( CORBA::Long theValue )
 {
-  if( myIsAnonymous )
-  {
-  }
-  else
+  if( !myIsAnonymous )
   {
     myResult = (int)theValue;
     myIsCalculable = false;
@@ -168,10 +155,7 @@ void SALOME_Parameter::SetInteger( CORBA::Long theValue )
 
 void SALOME_Parameter::SetReal( CORBA::Double theValue )
 {
-  if( myIsAnonymous )
-  {
-  }
-  else
+  if( !myIsAnonymous )
   {
     myResult = theValue;
     myIsCalculable = false;
@@ -181,10 +165,7 @@ void SALOME_Parameter::SetReal( CORBA::Double theValue )
 
 void SALOME_Parameter::SetString( const char* theValue )
 {
-  if( myIsAnonymous )
-  {
-  }
-  else
+  if( !myIsAnonymous )
   {
     myResult = theValue;
     myIsCalculable = false;
@@ -374,7 +355,7 @@ void SALOME_Parameter::ThrowTypeError( const std::string& theMsg )
   throw anError;
 }
 
-void SALOME_Parameter::InternalSetExpression( const std::string& theExpr )
+void SALOME_Parameter::InternalSetExpression( const std::string& theExpr, bool isUpdateByNotebook )
 {
   std::string anOldExpr = myExpr.expression();
   bool anOldCalc = myIsCalculable;
@@ -383,11 +364,16 @@ void SALOME_Parameter::InternalSetExpression( const std::string& theExpr )
     myExpr.setExpression( theExpr );
     myIsCalculable = true;
     AnalyzeError();
+    if( isUpdateByNotebook )
+      Update();
+    else
+      Update( SALOME::Notebook::_nil() );
   }
   catch( SALOME::ExpressionError anError )
   {
     myExpr.setExpression( anOldExpr );
     myIsCalculable = anOldCalc;
+    Update();
     throw anError;
   }
 }

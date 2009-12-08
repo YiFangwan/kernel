@@ -86,7 +86,7 @@ public:
 private:
   void ThrowTypeError( const std::string& theMsg );
   void ThrowError( bool isCalc, const std::string& theMsg );
-  void InternalSetExpression( const std::string& theExpr );
+  void InternalSetExpression( const std::string& theExpr, bool isUpdateByNotebook );
   void AnalyzeError();
   void SetId();
   void Update();
