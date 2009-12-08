@@ -1072,9 +1072,10 @@ void SALOME_Notebook::ThrowError( const std::string& theErrorMsg ) const
   throw anError;
 }
 
-char* SALOME_Notebook::GetParameters( const char* theComponent, const char* theEntry )
+SALOME::StringArray* SALOME_Notebook::GetObjectParameters( const char* theComponent, const char* theEntry )
 {
-  std::string aRes, aKey = GetKey( theComponent, theEntry ), aComponent, aName;
+  std::list<std::string> aDeps;
+  std::string aKey = GetKey( theComponent, theEntry ), aComponent, aName;
   std::map< std::string, std::list<std::string> >::const_iterator it = myDependencies.find( aKey );
   if( it!=myDependencies.end() )
   {
@@ -1083,15 +1084,16 @@ char* SALOME_Notebook::GetParameters( const char* theComponent, const char* theE
     {
       aComponent = GetComponent( *dit, aName );
       if( aComponent==PARAM_COMPONENT )
-      {
-        if( aRes.length() > 0 )
-          aRes += ", ";
-        aRes += aName;
-      }
+        aDeps.push_back( aName );
     }
   }
 
-  return CORBA::string_dup( aRes.c_str() );
+  return GenerateList( aDeps );
+}
+
+SALOME::StringArray* SALOME_Notebook::GetParameters( const char* theParamName )
+{
+  return GetObjectParameters( PARAM_COMPONENT.c_str(), theParamName );
 }
 
 int SALOME_Notebook::GetNewId()
@@ -1190,17 +1192,18 @@ void SALOME_Notebook::ParseOldStyleObject( const std::string& theComponent, cons
 void SALOME_Notebook::RebuildLinks()
 {
   printf( "Rebuild links\n" );
-}
 
-SALOME::StringArray* SALOME_Notebook::GetParametersDependingOn( const char* theParamName )
-{
-  std::list<std::string> aParamsDeps;
-  std::list<std::string> aDeps = GetAllDependingOn( GetKey( theParamName ) );
-  std::list<std::string>::const_iterator it = aDeps.begin(), last = aDeps.end();
-  std::string aName;
+  std::list<std::string> aNewEntriesToRebuild;
+  std::list<std::string>::const_iterator it = myEntriesToRebuild.begin(), last = myEntriesToRebuild.end();
   for( ; it!=last; it++ )
-    if( GetComponent( *it, aName ) == PARAM_COMPONENT )
-      aParamsDeps.push_back( aName );
+  {
+    /*SALOMEDS::SObject_var anObj = myStudy->FindObjectID( *it );
+    if( !CORBA::is_nil( anObj ) )
+    {
+      SALOMEDS::GenericAttribute anAttr;
+    }
+    aNewEntriesToRebuild.push_back( *it );*/
+  }
 
-  return GenerateList( aParamsDeps );
+  myEntriesToRebuild = aNewEntriesToRebuild;
 }

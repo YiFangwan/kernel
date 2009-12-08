@@ -76,8 +76,8 @@ public:
   virtual CORBA::Boolean       Load( const char* theFileName );
   virtual char*                DumpPython();
   virtual char*                Dump();
-  virtual char*                GetParameters( const char* theComponent, const char* theEntry );
-  virtual SALOME::StringArray* GetParametersDependingOn( const char* theParamName );
+  virtual SALOME::StringArray* GetObjectParameters( const char* theComponent, const char* theEntry );
+  virtual SALOME::StringArray* GetParameters( const char* theParamName );
 
   SALOME_Parameter* GetParameterPtr( const char* theParamName ) const;
   void              UpdateAnonymous( const std::string& theOldName, const std::string& theNewName );
