@@ -228,11 +228,11 @@ module SALOME
     //! Dump of Notebook internal data structure for debug purposes
     string Dump();
 
-    //! Return string containing information about parameters used by object with given component and entry
-    string GetParameters( in string theComponent, in string theEntry );
+    //! Return string array containing information about parameters used by object with given component and entry
+    StringArray GetObjectParameters( in string theComponent, in string theEntry );
 
-    //! Return names of all parameters depending on given parameter
-    StringArray GetParametersDependingOn( in string theParamName );
+    //! Return string array containing information about parameters used by given parameter
+    StringArray GetParameters( in string theParamName );
   };
 };
 
