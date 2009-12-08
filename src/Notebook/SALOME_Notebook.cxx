@@ -66,11 +66,11 @@ std::vector<std::string> split( const std::string& theData, const std::string& t
 {
   std::vector<std::string> aParts;
   int aPrev = 0, anInd = 0;
-  while( true )
+  while( anInd<theData.length() )
   {
     anInd = theData.find( theSeparator, aPrev );
     if( anInd < 0 )
-      break;
+      anInd = theData.length();
 
     std::string aPart = theData.substr( aPrev, anInd - aPrev );
     if( aPart.length() > 0 || theIsKeepEmpty )
@@ -1116,4 +1116,91 @@ SALOME::Parameter_ptr SALOME_Notebook::Calculate( const char* theExpr )
   myTmpParam->SetExpression( theExpr );
   myTmpParam->Update( _this() );
   return myTmpParam.in();
+}
+
+void SALOME_Notebook::ParseOldStyleParam( const std::string& theName, const std::string& theType, const std::string& theValue )
+{
+  int aType;
+  if( sscanf( theType.c_str(), "%i", &aType ) != 1 )
+    return;
+
+  switch( aType )
+  {
+  case 0:
+    {
+      double aValue;
+      if( sscanf( theValue.c_str(), "%lf", &aValue ) != 1 )
+        return;
+
+      AddReal( theName.c_str(), aValue );
+      break;
+    }
+  case 1:
+    {
+      int aValue;
+      if( sscanf( theValue.c_str(), "%i", &aValue ) != 1 )
+        return;
+
+      AddInteger( theName.c_str(), aValue );
+      break;
+    }
+  case 2:
+    {
+      int aValue;
+      if( sscanf( theValue.c_str(), "%i", &aValue ) != 1 )
+        return;
+
+      AddBoolean( theName.c_str(), aValue );
+      break;
+    }
+  case 3:
+    {
+      std::string aValue = theValue;
+      for( int i = 0, n = aValue.length(); i < n; i++ )
+        if( aValue[i]=='"' )
+          aValue[i] = ' ';
+
+      AddNamedExpression( theName.c_str(), aValue.c_str() );
+      break;
+    }
+  }
+}
+
+void SALOME_Notebook::ParseOldStyleObject( const std::string& theComponent, const std::string& theEntry, const std::string& theData )
+{
+  //printf( "ParseOldStyleObject: %s\n", theData.c_str() );
+  std::string anObjKey = GetKey( theComponent, theEntry );
+  std::vector<std::string> aParts = split( theData, "|", false ), anItems;
+  for( int i=0, n=aParts.size(); i<n; i++ )
+  {
+    //printf( "part: %s\n", aParts[i].c_str() );
+    anItems = split( aParts[i], ":", false );
+    //printf( "size = %i\n", anItems.size() );
+    for( int j=0, m=anItems.size(); j<m; j++ )
+    {
+      std::string aRefKey = GetKey( anItems[j] );
+      //printf( "key = %s\n", aRefKey.c_str() );
+      if( !HasDependency( anObjKey, aRefKey ) )
+        AddDependency( anObjKey, aRefKey );
+    }
+  }
+  myEntriesToRebuild.push_back( theEntry );
+}
+
+void SALOME_Notebook::RebuildLinks()
+{
+  printf( "Rebuild links\n" );
+}
+
+SALOME::StringArray* SALOME_Notebook::GetParametersDependingOn( const char* theParamName )
+{
+  std::list<std::string> aParamsDeps;
+  std::list<std::string> aDeps = GetAllDependingOn( GetKey( theParamName ) );
+  std::list<std::string>::const_iterator it = aDeps.begin(), last = aDeps.end();
+  std::string aName;
+  for( ; it!=last; it++ )
+    if( GetComponent( *it, aName ) == PARAM_COMPONENT )
+      aParamsDeps.push_back( aName );
+
+  return GenerateList( aParamsDeps );
 }

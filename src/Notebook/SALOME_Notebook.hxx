@@ -72,16 +72,20 @@ public:
 
   virtual SALOME::Parameter_ptr Calculate( const char* theExpr );
 
-  virtual CORBA::Boolean Save( const char* theFileName );
-  virtual CORBA::Boolean Load( const char* theFileName );
-  virtual char*          DumpPython();
-  virtual char*          Dump();
-  virtual char*          GetParameters( const char* theComponent, const char* theEntry );
+  virtual CORBA::Boolean       Save( const char* theFileName );
+  virtual CORBA::Boolean       Load( const char* theFileName );
+  virtual char*                DumpPython();
+  virtual char*                Dump();
+  virtual char*                GetParameters( const char* theComponent, const char* theEntry );
+  virtual SALOME::StringArray* GetParametersDependingOn( const char* theParamName );
 
   SALOME_Parameter* GetParameterPtr( const char* theParamName ) const;
   void              UpdateAnonymous( const std::string& theOldName, const std::string& theNewName );
   int               GetNewId();
   bool              HasDependency( const std::string& theObjKey, const std::string& theRefKey ) const;
+  void              ParseOldStyleParam( const std::string& theName, const std::string& theType, const std::string& theValue );
+  void              ParseOldStyleObject( const std::string& theComponent, const std::string& theEntry, const std::string& theData );
+  void              RebuildLinks();
 
 private:
   void Update( bool theOnlyParameters );
@@ -94,7 +98,7 @@ private:
   std::string GetComponent( const std::string& theKey, std::string& theEntry ) const;
   void ParseDependencies( FILE* theFile, const std::string& theFirstLine );
   std::string GetKey( SALOME::ParameterizedObject_ptr theObj ) const;
-  std::string GetKey( const std::string& theComponent, const std::string& theParamName ) const;
+  std::string GetKey( const std::string& theComponent, const std::string& theEntry ) const;
   std::string GetKey( const std::string& theParamName ) const;
   std::list<std::string> GetAllDependingOn( const std::string& theKey ) const;
   SALOME::ParameterizedObject_ptr FindObject( const std::string& theKey ) const;
@@ -136,6 +140,7 @@ private:
   std::map< std::string, SALOME_Parameter* > myParameters;
   std::list< KeyHelper > myToUpdate;
   std::list<SubstitutionInfo> mySubstitutions;
+  std::list< std::string > myEntriesToRebuild;
   SALOMEDS::Study_var myStudy;
   SALOME::Parameter_var myTmpParam;
   Utils_Mutex myMutex;
