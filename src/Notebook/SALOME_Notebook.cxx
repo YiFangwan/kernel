@@ -146,7 +146,26 @@ bool SALOME_Notebook::KeyHelper::operator < ( const KeyHelper& theKH ) const
   else if( myNotebook->HasDependency( theKH.myKey, myKey ) )
     ok = true;
   else
-    ok = myKey < theKH.myKey;
+  {
+    SALOME::ParameterizedObject_var anObj1 = myNotebook->FindObject( myKey );
+    SALOME::ParameterizedObject_var anObj2 = myNotebook->FindObject( theKH.myKey );
+    SALOME::Parameter_var aParamV1 = SALOME::Parameter::_narrow( anObj1 );
+    SALOME::Parameter_var aParamV2 = SALOME::Parameter::_narrow( anObj2 );
+    if( CORBA::is_nil( aParamV1 ) )
+      if( CORBA::is_nil( aParamV2 ) )
+        ok = myKey < theKH.myKey;
+      else
+        ok = false;
+    else
+      if( CORBA::is_nil( aParamV2 ) )
+        ok = true;
+      else
+      {
+        SALOME_Parameter* aParam1 = myNotebook->GetParameterPtr( aParamV1->GetEntry() );
+        SALOME_Parameter* aParam2 = myNotebook->GetParameterPtr( aParamV2->GetEntry() );
+        ok = aParam1->GetId() < aParam2->GetId();
+      }
+  }
 
   //printf( "%s < %s ? %i\n", myKey.c_str(), theKH.myKey.c_str(), ok );
   return ok;
@@ -237,6 +256,9 @@ void SALOME_Notebook::SetToUpdate( SALOME::ParameterizedObject_ptr theObj )
   for( ; uit!=ulast; uit++ )
     printf( "To update: %s\n", (*uit).key().c_str() );
   */
+
+  //printf( "Dump after SetToUpdate:\n" );
+  //printf( Dump() );
 }
 
 bool SALOME_Notebook::CanUpdate( SALOME::ParameterizedObject_ptr theObj ) const
@@ -1193,16 +1215,38 @@ void SALOME_Notebook::RebuildLinks()
 {
   printf( "Rebuild links\n" );
 
+  SALOMEDS::StudyBuilder_var aBuilder = myStudy->NewBuilder();
   std::list<std::string> aNewEntriesToRebuild;
   std::list<std::string>::const_iterator it = myEntriesToRebuild.begin(), last = myEntriesToRebuild.end();
   for( ; it!=last; it++ )
   {
-    /*SALOMEDS::SObject_var anObj = myStudy->FindObjectID( *it );
+    std::string aGlobalEntry = *it;
+    SALOMEDS::SObject_var anObj = myStudy->FindObjectID( aGlobalEntry.c_str() );
     if( !CORBA::is_nil( anObj ) )
     {
-      SALOMEDS::GenericAttribute anAttr;
+      SALOMEDS::GenericAttribute_var anAttr;
+      if( aBuilder->FindAttribute( anObj._retn(), anAttr, "AttributeIOR" ) )
+      {
+        /*SALOMEDS::AttributeIOR_var anIOR = SALOMEDS::AttributeIOR::_narrow( anAttr );
+        CORBA::Object_var aRealObj = _orb->string_to_object( anIOR.Value() );
+        SALOME::ParameterizedObject_var aParamObj = SALOME::ParameterizedObject::_narrow( aRealObj );
+        if( !CORBA::is_nil( aParamObj ) )
+        {
+          std::string
+            anOldKey = GetKey( aParamObj->GetComponent(), aGlobalEntry ),
+            aKey = GetKey( aParamObj );
+          std::map< std::string, std::list<std::string> >::iterator it = myDependencies.find( anOldKey );
+          if( it!=myDependencies.end() )
+          {
+            std::list<std::string> aValue = it->second;
+            myDependencies.remove( anOldKey );
+            myDependencies.insert( aKey, aValue );
+          }
+          continue;
+        }*/
+      }
     }
-    aNewEntriesToRebuild.push_back( *it );*/
+    aNewEntriesToRebuild.push_back( aGlobalEntry );
   }
 
   myEntriesToRebuild = aNewEntriesToRebuild;
