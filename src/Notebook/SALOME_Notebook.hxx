@@ -104,7 +104,7 @@ private:
   SALOME::ParameterizedObject_ptr FindObject( const std::string& theKey ) const;
   void ThrowError( const std::string& theErrorMsg ) const;
   bool CanUpdate( SALOME::ParameterizedObject_ptr theObj ) const;
-  std::list<std::string> GetParameters() const;
+  std::list<std::string> Parameters( bool theWithAnonymous ) const;
 
 private:
   class KeyHelper

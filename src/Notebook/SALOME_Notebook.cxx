@@ -544,14 +544,15 @@ private:
   int         myId;
 };
 
-std::list<std::string> SALOME_Notebook::GetParameters() const
+std::list<std::string> SALOME_Notebook::Parameters( bool theWithAnonymous ) const
 {
   std::list<ParameterRank> aParams;
   std::map< std::string, SALOME_Parameter* >::const_iterator it = myParameters.begin(), last = myParameters.end();
   for( ; it!=last; it++ )
   {
     ParameterRank aRank( it->second );
-    if( !it->second->IsAnonymous() && find( aParams.begin(), aParams.end(), aRank ) == aParams.end() )
+    if( ( theWithAnonymous || !it->second->IsAnonymous() ) &&
+        find( aParams.begin(), aParams.end(), aRank ) == aParams.end() )
       aParams.push_back( aRank );
   }
   aParams.sort();
@@ -568,7 +569,7 @@ SALOME::StringArray* SALOME_Notebook::Parameters()
 {
   //Utils_Locker lock( &myMutex );
 
-  return GenerateList( GetParameters() );
+  return GenerateList( Parameters( false ) );
 }
 
 SALOME::StringArray* SALOME_Notebook::AbsentParameters( const char* theExpr )
@@ -800,7 +801,7 @@ CORBA::Boolean SALOME_Notebook::Save( const char* theFileName )
 
   //2. Save parameters
   save( aFile, "parameters" );
-  std::list<std::string> aNames = GetParameters();
+  std::list<std::string> aNames = Parameters( true );
   std::list<std::string>::const_iterator pit = aNames.begin(), plast = aNames.end();
   for( ; pit!=plast; pit++ )
     myParameters[*pit]->Save( aFile );
@@ -1045,7 +1046,7 @@ char* SALOME_Notebook::Dump()
 
   //2. Parameters
   aStr += "Parameters:\n";
-  std::list<std::string> aNames = GetParameters();
+  std::list<std::string> aNames = Parameters( true );
   std::list<std::string>::const_iterator pit = aNames.begin(), plast = aNames.end();
   for( ; pit!=plast; pit++ )
   {
