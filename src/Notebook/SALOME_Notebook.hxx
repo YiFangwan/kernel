@@ -80,6 +80,7 @@ public:
   virtual SALOME::StringArray* GetParameters( const char* theParamName );
 
   SALOME_Parameter* GetParameterPtr( const char* theParamName ) const;
+  void              Update( bool theOnlyParameters );
   void              UpdateAnonymous( const std::string& theOldName, const std::string& theNewName );
   int               GetNewId();
   bool              HasDependency( const std::string& theObjKey, const std::string& theRefKey ) const;
@@ -88,7 +89,6 @@ public:
   void              RebuildLinks();
 
 private:
-  void Update( bool theOnlyParameters );
   void AddParameter( SALOME_Parameter* theParam, bool theAddDependencies = true );
   void AddDependencies( SALOME_Parameter* theParam );
   void AddDependency( const std::string& theObjKey, const std::string& theRefKey );

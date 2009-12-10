@@ -121,7 +121,7 @@ void SALOME_Parameter::Update( SALOME::Notebook_ptr /*theNotebook*/ )
 void SALOME_Parameter::Update()
 {
   myNotebook->SetToUpdate( _this() );
-  myNotebook->Update();
+  myNotebook->Update( true );
 }
 
 void SALOME_Parameter::SetExpression( const char* theExpr )
