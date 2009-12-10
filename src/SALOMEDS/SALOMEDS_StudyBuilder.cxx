@@ -40,6 +40,8 @@
 #include "SALOMEDSImpl_SComponent.hxx"
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 
+#include "SALOME_Notebook.hxx"
+
 #include <string>
 #include <stdexcept>
 
@@ -196,6 +198,7 @@ void SALOMEDS_StudyBuilder::LoadWith(const _PTR(SComponent)& theSCO, const std::
   SALOMEDS_SComponent* aSCO = dynamic_cast<SALOMEDS_SComponent*>(theSCO.get());
   CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
   SALOMEDS::Driver_var aDriver = SALOMEDS::Driver::_narrow(obj);
+  SALOMEDS::SComponent_var aComponent = SALOMEDS::SComponent::_narrow( aSCO->GetCORBAImpl() );
   
   if (_isLocal) {
     SALOMEDS::Locker lock;
@@ -207,9 +210,16 @@ void SALOMEDS_StudyBuilder::LoadWith(const _PTR(SComponent)& theSCO, const std::
     if(!isDone && _local_impl->IsError()) 
       THROW_SALOME_CORBA_EXCEPTION(_local_impl->GetErrorCode().c_str(),SALOME::BAD_PARAM);
   }
-  else {
-    _corba_impl->LoadWith(SALOMEDS::SComponent::_narrow(aSCO->GetCORBAImpl()), aDriver);
+  else
+  {
+    _corba_impl->LoadWith( aComponent, aDriver);
   }
+
+  SALOMEDS::Study_var aStudy = aComponent->GetStudy();
+  SALOME::Notebook_var aNotebookVar = aStudy->GetNotebook();
+  //SALOME_Notebook* aNotebook = dynamic_cast<SALOME_Notebook*>( aStudy->_default_POA()->reference_to_servant( aNotebookVar ) );
+  //if( aNotebook )
+  //  aNotebook->RebuildLinks();
 }
 
 void SALOMEDS_StudyBuilder::Load(const _PTR(SObject)& theSCO)
