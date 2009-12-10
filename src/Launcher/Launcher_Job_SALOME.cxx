@@ -109,6 +109,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
 
   // End
   launch_script_stream << _machine_definition.AppliPath << "/runSession -p $appli_port shutdownSalome.py" << std::endl;
+  launch_script_stream << "sleep 10" << std::endl;
 
   // Return
   launch_script_stream.flush();
