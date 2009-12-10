@@ -949,9 +949,7 @@ char* SALOME_Notebook::DumpPython()
   for( ; it!=last; it++ )
     aParams.push_back( KeyHelper( it->first, this ) );
 
-  printf( "%i\n", aParams.size() );
   Sort( aParams );
-  printf( "%i\n", aParams.size() );
   std::list< KeyHelper >::const_iterator pit = aParams.begin(), plast = aParams.end();
   std::string anEntry;
   for( ; pit!=plast; pit++ )
@@ -1114,8 +1112,11 @@ SALOME::StringArray* SALOME_Notebook::GetObjectParameters( const char* theCompon
           const std::list<std::string>& aLst = myDependencies[*dit];
           std::list<std::string>::const_iterator lit = aLst.begin(), llast = aLst.end();
           for( ; lit!=llast; lit++ )
-            if( find( aDeps.begin(), aDeps.end(), *lit ) == aDeps.end() )
-              aDeps.push_back( *lit );
+          {
+            GetComponent( *lit, aName );
+            if( find( aDeps.begin(), aDeps.end(), aName ) == aDeps.end() )
+              aDeps.push_back( aName );
+          }
         }
         else if( find( aDeps.begin(), aDeps.end(), aName ) == aDeps.end() )
           aDeps.push_back( aName );
@@ -1226,6 +1227,7 @@ void SALOME_Notebook::ParseOldStyleObject( const std::string& theComponent, cons
 
 void SALOME_Notebook::RebuildLinks()
 {
+  return;
   printf( "Rebuild links\n" );
 
   SALOMEDS::StudyBuilder_var aBuilder = myStudy->NewBuilder();
