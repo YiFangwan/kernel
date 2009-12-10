@@ -183,9 +183,15 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
   if(!_name_service->Change_Directory("/Study")) MESSAGE( "Unable to access the study directory" )
   else _name_service->Register(Study, CORBA::string_dup(aStudyImpl->Name().c_str()));
 
+
+  SALOMEDS::SComponent_ptr aNotebookComponent = Study->FindComponent( "NOTEBOOK" );
+  SALOMEDS::StudyBuilder_var aBuilder = Study->NewBuilder();
+  aBuilder->LoadWith( aNotebookComponent, SALOME_NotebookDriver::getInstance() );
+
+
   // Notebook creation
-  SALOME::Notebook_var aNotebookVar = Study->GetNotebook();
-  SALOME_Notebook* aNotebook = dynamic_cast<SALOME_Notebook*>(_poa->reference_to_servant( aNotebookVar._retn() ) );
+  //SALOME::Notebook_var aNotebookVar = Study->GetNotebook();
+  /*SALOME_Notebook* aNotebook = dynamic_cast<SALOME_Notebook*>(_poa->reference_to_servant( aNotebookVar._retn() ) );
 
   // Parsing of old style notebook data
   list<int> keys;
@@ -228,7 +234,7 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
         aNotebook->ParseOldStyleObject( aCompName, anEntry, aData );
       }
     }
-  }
+  }*/
 
   return Study._retn();
 }

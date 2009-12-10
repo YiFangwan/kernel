@@ -215,8 +215,8 @@ void SALOMEDS_StudyBuilder::LoadWith(const _PTR(SComponent)& theSCO, const std::
     _corba_impl->LoadWith( aComponent, aDriver);
   }
 
-  SALOMEDS::Study_var aStudy = aComponent->GetStudy();
-  SALOME::Notebook_var aNotebookVar = aStudy->GetNotebook();
+  //SALOMEDS::Study_var aStudy = aComponent->GetStudy();
+  //SALOME::Notebook_var aNotebookVar = aStudy->GetNotebook();
   //SALOME_Notebook* aNotebook = dynamic_cast<SALOME_Notebook*>( aStudy->_default_POA()->reference_to_servant( aNotebookVar ) );
   //if( aNotebook )
   //  aNotebook->RebuildLinks();
