@@ -90,6 +90,8 @@ protected:
 
   void AddOmninamesParams(std::string& command) const;
 
+  void AddOmninamesParams(std::ostringstream& oss) const;
+
   void AddOmninamesParams(std::ofstream& fileStream) const;
 
   std::string BuildTemporaryFileName() const;

@@ -1012,12 +1012,11 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
   string command;
   int nbproc = 0;
 
-  ofstream command_file( _TmpFileName.c_str() );
+  ostringstream o;
 
   if (params.isMPI)
     {
-      //command = "mpirun -np ";
-      command_file << "mpirun -np ";
+      o << "mpirun -np ";
 
       if ( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
         nbproc = 1;
@@ -1028,37 +1027,28 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
       else
         nbproc = params.nb_node * params.nb_proc_per_node;
 
-      //std::ostringstream o;
+      o << nbproc << " ";
 
-      //o << nbproc << " ";
-      command_file << nbproc << " ";
-
-      //command += o.str();
 #ifdef WITHLAM
-      //command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
-      command_file << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+      o << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
 #elif defined(WITHOPENMPI)
-      //command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace ";
       if( getenv("OMPI_URI_FILE") == NULL )
-        command_file << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
+        o << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
       else
         {
-          command_file << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
-          command_file << getenv("OMPI_URI_FILE");
+          o << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
+          o << getenv("OMPI_URI_FILE");
         }
 #endif
 
       if (isPythonContainer(params.container_name))
-        //command += "pyMPI SALOME_ContainerPy.py ";
-        command_file << " pyMPI SALOME_ContainerPy.py ";
+        o << " pyMPI SALOME_ContainerPy.py ";
       else
-        //command += "SALOME_MPIContainer ";
-        command_file << " SALOME_MPIContainer ";
+        o << " SALOME_MPIContainer ";
     }
 
   else
     {
-      //command="";
       std::string wdir=params.workingdir.in();
       if(wdir != "")
         {
@@ -1068,11 +1058,9 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
               // a new temporary directory is requested
               string dir = Kernel_Utils::GetTmpDir();
 #ifdef WIN32
-              //command += "cd /d "+ dir +";";
-              command_file << "cd /d " << dir << endl;
+              o << "cd /d " << dir << endl;
 #else
-              //command = "cd "+ dir +";";
-              command_file << "cd " << dir << ";";
+              o << "cd " << dir << ";";
 #endif
 
             }
@@ -1080,27 +1068,26 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
             {
               // a permanent directory is requested use it or create it
 #ifdef WIN32
-              //command="mkdir " + wdir;
-              command_file << "mkdir " + wdir << endl;
-              command_file << "cd /D " + wdir << endl;
+              o << "mkdir " + wdir << endl;
+              o << "cd /D " + wdir << endl;
 #else
-              //command="mkdir -p " + wdir + " && cd " + wdir + ";";
-              command_file << "mkdir -p " << wdir << " && cd " << wdir + ";";
+              o << "mkdir -p " << wdir << " && cd " << wdir + ";";
 #endif
             }
         }
       if (isPythonContainer(params.container_name))
-        //command += "SALOME_ContainerPy.py ";
-        command_file << "SALOME_ContainerPy.py ";
+        o << "SALOME_ContainerPy.py ";
       else
-        //command += container_exe + " ";
-        command_file << container_exe + " ";
+        o << container_exe + " ";
 
     }
 
-  command_file << _NS->ContainerName(params);
-  command_file << " -";
-  AddOmninamesParams(command_file);
+  o << _NS->ContainerName(params);
+  o << " -";
+  AddOmninamesParams(o);
+
+  ofstream command_file( _TmpFileName.c_str() );
+  command_file << o.str();
   command_file.close();
 
 #ifndef WIN32
@@ -1109,6 +1096,7 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
   command = _TmpFileName;
 
   MESSAGE("Command is file ... " << command);
+  MESSAGE("Command is ... " << o.str());
   return command;
 }
 
@@ -1162,6 +1150,19 @@ void SALOME_ContainerManager::AddOmninamesParams(string& command) const
   command += iorstr;
 }
 
+
+//=============================================================================
+/*!
+ *  add to command all options relative to naming service.
+ */ 
+//=============================================================================
+
+void SALOME_ContainerManager::AddOmninamesParams(ostringstream& oss) const
+{
+  CORBA::String_var iorstr = _NS->getIORaddr();
+  oss << "ORBInitRef NameService=";
+  oss << iorstr;
+}
 
 //=============================================================================
 /*!
