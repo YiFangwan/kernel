@@ -1107,7 +1107,19 @@ SALOME::StringArray* SALOME_Notebook::GetObjectParameters( const char* theCompon
     {
       aComponent = GetComponent( *dit, aName );
       if( aComponent==PARAM_COMPONENT )
-        aDeps.push_back( aName );
+      {
+        SALOME_Parameter* aParam = GetParameterPtr( aName.c_str() );
+        if( aParam->IsAnonymous() )
+        {
+          const std::list<std::string>& aLst = myDependencies[*dit];
+          std::list<std::string>::const_iterator lit = aLst.begin(), llast = aLst.end();
+          for( ; lit!=llast; lit++ )
+            if( find( aDeps.begin(), aDeps.end(), *lit ) == aDeps.end() )
+              aDeps.push_back( *lit );
+        }
+        else if( find( aDeps.begin(), aDeps.end(), aName ) == aDeps.end() )
+          aDeps.push_back( aName );
+      }
     }
   }
 
