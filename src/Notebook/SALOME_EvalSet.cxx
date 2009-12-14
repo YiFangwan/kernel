@@ -27,6 +27,8 @@
 #include <SALOME_EvalSet.hxx>
 //
 #include <math.h>
+#include <cstring>
+#include <cstdlib>
 #include <SALOME_Eval.hxx>
 
 int toInt(const SALOME_String& str, bool *ok);

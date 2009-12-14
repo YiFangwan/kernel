@@ -27,6 +27,8 @@
 
 #include <stack>
 #include <list>
+#include <algorithm>
+#include <cstring>
 
 //=======================================================================
 //function : contains

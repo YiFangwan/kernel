@@ -27,6 +27,7 @@
 #include <SALOME_Notebook.hxx>
 #include <SALOME_Parameter.hxx>
 #include <SALOME_EvalParser.hxx>
+#include <algorithm>
 
 std::string arg( const std::string& theStr, const std::string& theArg1 )
 {
