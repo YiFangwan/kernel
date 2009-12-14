@@ -37,7 +37,7 @@ class Parameter:
     A wrapper class for the CORBA Parameter object.
     """
 
-    def __init__( self, aName, aNoteBook = None ):
+    def __init__( self, aName, aValue = None, aNoteBook = None ):
         """
         Constructor
         """
@@ -47,9 +47,16 @@ class Parameter:
         if not aNoteBook:
             aNoteBook = Notebook( salome.myStudy )
         self.myNotebook = aNoteBook
-        self.myParameter = self.myNotebook.getNotebook().GetParameter( aName )
-        if not self.myParameter:
-            raise "Parameter '%s' is not defined in the study" % aName
+        if aValue is None:
+            # get existing variable
+            self.myParameter = self.myNotebook.getNotebook().GetParameter( aName )
+            if not self.myParameter:
+                raise "Parameter '%s' is not defined in the study" % aName
+            pass
+        else:
+            # create new variable or set new value for existing variable
+            self.myNotebook.set( aName, aValue )
+            self.myParameter = self.myNotebook.getNotebook().GetParameter( aName )
         pass
     
     def name( self ):
@@ -75,7 +82,25 @@ class Parameter:
             return self.myParameter.AsString()
             
         return None
-    
+
+    def setValue( self, aValue ):
+	"""
+        Set new value to the variable
+	"""
+        if type( aValue ) == float:
+            self.myParameter.SetReal( aValue )
+                
+        elif type( aValue ) == str:
+            self.myParameter.SetExpression( aValue )
+            
+        elif type( aValue ) == int:
+            self.myParameter.SetInteger( aValue )
+            
+        elif type( aValue ) == bool:
+            self.myParameter.SetBoolean( aValue )
+
+        pass
+
     pass # end of Parameter class
         
 class Notebook:
@@ -138,7 +163,7 @@ class Notebook:
 	"""
         aResult = None
         try:
-            aParam = Parameter( variableName, self )
+            aParam = Parameter( variableName, None, self )
             aResult = aParam.value()
             pass
         except:
