@@ -32,21 +32,79 @@ Module salome_notebook gives access to Salome Notebook.
 import salome
 import SALOME
 
+class Parameter:
+    """
+    A wrapper class for the CORBA Parameter object.
+    """
+
+    def __init__( self, aName, aNoteBook = None ):
+        """
+        Constructor
+        """
+        aName = aName.strip()
+        if not aName:
+            raise "Empty parameter name"
+        if not aNoteBook:
+            aNoteBook = Notebook( salome.myStudy )
+        self.myNotebook = aNoteBook
+        self.myParameter = self.myNotebook.getNotebook().GetParameter( aName )
+        if not self.myParameter:
+            raise "Parameter '%s' is not defined in the study" % aName
+        pass
+    
+    def name( self ):
+        """
+        Get notebook variable name
+        """
+        return self.myParameter.GetEntry()
+    
+    def value( self ):
+        """
+        Get notebook variable value
+        """
+        if self.myParameter.GetType() == SALOME.TReal:
+            return self.myParameter.AsReal()
+            
+        elif self.myParameter.GetType() == SALOME.TInteger:
+            return self.myParameter.AsInteger()
+            
+        elif self.myParameter.GetType() == SALOME.TBoolean:
+            return self.myParameter.AsBoolean()
+            
+        elif self.myParameter.GetType() == SALOME.TString:
+            return self.myParameter.AsString()
+            
+        return None
+    
+    pass # end of Parameter class
+        
 class Notebook:
+    """
+    A wrapper class for the CORBA Notebook object.
+    """
     
     def __init__( self, Study ):
+        """
+        Constructor
+        """
         self.myNotebook = Study.GetNotebook()
 
     def getNotebook( self ):
+        """
+        Get access to the internal CORBA Notebook reference
+        """
         return self.myNotebook
 
     def update( self ):
+        """
+        Update notebook (re-calculate all dependencies)
+        """
         self.myNotebook.Update()
         
     def set( self, variableName, variable ):
 	"""
-	Create (or modify) variable with name "variableName" 
-	and value equal "theValue".
+	Create (or modify) variable with name 'variableName' 
+	and value equal 'theValue'.
 	"""
 
         aParam = self.myNotebook.GetParameter( variableName )
@@ -76,50 +134,46 @@ class Notebook:
             
     def get( self, variableName ):
 	"""
-	Return value of the variable with name "variableName".
+	Return value of the variable with name 'variableName'.
 	"""
-	aParam = None
         aResult = None
-	if isinstance( variableName, str ):
-            aParam = self.myNotebook.GetParameter( variableName )
-	elif isinstance( variableName, SALOME._objref_Parameter ):
-	    aParam = variableName
-	    
-        if aParam != None:
-
-            if aParam.GetType() == SALOME.TReal:
-                aResult = aParam.AsReal()
-
-            elif aParam.GetType() == SALOME.TInteger:
-                aResult = aParam.AsInteger()
-
-            elif aParam.GetType() == SALOME.TBoolean:
-                aResult = aParam.AsBoolean()
-
-            elif aParam.GetType() == SALOME.TString:
-                aResult = aParam.AsString()
-                
+        try:
+            aParam = Parameter( variableName, self )
+            aResult = aParam.value()
+            pass
+        except:
+            pass
         return aResult
     
     def isVariable( self, variableName ): 
 	"""
-	Return true if variable with name "variableName" 
-	exists in the study, otherwise return false.
+	Return True if variable with name 'variableName'
+	exists in the study, otherwise return False.
 	"""
         aParam = self.myNotebook.GetParameter( variableName )
         return aParam != None
 
     def dump( self ):
+        """
+        Dump current contents of the notebook.
+        """
         return self.myNotebook.Dump()
 
     def rename( self, oldname, newname ):
+        """
+        Rename notebook variable 'oldname' to 'newname'
+        """
         self.myNotebook.Rename( oldname, newname )
 
-    def remove( self, name ):
-        self.myNotebook.Remove( name )
+    def remove( self, variableName ):
+        """
+        Remove notebook variable with the given 'variableName' name
+        """
+        self.myNotebook.Remove( variableName )
 
+    pass # end of Notebook class
 
+###
+# global notebook variable, initialized by the currently active study
+###
 notebook = Notebook(salome.myStudy)
-
-def Parameter( varName ):
-    return notebook.getNotebook().GetParameter( varName )
