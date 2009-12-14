@@ -78,8 +78,13 @@ class Notebook:
 	"""
 	Return value of the variable with name "variableName".
 	"""
+	aParam = None
         aResult = None
-        aParam = self.myNotebook.GetParameter( variableName )
+	if isinstance( variableName, str ):
+            aParam = self.myNotebook.GetParameter( variableName )
+	elif isinstance( variableName, SALOME._objref_Parameter ):
+	    aParam = variableName
+	    
         if aParam != None:
 
             if aParam.GetType() == SALOME.TReal:
