@@ -186,6 +186,9 @@ module SALOME
     //! add new parameter (string value) into notebook
     void AddString( in string name, in string value ) raises( NotebookError );
 
+    //! remove object from notebook
+    void RemoveObject( in ParameterizedObject obj ) raises( NotebookError );
+
     //! remove parameter from notebook
     void Remove( in string name ) raises( NotebookError );
 
