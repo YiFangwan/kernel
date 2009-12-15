@@ -149,7 +149,8 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
   // Resources requirements
   try
   {
-    machineParams p;
+    resourceParams p;
+    p.name = job_parameters.resource_required.name;
     p.hostname = job_parameters.resource_required.hostname;
     p.OS = job_parameters.resource_required.OS;
     p.nb_proc = job_parameters.resource_required.nb_proc;
@@ -157,7 +158,7 @@ SALOME_Launcher::createJob(const Engines::JobParameters & job_parameters)
     p.nb_proc_per_node = job_parameters.resource_required.nb_proc_per_node;
     p.cpu_clock = job_parameters.resource_required.cpu_clock;
     p.mem_mb = job_parameters.resource_required.mem_mb;
-    new_job->setMachineRequiredParams(p);
+    new_job->setResourceRequiredParams(p);
   }
   catch(const LauncherException &ex){
     INFOS(ex.msg.c_str());
@@ -264,20 +265,20 @@ SALOME_Launcher::createJobWithFile(const char * xmlExecuteFile,
  */
 //=============================================================================
 CORBA::Boolean 
-SALOME_Launcher::testBatch(const Engines::MachineParameters& params)
+SALOME_Launcher::testBatch(const Engines::ResourceParameters& params)
 {
   MESSAGE("BEGIN OF SALOME_Launcher::testBatch");
   CORBA::Boolean rtn = false;
   try
   {
     // find a cluster matching the structure params
-    Engines::MachineList *aMachineList = _ResManager->GetFittingResources(params);
+    Engines::ResourceList *aMachineList = _ResManager->GetFittingResources(params);
     if (aMachineList->length() == 0)
       throw SALOME_Exception("No resources have been found with your parameters");
 
-    const Engines::MachineDefinition* p = _ResManager->GetMachineParameters((*aMachineList)[0]);
-    string clustername(p->alias);
-    INFOS("Choose cluster" <<  clustername);
+    const Engines::ResourceDefinition* p = _ResManager->GetResourceDefinition((*aMachineList)[0]);
+    string resource_name(p->name);
+    INFOS("Choose resource for test: " <<  resource_name);
     
     BatchTest t(*p);
     if (t.test()) 

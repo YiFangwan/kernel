@@ -58,8 +58,8 @@ namespace Launcher
       void setNumber(const int & number);
       int getNumber();
 
-      virtual void setMachineDefinition(const ParserResourcesType & machine_definition);
-      ParserResourcesType getMachineDefinition();
+      virtual void setResourceDefinition(const ParserResourcesType & resource_definition);
+      ParserResourcesType getResourceDefinition();
       
       // Common parameters
       virtual void setJobFile(const std::string & job_file);
@@ -69,7 +69,7 @@ namespace Launcher
       void add_in_file(const std::string & file);
       void add_out_file(const std::string & file);
       void setMaximumDuration(const std::string & maximum_duration);
-      void setMachineRequiredParams(const machineParams & machine_required_params);
+      void setResourceRequiredParams(const resourceParams & resource_required_params);
       void setQueue(const std::string & queue);
       void setEnvFile(const std::string & env_file);
 
@@ -80,7 +80,7 @@ namespace Launcher
       const std::list<std::string> & get_in_files();
       const std::list<std::string> & get_out_files();
       std::string getMaximumDuration();
-      machineParams getMachineRequiredParams();
+      resourceParams getResourceRequiredParams();
       std::string getQueue();
       std::string getEnvFile();
       
@@ -88,7 +88,7 @@ namespace Launcher
 
       // Checks
       void checkMaximumDuration(const std::string & maximum_duration);
-      void checkMachineRequiredParams(const machineParams & machine_required_params);
+      void checkResourceRequiredParams(const resourceParams & resource_required_params);
 
       // Helps
       long convertMaximumDuration(const std::string & maximum_duration);
@@ -104,7 +104,7 @@ namespace Launcher
       std::string _launch_date;
       std::string _env_file;
 
-      ParserResourcesType _machine_definition;
+      ParserResourcesType _resource_definition;
 
       std::string _job_file;
       std::string _job_file_name;
@@ -117,7 +117,7 @@ namespace Launcher
       std::list<std::string> _out_files;
       std::string _maximum_duration;
       long _maximum_duration_in_second;
-      machineParams _machine_required_params;
+      resourceParams _resource_required_params;
       std::string _queue;
 
 #ifdef WITH_LIBBATCH

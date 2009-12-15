@@ -36,15 +36,14 @@ Launcher::Job::Job()
   _result_directory = "";
   _maximum_duration = "";
   _maximum_duration_in_second = -1;
-  _machine_required_params.hostname = "";
-  _machine_required_params.OS = "";
-  _machine_required_params.nb_proc = -1;
-  _machine_required_params.nb_node = -1;
-  _machine_required_params.nb_proc_per_node = -1;
-  _machine_required_params.cpu_clock = -1;
-  _machine_required_params.mem_mb = -1;
-  _machine_required_params.parallelLib = "";
-  _machine_required_params.nb_component_nodes = -1;
+  _resource_required_params.name = "";
+  _resource_required_params.hostname = "";
+  _resource_required_params.OS = "";
+  _resource_required_params.nb_proc = -1;
+  _resource_required_params.nb_node = -1;
+  _resource_required_params.nb_proc_per_node = -1;
+  _resource_required_params.cpu_clock = -1;
+  _resource_required_params.mem_mb = -1;
   _queue = "";
 
 #ifdef WITH_LIBBATCH
@@ -108,11 +107,11 @@ Launcher::Job::getNumber()
 }
 
 void 
-Launcher::Job::setMachineDefinition(const ParserResourcesType & machine_definition)
+Launcher::Job::setResourceDefinition(const ParserResourcesType & resource_definition)
 {
   // Check machine_definition
   std::string user_name = "";
-  if (machine_definition.UserName == "")
+  if (resource_definition.UserName == "")
   {
     user_name = getenv("USER");
     if (user_name == "")
@@ -122,16 +121,16 @@ Launcher::Job::setMachineDefinition(const ParserResourcesType & machine_definiti
     }
   }
   else
-    user_name = machine_definition.UserName;
+    user_name = resource_definition.UserName;
 
-  _machine_definition = machine_definition;
-  _machine_definition.UserName = user_name;
+  _resource_definition = resource_definition;
+  _resource_definition.UserName = user_name;
 }
 
 ParserResourcesType 
-Launcher::Job::getMachineDefinition()
+Launcher::Job::getResourceDefinition()
 {
-  return _machine_definition;
+  return _resource_definition;
 }
 
 void 
@@ -220,10 +219,10 @@ Launcher::Job::setMaximumDuration(const std::string & maximum_duration)
 }
 
 void 
-Launcher::Job::setMachineRequiredParams(const machineParams & machine_required_params)
+Launcher::Job::setResourceRequiredParams(const resourceParams & resource_required_params)
 {
-  checkMachineRequiredParams(machine_required_params);
-  _machine_required_params = machine_required_params;
+  checkResourceRequiredParams(resource_required_params);
+  _resource_required_params = resource_required_params;
 }
 
 void 
@@ -268,10 +267,10 @@ Launcher::Job::getMaximumDuration()
   return _maximum_duration;
 }
 
-machineParams 
-Launcher::Job::getMachineRequiredParams()
+resourceParams 
+Launcher::Job::getResourceRequiredParams()
 {
-  return _machine_required_params;
+  return _resource_required_params;
 }
 
 std::string 
@@ -314,12 +313,12 @@ Launcher::Job::checkMaximumDuration(const std::string & maximum_duration)
 }
 
 void 
-Launcher::Job::checkMachineRequiredParams(const machineParams & machine_required_params)
+Launcher::Job::checkResourceRequiredParams(const resourceParams & resource_required_params)
 {
   // nb_proc has be to > 0
-  if (machine_required_params.nb_proc <= 0)
+  if (resource_required_params.nb_proc <= 0)
   {
-    std::string message("[Launcher::Job::checkMachineRequiredParams] proc number is not > 0 ! ");
+    std::string message("[Launcher::Job::checkResourceRequiredParams] proc number is not > 0 ! ");
     throw LauncherException(message);
   }
 }
@@ -405,14 +404,14 @@ Launcher::Job::common_job_params()
 {
   Batch::Parametre params;
 
-  params[USER] = _machine_definition.UserName;
-  params[NBPROC] = _machine_required_params.nb_proc;
+  params[USER] = _resource_definition.UserName;
+  params[NBPROC] = _resource_required_params.nb_proc;
 
   // Memory
-  if (_machine_required_params.mem_mb > 0)
+  if (_resource_required_params.mem_mb > 0)
   {
     // Memory is in kilobytes
-    params[MAXRAMSIZE] = _machine_required_params.mem_mb * 1024;
+    params[MAXRAMSIZE] = _resource_required_params.mem_mb * 1024;
   }
 
   // We define a default directory based on user time

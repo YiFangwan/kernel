@@ -89,11 +89,8 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
   LAUNCHER_MESSAGE("Creating a new job");
   
   // First step take a resource
-  // Two cases: hostname is defined -> GetFittingResources will check if resource exists
-  //		hostname is not defined -> Try to find a good resource
-  // Note: We use Alias parameter to get the real name of the machine -> To change ????
   std::vector<std::string> ResourceList;
-  machineParams params = new_job->getMachineRequiredParams();
+  resourceParams params = new_job->getResourceRequiredParams();
   try{
     ResourceList = _ResManager->GetFittingResources(params);
   }
@@ -108,21 +105,13 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
   }
 
   // Second step configure the job with the resource selected - the first of the list
-  ParserResourcesType machine_definition = _ResManager->GetResourcesList(ResourceList[0]);
-  if (machine_definition.Alias == "")
-  {
-    LAUNCHER_INFOS("Alias is not defined for the resource selected: " << machine_definition.HostName);
-    delete new_job;
-    std::string mess = "Alias is not defined for the resource selected: ";
-    mess += machine_definition.HostName;
-    throw LauncherException(mess);
-  }
+  ParserResourcesType resource_definition = _ResManager->GetResourcesDescr(ResourceList[0]);
 
-  // Set machine definition to the job
+  // Set resource definition to the job
   // The job will check if the definitions needed
   try 
   {
-    new_job->setMachineDefinition(machine_definition);
+    new_job->setResourceDefinition(resource_definition);
   }
   catch(const LauncherException &ex)
   {
@@ -132,13 +121,13 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
   }
 
   // Third step search batch manager for the resource into the map -> instanciate one if does not exist
-  std::string machine_name = machine_definition.Alias;
-  std::map<std::string, Batch::BatchManager_eClient *>::const_iterator it = _batchmap.find(machine_name);
+  std::string resource_name = resource_definition.Name;
+  std::map<std::string, Batch::BatchManager_eClient *>::const_iterator it = _batchmap.find(resource_name);
   if(it == _batchmap.end())
   {
     try 
     {
-      _batchmap[machine_name] = FactoryBatchManager(machine_definition);
+      _batchmap[resource_name] = FactoryBatchManager(resource_definition);
     }
     catch(const LauncherException &ex)
     {
@@ -199,9 +188,9 @@ Launcher_cpp::launchJob(int job_id)
     throw LauncherException("Bad state of the job: " + job->getState());
   }
 
-  std::string machine_name = job->getMachineDefinition().Alias;
+  std::string resource_name = job->getResourceDefinition().Name;
   try {
-    Batch::JobId batch_manager_job_id = _batchmap[machine_name]->submitJob(*(job->getBatchJob()));
+    Batch::JobId batch_manager_job_id = _batchmap[resource_name]->submitJob(*(job->getBatchJob()));
     job->setBatchManagerJobId(batch_manager_job_id);
     job->setState("QUEUED");
   }
@@ -256,13 +245,13 @@ Launcher_cpp::getJobResults(int job_id, std::string directory)
   }
 
   Launcher::Job * job = it_job->second;
-  std::string machine_name = job->getMachineDefinition().Alias;
+  std::string resource_name = job->getResourceDefinition().Name;
   try 
   {
     if (directory != "")
-      _batchmap[machine_name]->importOutputFiles(*(job->getBatchJob()), directory);
+      _batchmap[resource_name]->importOutputFiles(*(job->getBatchJob()), directory);
     else
-      _batchmap[machine_name]->importOutputFiles(*(job->getBatchJob()), job->getResultDirectory());
+      _batchmap[resource_name]->importOutputFiles(*(job->getBatchJob()), job->getResultDirectory());
   }
   catch(const Batch::EmulationException &ex)
   {
@@ -321,10 +310,10 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
   for(int i=0; i < job_params.OutputFile.size();i++)
     new_job->add_out_file(job_params.OutputFile[i]);
 
-  machineParams p;
+  resourceParams p;
   p.hostname = clusterName;
   p.nb_proc = job_params.NbOfProcesses;
-  new_job->setMachineRequiredParams(p);
+  new_job->setResourceRequiredParams(p);
 
   createJob(new_job);
   return new_job->getNumber();
@@ -343,7 +332,7 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
   Batch::FactBatchManager_eClient* fact;
 
   int nb_proc_per_node = params.DataForSort._nbOfProcPerNode;
-  std::string hostname = params.Alias;
+  std::string hostname = params.HostName;
 
   switch(params.Protocol)
   {

@@ -25,15 +25,15 @@ Launcher::Job_SALOME::Job_SALOME() {}
 Launcher::Job_SALOME::~Job_SALOME() {}
 
 void 
-Launcher::Job_SALOME::setMachineDefinition(const ParserResourcesType & machine_definition)
+Launcher::Job_SALOME::setResourceDefinition(const ParserResourcesType & resource_definition)
 {
-  // Check machine_definition
-  if (machine_definition.AppliPath == "")
+  // Check resource_definition
+  if (resource_definition.AppliPath == "")
   {
-    std::string mess = "Machine definition must define an application path !, machine name is: " + machine_definition.HostName;
+    std::string mess = "Resource definition must define an application path !, resource name is: " + resource_definition.Name;
     throw LauncherException(mess);
   }
-  Launcher::Job::setMachineDefinition(machine_definition);
+  Launcher::Job::setResourceDefinition(resource_definition);
 }
 
 void
@@ -69,9 +69,9 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "export SALOME_TMP_DIR=" << work_directory << "/logs" << std::endl;
 
   // -- Generates Catalog Resources
-  std::string machine_protocol = "ssh";
-  if (_machine_definition.ClusterInternalProtocol == rsh)
-    machine_protocol = "rsh";
+  std::string resource_protocol = "ssh";
+  if (_resource_definition.ClusterInternalProtocol == rsh)
+    resource_protocol = "rsh";
   
   launch_script_stream << "if [ \"x$LIBBATCH_NODEFILE\" != \"x\" ]; then " << std::endl;
   launch_script_stream << "CATALOG_FILE=" << work_directory << "/CatalogResources_" << _launch_date << ".xml" << std::endl;
@@ -80,20 +80,20 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "echo '<resources>'                 >> $CATALOG_FILE" << std::endl;	
   launch_script_stream << "cat $LIBBATCH_NODEFILE | sort -u | while read host"  << std::endl;
   launch_script_stream << "do"                                                  << std::endl;
-  launch_script_stream << "echo '<machine hostname='\\\"$host\\\"			         >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         protocol=\"" << machine_protocol               << "\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         userName=\"" << _machine_definition.UserName   << "\"' >> $CATALOG_FILE" << std::endl;
-  launch_script_stream << "echo '         appliPath=\"" << _machine_definition.AppliPath << "\"' >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '<resource hostname='\\\"$host\\\"			         >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         protocol=\"" << resource_protocol               << "\"' >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         userName=\"" << _resource_definition.UserName   << "\"' >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '         appliPath=\"" << _resource_definition.AppliPath << "\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '/>'                                                             >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "done"                                 << std::endl;
   launch_script_stream << "echo '</resources>' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "fi" << std::endl;
 
   // Launch SALOME with an appli
-  launch_script_stream << _machine_definition.AppliPath << "/runAppli --terminal  --ns-port-log=" << launch_date_port_file <<  " > logs/salome_" << _launch_date << ".log 2>&1" << std::endl;
+  launch_script_stream << _resource_definition.AppliPath << "/runAppli --terminal  --ns-port-log=" << launch_date_port_file <<  " > logs/salome_" << _launch_date << ".log 2>&1" << std::endl;
   launch_script_stream << "current=0\n"
 		       << "stop=20\n" 
-		       << "while ! test -f " << _machine_definition.AppliPath << "/" << launch_date_port_file << "\n"
+		       << "while ! test -f " << _resource_definition.AppliPath << "/" << launch_date_port_file << "\n"
 		       << "do\n"
 		       << "  sleep 2\n"
 		       << "  let current=current+1\n"
@@ -102,13 +102,13 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
 		       << "    exit\n"
 		       << "  fi\n"
 		       << "done\n"
-		       << "appli_port=`cat " << _machine_definition.AppliPath << "/" << launch_date_port_file << "`\n";
+		       << "appli_port=`cat " << _resource_definition.AppliPath << "/" << launch_date_port_file << "`\n";
 
   // Call real job type
   addJobTypeSpecificScript(launch_script_stream);
 
   // End
-  launch_script_stream << _machine_definition.AppliPath << "/runSession -p $appli_port shutdownSalome.py" << std::endl;
+  launch_script_stream << _resource_definition.AppliPath << "/runSession -p $appli_port shutdownSalome.py" << std::endl;
   launch_script_stream << "sleep 10" << std::endl;
 
   // Return

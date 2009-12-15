@@ -41,10 +41,6 @@
 
 using namespace std;
 
-vector<Engines::Container_ptr> SALOME_ContainerManager::_batchLaunchedContainers;
-
-vector<Engines::Container_ptr>::iterator SALOME_ContainerManager::_batchLaunchedContainersIter;
-
 const char *SALOME_ContainerManager::_ContainerManagerNameInNS = 
   "/ContainerManager";
 
@@ -57,7 +53,8 @@ const char *SALOME_ContainerManager::_ContainerManagerNameInNS =
  */
 //=============================================================================
 
-SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_ResourcesManager *rm, SALOME_NamingService *ns)
+SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, 
+						 SALOME_ResourcesManager *rm, SALOME_NamingService *ns)
 {
   MESSAGE("constructor");
   _NS = ns;
@@ -197,144 +194,187 @@ void SALOME_ContainerManager::ShutdownContainers()
 //=============================================================================
 //! Give a suitable Container given constraints
 /*! CORBA Method:
- *  \param params            Machine Parameters required for the container
+ *  \param params Container Parameters required for the container
  *  \return the container or nil
  */
 //=============================================================================
-
 Engines::Container_ptr
-SALOME_ContainerManager::GiveContainer(const Engines::MachineParameters& params)
+SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& params)
 {
-  char *valenv=getenv("SALOME_BATCH");
-  if(valenv)
-    if (strcmp(valenv,"1")==0)
-      {
-        if(_batchLaunchedContainers.empty())
-          fillBatchLaunchedContainers();
-
-        if (_batchLaunchedContainersIter == _batchLaunchedContainers.end())
-          _batchLaunchedContainersIter = _batchLaunchedContainers.begin();
-
-        Engines::Container_ptr rtn = Engines::Container::_duplicate(*_batchLaunchedContainersIter);
-        _batchLaunchedContainersIter++;
-        return rtn;
-      }
-  return StartContainer(params);
-}
-
-//=============================================================================
-//! Start a suitable Container in a list of machines with constraints 
-/*! C++ Method:
- * Constraints are given by a machine parameters struct
- *  \param params            Machine Parameters required for the container
- *  \param possibleComputers list of machines usable for start
- *  \param container_exe specific container executable (default=SALOME_Container)
- */
-//=============================================================================
-
-Engines::Container_ptr
-SALOME_ContainerManager::StartContainer(const Engines::MachineParameters& params,
-               const Engines::MachineList& possibleComputers,
-               const std::string& container_exe)
-{
-#ifdef WITH_PACO_PARALLEL
-  std::string parallelLib(params.parallelLib);
-  if (parallelLib != "")
-  {
-    Engines::MachineParameters myparams(params);
-    myparams.computerList=possibleComputers;
-    return StartParallelContainer(myparams);
-  }
-#endif
-  string containerNameInNS;
   Engines::Container_ptr ret = Engines::Container::_nil();
 
-  MESSAGE("SALOME_ContainerManager::StartContainer " << possibleComputers.length());
+  // Step 0: Default mode is start
+  Engines::ContainerParameters local_params(params);
+  if (std::string(local_params.mode.in()) == "")
+    local_params.mode = CORBA::string_dup("start");
+  std::string mode = local_params.mode.in();
+  MESSAGE("[GiveContainer] starting with mode: " << mode);
 
-  vector<string> lm;
-// if mode is "get" keep only machines with existing containers 
-  if(std::string(params.mode.in())=="get")
+  // Step 1: Find Container for find and findorstart mode
+  if (mode == "find" or mode == "findorstart")
+  {
+    ret = FindContainer(params, params.resource_params.resList);
+    if(!CORBA::is_nil(ret))
+      return ret;
+    else
     {
-      for(unsigned int i=0;i<possibleComputers.length();i++)
-        {
-          Engines::Container_ptr cont = FindContainer(params,possibleComputers[i]);
-          try
-            {
-              if(!cont->_non_existent())
-                lm.push_back(string(possibleComputers[i]));
-            }
-          catch(CORBA::Exception&)
-            {
-              // CORBA::Exception ignored.
-            }
-        }
+      if (mode == "find")
+      {
+	MESSAGE("[GiveContainer] no container found");
+	return ret;
+      }
+      else
+      {
+	mode = "start";
+      }
     }
-  else
-    {
-      for(unsigned int i=0;i<possibleComputers.length();i++)
-        lm.push_back(string(possibleComputers[i]));
-    }
-
-  string theMachine;
-  try
-    {
-      theMachine=_ResManager->GetImpl()->Find(params.policy.in(),lm);
-    }
-  catch( const SALOME_Exception &ex )
-    {
-      MESSAGE(ex.what());
-      return Engines::Container::_nil();
-    }
-
-  //If the machine name is localhost use the real name
-  if(theMachine == "localhost")
-    theMachine=Kernel_Utils::GetHostname();
-
-  //check if an entry exists in Naming service
-  //if params.mode == "start" or "" shutdown the existing container before launching a new one with that name
-  //if params.mode == "getorstart" or "get" use the existing container
-  if(params.isMPI)
-    // A parallel container register on zero node in NS
-    containerNameInNS = _NS->BuildContainerNameForNS(params,GetMPIZeroNode(theMachine).c_str());
-  else
-    containerNameInNS = _NS->BuildContainerNameForNS(params,theMachine.c_str());
-
-  SCRUTE(containerNameInNS);
-  CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
-  if ( !CORBA::is_nil(obj) )
-    {
-      try
-        {
-          Engines::Container_var cont=Engines::Container::_narrow(obj);
-          if(!cont->_non_existent())
-            {
-              if(std::string(params.mode.in())=="getorstart"||std::string(params.mode.in())=="get")
-                return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
-              else
-                {
-                  INFOS("A container is already registered with the name: " << containerNameInNS << ", shutdown the existing container");
-                  cont->Shutdown(); // shutdown the registered container if it exists
-                }
-            }
-        }
-      catch(CORBA::Exception&)
-        {
-          INFOS("CORBA::Exception ignored.");
-        }
-    }
-
-  //try to launch a new container
-  MESSAGE("try to launch it on " << theMachine);
-
-  string command;
-  if(theMachine==""){
-    MESSAGE("SALOME_ContainerManager::StartContainer : no possible computer");
-    return Engines::Container::_nil();
   }
-  else if(theMachine==Kernel_Utils::GetHostname())
-    command = BuildCommandToLaunchLocalContainer(params,container_exe);
+
+  // Step 2: Get all possibleResources from the parameters
+  Engines::ResourceList_var possibleResources = _ResManager->GetFittingResources(local_params.resource_params);
+  MESSAGE("[GiveContainer] - length of possible resources " << possibleResources->length());
+  std::vector<std::string> local_resources;
+
+  // Step 3: if mode is "get" keep only machines with existing containers 
+  if(mode == "get")
+  {
+    for(unsigned int i=0; i < possibleResources->length(); i++)
+    {
+      Engines::Container_ptr cont = FindContainer(params, possibleResources[i].in());
+      try
+      {
+	if(!cont->_non_existent())
+	  local_resources.push_back(string(possibleResources[i]));
+      }
+      catch(CORBA::Exception&) {}
+    }
+
+    // if local_resources is empty, we cannot give a container
+    if (local_resources.size() == 0)
+    {
+      MESSAGE("[GiveContainer] cannot find a container for mode get");
+      return ret;
+    }
+  }
   else
-    command = BuildCommandToLaunchRemoteContainer(theMachine,params,container_exe);
+    for(unsigned int i=0; i < possibleResources->length(); i++)
+      local_resources.push_back(string(possibleResources[i]));
+
+  // Step 4: select the resource where to get/start the container
+  std::string resource_selected;
+  try
+  {
+    resource_selected = _ResManager->GetImpl()->Find(params.resource_params.policy.in(), local_resources);
+  }
+  catch(const SALOME_Exception &ex)
+  {
+    MESSAGE("[GiveContainer] Exception in ResourceManager find !: " << ex.what());
+    return ret;
+  }
+  MESSAGE("[GiveContainer] Resource selected is: " << resource_selected);
+
+  // Step 5: get container in the naming service
+  Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_selected.c_str());
+  std::string hostname(resource_definition->name.in());
+  std::string containerNameInNS;
+  if(params.isMPI)
+    // A mpi parallel container register on zero node in NS
+    containerNameInNS = _NS->BuildContainerNameForNS(params, GetMPIZeroNode(hostname).c_str());
+  else
+    containerNameInNS = _NS->BuildContainerNameForNS(params, hostname.c_str());
+  MESSAGE("[GiveContainer] Container name in the naming service: " << containerNameInNS);
+
+  // Step 6: check if the name exists in naming service
+  //if params.mode == "getorstart" or "get" use the existing container
+  //if params.mode == "start" shutdown the existing container before launching a new one with that name
+  CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
+  if (!CORBA::is_nil(obj))
+  {
+    try
+    {
+      Engines::Container_var cont=Engines::Container::_narrow(obj);
+      if(!cont->_non_existent())
+      {
+	if(std::string(params.mode.in())=="getorstart" or std::string(params.mode.in())=="get")
+	  return cont._retn(); /* the container exists and params.mode is getorstart or get use it*/
+	else
+	{
+	  INFOS("[GiveContainer] A container is already registered with the name: " << containerNameInNS << ", shutdown the existing container");
+	  cont->Shutdown(); // shutdown the registered container if it exists
+	}
+      }
+    }
+    catch(CORBA::Exception&)
+    {
+      INFOS("[GiveContainer] CORBA::Exception ignored when trying to get the container - we start a new one");
+    }
+  }
+
+  // Step 7: type of container: PaCO, Exe, Mpi or Classic
+  // Mpi already tested in step 5, specific code on BuildCommandToLaunch Local/Remote Container methods
+  // TODO -> separates Mpi from Classic/Exe
+  // PaCO++
+  std::string parallelLib(params.parallelLib);
+  if (std::string(local_params.parallelLib.in()) != "")
+  {
+    INFOS("[GiveContainer] PaCO++ container are not currently available");
+    return ret;
+  }
+  // Classic or Exe ?
+  std::string container_exe = "SALOME_Container"; // Classic container
+  int found=0;
+  try
+  {
+    CORBA::String_var container_exe_tmp;
+    CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
+    SALOME_ModuleCatalog::ModuleCatalog_var Catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
+    if (CORBA::is_nil (Catalog))
+    {
+      INFOS("[GiveContainer] Module Catalog is not found -> cannot launch a container");
+      return ret;
+    }
+    // Loop through component list
+    for(unsigned int i=0; i < local_params.resource_params.componentList.length(); i++)
+    {
+      const char* compoi = local_params.resource_params.componentList[i];
+      SALOME_ModuleCatalog::Acomponent_var compoInfo = Catalog->GetComponent(compoi);
+      if (CORBA::is_nil (compoInfo))
+      {
+	continue;
+      }
+      SALOME_ModuleCatalog::ImplType impl=compoInfo->implementation_type();
+      container_exe_tmp=compoInfo->implementation_name();
+      if(impl==SALOME_ModuleCatalog::CEXE)
+      {
+	if(found)
+	{
+	  INFOS("ContainerManager Error: you can't have 2 CEXE component in the same container" );
+	  return Engines::Container::_nil();
+	}
+	MESSAGE("[GiveContainer] Exe container found !: " << container_exe_tmp);
+	container_exe = container_exe_tmp.in();
+	found=1;
+      }
+    }
+  }
+  catch (ServiceUnreachable&)
+  {
+    INFOS("Caught exception: Naming Service Unreachable");
+    return ret;
+  }
+  catch (...)
+  {
+    INFOS("Caught unknown exception.");
+    return ret;
+  }
+
+  // Step 8: start a new container
+  MESSAGE("[GiveContainer] Try to launch a new container on " << resource_selected);
+  std::string command;
+  if(hostname == Kernel_Utils::GetHostname())
+    command = BuildCommandToLaunchLocalContainer(params, container_exe);
+  else
+    command = BuildCommandToLaunchRemoteContainer(resource_selected, params, container_exe);
 
   //redirect stdout and stderr in a file
 #ifdef WNT
@@ -344,16 +384,16 @@ SALOME_ContainerManager::StartContainer(const Engines::MachineParameters& params
   string logFilename="/tmp";
   char* val = getenv("SALOME_TMP_DIR");
   if(val)
-    {
-      struct stat file_info;
-      stat(val, &file_info);
-      bool is_dir = S_ISDIR(file_info.st_mode);
-      if (is_dir)logFilename=val;
-      else std::cerr << "SALOME_TMP_DIR environment variable is not a directory use /tmp instead" << std::endl;
-    }
+  {
+    struct stat file_info;
+    stat(val, &file_info);
+    bool is_dir = S_ISDIR(file_info.st_mode);
+    if (is_dir)logFilename=val;
+    else std::cerr << "SALOME_TMP_DIR environment variable is not a directory use /tmp instead" << std::endl;
+  }
   logFilename += "/";
 #endif
-  logFilename += _NS->ContainerName(params)+"_"+ theMachine +"_"+getenv( "USER" )+".log" ;
+  logFilename += _NS->ContainerName(params)+"_"+ resource_selected +"_"+getenv( "USER" )+".log" ;
   command += " > " + logFilename + " 2>&1";
 #ifdef WNT
   command = "%PYTHONBIN% -c \"import win32pm ; win32pm.spawnpid(r'" + command + "', '')\"";
@@ -374,117 +414,37 @@ SALOME_ContainerManager::StartContainer(const Engines::MachineParameters& params
     RmTmpFile(_TmpFileName); // command file can be removed here
     return Engines::Container::_nil();
   }
-  else{
-    int count=TIME_OUT_TO_LAUNCH_CONT;
-    MESSAGE("count = "<<count);
-    while ( CORBA::is_nil(ret) && count ){
+  else
+  {
+    int count = TIME_OUT_TO_LAUNCH_CONT;
+    MESSAGE("[GiveContainer] waiting " << count << " second steps");
+    while (CORBA::is_nil(ret) && count)
+    {
 #ifndef WIN32
       sleep( 1 ) ;
 #else
       Sleep(1000);
 #endif
-      count-- ;
-      if ( count != 10 )
-        MESSAGE( count << ". Waiting for container on " << theMachine);
-
+      count--;
+      MESSAGE("[GiveContainer] step " << count << " Waiting for container on " << resource_selected);
       CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
       ret=Engines::Container::_narrow(obj);
     }
-    
-    if ( CORBA::is_nil(ret) )
-      {
-        MESSAGE("SALOME_ContainerManager::StartContainer rsh failed");
-      }
+    if (CORBA::is_nil(ret))
+    {
+      INFOS("[GiveContainer] was not able to launch container " << containerNameInNS);
+    }
     else
-      {
-        logFilename=":"+logFilename;
-        logFilename="@"+Kernel_Utils::GetHostname()+logFilename;
-        logFilename=getenv( "USER" )+logFilename;
-        ret->logfilename(logFilename.c_str());
-      }
-
-    RmTmpFile(_TmpFileName); // command file can be removed here
-    return ret;
+    {
+      // Setting log file name
+      logFilename=":"+logFilename;
+      logFilename="@"+Kernel_Utils::GetHostname()+logFilename;
+      logFilename=getenv( "USER" )+logFilename;
+      ret->logfilename(logFilename.c_str());
+      RmTmpFile(_TmpFileName); // command file can be removed here
+    }
   }
-}
-
-//=============================================================================
-//! Start a suitable Container given constraints 
-/*! CORBA Method:
- *  \param params            Machine Parameters required for the container
- */
-//=============================================================================
-
-Engines::Container_ptr
-SALOME_ContainerManager::StartContainer(const Engines::MachineParameters& params)
-{
-  Engines::MachineList_var possibleComputers = _ResManager->GetFittingResources(params);
-
-  // Look into ModulCatalog if a specific container must be launched
-  CORBA::String_var container_exe;
-  int found=0;
-  try
-    {
-      CORBA::Object_var obj = _NS->Resolve("/Kernel/ModulCatalog");
-      SALOME_ModuleCatalog::ModuleCatalog_var Catalog = SALOME_ModuleCatalog::ModuleCatalog::_narrow(obj) ;
-      if (CORBA::is_nil (Catalog))
-        return Engines::Container::_nil();
-      // Loop through component list
-      for(unsigned int i=0;i<params.componentList.length();i++)
-        {
-          const char* compoi = params.componentList[i];
-          SALOME_ModuleCatalog::Acomponent_var compoInfo = Catalog->GetComponent(compoi);
-          if (CORBA::is_nil (compoInfo))
-            {
-              continue;
-            }
-          SALOME_ModuleCatalog::ImplType impl=compoInfo->implementation_type();
-          container_exe=compoInfo->implementation_name();
-          if(impl==SALOME_ModuleCatalog::CEXE)
-            {
-              if(found)
-                {
-                  INFOS("ContainerManager Error: you can't have 2 CEXE component in the same container" );
-                  return Engines::Container::_nil();
-                }
-              found=1;
-            }
-        }
-    }
-  catch (ServiceUnreachable&)
-    {
-      INFOS("Caught exception: Naming Service Unreachable");
-      return Engines::Container::_nil();
-    }
-  catch (...)
-    {
-      INFOS("Caught unknown exception.");
-      return Engines::Container::_nil();
-    }
-
-  if(found)
-    return StartContainer(params,possibleComputers,container_exe.in());
-  else
-    return StartContainer(params,possibleComputers);
-}
-
-//=============================================================================
-//!  Find or start a suitable Container given some constraints
-/*! CORBA Method:
- *  \param params            Machine Parameters required for the container
- *  \return the container or nil
- */
-//=============================================================================
-
-Engines::Container_ptr
-SALOME_ContainerManager::FindOrStartContainer(const Engines::MachineParameters& params)
-{
-  Engines::Container_ptr ret = FindContainer(params,params.computerList);
-  if(!CORBA::is_nil(ret))
-    return ret;
-  MESSAGE("Container doesn't exist try to launch it ...");
-
-  return StartContainer(params);
+  return ret;
 }
 
 //=============================================================================
@@ -495,18 +455,17 @@ SALOME_ContainerManager::FindOrStartContainer(const Engines::MachineParameters& 
 //=============================================================================
 
 Engines::Container_ptr
-SALOME_ContainerManager::FindContainer(const Engines::MachineParameters& params,
-                                       const Engines::MachineList& possibleComputers)
+SALOME_ContainerManager::FindContainer(const Engines::ContainerParameters& params,
+                                       const Engines::ResourceList& possibleResources)
 {
-  MESSAGE("FindContainer "<<possibleComputers.length());
-  for(unsigned int i=0;i<possibleComputers.length();i++)
+  MESSAGE("[FindContainer] FindContainer on " << possibleResources.length() << " resources");
+  for(unsigned int i=0; i < possibleResources.length();i++)
     {
-      MESSAGE("FindContainer possible " << possibleComputers[i]);
-      Engines::Container_ptr cont = FindContainer(params,possibleComputers[i]);
-      if( !CORBA::is_nil(cont) )
+      Engines::Container_ptr cont = FindContainer(params, possibleResources[i].in());
+      if(!CORBA::is_nil(cont))
         return cont;
     }
-  MESSAGE("FindContainer: not found");
+  MESSAGE("[FindContainer] no container found");
   return Engines::Container::_nil();
 }
 
@@ -518,337 +477,23 @@ SALOME_ContainerManager::FindContainer(const Engines::MachineParameters& params,
 //=============================================================================
 
 Engines::Container_ptr
-SALOME_ContainerManager::FindContainer(const Engines::MachineParameters& params,
-                                       const char *theMachine)
+SALOME_ContainerManager::FindContainer(const Engines::ContainerParameters& params,
+                                       const std::string& resource)
 {
-  string containerNameInNS(_NS->BuildContainerNameForNS(params,theMachine));
+  std::string containerNameInNS(_NS->BuildContainerNameForNS(params, resource.c_str()));
+  MESSAGE("[FindContainer] Try to find a container  " << containerNameInNS << " on resource " << resource);
   CORBA::Object_var obj = _NS->Resolve(containerNameInNS.c_str());
   try
-    {
-      if(obj->_non_existent())
-        return Engines::Container::_nil();
-      else
-        return Engines::Container::_narrow(obj);
-    }
-  catch(const CORBA::Exception& e)
-    {
+  {
+    if(obj->_non_existent())
       return Engines::Container::_nil();
-    }
-}
-
-#ifdef WITH_PACO_PARALLEL
-//=============================================================================
-/*! CORBA Method:
- *  Find or Start a suitable PaCO++ Parallel Container in a list of machines.
- *  \param params            Machine Parameters required for the container
- *  \return CORBA container reference.
- */
-//=============================================================================
-Engines::Container_ptr
-SALOME_ContainerManager::StartParallelContainer(const Engines::MachineParameters& params_const)
-{
-  CORBA::Object_var obj;
-  PaCO::InterfaceManager_var container_proxy;
-  Engines::Container_ptr ret = Engines::Container::_nil();
-  Engines::MachineParameters params(params_const);
-
-  // Step 1 : Try to find a suitable container
-  // Currently not as good as could be since
-  // we have to verified the number of nodes of the container
-  // if a user tell that.
-  ret = FindContainer(params, params.computerList);
-  if(CORBA::is_nil(ret)) {
-    // Step 2 : Starting a new parallel container !
-    INFOS("[StartParallelContainer] Starting a PaCO++ parallel container");
-
-    // Step 3 : Choose a computer
-    std::string theMachine = _ResManager->FindFirst(params.computerList);
-    //If the machine name is localhost use the real name
-    if(theMachine == "localhost")
-      theMachine=Kernel_Utils::GetHostname();
-
-    if(theMachine == "") {
-      INFOS("[StartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
-      INFOS("[StartParallelContainer] No possible computer found");
-      INFOS("[StartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
-      return ret;
-    }
-    INFOS("[StartParallelContainer] on machine : " << theMachine);
-    params.hostname = CORBA::string_dup(theMachine.c_str());
-
-    // Step 4 : starting parallel container proxy
-    Engines::MachineParameters params_proxy(params);
-    std::string command_proxy;
-    SALOME_ContainerManager::actual_launch_machine_t proxy_machine;
-    try 
-    {
-      command_proxy = BuildCommandToLaunchParallelContainer("SALOME_ParallelContainerProxy", params_proxy, proxy_machine);
-    }
-    catch(const SALOME_Exception & ex)
-    {
-      INFOS("[StartParallelContainer] Exception in BuildCommandToLaunchParallelContainer");
-      INFOS(ex.what());
-      return ret;
-    }
-    params_proxy.nb_component_nodes = 0; // LaunchParallelContainer uses this value to know if it launches the proxy or the nodes
-    obj = LaunchParallelContainer(command_proxy, params_proxy, _NS->ContainerName(params_proxy), proxy_machine);
-    if (CORBA::is_nil(obj))
-    {
-      INFOS("[StartParallelContainer] LaunchParallelContainer for proxy returns NIL !");
-      return ret;
-    }
-    try 
-    {
-      container_proxy = PaCO::InterfaceManager::_narrow(obj);
-    }
-    catch(CORBA::SystemException& e)
-    {
-      INFOS("[StartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
-      INFOS("CORBA::SystemException : " << e);
-      return ret;
-    }
-    catch(CORBA::Exception& e)
-    {
-      INFOS("[StartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
-      INFOS("CORBA::Exception" << e);
-      return ret;
-    }
-    catch(...)
-    {
-      INFOS("[StartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
-      INFOS("Unknown exception !");
-      return ret;
-    }
-    if (CORBA::is_nil(container_proxy))
-    {
-      INFOS("[StartParallelContainer] PaCO::InterfaceManager::_narrow returns NIL !");
-      return ret;
-    }
-
-    // Step 5 : starting parallel container nodes
-    std::string command_nodes;
-    Engines::MachineParameters params_nodes(params);
-    SALOME_ContainerManager::actual_launch_machine_t nodes_machines;
-    try 
-    {
-      command_nodes = BuildCommandToLaunchParallelContainer("SALOME_ParallelContainerNode", params_nodes, nodes_machines, proxy_machine[0]);
-    }
-    catch(const SALOME_Exception & ex)
-    {
-      INFOS("[StartParallelContainer] Exception in BuildCommandToLaunchParallelContainer");
-      INFOS(ex.what());
-      return ret;
-    }
-    std::string container_generic_node_name = _NS->ContainerName(params) + "Node";
-    obj = LaunchParallelContainer(command_nodes, params_nodes, container_generic_node_name, nodes_machines);
-    if (CORBA::is_nil(obj))
-    {
-      INFOS("[StartParallelContainer] LaunchParallelContainer for nodes returns NIL !");
-      // Il faut tuer le proxy
-      try 
-      {
-        Engines::Container_var proxy = Engines::Container::_narrow(container_proxy);
-        proxy->Shutdown();
-      }
-      catch (...)
-      {
-        INFOS("[StartParallelContainer] Exception catched from proxy Shutdown...");
-      }
-      return ret;
-    }
-
-    // Step 6 : connecting nodes and the proxy to actually create a parallel container
-    for (int i = 0; i < params.nb_component_nodes; i++) 
-    {
-      std::ostringstream tmp;
-      tmp << i;
-      std::string proc_number = tmp.str();
-      std::string container_node_name = container_generic_node_name + proc_number;
-
-      std::string theNodeMachine(nodes_machines[i]);
-      std::string containerNameInNS = _NS->BuildContainerNameForNS(container_node_name.c_str(), theNodeMachine.c_str());
-      obj = _NS->Resolve(containerNameInNS.c_str());
-      if (CORBA::is_nil(obj)) 
-      {
-        INFOS("[StartParallelContainer] CONNECTION FAILED From Naming Service !");
-        INFOS("[StartParallelContainer] Container name is " << containerNameInNS);
-        return ret;
-      }
-      try
-      {
-        MESSAGE("[StartParallelContainer] Deploying node : " << container_node_name);
-        PaCO::InterfaceParallel_var node = PaCO::InterfaceParallel::_narrow(obj);
-        node->deploy();
-        MESSAGE("[StartParallelContainer] node " << container_node_name << " is deployed");
-      }
-      catch(CORBA::SystemException& e)
-      {
-        INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
-        INFOS("CORBA::SystemException : " << e);
-        return ret;
-      }
-      catch(CORBA::Exception& e)
-      {
-        INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
-        INFOS("CORBA::Exception" << e);
-        return ret;
-      }
-      catch(...)
-      {
-        INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
-        INFOS("Unknown exception !");
-        return ret;
-      }
-    }
-
-    // Step 7 : starting parallel container
-    try 
-    {
-      MESSAGE ("[StartParallelContainer] Starting parallel object");
-      container_proxy->start();
-      MESSAGE ("[StartParallelContainer] Parallel object is started");
-      ret = Engines::Container::_narrow(container_proxy);
-    }
-    catch(CORBA::SystemException& e)
-    {
-      INFOS("Caught CORBA::SystemException. : " << e);
-    }
-    catch(PortableServer::POA::ServantAlreadyActive&)
-    {
-      INFOS("Caught CORBA::ServantAlreadyActiveException");
-    }
-    catch(CORBA::Exception&)
-    {
-      INFOS("Caught CORBA::Exception.");
-    }
-    catch(std::exception& exc)
-    {
-      INFOS("Caught std::exception - "<<exc.what()); 
-    }
-    catch(...)
-    {
-      INFOS("Caught unknown exception.");
-    }
+    else
+      return Engines::Container::_narrow(obj);
   }
-  return ret;
-}
-#else
-//=============================================================================
-/*! CORBA Method:
- *  Find or Start a suitable PaCO++ Parallel Container in a list of machines.
- *  \param params            Machine Parameters required for the container
- *  \return CORBA container reference.
- */
-//=============================================================================
-Engines::Container_ptr
-SALOME_ContainerManager::StartParallelContainer(const Engines::MachineParameters& params)
-{
-  Engines::Container_ptr ret = Engines::Container::_nil();
-  INFOS("[StartParallelContainer] is disabled !");
-  INFOS("[StartParallelContainer] recompile SALOME Kernel to enable parallel extension");
-  return ret;
-}
-#endif
-
-//=============================================================================
-/*! This method launches the parallel container.
- *  It will may be placed on the ressources manager.
- *
- * \param command to launch
- * \param container's parameters
- * \param name of the container
- *
- * \return CORBA container reference
- */
-//=============================================================================
-CORBA::Object_ptr 
-SALOME_ContainerManager::LaunchParallelContainer(const std::string& command, 
-                                                 const Engines::MachineParameters& params,
-                                                 const std::string& name,
-                                                 SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
-{
-  CORBA::Object_ptr obj = CORBA::Object::_nil();
-  std::string containerNameInNS;
-  int count = TIME_OUT_TO_LAUNCH_CONT;
-
-  INFOS("[LaunchParallelContainer] Begin");
-  int status = system(command.c_str());
-  if (status == -1) {
-    INFOS("[LaunchParallelContainer] failed : system command status -1");
-    return obj;
-  }
-  else if (status == 217) {
-    INFOS("[LaunchParallelContainer] failed : system command status 217");
-    return obj;
-  }
-
-  if (params.nb_component_nodes == 0) 
+  catch(const CORBA::Exception& e)
   {
-    std::string theMachine(vect_machine[0]);
-    // Proxy We have launch a proxy
-    containerNameInNS = _NS->BuildContainerNameForNS((char*) name.c_str(), theMachine.c_str());
-    INFOS("[LaunchParallelContainer]  Waiting for Parallel Container proxy " << containerNameInNS << " on " << theMachine);
-    while (CORBA::is_nil(obj) && count) 
-    {
-#ifndef WIN32
-      sleep(1) ;
-#else
-      Sleep(1000);
-#endif
-      count-- ;
-      obj = _NS->Resolve(containerNameInNS.c_str());
-    }
+    return Engines::Container::_nil();
   }
-  else 
-  {
-    INFOS("[LaunchParallelContainer] launching the nodes of the parallel container");
-    // We are waiting all the nodes
-    for (int i = 0; i < params.nb_component_nodes; i++) 
-    {
-      obj = CORBA::Object::_nil();
-      std::string theMachine(vect_machine[i]);
-      // Name of the node
-      std::ostringstream tmp;
-      tmp << i;
-      std::string proc_number = tmp.str();
-      std::string container_node_name = name + proc_number;
-      containerNameInNS = _NS->BuildContainerNameForNS((char*) container_node_name.c_str(), theMachine.c_str());
-      INFOS("[LaunchParallelContainer]  Waiting for Parallel Container node " << containerNameInNS << " on " << theMachine);
-      while (CORBA::is_nil(obj) && count) {
-#ifndef WIN32
-        sleep(1) ;
-#else
-        Sleep(1000);
-#endif
-        count-- ;
-        obj = _NS->Resolve(containerNameInNS.c_str());
-      }
-      if (CORBA::is_nil(obj))
-      {
-        INFOS("[LaunchParallelContainer] Launch of node failed (or not found) !");
-        return obj;
-      }
-    }
-  }
-  if (CORBA::is_nil(obj)) 
-    INFOS("[LaunchParallelContainer] failed");
-  
-  return obj;
-}
-
-void SALOME_ContainerManager::fillBatchLaunchedContainers()
-{
-  _batchLaunchedContainers.clear();
-  _NS->Change_Directory("/Containers");
-  vector<string> vec = _NS->list_directory_recurs();
-  for(vector<string>::iterator iter = vec.begin();iter!=vec.end();iter++){
-    CORBA::Object_var obj=_NS->Resolve((*iter).c_str());
-    Engines::Container_ptr cont=Engines::Container::_narrow(obj);
-    if(!CORBA::is_nil(cont)){
-      _batchLaunchedContainers.push_back(cont);
-    }
-  }
-  _batchLaunchedContainersIter=_batchLaunchedContainers.begin();
 }
 
 //=============================================================================
@@ -856,7 +501,6 @@ void SALOME_ContainerManager::fillBatchLaunchedContainers()
  *  This is no longer valid (C++ container are also python containers)
  */ 
 //=============================================================================
-
 bool isPythonContainer(const char* ContainerName)
 {
   bool ret = false;
@@ -894,106 +538,106 @@ bool isPythonContainer(const char* ContainerName)
 
 string
 SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
-(const string& machine,
- const Engines::MachineParameters& params, const std::string& container_exe)
+(const string& resource_name,
+ const Engines::ContainerParameters& params, const std::string& container_exe)
 {
-  string command;
-  int nbproc;
           
-  if ( ! _isAppliSalomeDefined )
-    command = BuildTempFileToLaunchRemoteContainer(machine, params);
-
+  string command;
+  if (!_isAppliSalomeDefined)
+    command = BuildTempFileToLaunchRemoteContainer(resource_name, params);
   else
+  {
+    int nbproc;
+    Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_name.c_str());
+    std::string hostname(resource_definition->name.in());
+    const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesDescr(resource_name);
+
+    if (params.isMPI)
     {
-      const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine);
-
-      if (params.isMPI)
-        {
-          if ( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
-            nbproc = 1;
-          else if ( params.nb_node == 0 )
-            nbproc = params.nb_proc_per_node;
-          else if ( params.nb_proc_per_node == 0 )
-            nbproc = params.nb_node;
-          else
-            nbproc = params.nb_node * params.nb_proc_per_node;
-        }
-
-      // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
-        //  SALOME_Container containerName &"
-
-      if (resInfo.Protocol == rsh)
-        command = "rsh ";
-      else if (resInfo.Protocol == ssh)
-        command = "ssh ";
+      if ((params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0))
+	nbproc = 1;
+      else if (params.resource_params.nb_node == 0)
+	nbproc = params.resource_params.nb_proc_per_node;
+      else if (params.resource_params.nb_proc_per_node == 0)
+	nbproc = params.resource_params.nb_node;
       else
-        throw SALOME_Exception("Unknown protocol");
-
-      if (resInfo.UserName != "")
-        {
-          command += "-l ";
-          command += resInfo.UserName;
-          command += " ";
-        }
-
-      command += machine;
-      command += " ";
-
-      if (resInfo.AppliPath != "")
-        command += resInfo.AppliPath; // path relative to user@machine $HOME
-      else
-        {
-          ASSERT(getenv("APPLI"));
-          command += getenv("APPLI"); // path relative to user@machine $HOME
-        }
-
-      command += "/runRemote.sh ";
-
-      ASSERT(getenv("NSHOST")); 
-      command += getenv("NSHOST"); // hostname of CORBA name server
-
-      command += " ";
-      ASSERT(getenv("NSPORT"));
-      command += getenv("NSPORT"); // port of CORBA name server
-
-      std::string wdir=params.workingdir.in();
-      if(wdir != "")
-        {
-          command += " WORKINGDIR ";
-          command += " '";
-          if(wdir == "$TEMPDIR")
-            wdir="\\$TEMPDIR";
-          command += wdir; // requested working directory
-          command += "'"; 
-        }
-
-      if(params.isMPI)
-        {
-          command += " mpirun -np ";
-          std::ostringstream o;
-          o << nbproc << " ";
-          command += o.str();
-#ifdef WITHLAM
-          command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
-#elif defined(WITHOPENMPI)
-          if( getenv("OMPI_URI_FILE") == NULL )
-            command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
-          else{
-            command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
-            command += getenv("OMPI_URI_FILE");
-          }
-#endif        
-          command += " SALOME_MPIContainer ";
-        }
-      else
-        command += " " +container_exe+ " ";
-
-      command += _NS->ContainerName(params);
-      command += " -";
-      AddOmninamesParams(command);
-
-      MESSAGE("command =" << command);
+	nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
     }
+
+    // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
+    //  SALOME_Container containerName &"
+    if (resInfo.Protocol == rsh)
+      command = "rsh ";
+    else if (resInfo.Protocol == ssh)
+      command = "ssh ";
+    else
+      throw SALOME_Exception("Unknown protocol");
+
+    if (resInfo.UserName != "")
+    {
+      command += "-l ";
+      command += resInfo.UserName;
+      command += " ";
+    }
+
+    command += resInfo.HostName;
+    command += " ";
+
+    if (resInfo.AppliPath != "")
+      command += resInfo.AppliPath; // path relative to user@machine $HOME
+    else
+    {
+      ASSERT(getenv("APPLI"));
+      command += getenv("APPLI"); // path relative to user@machine $HOME
+    }
+
+    command += "/runRemote.sh ";
+
+    ASSERT(getenv("NSHOST")); 
+    command += getenv("NSHOST"); // hostname of CORBA name server
+
+    command += " ";
+    ASSERT(getenv("NSPORT"));
+    command += getenv("NSPORT"); // port of CORBA name server
+
+    std::string wdir = params.workingdir.in();
+    if(wdir != "")
+    {
+      command += " WORKINGDIR ";
+      command += " '";
+      if(wdir == "$TEMPDIR")
+	wdir="\\$TEMPDIR";
+      command += wdir; // requested working directory
+      command += "'"; 
+    }
+
+    if(params.isMPI)
+    {
+      command += " mpirun -np ";
+      std::ostringstream o;
+      o << nbproc << " ";
+      command += o.str();
+#ifdef WITHLAM
+      command += "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
+#elif defined(WITHOPENMPI)
+      if( getenv("OMPI_URI_FILE") == NULL )
+	command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
+      else{
+	command += "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
+	command += getenv("OMPI_URI_FILE");
+      }
+#endif        
+      command += " SALOME_MPIContainer ";
+    }
+    else
+      command += " " +container_exe+ " ";
+
+    command += _NS->ContainerName(params);
+    command += " -";
+    AddOmninamesParams(command);
+
+    MESSAGE("command =" << command);
+  }
 
   return command;
 }
@@ -1003,10 +647,9 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer
  *  builds the command to be launched.
  */ 
 //=============================================================================
-
 string
 SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
-(const Engines::MachineParameters& params, const std::string& container_exe)
+(const Engines::ContainerParameters& params, const std::string& container_exe)
 {
   _TmpFileName = BuildTemporaryFileName();
   string command;
@@ -1018,14 +661,14 @@ SALOME_ContainerManager::BuildCommandToLaunchLocalContainer
     {
       o << "mpirun -np ";
 
-      if ( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
+      if ( (params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0) )
         nbproc = 1;
-      else if ( params.nb_node == 0 )
-        nbproc = params.nb_proc_per_node;
-      else if ( params.nb_proc_per_node == 0 )
-        nbproc = params.nb_node;
+      else if ( params.resource_params.nb_node == 0 )
+        nbproc = params.resource_params.nb_proc_per_node;
+      else if ( params.resource_params.nb_proc_per_node == 0 )
+        nbproc = params.resource_params.nb_node;
       else
-        nbproc = params.nb_node * params.nb_proc_per_node;
+        nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
 
       o << nbproc << " ";
 
@@ -1150,6 +793,18 @@ void SALOME_ContainerManager::AddOmninamesParams(string& command) const
   command += iorstr;
 }
 
+//=============================================================================
+/*!
+ *  add to command all options relative to naming service.
+ */ 
+//=============================================================================
+
+void SALOME_ContainerManager::AddOmninamesParams(ofstream& fileStream) const
+{
+  CORBA::String_var iorstr = _NS->getIORaddr();
+  fileStream << "ORBInitRef NameService=";
+  fileStream << iorstr;
+}
 
 //=============================================================================
 /*!
@@ -1162,19 +817,6 @@ void SALOME_ContainerManager::AddOmninamesParams(ostringstream& oss) const
   CORBA::String_var iorstr = _NS->getIORaddr();
   oss << "ORBInitRef NameService=";
   oss << iorstr;
-}
-
-//=============================================================================
-/*!
- *  add to command all options relative to naming service.
- */ 
-//=============================================================================
-
-void SALOME_ContainerManager::AddOmninamesParams(ofstream& fileStream) const
-{
-  CORBA::String_var iorstr = _NS->getIORaddr();
-  fileStream << "ORBInitRef NameService=";
-  fileStream << iorstr;
 }
 
 //=============================================================================
@@ -1195,6 +837,25 @@ string SALOME_ContainerManager::BuildTemporaryFileName() const
   return aFileName;
 }
 
+string SALOME_ContainerManager::GetMPIZeroNode(string machine)
+{
+  int status;
+  string zeronode;
+  string cmd;
+  string tmpFile = BuildTemporaryFileName();
+
+  cmd = "ssh " + machine + " mpirun -np 1 hostname > " + tmpFile;
+
+  status = system(cmd.c_str());
+  if( status == 0 ){
+    ifstream fp(tmpFile.c_str(),ios::in);
+    fp >> zeronode;
+  }
+
+  RmTmpFile(tmpFile);
+
+  return zeronode;
+}
 
 //=============================================================================
 /*!
@@ -1208,15 +869,15 @@ string SALOME_ContainerManager::BuildTemporaryFileName() const
 
 string
 SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
-(const string& machine,
- const Engines::MachineParameters& params) throw(SALOME_Exception)
+(const string& resource_name,
+ const Engines::ContainerParameters& params) throw(SALOME_Exception)
 {
   int status;
 
   _TmpFileName = BuildTemporaryFileName();
   ofstream tempOutputFile;
   tempOutputFile.open(_TmpFileName.c_str(), ofstream::out );
-  const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesList(machine);
+  const ParserResourcesType& resInfo = _ResManager->GetImpl()->GetResourcesDescr(resource_name);
   tempOutputFile << "#! /bin/sh" << endl;
 
   // --- set env vars
@@ -1231,14 +892,14 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
       tempOutputFile << "mpirun -np ";
       int nbproc;
 
-      if ( (params.nb_node <= 0) && (params.nb_proc_per_node <= 0) )
+      if ( (params.resource_params.nb_node <= 0) && (params.resource_params.nb_proc_per_node <= 0) )
         nbproc = 1;
-      else if ( params.nb_node == 0 )
-        nbproc = params.nb_proc_per_node;
-      else if ( params.nb_proc_per_node == 0 )
-        nbproc = params.nb_node;
+      else if ( params.resource_params.nb_node == 0 )
+        nbproc = params.resource_params.nb_proc_per_node;
+      else if ( params.resource_params.nb_proc_per_node == 0 )
+        nbproc = params.resource_params.nb_node;
       else
-        nbproc = params.nb_node * params.nb_proc_per_node;
+        nbproc = params.resource_params.nb_node * params.resource_params.nb_proc_per_node;
 
       std::ostringstream o;
 
@@ -1292,7 +953,7 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
       string commandRcp = "rcp ";
       commandRcp += _TmpFileName;
       commandRcp += " ";
-      commandRcp += machine;
+      commandRcp += resInfo.HostName;
       commandRcp += ":";
       commandRcp += _TmpFileName;
       status = system(commandRcp.c_str());
@@ -1304,7 +965,7 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
       string commandRcp = "scp ";
       commandRcp += _TmpFileName;
       commandRcp += " ";
-      commandRcp += machine;
+      commandRcp += resInfo.HostName;
       commandRcp += ":";
       commandRcp += _TmpFileName;
       status = system(commandRcp.c_str());
@@ -1315,7 +976,7 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
   if(status)
     throw SALOME_Exception("Error of connection on remote host");    
 
-  command += machine;
+  command += resInfo.HostName;
   _CommandForRemAccess = command;
   command += " ";
   command += _TmpFileName;
@@ -1326,6 +987,328 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
 
 }
 
+#ifdef WITH_PACO_PARALLEL
+//=============================================================================
+/*! CORBA Method:
+ *  Find or Start a suitable PaCO++ Parallel Container in a list of machines.
+ *  \param params            Machine Parameters required for the container
+ *  \return CORBA container reference.
+ */
+//=============================================================================
+Engines::Container_ptr
+SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters& params_const)
+{
+  CORBA::Object_var obj;
+  PaCO::InterfaceManager_var container_proxy;
+  Engines::Container_ptr ret = Engines::Container::_nil();
+  Engines::MachineParameters params(params_const);
+
+  // Step 1 : Try to find a suitable container
+  // Currently not as good as could be since
+  // we have to verified the number of nodes of the container
+  // if a user tell that.
+  ret = FindContainer(params, params.computerList);
+  if(CORBA::is_nil(ret)) {
+    // Step 2 : Starting a new parallel container !
+    INFOS("[StartParallelContainer] Starting a PaCO++ parallel container");
+
+    // Step 3 : Choose a computer
+    std::string theMachine = _ResManager->FindFirst(params.computerList);
+    //If the machine name is localhost use the real name
+    if(theMachine == "localhost")
+      theMachine=Kernel_Utils::GetHostname();
+
+    if(theMachine == "") {
+      INFOS("[StartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
+      INFOS("[StartParallelContainer] No possible computer found");
+      INFOS("[StartParallelContainer] !!!!!!!!!!!!!!!!!!!!!!!!!!");
+      return ret;
+    }
+    INFOS("[StartParallelContainer] on machine : " << theMachine);
+    params.hostname = CORBA::string_dup(theMachine.c_str());
+
+    // Step 4 : starting parallel container proxy
+    Engines::MachineParameters params_proxy(params);
+    std::string command_proxy;
+    SALOME_ContainerManager::actual_launch_machine_t proxy_machine;
+    try 
+    {
+      command_proxy = BuildCommandToLaunchParallelContainer("SALOME_ParallelContainerProxy", params_proxy, proxy_machine);
+    }
+    catch(const SALOME_Exception & ex)
+    {
+      INFOS("[StartParallelContainer] Exception in BuildCommandToLaunchParallelContainer");
+      INFOS(ex.what());
+      return ret;
+    }
+    params_proxy.nb_proc = 0; // LaunchParallelContainer uses this value to know if it launches the proxy or the nodes
+    obj = LaunchParallelContainer(command_proxy, params_proxy, _NS->ContainerName(params_proxy), proxy_machine);
+    if (CORBA::is_nil(obj))
+    {
+      INFOS("[StartParallelContainer] LaunchParallelContainer for proxy returns NIL !");
+      return ret;
+    }
+    try 
+    {
+      container_proxy = PaCO::InterfaceManager::_narrow(obj);
+    }
+    catch(CORBA::SystemException& e)
+    {
+      INFOS("[StartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
+      INFOS("CORBA::SystemException : " << e);
+      return ret;
+    }
+    catch(CORBA::Exception& e)
+    {
+      INFOS("[StartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
+      INFOS("CORBA::Exception" << e);
+      return ret;
+    }
+    catch(...)
+    {
+      INFOS("[StartParallelContainer] Exception in _narrow after LaunchParallelContainer for proxy !");
+      INFOS("Unknown exception !");
+      return ret;
+    }
+    if (CORBA::is_nil(container_proxy))
+    {
+      INFOS("[StartParallelContainer] PaCO::InterfaceManager::_narrow returns NIL !");
+      return ret;
+    }
+
+    // Step 5 : starting parallel container nodes
+    std::string command_nodes;
+    Engines::MachineParameters params_nodes(params);
+    SALOME_ContainerManager::actual_launch_machine_t nodes_machines;
+    try 
+    {
+      command_nodes = BuildCommandToLaunchParallelContainer("SALOME_ParallelContainerNode", params_nodes, nodes_machines, proxy_machine[0]);
+    }
+    catch(const SALOME_Exception & ex)
+    {
+      INFOS("[StartParallelContainer] Exception in BuildCommandToLaunchParallelContainer");
+      INFOS(ex.what());
+      return ret;
+    }
+    std::string container_generic_node_name = _NS->ContainerName(params) + "Node";
+    obj = LaunchParallelContainer(command_nodes, params_nodes, container_generic_node_name, nodes_machines);
+    if (CORBA::is_nil(obj))
+    {
+      INFOS("[StartParallelContainer] LaunchParallelContainer for nodes returns NIL !");
+      // Il faut tuer le proxy
+      try 
+      {
+        Engines::Container_var proxy = Engines::Container::_narrow(container_proxy);
+        proxy->Shutdown();
+      }
+      catch (...)
+      {
+        INFOS("[StartParallelContainer] Exception catched from proxy Shutdown...");
+      }
+      return ret;
+    }
+
+    // Step 6 : connecting nodes and the proxy to actually create a parallel container
+    for (int i = 0; i < params.nb_proc; i++) 
+    {
+      std::ostringstream tmp;
+      tmp << i;
+      std::string proc_number = tmp.str();
+      std::string container_node_name = container_generic_node_name + proc_number;
+
+      std::string theNodeMachine(nodes_machines[i]);
+      std::string containerNameInNS = _NS->BuildContainerNameForNS(container_node_name.c_str(), theNodeMachine.c_str());
+      obj = _NS->Resolve(containerNameInNS.c_str());
+      if (CORBA::is_nil(obj)) 
+      {
+        INFOS("[StartParallelContainer] CONNECTION FAILED From Naming Service !");
+        INFOS("[StartParallelContainer] Container name is " << containerNameInNS);
+        return ret;
+      }
+      try
+      {
+        MESSAGE("[StartParallelContainer] Deploying node : " << container_node_name);
+        PaCO::InterfaceParallel_var node = PaCO::InterfaceParallel::_narrow(obj);
+        node->deploy();
+        MESSAGE("[StartParallelContainer] node " << container_node_name << " is deployed");
+      }
+      catch(CORBA::SystemException& e)
+      {
+        INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
+        INFOS("CORBA::SystemException : " << e);
+        return ret;
+      }
+      catch(CORBA::Exception& e)
+      {
+        INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
+        INFOS("CORBA::Exception" << e);
+        return ret;
+      }
+      catch(...)
+      {
+        INFOS("[StartParallelContainer] Exception in deploying node : " << containerNameInNS);
+        INFOS("Unknown exception !");
+        return ret;
+      }
+    }
+
+    // Step 7 : starting parallel container
+    try 
+    {
+      MESSAGE ("[StartParallelContainer] Starting parallel object");
+      container_proxy->start();
+      MESSAGE ("[StartParallelContainer] Parallel object is started");
+      ret = Engines::Container::_narrow(container_proxy);
+    }
+    catch(CORBA::SystemException& e)
+    {
+      INFOS("Caught CORBA::SystemException. : " << e);
+    }
+    catch(PortableServer::POA::ServantAlreadyActive&)
+    {
+      INFOS("Caught CORBA::ServantAlreadyActiveException");
+    }
+    catch(CORBA::Exception&)
+    {
+      INFOS("Caught CORBA::Exception.");
+    }
+    catch(std::exception& exc)
+    {
+      INFOS("Caught std::exception - "<<exc.what()); 
+    }
+    catch(...)
+    {
+      INFOS("Caught unknown exception.");
+    }
+  }
+  return ret;
+}
+#else
+//=============================================================================
+/*! CORBA Method:
+ *  Find or Start a suitable PaCO++ Parallel Container in a list of machines.
+ *  \param params            Machine Parameters required for the container
+ *  \return CORBA container reference.
+ */
+//=============================================================================
+Engines::Container_ptr
+SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters& params)
+{
+  Engines::Container_ptr ret = Engines::Container::_nil();
+  INFOS("[StartParallelContainer] is disabled !");
+  INFOS("[StartParallelContainer] recompile SALOME Kernel to enable parallel extension");
+  return ret;
+}
+#endif
+
+#ifndef WITH_PACO_PARALLEL
+CORBA::Object_ptr 
+SALOME_ContainerManager::LaunchParallelContainer(const std::string& command, 
+                                                 const Engines::ContainerParameters& params,
+                                                 const std::string& name,
+                                                 SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
+{
+  CORBA::Object_ptr obj = CORBA::Object::_nil();
+  return obj;
+}
+#else
+//=============================================================================
+/*! This method launches the parallel container.
+ *  It will may be placed on the ressources manager.
+ *
+ * \param command to launch
+ * \param container's parameters
+ * \param name of the container
+ *
+ * \return CORBA container reference
+ */
+//=============================================================================
+CORBA::Object_ptr 
+SALOME_ContainerManager::LaunchParallelContainer(const std::string& command, 
+                                                 const Engines::ContainerParameters& params,
+                                                 const std::string& name,
+                                                 SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
+{
+  CORBA::Object_ptr obj = CORBA::Object::_nil();
+  std::string containerNameInNS;
+  int count = TIME_OUT_TO_LAUNCH_CONT;
+
+  INFOS("[LaunchParallelContainer] Begin");
+  int status = system(command.c_str());
+  if (status == -1) {
+    INFOS("[LaunchParallelContainer] failed : system command status -1");
+    return obj;
+  }
+  else if (status == 217) {
+    INFOS("[LaunchParallelContainer] failed : system command status 217");
+    return obj;
+  }
+
+  if (params.nb_proc == 0) 
+  {
+    std::string theMachine(vect_machine[0]);
+    // Proxy We have launch a proxy
+    containerNameInNS = _NS->BuildContainerNameForNS((char*) name.c_str(), theMachine.c_str());
+    INFOS("[LaunchParallelContainer]  Waiting for Parallel Container proxy " << containerNameInNS << " on " << theMachine);
+    while (CORBA::is_nil(obj) && count) 
+    {
+#ifndef WIN32
+      sleep(1) ;
+#else
+      Sleep(1000);
+#endif
+      count-- ;
+      obj = _NS->Resolve(containerNameInNS.c_str());
+    }
+  }
+  else 
+  {
+    INFOS("[LaunchParallelContainer] launching the nodes of the parallel container");
+    // We are waiting all the nodes
+    for (int i = 0; i < params.nb_proc; i++) 
+    {
+      obj = CORBA::Object::_nil();
+      std::string theMachine(vect_machine[i]);
+      // Name of the node
+      std::ostringstream tmp;
+      tmp << i;
+      std::string proc_number = tmp.str();
+      std::string container_node_name = name + proc_number;
+      containerNameInNS = _NS->BuildContainerNameForNS((char*) container_node_name.c_str(), theMachine.c_str());
+      INFOS("[LaunchParallelContainer]  Waiting for Parallel Container node " << containerNameInNS << " on " << theMachine);
+      while (CORBA::is_nil(obj) && count) {
+#ifndef WIN32
+        sleep(1) ;
+#else
+        Sleep(1000);
+#endif
+        count-- ;
+        obj = _NS->Resolve(containerNameInNS.c_str());
+      }
+      if (CORBA::is_nil(obj))
+      {
+        INFOS("[LaunchParallelContainer] Launch of node failed (or not found) !");
+        return obj;
+      }
+    }
+  }
+  if (CORBA::is_nil(obj)) 
+    INFOS("[LaunchParallelContainer] failed");
+  
+  return obj;
+}
+#endif
+
+#ifndef WITH_PACO_PARALLEL
+string 
+SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string& exe_name,
+                                                               const Engines::ContainerParameters& params,
+                                                               SALOME_ContainerManager::actual_launch_machine_t & vect_machine,
+                                                               const std::string proxy_hostname)
+{
+  return "";
+}
+#else
 //=============================================================================
 /*! Creates a command line that the container manager uses to launch
  * a parallel container.
@@ -1333,12 +1316,12 @@ SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer
 //=============================================================================
 string 
 SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string& exe_name,
-                                                               const Engines::MachineParameters& params,
+                                                               const Engines::ContainerParameters& params,
                                                                SALOME_ContainerManager::actual_launch_machine_t & vect_machine,
                                                                const std::string proxy_hostname)
 {
   // This method knows the differences between the proxy and the nodes.
-  // nb_component_nodes is not used in the same way if it is a proxy or 
+  // nb_proc is not used in the same way if it is a proxy or 
   // a node.
   
   //command = "gdb --args ";
@@ -1354,7 +1337,7 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
   std::string hostname(CORBA::string_dup(params.hostname));
 
   std::ostringstream tmp_string;
-  CORBA::Long nb_nodes = params.nb_component_nodes;
+  CORBA::Long nb_nodes = params.nb_proc;
   tmp_string << nb_nodes;
   std::string nbproc = tmp_string.str();
 
@@ -1395,7 +1378,7 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
     else
     {
       machine_file_name = _ResManager->getMachineFile(hostname, 
-                                                      params.nb_component_nodes,
+                                                      params.nb_proc,
                                                       parallelLib);
     }
     if (machine_file_name == "")
@@ -1703,23 +1686,5 @@ SALOME_ContainerManager::BuildCommandToLaunchParallelContainer(const std::string
   MESSAGE("Parallel launch is: " << command);
   return command;
 }
+#endif
 
-string SALOME_ContainerManager::GetMPIZeroNode(string machine)
-{
-  int status;
-  string zeronode;
-  string cmd;
-  string tmpFile = BuildTemporaryFileName();
-
-  cmd = "ssh " + machine + " mpirun -np 1 hostname > " + tmpFile;
-
-  status = system(cmd.c_str());
-  if( status == 0 ){
-    ifstream fp(tmpFile.c_str(),ios::in);
-    fp >> zeronode;
-  }
-
-  RmTmpFile(tmpFile);
-
-  return zeronode;
-}

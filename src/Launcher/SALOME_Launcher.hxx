@@ -52,7 +52,7 @@ public:
 
   // Useful methods
   CORBA::Long    createJobWithFile(const char * xmlExecuteFile, const char * clusterName);
-  CORBA::Boolean testBatch        (const Engines::MachineParameters& params);
+  CORBA::Boolean testBatch        (const Engines::ResourceParameters& params);
 
   // SALOME Kernel service methods
   void Shutdown();
