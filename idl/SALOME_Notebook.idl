@@ -236,6 +236,9 @@ module SALOME
 
     //! Return string array containing information about parameters used by given parameter
     StringArray GetParameters( in string theParamName );
+
+    //! Return string array containing information about parameters used by given string attribute
+    StringArray GetAttributeParameters( in string theStringAttribute );
   };
 };
 

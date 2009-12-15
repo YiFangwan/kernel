@@ -79,6 +79,7 @@ public:
   virtual char*                Dump();
   virtual SALOME::StringArray* GetObjectParameters( const char* theComponent, const char* theEntry );
   virtual SALOME::StringArray* GetParameters( const char* theParamName );
+  virtual SALOME::StringArray* GetAttributeParameters( const char* theStringAttribute );
 
   SALOME_Parameter* GetParameterPtr( const char* theParamName ) const;
   void              Update( bool theOnlyParameters );

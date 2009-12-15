@@ -1159,6 +1159,11 @@ SALOME::StringArray* SALOME_Notebook::GetParameters( const char* theParamName )
   return GetObjectParameters( PARAM_COMPONENT.c_str(), theParamName );
 }
 
+SALOME::StringArray* SALOME_Notebook::GetAttributeParameters( const char* theStringAttribute )
+{
+  return NULL;
+}
+
 int SALOME_Notebook::GetNewId()
 {
   return ++myMaxId;
