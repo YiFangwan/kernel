@@ -64,6 +64,7 @@ public:
   virtual void AddInteger( const char* theName, CORBA::Long theValue );
   virtual void AddReal( const char* theName, CORBA::Double theValue );
   virtual void AddString( const char* theName, const char* theValue );
+  virtual void RemoveObject( SALOME::ParameterizedObject_ptr theObject );
   virtual void Remove( const char* theParamName );
   virtual void Rename( const char* theOldName, const char* theNewName );
   virtual SALOME::Parameter_ptr GetParameter( const char* theParamName );

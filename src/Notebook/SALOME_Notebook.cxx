@@ -264,7 +264,7 @@ void SALOME_Notebook::SetToUpdate( SALOME::ParameterizedObject_ptr theObj )
 
 bool SALOME_Notebook::CanUpdate( SALOME::ParameterizedObject_ptr theObj ) const
 {
-  if( CORBA::is_nil( theObj ) )
+  if( CORBA::is_nil( theObj ) || theObj->_non_existent() )
     return false;
 
   SALOME::Parameter_var aParam = SALOME::Parameter::_narrow( theObj );
@@ -282,7 +282,7 @@ void SALOME_Notebook::Update( bool theOnlyParameters )
   //Utils_Locker lock( &myMutex );
 
   //1. Simple recompute
-  std::list< KeyHelper > aPostponedUpdate;
+  std::list<KeyHelper> aPostponedUpdate;
   std::list<KeyHelper>::const_iterator it = myToUpdate.begin(), last = myToUpdate.end();
   for( ; it!=last; it++ )
   {
@@ -481,6 +481,32 @@ void SALOME_Notebook::Rename( const char* theOldName, const char* theNewName )
   else
     ThrowError( aMsg );
 }
+
+void SALOME_Notebook::RemoveObject( SALOME::ParameterizedObject_ptr theObject )
+{
+  if( theObject->GetComponent()==PARAM_COMPONENT )
+    Remove( theObject->GetEntry() );
+
+  std::list<std::string> anObjToRemove;
+  std::string aKey = GetKey( theObject );
+
+  std::map< std::string, std::list<std::string> >::iterator it = myDependencies.begin(), last = myDependencies.end();
+  for( ; it!=last; it++ )
+  {
+    it->second.remove( aKey );
+    if( it->second.size()==0 )
+      anObjToRemove.push_back( it->first );
+  }
+
+  std::list<std::string>::const_iterator rit = anObjToRemove.begin(), rlast = anObjToRemove.end();
+  for( ; rit!=rlast; rit++ )
+    myDependencies.erase( *rit );
+
+  std::list<KeyHelper>::iterator uit = myToUpdate.begin(), ulast = myToUpdate.end();
+  for( ; uit!=ulast; uit++ )
+    if( uit->key()==aKey )
+      myToUpdate.erase( uit );
+}  
 
 void SALOME_Notebook::Remove( const char* theParamName )
 {

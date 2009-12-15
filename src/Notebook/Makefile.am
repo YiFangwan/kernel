@@ -39,7 +39,8 @@ salomeinclude_HEADERS = \
     SALOME_EvalExpr.hxx    \
     SALOME_EvalParser.hxx  \
     SALOME_EvalSet.hxx     \
-    SALOME_EvalVariant.hxx   
+    SALOME_EvalVariant.hxx \
+    SALOME_ParameterizedObject.hxx
     
 # Scripts to be installed
 dist_salomescript_PYTHON=
@@ -79,7 +80,8 @@ libSalomeNotebook_la_SOURCES = \
     SALOME_EvalExpr.cxx  \
     SALOME_EvalParser.cxx  \
     SALOME_EvalSet.cxx  \
-    SALOME_EvalVariant.cxx  
+    SALOME_EvalVariant.cxx \
+    SALOME_ParameterizedObject.cxx
 
 libSalomeNotebook_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeNotebook_la_LDFLAGS  = -Wl,-E -no-undefined -version-info=0:0:0 @LDEXPDYNFLAGS@
