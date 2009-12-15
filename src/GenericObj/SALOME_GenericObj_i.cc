@@ -68,7 +68,12 @@ void GenericObj_i::Destroy(){
     MESSAGE("GenericObj_i::Destroy "<<this<<"; myRefCounter = "<<myRefCounter)
   if(--myRefCounter <= 0){
     PortableServer::ObjectId_var anObjectId = myPOA->servant_to_id(this);
+    BeforeDeactivate();
     myPOA->deactivate_object(anObjectId.in());
     _remove_ref();
   }
+}
+
+void GenericObj_i::BeforeDeactivate()
+{
 }

@@ -54,11 +54,15 @@ namespace SALOME{
     GenericObj_i(PortableServer::POA_ptr thePOA = PortableServer::POA::_nil());
     // The function is used implicetly in "_this" function
     virtual PortableServer::POA_ptr _default_POA();
+
   public: // Follow functions is IDL defined
     /*! Increase the reference count (mark as used by another object).*/
     virtual void Register();
     /*! Decrease the reference count (release by another object).*/
     virtual void Destroy();
+
+  protected:
+    virtual void BeforeDeactivate();
   };
 };
 
