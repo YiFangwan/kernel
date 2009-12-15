@@ -72,11 +72,13 @@ public:
 protected:
 
   // Methods used by user interface methods
+#ifdef WITH_LIBBATCH
   Batch::BatchManager_eClient *FactoryBatchManager(ParserResourcesType& params);
+  std::map <std::string,Batch::BatchManager_eClient*> _batchmap;
+#endif
   ParserLauncherType ParseXmlFile(std::string xmlExecuteFile);
 
   ResourcesManager_cpp *_ResManager;
-  std::map <std::string,Batch::BatchManager_eClient*> _batchmap;
   std::map <int, Launcher::Job *> _launcher_job_map;  
   int _job_cpt; // job number counter
   pthread_mutex_t * _job_cpt_mutex; // mutex for job counter

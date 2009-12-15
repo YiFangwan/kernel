@@ -31,11 +31,8 @@ Launcher::Job_PythonSALOME::setJobFile(const std::string & job_file)
   Launcher::Job::setJobFile(job_file);
 }
 
-#ifdef WITH_LIBBATCH
 void
 Launcher::Job_PythonSALOME::addJobTypeSpecificScript(std::ofstream & launch_script_stream)
 {
   launch_script_stream << _resource_definition.AppliPath << "/runSession -p $appli_port python " << _job_file_name_complete << " > logs/python_" << _launch_date << ".log 2>&1" << std::endl;
 }
-#endif
-

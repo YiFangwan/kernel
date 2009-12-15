@@ -445,20 +445,13 @@ Launcher_cpp::removeJob(int job_id)
 }
 
 long 
-Launcher_cpp::createJobWithFile( const std::string xmlExecuteFile)
+Launcher_cpp::createJobWithFile( const std::string xmlExecuteFile, std::string clusterName)
 {
   throw LauncherException("Method Launcher_cpp::createJobWithFile is not available "
 			  "(libBatch was not present at compilation time)");
   return 0;
 }
 
-Batch::BatchManager_eClient *
-Launcher_cpp::FactoryBatchManager(ParserResourcesType& params ) throw(LauncherException)
-{
-  throw LauncherException("Method Launcher_cpp::FactoryBatchManager is not available "
-			  "(libBatch was not present at compilation time)");
-  return NULL;
-}
 #endif
 
 ParserLauncherType 
