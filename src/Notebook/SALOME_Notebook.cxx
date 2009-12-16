@@ -27,6 +27,7 @@
 #include <SALOME_Notebook.hxx>
 #include <SALOME_Parameter.hxx>
 #include <SALOME_EvalParser.hxx>
+#include <Basics_Utils.hxx>
 #include <algorithm>
 
 std::string arg( const std::string& theStr, const std::string& theArg1 )
@@ -967,6 +968,8 @@ void SALOME_Notebook::ParseDependencies( FILE* theFile, const std::string& theFi
 
 char* SALOME_Notebook::DumpPython()
 {
+  Kernel_Utils::Localizer loc;
+
   std::string aRes;
   
   aRes = "from salome_notebook import *\n\n";
@@ -1161,7 +1164,24 @@ SALOME::StringArray* SALOME_Notebook::GetParameters( const char* theParamName )
 
 SALOME::StringArray* SALOME_Notebook::GetAttributeParameters( const char* theStringAttribute )
 {
-  return NULL;
+  std::list<std::string> aRes;
+  SALOME_EvalExpr expr;
+  std::vector<std::string> aParts = split( theStringAttribute, "|", false ), anItems;
+  for( int i=0, n=aParts.size(); i<n; i++ )
+  {
+    anItems = split( aParts[i], ":", false );
+    for( int j=0, m=anItems.size(); j<m; j++ )
+    {
+      expr.setExpression( anItems[j] );
+      std::list<std::string> aParams = expr.parser()->parameters();
+      std::list<std::string>::const_iterator it = aParams.begin(), last = aParams.end();
+      for( ; it!=last; it++ )
+        if( find( aRes.begin(), aRes.end(), *it ) == aRes.end() )
+          aRes.push_back( *it );
+    }
+  }
+  aRes.sort();
+  return GenerateList( aRes );
 }
 
 int SALOME_Notebook::GetNewId()
