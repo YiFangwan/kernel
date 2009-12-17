@@ -203,10 +203,10 @@ void NotebookTest::testParameterString()
   aResult[1]="THE QUICK BROWN FOX JUMPS OVER A LAZY DOG";
   aResult[2]="the quick brown fox jumps over a lazy dog";
   aResult[3]="41";
-  aResult[4]="true";
-  aResult[5]="false";
-  aResult[6]="false";
-  aResult[7]="true";
+  aResult[4]="True";
+  aResult[5]="False";
+  aResult[6]="False";
+  aResult[7]="True";
   //
   aTypeR[0]=SALOME_EvalVariant_String;
   aTypeR[1]=SALOME_EvalVariant_String;

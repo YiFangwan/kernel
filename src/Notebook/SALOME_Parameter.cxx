@@ -262,7 +262,7 @@ SALOME_Parameter* SALOME_Parameter::Load( SALOME_Notebook* theNotebook, FILE* th
     switch( aResType )
     {
     case SALOME_EvalVariant_Boolean:
-      return new SALOME_Parameter( theNotebook, aName, aValue=="true" );
+      return new SALOME_Parameter( theNotebook, aName, aValue=="True" );
 
     case SALOME_EvalVariant_Int:
     case SALOME_EvalVariant_UInt:

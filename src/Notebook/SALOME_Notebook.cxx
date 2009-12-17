@@ -1027,7 +1027,7 @@ bool SALOME_Notebook::CheckParamName( const std::string& theParamName, std::stri
   for( int i=0, n=theParamName.length(); i<n; i++ )
     if( isspace( theParamName[i] ) )
     {
-      theMsg = "The name should not contain white symbols";
+      theMsg = "The name should not contain white spaces";
       return false;
     }
 

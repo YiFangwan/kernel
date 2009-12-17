@@ -342,7 +342,7 @@ bool SALOME_EvalVariant::toBool() const
 	  return DataValueDouble() != 0.;
   }
   else if ( aType == SALOME_EvalVariant_String ) {
-    SALOME_String aZero("0"), aFalse("false");
+    SALOME_String aZero("0"), aFalse("False");
     const SALOME_String& aStr=DataValueString();
     return !(aStr==aZero || aStr==aFalse || aStr.empty());
   }
@@ -443,7 +443,7 @@ SALOME_String SALOME_EvalVariant::toString() const
     int iX;
     //
     iX=toInt(&bOk);
-    aS= iX? "true" : "false";
+    aS= iX? "True" : "False";
   }
   else if (aType == SALOME_EvalVariant_Int) {
     sprintf(buffer, "%d", DataValueInt());

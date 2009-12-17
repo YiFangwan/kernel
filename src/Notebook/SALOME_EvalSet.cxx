@@ -520,11 +520,10 @@ SALOME_String SALOME_EvalSetLogic::name() const
 bool SALOME_EvalSetLogic::createValue(const SALOME_String& str, SALOME_EvalVariant& val)const
 {
   bool ok = true;
-  SALOME_String valStr = toLower(str);
   //
-  if ( valStr == "true" || valStr == "yes" )
+  if ( str == "True" )
     val = SALOME_EvalVariant( true );
-  else if ( valStr == "false" || valStr == "no" )
+  else if ( str == "False" )
     val = SALOME_EvalVariant( false );
   else
     ok = SALOME_EvalSetBase::createValue( str, val );
