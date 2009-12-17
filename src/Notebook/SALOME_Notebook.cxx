@@ -310,6 +310,8 @@ void SALOME_Notebook::Update( bool theOnlyParameters )
     else
       sit++;
   }
+
+  myStudy->Modified();
 }
 
 bool SALOME_Notebook::Substitute( SubstitutionInfo& theSubstitution )
@@ -666,6 +668,8 @@ void SALOME_Notebook::AddParameter( SALOME_Parameter* theParam, bool theAddDepen
     Remove( anEntry.c_str() );
     throw ex;
   }
+
+  myStudy->Modified();
 }
 
 void SALOME_Notebook::AddDependencies( SALOME_Parameter* theParam )
