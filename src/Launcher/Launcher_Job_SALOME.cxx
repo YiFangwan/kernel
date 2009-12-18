@@ -80,7 +80,7 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   launch_script_stream << "echo '<resources>'                 >> $CATALOG_FILE" << std::endl;	
   launch_script_stream << "cat $LIBBATCH_NODEFILE | sort -u | while read host"  << std::endl;
   launch_script_stream << "do"                                                  << std::endl;
-  launch_script_stream << "echo '<resource hostname='\\\"$host\\\"			         >> $CATALOG_FILE" << std::endl;
+  launch_script_stream << "echo '<machine hostname='\\\"$host\\\"			         >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         protocol=\"" << resource_protocol               << "\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         userName=\"" << _resource_definition.UserName   << "\"' >> $CATALOG_FILE" << std::endl;
   launch_script_stream << "echo '         appliPath=\"" << _resource_definition.AppliPath << "\"' >> $CATALOG_FILE" << std::endl;
