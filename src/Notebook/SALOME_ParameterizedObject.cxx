@@ -25,6 +25,10 @@
 
 #include <SALOME_ParameterizedObject.hxx>
 
+SALOME_ParameterizedObject::SALOME_ParameterizedObject()
+{
+}
+
 SALOME_ParameterizedObject::SALOME_ParameterizedObject( SALOME::Notebook_ptr theNotebook )
 {
   myNotebook = theNotebook;
@@ -34,4 +38,14 @@ void SALOME_ParameterizedObject::BeforeDeactivate()
 {
   if( !CORBA::is_nil( myNotebook ) )
     myNotebook->RemoveObject( _this() );
+}
+
+void SALOME_ParameterizedObject::SetNotebook( SALOME::Notebook_ptr theNotebook )
+{
+  myNotebook = theNotebook;
+}
+
+SALOME::Notebook_ptr SALOME_ParameterizedObject::GetNotebook()
+{
+  return myNotebook.in();
 }

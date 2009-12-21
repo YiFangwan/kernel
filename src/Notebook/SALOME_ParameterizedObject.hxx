@@ -33,9 +33,13 @@
 class SALOME_ParameterizedObject : public virtual POA_SALOME::ParameterizedObject, public virtual SALOME::GenericObj_i
 {
 public:
+  SALOME_ParameterizedObject();
   SALOME_ParameterizedObject( SALOME::Notebook_ptr theNotebook );
 
-  virtual void BeforeDeactivate();
+  virtual void         BeforeDeactivate();
+
+  void                 SetNotebook( SALOME::Notebook_ptr theNotebook );
+  SALOME::Notebook_ptr GetNotebook();
 
 private:
   SALOME::Notebook_var myNotebook;

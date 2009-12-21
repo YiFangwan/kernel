@@ -32,6 +32,11 @@
 
 #include "SALOME_GenericObj.idl"
 
+module SALOMEDS
+{
+  interface Study;
+};
+
 /*! \brief
      This package contains the interfaces used for notebook
      (model parametrization) functionality
@@ -239,6 +244,9 @@ module SALOME
 
     //! Return string array containing information about parameters used by given string attribute
     StringArray GetAttributeParameters( in string theStringAttribute );
+
+    //! Return pointer to study
+    SALOMEDS::Study GetStudy();
   };
 };
 

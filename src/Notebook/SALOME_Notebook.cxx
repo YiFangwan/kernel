@@ -1188,6 +1188,11 @@ SALOME::StringArray* SALOME_Notebook::GetAttributeParameters( const char* theStr
   return GenerateList( aRes );
 }
 
+SALOMEDS::Study_ptr SALOME_Notebook::GetStudy()
+{
+  return myStudy.in();
+}
+
 int SALOME_Notebook::GetNewId()
 {
   return ++myMaxId;

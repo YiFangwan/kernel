@@ -185,9 +185,10 @@ SALOMEDS::Study_ptr  SALOMEDS_StudyManager_i::Open(const char* aUrl)
 
 
   SALOMEDS::SComponent_ptr aNotebookComponent = Study->FindComponent( "NOTEBOOK" );
-  SALOMEDS::StudyBuilder_var aBuilder = Study->NewBuilder();
-  aBuilder->LoadWith( aNotebookComponent, SALOME_NotebookDriver::getInstance() );
-
+  if(!CORBA::is_nil(aNotebookComponent)) {
+    SALOMEDS::StudyBuilder_var aBuilder = Study->NewBuilder();
+    aBuilder->LoadWith( aNotebookComponent, SALOME_NotebookDriver::getInstance() );
+  }
 
   // Notebook creation
   //SALOME::Notebook_var aNotebookVar = Study->GetNotebook();

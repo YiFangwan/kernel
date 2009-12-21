@@ -81,6 +81,8 @@ public:
   virtual SALOME::StringArray* GetParameters( const char* theParamName );
   virtual SALOME::StringArray* GetAttributeParameters( const char* theStringAttribute );
 
+  virtual SALOMEDS::Study_ptr  GetStudy();
+
   SALOME_Parameter* GetParameterPtr( const char* theParamName ) const;
   void              Update( bool theOnlyParameters );
   void              UpdateAnonymous( const std::string& theOldName, const std::string& theNewName );
