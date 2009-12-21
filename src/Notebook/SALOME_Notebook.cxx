@@ -984,8 +984,12 @@ char* SALOME_Notebook::DumpPython()
     aParams.push_back( KeyHelper( it->first, this ) );
 
   Sort( aParams );
+
+  // to fix bug with incorrect order of parameters in result script
+  std::map< int, std::string > anId2String;
+
   std::list< KeyHelper >::const_iterator pit = aParams.begin(), plast = aParams.end();
-  std::string anEntry;
+  std::string aString, anEntry;
   for( ; pit!=plast; pit++ )
   {
     GetComponent( pit->key(), anEntry );
@@ -994,21 +998,26 @@ char* SALOME_Notebook::DumpPython()
     if( !aParam || aParam->IsAnonymous() )
       continue;
 
-    aRes += "notebook.set( ";
-    aRes += "\"";
-    aRes += anEntry;
-    aRes += "\", ";
+    aString = "notebook.set( ";
+    aString += "\"";
+    aString += anEntry;
+    aString += "\", ";
     if( aParam->IsCalculable() )
     {
-      aRes += "\"";
-      aRes += aParam->GetExpression( false );
-      aRes += "\"";
+      aString += "\"";
+      aString += aParam->GetExpression( false );
+      aString += "\"";
     }
     else
-      aRes += aParam->AsString();
+      aString += aParam->AsString();
 
-    aRes += " )\n";
+    aString += " )\n";
+    anId2String[ aParam->GetId() ] = aString;
   }
+
+  std::map< int, std::string >::const_iterator sit = anId2String.begin(), slast = anId2String.end();
+  for( ; sit != slast; sit++ )
+    aRes += sit->second;
 
   return CORBA::string_dup( aRes.c_str() );
 }
