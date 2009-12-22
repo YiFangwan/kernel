@@ -1199,7 +1199,7 @@ SALOME::StringArray* SALOME_Notebook::GetAttributeParameters( const char* theStr
 
 SALOMEDS::Study_ptr SALOME_Notebook::GetStudy()
 {
-  return myStudy.in();
+  return SALOMEDS::Study::_duplicate( myStudy );
 }
 
 int SALOME_Notebook::GetNewId()

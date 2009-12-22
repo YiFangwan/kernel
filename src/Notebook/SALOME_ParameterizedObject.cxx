@@ -47,5 +47,5 @@ void SALOME_ParameterizedObject::SetNotebook( SALOME::Notebook_ptr theNotebook )
 
 SALOME::Notebook_ptr SALOME_ParameterizedObject::GetNotebook()
 {
-  return myNotebook.in();
+  return SALOME::Notebook::_duplicate( myNotebook );
 }
