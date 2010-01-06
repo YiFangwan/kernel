@@ -129,6 +129,9 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
 	    _resource.DataForSort._Name = Kernel_Utils::GetHostname();
 	  }
 	}
+	map<string, ParserResourcesType>::const_iterator iter = _resources_list.find(_resource.Name);
+	if (iter != _resources_list.end())
+	  RES_INFOS("Warning resource " << _resource.Name << " already added, keep last resource found !");
 	_resources_list[_resource.Name] = _resource;
       }
     }
@@ -138,6 +141,9 @@ void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
       _resource.Clear();
       if(ProcessCluster(aCurNode, _resource))
       {
+	map<string, ParserResourcesType>::const_iterator iter = _resources_list.find(_resource.Name);
+	if (iter != _resources_list.end())
+	  RES_INFOS("Warning resource " << _resource.Name << " already added, keep last resource found !");
 	_resources_list[_resource.Name] = _resource;
       }
     }
