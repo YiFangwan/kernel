@@ -127,7 +127,11 @@ Launcher_cpp::createJob(Launcher::Job * new_job)
   {
     try 
     {
-      _batchmap[resource_name] = FactoryBatchManager(resource_definition);
+      // Warning cannot write on one line like this, because map object is constructed before
+      // the method is called...
+      //_batchmap.[resource_name] = FactoryBatchManager(resource_definition);
+      Batch::BatchManager_eClient * batch_client = FactoryBatchManager(resource_definition);
+      _batchmap[resource_name] = batch_client;
     }
     catch(const LauncherException &ex)
     {
