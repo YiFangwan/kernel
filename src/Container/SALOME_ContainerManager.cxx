@@ -276,6 +276,8 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   }
   MESSAGE("[GiveContainer] Resource selected is: " << resource_selected);
 
+  _numInstanceMutex.lock();
+
   // Step 5: get container in the naming service
   Engines::ResourceDefinition_var resource_definition = _ResManager->GetResourceDefinition(resource_selected.c_str());
   std::string hostname(resource_definition->name.in());
@@ -334,6 +336,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   if (std::string(local_params.parallelLib.in()) != "")
   {
     INFOS("[GiveContainer] PaCO++ container are not currently available");
+    _numInstanceMutex.unlock();
     return ret;
   }
   // Classic or Exe ?
@@ -347,6 +350,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
     if (CORBA::is_nil (Catalog))
     {
       INFOS("[GiveContainer] Module Catalog is not found -> cannot launch a container");
+      _numInstanceMutex.unlock();
       return ret;
     }
     // Loop through component list
@@ -365,6 +369,7 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
 	if(found)
 	{
 	  INFOS("ContainerManager Error: you can't have 2 CEXE component in the same container" );
+	  _numInstanceMutex.unlock();
 	  return Engines::Container::_nil();
 	}
 	MESSAGE("[GiveContainer] Exe container found !: " << container_exe_tmp);
@@ -376,11 +381,13 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   catch (ServiceUnreachable&)
   {
     INFOS("Caught exception: Naming Service Unreachable");
+    _numInstanceMutex.unlock();
     return ret;
   }
   catch (...)
   {
     INFOS("Caught unknown exception.");
+    _numInstanceMutex.unlock();
     return ret;
   }
 
@@ -424,6 +431,8 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
 
   // launch container with a system call
   int status=system(command.c_str());
+
+  _numInstanceMutex.unlock();
 
   if (status == -1){
     MESSAGE("SALOME_ContainerManager::StartContainer rsh failed (system command status -1)");

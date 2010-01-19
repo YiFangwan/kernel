@@ -633,6 +633,7 @@ class CMakeFile(object):
                 newlines.append("""
                 SET(SALOME_KERNEL ON)
                 SET(HAS_GUI ON)
+                SET(WITH_QT4 ON)
                 """)
                 pass
             # --
@@ -957,9 +958,17 @@ class CMakeFile(object):
             COMMAND ${OMNIORB_IDL} ${flags} ${input}
             MAIN_DEPENDENCY ${input}
             )
+            ''')
+            newlines.append('''
             install(FILES ${input} DESTINATION idl/salome)
-            SET(IDL_HEADER ${CMAKE_CURRENT_BINARY_DIR}/${base}.hh)
-            install(FILES ${IDL_HEADER} DESTINATION include/salome)
+            ''')
+            if self.module not in ["pyhello"]:
+                newlines.append('''
+                SET(IDL_HEADER ${CMAKE_CURRENT_BINARY_DIR}/${base}.hh)
+                install(FILES ${IDL_HEADER} DESTINATION include/salome)
+                ''')
+                pass
+            newlines.append('''
             INSTALL(CODE "SET(IDL_FILE ${input})")
             INSTALL(CODE "SET(DIR lib/python${PYTHON_VERSION}/site-packages/salome)")
             INSTALL(CODE "SET(CMAKE_CURRENT_SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR})")
@@ -1013,9 +1022,22 @@ class CMakeFile(object):
             ELSE(SWIG_SOURCES MATCHES ";")
             SET(SWIG_SOURCES_FIRST "${SWIG_SOURCES}")
             ENDIF(SWIG_SOURCES MATCHES ";")
+            SET(flags)
+            FOREACH(f ${SWIG_FLAGS} ${MY_SWIG_FLAGS})
+            SET(test ON)
+            IF(flags)
+            LIST(FIND flags ${f} index)
+            IF(NOT index EQUAL -1)
+            SET(test OFF)
+            ENDIF(NOT index EQUAL -1)
+            ENDIF(flags)
+            IF(test)
+            SET(flags ${flags} ${f})
+            ENDIF(test)
+            ENDFOREACH(f ${SWIG_FLAGS} ${MY_SWIG_FLAGS})
             ADD_CUSTOM_COMMAND(
             OUTPUT ${build_srcs}
-            COMMAND ${SWIG_EXECUTABLE} ${SWIG_FLAGS} ${MY_SWIG_FLAGS} -o ${build_srcs} ${CMAKE_CURRENT_SOURCE_DIR}/${SWIG_SOURCES_FIRST}
+            COMMAND ${SWIG_EXECUTABLE} ${flags} -o ${build_srcs} ${CMAKE_CURRENT_SOURCE_DIR}/${SWIG_SOURCES_FIRST}
             MAIN_DEPENDENCY ${SWIG_SOURCES}
             )
             ''')
