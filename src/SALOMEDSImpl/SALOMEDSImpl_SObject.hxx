@@ -72,6 +72,9 @@ public:
 
   virtual DF_Label GetLabel() const { return _lab; }   
 
+  virtual void OnAddition() const;
+  virtual void OnRemove() const;
+
   bool IsNull() const { return _lab.IsNull(); }
 
   bool IsComponent() const;

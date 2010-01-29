@@ -322,66 +322,69 @@ std::string SALOMEDS_Study::GetContext()
 
 std::vector<std::string> SALOMEDS_Study::GetObjectNames(const std::string& theContext)
 {
-  std::vector<std::string> aVector;
+  
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aVector = _local_impl->GetObjectNames(theContext);
+    return  _local_impl->GetObjectNames(theContext);
   }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetObjectNames((char*)theContext.c_str());
-    aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back(std::string((std::string)aSeq[i].in()));
-  }
+
+  SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetObjectNames((char*)theContext.c_str());
+  aLength = aSeq->length();
+  std::vector<std::string> aVector(aLength);
+  for (i = 0; i < aLength; i++) aVector[i] = std::string((std::string)aSeq[i].in());
   return aVector;
 }
  
 std::vector<std::string> SALOMEDS_Study::GetDirectoryNames(const std::string& theContext)
 {
-  std::vector<std::string> aVector;
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aVector = _local_impl->GetDirectoryNames(theContext);
+    return  _local_impl->GetDirectoryNames(theContext);
   }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetDirectoryNames((char*)theContext.c_str());
-    aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
-  }
+
+  SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetDirectoryNames((char*)theContext.c_str());
+  aLength = aSeq->length();
+  std::vector<std::string> aVector(aLength);
+  for (i = 0; i < aLength; i++) aVector[i] = (char*)aSeq[i].in();
+
   return aVector;
 }
  
 std::vector<std::string> SALOMEDS_Study::GetFileNames(const std::string& theContext)
 {
-  std::vector<std::string> aVector;
+  
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aVector = _local_impl->GetFileNames(theContext);
+    return  _local_impl->GetFileNames(theContext);
   }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetFileNames((char*)theContext.c_str());
-    aLength = aSeq->length();
+ 
+  SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetFileNames((char*)theContext.c_str());
+  aLength = aSeq->length();
+  std::vector<std::string> aVector(aLength);
 
-    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
-  }
+  for (i = 0; i < aLength; i++) aVector[i] = (char*)aSeq[i].in();
+
   return aVector;
 }
  
 std::vector<std::string> SALOMEDS_Study::GetComponentNames(const std::string& theContext)
 {
-  std::vector<std::string> aVector;
+  
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aVector = _local_impl->GetComponentNames(theContext);
+    return _local_impl->GetComponentNames(theContext);
   }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetComponentNames((char*)theContext.c_str());
-    aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
-  }
+ 
+  SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetComponentNames((char*)theContext.c_str());
+  aLength = aSeq->length();
+  std::vector<std::string> aVector(aLength);
+
+  for (i = 0; i < aLength; i++) aVector[i] = (char*)aSeq[i].in();
+
   return aVector;
 }
 
@@ -584,17 +587,19 @@ std::string SALOMEDS_Study::GetLastModificationDate()
 
 std::vector<std::string> SALOMEDS_Study::GetModificationsDate()
 {
-  std::vector<std::string> aVector;
+  
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aVector = _local_impl->GetModificationsDate();
+    return _local_impl->GetModificationsDate();
   }
-  else {
-    SALOMEDS::ListOfDates_var aSeq = _corba_impl->GetModificationsDate();
-    aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
-  }
+
+  SALOMEDS::ListOfDates_var aSeq = _corba_impl->GetModificationsDate();
+  aLength = aSeq->length();
+  std::vector<std::string> aVector(aLength);
+
+  for (i = 0; i < aLength; i++) aVector[i] = (char*)aSeq[i].in();
+
   return aVector;
 }
 
@@ -666,20 +671,48 @@ void SALOMEDS_Study::UnLockStudy(const string& theLockerID)
 
 vector<string> SALOMEDS_Study::GetLockerID()
 {
-  std::vector<std::string> aVector;
   int aLength, i;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aVector = _local_impl->GetLockerID();
+    return _local_impl->GetLockerID();
   }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetLockerID();
-    aLength = aSeq->length();
-    for (i = 0; i < aLength; i++) aVector.push_back((char*)aSeq[i].in());
-  }
+
+  SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetLockerID();
+  aLength = aSeq->length();
+  std::vector<std::string> aVector(aLength);
+  for (i = 0; i < aLength; i++) aVector[i] = (char*)aSeq[i].in();
+
   return aVector;
 }
 
+void SALOMEDS_Study::SetIsDeltaLogged(bool isLogged)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->SetIsDeltaLogged(isLogged);
+  }
+  else _corba_impl->SetIsDeltaLogged(isLogged);
+}
+
+std::vector< StudyDelta > SALOMEDS_Study::GetLoggedDeltas()
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    return _local_impl->GetLoggedDeltas();
+  }
+  
+  SALOMEDS::ListOfDeltas_var aSeq = _corba_impl->GetLoggedDeltas();
+  int aLength = aSeq->length();
+  std::vector< StudyDelta > aVector(aLength);
+  for(int i = 0; i<aLength; i++) {
+
+    const SALOMEDS::StudyDelta& aDelta = aSeq[i];
+    aVector[i] = StudyDelta(aDelta.m_father.in(), aDelta.m_entry.in(), (DeltaOperationType)aDelta.m_type);
+
+  }
+
+  return aVector;
+}
 
 void SALOMEDS_Study::SetReal(const string& theVarName, const double theValue)
 {
@@ -855,17 +888,17 @@ bool SALOMEDS_Study::IsVariable(const string& theVarName)
 
 vector<string> SALOMEDS_Study::GetVariableNames()
 {
-  vector<string> aVector;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aVector = _local_impl->GetVariableNames();
+    return _local_impl->GetVariableNames();
   }
-  else {
-    SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetVariableNames();
-    int aLength = aSeq->length();
-    for (int i = 0; i < aLength; i++) 
-      aVector.push_back( string(aSeq[i].in()) );
-  }
+
+  SALOMEDS::ListOfStrings_var aSeq = _corba_impl->GetVariableNames();
+  int aLength = aSeq->length();
+  vector<string> aVector(aLength);
+  for (int i = 0; i < aLength; i++) 
+    aVector[i] =  string(aSeq[i].in());
+
   return aVector;
 }
 
@@ -907,22 +940,24 @@ bool SALOMEDS_Study::IsVariableUsed(const string& theVarName)
 
 vector< vector<string> > SALOMEDS_Study::ParseVariables(const string& theVars)
 {
-  vector< vector<string> > aResult;
   if (_isLocal) {
     SALOMEDS::Locker lock;
-    aResult = _local_impl->ParseVariables(theVars);
+    return _local_impl->ParseVariables(theVars);
   }
-  else {
-    SALOMEDS::ListOfListOfStrings_var aSeq = _corba_impl->ParseVariables(theVars.c_str());
-    for (int i = 0, n = aSeq->length(); i < n; i++) {
-      vector<string> aVector;
-      SALOMEDS::ListOfStrings aSection = aSeq[i];
-      for (int j = 0, m = aSection.length(); j < m; j++) {
-        aVector.push_back( string(aSection[j].in()) );
-      }
-      aResult.push_back( aVector );
+
+  SALOMEDS::ListOfListOfStrings_var aSeq = _corba_impl->ParseVariables(theVars.c_str());
+  vector< vector<string> > aResult(aSeq->length());
+  for (int i = 0, n = aSeq->length(); i < n; i++) {
+    
+    SALOMEDS::ListOfStrings aSection = aSeq[i];
+    vector<string> aVector(aSection.length());
+
+    for (int j = 0, m = aSection.length(); j < m; j++) {
+      aVector[j] = string(aSection[j].in());
     }
+    aResult[i] =  aVector;
   }
+
   return aResult;
 }
 

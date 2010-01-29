@@ -98,6 +98,9 @@ public:
   virtual void UnLockStudy(const std::string& theLockerID);
   virtual std::vector<std::string> GetLockerID();
 
+  virtual void SetIsDeltaLogged(bool isLogged);          
+  virtual std::vector< StudyDelta > GetLoggedDeltas();
+
   virtual void SetReal(const std::string& theVarName, const double theValue);
   virtual void SetInteger(const std::string& theVarName, const int theValue);
   virtual void SetBoolean(const std::string& theVarName, const bool theValue);  

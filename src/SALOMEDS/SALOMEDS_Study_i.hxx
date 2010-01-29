@@ -298,6 +298,10 @@ public:
 
   virtual SALOMEDS::ListOfStrings* GetLockerID();
 
+  virtual void SetIsDeltaLogged(CORBA::Boolean isLogged);
+  
+  virtual SALOMEDS::ListOfDeltas* GetLoggedDeltas();
+
   virtual void SetReal(const char* theVarName, CORBA::Double theValue);
   
   virtual void SetInteger(const char* theVarName, CORBA::Long theValue);

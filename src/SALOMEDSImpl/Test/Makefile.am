@@ -57,6 +57,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/$(RPATH)/ResourcesManager \
 	-I$(srcdir)/$(RPATH)/LifeCycleCORBA \
 	-I$(srcdir)/$(RPATH)/DF \
+	-I$(srcdir)/$(RPATH)/SALOMEDSClient \
 	-I$(srcdir)/$(RPATH)/SALOMEDSImpl \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@ @BOOST_CPPFLAGS@

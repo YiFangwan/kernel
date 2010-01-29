@@ -239,7 +239,11 @@ string SALOMEDSImpl_SObject::GetIOR() const
   return aStr;
 }
 
-
+//============================================================================
+/*! Function : GetGUID 
+ *  Purpose  : 
+ */
+//============================================================================
 std::string SALOMEDSImpl_SObject::GetGUID(const string& theType) 
 {
   __AttributeTypeToGUIDForSObject
@@ -248,6 +252,42 @@ std::string SALOMEDSImpl_SObject::GetGUID(const string& theType)
     return theType.substr(21, theType.size()); 
   }
   return "";
+}
+
+//============================================================================
+/*! Function : OnAddition
+ *  Purpose  : The method is called after when this SObject is added to the Study
+ */
+//============================================================================
+void SALOMEDSImpl_SObject::OnAddition() const
+{
+  if(_lab.IsNull()) return;
+
+  SALOMEDSImpl_Study* aStudy = GetStudy();
+  if(!aStudy || !aStudy->IsDeltaLogged()) return;
+
+  DF_Label aFather;
+  if(!IsComponent()) aFather = _lab.Father();
+  
+  aStudy->AddDelta(aFather, _lab, DOT_SO_ADDED);
+}
+
+//============================================================================
+/*! Function : OnRemove
+ *  Purpose  : The method is called before when this SObject is removed from the Study
+ */
+//============================================================================
+void SALOMEDSImpl_SObject::OnRemove() const
+{
+  if(_lab.IsNull()) return;
+
+  SALOMEDSImpl_Study* aStudy = GetStudy();
+  if(!aStudy || !aStudy->IsDeltaLogged()) return;
+
+  DF_Label aFather;
+  if(!IsComponent()) aFather = _lab.Father();
+  
+  aStudy->AddDelta(aFather, _lab, DOT_SO_REMOVED);
 }
 
 //============================================================================

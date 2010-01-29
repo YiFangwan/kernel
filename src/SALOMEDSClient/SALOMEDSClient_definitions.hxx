@@ -78,4 +78,25 @@ struct STextColor
     double B;
 };
 
+enum DeltaOperationType { DOT_NONE, DOT_SO_ADDED, DOT_SO_REMOVED, DOT_MODIFIED };
+
+#include <string>
+
+struct StudyDelta {
+  StudyDelta() { m_father = ""; m_entry = ""; m_type = DOT_NONE; }
+  StudyDelta(const std::string& theFather,
+	     const std::string& theEntry,
+	     DeltaOperationType theOperation) 
+  { 
+    m_father = theFather; 
+    m_entry = theEntry; 
+    m_type = theOperation; 
+  }
+
+  std::string        m_father; //Entry of a father SObject
+  std::string        m_entry;  //Entry of modified SObject
+  DeltaOperationType m_type;   //What operation is performed
+};
+
+
 #endif

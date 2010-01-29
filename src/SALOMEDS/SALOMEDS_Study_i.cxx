@@ -881,6 +881,43 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetLockerID()
   }
   return aResult._retn();
 }
+
+//============================================================================
+/*! Function : SetIsDeltaLogged
+ *  Purpose  : 
+ */
+//============================================================================
+void SALOMEDS_Study_i::SetIsDeltaLogged(CORBA::Boolean isLogged)
+{
+  if(isLogged) _impl->SetIsDeltaLogged(true);
+  else _impl->SetIsDeltaLogged(false);
+}
+  
+//============================================================================
+/*! Function : GetLoggedDeltas
+ *  Purpose  : 
+ */
+//============================================================================
+SALOMEDS::ListOfDeltas* SALOMEDS_Study_i::GetLoggedDeltas()
+{
+  const vector< StudyDelta >& aList = _impl->GetLoggedDeltas();
+  SALOMEDS::ListOfDeltas_var aDeltas = new SALOMEDS::ListOfDeltas();
+
+  aDeltas->length(aList.size());
+  for(size_t i = 0, aSize = aList.size(); i<aSize; i++) {
+    const StudyDelta& aD = aList[i];
+
+    SALOMEDS::StudyDelta aDelta;
+    aDelta.m_father = CORBA::string_dup(aD.m_father.c_str());
+    aDelta.m_entry = CORBA::string_dup(aD.m_entry.c_str());
+    aDelta.m_type = (SALOMEDS::DeltaType)aD.m_type;
+
+    aDeltas[i] = aDelta;
+  }
+  
+  return aDeltas._retn();
+}
+
 //============================================================================
 /*! Function : SetReal
  *  Purpose  : 

@@ -36,6 +36,9 @@
 #include "DF_Label.hxx"
 #include <stdio.h>
 
+//SALOMEDSClient headers
+#include "SALOMEDSClient_definitions.hxx"
+
 //SALOMEDSImpl headers
 #include "SALOMEDSImpl_Defines.hxx"
 #include "SALOMEDSImpl_SComponentIterator.hxx"
@@ -53,7 +56,6 @@
 class SALOMEDSImpl_StudyManager;
 class SALOMEDSImpl_GenericAttribute;
 
-
 class SALOMEDSIMPL_EXPORT SALOMEDSImpl_Study
 {
 private:
@@ -69,6 +71,8 @@ private:
   SALOMEDSImpl_Callback*   _cb;
   SALOMEDSImpl_StudyBuilder*   _builder;
   SALOMEDSImpl_UseCaseBuilder* _useCaseBuilder;
+  bool                     _isDelta;
+  std::map<std::string, StudyDelta> _deltas;
 
   std::map<std::string, SALOMEDSImpl_SObject> _mapOfSO;
   std::map<std::string, SALOMEDSImpl_SComponent> _mapOfSCO;
@@ -309,11 +313,29 @@ public:
   //Returns a callback 
   SALOMEDSImpl_Callback* GetCallback() { return _cb; }
 
+  //Enables logging of modifications in SALOME data structure.
+  //Default value is 'false'
+  void SetIsDeltaLogged(bool isLogged) { _isDelta = isLogged; } 
+
+  //Returns true if the study stores a list of modifications related to the SObjects and Attributes 
+  bool IsDeltaLogged() const;    
+
+  //Returns a list of deltas on modifications that happend after the last request of deltas
+  //Note: The request for deltas clears all stored information, so only returned list will contain
+  //      information about modifications
+  std::vector< StudyDelta > GetLoggedDeltas();
+
   //Returns a list of IOR's stored in the study
   std::vector<std::string> GetIORs();
+
+protected:
+
+  //Adds a new Delta to the list of modifications
+  void AddDelta(const DF_Label& theFather, const DF_Label& theObject, DeltaOperationType theOperation);
 
   friend class SALOMEDSImpl_StudyManager;    
   friend class SALOMEDSImpl_GenericAttribute;
   friend class SALOMEDSImpl_GenericVariable;
+  friend class SALOMEDSImpl_SObject;
 };
 #endif

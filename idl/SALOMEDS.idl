@@ -99,6 +99,18 @@ during each working session.
 //! Exception indicating that this feature hasn't been implemented in %SALOME application.
   exception NotImplemented {};
 
+//! Enumeration that describes modifications of the %Study
+  enum DeltaType { DT_NONE, DT_ADDED, DT_REMOVED, DT_MODIFIED };
+
+//! Structure that describes a atomic delta on modification of the %Study
+  struct StudyDelta {
+    string     m_father;
+    string     m_entry;
+    DeltaType  m_type;
+  };
+
+//! A sequence of modification deltas
+  typedef sequence<StudyDelta> ListOfDeltas;
 
   //===========================================================================
  /*! \brief %Study Interface
@@ -403,6 +415,16 @@ during each working session.
 /*! \brief  Get the list of IDs of the Study's lockers. 
 */
     ListOfStrings GetLockerID();
+
+/*! \brief Enable or disable logging of modifications in this Study
+    \param isLogged is a Boolean flag that tells whether modification of the Study is logged.
+*/
+    void SetIsDeltaLogged(in boolean isLogged); 
+
+/*! \brief Returns a list of modification deltas of this Study. Each call of GetLoggedDeltas clears
+     modification deltas stored in this Study.
+*/
+    ListOfDeltas GetLoggedDeltas();
 
 /*! \brief  Create real variable with Name theVarName and value theValue 
 

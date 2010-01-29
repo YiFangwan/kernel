@@ -96,6 +96,7 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../HDFPersist \
 	-I$(srcdir)/../DF \
     -I$(srcdir)/../GenericObj \
+    -I$(srcdir)/../SALOMEDSClient \
     -I$(top_builddir)/idl \
 	@HDF5_INCLUDES@ \
 	@BOOST_CPPFLAGS@ @CORBA_CXXFLAGS@ @CORBA_INCLUDES@

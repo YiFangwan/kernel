@@ -87,5 +87,10 @@ void SALOMEDSImpl_GenericAttribute::SetModifyFlag()
 
   SALOMEDSImpl_Study* aStudy = SALOMEDSImpl_Study::GetStudy(aLabel);
   if(aStudy) aStudy->Modify();
+  else return;
+
+  if(aStudy->IsDeltaLogged()) { //It's necessary to store in the Study about attributes' modifications
+    aStudy->AddDelta(DF_Label(), aLabel, DOT_MODIFIED);
+  }
 }
 

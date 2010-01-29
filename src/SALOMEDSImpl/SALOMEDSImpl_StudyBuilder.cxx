@@ -87,9 +87,10 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const string& Da
 
   DF_Label NL = L.NewChild();
 
-  SALOMEDSImpl_AttributeComment::Set(NL, DataType);
-
   SALOMEDSImpl_SComponent so =  _study->GetSComponent (NL);
+  so.OnAddition();
+
+  SALOMEDSImpl_AttributeComment::Set(NL, DataType);
 
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
 
@@ -148,6 +149,8 @@ SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObject(const SALOMEDSImpl_SOb
   DF_Label NewLab = Lab.NewChild();
   
   SALOMEDSImpl_SObject so = _study->GetSObject(NewLab);
+  so.OnAddition();
+
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
 
   _doc->SetModified(true);  
@@ -171,6 +174,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObjectToTag(const SALOMEDSImp
   DF_Label NewLab = Lab.FindChild(theTag, 1);
 
   SALOMEDSImpl_SObject so = _study->GetSObject(NewLab);
+  so.OnAddition();
 
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
 
@@ -191,7 +195,8 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObject(const SALOMEDSImpl_SObject& anObjec
     _errorCode = "Null object";
     return false;
   }
-
+  
+  anObject.OnRemove();
   if(_callbackOnRemove) _callbackOnRemove->OnRemoveSObject(anObject);
 
   DF_Label Lab = anObject.GetLabel();
@@ -229,6 +234,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const SALOMEDSImpl_SObj
     return false;
   }
 
+  anObject.OnRemove();
   if(_callbackOnRemove) _callbackOnRemove->OnRemoveSObject(anObject);
 
   DF_Label Lab = anObject.GetLabel();
@@ -247,6 +253,10 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const SALOMEDSImpl_SObj
   DF_ChildIterator it(Lab, true);
   for(;it.More();it.Next()) {
     DF_Label aLabel = it.Value();
+
+    SALOMEDSImpl_SObject so(aLabel);
+    so.OnRemove();
+
     if ((aReference=(SALOMEDSImpl_AttributeReference*)aLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
       SALOMEDSImpl_AttributeTarget* aTarget = NULL;
       if ((aTarget=(SALOMEDSImpl_AttributeTarget*)aReference->Get().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID())))

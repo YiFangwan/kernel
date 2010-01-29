@@ -68,6 +68,7 @@ SALOMEDSImpl_Study::SALOMEDSImpl_Study(const DF_Document* doc,
   _useCaseBuilder = new SALOMEDSImpl_UseCaseBuilder(_doc);
   _builder = new SALOMEDSImpl_StudyBuilder(this);
   _cb = new SALOMEDSImpl_Callback(_useCaseBuilder);
+  _isDelta = false;
   //Put on the root label a StudyHandle attribute to store the address of this object
   //It will be used to retrieve the study object by DF_Label that belongs to the study
   SALOMEDSImpl_StudyHandle::Set(_doc->Main().Root(), this);
@@ -1970,4 +1971,89 @@ vector<string> SALOMEDSImpl_Study::GetIORs()
     anIORs.push_back(MI->first);
 
   return anIORs;
+}
+
+//============================================================================
+/*! Function : IsDeltaLogged
+ *  Purpose  :
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::IsDeltaLogged() const
+{
+  return _isDelta;
+}
+
+//============================================================================
+/*! Function : GetLoggedDeltas
+ *  Purpose  :
+ */
+//============================================================================
+vector< StudyDelta > SALOMEDSImpl_Study::GetLoggedDeltas()
+{
+  vector< StudyDelta > aDeltas(_deltas.size());
+
+  map<string, StudyDelta>::const_iterator p = _deltas.begin();
+
+  for(size_t i = 0; p != _deltas.end(); i++, p++) {
+    aDeltas[i] = p->second;
+  } 
+
+  _deltas.clear();
+
+  return aDeltas;
+}
+
+
+//============================================================================
+/*! Function : AddDelta
+ *  Purpose  :
+ */
+//============================================================================
+void SALOMEDSImpl_Study::AddDelta(const DF_Label& theFather, 
+				  const DF_Label& theObject, 
+				  DeltaOperationType theOperation)
+{
+  if(theObject.IsNull()) return; 
+  const string& entry = theObject.Entry();
+
+  if(_deltas.find(entry) != _deltas.end()) { //Check whether the object was already modified in any way
+    StudyDelta& aDelta = _deltas[entry];
+
+    switch(aDelta.m_type) {
+    case DOT_SO_ADDED: {
+      switch(theOperation) {
+      case DOT_SO_REMOVED: { _deltas.erase(_deltas.find(entry)); } //Remove delta as the object which has been added is removed
+      default:
+	return;
+      }
+      break;
+    }
+    case DOT_SO_REMOVED: {
+      switch(theOperation) {
+      case DOT_SO_ADDED: {  //The previously removed is again added, modify the delta to MODIFIED
+	aDelta.m_type = DOT_MODIFIED;
+	aDelta.m_father = "";
+      } 
+      default:
+	return;
+      }
+      break;
+    }
+    case DOT_MODIFIED: {
+      switch(theOperation) {
+      case DOT_SO_REMOVED: {  //The previously modified object is removed, keep only the removal delta
+	aDelta.m_type = DOT_SO_REMOVED; 
+	aDelta.m_father = theObject.Father().Entry();
+      } 
+      default:
+	return;
+      }
+      break;
+    }
+    default: return;
+    }
+  }
+  else {
+    _deltas[entry] = StudyDelta(theFather.Entry(), theObject.Entry(), theOperation);
+  }
 }
