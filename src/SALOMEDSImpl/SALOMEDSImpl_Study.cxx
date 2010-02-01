@@ -42,6 +42,7 @@ using namespace std;
 #include "SALOMEDSImpl_IParameters.hxx"
 #include "SALOMEDSImpl_ScalarVariable.hxx"
 
+#include <algorithm>
 #include <fstream>
 
 #define DIRECTORYID       16661
@@ -1994,9 +1995,15 @@ vector< StudyDelta > SALOMEDSImpl_Study::GetLoggedDeltas()
 
   map<string, StudyDelta>::const_iterator p = _deltas.begin();
 
+  vector<string> entries(_deltas.size());
   for(size_t i = 0; p != _deltas.end(); i++, p++) {
-    aDeltas[i] = p->second;
+    entries[i] = p->first;
   } 
+
+  std::sort(entries.begin(), entries.end());
+  for(size_t i = 0, aSize = entries.size(); i<aSize; i++) {
+    aDeltas[i] = _deltas[entries[i]];
+  }
 
   _deltas.clear();
 
