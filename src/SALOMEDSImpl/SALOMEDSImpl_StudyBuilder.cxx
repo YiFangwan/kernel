@@ -254,9 +254,6 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const SALOMEDSImpl_SObj
   for(;it.More();it.Next()) {
     DF_Label aLabel = it.Value();
 
-    SALOMEDSImpl_SObject so(aLabel);
-    so.OnRemove();
-
     if ((aReference=(SALOMEDSImpl_AttributeReference*)aLabel.FindAttribute(SALOMEDSImpl_AttributeReference::GetID()))) {
       SALOMEDSImpl_AttributeTarget* aTarget = NULL;
       if ((aTarget=(SALOMEDSImpl_AttributeTarget*)aReference->Get().FindAttribute(SALOMEDSImpl_AttributeTarget::GetID())))
