@@ -29,7 +29,7 @@
 // std C++ headers
 #include <vector>
 
-#include <SALOMEDSClient.hxx>
+#include "SALOMEDSClient.hxx"
 
 // IDL headers
 #include <SALOMEconfig.h>

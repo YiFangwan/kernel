@@ -26,7 +26,7 @@
 #include "Launcher_Job.hxx"
 
 #include "ResourcesManager.hxx"
-#include <SALOME_ResourcesCatalog_Parser.hxx>
+#include "SALOME_ResourcesCatalog_Parser.hxx"
 
 #include "SALOME_Launcher_Parser.hxx"
 

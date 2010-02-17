@@ -35,7 +35,7 @@
 #include <string>
 
 #include <SALOMEconfig.h>
-#include <Utils_SALOME_Exception.hxx>
+#include "Utils_SALOME_Exception.hxx"
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 #include <iostream>

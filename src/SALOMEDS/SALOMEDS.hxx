@@ -30,7 +30,7 @@
 
 #include "SALOMEDS_Defines.hxx"
 
-#include <Utils_Mutex.hxx>
+#include "Utils_Mutex.hxx"
 
 namespace SALOMEDS
 {

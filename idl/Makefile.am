@@ -129,7 +129,7 @@ endif
 $(DYNIDL_SRCS) : $(IDL_SOURCES)
 
 # also install all generated headers to use result library from another modules
-salomeinclude_DATA= $(STATIDL_SOURCES:%SK.cc=%.hh)
+salomeskel_DATA= $(STATIDL_SOURCES:%SK.cc=%.hh)
 
 if WITH_PACO_PARALLEL
 PAR = SALOME_ComponentPaCO.hxx SALOME_ComponentPaCO.cxx \

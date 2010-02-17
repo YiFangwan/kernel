@@ -35,7 +35,7 @@ DEPRECATED_FILES=\
 
 # rules for install and build (see make_common_starter.am)
 salomeadmux_DATA = SALOMEconfig.h.in
-salomeinclude_DATA = SALOMEconfig.h
+salometopinc_DATA = SALOMEconfig.h
 BUILT_SOURCES=SALOMEconfig.ref SALOMEconfig.h SALOMEconfig.h.in
 
 mostlyclean-local:

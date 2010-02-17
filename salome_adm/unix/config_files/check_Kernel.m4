@@ -72,7 +72,7 @@ if test -f ${KERNEL_DIR}/bin/salome/runSalome ; then
    AC_SUBST(KERNEL_SITE_DIR)
 
    KERNEL_LDFLAGS=-L${KERNEL_DIR}/lib${LIB_LOCATION_SUFFIX}/salome
-   KERNEL_CXXFLAGS=-I${KERNEL_DIR}/include/salome
+   KERNEL_CXXFLAGS="-I${KERNEL_DIR}/include/salome -I${KERNEL_DIR}/include/salome/skel"
 
    AC_SUBST(KERNEL_LDFLAGS)
    AC_SUBST(KERNEL_CXXFLAGS)

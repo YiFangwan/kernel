@@ -28,7 +28,7 @@
 #define _PARALLEL_SALOME_FILE_I_HXX_
 
 #include <SALOMEconfig.h>
-#include <SALOME_Container.hxx>
+#include "SALOME_Container.hxx"
 #include <map>
 #include <cstdio>
 

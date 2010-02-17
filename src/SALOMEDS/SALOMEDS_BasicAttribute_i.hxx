@@ -31,7 +31,7 @@
 // IDL headers
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS)
-#include <DF_Label.hxx>
+#include "DF_Label.hxx"
 
 class SALOMEDS_BasicAttribute_i: public POA_SALOMEDS::BasicAttribute,
                                  public PortableServer::ServantBase {
