@@ -779,452 +779,645 @@ Sets the item to be selectable
 */
     void          Remove(in SObject anObject);
   };
+
   //==========================================================================
-  /*! \brief %AttributeTableOfInteger interface
+  /*!
+    \brief Generic table attribute.
 
-   This attribute allows to store a table of integers (indexing from 1 like in CASCADE)
-    and string titles of this table, of each row, of each column.
+    Used as base interface for the AttributeTableOfInteger, AttributeTableOfReal
+    and AttributeTableOfString. Provides functions which are common for all table
+    attributes.
 
-<em>See \ref example21 for an example of usage of these methods in batchmode of %SALOME application.</em>
-
-*/
+    \note The indices of rows and columns in the table start from 1.
+    \sa AttributeTableOfInteger, AttributeTableOfReal, AttributeTableOfString
+  */
   //==========================================================================
 
-  interface AttributeTableOfInteger : GenericAttribute
+  interface AttributeTable : GenericAttribute
   {
-//!  This exception is raised when an incorrect index is passed as parameter.
+    //! This exception is raised when an invalid (out of range) index is passed as parameter.
     exception IncorrectIndex {};
-//!  This exception is raised when an incorrect length of the argument is passed as parameter.
+    //! This exception is raised when sequence of incorrect length is passed as parameter.
     exception IncorrectArgumentLength {};
 
-    // titles: for table, for each row, for each column
-/*!
-   Sets the title of the table.
-*/
-    void SetTitle(in string theTitle);
-/*!
-  Returns the title of the table.
-*/
+    //! Sort order
+    enum SortOrder { 
+      AscendingOrder,  //!< The items are sorted ascending
+      DescendingOrder  //!< The items are sorted descending
+    };
+
+    //! Sort policy (specifies how empty cells are taken into account when sorting)
+    enum SortPolicy {
+      EmptyLowest,     //!< Empty cells are considered as lowest values
+      EmptyHighest,    //!< Empty cells are considered as highest values
+      EmptyFirst,      //!< Empty cells are always first
+      EmptyLast,       //!< Empty cells are always last
+      EmptyIgnore      //!< Empty cells are ignored (stay at initial positions)
+    };
+
+    /*!
+      \brief Sets the main title of the table.
+      \param title title being set to the table
+      \sa GetTitle()
+    */
+    void SetTitle(in string title);
+    /*!
+      \brief Returns the title of the table.
+      \return table title (empty string if not set)
+      \sa SetTitle()
+    */
     string GetTitle();
-/*!
-   Sets the title of a row with a definite index.
-*/
-    void SetRowTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
-/*!
-   Sets the titles for all rows of the table.
-*/
-    void SetRowTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
-/*!
-   Returns the titles of all rows of the table.
-*/
+    /*!
+      \brief Sets the title of a row with specified index.
+
+      Raises an exception if \a row is out of range.
+
+      \param row row index
+      \param title title being set to the row
+      \sa GetRowTitle()
+    */
+    void SetRowTitle(in long row, in string title) raises(IncorrectIndex);
+    /*!
+      \brief Returns the title of a row with specified index.
+
+      Raises an exception if \a row is out of range.
+
+      \param row row index
+      \return row title (empty string if not set)
+      \sa SetRowTitle()
+    */
+    string GetRowTitle(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Sets the titles for all rows in the table.
+
+      Raises an exception if length of the \a titles parameter is not equal
+      to the number of rows in the table.
+
+      \param titles titles being set to the table rows
+      \sa GetRowTitles()
+    */
+    void SetRowTitles(in StringSeq titles) raises(IncorrectArgumentLength);
+    /*!
+      \brief Returns the titles of all rows of the table.
+      \return list of all rows titles
+      \sa SetRowTitles()
+    */
     StringSeq GetRowTitles();
-/*!
-   Sets the title of a column with a definite index.
-*/
-    void SetColumnTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
-/*!
-   Sets the titles for all columns of the table.
-*/
-    void SetColumnTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
-/*!
-   Returns the titles of all columns of the table.
-*/
+    /*!
+      \brief Sets the title of a column with specified index.
+
+      Raises an exception if \a column is out of range.
+
+      \param column column index
+      \param title title being set to the column
+      \sa GetColumnTitle()
+    */
+    void SetColumnTitle(in long column, in string title) raises(IncorrectIndex);
+    /*!
+      \brief Returns the title of a column with specified index.
+
+      Raises an exception if \a column is out of range.
+
+      \param column column index
+      \return column title (empty string if not set)
+      \sa SetColumnTitle()
+    */
+    string GetColumnTitle(in long column) raises(IncorrectIndex);
+    /*!
+      \brief Sets the titles for all columns in the table.
+
+      Raises an exception if length of the \a titles parameter is not equal
+      to the number of columns in the table.
+
+      \param titles titles being set to the table columns
+      \sa GetColumnTitles()
+    */
+    void SetColumnTitles(in StringSeq titles) raises(IncorrectArgumentLength);
+    /*!
+      \brief Returns the titles of all columns of the table.
+      \return list of all columns titles
+      \sa SetColumnTitles()
+    */
     StringSeq GetColumnTitles();
+    /*!
+      \brief Assigns the unit label to the row with specified index.
 
-    //Rows units
-/*!
-   Sets the unit of a row with a definite index.
-*/
-    void SetRowUnit(in long theIndex, in string theUnit) raises(IncorrectIndex);
-/*!
-   Sets the units for all rows of the table.
-*/
-    void SetRowUnits(in StringSeq theUnits) raises(IncorrectArgumentLength);
-/*!
-   Returns the units of all rows of the table.
-*/
+      Raises an exception if \a row is out of range.
+
+      \param row row index
+      \param unit unit label being set to the row
+      \sa GetRowUnit()
+    */
+    void SetRowUnit(in long row, in string unit) raises(IncorrectIndex);
+    /*!
+      \brief Returns the unit label of a row with specified index.
+
+      Raises an exception if \a row is out of range.
+
+      \param row row index
+      \return row unit label (empty string if not set)
+      \sa SetRowUnit()
+    */
+    string GetRowUnit(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Sets the unit labels for all rows in the table.
+
+      Raises an exception if length of the \a units parameter is not equal
+      to the number of rows in the table.
+
+      \param units unit labels being set to the table rows
+      \sa GetRowUnits()
+    */
+    void SetRowUnits(in StringSeq units) raises(IncorrectArgumentLength);
+    /*!
+      \brief Returns the unit labels of all rows of the table.
+      \return list of all rows unit labels
+      \sa SetRowUnits()
+    */
     StringSeq GetRowUnits();
-
-    // table information
-/*!
-   Returns the number of rows of the table.
-*/
+    /*!
+      \brief Returns the number of rows of the table.
+      \return rows count
+      \sa GetNbColumns()
+    */
     long GetNbRows();
-/*!
-   Returns the number of columns of the table.
-*/
+    /*!
+      \brief Returns the number of columns of the table.
+      \return columns count
+      \sa GetNbRows(), SetNbColumns()
+    */
     long GetNbColumns();
+    /*!
+      \brief Check if the value is set for the cell with specified \a row and \a column indices.
+      \param row    row index
+      \param column column index
+      \return \c true if value is set for the specified cell or \c false otherwise
+              (or if row/column index is/are out of range)
+    */
+    boolean HasValue(in long row, in long column);
+    /*!
+      \brief Clear value in the specified table cell.
+      
+      Raises an exception if \a row or \a column is out of range.
 
-    // operations with rows
-/*!
-   Adds a row to the end of the table.
-   \param theData A sequence of long values which will be set as elements of the added row.
-*/
-    void AddRow(in LongSeq theData) raises(IncorrectArgumentLength);
-/*!
-   Sets the elements of a definite row.
-   \param theRow The number of the row.
-   \param theData A sequence of long values which will be set as elements of this row.
+      \param row    row index
+      \param column column index
+      \sa HasValue()
+    */
+    void RemoveValue(in long row, in long column) raises(IncorrectIndex);
+    /*!
+      \brief Sets the maximum number of colums in the table.
 
-*/
-    void SetRow(in long theRow, in LongSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
-/*!
-   Gets the row of the table.
+      If new number of columns is less than the current one, the table is truncated
+      (extra columns are removed).
 
-   \param theRow The number of the row.
-   \return A sequence of long values which are set as elements of this row.
-*/
-    LongSeq GetRow(in long theRow) raises(IncorrectIndex);
+      \note It is recommended to set number of columns before assigning data to the table.
 
-    // operations with columns
-/*!
-   Adds a column to the end of the table.
+      \param columns total number of columns being set for the table
+      \sa GetNbColumns()
+    */
+    void SetNbColumns(in long columns);
+    /*!
+      \brief Returns the indices of the columns in the specified \a row for which
+      values are set.
 
-   \param theData A sequence of long values which will be set as elements of this column.
-*/
-    void AddColumn(in LongSeq theData) raises(IncorrectArgumentLength);
-/*!
-   Sets the values of all elements of the column.
+      Raises an exception if \a row is out of range.
 
-  \param theData A sequence of long values which will be set as elements of this column.
-*/
-    void SetColumn(in long theColumn, in LongSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
-/*!
-   Returns the column of the table.
-*/
-    LongSeq GetColumn(in long theColumn) raises(IncorrectIndex);
+      \param row    row index
+      \return list of column indices
+    */
+    LongSeq GetRowSetIndices(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Sort values in the specified table row.
+      
+      Sort order is specified by the \a order parameter. The \a policy
+      specifies how to process empty cells (put to the first place, ignore, etc).
 
-    // operations with elements
-/*!
-    Puts a value in the table.
-    \param theRow      The row, where the value will be placed.
-    \param theColumn   The column, where the value will be placed.
-*/
-    void PutValue(in long theValue, in long theRow, in long theColumn) raises(IncorrectIndex);
-/*!
-    Returns True if there is a value in the table.
-    \param theRow      The row containing the value
-    \param theColumn   The column containing the value
-*/
-    boolean HasValue(in long theRow, in long theColumn);
-/*!
-    Returns the value from the table.
-    \param theRow      The row containing the value
-    \param theColumn   The column containing the value
-*/
-    long GetValue(in long theRow, in long theColumn) raises(IncorrectIndex);
+      Raises an exception if \a row is out of range.
 
-/*!
-    Sets the max number of colums in the table.
-    \note It'd better to set it before filling the table.
-*/
-    void SetNbColumns(in long theNbColumns);
+      \note Other table rows are not affected.
+      
+      \param row row index
+      \param order sort order (ascending/descending)
+      \param policy sort policy (specifies how to process empty cells)
+      \return list of mixed column indices
+    */
+    LongSeq SortRow(in long row, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    /*!
+      \brief Sort values in the specified table column.
+      
+      Sort order is specified by the \a order parameter. The \a policy
+      specifies how to process empty cells (put to the first place, ignore, etc).
 
-/*!
-    Returns the indices of the row where the values are defined.
-*/
-    LongSeq GetRowSetIndices(in long theRow) raises(IncorrectIndex);
-    // operations with files
-/*!
-   Reads a table from a file.
-*/
-    boolean ReadFromFile(in SALOMEDS::TMPFile theStream);
-/*!
-   Saves a table into a file.
-*/
+      Raises an exception if \a column is out of range.
+
+      \note Other table columns are not affected.
+      
+      \param column column index
+      \param order sort order (ascending/descending)
+      \param policy sort policy (specifies how to process empty cells)
+      \return list of mixed row indices
+    */
+    LongSeq SortColumn(in long column, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    /*!
+      \brief Sort table columns by the specified row.
+      
+      All the table columns are sorted according to the values in the specified
+      row. Sort order is specified by the \a order parameter. The \a policy
+      specifies how to process empty cells (put to the first place, ignore, etc).
+      
+      Raises an exception if \a row is out of range.
+
+      \param row row index
+      \param order sort order (ascending/descending)
+      \param policy sort policy (specifies how to process empty cells)
+      \return list of mixed column indices
+    */
+    LongSeq SortByRow(in long row, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    /*!
+      \brief Sort table rows by the specified column.
+      
+      All the table rows are sorted according to the values in the specified
+      column. Sort order is specified by the \a order parameter. The \a policy
+      specifies how to process empty cells (put to the first place, ignore, etc).
+      
+      Raises an exception if \a column is out of range.
+
+      \param column column index
+      \param order sort order (ascending/descending)
+      \param policy sort policy (specifies how to process empty cells)
+      \return list of mixed row indices
+    */
+    LongSeq SortByColumn(in long column, in SortOrder order, in SortPolicy policy) raises(IncorrectIndex);
+    /*!
+      \brief Swap values in two table cells.
+
+      Raises an exception if any specified index is out of range.
+
+      \param row1    first cell's row index
+      \param column1 first cell's column index
+      \param row2    second cell's row index
+      \param column2 second cell's column index
+    */
+    void SwapCells(in long row1, in long column1, in long row2, in long column2) raises(IncorrectIndex);
+    /*!
+      \brief Swap two table rows.
+
+      Raises an exception if any \a row1 or \a row2 is out of range.
+
+      \param row1 first row's index
+      \param row2 second row's index
+    */
+    void SwapRows(in long row1, in long row2) raises(IncorrectIndex);
+    /*!
+      \brief Swap two table columns.
+
+      Raises an exception if any \a column1 or \a column2 is out of range.
+
+      \param column1 first column's index
+      \param column2 second column's index
+    */
+    void SwapColumns(in long column1, in long column2) raises(IncorrectIndex);
+    /*!
+      \brief Reads a table from a byte stream.
+      \param fileStream byte stream
+      \return \c true if table is successfully read or \c false otherwise
+      \sa SaveToFile()
+    */
+    boolean ReadFromFile(in SALOMEDS::TMPFile fileStream);
+    /*!
+      \brief Saves a table into a byte stream.
+      \return byte stream with table representation
+      \sa ReadFromFile()
+    */
     SALOMEDS::TMPFile SaveToFile();
   };
 
   //==========================================================================
-/*! \brief %AttributeTableOfReal interface
+  /*!
+    \brief Table of %integer values
 
-   This attribute allows to store a table of reals (indexing from 1 like in CASCADE)
-    and string titles of this table, of each row, of each column.
-<em>See \ref example21 for an example of usage of these methods in batchmode of %SALOME application.</em>
+    This attribute allows to store a table of %integer values. It is possible 
+    to specify titles for rows and columns. In addition, the unis labels can be
+    assigned to the rows. And finally, the table iself can have title.
 
-*/
+    \note The indices of rows and columns in the table start from 1.
+
+    <em>See \ref example21 for an example of usage of this attribute in batchmode of %SALOME application.</em>
+
+    \sa AttributeTable, AttributeTableOfReal, AttributeTableOfString
+  */
   //==========================================================================
 
-  interface AttributeTableOfReal : GenericAttribute
+  interface AttributeTableOfInteger : AttributeTable
   {
-//!  This exception is raised when an incorrect index is passed as parameter.
-    exception IncorrectIndex {};
-//!  This exception is raised when an incorrect length of the argument is passed as parameter.
-    exception IncorrectArgumentLength {};
+    /*!
+      \brief Appends new row to the table.
+      
+      If the length of the \a data parameter is greater than current number of columns
+      in the table, the table is automatically resized.
+      
+      \param data sequence of values which will be set as elements of the added row
+      \sa SetRow(), GetRow(), AddColumn()
+    */
+    void AddRow(in LongSeq data) raises(IncorrectArgumentLength);
+    /*!
+      \brief Replaces all the elements of the specified \a row with new values.
 
-    // titles: for table, for each row, for each column
-/*!
-   Sets the title of the table.
-*/
-    void SetTitle(in string theTitle);
-/*!
-  Returns the title of the table.
-*/
-    string GetTitle();
-/*!
-   Sets the title of a row with a definite index.
-*/
-    void SetRowTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
-/*!
-   Sets the titles for all rows of the table.
-*/
-    void SetRowTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
-/*!
-   Returns the titles of all rows of the table.
-*/
-    StringSeq GetRowTitles();
-/*!
-   Sets the title of a column with a definite index.
-*/
-    void SetColumnTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
-/*!
-   Sets the titles for all columns of the table.
-*/
-    void SetColumnTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
-/*!
-   Returns the titles of all columns of the table.
-*/
-    StringSeq GetColumnTitles();
+      Raises an exception if \a row is out of range or if the length of the
+      \a data parameter is not equal to the number of columns in the table.
 
-    //Rows units
-/*!
-   Sets the unit of a row with a definite index.
-*/
-    void SetRowUnit(in long theIndex, in string theUnit) raises(IncorrectIndex);
-/*!
-   Sets the units for all rows of the table.
-*/
-    void SetRowUnits(in StringSeq theUnits) raises(IncorrectArgumentLength);
-/*!
-   Returns the units of all rows of the table.
-*/
-    StringSeq GetRowUnits();
+      \param row row index
+      \param data sequence of values being set as values of the row
+      \sa GetRow(), AddRow(), SetColumn()
+    */
+    void SetRow(in long row, in LongSeq data) raises(IncorrectArgumentLength, IncorrectIndex);
+    /*!
+      \brief Returns all the values of the specified row in the table.
 
-    // table information
-/*!
-   Returns the number of rows of the table.
-*/
-    long GetNbRows();
-/*!
-   Returns the number of columns of the table.
-*/
-    long GetNbColumns();
+      Raises an exception if \a row is out of range.
+      
+      \note For empty cells 0 value is returned.
 
-    // operations with rows
-/*!
-   Adds a row to the end of the table.
-*/
-    void AddRow(in DoubleSeq theData) raises(IncorrectArgumentLength);
-/*!
-   Sets the values of all elements of the row.
-*/
-    void SetRow(in long theRow, in DoubleSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
-/*!
-   Returns the row of the table.
-*/
-    DoubleSeq GetRow(in long theRow) raises(IncorrectIndex);
+      \param row row index
+      \return sequence of values which are set as elements of the row.
+      \sa SetRow(), AddRow()
+    */
+    LongSeq GetRow(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Appends new column to the table.
+      
+      If the length of the \a data parameter is greater than current number of rows
+      in the table, the table is automatically resized.
+      
+      \param data sequence of values which will be set as elements of the added column
+      \sa SetColumn(), GetColumn(), AddRow()
+    */
+    void AddColumn(in LongSeq data) raises(IncorrectArgumentLength);
+    /*!
+      \brief Replaces all the elements of the specified column with new values.
 
-    // operations with columns
-/*!
-   Adds a column to the end of the table.
-*/
-    void AddColumn(in DoubleSeq theData) raises(IncorrectArgumentLength);
-/*!
-   Sets the values of all elements of the column.
-*/
-    void SetColumn(in long theColumn, in DoubleSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
-/*!
-   Returns the column of the table.
-*/
-    DoubleSeq GetColumn(in long theColumn) raises(IncorrectIndex);
+      Raises an exception if \a column is out of range or if the length of the
+      \a data parameter is not equal to the number of rows in the table.
 
-    // operations with elements
-/*!
-    Puts a value in the table.
-    \param theRow      The row, where the value will be placed.
-    \param theColumn   The column, where the value will be placed.
-*/
-    void PutValue(in double theValue, in long theRow, in long theColumn) raises(IncorrectIndex);
-/*!
-    Returns True if there is a value in the table.
-    \param theRow      The row containing the value
-    \param theColumn   The column containing the value
-*/
-    boolean HasValue(in long theRow, in long theColumn);
-/*!
-    Returns the value from the table.
-    \param theRow      The row containing the value
-    \param theColumn   The column containing the value
-*/
-    double GetValue(in long theRow, in long theColumn) raises(IncorrectIndex);
+      \param column column index
+      \param data sequence of values being set as values of the column
+      \sa GetColumn(), AddColumn(), SetRow()
+    */
+    void SetColumn(in long column, in LongSeq data) raises(IncorrectArgumentLength, IncorrectIndex);
+    /*!
+      \brief Returns all the values of the specified column in the table.
 
-/*!
-    Sets the max number of colums in the table.
-    \note It'd better to set it before filling the table.
-*/
-    void SetNbColumns(in long theNbColumns);
+      Raises an exception if \a column is out of range.
+      
+      \note For empty cells 0 value is returned.
+      
+      \param column column index
+      \return sequence of values which are set as elements of the column.
+      \sa SetColumn(), AddColumn()
+    */
+    LongSeq GetColumn(in long column) raises(IncorrectIndex);
+    /*!
+      \brief Puts a value to the table cell specified by \a row and \a column indices.
 
-/*!
-    Returns the indices of the row where the values are defined.
-*/
-    LongSeq GetRowSetIndices(in long theRow) raises(IncorrectIndex);
-    // operations with files
-/*!
-   Reads a table from a file.
-*/
-    boolean ReadFromFile(in SALOMEDS::TMPFile theStream);
-/*!
-   Saves a table into a file.
-*/
-    SALOMEDS::TMPFile SaveToFile();
+      If the \a row and/or \a column parameter(s) are greater than current number of rows/columns
+      in the table, the table is automatically resized.
+      
+      \param value  value being set to the table cell
+      \param row    row index
+      \param column column index
+      \sa GetValue(), HasValue()
+    */
+    void PutValue(in long value, in long row, in long column) raises(IncorrectIndex);
+    /*!
+      \brief Returns the value from the cell table.
+
+      Raises an exception if \a row or \a column is out of range or 
+      if value is not set for the specified table cell.
+      
+      \param row    row index
+      \param column column index
+      \return value assigned to the table cell
+      \sa PutValue(), HasValue()
+    */
+    long GetValue(in long row, in long column) raises(IncorrectIndex);
   };
 
-
-
   //==========================================================================
-/*! \brief %AttributeTableOfString interface
+  /*!
+    \brief Table of real values
 
-   This attribute allows to store a table of strings (indexing from 1 like in CASCADE)
-    and string titles of this table, of each row, of each column.
-<em>See \ref example21 for an example of usage of these methods in batchmode of %SALOME application.</em>
+    This attribute allows to store a table of real values. It is possible 
+    to specify titles for rows and columns. In addition, the unis labels can be
+    assigned to the rows. And finally, the table iself can have title.
 
-*/
+    \note The indices of rows and columns in the table start from 1.
+
+    <em>See \ref example22 for an example of usage of this attribute in batchmode of %SALOME application.</em>
+
+    \sa AttributeTable, AttributeTableOfInteger, AttributeTableOfString
+  */
   //==========================================================================
 
-  interface AttributeTableOfString : GenericAttribute
+  interface AttributeTableOfReal : AttributeTable
   {
-//!  This exception is raised when an incorrect index is passed as parameter.
-    exception IncorrectIndex {};
-//!  This exception is raised when an incorrect length of the argument is passed as parameter.
-    exception IncorrectArgumentLength {};
+    /*!
+      \brief Appends new row to the table.
+      
+      If the length of the \a data parameter is greater than current number of columns
+      in the table, the table is automatically resized.
+      
+      \param data sequence of values which will be set as elements of the added row
+      \sa SetRow(), GetRow(), AddColumn()
+    */
+    void AddRow(in DoubleSeq data) raises(IncorrectArgumentLength);
+    /*!
+      \brief Replaces all the elements of the specified \a row with new values.
 
-    // titles: for table, for each row, for each column
-/*!
-   Sets the title of the table.
-*/
-    void SetTitle(in string theTitle);
-/*!
-  Returns the title of the table.
-*/
-    string GetTitle();
-/*!
-   Sets the title of a row with a definite index.
-*/
-    void SetRowTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
-/*!
-   Sets the titles for all rows of the table.
-*/
-    void SetRowTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
-/*!
-   Returns the titles of all rows of the table.
-*/
-    StringSeq GetRowTitles();
-/*!
-   Sets the title of a column with a definite index.
-*/
-    void SetColumnTitle(in long theIndex, in string theTitle) raises(IncorrectIndex);
-/*!
-   Sets the titles for all columns of the table.
-*/
-    void SetColumnTitles(in StringSeq theTitles) raises(IncorrectArgumentLength);
-/*!
-   Returns the titles of all columns of the table.
-*/
-    StringSeq GetColumnTitles();
+      Raises an exception if \a row is out of range or if the length of the
+      \a data parameter is not equal to the number of columns in the table.
 
-    //Rows units
-/*!
-   Sets the unit of a row with a definite index.
-*/
-    void SetRowUnit(in long theIndex, in string theUnit) raises(IncorrectIndex);
-/*!
-   Sets the units for all rows of the table.
-*/
-    void SetRowUnits(in StringSeq theUnits) raises(IncorrectArgumentLength);
-/*!
-   Returns the units of all rows of the table.
-*/
-    StringSeq GetRowUnits();
+      \param row row index
+      \param data sequence of values being set as values of the row
+      \sa GetRow(), AddRow(), SetColumn()
+    */
+    void SetRow(in long row, in DoubleSeq data) raises(IncorrectArgumentLength, IncorrectIndex);
+    /*!
+      \brief Returns all the values of the specified row in the table.
 
-    // table information
-/*!
-   Returns the number of rows of the table.
-*/
-    long GetNbRows();
-/*!
-   Returns the number of columns of the table.
-*/
-    long GetNbColumns();
+      Raises an exception if \a row is out of range.
+      
+      \note For empty cells 0.0 value is returned.
+      
+      \param row row index
+      \return sequence of values which are set as elements of the row.
+      \sa SetRow(), AddRow()
+    */
+    DoubleSeq GetRow(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Appends new column to the table.
+      
+      If the length of the \a data parameter is greater than current number of rows
+      in the table, the table is automatically resized.
+      
+      \param data sequence of values which will be set as elements of the added column
+      \sa SetColumn(), GetColumn(), AddRow()
+    */
+    void AddColumn(in DoubleSeq data) raises(IncorrectArgumentLength);
+    /*!
+      \brief Replaces all the elements of the specified column with new values.
 
-    // operations with rows
-/*!
-   Adds a row to the end of the table.
-*/
-    void AddRow(in StringSeq theData) raises(IncorrectArgumentLength);
-/*!
-   Sets the values of all elements of the row.
-*/
-    void SetRow(in long theRow, in StringSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
-/*!
-   Returns the row of the table.
-*/
-    StringSeq GetRow(in long theRow) raises(IncorrectIndex);
+      Raises an exception if \a column is out of range or if the length of the
+      \a data parameter is not equal to the number of rows in the table.
 
-    // operations with columns
-/*!
-   Adds a column to the end of the table.
-*/
-    void AddColumn(in StringSeq theData) raises(IncorrectArgumentLength);
-/*!
-   Sets the values of all elements of the column.
-*/
-    void SetColumn(in long theColumn, in StringSeq theData) raises(IncorrectArgumentLength, IncorrectIndex);
-/*!
-   Returns the column of the table.
-*/
-    StringSeq GetColumn(in long theColumn) raises(IncorrectIndex);
+      \param column column index
+      \param data sequence of values being set as values of the column
+      \sa GetColumn(), AddColumn(), SetRow()
+    */
+    void SetColumn(in long column, in DoubleSeq data) raises(IncorrectArgumentLength, IncorrectIndex);
+    /*!
+      \brief Returns all the values of the specified column in the table.
 
-    // operations with elements
-/*!
-    Puts a value in the table.
-    \param theRow      The row, where the value will be placed.
-    \param theColumn   The column, where the value will be placed.
-*/
-    void PutValue(in string theValue, in long theRow, in long theColumn) raises(IncorrectIndex);
-/*!
-    Returns True if there is a value in the table.
-    \param theRow      The row containing the value
-    \param theColumn   The column containing the value
-*/
-    boolean HasValue(in long theRow, in long theColumn);
-/*!
-    Returns the value from the table.
-    \param theRow      The row containing the value
-    \param theColumn   The column containing the value
-*/
-    string GetValue(in long theRow, in long theColumn) raises(IncorrectIndex);
+      Raises an exception if \a column is out of range.
+      
+      \note For empty cells 0.0 value is returned.
 
-/*!
-    Sets the max number of colums in the table.
-    \note It'd better to set it before filling the table.
-*/
-    void SetNbColumns(in long theNbColumns);
+      \param column column index
+      \return sequence of values which are set as elements of the column.
+      \sa SetColumn(), AddColumn()
+    */
+    DoubleSeq GetColumn(in long column) raises(IncorrectIndex);
+    /*!
+      \brief Puts a value to the table cell specified by \a row and \a column indices.
 
-/*!
-    Returns the indices of the row where the values are defined.
-*/
-    LongSeq GetRowSetIndices(in long theRow) raises(IncorrectIndex);
-    // operations with files
-/*!
-   Reads a table from a file.
-*/
-    boolean ReadFromFile(in SALOMEDS::TMPFile theStream);
-/*!
-   Saves a table into a file.
-*/
-    SALOMEDS::TMPFile SaveToFile();
+      If the \a row and/or \a column parameter(s) are greater than current number of rows/columns
+      in the table, the table is automatically resized.
+      
+      \param value  value being set to the table cell
+      \param row    row index
+      \param column column index
+      \sa GetValue(), HasValue()
+    */
+    void PutValue(in double value, in long row, in long volumn) raises(IncorrectIndex);
+    /*!
+      \brief Returns the value from the cell table.
+
+      Raises an exception if \a row or \a column is out of range or 
+      if value is not set for the specified table cell.
+      
+      \param row    row index
+      \param column column index
+      \return value assigned to the table cell
+      \sa PutValue(), HasValue()
+    */
+    double GetValue(in long row, in long column) raises(IncorrectIndex);
   };
 
+  //==========================================================================
+  /*!
+    \brief Table of string values
+
+    This attribute allows to store a table of string values. It is possible 
+    to specify titles for rows and columns. In addition, the unis labels can be
+    assigned to the rows. And finally, the table iself can have title.
+
+    \note The indices of rows and columns in the table start from 1.
+    \sa AttributeTable, AttributeTableOfInteger, AttributeTableOfReal
+  */
+  //==========================================================================
+  interface AttributeTableOfString : AttributeTable
+  {
+    /*!
+      \brief Appends new row to the table.
+      
+      If the length of the \a data parameter is greater than current number of columns
+      in the table, the table is automatically resized.
+      
+      \param data sequence of values which will be set as elements of the added row
+      \sa SetRow(), GetRow(), AddColumn()
+    */
+    void AddRow(in StringSeq data) raises(IncorrectArgumentLength);
+    /*!
+      \brief Replaces all the elements of the specified \a row with new values.
+
+      Raises an exception if \a row is out of range or if the length of the
+      \a data parameter is not equal to the number of columns in the table.
+
+      \param row row index
+      \param data sequence of values being set as values of the row
+      \sa GetRow(), AddRow(), SetColumn()
+    */
+    void SetRow(in long row, in StringSeq data) raises(IncorrectArgumentLength, IncorrectIndex);
+    /*!
+      \brief Returns all the values of the specified row in the table.
+
+      Raises an exception if \a row is out of range.
+      
+      \note For empty cells empty string is returned.
+
+      \param row row index
+      \return sequence of values which are set as elements of the row.
+      \sa SetRow(), AddRow()
+    */
+    StringSeq GetRow(in long row) raises(IncorrectIndex);
+    /*!
+      \brief Appends new column to the table.
+      
+      If the length of the \a data parameter is greater than current number of rows
+      in the table, the table is automatically resized.
+      
+      \param data sequence of values which will be set as elements of the added column
+      \sa SetColumn(), GetColumn(), AddRow()
+    */
+    void AddColumn(in StringSeq data) raises(IncorrectArgumentLength);
+    /*!
+      \brief Replaces all the elements of the specified column with new values.
+
+      Raises an exception if \a column is out of range or if the length of the
+      \a data parameter is not equal to the number of rows in the table.
+
+      \param column column index
+      \param data sequence of values being set as values of the column
+      \sa GetColumn(), AddColumn(), SetRow()
+    */
+    void SetColumn(in long column, in StringSeq data) raises(IncorrectArgumentLength, IncorrectIndex);
+    /*!
+      \brief Returns all the values of the specified column in the table.
+
+      Raises an exception if \a column is out of range.
+      
+      \note For empty cells empty string is returned.
+
+      \param column column index
+      \return sequence of values which are set as elements of the column.
+      \sa SetColumn(), AddColumn()
+    */
+    StringSeq GetColumn(in long column) raises(IncorrectIndex);
+    /*!
+      \brief Puts a value to the table cell specified by \a row and \a column indices.
+
+      If the \a row and/or \a column parameter(s) are greater than current number of rows/columns
+      in the table, the table is automatically resized.
+      
+      \param value  value being set to the table cell
+      \param row    row index
+      \param column column index
+      \sa GetValue(), HasValue()
+    */
+    void PutValue(in string value, in long row, in long column) raises(IncorrectIndex);
+    /*!
+      \brief Returns the value from the cell table.
+
+      Raises an exception if \a row or \a column is out of range or 
+      if value is not set for the specified table cell.
+      
+      \param row    row index
+      \param column column index
+      \return value assigned to the table cell
+      \sa PutValue(), HasValue()
+    */
+    string GetValue(in long row, in long column) raises(IncorrectIndex);
+  };
 
   //==========================================================================
 /*! \brief %AttributeStudyProperties interface
