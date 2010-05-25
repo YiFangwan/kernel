@@ -34,6 +34,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_GenericObj)
 #include CORBA_SERVER_HEADER(SALOMEDS)
+#include CORBA_SERVER_HEADER(SALOME_Observer)
 
 #include <stdio.h>
 
@@ -53,6 +54,9 @@ private:
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
   static std::map<SALOMEDSImpl_Study*, SALOMEDS_Study_i*> _mapOfStudies;
+  typedef std::list<SALOME::Observer_var> ObsList;
+  typedef ObsList::iterator ObsListIter;
+  ObsList myObservers;
 
 public:
 
@@ -344,5 +348,8 @@ public:
   virtual SALOMEDSImpl_Study* GetImpl() { return _impl; }
 
   virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+
+  virtual void attach(SALOME::Observer_ptr theObs);
+
 };
 #endif

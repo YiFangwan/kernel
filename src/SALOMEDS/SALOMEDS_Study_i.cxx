@@ -1149,6 +1149,16 @@ void SALOMEDS_Study_i::EnableUseCaseAutoFilling(CORBA::Boolean isEnabled)
   }
 }
 
+//============================================================================
+/*! Function : attach
+ *  Purpose  : This function attach an observer to the study
+ */
+//============================================================================
+void SALOMEDS_Study_i::attach(SALOME::Observer_ptr theObs){
+	SALOMEDS::Locker lock;
+  _impl->attach(theObs);
+}
+
 //===========================================================================
 //   PRIVATE FUNCTIONS
 //===========================================================================

@@ -41,6 +41,7 @@
 #include "SALOMEDSImpl_Tool.hxx"
 #include "SALOMEDSImpl_IParameters.hxx"
 #include "SALOMEDSImpl_ScalarVariable.hxx"
+#include "SALOMEDS_Study_i.hxx"
 
 #include <fstream>
 #include <sstream>
@@ -1982,4 +1983,59 @@ std::vector<std::string> SALOMEDSImpl_Study::GetIORs()
     anIORs.push_back(MI->first);
 
   return anIORs;
+}
+
+//============================================================================
+/*! Function : addSO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been added
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::addSO_Notification (const SALOMEDSImpl_SObject& theSObject) {
+  CORBA::String_var event="ADD";
+  CORBA::String_var anID=theSObject.GetID().c_str();
+  for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
+    {
+      (*it)->notifyObserver(anID,event);
+    }
+  return true; // NGE return always true but can be modified if needed
+}
+
+//============================================================================
+/*! Function : removeSO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been removed
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::removeSO_Notification (const SALOMEDSImpl_SObject& theSObject) {
+  CORBA::String_var event="REMOVE";
+  CORBA::String_var anID=theSObject.GetID().c_str();
+  for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
+    {
+      (*it)->notifyObserver(anID,event);
+    }
+  return true; // NGE return always true but can be modified if needed
+}
+
+//============================================================================
+/*! Function : modifySO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been modified
+ */
+//============================================================================
+bool SALOMEDSImpl_Study::modifySO_Notification (const SALOMEDSImpl_SObject& theSObject) {
+  CORBA::String_var event="MODIFY";
+  CORBA::String_var anID=theSObject.GetID().c_str();
+  for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
+    {
+      (*it)->notifyObserver(anID,event);
+    }
+  return true; // NGE return always true but can be modified if needed
+}
+
+//============================================================================
+/*! Function : attach
+ *  Purpose  : register an Observer
+ */
+//============================================================================
+void SALOMEDSImpl_Study::attach(SALOME::Observer_ptr theObs) 
+{
+   myObservers.push_back(SALOME::Observer::_duplicate(theObs));
 }

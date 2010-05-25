@@ -33,6 +33,14 @@
 
 #include "SALOME_Exception.idl"
 #include "SALOME_GenericObj.idl"
+#include "SALOME_Observer.idl"
+
+module SALOME {
+   
+   interface Observer;
+   
+};
+
 
 /*! \brief
      This package contains the interfaces used for creation, management
@@ -539,7 +547,13 @@ during each working session.
    \return Variables list.
 */
     ListOfListOfStrings ParseVariables( in string theVars );
-    
+
+/*!
+     Attach an observer to the Study
+
+    \param theObserver
+*/
+     void attach(in SALOME::Observer theObserver);   
   };
 
   //==========================================================================
@@ -802,6 +816,7 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     \param theValue The value to be set to the IOR attribute.
 */
     void SetIOR(in SObject theSO, in string theValue) raises (LockProtection);
+
   };
 
   //==========================================================================

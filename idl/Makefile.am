@@ -50,7 +50,8 @@ BASEIDL_FILES = \
   SALOME_PyNode.idl \
   Palm_Ports.idl \
   SALOME_PACOExtension.idl \
-  SALOME_ParamPorts.idl
+  SALOME_ParamPorts.idl \
+  SALOME_Observer.idl
 
 MPIIDL_FILES = \
   SALOME_MPIObject.idl \
@@ -101,7 +102,8 @@ BASEIDL_SOURCES =\
   Calcium_PortsSK.cc \
   Palm_PortsSK.cc \
   SALOME_PACOExtensionSK.cc \
-  SALOME_ParamPortsSK.cc
+  SALOME_ParamPortsSK.cc \
+  SALOME_ObserverSK.cc
 
 DYNIDL_SRCS = \
   SALOME_PortsDynSK.cc  Calcium_PortsDynSK.cc     SALOME_ContainerManagerDynSK.cc \
@@ -109,7 +111,7 @@ DYNIDL_SRCS = \
   SALOMEDSDynSK.cc      SALOME_SessionDynSK.cc    SALOME_RessourcesCatalogDynSK.cc \
   DSC_EnginesDynSK.cc   SALOME_ComponentDynSK.cc  SALOME_GenericObjDynSK.cc \
   Palm_PortsDynSK.cc    SALOME_ExceptionDynSK.cc  SALOMEDS_AttributesDynSK.cc \
-  LoggerDynSK.cc        SALOME_PACOExtensionDynSK.cc SALOME_ParamPortsDynSK.cc SALOME_PyNodeDynSK.cc
+  LoggerDynSK.cc        SALOME_PACOExtensionDynSK.cc SALOME_ParamPortsDynSK.cc SALOME_PyNodeDynSK.cc SALOME_ObserverDynSK.cc
 
 MPIIDL_SOURCES = \
   SALOME_MPIObjectSK.cc \
