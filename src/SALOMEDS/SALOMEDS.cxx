@@ -159,5 +159,13 @@ SALOMEDS_EXPORT
   return builder->GetBuilder();
 }
 
+/*
+SALOMEDS_EXPORT
+  SALOMEDSClient_Observer* ObserverFactory(SALOME::Observer_ptr theObserver)
+{
+  if(CORBA::is_nil(theObserver)) return NULL;
+  return new SALOMEDS_Observer(theObserver);
+}
+*/
 
 }

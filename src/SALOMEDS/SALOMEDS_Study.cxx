@@ -999,3 +999,15 @@ _PTR(AttributeParameter) SALOMEDS_Study::GetModuleParameters(const std::string& 
   }
   return _PTR(AttributeParameter)(AP);
 }
+
+void SALOMEDS_Study::attach(SALOME::Observer_ptr theObserver)
+{
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+    _local_impl->attach(theObserver);
+  }
+  else {
+    _corba_impl->attach(theObserver);
+  }
+}
+

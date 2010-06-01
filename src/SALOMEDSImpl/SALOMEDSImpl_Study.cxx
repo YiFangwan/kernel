@@ -46,6 +46,8 @@
 #include <fstream>
 #include <sstream>
 
+#include "utilities.h"
+
 #define DIRECTORYID       16661
 #define FILELOCALID       26662
 #define FILEID            "FILE: "
@@ -1991,6 +1993,7 @@ std::vector<std::string> SALOMEDSImpl_Study::GetIORs()
  */
 //============================================================================
 bool SALOMEDSImpl_Study::addSO_Notification (const SALOMEDSImpl_SObject& theSObject) {
+  MESSAGE("Notification ADD called")
   CORBA::String_var event="ADD";
   CORBA::String_var anID=theSObject.GetID().c_str();
   for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
@@ -2006,6 +2009,7 @@ bool SALOMEDSImpl_Study::addSO_Notification (const SALOMEDSImpl_SObject& theSObj
  */
 //============================================================================
 bool SALOMEDSImpl_Study::removeSO_Notification (const SALOMEDSImpl_SObject& theSObject) {
+  MESSAGE("Notification REMOVE called")
   CORBA::String_var event="REMOVE";
   CORBA::String_var anID=theSObject.GetID().c_str();
   for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
@@ -2021,6 +2025,7 @@ bool SALOMEDSImpl_Study::removeSO_Notification (const SALOMEDSImpl_SObject& theS
  */
 //============================================================================
 bool SALOMEDSImpl_Study::modifySO_Notification (const SALOMEDSImpl_SObject& theSObject) {
+  MESSAGE("Notification MODIFY called")
   CORBA::String_var event="MODIFY";
   CORBA::String_var anID=theSObject.GetID().c_str();
   for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)

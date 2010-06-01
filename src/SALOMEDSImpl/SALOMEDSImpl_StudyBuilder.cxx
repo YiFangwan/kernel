@@ -91,6 +91,7 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const std::strin
   SALOMEDSImpl_SComponent so =  _study->GetSComponent (NL);
 
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
+  _study->addSO_Notification(so);
 
   _doc->SetModified(true);
 
@@ -148,6 +149,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObject(const SALOMEDSImpl_SOb
   
   SALOMEDSImpl_SObject so = _study->GetSObject(NewLab);
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
+  _study->addSO_Notification(so);
 
   _doc->SetModified(true);  
   return so;
@@ -172,6 +174,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObjectToTag(const SALOMEDSImp
   SALOMEDSImpl_SObject so = _study->GetSObject(NewLab);
 
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
+  _study->addSO_Notification(so);
 
   _doc->SetModified(true);  
   return so;
@@ -192,6 +195,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObject(const SALOMEDSImpl_SObject& anObjec
   }
 
   if(_callbackOnRemove) _callbackOnRemove->OnRemoveSObject(anObject);
+  _study->removeSO_Notification(anObject);
 
   DF_Label Lab = anObject.GetLabel();
 
@@ -229,6 +233,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const SALOMEDSImpl_SObj
   }
 
   if(_callbackOnRemove) _callbackOnRemove->OnRemoveSObject(anObject);
+  _study->removeSO_Notification(anObject);
 
   DF_Label Lab = anObject.GetLabel();
 
@@ -567,6 +572,7 @@ bool SALOMEDSImpl_StudyBuilder::Addreference(const SALOMEDSImpl_SObject& me,
   SALOMEDSImpl_AttributeTarget::Set(RefLab)->Add(SALOMEDSImpl_Study::SObject(Lab));
 
   if(_callbackOnRemove && Lab.IsDescendant(_doc->Main())) _callbackOnRemove->OnRemoveSObject(me);
+  _study->removeSO_Notification(me);
   
   return true;
 }
@@ -924,6 +930,7 @@ bool SALOMEDSImpl_StudyBuilder::SetName(const SALOMEDSImpl_SObject& theSO,
   SALOMEDSImpl_AttributeName::Set(theSO.GetLabel(), theValue);
 
   _doc->SetModified(true);  
+  _study->modifySO_Notification(theSO);
 
   return true;
 }
@@ -945,6 +952,7 @@ bool SALOMEDSImpl_StudyBuilder::SetComment(const SALOMEDSImpl_SObject& theSO,
   SALOMEDSImpl_AttributeComment::Set(theSO.GetLabel(), theValue);
 
   _doc->SetModified(true);  
+  _study->modifySO_Notification(theSO);
 
   return true;
 }
@@ -966,6 +974,7 @@ bool SALOMEDSImpl_StudyBuilder::SetIOR(const SALOMEDSImpl_SObject& theSO,
   SALOMEDSImpl_AttributeIOR::Set(theSO.GetLabel(), theValue);
 
   _doc->SetModified(true);  
+  _study->modifySO_Notification(theSO);
 
   return true;
 }
