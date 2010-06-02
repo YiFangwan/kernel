@@ -41,7 +41,6 @@
 #include "SALOMEDSImpl_Tool.hxx"
 #include "SALOMEDSImpl_IParameters.hxx"
 #include "SALOMEDSImpl_ScalarVariable.hxx"
-#include "SALOMEDS_Study_i.hxx"
 
 #include <fstream>
 #include <sstream>

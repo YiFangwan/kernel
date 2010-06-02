@@ -98,7 +98,6 @@ COMMON_CPPFLAGS=\
 	-I$(srcdir)/../HDFPersist \
 	-I$(srcdir)/../DF \
 	-I$(srcdir)/../GenericObj \
-	-I$(srcdir)/../SALOMEDS \
 	-I$(top_builddir)/idl \
 	-I$(top_builddir) \
 	@HDF5_INCLUDES@ \
