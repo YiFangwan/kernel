@@ -74,9 +74,10 @@ SALOMEDSImpl_StudyBuilder::~SALOMEDSImpl_StudyBuilder()
 //============================================================================
 SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const std::string& DataType)
 {
+  std::cerr << "I'm here newComponent " << std::endl;
   _errorCode = "";
   CheckLocked();
-
+  
   SALOMEDSImpl_SComponent sco;
 
   if(DataType.size() == 0) return sco;
@@ -138,6 +139,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveComponent(const SALOMEDSImpl_SComponent& a
 //============================================================================
 SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObject(const SALOMEDSImpl_SObject& theFatherObject)
 {
+  std::cerr << "I'm here newObject " << std::endl;
   _errorCode = "";
   CheckLocked();
 
@@ -195,7 +197,6 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObject(const SALOMEDSImpl_SObject& anObjec
   }
 
   if(_callbackOnRemove) _callbackOnRemove->OnRemoveSObject(anObject);
-  _study->removeSO_Notification(anObject);
 
   DF_Label Lab = anObject.GetLabel();
 
@@ -214,6 +215,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObject(const SALOMEDSImpl_SObject& anObjec
   Lab.ForgetAllAttributes();
  
   _doc->SetModified(true);  
+  _study->removeSO_Notification(anObject);
     
   return true;
 }
@@ -233,7 +235,6 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const SALOMEDSImpl_SObj
   }
 
   if(_callbackOnRemove) _callbackOnRemove->OnRemoveSObject(anObject);
-  _study->removeSO_Notification(anObject);
 
   DF_Label Lab = anObject.GetLabel();
 
@@ -265,6 +266,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveObjectWithChildren(const SALOMEDSImpl_SObj
   Lab.ForgetAllAttributes(true);
 
   _doc->SetModified(true);  
+  _study->removeSO_Notification(anObject);
   
   return true;
 }
@@ -417,7 +419,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
   } else {
     _errorCode = "No persistent file";   
   }
-
+  
   return true;
 }
 
@@ -547,6 +549,7 @@ bool SALOMEDSImpl_StudyBuilder::RemoveAttribute(const SALOMEDSImpl_SObject& anOb
   Lab.ForgetAttribute (SALOMEDSImpl_SObject::GetGUID(aTypeOfAttribute));
     
   _doc->SetModified(true);  
+  _study->modifySO_Notification(anObject);
     
   return true;
 }
