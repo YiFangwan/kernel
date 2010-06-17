@@ -45,8 +45,6 @@
 #include <fstream>
 #include <sstream>
 
-#include "utilities.h"
-
 #define DIRECTORYID       16661
 #define FILELOCALID       26662
 #define FILEID            "FILE: "
@@ -1991,15 +1989,9 @@ std::vector<std::string> SALOMEDSImpl_Study::GetIORs()
  *  Purpose  : This function tells all the observers that a SO has been added
  */
 //============================================================================
-bool SALOMEDSImpl_Study::addSO_Notification (const SALOMEDSImpl_SObject& theSObject) {
-  MESSAGE("Notification ADD called")
-  CORBA::String_var event="ADD";
-  CORBA::String_var anID=theSObject.GetID().c_str();
-  for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
-    {
-      (*it)->notifyObserver(anID,event);
-    }
-  return true; // NGE return always true but can be modified if needed
+bool SALOMEDSImpl_Study::addSO_Notification (const SALOMEDSImpl_SObject& theSObject)
+{
+  return _notifier->addSO_Notification(theSObject);
 }
 
 //============================================================================
@@ -2007,15 +1999,9 @@ bool SALOMEDSImpl_Study::addSO_Notification (const SALOMEDSImpl_SObject& theSObj
  *  Purpose  : This function tells all the observers that a SO has been removed
  */
 //============================================================================
-bool SALOMEDSImpl_Study::removeSO_Notification (const SALOMEDSImpl_SObject& theSObject) {
-  MESSAGE("Notification REMOVE called")
-  CORBA::String_var event="REMOVE";
-  CORBA::String_var anID=theSObject.GetID().c_str();
-  for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
-    {
-      (*it)->notifyObserver(anID,event);
-    }
-  return true; // NGE return always true but can be modified if needed
+bool SALOMEDSImpl_Study::removeSO_Notification (const SALOMEDSImpl_SObject& theSObject)
+{
+  return _notifier->removeSO_Notification(theSObject);
 }
 
 //============================================================================
@@ -2023,23 +2009,17 @@ bool SALOMEDSImpl_Study::removeSO_Notification (const SALOMEDSImpl_SObject& theS
  *  Purpose  : This function tells all the observers that a SO has been modified
  */
 //============================================================================
-bool SALOMEDSImpl_Study::modifySO_Notification (const SALOMEDSImpl_SObject& theSObject) {
-  MESSAGE("Notification MODIFY called")
-  CORBA::String_var event="MODIFY";
-  CORBA::String_var anID=theSObject.GetID().c_str();
-  for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
-    {
-      (*it)->notifyObserver(anID,event);
-    }
-  return true; // NGE return always true but can be modified if needed
+bool SALOMEDSImpl_Study::modifySO_Notification (const SALOMEDSImpl_SObject& theSObject) 
+{
+  return _notifier->modifySO_Notification(theSObject);
 }
 
 //============================================================================
-/*! Function : attach
- *  Purpose  : register an Observer
+/*! Function : setNotifier
+ *  Purpose  : register a notifier
  */
 //============================================================================
-void SALOMEDSImpl_Study::attach(SALOME::Observer_ptr theObs) 
+void SALOMEDSImpl_Study::setNotifier(SALOMEDSImpl_AbstractCallback* notifier) 
 {
-   myObservers.push_back(SALOME::Observer::_duplicate(theObs));
+  _notifier=notifier;
 }

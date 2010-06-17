@@ -42,6 +42,7 @@
 #include "SALOMEDSImpl_AttributeParameter.hxx"
 #include "SALOMEDSImpl_ChildIterator.hxx"
 #include "SALOMEDSImpl_IParameters.hxx"
+#include "SALOMEDSImpl_Callback.hxx"
 
 #include "DF_Label.hxx"
 #include "DF_Attribute.hxx"
@@ -55,6 +56,81 @@
 #include <unistd.h>
 #endif
 
+class Notifier: public SALOMEDSImpl_AbstractCallback
+{
+public:
+//============================================================================
+/*! Function : addSO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been added
+ */
+//============================================================================
+
+  virtual bool addSO_Notification(const SALOMEDSImpl_SObject& theSObject)
+    {
+      //MESSAGE("Notification ADD called")
+      CORBA::String_var event="ADD";
+      CORBA::String_var anID=theSObject.GetID().c_str();
+      for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
+        {
+          (*it)->notifyObserver(anID,event);
+        }
+      return true; // NGE return always true but can be modified if needed
+    }
+
+//============================================================================
+/*! Function : removeSO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been removed
+ */
+//============================================================================
+
+  virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& theSObject)
+    {
+      //MESSAGE("Notification REMOVE called")
+      CORBA::String_var event="REMOVE";
+      CORBA::String_var anID=theSObject.GetID().c_str();
+      for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
+        {
+          (*it)->notifyObserver(anID,event);
+        }
+      return true; // NGE return always true but can be modified if needed
+    }
+
+//============================================================================
+/*! Function : modifySO_Notification
+ *  Purpose  : This function tells all the observers that a SO has been modified
+ */
+//============================================================================
+
+  virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject)
+    {
+      //MESSAGE("Notification MODIFY called")
+      CORBA::String_var event="MODIFY";
+      CORBA::String_var anID=theSObject.GetID().c_str();
+      for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
+        {
+          (*it)->notifyObserver(anID,event);
+        }
+      return true; // NGE return always true but can be modified if needed
+    }
+
+//============================================================================
+/*! Function : attach
+ *  Purpose  : register an Observer
+ */
+//============================================================================
+
+  virtual void attach(SALOME::Observer_ptr theObs)
+    {
+      myObservers.push_back(SALOME::Observer::_duplicate(theObs));
+    }
+
+private:
+    typedef std::list<SALOME::Observer_var> ObsList;
+    typedef ObsList::iterator ObsListIter;
+    ObsList myObservers;
+};
+
+
 std::map<SALOMEDSImpl_Study* , SALOMEDS_Study_i*> SALOMEDS_Study_i::_mapOfStudies;
 
 //============================================================================
@@ -67,6 +143,8 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(SALOMEDSImpl_Study* theImpl,
 {
   _orb = CORBA::ORB::_duplicate(orb);
   _impl = theImpl;
+  _notifier = new Notifier;
+  theImpl->setNotifier(_notifier);
 
   _builder = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);  
 }
@@ -1154,9 +1232,9 @@ void SALOMEDS_Study_i::EnableUseCaseAutoFilling(CORBA::Boolean isEnabled)
  *  Purpose  : This function attach an observer to the study
  */
 //============================================================================
-void SALOMEDS_Study_i::attach(SALOME::Observer_ptr theObs){
-	SALOMEDS::Locker lock;
-  _impl->attach(theObs);
+void SALOMEDS_Study_i::attach(SALOME::Observer_ptr theObs)
+{
+  _notifier->attach(theObs);
 }
 
 //===========================================================================

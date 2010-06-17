@@ -74,7 +74,7 @@ SALOMEDSImpl_StudyBuilder::~SALOMEDSImpl_StudyBuilder()
 //============================================================================
 SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const std::string& DataType)
 {
-  std::cerr << "I'm here newComponent " << std::endl;
+  //std::cerr << "I'm here newComponent " << std::endl;
   _errorCode = "";
   CheckLocked();
   
@@ -139,7 +139,6 @@ bool SALOMEDSImpl_StudyBuilder::RemoveComponent(const SALOMEDSImpl_SComponent& a
 //============================================================================
 SALOMEDSImpl_SObject SALOMEDSImpl_StudyBuilder::NewObject(const SALOMEDSImpl_SObject& theFatherObject)
 {
-  std::cerr << "I'm here newObject " << std::endl;
   _errorCode = "";
   CheckLocked();
 
@@ -575,7 +574,6 @@ bool SALOMEDSImpl_StudyBuilder::Addreference(const SALOMEDSImpl_SObject& me,
   SALOMEDSImpl_AttributeTarget::Set(RefLab)->Add(SALOMEDSImpl_Study::SObject(Lab));
 
   if(_callbackOnRemove && Lab.IsDescendant(_doc->Main())) _callbackOnRemove->OnRemoveSObject(me);
-  _study->removeSO_Notification(me);
   
   return true;
 }

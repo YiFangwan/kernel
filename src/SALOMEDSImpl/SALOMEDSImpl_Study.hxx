@@ -32,7 +32,6 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <list>
 
 #include "DF_Document.hxx"
 #include "DF_Label.hxx"
@@ -51,7 +50,6 @@
 #include "SALOMEDSImpl_Driver.hxx" 
 #include "SALOMEDSImpl_ChildIterator.hxx" 
 #include "SALOMEDSImpl_GenericVariable.hxx"
-#include "SALOME_Observer.hh"
 
 class SALOMEDSImpl_StudyManager;
 class SALOMEDSImpl_GenericAttribute;
@@ -72,15 +70,12 @@ private:
   SALOMEDSImpl_Callback*   _cb;
   SALOMEDSImpl_StudyBuilder*   _builder;
   SALOMEDSImpl_UseCaseBuilder* _useCaseBuilder;
+  SALOMEDSImpl_AbstractCallback*   _notifier;
 
   std::map<std::string, SALOMEDSImpl_SObject> _mapOfSO;
   std::map<std::string, SALOMEDSImpl_SComponent> _mapOfSCO;
   std::map<std::string, DF_Label> myIORLabels;
   std::vector<SALOMEDSImpl_GenericVariable*> myNoteBookVars;
-
-  typedef std::list<SALOME::Observer_var> ObsList;
-  typedef ObsList::iterator ObsListIter;
-  ObsList myObservers;
 
   SALOMEDSImpl_SObject   _FindObject(const SALOMEDSImpl_SObject& SO,
     const std::string& anObjectName,
@@ -323,7 +318,7 @@ public:
   virtual bool addSO_Notification(const SALOMEDSImpl_SObject& theSObject);
   virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& theSObject);
   virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject);
-  virtual void attach(SALOME::Observer_ptr theObs);
+  virtual void setNotifier(SALOMEDSImpl_AbstractCallback* notifier);
 
 
   friend class SALOMEDSImpl_StudyManager;    

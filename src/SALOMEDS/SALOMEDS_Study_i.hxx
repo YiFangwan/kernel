@@ -47,6 +47,8 @@
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
 
+class Notifier;
+
 class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
 private:
@@ -54,9 +56,7 @@ private:
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
   static std::map<SALOMEDSImpl_Study*, SALOMEDS_Study_i*> _mapOfStudies;
-  typedef std::list<SALOME::Observer_var> ObsList;
-  typedef ObsList::iterator ObsListIter;
-  ObsList myObservers;
+  Notifier*                      _notifier;
 
 public:
 

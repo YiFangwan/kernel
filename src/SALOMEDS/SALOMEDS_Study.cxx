@@ -1002,12 +1002,7 @@ _PTR(AttributeParameter) SALOMEDS_Study::GetModuleParameters(const std::string& 
 
 void SALOMEDS_Study::attach(SALOME::Observer_ptr theObserver)
 {
-  if (_isLocal) {
-    SALOMEDS::Locker lock;
-    _local_impl->attach(theObserver);
-  }
-  else {
-    _corba_impl->attach(theObserver);
-  }
+  if(CORBA::is_nil(_corba_impl)) GetStudy(); //If CORBA implementation is null then retrieve it
+  _corba_impl->attach(theObserver);
 }
 
