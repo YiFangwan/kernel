@@ -420,11 +420,9 @@ SALOME_ContainerManager::GiveContainer(const Engines::ContainerParameters& param
   logFilename += "/";
 #endif
   logFilename += _NS->ContainerName(params)+"_"+ resource_selected +"_"+getenv( "USER" ) ;
-#ifdef WNT
   std::ostringstream tmp;
   tmp << "_" << getpid();
   logFilename += tmp.str();
-#endif
   logFilename += ".log" ;
   command += " > " + logFilename + " 2>&1";
 #ifdef WNT
@@ -1065,7 +1063,7 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
   status = system(command.c_str());
   if( status == 0 ){
     std::ifstream fp(tmpFile.c_str(),std::ios::in);
-    fp >> zeronode;
+    while(fp >> zeronode);
   }
 
   RmTmpFile(tmpFile);
