@@ -937,7 +937,6 @@ bool SALOMEDSImpl_StudyBuilder::SetName(const SALOMEDSImpl_SObject& theSO,
   SALOMEDSImpl_AttributeName::Set(theSO.GetLabel(), theValue);
 
   _doc->SetModified(true);  
-  _study->modifySO_Notification(theSO);
 
   return true;
 }
@@ -959,7 +958,6 @@ bool SALOMEDSImpl_StudyBuilder::SetComment(const SALOMEDSImpl_SObject& theSO,
   SALOMEDSImpl_AttributeComment::Set(theSO.GetLabel(), theValue);
 
   _doc->SetModified(true);  
-  _study->modifySO_Notification(theSO);
 
   return true;
 }
@@ -981,7 +979,6 @@ bool SALOMEDSImpl_StudyBuilder::SetIOR(const SALOMEDSImpl_SObject& theSO,
   SALOMEDSImpl_AttributeIOR::Set(theSO.GetLabel(), theValue);
 
   _doc->SetModified(true);  
-  _study->modifySO_Notification(theSO);
 
   return true;
 }
