@@ -87,7 +87,7 @@ then
    LXLIB=""
 fi
 
-LOCAL_INCLUDES="$OGL_INCLUDES"
+LOCAL_INCLUDES="$OGL_INCLUDES -DVTK_EXCLUDE_STRSTREAM_HEADERS"
 LOCAL_LIBS="-lvtkCommon -lvtkGraphics -lvtkImaging -lvtkFiltering -lvtkIO -lvtkRendering -lvtkHybrid -lvtkParallel -lvtkWidgets $LXLIB -lX11 -lXt"
 TRY_LINK_LIBS="-lvtkCommon $LXLIB -lX11 -lXt"
 
