@@ -51,6 +51,15 @@
 #define VARIABLE_SEPARATOR  ':'
 #define OPERATION_SEPARATOR '|'
 
+#include <sys/time.h>
+static long tcount=0;
+static long cumul;
+static timeval tv;
+#define START_TIMING gettimeofday(&tv,0);long tt0=tv.tv_usec+tv.tv_sec*1000000;
+#define END_TIMING(NUMBER) \
+  tcount=tcount+1;gettimeofday(&tv,0);cumul=cumul+tv.tv_usec+tv.tv_sec*1000000 -tt0; \
+  if(tcount==NUMBER){ std::cerr <<pthread_self()<<":"<<__FILE__<<":"<<__LINE__<<" temps CPU(mus): "<<cumul<< std::endl; tcount=0 ;cumul=0; }
+
 //============================================================================
 /*! Function : SALOMEDSImpl_Study
  *  Purpose  : SALOMEDSImpl_Study constructor
@@ -1991,7 +2000,10 @@ std::vector<std::string> SALOMEDSImpl_Study::GetIORs()
 //============================================================================
 bool SALOMEDSImpl_Study::addSO_Notification (const SALOMEDSImpl_SObject& theSObject)
 {
-  return _notifier->addSO_Notification(theSObject);
+  START_TIMING;
+  bool ret= _notifier->addSO_Notification(theSObject);
+  END_TIMING(100);
+  return ret;
 }
 
 //============================================================================
