@@ -67,12 +67,11 @@ public:
 
   virtual bool addSO_Notification(const SALOMEDSImpl_SObject& theSObject)
     {
-      //MESSAGE("Notification ADD called")
-      CORBA::String_var event="ADD";
-      CORBA::String_var anID=theSObject.GetID().c_str();
+      std::string anID=theSObject.GetID();
+      const char* cID=anID.c_str();
       for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
         {
-          (*it)->notifyObserver(anID,event);
+          it->first->notifyObserver(cID,"ADD");
         }
       return true; // NGE return always true but can be modified if needed
     }
@@ -85,12 +84,11 @@ public:
 
   virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& theSObject)
     {
-      //MESSAGE("Notification REMOVE called")
-      CORBA::String_var event="REMOVE";
-      CORBA::String_var anID=theSObject.GetID().c_str();
+      std::string anID=theSObject.GetID();
+      const char* cID=anID.c_str();
       for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
         {
-          (*it)->notifyObserver(anID,event);
+          it->first->notifyObserver(cID,"REMOVE");
         }
       return true; // NGE return always true but can be modified if needed
     }
@@ -103,12 +101,14 @@ public:
 
   virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject)
     {
-      //MESSAGE("Notification MODIFY called")
-      CORBA::String_var event="MODIFY";
-      CORBA::String_var anID=theSObject.GetID().c_str();
       for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
         {
-          (*it)->notifyObserver(anID,event);
+          if(it->second)
+            {
+              std::string anID=theSObject.GetID();
+              const char* cID=anID.c_str();
+              it->first->notifyObserver(cID,"MODIFY");
+            }
         }
       return true; // NGE return always true but can be modified if needed
     }
@@ -119,13 +119,13 @@ public:
  */
 //============================================================================
 
-  virtual void attach(SALOME::Observer_ptr theObs)
+  virtual void attach(SALOME::Observer_ptr theObs, bool modify)
     {
-      myObservers.push_back(SALOME::Observer::_duplicate(theObs));
+      myObservers.push_back(std::pair< SALOME::Observer_var, bool > (SALOME::Observer::_duplicate(theObs),modify));
     }
 
 private:
-    typedef std::list<SALOME::Observer_var> ObsList;
+    typedef std::list< std::pair< SALOME::Observer_var, bool > > ObsList;
     typedef ObsList::iterator ObsListIter;
     ObsList myObservers;
 };
@@ -1232,9 +1232,9 @@ void SALOMEDS_Study_i::EnableUseCaseAutoFilling(CORBA::Boolean isEnabled)
  *  Purpose  : This function attach an observer to the study
  */
 //============================================================================
-void SALOMEDS_Study_i::attach(SALOME::Observer_ptr theObs)
+void SALOMEDS_Study_i::attach(SALOME::Observer_ptr theObs,CORBA::Boolean modify)
 {
-  _notifier->attach(theObs);
+  _notifier->attach(theObs,modify);
 }
 
 //===========================================================================

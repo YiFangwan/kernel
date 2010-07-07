@@ -2000,9 +2000,9 @@ std::vector<std::string> SALOMEDSImpl_Study::GetIORs()
 //============================================================================
 bool SALOMEDSImpl_Study::addSO_Notification (const SALOMEDSImpl_SObject& theSObject)
 {
-  START_TIMING;
+  //START_TIMING;
   bool ret= _notifier->addSO_Notification(theSObject);
-  END_TIMING(100);
+  //END_TIMING(100);
   return ret;
 }
 

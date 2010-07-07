@@ -87,12 +87,12 @@ SALOMEDSImpl_SComponent SALOMEDSImpl_StudyBuilder::NewComponent(const std::strin
 
   DF_Label NL = L.NewChild();
 
-  SALOMEDSImpl_AttributeComment::Set(NL, DataType);
-
   SALOMEDSImpl_SComponent so =  _study->GetSComponent (NL);
 
   if(_callbackOnAdd) _callbackOnAdd->OnAddSObject(so);
   _study->addSO_Notification(so);
+
+  SALOMEDSImpl_AttributeComment::Set(NL, DataType);
 
   _doc->SetModified(true);
 

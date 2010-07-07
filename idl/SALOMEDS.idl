@@ -553,7 +553,7 @@ during each working session.
 
     \param theObserver
 */
-     void attach(in SALOME::Observer theObserver);   
+     void attach(in SALOME::Observer theObserver, in boolean modify);   
   };
 
   //==========================================================================
