@@ -82,7 +82,7 @@ variables:
 #  \param salome.myStudyId       : active Study Id
 #  \param salome.myStudy         : the active Study (interface SALOMEDS::Study)
 
-
+#
 from salome_kernel import *
 from salome_study import *
 from salome_iapp import *
