@@ -22,7 +22,7 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-pydocdir = $(docdir)/docutils/KERNEL
+pydocdir = $(docdir)/tui/KERNEL/docutils
 
 .PHONY : latex
 
