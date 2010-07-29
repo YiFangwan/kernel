@@ -15,11 +15,15 @@ Objectives
 
 The main idea is to import SALOME python functions by doing:
 
- >>> from salome.kernel.<myPythonModule> import <myFunction>
+.. code-block:: python
+   
+   from salome.kernel.<myPythonModule> import <myFunction>
 
 instead of:
 
- >>> from <myPythonModule> import <myFunction>
+.. code-block:: python
+
+   from <myPythonModule> import <myFunction>
 
 as it must be done up to now because of the flat organisation of
 python files in the installation folders of SALOME modules.
@@ -254,8 +258,10 @@ can be tested using some test use cases. For example, the
 visualisation of structural elements (provided by the package
 ``salome.geom`` can be tested by:
 
- >>> from salome.geom.structelem import TEST_StructuralElement
- >>> TEST_StructuralElement()
+.. code-block:: python
+
+   from salome.geom.structelem import TEST_StructuralElement
+   TEST_StructuralElement()
 
 This can be enter in the GUI python console or in a python interpreter
 executed in a SALOME session.
