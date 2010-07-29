@@ -3,12 +3,12 @@
 Complement A: Organizing the SALOME python functions in a packaged structure
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-:Contacts: Guillaume Boulant, Christian Caremoli, Renaud Barate
+This chapter contains the instruction notes to organise the python
+files of SALOME in a packaged python structure. This is the first step
+of the development process, whose goal is to validate the principles
+and show a possible way.
 
-This notes are the instructions to organise the python files of SALOME
-in a packaged python structure. This is the first step of the development
-process, whose goal is to validate the principles and show a possible
-way.
+:Contacts: Guillaume Boulant, Christian Caremoli, Renaud Barate
 
 Objectives
 ==========
@@ -53,8 +53,7 @@ provides SALOME helper functions classified by modules
 
 * ``salome.kernel``: helper functions for manipulating the SALOME
   study and its components (SComponents and SObject). This provides
-  also general purpose utilities as a simple logging, a threading
-  helper.
+  also general purpose utilities for logging and threading.
 * ``salome.gui``:  helper functions to manipulate the graphical
   representation of studies and the general behavior of the graphical
   interface. This provides also generic templates for implementing
@@ -63,6 +62,8 @@ provides SALOME helper functions classified by modules
   "visualization of structural elements". This is used by mechanical
   ingeneers to create the 3D geometrical object corresponding to the
   numerical model of a given structural element.
+* ``salome.smesh``: to manipulated smesh data handled from the SObject
+  in the SALOME study.
 
 The target point is to have the ``salome.kernel`` part in the KERNEL
 module, the ``salome.geom`` part in the GEOM module, and so on. And
@@ -73,7 +74,7 @@ and all other stuff should be imported and work as before).
 Problems
 ========
 
-To target this situation, we have to face two problems:
+To reach this target, we have to face two problems:
 
 * A naming conflict with the instruction ``import salome``. The result
   is unpredictible because of the existance in the ``sys.path`` of
@@ -157,8 +158,8 @@ done without impact on existing python user scripts.
 Instructions
 ============
 
-Instructions for creating the python package
---------------------------------------------
+Instructions for creating the python packages
+---------------------------------------------
 
 Considering the elements described above, a procedure that works to
 get the packaged python structure is:
@@ -182,12 +183,13 @@ get the packaged python structure is:
 * Adapt the ``apply_gen`` utility to take into account the finer
   folder hierarchy in ``site-packages``.
 
-Note that all python files that were existing in the KERNEL module
-are leaft untouched but the file ``salome.py``.
+The naming convention for source folder is here the convention in
+place in the KERNEL module: the source code of the python packages of
+a SALOME module <MODULE_NAME> is located in the source directory
+``<srcdir>/src/<MODULE_NAME>_PY``.
 
-By convention, the source code of the python packages of a SALOME
-module <MYMODULE> is located in the source directory
-``src/<MYMODULE>_PY`` (convention already used in the KERNEL).
+Note also that all python files that were existing in the KERNEL
+module are leaft untouched but the file ``salome.py``.
 
 Instructions for the associated documentation
 ---------------------------------------------

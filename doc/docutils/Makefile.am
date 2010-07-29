@@ -69,6 +69,8 @@ html:
 
 RSTFILES= \
 	index.rst \
+	overview.rst \
+	docapi.rst \
 	salomepypkg.rst
 
 EXTRA_DIST+= $(RSTFILES)
