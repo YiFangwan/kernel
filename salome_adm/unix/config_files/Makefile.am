@@ -79,7 +79,8 @@ pyembed.m4 \
 python.m4 \
 check_libxml.m4 \
 check_paco++.m4 \
-local_install.m4
+local_install.m4 \
+check_sphinx.m4
 
 dist_salome4depr_DATA=\
 $(DEPRECATED_FILES)
