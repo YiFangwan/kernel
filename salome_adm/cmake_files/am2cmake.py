@@ -1,9 +1,6 @@
 #  -*- coding: iso-8859-1 -*-
 #  Copyright (C) 2007-2010  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-#  Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-#  CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-#
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
 #  License as published by the Free Software Foundation; either
@@ -309,20 +306,31 @@ class CMakeFile(object):
             "TransformationGUI",
             ]
         med_list = [
-            "InterpGeometric2DAlg",
-            "interpkernelbases",
             "interpkernel",
+            "InterpKernelTest",
             "MEDClientcmodule",
+            "medcouplingclient",
+            "medcouplingcorba",
+            "medcouplingremapper",
             "medcoupling",
             "MEDEngine",
+            "medloader",
+            "MEDMEMCppTest",
             "MEDMEMImpl",
             "medmem",
             "MED",
+            "medsplitter",
+            "MEDSPLITTERTest",
             "med_V2_1",
             "MEDWrapperBase",
             "MEDWrapper",
             "MEDWrapper_V2_1",
             "MEDWrapper_V2_2",
+            "paramedcouplingcorba",
+            "paramedloader",
+            "paramedmemcompo",
+            "paramedmem",
+            "ParaMEDMEMTest",
             "SalomeIDLMED",
             ]
         smesh_list = [
@@ -442,23 +450,48 @@ class CMakeFile(object):
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
+                INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindMPI.cmake)
                 """)
                 pass
             else:
-                newlines.append("""
-                SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
-                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
-                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
-                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
-                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
-                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
-                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
-                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
-                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
-                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
-                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
-                INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
-                """)
+                if self.module == "med":
+                    newlines.append("""
+                    SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
+                    IF(KERNEL_ROOT_DIR)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
+                    ELSE(KERNEL_ROOT_DIR)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindPLATFORM.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/adm_local_without_kernel/cmake_files/FindMPI.cmake)
+                    ENDIF(KERNEL_ROOT_DIR)
+                    """)
+                else:
+                    newlines.append("""
+                    SET(KERNEL_ROOT_DIR $ENV{KERNEL_ROOT_DIR})
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPYTHON.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindOMNIORB.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindPTHREADS.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindHDF5.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindBOOST.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindLIBXML2.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSWIG.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindCPPUNIT.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindMPI.cmake)
+                    INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindKERNEL.cmake)
+                    """)
+                    pass
                 if self.module == "gui":
                     newlines.append("""
                     INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindCAS.cmake)
@@ -471,6 +504,7 @@ class CMakeFile(object):
                 else:
                     newlines.append("""
                     SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR})
+                    IF(GUI_ROOT_DIR)
                     INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindCAS.cmake)
                     INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindQT4.cmake)
                     INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindOPENGL.cmake)
@@ -478,6 +512,7 @@ class CMakeFile(object):
                     INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindQWT.cmake)
                     INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindSIPPYQT.cmake)
                     INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/FindGUI.cmake)
+                    ENDIF(GUI_ROOT_DIR)
                     """)
                     if self.module == "med":
                         newlines.append("""
@@ -551,6 +586,13 @@ class CMakeFile(object):
                         INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindGRAPHVIZ.cmake)
                         """)
                         pass
+                    if self.module == "hxx2salome":
+                        newlines.append("""
+                        SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
+                        INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
+                        """)
+                        pass
                     pass
                 pass
             # --
@@ -592,7 +634,9 @@ class CMakeFile(object):
                 pass
             elif self.module == "geom":
                 newlines.append("""
+                IF(GUI_ROOT_DIR)
                 SET(GEOM_ENABLE_GUI ON)
+                ENDIF(GUI_ROOT_DIR)
                 """)
                 pass
             elif self.module == "medfile":
@@ -608,41 +652,66 @@ class CMakeFile(object):
                 pass
             elif self.module == "med":
                 newlines.append("""
+                IF(KERNEL_ROOT_DIR)
                 SET(MED_ENABLE_KERNEL ON)
                 IF(NOT WINDOWS)
                 SET(MED_ENABLE_SPLITTER ON)
                 ENDIF(NOT WINDOWS)
+                ENDIF(KERNEL_ROOT_DIR)
+                IF(GUI_ROOT_DIR)
                 SET(MED_ENABLE_GUI ON)
+                ENDIF(GUI_ROOT_DIR)
                 """)
                 pass
             elif self.module == "smesh":
                 newlines.append("""
+                IF(GUI_ROOT_DIR)
                 SET(SMESH_ENABLE_GUI ON)
+                ENDIF(GUI_ROOT_DIR)
+                """)
+                pass
+            elif self.module == "netgen":
+                newlines.append("""
+                SET(OCCFLAGS ${CAS_CPPFLAGS})
+                SET(OCCLIBS ${CAS_LDPATH})
+                SET(OCCLIBS ${OCCLIBS} ${TKernel} ${TKGeomBase} ${TKMath} ${TKG2d} ${TKG3d} ${TKXSBase} ${TKOffset} ${TKFillet} ${TKShHealing})
+                SET(OCCLIBS ${OCCLIBS} ${TKMesh} ${TKMeshVS} ${TKTopAlgo} ${TKGeomAlgo} ${TKBool} ${TKPrim} ${TKBO} ${TKIGES} ${TKBRep})
+                SET(OCCLIBS ${OCCLIBS} ${TKSTEPBase} ${TKSTEP} ${TKSTL} ${TKSTEPAttr} ${TKSTEP209} ${TKXDESTEP} ${TKXDEIGES} ${TKXCAF} ${TKLCAF} ${FWOSPlugin})
                 """)
                 pass
             elif self.module == "netgenplugin":
                 newlines.append("""
+                IF(GUI_ROOT_DIR)
                 SET(NETGENPLUGIN_ENABLE_GUI ON)
+                ENDIF(GUI_ROOT_DIR)
                 """)
                 pass
             elif self.module == "blsurfplugin":
                 newlines.append("""
+                IF(GUI_ROOT_DIR)
                 SET(BLSURFPLUGIN_ENABLE_GUI ON)
+                ENDIF(GUI_ROOT_DIR)
                 """)
                 pass
             elif self.module == "ghs3dplugin":
                 newlines.append("""
+                IF(GUI_ROOT_DIR)
                 SET(GHS3DPLUGIN_ENABLE_GUI ON)
+                ENDIF(GUI_ROOT_DIR)
                 """)
                 pass
             elif self.module == "hexoticplugin":
                 newlines.append("""
+                IF(GUI_ROOT_DIR)
                 SET(HEXOTICPLUGIN_ENABLE_GUI ON)
+                ENDIF(GUI_ROOT_DIR)
                 """)
                 pass
             elif self.module == "ghs3dprlplugin":
                 newlines.append("""
+                IF(GUI_ROOT_DIR)
                 SET(GHS3DPRLPLUGIN_ENABLE_GUI ON)
+                ENDIF(GUI_ROOT_DIR)
                 """)
                 pass
             elif self.module == "yacs":
@@ -663,7 +732,11 @@ class CMakeFile(object):
         SET(AM_CXXFLAGS)
         SET(LDADD)
         """)
-        if self.module == "kernel":
+        if self.module == "netgen":
+            newlines.append(r'''
+            SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DNO_PARALLEL_THREADS -DOCCGEOMETRY -I${CMAKE_BINARY_DIR} -I${CMAKE_CURRENT_SOURCE_DIR})
+            ''')
+        elif self.module == "kernel":
             newlines.append(r'''
             SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm/unix -include SALOMEconfig.h)
             SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DHAVE_SALOME_CONFIG -I${CMAKE_BINARY_DIR}/salome_adm/unix -include SALOMEconfig.h)
@@ -671,9 +744,28 @@ class CMakeFile(object):
         else:
             if self.module not in ["yacs"]:
                 newlines.append(r'''
+                IF(KERNEL_ROOT_DIR)
                 SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DHAVE_SALOME_CONFIG -I${KERNEL_ROOT_DIR}/include/salome -include SALOMEconfig.h)
                 SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DHAVE_SALOME_CONFIG -I${KERNEL_ROOT_DIR}/include/salome -include SALOMEconfig.h)
+                ENDIF(KERNEL_ROOT_DIR)
                 ''')
+                pass
+            if self.module == "hxx2salome":
+                key = "_SRC"
+                if self.the_root[-len(key):] != key:
+                    msg = "Source dir must finished with %s !"%(key)
+                    raise Exception(msg)
+                hxxmodule = self.the_root[:-len(key)]
+                from os.path import basename
+                hxxmodule = basename(hxxmodule)
+                hxxmodule = hxxmodule.lower()
+                self.hxxmodule = hxxmodule
+                newlines.append(r'''
+                SET(HXXCPP_ROOT_DIR $ENV{%sCPP_ROOT_DIR})
+                SET(AM_CPPFLAGS ${AM_CPPFLAGS} -I${HXXCPP_ROOT_DIR}/include)
+                SET(AM_CXXFLAGS ${AM_CXXFLAGS} -I${HXXCPP_ROOT_DIR}/include)
+                SET(LDADD ${LDADD} -L${HXXCPP_ROOT_DIR}/lib)
+                '''%(hxxmodule.upper()))
                 pass
             pass
         # --
@@ -1167,6 +1259,10 @@ class CMakeFile(object):
         # --
         # Treat the install targets
         # --
+        resdir = self.module
+        if resdir == "hxx2salome":
+            resdir = self.hxxmodule
+            pass
         d = {
             "salomeadmux_DATA"            :  "salome_adm/unix",
             "dist_salomeadmux_DATA"       :  "salome_adm/unix",
@@ -1177,9 +1273,9 @@ class CMakeFile(object):
             "dist_admlocal_cmake_DATA"    :  "adm_local/cmake_files",
             "salomeinclude_DATA"          :  "include/salome",
             "salomeinclude_HEADERS"       :  "include/salome",
-            "dist_salomeres_DATA"         :  "share/salome/resources/%s"%(self.module),
-            "nodist_salomeres_DATA"       :  "share/salome/resources/%s"%(self.module),
-            "nodist_salomeres_SCRIPTS"    :  "share/salome/resources/%s"%(self.module),
+            "dist_salomeres_DATA"         :  "share/salome/resources/%s"%(resdir),
+            "nodist_salomeres_DATA"       :  "share/salome/resources/%s"%(resdir),
+            "nodist_salomeres_SCRIPTS"    :  "share/salome/resources/%s"%(resdir),
             "dist_salomescript_SCRIPTS"   :  "bin/salome",
             "dist_salomescript_DATA"      :  "bin/salome",
             "dist_salomescript_PYTHON"    :  "bin/salome",
@@ -1195,6 +1291,14 @@ class CMakeFile(object):
                 "nodist_include_HEADERS" :  "include",
                 "bin_SCRIPTS"            :  "bin",
                 "doc_DATA"               :  "${docdir}",
+                }
+            pass
+        if self.module == "netgen":
+            d = {
+                "include_HEADERS"        :  "include",
+                "noinst_HEADERS"         :  "share/netgen/include",
+                "dist_pkgdata_DATA"      :  "share/netgen",
+                "dist_doc_DATA"          :  "share/doc/netgen",
                 }
             pass
         for key, value in d.items():
@@ -1228,18 +1332,13 @@ class CMakeFile(object):
         ''')
         # --
         newlines.append(r'''
-        SET(libs ${PLATFORM_LIBADD} ${PLATFORM_LDFLAGS} ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
+        SET(libs ${PLATFORM_LIBADD} ${PLATFORM_LDFLAGS} ${LDADD} ${${amname}_LIBADD} ${${amname}_LDADD} ${${amname}_LDFLAGS})
         FOREACH(lib SALOMEBasics SalomeBatch)
         IF(name STREQUAL lib)
         SET(libs ${libs} ${PTHREAD_LIBS})
         ENDIF(name STREQUAL lib)
         ENDFOREACH(lib SALOMEBasics SalomeBatch)
         ''')
-        if key == "bin_PROGRAMS":
-            newlines.append(r'''
-            SET(libs ${libs} ${LDADD})
-            ''')
-            pass
         # --
         newlines.append(r'''
         FOREACH(lib ${libs})
@@ -1342,6 +1441,13 @@ class CMakeFile(object):
         SET(var ${var} ${AM_CPPFLAGS})
         SET(var ${var} ${AM_CXXFLAGS})
         ''')
+        # --
+        newlines.append(r'''
+        IF(type STREQUAL STATIC)
+        SET(var ${var} -fPIC)
+        ENDIF(type STREQUAL STATIC)
+        ''')
+        # --
         if self.module == "yacs":
             newlines.append(r'''
             SET(var ${var} -DYACS_PTHREAD)
@@ -1449,9 +1555,15 @@ class CMakeFile(object):
         STRING(REPLACE ".f" ".c" src ${src})
         SET(src ${CMAKE_CURRENT_BINARY_DIR}/${src})
         SET(output ${src})
+        SET(cmd f2c)
+        IF(NOT WINDOWS)
+        IF(CMAKE_SIZEOF_VOID_P STREQUAL 8)
+        SET(cmd valgrind f2c)  # f2c seems to be buggy on 64 bits ... but with valgrind, it works :)
+        ENDIF()
+        ENDIF(NOT WINDOWS)
         ADD_CUSTOM_COMMAND(
         OUTPUT ${output}
-        COMMAND f2c ${input}
+        COMMAND ${cmd} ${input}
         MAIN_DEPENDENCY ${input}
         )
         ELSE(src STREQUAL trte.f)
@@ -1509,8 +1621,29 @@ class CMakeFile(object):
         # --
         self.setLibAdd(key, newlines)
         # --
-        if key != "noinst_LTLIBRARIES":
-            if self.module == "medfile":
+        if 1: # key != "noinst_LTLIBRARIES":
+            newlines.append(r'''
+            SET(key %s)
+            '''%(key))
+            newlines.append(r'''
+            SET(test ON)
+            IF(${key} STREQUAL noinst_LTLIBRARIES)
+            SET(test OFF)
+            ENDIF(${key} STREQUAL noinst_LTLIBRARIES)
+            ''')
+            if self.module == "netgen" :
+                newlines.append(r'''
+                IF(${key} STREQUAL noinst_LTLIBRARIES)
+                IF(WINDOWS)
+                SET(test ON)
+                ENDIF(WINDOWS)
+                ENDIF(${key} STREQUAL noinst_LTLIBRARIES)
+                ''')
+                pass
+            newlines.append(r'''
+            IF(test)
+            ''')
+            if self.module in ["medfile", "netgen"]:
                 newlines.append(r'''
                 SET(DEST lib)
                 ''')
@@ -1587,6 +1720,9 @@ class CMakeFile(object):
             newlines.append(r'''
             ENDIF(BEGIN_WITH_lib)
             ''')
+            newlines.append(r'''
+            ENDIF(test)
+            ''')
             pass
         # --
         newlines.append(r'''
@@ -1635,7 +1771,7 @@ class CMakeFile(object):
         # --
         self.setLibAdd(key, newlines)
         # --
-        if self.module == "medfile":
+        if self.module in ["medfile", "netgen"]:
             newlines.append(r'''
             SET(DEST bin)
             ''')
@@ -1831,9 +1967,13 @@ if __name__ == "__main__":
                 pass
             pass
         # --
+        from sys import stdout
         for f in files:
             if f in ["Makefile.am", "Makefile.am.cmake"]:
+                stdout.write("Scanning %s %s ..."%(root, f))
+                stdout.flush()
                 convertAmFile(the_root, root, dirs, files, f, module)
+                stdout.write(" done.\n")
                 pass
             pass
         pass
