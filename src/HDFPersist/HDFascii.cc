@@ -709,10 +709,11 @@ std::string GetTmpDir()
   */
 
   std::string aDir = aTmpDir;
-  
-  for(aRND = 0; Exists(aDir); aRND++) {
+  aRND = 0;
+  while( Exists(aDir) ) {
     sprintf(buffer, "%d", aRND);
     aDir = aTmpDir+buffer;  //Build a unique directory name
+	aRND++;
   }
 
 #ifdef WIN32
