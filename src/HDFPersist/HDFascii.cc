@@ -768,7 +768,11 @@ void read_float64(FILE* fp, hdf_float64* value)
 bool Exists(const std::string thePath) 
 {
 #ifdef WIN32 
-  return (GetFileAttributes( thePath.c_str() ) != 0xFFFFFFFF);
+ if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
+    DWORD errorId = GetLastError ();
+    if ( errorId == ERROR_FILE_NOT_FOUND || errorId == ERROR_PATH_NOT_FOUND )
+      return false;
+  }
 #else 
   int status = access ( thePath.c_str() , F_OK ); 
   if (status != 0) return false;
