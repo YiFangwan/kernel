@@ -438,6 +438,10 @@ class CMakeFile(object):
             ENDIF(COMMAND cmake_policy)
             """)
             # --
+            newlines.append("""
+            ENABLE_TESTING()
+            """)
+            # --
             if self.module == "kernel":
                 newlines.append("""
                 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindPLATFORM.cmake)
@@ -1253,6 +1257,43 @@ class CMakeFile(object):
             MAIN_DEPENDENCY ${input}
             )
             ENDFOREACH(input ${SIP_FILES})
+            ''')
+            pass
+
+        # --
+        # For make check
+        # --
+        for key in ["TESTS"]:
+            if self.__thedict__.has_key(key):
+                newlines.append('''
+                SET(UNIT_TEST_PROG ${%s})
+                '''%(key))
+                self.__thedict__["UNIT_TEST_PROG"] = self.__thedict__[key]
+                pass
+            pass
+        key = "UNIT_TEST_PROG"
+        if self.__thedict__.has_key(key):
+            newlines.append('''
+            FOREACH(input ${UNIT_TEST_PROG})
+            GET_FILENAME_COMPONENT(ext ${input} EXT)
+            IF(ext STREQUAL .py)
+            SET(test ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/${input})
+            ELSE(ext STREQUAL .py)
+            IF(WINDOWS)
+            SET(test ${CMAKE_CURRENT_BINARY_DIR}/${input}_exe.exe)
+            ELSE()
+            SET(test ${CMAKE_CURRENT_BINARY_DIR}/${input}_exe)
+            ENDIF()
+            ENDIF(ext STREQUAL .py)
+            ADD_TEST(${input} ${test})
+            SET(fail_regex "KO")
+            SET_PROPERTY(TEST ${input} PROPERTY FAIL_REGULAR_EXPRESSION "${fail_regex}")
+            # IF(NOT WINDOWS)
+            # ADD_TEST(${input}_valgrind valgrind ${test})
+            # SET_PROPERTY(TEST ${input}_valgrind PROPERTY FAIL_REGULAR_EXPRESSION "${fail_regex}")
+            # SET_PROPERTY(TEST ${input}_valgrind PROPERTY PASS_REGULAR_EXPRESSION "no leaks are possible")
+            # ENDIF()
+            ENDFOREACH(input ${UNIT_TEST_PROG})
             ''')
             pass
         

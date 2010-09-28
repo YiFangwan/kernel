@@ -816,7 +816,6 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
     \param theValue The value to be set to the IOR attribute.
 */
     void SetIOR(in SObject theSO, in string theValue) raises (LockProtection);
-
   };
 
   //==========================================================================
