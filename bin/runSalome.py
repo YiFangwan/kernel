@@ -601,7 +601,10 @@ def startSalome(args, modules_list, modules_root_dir):
     # set PYTHONINSPECT variable (python interpreter in interactive mode)
     if args['pinter']:
         os.environ["PYTHONINSPECT"]="1"
-        import readline
+        try:
+            import readline
+        except ImportError:
+            pass
         
     return clt
 
