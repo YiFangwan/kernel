@@ -386,7 +386,7 @@ char* HDFascii::ConvertFromASCIIToHDF(const char* thePath,
     aFullName = std::string(thePath)+".ascii_tmp";
   }
 
-  FILE *fp = fopen(thePath, "r");
+  FILE *fp = fopen(thePath, "rb");
   if(!fp) return NULL;
 
   HDFfile *hdf_file = new HDFfile((char*)aFullName.c_str()); 
