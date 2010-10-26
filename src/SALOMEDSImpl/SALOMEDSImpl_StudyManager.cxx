@@ -133,13 +133,15 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const std::string& aUrl)
   if (HDFascii::isASCII(aUrl.c_str())) {
     isASCII = true;
     char* aResultPath = HDFascii::ConvertFromASCIIToHDF(aUrl.c_str());
-    aC_HDFUrl = new char[strlen(aResultPath) + 19];
-    sprintf(aC_HDFUrl, "%shdf_from_ascii.hdf", aResultPath);
-    delete [] (aResultPath);
-    aHDFUrl = aC_HDFUrl;
-    delete [] aC_HDFUrl;
+	if ( !aResultPath )
+		return NULL;
+	aC_HDFUrl = new char[strlen(aResultPath) + 19];
+	sprintf(aC_HDFUrl, "%shdf_from_ascii.hdf", aResultPath);
+	delete [] (aResultPath);
+	aHDFUrl = aC_HDFUrl;
+	delete [] aC_HDFUrl;
   } else {
-    aHDFUrl = aUrl;
+	aHDFUrl = aUrl;
   }
 
   
@@ -763,7 +765,7 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
   system(aCmd.c_str());
 
   //       Iterate and move files in the temporary directory
-  FILE* fp = fopen(aTmpFile.c_str(), "r");
+  FILE* fp = fopen(aTmpFile.c_str(), "rb");
   if(!fp) return false;
   char* buffer = new char[2047];
   while(!feof(fp)) {
