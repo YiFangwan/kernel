@@ -27,6 +27,7 @@
 
 #include "DF_ChildIterator.hxx"
 #include "HDFexplorer.hxx"
+#include "Basics_Utils.hxx"
 
 #include "SALOMEDSImpl_Attributes.hxx"
 #include "SALOMEDSImpl_Tool.hxx"
@@ -121,6 +122,9 @@ SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::NewStudy(const string& study_name
 //============================================================================
 SALOMEDSImpl_Study* SALOMEDSImpl_StudyManager::Open(const string& aUrl)
 {
+  // Set "C" locale temporarily to avoid possible localization problems
+  Kernel_Utils::Localizer loc;
+
   _errorCode = "";
 
   // open the HDFFile
@@ -461,6 +465,9 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const string& aStudyUrl,
 					    bool theMultiFile,
 					    bool theASCII)
 {
+  // Set "C" locale temporarily to avoid possible localization problems
+  Kernel_Utils::Localizer loc;
+
   // HDF File will be composed of differents part :
   // * For each ComponentDataType, all data created by the component
   //   Informations in data group hdf_group_datacomponent
