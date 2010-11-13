@@ -92,8 +92,11 @@ def kill_salome(args):
 class InterpServer(Server):
     def __init__(self,args):
         self.args=args
-        env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
-        self.CMD=['xterm', '-e']+ env_ld_library_path + ['python']
+        if sys.platform != "win32":
+          env_ld_library_path=['env', 'LD_LIBRARY_PATH=' + os.getenv("LD_LIBRARY_PATH")]
+          self.CMD=['xterm', '-e']+ env_ld_library_path + ['python']
+        else:
+          self.CMD=['cmd', '/c', 'start cmd.exe', '/K', 'python']
        
     def run(self):
         global process_id
@@ -589,7 +592,10 @@ def startSalome(args, modules_list, modules_root_dir):
     # set PYTHONINSPECT variable (python interpreter in interactive mode)
     if args['pinter']:
         os.environ["PYTHONINSPECT"]="1"
-        import readline
+        try:
+            import readline
+        except ImportError:
+            pass
         
     return clt
 

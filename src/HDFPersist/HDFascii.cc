@@ -123,7 +123,7 @@ char* HDFascii::ConvertFromHDFToASCII(const char* thePath,
   char name[HDF_NAME_MAX_LEN+1];
   int nbsons = hdf_file->nInternalObjects(), nbAttr = hdf_file->nAttributes(); 
 
-  FILE* fp = fopen(aFileName.c_str(), "w");
+  FILE* fp = fopen(aFileName.c_str(), "wb");
   fprintf(fp, "%s\n", ASCIIHDF_ID);
   fprintf(fp, "%i\n", nbsons+nbAttr);
 
@@ -386,7 +386,7 @@ char* HDFascii::ConvertFromASCIIToHDF(const char* thePath,
     aFullName = std::string(thePath)+".ascii_tmp";
   }
 
-  FILE *fp = fopen(thePath, "r");
+  FILE *fp = fopen(thePath, "rb");
   if(!fp) return NULL;
 
   HDFfile *hdf_file = new HDFfile((char*)aFullName.c_str()); 
@@ -445,6 +445,8 @@ char* HDFascii::ConvertFromASCIIToHDF(const char* thePath,
   int length = strlen(aTmpDir.c_str());
   char *new_str = new char[ 1+length ];
   strcpy(new_str , aTmpDir.c_str()) ;
+
+  fclose(fp);
 
   return new_str;
 }

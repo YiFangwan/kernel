@@ -910,7 +910,10 @@ def get_env(theAdditionalOptions=[], appname="SalomeApp"):
     if cmd_opts.py_scripts is not None:
         listlist = cmd_opts.py_scripts
         for listi in listlist:
-            args[script_nam] += re.split( "[:;,]", listi)
+	    if os.sys.platform == 'win32':
+                args[script_nam] += re.split( "[;,]", listi)
+	    else:
+                args[script_nam] += re.split( "[:;,]", listi)
     for arg in cmd_args:
         if arg[-3:] == ".py":
             args[script_nam].append(arg)
