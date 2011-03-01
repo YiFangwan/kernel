@@ -31,6 +31,8 @@ if SPHINX_IS_OK
 html/index.html:$(RSTFILES)
 	make htm
 
+usr_docs: html/index.html
+
 endif
 
 EXTRA_DIST = archives
@@ -47,17 +49,17 @@ SPHINX_LD_LIBRARY_PATH = $(OMNIORB_ROOT)/lib
 
 htm:
 	mkdir -p html doctrees
-	PYTHONPATH=$(SPHINX_PYTHONPATH):${PYTHONPATH}; \
-	LD_LIBRARY_PATH=$(SPHINX_LD_LIBRARY_PATH):${LD_LIBRARY_PATH}; \
-	$(SPHINXBUILD) -W -b html $(ALLSPHINXOPTS) html
+	PYTHONPATH=$(SPHINX_PYTHONPATH):${PYTHONPATH} \
+	LD_LIBRARY_PATH=$(SPHINX_LD_LIBRARY_PATH):${LD_LIBRARY_PATH} \
+	$(SPHINXBUILD) -c $(top_builddir)/doc/docutils -W -b html $(ALLSPHINXOPTS) html
 	@echo
 	@echo "Build finished. The HTML pages are in html."
 
 latex:
 	mkdir -p latex doctrees
-	PYTHONPATH=$(SPHINX_PYTHONPATH):${PYTHONPATH}; \
-	LD_LIBRARY_PATH=$(SPHINX_LD_LIBRARY_PATH):${LD_LIBRARY_PATH}; \
-	$(SPHINXBUILD) -W -b latex $(ALLSPHINXOPTS) latex
+	PYTHONPATH=$(SPHINX_PYTHONPATH):${PYTHONPATH} \
+	LD_LIBRARY_PATH=$(SPHINX_LD_LIBRARY_PATH):${LD_LIBRARY_PATH} \
+	$(SPHINXBUILD) -c $(top_builddir)/doc/docutils -W -b latex $(ALLSPHINXOPTS) latex
 	@echo
 	@echo "Build finished; the LaTeX files are in latex."
 	@echo "Run \`make all-pdf' or \`make all-ps' in that directory to" \
@@ -74,10 +76,7 @@ RSTFILES= \
 
 EXTRA_DIST+= $(RSTFILES)
 
-EXTRA_DIST+= \
-	conf.py 
-
-install-data-local: html/index.html
+install-data-local:
 	test -z $(pydocdir) || mkdir -p $(DESTDIR)$(pydocdir)
 	if test -d "html"; then b=; else b="$(srcdir)/"; fi; \
 	cp -rf $$b"html"/* $(pydocdir) ; \
