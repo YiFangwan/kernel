@@ -817,6 +817,14 @@ class CMakeFile(object):
                 SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DWITH_SMESH_CANCEL_COMPUTE)
                 ''')
                 pass
+            if self.module == "ghs3dplugin":
+                newlines.append(r'''
+                IF(WINDOWS)
+                  SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DGHS3D_VERSION=42)
+                  SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DGHS3D_VERSION=42)
+                ENDIF(WINDOWS)  
+                ''')
+                pass              
             if self.module == "hxx2salome":
                 key = "_SRC"
                 if self.the_root[-len(key):] != key:
@@ -1665,6 +1673,8 @@ class CMakeFile(object):
         SET(targets ${targets} MEDEngine)
         SET(targets ${targets} SMESHEngine)
         SET(targets ${targets} SMESH)
+        SET(targets ${targets} StdMeshersEngine)
+        SET(targets ${targets} VISUEngineImpl)
         FOREACH(target ${targets})
         IF(name STREQUAL ${target})
         SET(var ${var} -DNOGDI)
