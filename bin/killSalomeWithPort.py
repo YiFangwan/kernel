@@ -208,7 +208,7 @@ def killMyPort(port):
                     try:
                         if sys.platform == "win32":
                             import win32pm
-                            win32pm.killpid(int(pid),0)
+                            win32pm.killpid(int(pid),0)                            
                         else:
                             os.kill(int(pid),signal.SIGKILL)
                             pass
@@ -265,9 +265,14 @@ def killNotifdAndClean(port):
 def killMyPortSpy(pid, port):
     dt = 1.0
     while 1:
-        from os import kill
         try:
-            kill(int(pid), 0)
+          if sys.platform != "win32":
+            from os import kill
+            win32pm.killpid(int(pid),0)
+          else:
+            from win32pm import killpid
+            if killpid(int(pid), 0) != 0:
+                return
         except OSError, e:
             if e.errno != 3:
                 return
