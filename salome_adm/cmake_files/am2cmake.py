@@ -1080,6 +1080,10 @@ class CMakeFile(object):
             )
             ''')
             self.files.append("static/header.html.in")
+                        
+            if mod in ['geom', 'smesh', 'visu'] and self.root[-len(mod):] == mod.upper():
+              self.files.append("static/header_py.html.in")
+     
         if self.module == "yacs":
             key = "salomegui"
             if self.root[-len(key):] == key:
