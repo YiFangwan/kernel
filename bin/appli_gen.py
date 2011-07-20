@@ -260,6 +260,9 @@ export MMGT_REENTRANT=1
     <parameter name="embedded"   value="SalomeAppEngine,study,cppContainer,registry,moduleCatalog"/>
     <parameter name="standalone" value="pyContainer"/>
   </section>
+  <section name="VTKViewer">
+    <parameter name="use_advanced_selection_algorithm" value="False"/>
+  </section>
 </document>
 """
     mods=[]
