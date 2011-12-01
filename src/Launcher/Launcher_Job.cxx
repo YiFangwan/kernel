@@ -544,7 +544,7 @@ Launcher::Job::common_job_params()
     params["VISHNU_PASSWORD"] = it->second;
   it = _specific_parameters.find("VishnuHostname");
   if (it != _specific_parameters.end())
-    params["VISHNU_HOSTNAME"] = it->second;
+    params["VISHNU_HOST_NAME"] = it->second;
   it = _specific_parameters.find("VishnuHostLogin");
   if (it != _specific_parameters.end())
     params["VISHNU_HOST_LOGIN"] = it->second;
