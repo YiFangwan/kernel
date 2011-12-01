@@ -539,6 +539,18 @@ Launcher::Job::common_job_params()
   std::map<std::string, std::string>::iterator it = _specific_parameters.find("LoalLevelerJobType");
   if (it != _specific_parameters.end())
     params["LL_JOBTYPE"] = it->second;
+  it = _specific_parameters.find("VishnuPassword");
+  if (it != _specific_parameters.end())
+    params["VISHNU_PASSWORD"] = it->second;
+  it = _specific_parameters.find("VishnuHostname");
+  if (it != _specific_parameters.end())
+    params["VISHNU_HOSTNAME"] = it->second;
+  it = _specific_parameters.find("VishnuHostLogin");
+  if (it != _specific_parameters.end())
+    params["VISHNU_HOST_LOGIN"] = it->second;
+  it = _specific_parameters.find("VishnuHostWorkdir");
+  if (it != _specific_parameters.end())
+    params["VISHNU_HOST_WORKDIR"] = it->second;
   return params;
 }
 
