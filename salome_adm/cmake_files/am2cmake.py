@@ -637,6 +637,16 @@ class CMakeFile(object):
                             INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
                             """)
                             pass
+                    	if self.module == "tripoli":
+                            newlines.append("""
+                            SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
+                            SET(MATERIALS_ROOT_DIR $ENV{MATERIALS_ROOT_DIR})
+                            INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindPROE.cmake)
+                            INCLUDE(${MATERIALS_ROOT_DIR}/adm_local/cmake_files/FindMATERIALS.cmake)
+                            INCLUDE(${CMAKE_SOURCE_DIR}/adm_local/cmake_files/FindLibJpeg.cmake)
+                            """)
+                            pass
                         pass
                     pass
                 pass
@@ -769,6 +779,12 @@ class CMakeFile(object):
                 SET(WITH_QT4 ON)
                 """)
                 pass
+            elif self.module == "tripoli":
+                newlines.append("""
+                SET(WITH_MCNP ON)
+                SET(WITH_PROE ON)
+                """)
+                pass
             # --
             newlines.append("""
             set(VERSION 6.4.0)
@@ -817,6 +833,11 @@ class CMakeFile(object):
                 SET(AM_CPPFLAGS ${AM_CPPFLAGS} -DWITH_SALOMEDS_OBSERVER -DSUIT_ENABLE_PYTHON)
                 SET(AM_CXXFLAGS ${AM_CXXFLAGS} -DWITH_SALOMEDS_OBSERVER -DSUIT_ENABLE_PYTHON)
                 ENDIF(KERNEL_ROOT_DIR)
+                ''')
+                pass
+	    if self.module == "tripoli":
+                newlines.append(r'''
+                SET(var ${var} -DWITH_MCNP)
                 ''')
                 pass
             if self.module in ["smesh", "netgenplugin", "blsurfplugin", "ghs3dplugin", "hexoticplugin"]:
@@ -2305,7 +2326,7 @@ class CMakeFile(object):
         IF(ext STREQUAL .qm)
         STRING(REGEX REPLACE .qm .ts input ${f})
         ''')
-        if self.module in ["kernel", "gui", "yacs"]:
+        if self.module in ["kernel", "gui", "yacs", "materials", "tripoli"]:
             newlines.append(r'''
             SET(input ${CMAKE_CURRENT_SOURCE_DIR}/resources/${input})
             ''')
