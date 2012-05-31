@@ -2417,7 +2417,7 @@ class CMakeFile(object):
         IF(ext STREQUAL .qm)
         STRING(REGEX REPLACE .qm .ts input ${f})
         ''')
-        if self.module in ["kernel", "gui", "yacs", "tripoli", "materials"]:
+        if self.module in ["kernel", "gui", "yacs", "tripoli", "materials", "montecarlo"]:
             newlines.append(r'''
             SET(input ${CMAKE_CURRENT_SOURCE_DIR}/resources/${input})
             ''')
