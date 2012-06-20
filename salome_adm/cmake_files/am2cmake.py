@@ -822,6 +822,11 @@ class CMakeFile(object):
                 SET(WITH_PROE ON)
                 """)
                 pass
+            elif self.module == "montecarlo":
+                newlines.append("""
+                SET(WITH_PROE ON)
+                """)
+                pass
             # --
             newlines.append("""
             set(VERSION 6.5.0)
