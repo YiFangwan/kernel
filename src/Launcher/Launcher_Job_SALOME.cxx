@@ -20,6 +20,7 @@
 // Author: André RIBES - EDF R&D
 //
 #include "Launcher_Job_SALOME.hxx"
+#include "Basics_DirUtils.hxx"
 
 #ifdef WITH_LIBBATCH
 #include <Batch/Batch_Constants.hxx>
@@ -64,9 +65,14 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
   // parameters
   std::string work_directory = params[Batch::WORKDIR].str();
 
-  std::string launch_script = "/tmp/runSalome_" + _job_file_name + "_" + _launch_date + ".sh";
+  std::string launch_script = Kernel_Utils::GetTmpDir() + "runSalome_" + _job_file_name + "_" + _launch_date + ".sh";
   std::ofstream launch_script_stream;
-  launch_script_stream.open(launch_script.c_str(), std::ofstream::out);
+  launch_script_stream.open(launch_script.c_str(), 
+                            std::ofstream::out
+#ifdef WIN32		
+ | std::ofstream::binary   //rnv: to avoid CL+RF end of line on windows
+#endif
+                           );
    
   // Begin of script
   launch_script_stream << "#!/bin/sh -f" << std::endl;
