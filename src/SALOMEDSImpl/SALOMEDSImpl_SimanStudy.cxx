@@ -49,7 +49,9 @@ using namespace std;
 SALOMEDSImpl_SimanStudy::SALOMEDSImpl_SimanStudy()
 {
   _study = 0;
+#ifdef WITH_SIMANIO
   _checkedOut = new SimanIO_Configuration;
+#endif
 }
 
 //============================================================================
@@ -59,8 +61,8 @@ SALOMEDSImpl_SimanStudy::SALOMEDSImpl_SimanStudy()
 //============================================================================
 SALOMEDSImpl_SimanStudy::~SALOMEDSImpl_SimanStudy()
 {
-  if (_checkedOut) {
 #ifdef WITH_SIMANIO
+  if (_checkedOut) {
     SimanIO_Configuration::ActivitiesIterator actIter(*_checkedOut);
     for(; actIter.More(); actIter.Next()) {
       SimanIO_Activity::DocumentsIterator aDocIter(actIter.Activity());
@@ -80,9 +82,9 @@ SALOMEDSImpl_SimanStudy::~SALOMEDSImpl_SimanStudy()
         }
       }
     }
-#endif
     delete _checkedOut;
   }
+#endif
 }
 
 //============================================================================
