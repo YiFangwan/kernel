@@ -504,6 +504,7 @@ class CMakeFile(object):
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindDOXYGEN.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindLIBBATCH.cmake)
                     INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
+                    INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/FindSIMANIO.cmake)
                     """)
                     pass
                 else:
