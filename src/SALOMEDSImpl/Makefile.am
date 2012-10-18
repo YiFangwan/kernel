@@ -211,6 +211,8 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_GenericAttribute.hxx \
 	SALOMEDSImpl_SComponent.hxx \
 	SALOMEDSImpl_SComponentIterator.hxx \
+	SALOMEDSImpl_SimanStudy.hxx \
+	SALOMEDSImpl_SimanStudy.cxx \
 	SALOMEDSImpl_SObject.hxx \
 	SALOMEDSImpl_StudyBuilder.hxx \
 	SALOMEDSImpl_StudyHandle.hxx \
@@ -222,10 +224,21 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_GenericVariable.hxx \
 	SALOMEDSImpl_ScalarVariable.hxx
 
+if WITH_SIMANIO
+
+COMMON_CPPFLAGS += -DWITH_SIMANIO @SIMANIO_CPPFLAGS@ \
+  -I$(srcdir)/../KernelHelpers -I$(srcdir)/../NamingService -I$(srcdir)/../LifeCycleCORBA -I$(srcdir)/../Utils \
+  -I$(srcdir)/../Container -I$(srcdir)/../TOOLSDS
+
+COMMON_LIBS += @SIMANIO_LIBS@ ../KernelHelpers/libSalomeKernelHelpers.la ../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
+               ../Container/libSalomeContainer.la ../TOOLSDS/libTOOLSDS.la
+
+endif
+
 libSalomeDSImpl_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeDSImpl_la_LDFLAGS  = -no-undefined -version-info=0:0:0
 libSalomeDSImpl_la_LIBADD    = $(COMMON_LIBS) $(CORBA_LIBS)
-
+                
 #
 # ===============================================================
 # Executables targets

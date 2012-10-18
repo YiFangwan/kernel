@@ -65,4 +65,8 @@
 #include "SALOMEDSClient_UseCaseBuilder.hxx"
 #include "SALOMEDSClient_UseCaseIterator.hxx"
 
+#ifdef WITH_SIMANIO
+#include "SALOMEDSClient_SimanStudy.hxx"
+#endif
+
 #endif

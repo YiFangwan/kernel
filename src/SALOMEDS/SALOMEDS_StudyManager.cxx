@@ -39,6 +39,8 @@
 
 #include "Basics_Utils.hxx"
 
+#include "SALOMEDS_SimanStudy.hxx"
+
 #ifdef WIN32
 #include <process.h>
 #else
@@ -323,4 +325,22 @@ SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_p
   }
 
   return driver;
+}
+
+_PTR(SimanStudy) SALOMEDS_StudyManager::GetSimanStudy()
+{
+  SALOMEDSClient_SimanStudy* aSiman = NULL;
+  if (_isLocal) {
+    SALOMEDS::Locker lock;
+
+    SALOMEDSImpl_SimanStudy* aSiman_impl = _local_impl->GetSimanStudy();
+    if(!aSiman_impl) return _PTR(SimanStudy)(aSiman);
+    aSiman = new SALOMEDS_SimanStudy(aSiman_impl);
+  }
+  else { 
+    SALOMEDS::SimanStudy_var aSiman_impl = _corba_impl->GetSimanStudy();
+    if(CORBA::is_nil(aSiman_impl)) return _PTR(SimanStudy)(aSiman);
+    aSiman = new SALOMEDS_SimanStudy(aSiman_impl);
+  }
+  return _PTR(SimanStudy)(aSiman);
 }

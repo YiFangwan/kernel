@@ -42,9 +42,12 @@
 #include "Basics_Utils.hxx"
 #include "SALOME_GenericObj_i.hh"
 
+#include "SALOMEDS_SimanStudy_i.hxx"
+
 #include <sstream>
 #include <vector>
 #include <map>
+
 
 #ifdef WIN32
 #include <process.h>
@@ -476,6 +479,21 @@ CORBA::Long SALOMEDS_StudyManager_i::getPID()
 void SALOMEDS_StudyManager_i::ShutdownWithExit()
 {
   exit( EXIT_SUCCESS );
+}
+
+//============================================================================
+/*! Function : GetSimanStudy
+ *  Purpose  : Retruns the created or cashed SimanStudy
+ */
+//============================================================================
+SALOMEDS::SimanStudy_ptr SALOMEDS_StudyManager_i::GetSimanStudy()
+{
+  SALOMEDS::Locker lock;
+
+  SALOMEDSImpl_SimanStudy* aSimanImpl = _impl->GetSimanStudy();
+
+  SALOMEDS_SimanStudy_i* aSiman_servant = SALOMEDS_SimanStudy_i::GetSimanServant(aSimanImpl, _orb);
+  return aSiman_servant->_this();
 }
 
 //===========================================================================

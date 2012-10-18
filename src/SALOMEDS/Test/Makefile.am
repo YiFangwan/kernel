@@ -85,6 +85,10 @@ COMMON_LIBS =\
 	$(RPATH)/SALOMEDS/libSalomeDS.la \
 	$(top_builddir)/idl/libSalomeIDLKernel.la
 
+if WITH_SIMANIO
+  COMMON_CPPFLAGS += -DWITH_SIMANIO
+endif
+
 #
 # ===============================================================
 # Libraries targets
