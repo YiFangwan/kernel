@@ -37,6 +37,7 @@ include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 salomeinclude_HEADERS = \
 	SALOME_Component_i.hxx \
 	SALOME_Container_i.hxx \
+	SALOME_DataContainer_i.hxx \
 	SALOME_FileTransfer_i.hxx \
 	SALOME_FileRef_i.hxx \
 	SALOME_ContainerManager.hxx \
@@ -48,7 +49,8 @@ salomeinclude_HEADERS = \
 dist_salomescript_PYTHON =\
 	SALOME_ComponentPy.py \
 	SALOME_PyNode.py \
-	SALOME_Container.py
+	SALOME_Container.py \
+	SALOME_DataContainerPy.py
 
 # These files are executable scripts
 dist_salomescript_SCRIPTS=\
@@ -106,6 +108,7 @@ lib_LTLIBRARIES = libSalomeContainer.la
 libSalomeContainer_la_SOURCES=\
 	Component_i.cxx \
 	Container_i.cxx \
+	SALOME_DataContainer_i.cxx \
 	SALOME_FileTransfer_i.cxx \
 	SALOME_FileRef_i.cxx \
 	Container_init_python.cxx \

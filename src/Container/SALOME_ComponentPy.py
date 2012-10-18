@@ -314,3 +314,9 @@ class SALOME_ComponentPy_i (Engines__POA.EngineComponent):
     def getObjectInfo(self, studyId, entry):
         return ""
 
+
+    def importData(self, studyId, dataContainer, options):
+	return [] # no implmenetation by default
+
+    def getModifiedData(self, studyId):
+	return [] # no implmenetation by default
