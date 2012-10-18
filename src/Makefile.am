@@ -50,9 +50,9 @@ SUBDIR_CORBA = \
   LifeCycleCORBA_SWIG \
   SALOMEDSClient \
   TOOLSDS \
+  KernelHelpers \
   SALOMEDSImpl \
   SALOMEDS \
-  KernelHelpers \
   ModuleGenerator \
   Communication \
   Communication_SWIG \
