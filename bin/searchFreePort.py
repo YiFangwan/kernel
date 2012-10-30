@@ -22,7 +22,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-def searchFreePort(args, save_config=1):
+def searchFreePort(args={}, save_config=1):
   """
   Search free port for SALOME session.
   Returns first found free port number.
@@ -72,7 +72,7 @@ def searchFreePort(args, save_config=1):
         kwargs["with_username"]=True
       #
       from ORBConfigFile import writeORBConfigFile
-      omniorb_config, giopsize = writeORBConfigFile(home, hostname, NSPORT, kwargs)
+      writeORBConfigFile(home, hostname, NSPORT, kwargs)
 
       args['port'] = os.environ['NSPORT']
       #
