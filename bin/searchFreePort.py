@@ -72,7 +72,7 @@ def searchFreePort(args={}, save_config=1):
         kwargs["with_username"]=True
       #
       from ORBConfigFile import writeORBConfigFile
-      writeORBConfigFile(home, hostname, NSPORT, kwargs)
+      omniorb_config, giopsize = writeORBConfigFile(home, hostname, NSPORT, kwargs)
 
       args['port'] = os.environ['NSPORT']
       #
