@@ -251,6 +251,10 @@ module Engines
     //! Returns the extension (type) of the document corresponding to this data container.
     //! It is taked from the SIMAN URL.
     string extension();
+
+    //! Defines the extension. It is required is extension of the file is not
+    //! matched with a read extension: archived file, for example.
+    void setExtension(in string extension);
   };
                                       
 
