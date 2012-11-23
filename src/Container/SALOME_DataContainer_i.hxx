@@ -45,6 +45,12 @@ public:
                           const char* name,
                           const char* identifier,
                           const bool removeAfterGet);
+
+  Engines_DataContainer_i(char* stream,
+                          const int   streamSize,
+                          const char* name,
+                          const char* identifier,
+                          const bool removeAfterGet);
   virtual ~Engines_DataContainer_i();
 
   // --- CORBA methods
@@ -52,6 +58,7 @@ public:
   virtual char* name();
   virtual char* identifier();
   virtual char* extension();
+  virtual void  setExtension(const char* theExt);
             
 protected:
 
@@ -60,6 +67,8 @@ protected:
   std::string myIdentifier; ///< module identifier of the document corresponding to this data
   std::string myURL;        ///< path to the locally located file
   bool        myRemoveAfterGet; ///< if this flag is true, file must be removed after the first "get" method call
+  char*       myStream;     ///< if it is not NULL, data must be get from this stream, not from the file
+  int         myStreamSize; ///< size (in bytes) if the stream in myStream
 };
 
 #endif

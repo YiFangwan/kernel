@@ -49,25 +49,32 @@ class SALOME_DataContainerPy_i (Engines__POA.DataContainer):
 
     #-------------------------------------------------------------------------
 
-    def __init__(self, url, name, identifier, removeAfterGet):
-        self._url = url
+    def __init__(self, urlorstream, name, identifier, removeAfterGet, isStream = False):
+        self._urlorstream = urlorstream
         self._name = name
         self._identifier = identifier
         self._removeAfterGet = removeAfterGet
-        self._ext = url[url.rfind(".") + 1 : ]
+        self._isStream = isStream
+        if isStream:
+          self._ext = ""
+        else:
+          self._ext = urlorstream[urlorstream.rfind(".") + 1 : ]
 
     #-------------------------------------------------------------------------
 
     def get(self):
-      f = open(self._url, 'r')
+      if self._isStream:
+        return self._urlorstream
+
+      f = open(self._urlorstream, 'r')
       stream = f.read()
       f.close()
       if self._removeAfterGet:
-        os.remove(self._url)
+        os.remove(self._urlorstream)
         try: # try to remove directory if it is empty
-          index = max(self._url.rfind("\\"), self._url.rfind("/"))
+          index = max(self._urlorstream.rfind("\\"), self._url.rfind("/"))
           if index > 0:
-            os.rmdir(self._url[:index])
+            os.rmdir(self._urlorstream[:index])
         except:
           pass
       return stream
@@ -84,3 +91,6 @@ class SALOME_DataContainerPy_i (Engines__POA.DataContainer):
 
     def extension(self):
 	return self._ext
+
+    def setExtension(self, ext):
+	self._ext = ext
