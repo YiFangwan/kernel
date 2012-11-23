@@ -77,7 +77,7 @@ SALOMEDSImpl_SimanStudy::~SALOMEDSImpl_SimanStudy()
           SALOMEDS::ListOfFileNames aTmpFiles;
           aTmpFiles.length(1);
           aTmpFiles[0] = aFileName.c_str();
-          // try to removetemporary directory that contains this file if directory becomes empty
+          // try to remove temporary directory that contains this file if directory becomes empty
           SALOMEDS_Tool::RemoveTemporaryFiles(aDir, aTmpFiles, true);
         }
       }
@@ -180,7 +180,9 @@ void SALOMEDSImpl_SimanStudy::CheckIn(const std::string theModuleName)
       if (CORBA::is_nil(aComp)) {
         MESSAGE("Checkin: component "<<actIter.Activity().Module()<<" is nil");
       } else {
-        const SimanIO_Document& aDoc = actIter.Activity().Document(aDocId);
+        SimanIO_Document aDoc;
+        if (aDocId != -1) // get document is at least one exists in this action, "-1" is the Id of the new document otherwise
+          aDoc = actIter.Activity().Document(aDocId);
         Engines::ListOfData_var aList = aComp->getModifiedData(_study->StudyId());
         int aNumData = aList->length();
         for(int aDataIndex = 0; aDataIndex < aNumData; aDataIndex++) {
@@ -229,8 +231,9 @@ void SALOMEDSImpl_SimanStudy::CheckIn(const std::string theModuleName)
     SALOMEDS::ListOfFileNames aTmpFiles;
     aTmpFiles.length(aTemporaryFileNames.size());
     list<string>::iterator aFilesIter = aTemporaryFileNames.begin();
-    for(int a = 0; aFilesIter != aTemporaryFileNames.end(); aFilesIter++, a++)
+    for(int a = 0; aFilesIter != aTemporaryFileNames.end(); aFilesIter++, a++) {
       aTmpFiles[a] = aFilesIter->c_str();
+    }
     SALOMEDS_Tool::RemoveTemporaryFiles(aTmpDir, aTmpFiles, true);
   } else {
     MESSAGE("There is no connection to SIMAN!")
