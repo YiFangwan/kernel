@@ -130,7 +130,7 @@ char* SALOMEDS_SimanStudy_i::ScenarioId()
 //============================================================================
 void SALOMEDS_SimanStudy_i::ScenarioId(const char* theId)
 {
-  _impl->StudyId(theId);
+  _impl->ScenarioId(theId);
 }
 
 //============================================================================
