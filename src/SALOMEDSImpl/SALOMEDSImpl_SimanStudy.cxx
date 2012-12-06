@@ -67,7 +67,7 @@ SALOMEDSImpl_SimanStudy::~SALOMEDSImpl_SimanStudy()
     for(; actIter.More(); actIter.Next()) {
       SimanIO_Activity::DocumentsIterator aDocIter(actIter.Activity());
       for(; aDocIter.More(); aDocIter.Next()) {
-        const SimanIO_Document& aDoc = aDocIter.Document();
+        /*const*/ SimanIO_Document& aDoc = aDocIter.Document();
         SimanIO_Document::FilesIterator aFileIter(aDoc);
         for(; aFileIter.More(); aFileIter.Next()) {
           string aURL = aFileIter.URL();
@@ -117,7 +117,7 @@ void SALOMEDSImpl_SimanStudy::CheckOut(SALOMEDSImpl_Study* theTarget)
         for(; aDocIter.More(); aDocIter.Next()) {
           if (_filesId.find(aDocIter.DocId()) == _filesId.end())
             _filesId[aDocIter.DocId()] = map<string, int>();
-          const SimanIO_Document& aDoc = aDocIter.Document(); 
+          /*const*/ SimanIO_Document& aDoc = aDocIter.Document(); 
           SimanIO_Document::FilesIterator aFileIter(aDoc);
           for(; aFileIter.More(); aFileIter.Next()) {
             if (aFileIter.GetProcessing() == FILE_IMPORT) {
@@ -169,7 +169,7 @@ void SALOMEDSImpl_SimanStudy::CheckIn(const std::string theModuleName)
     SimanIO_Configuration::ActivitiesIterator actIter(*_checkedOut);
     for(; actIter.More(); actIter.Next()) {
       int aDocId = actIter.Activity().DocumentMaxID();
-      if (aDocId < 0) continue; // no documents => no check in
+      //if (aDocId < 0) continue; // no documents => no check in
       if (!theModuleName.empty() && theModuleName != actIter.Activity().Module()) {
         continue;
       }
