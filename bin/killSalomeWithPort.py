@@ -137,7 +137,7 @@ def appliCleanOmniOrbConfig(port):
 
 ########## kills all salome processes with the given port ##########
 
-def shutdownMyPort(port):
+def shutdownMyPort(port, cleanup=True):
     """
     Shutdown SALOME session running on the specified port.
     Parameters:
@@ -162,18 +162,25 @@ def shutdownMyPort(port):
                                       with_port=port,
                                       **kwargs)
     os.environ['OMNIORB_CONFIG'] = omniorb_config
+    os.environ['NSPORT'] = str(port)
 
     # give the chance to the servers to shutdown properly
     try:
         import time
-        import salome_kernel
-        orb, lcc, naming_service, cm = salome_kernel.salome_kernel_init()
+        from omniORB import CORBA
+        from LifeCycleCORBA import LifeCycleCORBA
         # shutdown all
+        orb = CORBA.ORB_init([''], CORBA.ORB_ID)
+        lcc = LifeCycleCORBA(orb)
         lcc.shutdownServers()
         # give some time to shutdown to complete
         time.sleep(1)
         # shutdown omniNames and notifd
-        salome_kernel.LifeCycleCORBA.killOmniNames()
+        if cleanup:
+            lcc.killOmniNames()
+            time.sleep(1)
+            pass
+        pass
     except:
         pass
     pass
@@ -188,7 +195,7 @@ def killMyPort(port):
 
     # try to shutdown session nomally
     import threading, time
-    threading.Thread(target=shutdownMyPort, args=(port,)).start()
+    threading.Thread(target=shutdownMyPort, args=(port,False)).start()
     time.sleep(3) # wait a little, then kill processes (should be done if shutdown procedure hangs up)
 
     # new-style dot-prefixed pidict file
@@ -355,10 +362,19 @@ def killMyPortSpy(pid, port):
     return
 
 if __name__ == "__main__":
+    if len(sys.argv) < 2:
+        print "Usage: "
+        print "  %s <port>" % os.path.basename(sys.argv[0])
+        print
+        print "Kills SALOME session running on specified <port>."
+        sys.exit(1)
+        pass
     if sys.argv[1] == "--spy":
-        pid = sys.argv[2]
-        port = sys.argv[3]
-        killMyPortSpy(pid, port)
+        if len(sys.argv) > 3:
+            pid = sys.argv[2]
+            port = sys.argv[3]
+            killMyPortSpy(pid, port)
+            pass
         sys.exit(0)
         pass
     for port in sys.argv[1:]:
