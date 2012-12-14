@@ -56,86 +56,133 @@
 #include <unistd.h>
 #endif
 
-class Notifier: public SALOMEDSImpl_AbstractCallback
+namespace SALOMEDS
 {
-public:
-Notifier(CORBA::ORB_ptr orb)
-{
-  _orb = CORBA::ORB::_duplicate(orb);
-}
+  class Notifier: public SALOMEDSImpl_AbstractCallback
+  {
+  public:
+    Notifier(CORBA::ORB_ptr orb)
+    {
+      _orb = CORBA::ORB::_duplicate(orb);
+    }
 
-//============================================================================
-/*! Function : addSO_Notification
- *  Purpose  : This function tells all the observers that a SO has been added
- */
-//============================================================================
+    //============================================================================
+    /*! Function : addSO_Notification
+     *  Purpose  : This function tells all the observers that a SO has been added
+     */
+    //============================================================================
 
-  virtual bool addSO_Notification(const SALOMEDSImpl_SObject& theSObject)
+    virtual bool addSO_Notification(const SALOMEDSImpl_SObject& theSObject)
     {
       std::string anID=theSObject.GetID();
       const char* cID=anID.c_str();
       for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
-        {
-          it->first->notifyObserverID(cID,1);
-        }
+      {
+        it->first->notifyObserverID(cID,1);
+      }
       return true; // NGE return always true but can be modified if needed
     }
 
-//============================================================================
-/*! Function : removeSO_Notification
- *  Purpose  : This function tells all the observers that a SO has been removed
- */
-//============================================================================
+    //============================================================================
+    /*! Function : removeSO_Notification
+     *  Purpose  : This function tells all the observers that a SO has been removed
+     */
+    //============================================================================
 
-  virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& theSObject)
+    virtual bool removeSO_Notification(const SALOMEDSImpl_SObject& theSObject)
     {
       std::string anID=theSObject.GetID();
       const char* cID=anID.c_str();
       for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
-        {
-          it->first->notifyObserverID(cID,2);
-        }
+      {
+        it->first->notifyObserverID(cID,2);
+      }
       return true; // NGE return always true but can be modified if needed
     }
 
-//============================================================================
-/*! Function : modifySO_Notification
- *  Purpose  : This function tells all the observers that a SO has been modified
- */
-//============================================================================
+    //============================================================================
+    /*! Function : modifySO_Notification
+     *  Purpose  : This function tells all the observers that a SO has been modified
+     */
+    //============================================================================
 
-  virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject, int reason)
+    virtual bool modifySO_Notification(const SALOMEDSImpl_SObject& theSObject, int reason)
     {
       for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
+      {
+        if(it->second)
         {
-          if(it->second)
-            {
-              std::string anID=theSObject.GetID();
-              const char* cID=anID.c_str();
-              it->first->notifyObserverID(cID,reason);
-            }
+          std::string anID=theSObject.GetID();
+          const char* cID=anID.c_str();
+          it->first->notifyObserverID(cID,reason);
         }
+      }
       return true; // NGE return always true but can be modified if needed
     }
 
-//============================================================================
-/*! Function : attach
- *  Purpose  : register an Observer
- */
-//============================================================================
+    //============================================================================
+    /*! Function : attach
+     *  Purpose  : register an Observer
+     */
+    //============================================================================
 
-  virtual void attach(SALOMEDS::Observer_ptr theObs, bool modify)
+    virtual void attach(SALOMEDS::Observer_ptr theObs, bool modify)
     {
-      myObservers.push_back(std::pair< SALOMEDS::Observer_var, bool > (SALOMEDS::Observer::_duplicate(theObs),modify));
+      myObservers.push_back(std::make_pair(SALOMEDS::Observer::_duplicate(theObs),modify));
     }
 
-private:
+  private:
     typedef std::list< std::pair< SALOMEDS::Observer_var, bool > > ObsList;
     typedef ObsList::iterator ObsListIter;
     ObsList myObservers;
     CORBA::ORB_var                    _orb;
-};
+  };
 
+  class GenObjRegister: public SALOMEDSImpl_AbstractCallback
+  {
+  public:
+    GenObjRegister(CORBA::ORB_ptr orb)
+    {
+      _orb = CORBA::ORB::_duplicate(orb);
+    }
+    virtual void RegisterGenObj  (const std::string& theIOR)
+    {
+      try
+      {
+        CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
+        if ( obj->_non_existent() ) return;
+        SALOME::GenericObj_var gobj = SALOME::GenericObj::_narrow(obj);
+        if(! CORBA::is_nil(gobj) )
+        {
+          gobj->Register();
+        }
+      }
+      catch(const CORBA::Exception& e)
+      {
+      }
+    }
+    virtual void UnRegisterGenObj(const std::string& theIOR)
+    {
+      try
+      {
+        CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
+        if ( obj->_non_existent() ) return;
+        SALOME::GenericObj_var gobj = SALOME::GenericObj::_narrow(obj);
+        if(! CORBA::is_nil(gobj) )
+        {
+          gobj->UnRegister();
+        }
+      }
+      catch(const CORBA::Exception& e)
+      {
+      }
+    }
+
+  private:
+    CORBA::ORB_var _orb;
+  };
+
+} // namespace SALOMEDS
 
 std::map<SALOMEDSImpl_Study* , SALOMEDS_Study_i*> SALOMEDS_Study_i::_mapOfStudies;
 
@@ -145,14 +192,16 @@ std::map<SALOMEDSImpl_Study* , SALOMEDS_Study_i*> SALOMEDS_Study_i::_mapOfStudie
  */
 //============================================================================
 SALOMEDS_Study_i::SALOMEDS_Study_i(SALOMEDSImpl_Study* theImpl,
-                                   CORBA::ORB_ptr orb)
+                                   CORBA::ORB_ptr      orb)
 {
-  _orb = CORBA::ORB::_duplicate(orb);
-  _impl = theImpl;
-  _notifier = new Notifier(_orb);
-  theImpl->setNotifier(_notifier);
+  _orb            = CORBA::ORB::_duplicate(orb);
+  _impl           = theImpl;
+  _builder        = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);  
+  _notifier       = new SALOMEDS::Notifier(_orb);
+  _genObjRegister = new SALOMEDS::GenObjRegister(_orb);
 
-  _builder = new SALOMEDS_StudyBuilder_i(_impl->NewBuilder(), _orb);  
+  theImpl->setNotifier(_notifier);
+  theImpl->setGenObjRegister( _genObjRegister );
 }
   
 //============================================================================
@@ -168,6 +217,9 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
   poa->deactivate_object(anObjectId.in());
   _builder->_remove_ref();
   
+  _impl->setNotifier(0);
+  delete _notifier;
+  delete _genObjRegister;
   //delete implementation
   delete _impl;
   _mapOfStudies.erase(_impl);
@@ -571,7 +623,7 @@ char* SALOMEDS_Study_i::Name()
 void SALOMEDS_Study_i::Name(const char* name)
 {
   SALOMEDS::Locker lock;  
-  _impl->Name(std::string((char*)name));
+  _impl->Name(std::string(name));
 }
 
 //============================================================================
@@ -840,9 +892,9 @@ void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/)
     try {
       CORBA::Object_var obj = _orb->string_to_object(anIORs[i].c_str());
       SALOME::GenericObj_var aGeneric = SALOME::GenericObj::_narrow(obj);
-	  //rnv: To avoid double deletion of the Salome Generic Objects:
-	  //rnv: 1. First decrement of the reference count in the SALOMEDSImpl_AttributeIOR::~SALOMEDSImpl_AttributeIOR();
-	  //rnv: 2. Second decrement of the reference count in the next string : aGeneric->UnRegister();
+          //rnv: To avoid double deletion of the Salome Generic Objects:
+          //rnv: 1. First decrement of the reference count in the SALOMEDSImpl_AttributeIOR::~SALOMEDSImpl_AttributeIOR();
+          //rnv: 2. Second decrement of the reference count in the next string : aGeneric->UnRegister();
       //if (!CORBA::is_nil(aGeneric)) aGeneric->UnRegister();
     } catch (...) {}
   }
@@ -1245,7 +1297,7 @@ void SALOMEDS_Study_i::EnableUseCaseAutoFilling(CORBA::Boolean isEnabled)
 void SALOMEDS_Study_i::attach(SALOMEDS::Observer_ptr theObs,CORBA::Boolean modify)
 {
   if(_notifier)
-    _notifier->attach(theObs,modify);
+    static_cast<SALOMEDS::Notifier*>(_notifier)->attach(theObs,modify);
 }
 
 //===========================================================================
