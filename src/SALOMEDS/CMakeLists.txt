@@ -265,5 +265,7 @@ SET(COMMON_HEADERS_HXX
   SALOMEDS_GenericAttribute.hxx
   SALOMEDS_IParameters.hxx
   SALOMEDS_Defines.hxx
+  SALOMEDS_wrap.hxx
+  SALOMEDS_Attributes_wrap.hxx
 )
 INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${KERNEL_salomeinclude_HEADERS})
