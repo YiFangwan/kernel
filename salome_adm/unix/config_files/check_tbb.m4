@@ -80,9 +80,9 @@ if test "x$TBBHOME" != "xno"; then
 
 dnl check tbb header
 
-    CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES/tbb"
+    CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES"
 
-    AC_CHECK_HEADER(tbb.h,tbb_ok=yes ,tbb_ok=no)
+    AC_CHECK_HEADER(tbb/tbb.h,tbb_ok=yes ,tbb_ok=no)
 fi
 
 if  test "x$tbb_ok" = "xyes"
@@ -92,7 +92,7 @@ dnl check TBB library
 
   LIBS_old="$LIBS"
   LIBS="$LIBS $LOCAL_LIBS"
-  AC_TRY_LINK([#include <tbb.h>],
+  AC_TRY_LINK([#include <tbb/tbb.h>],
               [tbb::simple_partitioner()],
               tbb_ok=yes,tbb_ok=no)
 
