@@ -79,7 +79,7 @@ Launcher::Job::stopJob()
     {
       _batch_job_id.deleteJob();
     }
-    catch (const Batch::EmulationException &ex)
+    catch (const Batch::GenericException &ex)
     {
       LAUNCHER_INFOS("WARNING: exception when stopping the job: " << ex.message);
     }
@@ -99,7 +99,7 @@ Launcher::Job::removeJob()
     {
       _batch_job_id.deleteJob();
     }
-    catch (const Batch::EmulationException &ex)
+    catch (const Batch::GenericException &ex)
     {
       LAUNCHER_INFOS("WARNING: exception when removing the job: " << ex.message);
     }
@@ -482,7 +482,6 @@ Launcher::Job::common_job_params()
     _work_directory += thedate;
   }
   params[Batch::WORKDIR] = _work_directory;
-  params[Batch::TMPDIR] = _work_directory; // To Compatibility -- remove ??? TODO
 
   // If result_directory is not defined, we use HOME environnement
   if (_result_directory == "")
