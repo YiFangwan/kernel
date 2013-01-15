@@ -23,7 +23,7 @@
 #include "Launcher.hxx"
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Constants.hxx>
+#include <libbatch/Batch_Constants.hxx>
 #endif
 
 Launcher::Job::Job()

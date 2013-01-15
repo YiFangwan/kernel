@@ -21,10 +21,10 @@
 //
 
 #ifdef WITH_LIBBATCH
-#include <Batch/Batch_Date.hxx>
-#include <Batch/Batch_BatchManagerCatalog.hxx>
-#include <Batch/Batch_FactBatchManager.hxx>
-#include <Batch/Batch_BatchManager.hxx>
+#include <libbatch/Batch_Date.hxx>
+#include <libbatch/Batch_BatchManagerCatalog.hxx>
+#include <libbatch/Batch_FactBatchManager.hxx>
+#include <libbatch/Batch_BatchManager.hxx>
 #endif
 
 #include "Basics_Utils.hxx"
