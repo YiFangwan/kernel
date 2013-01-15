@@ -457,6 +457,7 @@ Launcher::Job::common_job_params()
   params[Batch::NAME] = getJobName();
   params[Batch::USER] = _resource_definition.UserName;
   params[Batch::NBPROC] = _resource_required_params.nb_proc;
+  params[Batch::NBPROCPERNODE] = _resource_required_params.nb_proc_per_node;
 
   // Memory in megabytes
   if (_resource_required_params.mem_mb > 0)

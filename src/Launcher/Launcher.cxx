@@ -368,7 +368,6 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
   Batch::CommunicationProtocolType protocol;
   Batch::FactBatchManager * fact;
 
-  int nb_proc_per_node = params.DataForSort._nbOfProcPerNode;
   std::string hostname = params.HostName;
 
   switch(params.Protocol)
@@ -450,7 +449,7 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
   }
   LAUNCHER_MESSAGE("Instanciation of batch manager of type: " << bmType);
   Batch::BatchManager * batch_client = (*fact)(hostname.c_str(), params.UserName.c_str(),
-                                               protocol, mpi.c_str(), nb_proc_per_node);
+                                               protocol, mpi.c_str());
   return batch_client;
 }
 
