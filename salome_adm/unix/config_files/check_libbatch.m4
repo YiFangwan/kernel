@@ -72,7 +72,7 @@ fi
 
 CPPFLAGS_old="$CPPFLAGS"
 CPPFLAGS="$CPPFLAGS $LOCAL_INCLUDES"
-AC_CHECK_HEADER(libbatch/Batch_BatchManager.hxx,
+AC_CHECK_HEADER(libbatch/BatchManager.hxx,
 				libbatch_ok="yes",
 				libbatch_ok="no")
 CPPFLAGS="$CPPFLAGS_old"
