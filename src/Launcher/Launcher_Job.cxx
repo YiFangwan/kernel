@@ -455,7 +455,6 @@ Launcher::Job::common_job_params()
   Batch::Parametre params;
 
   params[Batch::NAME] = getJobName();
-  params[Batch::USER] = _resource_definition.UserName;
   params[Batch::NBPROC] = _resource_required_params.nb_proc;
   params[Batch::NBPROCPERNODE] = _resource_required_params.nb_proc_per_node;
 
