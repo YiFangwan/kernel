@@ -1,4 +1,4 @@
-# Find OmniORB4 cmake module
+# Find OmniORB4 cmake module and Pyhon backends
 #
 # sets the following variables:
 # OMNIORB_FOUND        - TRUE if OmniORB4 installation has been found
@@ -10,12 +10,20 @@
 #
 # optional variables:
 # OMNIORB_DIR          - OmniORB4 local installation path
+# OMNIORBPY_DIR        - OmniORBpy local installation path
 #
-# This module could use OMNIORB_DIR environment variable is set
+# This module could use OMNIORB_DIR environment variable if set
 # WARNING: The precedence order is the following:
 #   1. OMNIORB_DIR cmake variable
 #   2. OMNIORB_DIR environment variable
 #   3. default cmake search paths
+#
+# This module could use OMNIORBPY_DIR environment variable if set
+# WARNING: The precedence order is the following:
+#   1. OMNIORBPY_DIR cmake variable
+#   2. OMNIORBPY_DIR environment variable
+#   3. default cmake search paths
+#
 # NOTE: this goes against cmake default behavior for Find* macros, 
 # more on this issue: 
 # http://www.mail-archive.com/kde-buildsystem@kde.org/msg00589.html
@@ -198,10 +206,14 @@ ENDIF (WIN32)
 ##############################################################################
 FIND_PATH( OMNIORB_PYTHON_BACKEND
   NAMES python.py
-  PATHS ${OMNIORB_DIR} ${OMNIORBPY_DIR}
+  PATHS $ENV{OMNIORB_DIR}/lib/python${PYTHON_VERSION}/site-packages/omniidl_be $ENV{OMNIORBPY_DIR}/lib/python${PYTHON_VERSION}/site-packages/omniidl_be
+        ${OMNIORB_DIR}/lib/python${PYTHON_VERSION}/site-packages/omniidl_be ${OMNIORBPY_DIR}/lib/python${PYTHON_VERSION}/site-packages/omniidl_be
   DOC "Path to python-backend directory (omniidl_be) including python.py file"
   NO_DEFAULT_PATH )
 
+FIND_PATH( OMNIORB_PYTHON_BACKEND
+  NAMES python.py
+  DOC "Path to python-backend directory (omniidl_be) including python.py file" )
 ##############################################################################
 # cook our stuff
 ##############################################################################
@@ -211,7 +223,6 @@ if(OMNIORB_INCLUDE_DIR AND
     OMNIORB_LIBRARY_omniORB4 AND
     OMNIORB_LIBRARY_omnithread AND
     OMNIORB_LIBRARY_omniDynamic4 AND
-
     OMNIORB_IDL_COMPILER)
   set(OMNIORB_FOUND "TRUE")
   mark_as_advanced(OMNIORB_DIR)
@@ -224,6 +235,7 @@ if(OMNIORB_INCLUDE_DIR AND
   mark_as_advanced(OMNIORB_VERSION)
   mark_as_advanced(OMNIORB_LIBRARY_COS4)
   mark_as_advanced(OMNIORB_LIBRARY_COSDynamic4)
+  mark_as_advanced(OMNIORB_PYTHON_BACKEND)
 
   set(OMNIORB_LIBRARIES
     ${OMNIORB_LIBRARY_omniORB4}
