@@ -67,8 +67,8 @@ ADD_LIBRARY(CalciumC ${CalciumC_SOURCES})
 
 INSTALL(TARGETS CalciumC DESTINATION ${KERNEL_salomelib_LIBS})
 
-ADD_EXECUTABLE(test_DataIdContainer test_DataIdContainer.cxx)
-TARGET_LINK_LIBRARIES(test_DataIdContainer SalomeDSCSuperv SalomeContainer SalomeCalcium OpUtil SALOMELocalTrace ${OMNIORB_LIBRARIES} ${PLATFORM_LIBS})
+ADD_EXECUTABLE(test_DataIdContainer_Calcium test_DataIdContainer.cxx)
+TARGET_LINK_LIBRARIES(test_DataIdContainer_Calcium SalomeDSCSuperv SalomeContainer SalomeCalcium OpUtil SALOMELocalTrace ${OMNIORB_LIBRARIES} ${PLATFORM_LIBS})
 
 CONFIGURE_FILE(calcium_integer_port_uses.hxx.in calcium_integer_port_uses.hxx @ONLY)
 CONFIGURE_FILE(CalciumProvidesPort.hxx.in CalciumProvidesPort.hxx @ONLY)
