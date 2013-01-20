@@ -128,6 +128,11 @@ endif(SALOME_USE_DOC)
 
 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/SalomeMacros.cmake)
 
+SET(CALCIUM_IDL_INT_F77 long)
+SET(CALCIUM_CORBA_INT_F77 CORBA::Long)
+SET(LONG_OR_INT int)
+
+
 SET(KERNEL_salomebin_BINS bin/salome)
 
 SET(KERNEL_salomelib_LIBS lib/salome)

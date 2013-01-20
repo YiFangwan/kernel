@@ -64,6 +64,7 @@ SET(CalciumC_SOURCES
   calciumf.c
 )
 ADD_LIBRARY(CalciumC ${CalciumC_SOURCES})
+TARGET_LINK_LIBRARIES(CalciumC SalomeDSCSuperv SalomeCalcium)
 
 INSTALL(TARGETS CalciumC DESTINATION ${KERNEL_salomelib_LIBS})
 

@@ -206,8 +206,8 @@ ENDIF (WIN32)
 ##############################################################################
 FIND_PATH( OMNIORB_PYTHON_BACKEND
   NAMES python.py
-  PATHS $ENV{OMNIORB_DIR}/lib/python${PYTHON_VERSION}/site-packages/omniidl_be $ENV{OMNIORBPY_DIR}/lib/python${PYTHON_VERSION}/site-packages/omniidl_be
-        ${OMNIORB_DIR}/lib/python${PYTHON_VERSION}/site-packages/omniidl_be ${OMNIORBPY_DIR}/lib/python${PYTHON_VERSION}/site-packages/omniidl_be
+  PATHS $ENV{OMNIORB_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/omniidl_be $ENV{OMNIORBPY_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/omniidl_be
+        ${OMNIORB_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/omniidl_be ${OMNIORBPY_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages/omniidl_be
   DOC "Path to python-backend directory (omniidl_be) including python.py file"
   NO_DEFAULT_PATH )
 
@@ -270,7 +270,6 @@ if(OMNIORB_INCLUDE_DIR AND
   SET(OMNIORB_IDLPYFLAGS -bpython)
   IF (OMNIORB_PYTHON_BACKEND) 
     SET(OMNIORB_IDLPYFLAGS "-p ${OMNIORB_PYTHON_BACKEND} ${OMNIORB_IDLPYFLAGS}")
-    MESSAGE("Backend python for omniidl: " ${OMNIORB_IDLPYFLAGS})
   ENDIF(OMNIORB_PYTHON_BACKEND)
   SET(IDLCXXFLAGS ${OMNIORB_IDLCXXFLAGS})
   SET(IDLPYFLAGS ${OMNIORB_IDLPYFLAGS})
@@ -283,6 +282,7 @@ if(OMNIORB_INCLUDE_DIR AND
   IF(APPLE)
     SET(OMNIORB_DEFINITIONS "${OMNIORB_DEFINITIONS} -D__macos__")#for omnithread.h to be checked...
   ENDIF(APPLE)
+
 
 else()
   message(FATAL_ERROR "OmniORB is required, please define OMNIORB_DIR as environment or cmake variable")
