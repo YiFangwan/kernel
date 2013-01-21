@@ -66,6 +66,8 @@ find_package(Threads REQUIRED)
 
 # Python
 find_package(PythonInterp REQUIRED)
+# Set PythonLibs_FIND_VERSION To avoid problems when several versions are in the system
+SET(PythonLibs_FIND_VERSION ${PYTHON_VERSION_STRING})
 find_package(PythonLibs REQUIRED)
 set(PYLOGLEVEL WARNING)
 
