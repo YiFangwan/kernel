@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.4.7 FATAL_ERROR)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8 FATAL_ERROR)
 
 IF(COMMAND cmake_policy)
   cmake_policy(SET CMP0003 NEW)
@@ -75,8 +75,15 @@ set(PYLOGLEVEL WARNING)
 find_package(SWIG REQUIRED)
 
 # LIBXML2
+set(LIBXML2_DIR $ENV{LIBXML2_DIR} CACHE PATH "Path to LibXml2 directory")
+if(EXISTS ${LIBXML2_DIR})
+  set(CMAKE_INCLUDE_PATH ${LIBXML2_DIR}/include)
+  set(CMAKE_LIBRARY_PATH ${LIBXML2_DIR}/lib)
+endif(EXISTS ${LIBXML2_DIR})
 find_package(LibXml2 REQUIRED)
-
+if(${LIBXML2_VERSION_STRING} VERSION_LESS "2.7.8")
+  message(FATAL_ERROR "LIbXml2 required version is 2.7.8, version is ${LIBXML2_VERSION_STRING} , please defined LIBXML2_DIR as environment or cmake variable")
+endif(${LIBXML2_VERSION_STRING} VERSION_LESS "2.7.8")
 
 # HDF5
 find_package(HDF5 COMPONENTS C REQUIRED)
