@@ -134,6 +134,8 @@ std::string ParserResourcesType::protocolToString(AccessProtocolType protocol)
 {
   switch (protocol)
   {
+  case sh:
+    return "sh";
   case rsh:
     return "rsh";
   case ssh:
@@ -151,7 +153,9 @@ std::string ParserResourcesType::protocolToString(AccessProtocolType protocol)
 
 AccessProtocolType ParserResourcesType::stringToProtocol(const std::string & protocolStr)
 {
-  if (protocolStr == "rsh")
+  if (protocolStr == "sh")
+    return sh;
+  else if (protocolStr == "rsh")
     return rsh;
   else if (protocolStr == "ssh")
     return ssh;

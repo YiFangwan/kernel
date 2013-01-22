@@ -234,7 +234,7 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
   if (std::string(new_params.resource_params.hostname.in()) == "localhost")
   {
     new_params.resource_params.hostname = CORBA::string_dup(Kernel_Utils::GetHostname().c_str());
-    new_params.resource_params.name = CORBA::string_dup(Kernel_Utils::GetHostname().c_str());
+    new_params.resource_params.name = CORBA::string_dup("localhost");
   }
 
   Engines::ResourceList_var listOfResources;

@@ -273,7 +273,7 @@ interface ResourcesManager
   ResourceList GetFittingResources(in ResourceParameters params) raises (SALOME::SALOME_Exception);
 
   //!  Get definition of a resource
-  ResourceDefinition GetResourceDefinition(in string name);
+  ResourceDefinition GetResourceDefinition(in string name) raises (SALOME::SALOME_Exception);
 
   //! Add a new resource to the resource_manager
   /*!

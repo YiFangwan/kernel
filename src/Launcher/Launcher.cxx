@@ -372,6 +372,9 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
 
   switch(params.Protocol)
   {
+    case sh:
+      protocol = Batch::SH;
+      break;
     case rsh:
       protocol = Batch::RSH;
       break;

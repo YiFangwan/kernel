@@ -46,6 +46,8 @@
 
 #define MAX_SIZE_FOR_HOSTNAME 256;
 
+using namespace std;
+
 const char *SALOME_ResourcesManager::_ResourcesManagerNameInNS = "/ResourcesManager";
 
 //=============================================================================
@@ -209,57 +211,63 @@ SALOME_ResourcesManager::Find(const char* policy, const Engines::ResourceList& l
 Engines::ResourceDefinition* 
 SALOME_ResourcesManager::GetResourceDefinition(const char * name)
 {
-  ParserResourcesType resource = _rm.GetResourcesDescr(name);
-  Engines::ResourceDefinition *p_ptr = new Engines::ResourceDefinition;
+  Engines::ResourceDefinition * p_ptr = NULL;
+  try {
+    ParserResourcesType resource = _rm.GetResourcesDescr(name);
+    p_ptr = new Engines::ResourceDefinition;
 
-  p_ptr->name = CORBA::string_dup(resource.Name.c_str());
-  p_ptr->hostname = CORBA::string_dup(resource.HostName.c_str());
-  p_ptr->protocol = ParserResourcesType::protocolToString(resource.Protocol).c_str();
-  p_ptr->iprotocol = ParserResourcesType::protocolToString(resource.ClusterInternalProtocol).c_str();
-  p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
-  p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
-  p_ptr->componentList.length(resource.ComponentsList.size());
-  for(unsigned int i=0;i<resource.ComponentsList.size();i++)
-    p_ptr->componentList[i] = CORBA::string_dup(resource.ComponentsList[i].c_str());
-  p_ptr->OS = CORBA::string_dup(resource.OS.c_str());
-  p_ptr->mem_mb = resource.DataForSort._memInMB;
-  p_ptr->cpu_clock = resource.DataForSort._CPUFreqMHz;
-  p_ptr->nb_proc_per_node = resource.DataForSort._nbOfProcPerNode;
-  p_ptr->nb_node = resource.DataForSort._nbOfNodes;
-  p_ptr->is_cluster_head = resource.is_cluster_head;
-  p_ptr->working_directory = CORBA::string_dup(resource.working_directory.c_str());
+    p_ptr->name = CORBA::string_dup(resource.Name.c_str());
+    p_ptr->hostname = CORBA::string_dup(resource.HostName.c_str());
+    p_ptr->protocol = ParserResourcesType::protocolToString(resource.Protocol).c_str();
+    p_ptr->iprotocol = ParserResourcesType::protocolToString(resource.ClusterInternalProtocol).c_str();
+    p_ptr->username = CORBA::string_dup(resource.UserName.c_str());
+    p_ptr->applipath = CORBA::string_dup(resource.AppliPath.c_str());
+    p_ptr->componentList.length(resource.ComponentsList.size());
+    for(unsigned int i=0;i<resource.ComponentsList.size();i++)
+      p_ptr->componentList[i] = CORBA::string_dup(resource.ComponentsList[i].c_str());
+    p_ptr->OS = CORBA::string_dup(resource.OS.c_str());
+    p_ptr->mem_mb = resource.DataForSort._memInMB;
+    p_ptr->cpu_clock = resource.DataForSort._CPUFreqMHz;
+    p_ptr->nb_proc_per_node = resource.DataForSort._nbOfProcPerNode;
+    p_ptr->nb_node = resource.DataForSort._nbOfNodes;
+    p_ptr->is_cluster_head = resource.is_cluster_head;
+    p_ptr->working_directory = CORBA::string_dup(resource.working_directory.c_str());
 
-  if( resource.mpi == lam )
-    p_ptr->mpiImpl = "lam";
-  else if( resource.mpi == mpich1 )
-    p_ptr->mpiImpl = "mpich1";
-  else if( resource.mpi == mpich2 )
-    p_ptr->mpiImpl = "mpich2";
-  else if( resource.mpi == openmpi )
-    p_ptr->mpiImpl = "openmpi";
-  else if( resource.mpi == ompi )
-    p_ptr->mpiImpl = "ompi";
-  else if( resource.mpi == slurmmpi )
-    p_ptr->mpiImpl = "slurmmpi";
-  else if( resource.mpi == prun )
-    p_ptr->mpiImpl = "prun";
+    if( resource.mpi == lam )
+      p_ptr->mpiImpl = "lam";
+    else if( resource.mpi == mpich1 )
+      p_ptr->mpiImpl = "mpich1";
+    else if( resource.mpi == mpich2 )
+      p_ptr->mpiImpl = "mpich2";
+    else if( resource.mpi == openmpi )
+      p_ptr->mpiImpl = "openmpi";
+    else if( resource.mpi == ompi )
+      p_ptr->mpiImpl = "ompi";
+    else if( resource.mpi == slurmmpi )
+      p_ptr->mpiImpl = "slurmmpi";
+    else if( resource.mpi == prun )
+      p_ptr->mpiImpl = "prun";
 
-  if( resource.Batch == pbs )
-    p_ptr->batch = "pbs";
-  else if( resource.Batch == lsf )
-    p_ptr->batch = "lsf";
-  else if( resource.Batch == sge )
-    p_ptr->batch = "sge";
-  else if( resource.Batch == ccc )
-    p_ptr->batch = "ccc";
-  else if( resource.Batch == slurm )
-    p_ptr->batch = "slurm";
-  else if( resource.Batch == ssh_batch )
-    p_ptr->batch = "ssh";
-  else if( resource.Batch == ll )
-    p_ptr->batch = "ll";
-  else if( resource.Batch == vishnu )
-    p_ptr->batch = "vishnu";
+    if( resource.Batch == pbs )
+      p_ptr->batch = "pbs";
+    else if( resource.Batch == lsf )
+      p_ptr->batch = "lsf";
+    else if( resource.Batch == sge )
+      p_ptr->batch = "sge";
+    else if( resource.Batch == ccc )
+      p_ptr->batch = "ccc";
+    else if( resource.Batch == slurm )
+      p_ptr->batch = "slurm";
+    else if( resource.Batch == ssh_batch )
+      p_ptr->batch = "ssh";
+    else if( resource.Batch == ll )
+      p_ptr->batch = "ll";
+    else if( resource.Batch == vishnu )
+      p_ptr->batch = "vishnu";
+  } catch (const exception & ex) {
+    INFOS("Caught exception in GetResourceDefinition: " << ex.what());
+    THROW_SALOME_CORBA_EXCEPTION(ex.what(), SALOME::BAD_PARAM);
+  }
 
   return p_ptr;
 }
@@ -375,7 +383,15 @@ SALOME_ResourcesManager::AddResource(const Engines::ResourceDefinition& new_reso
   for (CORBA::ULong i = 0; i < new_resource.componentList.length(); i++)
     resource.ComponentsList.push_back(new_resource.componentList[i].in());
 
-  _rm.AddResourceInCatalog(resource);
+  try
+  {
+    _rm.AddResourceInCatalog(resource);
+  }
+  catch (const SALOME_Exception & e)
+  {
+    INFOS("Error in AddResourceInCatalog: " << e);
+    THROW_SALOME_CORBA_EXCEPTION(e.what(), SALOME::BAD_PARAM);
+  }
 
   if (write)
   {
@@ -389,7 +405,16 @@ SALOME_ResourcesManager::RemoveResource(const char * resource_name,
                                         CORBA::Boolean write,
                                         const char * xml_file)
 {
-  _rm.DeleteResourceInCatalog(resource_name);
+  try
+  {
+    _rm.DeleteResourceInCatalog(resource_name);
+  }
+  catch (const SALOME_Exception & e)
+  {
+    INFOS("Error in DeleteResourceInCatalog: " << e);
+    THROW_SALOME_CORBA_EXCEPTION(e.what(), SALOME::BAD_PARAM);
+  }
+
   if (write)
   {
     _rm.WriteInXmlFile(std::string(xml_file));
