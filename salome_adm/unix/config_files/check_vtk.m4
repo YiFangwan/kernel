@@ -86,8 +86,8 @@ then
 fi
 
 LOCAL_INCLUDES="$OGL_INCLUDES"
-LOCAL_LIBS="-lvtkCommon -lvtkGraphics -lvtkImaging -lvtkFiltering -lvtkIO -lvtkRendering -lvtkHybrid -lvtkParallel -lvtkWidgets $LXLIB -lX11 -lXt"
-TRY_LINK_LIBS="-lvtkCommon $LXLIB -lX11 -lXt"
+LOCAL_LIBS="-lvtkCommonCore -lvtkFiltersParallel -lvtkInteractionStyle -lvtkIOExport -lvtkRenderingAnnotation -lvtkRenderingCore -lvtkRenderingFreeType -lvtkRenderingLOD -lvtkRenderingOpenGL $LXLIB -lX11 -lXt"
+TRY_LINK_LIBS="-lvtkCommonCore $LXLIB -lX11 -lXt"
 
 dnl VTK version suffix
 if test -z $vtk_suffix ; then
