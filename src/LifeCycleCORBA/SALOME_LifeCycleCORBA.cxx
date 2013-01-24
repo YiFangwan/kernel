@@ -142,6 +142,7 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::MachineParameters& params,
   convert(params, new_params);
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
+  new_params.resource_params.can_run_containers = true;
   Engines::ResourceList_var listOfResources;
   try
     {
@@ -184,6 +185,7 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::MachineParameters& params,
   convert(params, new_params);
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
+  new_params.resource_params.can_run_containers = true;
 
   Engines::ResourceList_var listOfResources;
   try
@@ -229,6 +231,7 @@ FindOrLoad_Component(const Engines::MachineParameters& params,
   convert(params, new_params);
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
+  new_params.resource_params.can_run_containers = true;
 
   // For Compatibility -> if hostname == localhost put name == hostname
   if (std::string(new_params.resource_params.hostname.in()) == "localhost")
@@ -277,6 +280,7 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
   Engines::ContainerParameters new_params(params);
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
+  new_params.resource_params.can_run_containers = true;
 
   Engines::ResourceList_var listOfResources;
   try
@@ -448,6 +452,8 @@ SALOME_LifeCycleCORBA::preSet(Engines::ResourceParameters& params)
   params.nb_node = 0;
   params.nb_proc_per_node = 0;
   params.policy = "";
+  params.can_launch_batch_jobs = false;
+  params.can_run_containers = false;
 }
 
 void SALOME_LifeCycleCORBA::preSet( Engines::ContainerParameters& params)

@@ -283,6 +283,18 @@ ResourcesManager_cpp::GetFittingResources(const resourceParams& params) throw(Re
   if (vec.size() == 0)
     vec = vec_save;
 
+  // Step 7 : Filter on possible usage
+  vector<string> prev_list(vec);
+  vec.clear();
+  for (vector<string>::iterator iter = prev_list.begin() ; iter != prev_list.end() ; iter++)
+  {
+    MapOfParserResourcesType::const_iterator it = _resourcesList.find(*iter);
+    if (it != _resourcesList.end() &&
+        (!params.can_launch_batch_jobs || it->second.can_launch_batch_jobs) &&
+        (!params.can_run_containers || it->second.can_run_containers))
+      vec.push_back(*iter);
+  }
+
   // End
   // Send an exception if return list is empty...
   if (vec.size() == 0)
@@ -562,7 +574,6 @@ ResourcesManager_cpp::GetResourcesDescr(const std::string & name)
 void ResourcesManager_cpp::AddDefaultResourceInCatalog()
 {
   ParserResourcesType resource;
-  resource.Clear();
   resource.Name = DEFAULT_RESOURCE_NAME;
   // We can't use "localhost" for parameter hostname because the containers are registered in the
   // naming service with the real hostname, not "localhost"
@@ -575,5 +586,7 @@ void ResourcesManager_cpp::AddDefaultResourceInCatalog()
     resource.AppliPath = string(getenv("HOME")) + "/" + getenv("APPLI");
   }
   resource.working_directory = "/tmp/salome_localres_workdir";
+  resource.can_launch_batch_jobs = true;
+  resource.can_run_containers = true;
   _resourcesList[resource.Name] = resource;
 }

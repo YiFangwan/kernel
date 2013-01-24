@@ -53,6 +53,8 @@ struct resourceParams
 {
   std::string name;
   std::string hostname;
+  bool can_launch_batch_jobs;
+  bool can_run_containers;
   std::string OS;
   long nb_proc;
   long nb_node;

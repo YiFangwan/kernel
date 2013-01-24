@@ -686,6 +686,7 @@ std::string LifeCycleCORBATest::GetRemoteHost()
   _LCC.preSet(params);               // empty params to get all the machines
   params.resource_params.componentList.length(1);
   params.resource_params.componentList[0]="SalomeTestComponent";
+  params.resource_params.can_run_containers = true;
 
   Engines::ResourceList_var hostList = resourcesManager->GetFittingResources(params.resource_params);
   CPPUNIT_ASSERT(hostList->length() > 1);

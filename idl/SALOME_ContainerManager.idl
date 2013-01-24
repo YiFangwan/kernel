@@ -57,6 +57,10 @@ struct ResourceParameters
   string name;
   //! host name
   string hostname;
+  //! if true select only resources that can launch batch jobs
+  boolean can_launch_batch_jobs;
+  //! if true select only resources that can run containers
+  boolean can_run_containers;
   //! if given required operating system 
   string OS;
   //! if given list of components that could be loaded on a container
@@ -117,6 +121,8 @@ struct ResourceDefinition
   string name;
   //! hostname 
   string hostname;
+  //! Type of the resource ("cluster" or "single_machine")
+  string type;
   //! protocol to connect to the resource
   //! protocol used to start a remote container (ssh or rsh)
   string protocol;
@@ -126,8 +132,6 @@ struct ResourceDefinition
   string applipath;
   //! list of available components 
   CompoList componentList;
-  //! Type of resource: interactive or batch
-  string mode;
 
   //! operating system 
   string OS;
@@ -147,8 +151,10 @@ struct ResourceDefinition
   //! internal protocol to use to start a remote container (ssh or rsh) on the cluster
   string iprotocol;
 
-  //! Specify if the resource is a cluster head;
-  boolean is_cluster_head;
+  //! Specify if the resource can launch batch jobs
+  boolean can_launch_batch_jobs;
+  //! Specify if the resource can run containers
+  boolean can_run_containers;
 
   //! Predefined working directory on the resource
   string working_directory;

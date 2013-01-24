@@ -578,6 +578,8 @@ Launcher_cpp::createBatchManagerForJob(Launcher::Job * job)
   // Select a ressource for the job
   std::vector<std::string> ResourceList;
   resourceParams params = job->getResourceRequiredParams();
+  // Consider only resources that can launch batch jobs
+  params.can_launch_batch_jobs = true;
   try
   {
     ResourceList = _ResManager->GetFittingResources(params);
