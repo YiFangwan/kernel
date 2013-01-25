@@ -121,6 +121,22 @@ namespace SALOMEDS
     }
 
     //============================================================================
+    /*! Function : modifyNB_Notification
+     *  Purpose  : This function tells all the observers that 
+     *             a NoteBook variable has been added/modified/removed.
+     */
+    //============================================================================
+    
+    virtual bool modifyNB_Notification(const char* theVarName)
+    {
+      for (ObsListIter it (myObservers.begin()); it != myObservers.end(); ++it)
+        {
+          it->first->notifyObserverID(theVarName,6);
+        }
+      return true; // NGE return always true but can be modified if needed
+    }
+
+    //============================================================================
     /*! Function : attach
      *  Purpose  : register an Observer
      */
@@ -1030,6 +1046,8 @@ void SALOMEDS_Study_i::SetReal(const char* theVarName, CORBA::Double theValue)
   _impl->SetVariable(std::string(theVarName), 
                      theValue,
                      SALOMEDSImpl_GenericVariable::REAL_VAR);
+  if(_notifier)
+    _notifier->modifyNB_Notification(theVarName);
 }
 
 //============================================================================
@@ -1042,6 +1060,8 @@ void SALOMEDS_Study_i::SetInteger(const char* theVarName, CORBA::Long theValue)
   _impl->SetVariable(std::string(theVarName), 
                      theValue,
                      SALOMEDSImpl_GenericVariable::INTEGER_VAR);
+  if(_notifier)
+    _notifier->modifyNB_Notification(theVarName);
 }
 
 //============================================================================
@@ -1054,6 +1074,8 @@ void SALOMEDS_Study_i::SetBoolean(const char* theVarName, CORBA::Boolean theValu
   _impl->SetVariable(std::string(theVarName), 
                      theValue,
                      SALOMEDSImpl_GenericVariable::BOOLEAN_VAR);
+  if(_notifier)
+    _notifier->modifyNB_Notification(theVarName);
 }
 
 //============================================================================
@@ -1066,6 +1088,8 @@ void SALOMEDS_Study_i::SetString(const char* theVarName, const char* theValue)
   _impl->SetStringVariable(std::string(theVarName), 
                            theValue,
                            SALOMEDSImpl_GenericVariable::STRING_VAR);
+  if(_notifier)
+    _notifier->modifyNB_Notification(theVarName);
 }
 
 //============================================================================
@@ -1200,7 +1224,10 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetVariableNames()
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::RemoveVariable(const char* theVarName)
 {
-  return _impl->RemoveVariable(std::string(theVarName));
+  CORBA::Boolean res = _impl->RemoveVariable(std::string(theVarName));
+  if(res && _notifier)
+    _notifier->modifyNB_Notification(theVarName);
+  return res;
 }
 
 //============================================================================
@@ -1210,7 +1237,10 @@ CORBA::Boolean SALOMEDS_Study_i::RemoveVariable(const char* theVarName)
 //============================================================================
 CORBA::Boolean SALOMEDS_Study_i::RenameVariable(const char* theVarName, const char* theNewVarName)
 {
-  return _impl->RenameVariable(std::string(theVarName), std::string(theNewVarName));
+  CORBA::Boolean res = _impl->RenameVariable(std::string(theVarName), std::string(theNewVarName));
+  if(res && _notifier)
+    _notifier->modifyNB_Notification(theVarName);
+  return res;
 }
 
 //============================================================================
