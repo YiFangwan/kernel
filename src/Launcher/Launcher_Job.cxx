@@ -467,19 +467,12 @@ Launcher::Job::common_job_params()
   // We define a default directory based on user time
   if (_work_directory == "")
   {
-    std::string thedate;
-    Batch::Date date = Batch::Date(time(0));
-    thedate = date.str();
-    int lend = thedate.size() ;
-    int i = 0 ;
-    while ( i < lend ) {
-      if ( thedate[i] == '/' || thedate[i] == '-' || thedate[i] == ':' ) {
-        thedate[i] = '_' ;
-      }
-      i++ ;
-    }
-    _work_directory = std::string("$HOME/Batch/");
-    _work_directory += thedate;
+    const size_t BUFSIZE = 32;
+    char date[BUFSIZE];
+    time_t curtime = time(NULL);
+    strftime(date, BUFSIZE, "%Y_%m_%d__%H_%M_%S", localtime(&curtime));
+    _work_directory = std::string("$HOME/Batch/workdir_");
+    _work_directory += date;
   }
   params[Batch::WORKDIR] = _work_directory;
 

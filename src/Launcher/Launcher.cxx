@@ -21,7 +21,6 @@
 //
 
 #ifdef WITH_LIBBATCH
-#include <libbatch/Date.hxx>
 #include <libbatch/BatchManagerCatalog.hxx>
 #include <libbatch/FactBatchManager.hxx>
 #include <libbatch/BatchManager.hxx>

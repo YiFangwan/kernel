@@ -39,7 +39,6 @@
 
 #ifdef WITH_LIBBATCH
 #include <libbatch/Job.hxx>
-#include <libbatch/Date.hxx>
 #include <libbatch/JobId.hxx>
 #include <libbatch/GenericException.hxx>
 #endif
