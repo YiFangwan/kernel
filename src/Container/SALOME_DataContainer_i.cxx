@@ -86,11 +86,15 @@ Engines::TMPFile* Engines_DataContainer_i::get()
       aFile.close();
 
       // remove file after it converted to a stream
+      // also remove directory of the file if it is empty
       if (myRemoveAfterGet) {
+        string aDirName = myURL.substr(0, myURL.find_last_of("/\\"));
 #ifdef WIN32
         DeleteFile(myURL.c_str());
+        RemoveDirectory(aDirName.c_str());
 #else
         unlink(myURL.c_str());
+        rmdir(aDirName.c_str());
 #endif
       }
     }
