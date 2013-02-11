@@ -304,7 +304,7 @@ class SessionServer(Server):
                     self.SCMD2+=['--study-hdf=%s'%self.args['study_hdf']]
                     pass
                 if simanStudyName(self.args) != "":
-                    self.SCMD2+=['--siman-study=%s'%simanStudyName(self.args)]
+            	    self.SCMD2+=['--siman-study=%s'%simanStudyName(self.args)]
                     pass
                 pass
             pass
@@ -539,6 +539,12 @@ def startSalome(args, modules_list, modules_root_dir):
     
       myServer=NotifyServer(args,modules_root_dir)
       myServer.run()
+
+    # set siman python path before the session server launching to import scripts inside python console
+    if simanStudyName(args) != "":
+      # MPV: use os.environ here because session server is launched in separated process and sys.path in missed in this case
+      os.environ["PYTHONPATH"] = "/tmp/SimanSalome/" + args['siman_study'] + "/" + \
+        args['siman_scenario'] + "/" + args['siman_user'] + os.pathsep + os.environ["PYTHONPATH"];
 
     # Launch  Session Server (to show splash ASAP)
     #
