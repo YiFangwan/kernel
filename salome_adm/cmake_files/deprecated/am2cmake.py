@@ -1449,7 +1449,7 @@ class CMakeFile(object):
             else:
                 newlines.append('''
                 STRING(REPLACE "\\\\" "/" KERNEL_ROOT_DIR ${KERNEL_ROOT_DIR})
-                INSTALL(SCRIPT ${KERNEL_ROOT_DIR}/salome_adm/cmake_files/install_python_from_idl.cmake)
+                INSTALL(SCRIPT ${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/install_python_from_idl.cmake)
                 ''')
                 pass
             newlines.append('''
@@ -2435,7 +2435,7 @@ class CMakeFile(object):
         else:
             newlines.append('''
             STRING(REPLACE "\\\\" "/" KERNEL_ROOT_DIR ${KERNEL_ROOT_DIR})
-            INSTALL(SCRIPT ${KERNEL_ROOT_DIR}/salome_adm/cmake_files/install_and_compile_python_file.cmake)
+            INSTALL(SCRIPT ${KERNEL_ROOT_DIR}/salome_adm/cmake_files/deprecated/install_and_compile_python_file.cmake)
             ''')
             pass
         newlines.append(r'''
