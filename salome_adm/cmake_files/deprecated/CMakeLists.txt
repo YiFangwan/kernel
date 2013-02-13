@@ -1,7 +1,4 @@
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
-#
-# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2012  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -20,19 +17,26 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-include $(top_srcdir)/salome_adm/unix/make_common_starter.am
+# ===============================================================
+# Files to be installed
+# ===============================================================
 
-SUBDIRS = deprecated
-
-dist_salome_cmake_DATA = \
-FindCPPUNIT.cmake \
-FindKERNEL.cmake \
-FindLIBBATCH.cmake \
-FindOMNIORB.cmake \
-UseOMNIORB.cmake \
-FindPLATFORM.cmake \
-FindSPHINX.cmake \
-SalomeMacros.cmake \
-InstallAndCompilePythonFile.cmake
-
-dist_salomescript_SCRIPTS = prepare_generating_doc.py
+# These files are data, module or lib files
+SET(DATA
+  am2cmake.py
+  FindBOOST.cmake
+  FindDOXYGEN.cmake
+  FindHDF5.cmake
+  FindKERNEL.cmake
+  FindLIBXML2.cmake
+  FindMPI.cmake
+  FindOMNIORB.cmake
+  UseOMNIORB.cmake
+  FindPLATFORM.cmake
+  FindPTHREADS.cmake
+  FindPYTHON.cmake
+  FindSWIG.cmake
+  install_python_from_idl.cmake
+  install_and_compile_python_file.cmake
+)
+INSTALL(FILES ${DATA} DESTINATION ${KERNEL_salomeadmcmake}/deprecated)

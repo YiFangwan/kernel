@@ -22,17 +22,21 @@
 
 include $(top_srcdir)/salome_adm/unix/make_common_starter.am
 
-SUBDIRS = deprecated
+salome_cmake_deprecateddir = $(prefix)/salome_adm/cmake_files/deprecated
 
-dist_salome_cmake_DATA = \
-FindCPPUNIT.cmake \
+dist_salome_cmake_deprecated_DATA = \
+am2cmake.py \
+FindBOOST.cmake \
+FindDOXYGEN.cmake \
+FindHDF5.cmake \
 FindKERNEL.cmake \
-FindLIBBATCH.cmake \
+FindLIBXML2.cmake \
+FindMPI.cmake \
 FindOMNIORB.cmake \
 UseOMNIORB.cmake \
 FindPLATFORM.cmake \
-FindSPHINX.cmake \
-SalomeMacros.cmake \
-InstallAndCompilePythonFile.cmake
-
-dist_salomescript_SCRIPTS = prepare_generating_doc.py
+FindPTHREADS.cmake \
+FindPYTHON.cmake \
+FindSWIG.cmake \
+install_python_from_idl.cmake \
+install_and_compile_python_file.cmake
