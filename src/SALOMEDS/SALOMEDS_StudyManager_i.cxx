@@ -30,6 +30,7 @@
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_SComponent_i.hxx"
 #include "SALOMEDS_Driver_i.hxx"
+#include "SALOMEDS_SimanStudy_i.hxx"
 #include "SALOMEDS.hxx"
 
 #include "SALOMEDSImpl_Study.hxx"
@@ -476,6 +477,21 @@ CORBA::Long SALOMEDS_StudyManager_i::getPID()
 void SALOMEDS_StudyManager_i::ShutdownWithExit()
 {
   exit( EXIT_SUCCESS );
+}
+
+//============================================================================
+/*! Function : GetSimanStudy
+ *  Purpose  : Retruns the created or cashed SimanStudy
+ */
+//============================================================================
+SALOMEDS::SimanStudy_ptr SALOMEDS_StudyManager_i::GetSimanStudy()
+{
+  SALOMEDS::Locker lock;
+
+  SALOMEDSImpl_SimanStudy* aSimanImpl = _impl->GetSimanStudy();
+
+  SALOMEDS_SimanStudy_i* aSiman_servant = SALOMEDS_SimanStudy_i::GetSimanServant(aSimanImpl, _orb);
+  return aSiman_servant->_this();
 }
 
 //===========================================================================

@@ -90,6 +90,7 @@ SET(SalomeDSImpl_SOURCES
   SALOMEDSImpl_TMPFile.cxx
   SALOMEDSImpl_GenericVariable.cxx
   SALOMEDSImpl_ScalarVariable.cxx
+  SALOMEDSImpl_SimanStudy.cxx
   SALOMEDSImpl_AttributeComment.hxx
   SALOMEDSImpl_AttributeDrawable.hxx
   SALOMEDSImpl_AttributeExpandable.hxx
@@ -141,6 +142,7 @@ SET(SalomeDSImpl_SOURCES
   SALOMEDSImpl_UseCaseIterator.hxx
   SALOMEDSImpl_GenericVariable.hxx
   SALOMEDSImpl_ScalarVariable.hxx
+  SALOMEDSImpl_SimanStudy.hxx
 ) 
 
 ADD_LIBRARY(SalomeDSImpl ${SalomeDSImpl_SOURCES})

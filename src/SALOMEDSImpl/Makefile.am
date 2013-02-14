@@ -165,6 +165,7 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_TMPFile.cxx \
 	SALOMEDSImpl_GenericVariable.cxx \
 	SALOMEDSImpl_ScalarVariable.cxx \
+	SALOMEDSImpl_SimanStudy.cxx \
 	\
 	SALOMEDSImpl_AttributeComment.hxx \
 	SALOMEDSImpl_AttributeDrawable.hxx \
@@ -207,6 +208,7 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_GenericAttribute.hxx \
 	SALOMEDSImpl_SComponent.hxx \
 	SALOMEDSImpl_SComponentIterator.hxx \
+	SALOMEDSImpl_SimanStudy.hxx \
 	SALOMEDSImpl_SObject.hxx \
 	SALOMEDSImpl_StudyBuilder.hxx \
 	SALOMEDSImpl_StudyHandle.hxx \
@@ -217,6 +219,29 @@ libSalomeDSImpl_la_SOURCES =\
 	SALOMEDSImpl_UseCaseIterator.hxx \
 	SALOMEDSImpl_GenericVariable.hxx \
 	SALOMEDSImpl_ScalarVariable.hxx
+
+if WITH_SIMANIO
+
+COMMON_CPPFLAGS += -DWITH_SIMANIO @SIMANIO_CPPFLAGS@
+COMMON_LIBS += @SIMANIO_LIBS@
+
+###################################################################################################
+# VSR: these commands should be removed
+# vvv
+COMMON_CPPFLAGS += \
+	-I$(top_builddir)/idl @CORBA_CXXFLAGS@ @CORBA_INCLUDES@ \
+	-I$(srcdir)/../KernelHelpers -I$(srcdir)/../NamingService -I$(srcdir)/../LifeCycleCORBA -I$(srcdir)/../Utils \
+	-I$(srcdir)/../Container -I$(srcdir)/../TOOLSDS
+
+COMMON_LIBS += \
+	$(top_builddir)/idl/libSalomeIDLKernel.la \
+	../KernelHelpers/libSalomeKernelHelpers.la ../LifeCycleCORBA/libSalomeLifeCycleCORBA.la \
+	../Container/libSalomeContainer.la ../TOOLSDS/libTOOLSDS.la
+
+# ^^^
+###################################################################################################
+
+endif
 
 libSalomeDSImpl_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeDSImpl_la_LDFLAGS  = -no-undefined -version-info=0:0:0

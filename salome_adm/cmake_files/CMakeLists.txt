@@ -39,6 +39,7 @@ SET(DATA
   FindPYTHON.cmake
   FindSWIG.cmake
   FindSPHINX.cmake
+  FindSIMANIO.cmake
   install_python_from_idl.cmake
   install_and_compile_python_file.cmake
   InstallAndCompilePythonFile.cmake

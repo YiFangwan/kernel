@@ -401,6 +401,17 @@ echo
 CHECK_SPHINX
 
 echo
+echo ---------------------------------------------
+echo testing SimanIO
+echo ---------------------------------------------
+echo
+
+CHECK_SIMANIO
+
+# Additional conditional to avoid compilation errors
+AM_CONDITIONAL(WITH_SIMANIO, [test x"$simanio_ok" = xyes])
+
+echo
 echo ============================================================
 echo Summary
 echo ============================================================
@@ -468,7 +479,7 @@ echo --- Kernel parallel extensions:
 summary $parallel_products
 echo
 
-optional_products="cppunit_ok numpy_ok libbatch_ok"
+optional_products="cppunit_ok numpy_ok libbatch_ok simanio_ok"
 echo --- Optional products:
 echo ["    These products are optional because the KERNEL functions"]
 echo ["    using them are built only if the products are detected."]

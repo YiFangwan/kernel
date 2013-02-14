@@ -64,6 +64,8 @@ SET(SalomeDS_SOURCES
   SALOMEDS_UseCaseIterator_i.cxx
   SALOMEDS_ChildIterator_i.cxx
   SALOMEDS_SComponentIterator_i.cxx
+  SALOMEDS_SimanStudy_i.cxx
+  SALOMEDS_SimanStudy.cxx
   SALOMEDS_Study_i.cxx
   SALOMEDS_StudyBuilder_i.cxx
   SALOMEDS_SObject_i.cxx
@@ -175,5 +177,7 @@ SET(COMMON_HEADERS_HXX
   SALOMEDS_Defines.hxx
   SALOMEDS_wrap.hxx
   SALOMEDS_Attributes_wrap.hxx
+  SALOMEDS_SimanStudy.hxx
+  SALOMEDS_SimanStudy_i.hxx
 )
 INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${KERNEL_salomeinclude_HEADERS})

@@ -41,6 +41,8 @@
 #include "SALOMEDSImpl_GenericAttribute.hxx"
 #include "SALOMEDSImpl_ScalarVariable.hxx"
 #include "SALOMEDSImpl_IParameters.hxx"
+#include "SALOMEDSImpl_SimanStudy.hxx"
+
 #include <map>
 
 #include "HDFOI.hxx"
@@ -104,6 +106,7 @@ SALOMEDSImpl_StudyManager::SALOMEDSImpl_StudyManager()
   _appli = new DF_Application();
   _IDcounter = 0;
   _clipboard = _appli->NewDocument("SALOME_STUDY");
+  _siman = 0;
 }
 
 //============================================================================
@@ -116,6 +119,7 @@ SALOMEDSImpl_StudyManager::~SALOMEDSImpl_StudyManager()
   _appli->Close(_clipboard);
   // Destroy application
   delete _appli;    
+  if (_siman) delete _siman;
 }
 
 
@@ -1565,4 +1569,16 @@ void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup)
     theStudy->AddVariable((*it).second);
   
   theGroup->CloseOnDisk();
+}
+
+//============================================================================
+/*! Function : GetSimanStudy
+ *  Purpose  : Retruns the created or cashed SimanStudy
+ */
+//==================================================T==========================
+SALOMEDSImpl_SimanStudy* SALOMEDSImpl_StudyManager::GetSimanStudy()
+{
+  if (_siman == 0)
+    _siman = new SALOMEDSImpl_SimanStudy();
+  return _siman;
 }

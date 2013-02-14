@@ -66,6 +66,7 @@ salomeinclude_HEADERS=\
                 SALOMEDSClient_SComponentIterator.hxx \
                 SALOMEDSClient_SObject.hxx \
                 SALOMEDSClient_Study.hxx \
+                SALOMEDSClient_SimanStudy.hxx \
                 SALOMEDSClient_StudyBuilder.hxx \
                 SALOMEDSClient_StudyManager.hxx \
                 SALOMEDSClient_UseCaseBuilder.hxx \
@@ -87,7 +88,12 @@ COMMON_CPPFLAGS= \
 	-I$(top_builddir)/idl \
 	@CORBA_CXXFLAGS@ @CORBA_INCLUDES@
 
+if WITH_SIMANIO
 
+COMMON_CPPFLAGS += -DWITH_SIMANIO
+                                
+endif
+                                
 
 # This local variable defines the list of dependant libraries common to all target in this package.
 COMMON_LIBS = $(top_builddir)/idl/libSalomeIDLKernel.la

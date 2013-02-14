@@ -106,6 +106,8 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_UseCaseIterator_i.cxx \
 	SALOMEDS_ChildIterator_i.cxx \
 	SALOMEDS_SComponentIterator_i.cxx \
+	SALOMEDS_SimanStudy_i.cxx \
+	SALOMEDS_SimanStudy.cxx \
 	SALOMEDS_Study_i.cxx \
 	SALOMEDS_StudyBuilder_i.cxx \
 	SALOMEDS_SObject_i.cxx \
@@ -256,6 +258,8 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_SComponent_i.hxx \
 	SALOMEDS_SComponentIterator.hxx \
 	SALOMEDS_SComponentIterator_i.hxx \
+	SALOMEDS_SimanStudy.hxx \
+	SALOMEDS_SimanStudy_i.hxx \
 	SALOMEDS_SObject.hxx \
 	SALOMEDS_SObject_i.hxx \
 	SALOMEDS_StudyBuilder.hxx \
@@ -273,6 +277,12 @@ libSalomeDS_la_SOURCES = 	\
 	SALOMEDS_AttributeString.hxx \
 	SALOMEDS_AttributeString_i.hxx \
 	SALOMEDS_TMPFile_i.hxx
+
+if WITH_SIMANIO
+
+COMMON_CPPFLAGS += -DWITH_SIMANIO
+
+endif
 
 libSalomeDS_la_CPPFLAGS = $(COMMON_CPPFLAGS)
 libSalomeDS_la_LDFLAGS  = -Wl,-E -no-undefined -version-info=0:0:0 @LDEXPDYNFLAGS@
