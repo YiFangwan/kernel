@@ -100,9 +100,9 @@ if(EXISTS ${LIBXML2_ROOT_DIR})
   set(CMAKE_PROGRAM_PATH ${LIBXML2_ROOT_DIR}/bin)
 endif(EXISTS ${LIBXML2_ROOT_DIR})
 find_package(LibXml2 REQUIRED)
-if(${LIBXML2_VERSION_STRING} VERSION_LESS "2.7.8")
-  message(FATAL_ERROR "LIbXml2 required version is 2.7.8, version is ${LIBXML2_VERSION_STRING} , please defined LIBXML2_ROOT_DIR as environment or cmake variable")
-endif(${LIBXML2_VERSION_STRING} VERSION_LESS "2.7.8")
+if(${LIBXML2_VERSION_STRING} VERSION_LESS "2.7.6")
+  message(FATAL_ERROR "LIbXml2 required version is 2.7.6, version is ${LIBXML2_VERSION_STRING} , please defined LIBXML2_ROOT_DIR as environment or cmake variable")
+endif(${LIBXML2_VERSION_STRING} VERSION_LESS "2.7.6")
 
 # HDF5
 set(HDF5_ROOT_DIR $ENV{HDF5_ROOT_DIR} CACHE PATH "Path to Hdf5 directory")
