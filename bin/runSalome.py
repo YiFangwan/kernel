@@ -157,9 +157,9 @@ def simanStudyName(args):
                     print "SIMAN %s must be defined using parameter --siman-%s=XXX" % (param, param)
                     pass
                 pass
-            pass
-        if len(siman_data) == 3:
-            _siman_name = "_".join(siman_data)
+            if len(siman_data) == 3:
+                _siman_name = "_".join(siman_data)
+                pass
             pass
         pass
     return _siman_name
