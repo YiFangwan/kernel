@@ -29,13 +29,6 @@ SET(DF_SOURCES
   DF_Application.cxx
   DF_ChildIterator.cxx
   DF_Container.cxx
-  DF_Attribute.hxx
-  DF_Label.hxx
-  DF_Application.hxx
-  DF_Document.hxx
-  DF_ChildIterator.hxx
-  DF_Container.hxx
-  DF_definitions.hxx
 )
 
 ADD_LIBRARY(DF ${DF_SOURCES})

@@ -62,7 +62,6 @@ SET(COMMON_LIBS
 SET(Launcher_SOURCES
   SALOME_Launcher_Parser.cxx
   SALOME_Launcher_Handler.cxx
-  Launcher_Utils.hxx
   Launcher_Job.cxx
   Launcher_Job_Command.cxx
   Launcher_Job_SALOME.cxx
