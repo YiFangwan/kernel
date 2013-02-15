@@ -32,6 +32,15 @@ SET(DATA
   UseOMNIORB.cmake
   FindPLATFORM.cmake
   FindSPHINX.cmake
+  FindSalomeBOOST.cmake
+  FindSalomeCPPUNIT.cmake
+  FindSalomeDOXYGEN.cmake
+  FindSalomeHDF5.cmake
+  FindSalomeLIBXML2.cmake
+  FindSalomeMPI.cmake
+  FindSalomePYTHON.cmake
+  FindSalomeSPHINX.cmake
+  FindSalomeSWIG.cmake
   InstallAndCompilePythonFile.cmake
   SalomeMacros.cmake
 )
