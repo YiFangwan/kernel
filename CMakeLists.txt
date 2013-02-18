@@ -60,7 +60,7 @@ option(SALOME_USE_MPI "Use MPI containers" OFF)
 option(SALOME_USE_CORBA "Use distribute application with components" ON)
 option(SALOME_USE_DOC "Generate documentation" ON)
 option(SALOME_USE_TEST "Generate test" OFF)
-option(SALOME_USE_LIBBATCH "Generate Launcher" OFF)
+option(SALOME_USE_LIBBATCH "Generate Launcher" ON)
 
 # Threads
 SET(CMAKE_THREAD_PREFER_PTHREAD)
@@ -94,7 +94,7 @@ if(SALOME_USE_DOC)
 endif(SALOME_USE_DOC)
 
 if(SALOME_USE_LIBBATCH)
-  find_package(LIBBATCH)
+  find_package(SalomeLIBBATCH)
 endif(SALOME_USE_LIBBATCH)
 
 INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/SalomeMacros.cmake)

@@ -27,7 +27,6 @@ SUBDIRS = deprecated
 dist_salome_cmake_DATA = \
 FindCPPUNIT.cmake \
 FindKERNEL.cmake \
-FindLIBBATCH.cmake \
 FindOMNIORB.cmake \
 UseOMNIORB.cmake \
 FindPLATFORM.cmake \
@@ -37,6 +36,7 @@ FindSalomeBOOST.cmake \
 FindSalomeCPPUNIT.cmake \
 FindSalomeDOXYGEN.cmake \
 FindSalomeHDF5.cmake \
+FindSalomeLIBBATCH.cmake \
 FindSalomeLIBXML2.cmake \
 FindSalomeMPI.cmake \
 FindSalomePYTHON.cmake \

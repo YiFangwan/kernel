@@ -27,7 +27,6 @@ ADD_SUBDIRECTORY(deprecated)
 SET(DATA
   FindCPPUNIT.cmake
   FindKERNEL.cmake
-  FindLIBBATCH.cmake
   FindOMNIORB.cmake
   UseOMNIORB.cmake
   FindPLATFORM.cmake
@@ -36,6 +35,7 @@ SET(DATA
   FindSalomeCPPUNIT.cmake
   FindSalomeDOXYGEN.cmake
   FindSalomeHDF5.cmake
+  FindSalomeLIBBATCH.cmake
   FindSalomeLIBXML2.cmake
   FindSalomeMPI.cmake
   FindSalomePYTHON.cmake
