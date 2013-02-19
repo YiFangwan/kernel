@@ -52,5 +52,4 @@ public:
   virtual void UserId(const std::string theId) = 0;
 };
 
-
 #endif

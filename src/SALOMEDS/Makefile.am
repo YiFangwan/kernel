@@ -280,7 +280,12 @@ libSalomeDS_la_SOURCES = 	\
 
 if WITH_SIMANIO
 
-COMMON_CPPFLAGS += -DWITH_SIMANIO
+COMMON_CPPFLAGS += -DWITH_SIMANIO @SIMANIO_CPPFLAGS@
+COMMON_LIBS += @SIMANIO_LIBS@
+
+COMMON_CPPFLAGS += -I$(srcdir)/../KernelHelpers -I$(srcdir)/../Container -I$(srcdir)/../TOOLSDS
+
+COMMON_LIBS += ../KernelHelpers/libSalomeKernelHelpers.la ../Container/libSalomeContainer.la ../TOOLSDS/libTOOLSDS.la
 
 endif
 

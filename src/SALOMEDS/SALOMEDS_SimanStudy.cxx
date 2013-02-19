@@ -40,16 +40,18 @@
 #include "Utils_ORB_INIT.hxx" 
 #include "Utils_SINGLETON.hxx" 
 
+/*
 SALOMEDS_SimanStudy::SALOMEDS_SimanStudy(SALOMEDSImpl_SimanStudy* theStudy)
 {
   _isLocal = true;
   _local_impl = theStudy;
   _corba_impl = SALOMEDS::SimanStudy::_nil();
   init_orb();
-}
+}*/
 
 SALOMEDS_SimanStudy::SALOMEDS_SimanStudy(SALOMEDS::SimanStudy_ptr theStudy)
 {
+  /*
 #ifdef WIN32
   long pid =  (long)_getpid();
 #else
@@ -65,6 +67,8 @@ SALOMEDS_SimanStudy::SALOMEDS_SimanStudy(SALOMEDS::SimanStudy_ptr theStudy)
     _local_impl = NULL;
     _corba_impl = SALOMEDS::SimanStudy::_duplicate(theStudy);
   }
+  */
+  _corba_impl = SALOMEDS::SimanStudy::_duplicate(theStudy);
 
   init_orb();
 }
@@ -77,26 +81,26 @@ void SALOMEDS_SimanStudy::CheckOut(const _PTR(Study) theTarget)
 {
   if (!theTarget) return;
   SALOMEDS_Study* aStudy = dynamic_cast<SALOMEDS_Study*>(theTarget.get());
-  if (_isLocal) {
+  /*if (_isLocal) {
     //SALOMEDS::Locker lock; mpv: this may cause dedlock when importData in module calls another SALOMEDS method with lock
     _local_impl->CheckOut(aStudy->GetLocalImpl());
   }
-  else _corba_impl->CheckOut(aStudy->GetStudy());
+  else*/ _corba_impl->CheckOut(aStudy->GetStudy());
 }
 
 void SALOMEDS_SimanStudy::CheckIn(const std::string theModuleName)
 {
-  if (_isLocal) {
+  /*if (_isLocal) {
     //SALOMEDS::Locker lock; mpv: this may cause dedlock when getModifiedData in module calls another SALOMEDS method with lock
     _local_impl->CheckIn(theModuleName);
   }
-  else _corba_impl->CheckIn((char*)theModuleName.c_str());
+  else*/ _corba_impl->CheckIn((char*)theModuleName.c_str());
 }
 
 _PTR(Study) SALOMEDS_SimanStudy::getReferencedStudy()
 {
   SALOMEDSClient_Study* aStudy = NULL;
-  if (_isLocal) {
+  /*if (_isLocal) {
     SALOMEDS::Locker lock;
 
     SALOMEDSImpl_Study* aStudy_impl = _local_impl->getReferencedStudy();
@@ -107,68 +111,71 @@ _PTR(Study) SALOMEDS_SimanStudy::getReferencedStudy()
     SALOMEDS::Study_var aStudy_impl = _corba_impl->getReferencedStudy();
     if (CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy);
     aStudy = new SALOMEDS_Study(aStudy_impl);
-  }
+  }*/
+  SALOMEDS::Study_var aStudy_impl = _corba_impl->getReferencedStudy();
+  if (CORBA::is_nil(aStudy_impl)) return _PTR(Study)(aStudy);
+  aStudy = new SALOMEDS_Study(aStudy_impl);
   return _PTR(Study)(aStudy);
 }
 
 std::string SALOMEDS_SimanStudy::StudyId()
 {
   std::string anId;
-  if (_isLocal) {
+  /*if (_isLocal) {
     SALOMEDS::Locker lock;
     anId = _local_impl->StudyId();
   }
-  else anId = (CORBA::String_var)_corba_impl->StudyId();
+  else*/ anId = (CORBA::String_var)_corba_impl->StudyId();
   return anId;
 }
 
 void SALOMEDS_SimanStudy::StudyId(const std::string theId)
 {
-  if (_isLocal) {
+  /*if (_isLocal) {
     SALOMEDS::Locker lock;
     _local_impl->StudyId(theId);
   }
-  else _corba_impl->StudyId((char*)theId.c_str());
+  else*/ _corba_impl->StudyId((char*)theId.c_str());
 }
 
 std::string SALOMEDS_SimanStudy::ScenarioId()
 {
   std::string anId;
-  if (_isLocal) {
+  /*if (_isLocal) {
     SALOMEDS::Locker lock;
     anId = _local_impl->ScenarioId();
   }
-  else anId = (CORBA::String_var)_corba_impl->ScenarioId();
+  else*/ anId = (CORBA::String_var)_corba_impl->ScenarioId();
   return anId;
 }
 
 void SALOMEDS_SimanStudy::ScenarioId(const std::string theId)
 {
-  if (_isLocal) {
+  /*if (_isLocal) {
     SALOMEDS::Locker lock;
     _local_impl->ScenarioId(theId);
   }
-  else _corba_impl->ScenarioId((char*)theId.c_str());
+  else*/ _corba_impl->ScenarioId((char*)theId.c_str());
 }
 
 std::string SALOMEDS_SimanStudy::UserId()
 {
   std::string anId;
-  if (_isLocal) {
+  /*if (_isLocal) {
     SALOMEDS::Locker lock;
     anId = _local_impl->UserId();
   }
-  else anId = (CORBA::String_var)_corba_impl->UserId();
+  else*/ anId = (CORBA::String_var)_corba_impl->UserId();
   return anId;
 }
 
 void SALOMEDS_SimanStudy::UserId(const std::string theId)
 {
-  if (_isLocal) {
+  /*if (_isLocal) {
     SALOMEDS::Locker lock;
     _local_impl->UserId(theId);
   }
-  else _corba_impl->UserId((char*)theId.c_str());
+  else*/ _corba_impl->UserId((char*)theId.c_str());
 }
 
 void SALOMEDS_SimanStudy::init_orb()

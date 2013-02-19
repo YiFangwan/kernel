@@ -618,13 +618,6 @@ during each working session.
 */
     Study getReferencedStudy();
 
-/*!
-    Private method, returns an implementation of this Study.
-   \param theHostname is a hostname of the caller
-   \param thePID is a process ID of the caller
-   \param isLocal is set True if the Study is launched locally with the caller
-*/
-    long long GetLocalImpl(in string theHostname, in long thePID, out boolean isLocal);
 };
 
   //==========================================================================

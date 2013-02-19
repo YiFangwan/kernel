@@ -328,7 +328,7 @@ SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_p
 _PTR(SimanStudy) SALOMEDS_StudyManager::GetSimanStudy()
 {
   SALOMEDSClient_SimanStudy* aSiman = NULL;
-  if (_isLocal) {
+  /*if (_isLocal) {
     SALOMEDS::Locker lock;
 
     SALOMEDSImpl_SimanStudy* aSiman_impl = _local_impl->GetSimanStudy();
@@ -339,6 +339,9 @@ _PTR(SimanStudy) SALOMEDS_StudyManager::GetSimanStudy()
     SALOMEDS::SimanStudy_var aSiman_impl = _corba_impl->GetSimanStudy();
     if(CORBA::is_nil(aSiman_impl)) return _PTR(SimanStudy)(aSiman);
     aSiman = new SALOMEDS_SimanStudy(aSiman_impl);
-  }
+  }*/
+  SALOMEDS::SimanStudy_var aSiman_impl = _corba_impl->GetSimanStudy();
+  if(CORBA::is_nil(aSiman_impl)) return _PTR(SimanStudy)(aSiman);
+  aSiman = new SALOMEDS_SimanStudy(aSiman_impl);
   return _PTR(SimanStudy)(aSiman);
 }

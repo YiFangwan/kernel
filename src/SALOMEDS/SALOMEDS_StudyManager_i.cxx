@@ -90,6 +90,7 @@ SALOMEDS_StudyManager_i::~SALOMEDS_StudyManager_i()
   delete _name_service;
   delete _factory;
   delete _impl;
+  delete SALOMEDS_SimanStudy_i::GetSimanServant(_orb);
 }
 
 //============================================================================
@@ -488,9 +489,7 @@ SALOMEDS::SimanStudy_ptr SALOMEDS_StudyManager_i::GetSimanStudy()
 {
   SALOMEDS::Locker lock;
 
-  SALOMEDSImpl_SimanStudy* aSimanImpl = _impl->GetSimanStudy();
-
-  SALOMEDS_SimanStudy_i* aSiman_servant = SALOMEDS_SimanStudy_i::GetSimanServant(aSimanImpl, _orb);
+  SALOMEDS_SimanStudy_i* aSiman_servant = SALOMEDS_SimanStudy_i::GetSimanServant(_orb);
   return aSiman_servant->_this();
 }
 

@@ -30,8 +30,9 @@
 #include <vector>
 #include <string>
 
+#include <DF_definitions.hxx>
 #include "SALOMEDSClient.hxx"
-#include "SALOMEDSImpl_SimanStudy.hxx"
+//#include "SALOMEDSImpl_SimanStudy.hxx"
 
 // IDL headers
 #include <SALOMEconfig.h>
@@ -41,14 +42,14 @@ class Standard_EXPORT SALOMEDS_SimanStudy: public SALOMEDSClient_SimanStudy
 {
 
 private:
-  bool                       _isLocal;
-  SALOMEDSImpl_SimanStudy*   _local_impl;
+  // bool                       _isLocal;
+  //SALOMEDSImpl_SimanStudy*   _local_impl; // MPV: no local implementation yet: siman operations works only with CORBA interface
   SALOMEDS::SimanStudy_var   _corba_impl;
   CORBA::ORB_var             _orb;
 
 public:
 
-  SALOMEDS_SimanStudy(SALOMEDSImpl_SimanStudy* theStudy);
+  //SALOMEDS_SimanStudy(SALOMEDSImpl_SimanStudy* theStudy);
   SALOMEDS_SimanStudy(SALOMEDS::SimanStudy_ptr theStudy);
   ~SALOMEDS_SimanStudy();
 

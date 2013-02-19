@@ -43,7 +43,6 @@
 #include "DF_Document.hxx"
 
 class HDFgroup;
-class SALOMEDSImpl_SimanStudy;
 
 class SALOMEDSIMPL_EXPORT SALOMEDSImpl_StudyManager
 {
@@ -54,7 +53,6 @@ private:
   int               _IDcounter;
   DF_Document*      _clipboard;
   std::string       _errorCode;
-  SALOMEDSImpl_SimanStudy* _siman;
 
 public:
 
@@ -140,9 +138,6 @@ public:
 
   std::string GetErrorCode() { return _errorCode; }
   virtual bool IsError() { return _errorCode != ""; }
-
-  //! Retruns the created or cashed SimanStudy
-  virtual SALOMEDSImpl_SimanStudy* GetSimanStudy();
 
 };
 

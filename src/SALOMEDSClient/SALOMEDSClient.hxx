@@ -58,15 +58,12 @@
 #include "SALOMEDSClient_GenericAttribute.hxx"
 #include "SALOMEDSClient_SComponent.hxx"
 #include "SALOMEDSClient_SComponentIterator.hxx"
+#include "SALOMEDSClient_SimanStudy.hxx"
 #include "SALOMEDSClient_SObject.hxx"
 #include "SALOMEDSClient_Study.hxx"
 #include "SALOMEDSClient_StudyBuilder.hxx"
 #include "SALOMEDSClient_StudyManager.hxx"
 #include "SALOMEDSClient_UseCaseBuilder.hxx"
 #include "SALOMEDSClient_UseCaseIterator.hxx"
-
-#ifdef WITH_SIMANIO
-#include "SALOMEDSClient_SimanStudy.hxx"
-#endif
 
 #endif

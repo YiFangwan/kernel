@@ -34,20 +34,26 @@
 //SALOMEDS headers
 #include "SALOMEDS_Study_i.hxx"
 
-class SALOMEDSImpl_SimanStudy;
-class SALOMEDSImpl_Study;
+class SimanIO_Configuration;
 
 class Standard_EXPORT SALOMEDS_SimanStudy_i: public POA_SALOMEDS::SimanStudy
 {
 private:
   CORBA::ORB_var                 _orb;
-  SALOMEDSImpl_SimanStudy*       _impl;  
+  //SALOMEDSImpl_SimanStudy*       _impl;  
   SALOMEDSImpl_Study*          _study;
 
+  std::string              _studyId; // SIMAN ID
+  std::string              _scenarioId; // SIMAN ID
+  std::string              _userId; // SIMAN ID
+      
+  SimanIO_Configuration* _checkedOut; // pointer to information about checked out data                                                                        std::map<int, std::map<std::string, int> > _filesId; // map from document id to component identifiers to SIMAN file ID
+  std::map<int, std::map<std::string, int> > _filesId; // map from document id to component identifiers to SIMAN file ID
+         
 public:
 
-  //! standard constructor
-  SALOMEDS_SimanStudy_i(SALOMEDSImpl_SimanStudy*, CORBA::ORB_ptr);
+  //! constructor create global Siman stduy (is called in StudyManager only)
+  SALOMEDS_SimanStudy_i(/*SALOMEDSImpl_SimanStudy*,*/ CORBA::ORB_ptr);
   
   //! standard destructor
   virtual ~SALOMEDS_SimanStudy_i(); 
@@ -112,8 +118,8 @@ public:
   */
   virtual void UserId(const char* theId);
   
-  virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
+  //virtual CORBA::LongLong GetLocalImpl(const char* theHostname, CORBA::Long thePID, CORBA::Boolean& isLocal);
 
-  static SALOMEDS_SimanStudy_i* GetSimanServant(SALOMEDSImpl_SimanStudy*, CORBA::ORB_ptr orb);
+  static SALOMEDS_SimanStudy_i* GetSimanServant(CORBA::ORB_ptr orb);
 };
 #endif
