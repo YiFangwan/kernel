@@ -65,7 +65,7 @@ SALOMEDS_SimanStudy_i::~SALOMEDS_SimanStudy_i()
     SimanIO_Configuration::ActivitiesIterator actIter(*_checkedOut);
     for(; actIter.More(); actIter.Next()) {
       SimanIO_Activity::DocumentsIterator aDocIter(actIter.Activity());                                                                                           for(; aDocIter.More(); aDocIter.Next()) {
-        const SimanIO_Document& aDoc = aDocIter.Document();
+        SimanIO_Document& aDoc = aDocIter.Document();
         SimanIO_Document::FilesIterator aFileIter(aDoc);
         for(; aFileIter.More(); aFileIter.Next()) {
           string aURL = aFileIter.URL();
@@ -118,7 +118,7 @@ void SALOMEDS_SimanStudy_i::CheckOut(SALOMEDS::Study_ptr theTarget)
           for(; aDocIter.More(); aDocIter.Next()) {
             if (_filesId.find(aDocIter.DocId()) == _filesId.end())
               _filesId[aDocIter.DocId()] = map<string, int>();
-            const SimanIO_Document& aDoc = aDocIter.Document();
+            SimanIO_Document& aDoc = aDocIter.Document();
             SimanIO_Document::FilesIterator aFileIter(aDoc);
             for(; aFileIter.More(); aFileIter.Next()) {
               if (aFileIter.GetProcessing() == FILE_IMPORT) {
