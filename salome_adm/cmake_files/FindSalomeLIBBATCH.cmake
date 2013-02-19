@@ -1,6 +1,8 @@
 
 # LIBBATCH detection for Salome
 
+include(FindPackageHandleStandardArgs)
+
 set(LIBBATCH_ROOT_DIR $ENV{LIBBATCH_ROOT_DIR} CACHE PATH "Path to libbatch directory")
 if(EXISTS ${LIBBATCH_ROOT_DIR})
   find_package(libBatch QUIET CONFIG PATHS ${LIBBATCH_ROOT_DIR}/lib NO_DEFAULT_PATH)
