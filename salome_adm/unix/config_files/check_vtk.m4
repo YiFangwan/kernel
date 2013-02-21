@@ -55,11 +55,11 @@ AC_LANG_CPLUSPLUS
 
 AC_SUBST(VTK_INCLUDES)
 AC_SUBST(VTK_LIBS)
-AC_SUBST(VTKPY_MODULES)
+AC_SUBST(VTK_SUFFIX)
 
 VTK_INCLUDES=""
 VTK_LIBS=""
-VTKPY_MODULES=""
+VTK_SUFFIX=""
 
 vtk_ok=no
 
@@ -98,7 +98,7 @@ if test "x$vtk_suffix" != "xyes" ; then
 else
   dnl in case user wrote --with-vtk-version=yes, get the suffix from env
   if test -z $VTKSUFFIX ; then
-    VTKSUFFIX="-5.0"
+    VTKSUFFIX="-6.0"
   fi
 fi
 
@@ -128,7 +128,7 @@ case "x$with_paraview" in
             PVHOME="${d}"
             break
           fi
-	  for suffix in 3.7 3.8 3.9 3.10 3.11 3.12 3.13 3.14 3.98 ; do
+	  for suffix in 3.98 4.0; do
             if test -f ${d}/include/paraview-${suffix}/pqDialog.h ; then
               AC_MSG_RESULT(trying ${d})
               PVHOME="${d}"
@@ -158,7 +158,7 @@ dnl Check VTK from ParaView.
 if test "x$PVHOME" != "x" ; then
 
   if test "x$PVVERSION" = "x" ; then
-    for suffix in 3.7 3.8 3.9 3.10 3.11 3.12 3.13 3.14 3.98 ; do
+    for suffix in 3.98 4.0; do
       if test -f $PVHOME/include/paraview-$suffix/vtkPVConfig.h ; then
        	PVVERSION=$suffix
         break;
@@ -223,9 +223,9 @@ if test "x$PVHOME" != "x" ; then
 
      if test "x$salome_cv_lib_pvvtk" != "yes" -a "x$PVVERSION" != "x" ; then
          dnl - try libs with suffix
-	 PVLIBVERSION="-pv${PVVERSION:1:10}"
-     	 PV_LOCAL_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys${PVLIBVERSION} -lvtkmetaio${PVLIBVERSION} -lvtkverdict${PVLIBVERSION} -lvtkNetCDF${PVLIBVERSION} -lvtkDICOMParser${PVLIBVERSION} -lvtkftgl${PVLIBVERSION} -lvtkexoIIc${PVLIBVERSION} -lvtkCommonCore${PVLIBVERSION} -lvtkFiltersParallel${PVLIBVERSION} -lvtkFiltersVerdict${PVLIBVERSION} -lvtkInteractionStyle${PVLIBVERSION} -lvtkIOExport${PVLIBVERSION} -lvtkIOXML${PVLIBVERSION} -lvtkRenderingAnnotation${PVLIBVERSION} -lvtkRenderingCore${PVLIBVERSION} -lvtkRenderingFreeType${PVLIBVERSION} -lvtkRenderingFreeTypeOpenGL${PVLIBVERSION} -lvtkRenderingLabel${PVLIBVERSION} -lvtkRenderingLOD${PVLIBVERSION} -lvtkRenderingOpenGL${PVLIBVERSION} $LXLIB -lX11 -lXt"
-     	 PV_TRY_LINK_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys${PVLIBVERSION} -lvtkCommonCore${PVLIBVERSION} $LXLIB -lX11 -lXt"
+	 VTK_SUFFIX="-pv${PVVERSION:1:10}"
+     	 PV_LOCAL_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys${VTK_SUFFIX} -lvtkmetaio${VTK_SUFFIX} -lvtkverdict${VTK_SUFFIX} -lvtkNetCDF${VTK_SUFFIX} -lvtkDICOMParser${VTK_SUFFIX} -lvtkftgl${VTK_SUFFIX} -lvtkexoIIc${VTK_SUFFIX} -lvtkCommonCore${VTK_SUFFIX} -lvtkFiltersParallel${VTK_SUFFIX} -lvtkFiltersVerdict${VTK_SUFFIX} -lvtkInteractionStyle${VTK_SUFFIX} -lvtkIOExport${VTK_SUFFIX} -lvtkIOXML${VTK_SUFFIX} -lvtkRenderingAnnotation${VTK_SUFFIX} -lvtkRenderingCore${VTK_SUFFIX} -lvtkRenderingFreeType${VTK_SUFFIX} -lvtkRenderingFreeTypeOpenGL${VTK_SUFFIX} -lvtkRenderingLabel${VTK_SUFFIX} -lvtkRenderingLOD${VTK_SUFFIX} -lvtkRenderingOpenGL${VTK_SUFFIX} $LXLIB -lX11 -lXt"
+     	 PV_TRY_LINK_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys${VTK_SUFFIX} -lvtkCommonCore${VTK_SUFFIX} $LXLIB -lX11 -lXt"
 
          LIBS="${LIBS_old} $PV_TRY_LINK_LIBS"
   
@@ -301,7 +301,7 @@ if test "$try_regular_vtk" = "yes"; then
           VTKHOME="${d}"
           break
         fi
-	for suffix in 5.0 5.1 5.2 5.3 5.4 5.5 5.6 5.7 5.8 5.9 6.0 ; do
+	for suffix in 5.8 5.9 6.0 ; do
           if test -f ${d}/include/vtk-${suffix}/vtkPlane.h ; then
             AC_MSG_RESULT(trying ${d})
             VTKHOME="${d}"
@@ -347,8 +347,6 @@ if test "$try_regular_vtk" = "yes"; then
      CPPFLAGS_old="$CPPFLAGS"
      CPPFLAGS="$CPPFLAGS $VTK_LOCAL_INCLUDES"
   
-     dnl VTKPY_MODULES="$VTKHOME/python"
-  
      AC_CACHE_VAL(salome_cv_lib_vtk,[
        AC_TRY_LINK([#include "vtkPlane.h"
                    ],
@@ -387,16 +385,12 @@ if  test "x$pv_vtk_ok" = "xyes" ; then
   AC_MSG_RESULT(for VTK: yes)
   VTK_INCLUDES="$PV_LOCAL_INCLUDES -DVTK_EXCLUDE_STRSTREAM_HEADERS"
   VTK_LIBS="$PV_LOCAL_LIBS"
-  VTK_MT_LIBS="$VTK_LIBS"
-  #VTKPY_MODULES=
   vtk_ok=yes
 else
     if  test "x$vtk_ok" = "xyes" ; then
       AC_MSG_RESULT(for VTK: yes)
       VTK_INCLUDES="$VTK_LOCAL_INCLUDES -DVTK_EXCLUDE_STRSTREAM_HEADERS"
       VTK_LIBS="$VTK_LOCAL_LIBS"
-      VTK_MT_LIBS="$VTK_LIBS"
-      #VTKPY_MODULES=
     else
       AC_MSG_RESULT(for VTK: no)
       AC_MSG_WARN(unable to link with vtk library)
@@ -409,3 +403,36 @@ AC_LANG_RESTORE
 AC_CACHE_SAVE
 
 ])dnl
+
+
+dnl
+dnl  CHECK_PYVTK (Python wrappings for VTK)
+dnl  ------------------------------------------------------------------------
+dnl
+AC_DEFUN([CHECK_PYVTK], [
+AC_REQUIRE([AC_PROG_CC])dnl
+AC_REQUIRE([AC_PROG_CXX])dnl
+AC_REQUIRE([AC_PROG_CPP])dnl
+AC_REQUIRE([AC_PROG_CXXCPP])dnl
+AC_REQUIRE([AC_LINKER_OPTIONS])dnl
+AC_REQUIRE([CHECK_VTK])dnl
+AC_REQUIRE([CHECK_PYTHON])dnl
+
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+
+AC_SUBST(VTK_PYLIBS)
+VTK_PYLIBS=""
+
+if test "x$vtk_ok" != "x" ; then
+    PYVERSION=`echo ${PYTHON_VERSION} | sed -e "s%\.%%g"`
+    VTK_PYLIBS="-lvtkWrappingPython${PYVERSION}${VTK_SUFFIX}"
+fi
+
+AC_LANG_RESTORE
+
+# Save cache
+AC_CACHE_SAVE
+
+])dnl
+
