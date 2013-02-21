@@ -85,10 +85,6 @@ then
    LXLIB=""
 fi
 
-LOCAL_INCLUDES="$OGL_INCLUDES"
-LOCAL_LIBS="-lvtkCommonCore -lvtkFiltersParallel -lvtkFiltersVerdict -lvtkInteractionStyle -lvtkIOExport -lvtkIOXML -lvtkRenderingAnnotation -lvtkRenderingCore -lvtkRenderingFreeType -lvtkRenderingFreeTypeOpenGL -lvtkRenderingLabel -lvtkRenderingLOD -lvtkRenderingOpenGL $LXLIB -lX11 -lXt"
-TRY_LINK_LIBS="-lvtkCommonCore $LXLIB -lX11 -lXt"
-
 dnl VTK version suffix
 if test -z $vtk_suffix ; then
   vtk_suffix="yes"
@@ -132,18 +128,15 @@ case "x$with_paraview" in
             PVHOME="${d}"
             break
           fi
-          if test -f ${d}/include/paraview-3.7/pqDialog.h ; then
-            AC_MSG_RESULT(trying ${d})
-            PVHOME="${d}"
-            PVVERSION="-3.7"
-            break
-          fi
-          if test -f ${d}/include/paraview-3.8/pqDialog.h ; then
-            AC_MSG_RESULT(trying ${d})
-            PVHOME="${d}"
-            PVVERSION="-3.8"
-            break
-          fi
+	  for suffix in 3.7 3.8 3.9 3.10 3.11 3.12 3.13 3.14 3.98 ; do
+            if test -f ${d}/include/paraview-${suffix}/pqDialog.h ; then
+              AC_MSG_RESULT(trying ${d})
+              PVHOME="${d}"
+              PVVERSION="-${suffix}"
+              break
+            fi
+          done
+          if test "x${PVHOME}" != "x" ; then break ; fi
           if test -f ${d}/include/paraview/pqDialog.h ; then
             AC_MSG_RESULT(trying ${d})
             PVHOME="${d}"
@@ -165,7 +158,7 @@ dnl Check VTK from ParaView.
 if test "x$PVHOME" != "x" ; then
 
   if test "x$PVVERSION" = "x" ; then
-    for suffix in 3.7 3.8 ; do
+    for suffix in 3.7 3.8 3.9 3.10 3.11 3.12 3.13 3.14 3.98 ; do
       if test -f $PVHOME/include/paraview-$suffix/vtkPVConfig.h ; then
        	PVVERSION=$suffix
         break;
@@ -192,9 +185,7 @@ if test "x$PVHOME" != "x" ; then
 
   AC_CHECKING(for VTK from ParaView)
 
-  PV_LOCAL_INCLUDES="-I$PVHOME/include/paraview$PVVERSION $LOCAL_INCLUDES"
-  PV_LOCAL_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys -lvtkmetaio -lvtkverdict -lvtkNetCDF -lvtkDICOMParser -lvtkftgl -lvtkexoIIc $LOCAL_LIBS"
-  PV_TRY_LINK_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys $TRY_LINK_LIBS"
+  PV_LOCAL_INCLUDES="-I$PVHOME/include/paraview$PVVERSION $OGL_INCLUDES"
 
   dnl vtk headers
   CPPFLAGS_old="$CPPFLAGS"
@@ -211,18 +202,44 @@ if test "x$PVHOME" != "x" ; then
      AC_MSG_CHECKING(linking VTK library from ParaView)
   
      LIBS_old="$LIBS"
-     LIBS="$LIBS $PV_TRY_LINK_LIBS"
      CPPFLAGS_old="$CPPFLAGS"
+
      CPPFLAGS="$CPPFLAGS $PV_LOCAL_INCLUDES"
+
+     dnl - try libs without suffix
+
+     PV_LOCAL_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys -lvtkmetaio -lvtkverdict -lvtkNetCDF -lvtkDICOMParser -lvtkftgl -lvtkexoIIc -lvtkCommonCore -lvtkFiltersParallel -lvtkFiltersVerdict -lvtkInteractionStyle -lvtkIOExport -lvtkIOXML -lvtkRenderingAnnotation -lvtkRenderingCore -lvtkRenderingFreeType -lvtkRenderingFreeTypeOpenGL -lvtkRenderingLabel -lvtkRenderingLOD -lvtkRenderingOpenGL $LXLIB -lX11 -lXt"
+     PV_TRY_LINK_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys -lvtkCommonCore $LXLIB -lX11 -lXt"
+
+     LIBS="${LIBS_old} $PV_TRY_LINK_LIBS"
   
-     AC_CACHE_VAL(salome_cv_lib_pvvtk,[
+#     AC_CACHE_VAL(salome_cv_lib_pvvtk,[
        AC_TRY_LINK([#include "vtkPoints.h"
                    ],
   		 [vtkPoints::New()],
   		 [salome_cv_lib_pvvtk=yes],
   		 [salome_cv_lib_pvvtk=no])
-     ])
+#     ])
+
+     if test "x$salome_cv_lib_pvvtk" != "yes" -a "x$PVVERSION" != "x" ; then
+         dnl - try libs with suffix
+	 PVLIBVERSION="-pv${PVVERSION:1:10}"
+     	 PV_LOCAL_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys${PVLIBVERSION} -lvtkmetaio${PVLIBVERSION} -lvtkverdict${PVLIBVERSION} -lvtkNetCDF${PVLIBVERSION} -lvtkDICOMParser${PVLIBVERSION} -lvtkftgl${PVLIBVERSION} -lvtkexoIIc${PVLIBVERSION} -lvtkCommonCore${PVLIBVERSION} -lvtkFiltersParallel${PVLIBVERSION} -lvtkFiltersVerdict${PVLIBVERSION} -lvtkInteractionStyle${PVLIBVERSION} -lvtkIOExport${PVLIBVERSION} -lvtkIOXML${PVLIBVERSION} -lvtkRenderingAnnotation${PVLIBVERSION} -lvtkRenderingCore${PVLIBVERSION} -lvtkRenderingFreeType${PVLIBVERSION} -lvtkRenderingFreeTypeOpenGL${PVLIBVERSION} -lvtkRenderingLabel${PVLIBVERSION} -lvtkRenderingLOD${PVLIBVERSION} -lvtkRenderingOpenGL${PVLIBVERSION} $LXLIB -lX11 -lXt"
+     	 PV_TRY_LINK_LIBS="-L$PVHOME/lib/paraview$PVVERSION -lvtksys${PVLIBVERSION} -lvtkCommonCore${PVLIBVERSION} $LXLIB -lX11 -lXt"
+
+         LIBS="${LIBS_old} $PV_TRY_LINK_LIBS"
+  
+#         AC_CACHE_VAL(salome_cv_lib_pvvtk,[
+           AC_TRY_LINK([#include "vtkPoints.h"
+                       ],
+  		     [vtkPoints::New()],
+  		     [salome_cv_lib_pvvtk=yes],
+  		     [salome_cv_lib_pvvtk=no])
+#         ])
+     fi
+
      pv_vtk_ok="$salome_cv_lib_pvvtk"
+
      LIBS="$LIBS_old"
      CPPFLAGS="$CPPFLAGS_old"
      AC_MSG_RESULT($pv_vtk_ok)
@@ -284,18 +301,15 @@ if test "$try_regular_vtk" = "yes"; then
           VTKHOME="${d}"
           break
         fi
-        if test -f ${d}/include/vtk-5.0/vtkPlane.h ; then
-          AC_MSG_RESULT(trying ${d})
-          VTKHOME="${d}"
-          VTKSUFFIX="-5.0"
-          break
-        fi
-        if test -f ${d}/include/vtk-5.2/vtkPlane.h ; then
-          AC_MSG_RESULT(trying ${d})
-          VTKHOME="${d}"
-          VTKSUFFIX="-5.2"
-          break
-        fi
+	for suffix in 5.0 5.1 5.2 5.3 5.4 5.5 5.6 5.7 5.8 5.9 6.0 ; do
+          if test -f ${d}/include/vtk-${suffix}/vtkPlane.h ; then
+            AC_MSG_RESULT(trying ${d})
+            VTKHOME="${d}"
+            VTKSUFFIX="-${suffix}"
+            break
+          fi
+        done
+        if test "x${VTKHOME}" != "x" ; then break ; fi
         if test -f ${d}/include/vtk/vtkPlane.h ; then
           AC_MSG_RESULT(trying ${d})
           VTKHOME="${d}"
@@ -306,12 +320,11 @@ if test "$try_regular_vtk" = "yes"; then
     fi
   fi
   
-  VTK_LOCAL_INCLUDES="-I$VTKHOME/include/vtk${VTKSUFFIX} $LOCAL_INCLUDES"
-  VTK_LOCAL_LIBS="-L$VTKHOME/lib${LIB_LOCATION_SUFFIX}/vtk${VTKSUFFIX} $LOCAL_LIBS"
-  VTK_TRY_LINK_LIBS="-L$VTKHOME/lib${LIB_LOCATION_SUFFIX} -L$VTKHOME/lib${LIB_LOCATION_SUFFIX}/vtk${VTKSUFFIX} $TRY_LINK_LIBS"
-  if test "x$VTKHOME" != "x/usr" ; then
-    VTK_LOCAL_LIBS="-L$VTKHOME/lib${LIB_LOCATION_SUFFIX}/vtk${VTKSUFFIX} $LOCAL_LIBS"
-  fi
+  # VSR: is it necessary to check with suffix as for ParaView?
+  
+  VTK_LOCAL_INCLUDES="-I$VTKHOME/include/vtk${VTKSUFFIX} $OGL_INCLUDES"
+  VTK_LOCAL_LIBS="-L$VTKHOME/lib${LIB_LOCATION_SUFFIX}/vtk${VTKSUFFIX} -lvtkCommonCore -lvtkFiltersParallel -lvtkFiltersVerdict -lvtkInteractionStyle -lvtkIOExport -lvtkIOXML -lvtkRenderingAnnotation -lvtkRenderingCore -lvtkRenderingFreeType -lvtkRenderingFreeTypeOpenGL -lvtkRenderingLabel -lvtkRenderingLOD -lvtkRenderingOpenGL $LXLIB -lX11 -lXt"
+  VTK_TRY_LINK_LIBS="-L$VTKHOME/lib${LIB_LOCATION_SUFFIX} -L$VTKHOME/lib${LIB_LOCATION_SUFFIX}/vtk${VTKSUFFIX} -lvtkCommonCore $LXLIB -lX11 -lXt"
   
   dnl vtk headers
   CPPFLAGS_old="$CPPFLAGS"
@@ -323,7 +336,7 @@ if test "$try_regular_vtk" = "yes"; then
   
   if test "x$vtk_ok" = "xyes"; then
   
-  #   VTK_INCLUDES="$LOCAL_INCLUDES"
+  #   VTK_INCLUDES="$OGL_INCLUDES"
   
      dnl vtk libraries
   
