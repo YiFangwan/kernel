@@ -51,6 +51,9 @@ using namespace std;
 SALOMEDS_SimanStudy_i::SALOMEDS_SimanStudy_i(/*SALOMEDSImpl_SimanStudy* theImpl,*/ CORBA::ORB_ptr orb)
 {
   _orb = CORBA::ORB::_duplicate(orb);
+#ifdef WITH_SIMANIO
+  _checkedOut = new SimanIO_Configuration;
+#endif
 }
 
 //============================================================================
