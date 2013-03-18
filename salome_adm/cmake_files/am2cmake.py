@@ -662,6 +662,11 @@ class CMakeFile(object):
                             INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
                             """)
                             pass
+                        if self.module == "ppgp":
+                            newlines.append("""
+                            INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
+                            """)
+                            pass
                         pass
                     pass
                 pass
@@ -1247,7 +1252,7 @@ class CMakeFile(object):
                 VERBATIM 
                 WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                 )"""%(config_f, doc_gui_destination, doc_gui_destination, ign, head_source, doc_gui_destination))
-        elif mod == 'yacs' and operator.contains(self.root, upmod + '_SRC'+path.sep+'doc'):
+        elif mod in ['yacs', 'ppgp'] and operator.contains(self.root, upmod + '_SRC'+path.sep+'doc'):
             from sys import platform
             params = '';
             if platform == "win32":
@@ -1595,6 +1600,25 @@ class CMakeFile(object):
             ADD_CUSTOM_TARGET(BUILD_PY_UI_FILES ALL DEPENDS ${PYUIC_FILES})
             ''')
             pass
+
+        # --
+        # --
+        key = "PYQRC_FILES"        
+        if self.__thedict__.has_key(key):
+            newlines.append('''
+            FOREACH(output ${PYQRC_FILES})
+            STRING(REPLACE "_qrc.py" ".qrc" input ${output})
+            SET(input ${CMAKE_CURRENT_SOURCE_DIR}/${input})
+            SET(output ${CMAKE_CURRENT_BINARY_DIR}/${output})
+            ADD_CUSTOM_COMMAND(
+            OUTPUT ${output}
+            COMMAND ${PYRCC_EXECUTABLE} -o ${output} ${input}
+            MAIN_DEPENDENCY ${input}
+            )
+            ENDFOREACH(output ${PYQRC_FILES})
+            ADD_CUSTOM_TARGET(BUILD_PY_QRC_FILES ALL DEPENDS ${PYQRC_FILES})
+            ''')
+            pass
         
         # --
         # --
@@ -1773,6 +1797,10 @@ class CMakeFile(object):
                 "dist_pkgdata_DATA"      :  "share/netgen",
                 "dist_doc_DATA"          :  "share/doc/netgen",
                 }
+            pass
+        # Win32 PPGP porting: custom variable containing tests installation path
+        if self.module == "ppgp":
+            d["ppgptests"] = "."
             pass
         for key, value in d.items():
             if self.__thedict__.has_key(key):
@@ -2359,6 +2387,15 @@ class CMakeFile(object):
             SET(PERMS ${PERMS} GROUP_READ GROUP_EXECUTE)
             SET(PERMS ${PERMS} WORLD_READ WORLD_EXECUTE)
             INSTALL(FILES ${f} DESTINATION ${DEST} PERMISSIONS ${PERMS})
+            ''')
+        # Win32 PPGP porting
+        elif key == 'ppgptests':
+            newlines.append(r'''
+            SET(PERMS)
+            SET(PERMS ${PERMS} OWNER_READ OWNER_WRITE OWNER_EXECUTE)
+            SET(PERMS ${PERMS} GROUP_READ GROUP_EXECUTE)
+            SET(PERMS ${PERMS} WORLD_READ WORLD_EXECUTE)
+            INSTALL(DIRECTORY ${f} DESTINATION ${DEST} FILE_PERMISSIONS ${PERMS} PATTERN "CVS" EXCLUDE)
             ''')
         else:
             newlines.append(r'''
