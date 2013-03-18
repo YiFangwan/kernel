@@ -152,10 +152,10 @@ def simanStudyName(args):
             siman_data = []
             for param in [ 'study', 'scenario', 'user']:
                 siman_param = "siman_%s"%param
-                if param in args:
+                if siman_param in args:
                     siman_data.append(args[siman_param])
                 else:
-                    print "SIMAN %s must be defined using parameter --siman-%s=XXX" % (param, param)
+                    print "SIMAN %s must be defined using parameter --siman-%s=XXX" % (siman_param, siman_param)
                     pass
                 pass
             if len(siman_data) == 3:
