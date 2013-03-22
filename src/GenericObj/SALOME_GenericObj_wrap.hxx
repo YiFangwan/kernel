@@ -82,7 +82,7 @@ namespace SALOME
       : _obj( obj ), _isOwn( true )
     {}
     GenericObj_wrap( const GenericObj_wrap& wrap )
-      : _obj( wrap.in() ), _isOwn( wrap._getIsOwn() )
+      : _obj( wrap._obj ), _isOwn( wrap._getIsOwn() )
     {
       _register();
     }
@@ -115,7 +115,7 @@ namespace SALOME
     GenericObj_wrap& operator=( const GenericObj_wrap& wrap )
     {
       _release();
-      _obj   = wrap.in();
+      _obj   = wrap._obj;//wrap.in();
       _isOwn = wrap._getIsOwn();
       _register();
       return *this;
