@@ -32,7 +32,7 @@ AC_ARG_WITH(simanio,
     AC_MSG_RESULT("select $withval as path to SimanIO installation")
    ])
 
-if test "x$SIMANIO_DIR" = "x" ; then
+if test "x$SIMANIODIR" = "x" ; then
   # no --with-simanio option used
   if test "x$SIMANIO_ROOT_DIR" != "x" ; then
     # SIMANIO_ROOT_DIR environment variable defined
