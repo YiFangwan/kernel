@@ -1,5 +1,5 @@
 #  -*- coding: iso-8859-1 -*-
-# Copyright (C) 2007-2012  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -194,8 +194,11 @@ def getPortNumber(use_default=True):
         return int( os.getenv( "NSPORT" ) )
     except:
         pass
-    port = getPortFromORBcfg()
-    if port is not None: return port
+    try:
+        port = int( getPortFromORBcfg() )
+        if port is not None: return port
+    except:
+        pass
     if use_default: return 2809 # '2809' is default port number
     return None
 
