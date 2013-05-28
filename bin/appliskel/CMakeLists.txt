@@ -24,16 +24,15 @@
 # These files are executable scripts
 SET(SCRIPTS
   envd
-  searchFreePort.sh
   runRemote.sh
   runAppli
   runConsole
   runSession
   runSalomeScript
-  runTests
   getAppliPath.py
   update_catalogs.py
   kill_remote_containers.py
+  salome.py
 )
 
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${KERNEL_salomescript_SCRIPTS}/appliskel)
