@@ -25,31 +25,26 @@ ADD_SUBDIRECTORY(deprecated)
 
 # These files are data, module or lib files
 SET(DATA
-  FindCppUnit.cmake
-  FindGraphviz.cmake
+  FindCPPUNIT.cmake
   FindKERNEL.cmake
-  FindOmniORB.cmake
-  FindPThread.cmake
-  FindSalomeBoost.cmake
-  FindSalomeCppUnit.cmake
-  FindSalomeDoxygen.cmake
-  FindSalomeGraphviz.cmake
+  FindOMNIORB.cmake
+  UseOMNIORB.cmake
+  FindPLATFORM.cmake
+  FindSPHINX.cmake
+  FindSalomeBOOST.cmake
+  FindSalomeCPPUNIT.cmake
+  FindSalomeDOXYGEN.cmake
   FindSalomeHDF5.cmake
-  FindSalomeLibBatch.cmake
-  FindSalomeLibXml2.cmake
+  FindSalomeLIBBATCH.cmake
+  FindSalomeLIBXML2.cmake
   FindSalomeMPI.cmake
-  FindSalomeOmniORB.cmake
-  FindSalomePThread.cmake
-  FindSalomePython.cmake
-  FindSalomeSphinx.cmake
+  FindSalomePYTHON.cmake
+  FindSalomeSPHINX.cmake
   FindSalomeSWIG.cmake
-  FindSphinx.cmake  
   InstallAndCompilePythonFile.cmake
-  UseOmniORB.cmake
   SalomeMacros.cmake
-  SalomeSetupPlatform.cmake  
 )
-INSTALL(FILES ${DATA} DESTINATION ${SALOME_INSTALL_CMAKE})
+INSTALL(FILES ${DATA} DESTINATION ${KERNEL_salomeadmcmake})
 
 # These files are executable scripts
-SALOME_INSTALL_SCRIPTS(prepare_generating_doc.py ${SALOME_INSTALL_SCRIPT_SCRIPTS})
+SALOME_INSTALL_SCRIPTS(prepare_generating_doc.py ${KERNEL_salomescript_SCRIPTS})
