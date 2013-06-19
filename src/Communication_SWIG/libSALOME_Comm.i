@@ -32,7 +32,7 @@
   #include "SenderFactory.hxx"
 %}
 
-%typemap(in) SALOME::SenderDouble_ptr
+%typemap(python,in) SALOME::SenderDouble_ptr
 {
   PyObject* pdict = PyDict_New();
   PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
@@ -62,7 +62,7 @@
   $1 = t;
 }
 
-%typemap(in) SALOME::SenderInt_ptr
+%typemap(python,in) SALOME::SenderInt_ptr
 {
   PyObject* pdict = PyDict_New();
   PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
@@ -92,7 +92,7 @@
   $1 = t;
 }
 
-%typemap(out) SALOME::SenderDouble_ptr
+%typemap(python,out) SALOME::SenderDouble_ptr
 {  
    PyObject* pdict = PyDict_New();
    PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());
@@ -110,7 +110,7 @@
    $result = PyObject_CallMethod(orb, (char*)"string_to_object", (char*)"O", tmp);
 }
 
-%typemap(out) SALOME::SenderInt_ptr
+%typemap(python,out) SALOME::SenderInt_ptr
 {  
    PyObject* pdict = PyDict_New();
    PyDict_SetItemString(pdict, "__builtins__", PyEval_GetBuiltins());

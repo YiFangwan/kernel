@@ -25,7 +25,8 @@ SET(salomepython_PYTHON
   omnipatch.py
 )
 
-SET(salomepython_PYTHON
+IF(SALOME_USE_CORBA)
+  SET(salomepython_PYTHON
     ${salomepython_PYTHON}
     Help.py
     PyInterp.py
@@ -41,7 +42,8 @@ SET(salomepython_PYTHON
     salome_pynode.py
     salome_genericobj.py
   )
+ENDIF(SALOME_USE_CORBA)
 
-SALOME_INSTALL_SCRIPTS("${salomepython_PYTHON}" ${SALOME_INSTALL_PYTHON})
-SALOME_INSTALL_SCRIPTS(kernel_shared_modules.py ${SALOME_INSTALL_PYTHON_SHARED})
-SALOME_INSTALL_SCRIPTS(__init__.py ${SALOME_INSTALL_PYTHON}/salome)
+SALOME_INSTALL_SCRIPTS("${salomepython_PYTHON}" ${KERNEL_salomepythondir})
+SALOME_INSTALL_SCRIPTS(kernel_shared_modules.py ${KERNEL_sharedpkgpython_PYTHON})
+SALOME_INSTALL_SCRIPTS(__init__.py ${KERNEL_salomepythondir}/salome)

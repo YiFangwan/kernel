@@ -35,7 +35,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SET(SalomeKernelHelpersTest_LIBS
-  ${CPPUNIT_LIBRARIES}
+  ${CPPUNIT_LIBS}
   SalomeKernelHelpers
   ${OMNIORB_LIBRARIES}
   SalomeNS
@@ -53,15 +53,15 @@ ADD_DEFINITIONS(${CPPUNIT_DEFINITIONS} ${OMNIORB_DEFINITIONS})
 
 ADD_LIBRARY(SalomeKernelHelpersTest KernelHelpersUnitTests.cxx)
 TARGET_LINK_LIBRARIES(SalomeKernelHelpersTest ${SalomeKernelHelpersTest_LIBS})
-INSTALL(TARGETS SalomeKernelHelpersTest DESTINATION ${SALOME_INSTALL_LIBS})
+INSTALL(TARGETS SalomeKernelHelpersTest DESTINATION ${KERNEL_salomelib_LIBS})
 
 ADD_EXECUTABLE(TestKernelHelpers TestKernelHelpers.cxx)
 TARGET_LINK_LIBRARIES(TestKernelHelpers SalomeKernelHelpersTest ${SalomeKernelHelpersTest_LIBS})
 ADD_TEST(TestKernelHelpers TestKernelHelpers)
-INSTALL(TARGETS TestKernelHelpers DESTINATION ${SALOME_INSTALL_BINS})
+INSTALL(TARGETS TestKernelHelpers DESTINATION ${KERNEL_salomebin_BINS})
 
 # Executable scripts to be installed
-SALOME_INSTALL_SCRIPTS(TestKernelHelpers.py ${SALOME_INSTALL_SCRIPT_PYTHON})
+SALOME_INSTALL_SCRIPTS(TestKernelHelpers.py ${KERNEL_salomescript_PYTHON})
 
 FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${KERNEL_salomeinclude_HEADERS})

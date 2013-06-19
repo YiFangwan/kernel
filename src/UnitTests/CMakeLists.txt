@@ -31,7 +31,7 @@ INCLUDE_DIRECTORIES(
 # ===============================================================
 
 # Executable scripts to be installed
-SALOME_INSTALL_SCRIPTS(UnitTests.py ${SALOME_INSTALL_SCRIPT_SCRIPTS})
+SALOME_INSTALL_SCRIPTS(UnitTests.py ${KERNEL_salomescript_SCRIPTS})
 
 # ===============================================================
 # Executables targets
@@ -40,13 +40,14 @@ SALOME_INSTALL_SCRIPTS(UnitTests.py ${SALOME_INSTALL_SCRIPT_SCRIPTS})
 ADD_DEFINITIONS(${CPPUNIT_DEFINITIONS})
 
 SET(COMMON_LIBS
-  ${CPPUNIT_LIBRARIES}
+  ${CPPUNIT_LIBS}
   SALOMEBasics
   SALOMELocalTrace
   SALOMELocalTraceTest
 )
 
-INCLUDE_DIRECTORIES(
+IF(SALOME_USE_CORBA)
+  INCLUDE_DIRECTORIES(
     ${OMNIORB_INCLUDE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMETraceCollector
     ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMETraceCollector/Test
@@ -87,7 +88,8 @@ INCLUDE_DIRECTORIES(
     SalomeIDLKernel
     ${OMNIORB_LIBRARIES}
   )
+ENDIF(SALOME_USE_CORBA)
 
 ADD_EXECUTABLE(UnitTests UnitTests.cxx)
 TARGET_LINK_LIBRARIES(UnitTests ${COMMON_LIBS})
-INSTALL(TARGETS UnitTests DESTINATION ${SALOME_INSTALL_BINS})
+INSTALL(TARGETS UnitTests DESTINATION ${KERNEL_salomebin_BINS})

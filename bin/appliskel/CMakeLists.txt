@@ -37,4 +37,4 @@ SET(SCRIPTS
   kill_remote_containers.py
 )
 
-SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel)
+SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${KERNEL_salomescript_SCRIPTS}/appliskel)

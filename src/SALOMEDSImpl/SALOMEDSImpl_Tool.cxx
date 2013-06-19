@@ -50,7 +50,7 @@
 #endif
 
 
-bool SALOMEDS_Exists(const std::string thePath)
+bool Exists(const std::string thePath) 
 {
 #ifdef WIN32 
   if (  GetFileAttributes (  thePath.c_str()  ) == 0xFFFFFFFF  ) { 
@@ -106,8 +106,8 @@ std::string SALOMEDSImpl_Tool::GetTmpDir()
 
   std::string aDir = aTmpDir;
   
-  if(SALOMEDS_Exists(aDir)) {
-    for(aRND = 0; SALOMEDS_Exists(aDir); aRND++) {
+  if(Exists(aDir)) {
+    for(aRND = 0; Exists(aDir); aRND++) {
       sprintf(buffer, "%d", aRND);
       aDir = aTmpDir+buffer;  //Build a unique directory name
     }
@@ -143,7 +143,7 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
   for(i=1; i<=aLength; i++) {
     std::string aFile(aDirName);
     aFile += theFiles[i-1];
-    if(!SALOMEDS_Exists(aFile)) continue;
+    if(!Exists(aFile)) continue;
 
 #ifdef WIN32
     DeleteFile(aFile.c_str());
@@ -153,7 +153,7 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
   }
 
   if(IsDirDeleted) {
-    if(SALOMEDS_Exists(aDirName)) {
+    if(Exists(aDirName)) {
 #ifdef WIN32
       RemoveDirectory(aDirName.c_str());
 #else
