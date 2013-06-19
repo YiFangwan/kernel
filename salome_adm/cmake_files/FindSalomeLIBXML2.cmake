@@ -1,15 +1,4 @@
-# - Graphviz detection
-#
-# Output variable: GRAPHVIZ_EXECUTABLE
-# 
-# The executable 'dot' is looked for and returned in the above variable.
-#
-
-###########################################################################
-# Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
-#
-# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+# Copyright (C) 2013  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -27,11 +16,16 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-###########################################################################
 
-FIND_PROGRAM(GRAPHVIZ_EXECUTABLE dot)
+# LIBXML2 detection for Salome
 
-# Handle the standard arguments of the find_package() command:
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(Graphviz REQUIRED_VARS GRAPHVIZ_EXECUTABLE)
-
+set(LIBXML2_ROOT_DIR $ENV{LIBXML2_ROOT_DIR} CACHE PATH "Path to LibXml2 directory")
+if(EXISTS ${LIBXML2_ROOT_DIR})
+  set(CMAKE_INCLUDE_PATH ${LIBXML2_ROOT_DIR}/include)
+  set(CMAKE_LIBRARY_PATH ${LIBXML2_ROOT_DIR}/lib)
+  set(CMAKE_PROGRAM_PATH ${LIBXML2_ROOT_DIR}/bin)
+endif(EXISTS ${LIBXML2_ROOT_DIR})
+find_package(LibXml2 REQUIRED)
+#if(${LIBXML2_VERSION_STRING} VERSION_LESS "2.7.6")
+#  message(FATAL_ERROR "LIbXml2 required version is 2.7.6, version is ${LIBXML2_VERSION_STRING} , please defined LIBXML2_ROOT_DIR as environment or cmake variable")
+#endif(${LIBXML2_VERSION_STRING} VERSION_LESS "2.7.6")

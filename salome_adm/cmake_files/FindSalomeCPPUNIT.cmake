@@ -16,12 +16,13 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-# Author: Adrien Bruneton
-#
 
-# PThread detection for SALOME
-#
-#  !! Please read the generic detection procedure in SalomeMacros.cmake !!
-#
-SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(PThread PTHREAD_INCLUDE_DIR 1)
-MARK_AS_ADVANCED(PTHREAD_LIBRARIES PTHREAD_INCLUDE_DIR)
+# CPPUNIT detection for Salome
+
+set(CPPUNIT_ROOT_DIR $ENV{CPPUNIT_ROOT_DIR} CACHE PATH "Path to Cppunit directory")
+if(EXISTS ${CPPUNIT_ROOT_DIR})
+  set(CMAKE_INCLUDE_PATH ${CPPUNIT_ROOT_DIR}/include)
+  set(CMAKE_LIBRARY_PATH ${CPPUNIT_ROOT_DIR}/lib)
+  set(CMAKE_PROGRAM_PATH ${CPPUNIT_ROOT_DIR}/bin)
+endif(EXISTS ${CPPUNIT_ROOT_DIR})
+find_package(CPPUNIT)

@@ -16,13 +16,16 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-# Author: Adrien Bruneton
-#
 
-# Graphviz detection for salome
-#
-#  !! Please read the generic detection procedure in SalomeMacros.cmake !!
-#
+# LIBBATCH detection for Salome
 
-SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(Graphviz GRAPHVIZ_EXECUTABLE 2)
-MARK_AS_ADVANCED(GRAPHVIZ_EXECUTABLE)
+include(FindPackageHandleStandardArgs)
+
+set(LIBBATCH_ROOT_DIR $ENV{LIBBATCH_ROOT_DIR} CACHE PATH "Path to libbatch directory")
+if(EXISTS ${LIBBATCH_ROOT_DIR})
+  find_package(libbatch QUIET CONFIG PATHS ${LIBBATCH_ROOT_DIR}/lib NO_DEFAULT_PATH)
+endif(EXISTS ${LIBBATCH_ROOT_DIR})
+find_package(libbatch QUIET CONFIG)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(libbatch DEFAULT_MSG
+  LIBBATCH_ROOT_DIR LIBBATCH_INCLUDE_DIRS LIBBATCH_LIBRARIES
+  LIBBATCH_RUNTIME_LIBRARY_DIRS LIBBATCH_PYTHONPATH)
