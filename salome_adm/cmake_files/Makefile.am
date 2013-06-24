@@ -31,6 +31,7 @@ FindOMNIORB.cmake \
 UseOMNIORB.cmake \
 FindPLATFORM.cmake \
 FindSPHINX.cmake \
+FindPTHREAD.cmake \
 SalomeMacros.cmake \
 FindSalomeBOOST.cmake \
 FindSalomeCPPUNIT.cmake \
@@ -40,6 +41,7 @@ FindSalomeLIBBATCH.cmake \
 FindSalomeLIBXML2.cmake \
 FindSalomeMPI.cmake \
 FindSalomePYTHON.cmake \
+FindSalomePTHREAD.cmake \
 FindSalomeSPHINX.cmake \
 FindSalomeSWIG.cmake \
 InstallAndCompilePythonFile.cmake

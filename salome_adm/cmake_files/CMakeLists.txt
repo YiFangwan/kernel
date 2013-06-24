@@ -31,6 +31,7 @@ SET(DATA
   UseOMNIORB.cmake
   FindPLATFORM.cmake
   FindSPHINX.cmake
+  FindPTHREAD.cmake 
   FindSalomeBOOST.cmake
   FindSalomeCPPUNIT.cmake
   FindSalomeDOXYGEN.cmake
@@ -38,6 +39,7 @@ SET(DATA
   FindSalomeLIBBATCH.cmake
   FindSalomeLIBXML2.cmake
   FindSalomeMPI.cmake
+  FindSalomePTHREAD.cmake
   FindSalomePYTHON.cmake
   FindSalomeSPHINX.cmake
   FindSalomeSWIG.cmake
