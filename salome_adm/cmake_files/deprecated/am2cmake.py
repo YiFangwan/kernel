@@ -594,6 +594,7 @@ class CMakeFile(object):
                             newlines.append("""
                             SET(GEOM_ROOT_DIR $ENV{GEOM_ROOT_DIR})
                             SET(MED_ROOT_DIR $ENV{MED_ROOT_DIR})
+                            INCLUDE(${GUI_ROOT_DIR}/adm_local/cmake_files/deprecated/FindQWT.cmake)
                             INCLUDE(${GEOM_ROOT_DIR}/adm_local/cmake_files/FindGEOM.cmake)
                             INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMEDFILE.cmake)
                             INCLUDE(${MED_ROOT_DIR}/adm_local/cmake_files/FindMED.cmake)
