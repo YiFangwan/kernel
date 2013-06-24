@@ -63,8 +63,12 @@ option(SALOME_USE_TEST "Generate test" OFF)
 option(SALOME_USE_LIBBATCH "Generate Launcher" ON)
 
 # Threads
-SET(CMAKE_THREAD_PREFER_PTHREAD)
-find_package(Threads REQUIRED)
+if(WINDOWS)
+  find_package(SalomePTHREAD REQUIRED)
+else(WINDOWS)
+  SET(CMAKE_THREAD_PREFER_PTHREAD)
+  find_package(Threads REQUIRED)
+endif(WINDOWS)
 
 # required prerequisites
 
