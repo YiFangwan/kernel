@@ -31,6 +31,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <unistd.h>
 
 using namespace std;
 
