@@ -661,6 +661,10 @@ class CMakeFile(object):
                             INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindEXPAT.cmake)
                             INCLUDE(${CMAKE_SOURCE_DIR}/adm/cmake/FindGRAPHVIZ.cmake)
                             INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
+
+                            SET(PLATFORM_CPPFLAGS ${PLATFORM_CPPFLAGS} -D_SECURE_SCL=0)
+                            SET(PLATFORM_CPPFLAGS ${PLATFORM_CPPFLAGS} -D_SECURE_SCL_THROWS=0)
+                            SET(PLATFORM_CPPFLAGS ${PLATFORM_CPPFLAGS} -D_HAS_ITERATOR_DEBUGGING=0) # To avoid runtime error during checking iterators
                             """)
                             pass
                         if self.module == "jobmanager":
