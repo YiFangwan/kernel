@@ -604,6 +604,7 @@ class CMakeFile(object):
                         if self.module == "geom":
                             newlines.append("""
                             INCLUDE(${KERNEL_ROOT_DIR}/salome_adm/cmake_files/FindSPHINX.cmake)
+                            ADD_DEFINITIONS(-DUSE_CURVE_CREATOR)
                             """)
                             pass
 
