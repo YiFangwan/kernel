@@ -21,7 +21,6 @@ INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIR}
   ${PTHREAD_INCLUDE_DIR}
   ${HDF5_INCLUDE_DIRS}
-  ${LIBXML2_INCLUDE_DIR}
   ${PYTHON_INCLUDE_DIRS}
   ${PROJECT_BINARY_DIR}/salome_adm
   ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
@@ -41,9 +40,10 @@ SET(SCRIPTS
   SALOME_ComponentPy.py
   SALOME_PyNode.py
   SALOME_Container.py
+  SALOME_DataContainerPy.py
 )
 
-ADD_DEFINITIONS(${HDF5_DEFINITIONS} ${LIBXML2_DEFINITIONS} ${OMNIORB_DEFINITIONS})
+ADD_DEFINITIONS(${HDF5_DEFINITIONS} ${OMNIORB_DEFINITIONS})
 SET(COMMON_LIBS
   Registry
   SalomeNotification
@@ -76,6 +76,7 @@ ENDIF()
 SET(SalomeContainer_SOURCES
   Component_i.cxx
   Container_i.cxx
+  SALOME_DataContainer_i.cxx
   SALOME_FileTransfer_i.cxx
   SALOME_FileRef_i.cxx
   Container_init_python.cxx

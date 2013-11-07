@@ -31,12 +31,11 @@
 
 #include "SALOME_ModuleCatalog.hxx"
 
-#include "SALOME_ModuleCatalog_Parser.hxx"
 #include <SALOMEconfig.h>
 
 #include CORBA_SERVER_HEADER(SALOME_ModuleCatalog)
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning(disable:4275) // Disable warning interface non dll
 #pragma warning(disable:4290) // Warning Exception ...
 #endif
@@ -52,7 +51,7 @@ public:
 
   //! method to get a list of the interfaces name of a component
   /*!
-    \return a list of the interfaces of a component 
+    \return a list of the interfaces of a component
   */
   virtual SALOME_ModuleCatalog::ListOfInterfaces* GetInterfaceList() ;
 
@@ -61,47 +60,47 @@ public:
     \param interface name const car* arguments
     \return the wanted interface
   */
-  virtual SALOME_ModuleCatalog::DefinitionInterface* 
+  virtual SALOME_ModuleCatalog::DefinitionInterface*
              GetInterface(const char* interfacename)
              throw(SALOME_ModuleCatalog::NotFound);
 
   //! method to get a list of the services name of an interface of a component
  /*!If the specified interface doesn't exist, the Notfound exception is thrown
-   \param interfacename const char* arguments 
+   \param interfacename const char* arguments
    \return a list of the services of the wanted interface
  */
-  virtual SALOME_ModuleCatalog::ListOfServices* 
+  virtual SALOME_ModuleCatalog::ListOfServices*
              GetServiceList(const char* interfacename)
              throw(SALOME_ModuleCatalog::NotFound);
 
-    
+
   //! method to get one service of an interface of a component
- /*! If the wanted service or the specified interface don't exist, 
+ /*! If the wanted service or the specified interface don't exist,
   *  the Notfound exception is thrown
-   \param interfacename const char* arguments 
+   \param interfacename const char* arguments
    \param servicename const char* arguments
    \return the wanted service
  */
-  virtual SALOME_ModuleCatalog::Service* 
-             GetService(const char* interfacename, 
-                        const char* servicename) 
+  virtual SALOME_ModuleCatalog::Service*
+             GetService(const char* interfacename,
+                        const char* servicename)
              throw(SALOME_ModuleCatalog::NotFound);
 
   //! method to get the default service of an interface of a component
   /*! If the specified interface doesn't exist, the Notfound exception is thrown
-    \param interfacename const char* arguments 
+    \param interfacename const char* arguments
     \return the default service of the interface
   */
-  virtual SALOME_ModuleCatalog::Service* 
-             GetDefaultService(const char* interfacename) 
+  virtual SALOME_ModuleCatalog::Service*
+             GetDefaultService(const char* interfacename)
              throw(SALOME_ModuleCatalog::NotFound);
 
   //! method to get the PathPrefix of a computer
  /*! If the wanted computer doesn't exist, the Notfound exception is thrown
-   \param machinename const char* arguments 
+   \param machinename const char* arguments
    \return the prefix path
  */
-  virtual char* GetPathPrefix(const char* machinename) 
+  virtual char* GetPathPrefix(const char* machinename)
                 throw(SALOME_ModuleCatalog::NotFound);
 
   //! method to obtain the constraint affected to a component

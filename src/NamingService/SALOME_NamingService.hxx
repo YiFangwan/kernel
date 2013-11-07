@@ -41,7 +41,7 @@
 
 #include "SALOME_NamingService_defs.hxx"
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning(disable:4290) // Warning Exception ...
 #endif
 
@@ -55,12 +55,12 @@ public:
 
   void init_orb(CORBA::ORB_ptr orb=0);
   void Register(CORBA::Object_ptr ObjRef,
-                const char* Path) 
+                const char* Path)
     throw(ServiceUnreachable);
   CORBA::Object_ptr Resolve(const char* Path)
-    throw( ServiceUnreachable); 
+    throw( ServiceUnreachable);
   CORBA::Object_ptr ResolveFirst(const char* Path)
-    throw( ServiceUnreachable); 
+    throw( ServiceUnreachable);
   CORBA::Object_ptr ResolveComponent(const char* hostname,
                                      const char* containerName,
                                      const char* componentName,
@@ -70,7 +70,7 @@ public:
   std::string ContainerName(const Engines::ContainerParameters& params);
   std::string BuildContainerNameForNS(const char *ContainerName,
                                       const char *hostname);
-  std::string 
+  std::string
   BuildContainerNameForNS(const Engines::ContainerParameters& params,
                           const char *hostname);
 

@@ -36,7 +36,7 @@
 #include <string>
 #include <cstdio>
 
-#ifdef WNT
+#ifdef WIN32
 #define strdup _strdup
 #endif
 
@@ -50,7 +50,7 @@
  *
  *  After Default Constructor, one needs to initialize ORB.
  *  \sa init_orb(CORBA::ORB_ptr orb), SALOME_NamingService(CORBA::ORB_ptr orb)
- */ 
+ */
 // ============================================================================
 
 SALOME_NamingService::SALOME_NamingService()
@@ -61,11 +61,11 @@ SALOME_NamingService::SALOME_NamingService()
 }
 
 // ============================================================================
-/*! \brief Standard Constructor, with ORB reference. 
- * 
+/*! \brief Standard Constructor, with ORB reference.
+ *
  * Initializes the naming service root context
  * \param orb CORBA::ORB_ptr arguments
- */ 
+ */
 // ============================================================================
 
 SALOME_NamingService::SALOME_NamingService(CORBA::ORB_ptr orb)
@@ -79,7 +79,7 @@ SALOME_NamingService::SALOME_NamingService(CORBA::ORB_ptr orb)
 /*! \brief Standard destructor.
  *
  *  The standard destructor does nothing special.
- */ 
+ */
 // ============================================================================
 
 SALOME_NamingService::~SALOME_NamingService()
@@ -91,12 +91,12 @@ SALOME_NamingService::~SALOME_NamingService()
 
 // ============================================================================
 /*! \brief initializes ORB reference and naming service root context.
- * 
+ *
  *  Initializes ORB reference and naming service root context.
  *  For use after default constructor.
  *  If param orb is null, the orb is initialized
  *  \param orb CORBA::ORB_ptr arguments
- */ 
+ */
 // ============================================================================
 
 void SALOME_NamingService::init_orb(CORBA::ORB_ptr orb)
@@ -128,12 +128,12 @@ void SALOME_NamingService::init_orb(CORBA::ORB_ptr orb)
  *               as an absolute pathname. Else, pathname is taken as a relative
  *               path, to current context. Prefer absolute pathname, relative
  *               pathname are not safe, when SALOME_NamingService object is
- *               shared or use in multithreaded context. 
+ *               shared or use in multithreaded context.
  *               If the path ends with '/', only a directory is created.
  * \sa           Change_Directory(const char* Path),
  *               Create_Directory(const char* Path)
  *               CORBA::Object_ptr Resolve(const char* Path)
- */ 
+ */
 // ============================================================================
 
 void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
@@ -167,7 +167,7 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
     // A directory is treated (not only an object name)
     // test if the directory where ObjRef should be recorded already exists
     // If not, create the new context
-    
+
     try{
       CORBA::Object_var obj = _current_context->resolve(context_name);
       _current_context = CosNaming::NamingContext::_narrow(obj);
@@ -319,9 +319,9 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 
 // ============================================================================
 /*! \brief get the CORBA object reference associated to a name.
- * 
+ *
  *  get the CORBA object reference associated to a complete name with a path.
- *  If the NamingService is out, the exception ServiceUnreachable is thrown 
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown
  * \param Path pathname. If the pathname begins with a '/', pathname is taken
  *             as an absolute pathname. Else, pathname is taken as a relative
  *             path, to current context. Prefer absolute pathname, relative
@@ -331,7 +331,7 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
  *             or nil reference in other cases.
  * \sa         Register(CORBA::Object_ptr ObjRef, const char* Path),
  *             Change_Directory(const char* Path)
- */ 
+ */
 // ============================================================================
 
 CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
@@ -412,7 +412,7 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
  *
  *  get the CORBA object reference associated to an uncomplete name with a
  *  path. Look for the first occurence of name*.
- *  If the NamingService is out, the exception ServiceUnreachable is thrown 
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown
  * \param Path pathname under the form "/path/name" (Absolute reference !)
  *             search the fist reference like "/path(.dir)/name*(.kind)"
  * \return     the object reference if found, or nil reference.
@@ -449,21 +449,21 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
     isOk =true;
   else
     isOk = Change_Directory(basePath.c_str());
-  
+
   if (isOk)
     {
       std::vector<std::string> listElem = list_directory();
       std::vector<std::string>::iterator its = listElem.begin();
-      
+
       while (its != listElem.end())
         {
           MESSAGE(*its);
-          
+
           if ((*its).find(name) == 0)
             {
               return Resolve((*its).c_str());
             }
-          
+
           its++;
         }
     }
@@ -481,12 +481,12 @@ CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
  * \param hostname      name of the machine on which the component is searched.
  * \param containerName name of the container in which the component is
                         instanciated.
- * \param componentName name of the component we are looking for an existing 
+ * \param componentName name of the component we are looking for an existing
                         instance.
  * \param nbproc        in case of multi processor machine, container name is
  *                      suffixed with _nbproc.
  * \return the object reference
- */ 
+ */
 // ============================================================================
 
 CORBA::Object_ptr
@@ -599,7 +599,7 @@ std::string SALOME_NamingService::ContainerName(const char *containerName)
  */
 // ============================================================================
 
-std::string 
+std::string
 SALOME_NamingService::ContainerName(const Engines::ContainerParameters& params)
 {
   int nbproc;
@@ -684,7 +684,7 @@ BuildContainerNameForNS(const Engines::ContainerParameters& params,
  * \param  name the name to search.
  * \return number of occurences found.
  * \sa Change_Directory(const char* Path)
- */ 
+ */
 // ============================================================================
 
 int SALOME_NamingService::Find(const char* name)
@@ -714,7 +714,7 @@ throw(ServiceUnreachable)
 // ============================================================================
 /*! \brief Creates a directory (context_name)
  *
- *  Creates a directory (context_name) relative to the current directory 
+ *  Creates a directory (context_name) relative to the current directory
  *  (current context) or relative to the root directory (root context), if
  *  the path given begins with a '/'.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
@@ -723,13 +723,13 @@ throw(ServiceUnreachable)
  *               as an absolute pathname. Else, pathname is taken as a relative
  *               path, to current context. Prefer absolute pathname, relative
  *               pathname are not safe, when SALOME_NamingService object is
- *               shared or use in multithreaded context.   
+ *               shared or use in multithreaded context.
  *  \return true if successfull
  *          (creation not strictly garanteed if true, because Register may
  *           catch some specific unlikely exception without throw anything
  *           --- to be corrected ---)
  *  \sa RegisterCORBA::Object_ptr ObjRef, const char* Path)
- */ 
+ */
 // ============================================================================
 
 bool SALOME_NamingService::Create_Directory(const char* Path)
@@ -756,7 +756,7 @@ throw(ServiceUnreachable)
     }
 
   // --- path must end with '/'
-  
+
   if (path[path.length()-1] != '/') path += '/';
 
   Register(CORBA::Object::_nil(), path.c_str());
@@ -774,7 +774,7 @@ throw(ServiceUnreachable)
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
  * \param  Path the new current directory
  * \return true if the change succeeded
- */ 
+ */
 // ============================================================================
 
 bool SALOME_NamingService::Change_Directory(const char* Path)
@@ -810,7 +810,7 @@ throw(ServiceUnreachable)
   // --- need to resolve directory path
 
   ASSERT(!CORBA::is_nil(current_context));
-  
+
   if (path[path.length()-1] != '/') path += '/';
 //   SCRUTE(path);
   CosNaming::Name context_name;
@@ -819,9 +819,9 @@ throw(ServiceUnreachable)
                                                  context_name,
                                                  splitPath,
                                                  true);
-  
+
   // --- Context creation
-  
+
   try
     {
       CORBA::Object_var obj = current_context->resolve(context_name);
@@ -830,11 +830,11 @@ throw(ServiceUnreachable)
       _current_context = current_context;
       changeOK = true;
     }
-  
+
   catch (CosNaming::NamingContext::NotFound& ex)
     {
       CosNaming::Name n = ex.rest_of_name;
-      
+
       if (ex.why == CosNaming::NamingContext::missing_node)
         MESSAGE( "Change_Directory() : " << (char *) n[0].id
                << " (" << (char *) n[0].kind << ") not found");
@@ -847,17 +847,17 @@ throw(ServiceUnreachable)
                << " (" << (char *) n[0].kind
                << ") is not an object" );
     }
-  
+
   catch (CosNaming::NamingContext::CannotProceed&)
     {
       INFOS("Change_Directory(): CosNaming::NamingContext::CannotProceed");
     }
-  
+
   catch (CosNaming::NamingContext::InvalidName&)
     {
       INFOS("Change_Directory(): CosNaming::NamingContext::InvalidName");
     }
-  
+
   catch (CORBA::SystemException&)
     {
       INFOS("Change_Directory():CORBA::SystemException : unable to contact"
@@ -875,7 +875,7 @@ throw(ServiceUnreachable)
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
  * \return the path of the current_context
  * \sa  _current_directory
- */ 
+ */
 // ============================================================================
 
 char* SALOME_NamingService::Current_Directory()
@@ -928,7 +928,7 @@ throw(ServiceUnreachable)
  *  List and print via trace all directories and objects in the current
  *  context. Trace must be activated: compile option _DEBUG_
  *  If the NamingService is out, the exception ServiceUnreachable is thrown
- */ 
+ */
 // ============================================================================
 
 void SALOME_NamingService::list()
@@ -993,7 +993,7 @@ throw(ServiceUnreachable)
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
  * \return list of strings with objects found.
  * \sa vector<string> list_directory_recurs()
- */ 
+ */
 // ============================================================================
 
 std::vector<std::string> SALOME_NamingService::list_directory()
@@ -1047,7 +1047,7 @@ throw(ServiceUnreachable)
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
  * \return list of strings with directories found.
  * \sa vector<string> list_directory()
- */ 
+ */
 // ============================================================================
 
 std::vector<std::string> SALOME_NamingService::list_subdirs()
@@ -1097,7 +1097,7 @@ throw(ServiceUnreachable)
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
  * \return list of strings with objects found.
  * \sa vector<string> list_directory()
- */ 
+ */
 // ============================================================================
 
 std::vector<std::string> SALOME_NamingService::list_directory_recurs()
@@ -1122,9 +1122,9 @@ throw(ServiceUnreachable)
 /*! \brief destroy an entry in naming service.
  *
  *  Destroy an association Path - Object Reference.
- *  If the NamingService is out, the exception ServiceUnreachable is thrown 
+ *  If the NamingService is out, the exception ServiceUnreachable is thrown
  * \param Path object path
- */ 
+ */
 // ============================================================================
 
 void SALOME_NamingService::Destroy_Name(const char* Path)
@@ -1233,7 +1233,7 @@ throw(ServiceUnreachable)
             CORBA::string_dup(splitPath[dimension_resultat].c_str());
           context_name[0].kind = CORBA::string_dup("object");
           SCRUTE(context_name[0].id);
- 
+
           _current_context->unbind(context_name);
           MESSAGE("The object " << context_name[0].id << " has been deleted");
         }
@@ -1280,7 +1280,7 @@ throw(ServiceUnreachable)
  *  Destroy an empty directory in Naming Service.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
  * \param Path directory path
- */ 
+ */
 // ============================================================================
 
 void SALOME_NamingService::Destroy_Directory(const char* Path)
@@ -1452,10 +1452,10 @@ throw(ServiceUnreachable)
 /*! \brief Destroy a directory with its contents.
  *
  *  Destroy the objects associations in a directory, and the directory itself,
- *  if there is no subdirectories. 
+ *  if there is no subdirectories.
  *  If the NamingService is out, the exception ServiceUnreachable is thrown.
  * \param Path the directory path.
- */ 
+ */
 // ============================================================================
 
 void SALOME_NamingService::Destroy_FullDirectory(const char* Path)
@@ -1468,7 +1468,7 @@ throw(ServiceUnreachable)
 
       for (unsigned int ind = 0; ind < contList.size(); ind++)
         Destroy_Name(contList[ind].c_str());
-      
+
       Destroy_Directory(Path);
     }
 }
@@ -1478,7 +1478,7 @@ throw(ServiceUnreachable)
  *
  * the root context initialisation must be done when the SALOME_NamingService
  * instance is created and before any othe call. See constructors.
- */ 
+ */
 // ============================================================================
 
 void SALOME_NamingService::_initialize_root_context()
@@ -1521,7 +1521,7 @@ void SALOME_NamingService::_initialize_root_context()
  *                      if false, final object (if any) is included in
  *                      context_name.
  *  \return             dimension of context_name
- */ 
+ */
 // ============================================================================
 
 int
@@ -1556,7 +1556,7 @@ SALOME_NamingService::_createContextNameDir(std::string path,
   if (onlyDir)                  // only directory part
     {
       dim = splitPath.size()-1; // omit final object
-      if (endWithDelim)         // unless the path ends with a delimiter 
+      if (endWithDelim)         // unless the path ends with a delimiter
         dim++;
       endWithDelim = true;
     }
@@ -1592,7 +1592,7 @@ SALOME_NamingService::_createContextNameDir(std::string path,
  *
  * \param  name the name to search.
  * \param  occurence_number number of occurence already found (incremented)
- */ 
+ */
 // ============================================================================
 
 void SALOME_NamingService::_Find(const char* name,
@@ -1617,37 +1617,37 @@ void SALOME_NamingService::_Find(const char* name,
       while (binding_iterator->next_one(binding))
         {
           CosNaming::Name bindingName = binding->binding_name;
-          
+
           if (binding->binding_type == CosNaming::ncontext)
             {
               // --- We work on a directory,
               //     the search should be done in this directory
-              
+
               Change_Directory(bindingName[0].id);
               _Find(name, occurence_number);
-              
+
               // --- We'll go back to the initial context
-              
+
               _current_context = ref_context ;
             }
-          
+
           else if (binding->binding_type == CosNaming::nobject)
             {
               // --- We work on an object...
-              
+
               if (!strcmp( bindingName[0].id, name))
                 {
                   //MESSAGE("One occurence was found");
                   occurence_number++;
-                  
+
                   // --- We keep in memory the directory where
                   //     one occurence was found
-                  
+
                   found_context = _current_context ;
                 }
             }
         }
-      
+
       binding_iterator->destroy();
     }
   // --- We go to the last directory where an occurence was found
@@ -1659,14 +1659,14 @@ void SALOME_NamingService::_Find(const char* name,
 
 // ============================================================================
 /*! \brief find the current directory path.
- * 
+ *
  *  Parse the naming service tree to find the current context and give the
  *  associated directory path (relative to root context).
- * \param splitPath 
+ * \param splitPath
  * \param lengthResult
  * \param contextToFind
  * \param notFound
- */ 
+ */
 // ============================================================================
 
 void
@@ -1759,7 +1759,7 @@ _current_directory(std::vector<std::string>& splitPath,
  *  \param relativeSubDir  The directory relative to absCurDirectory in which
  *                         the objects are found.
  *  \param absCurDirectory The current directory, absolute path
- */ 
+ */
 // ============================================================================
 
 void SALOME_NamingService::_list_directory_recurs(std::vector<std::string>& myList,

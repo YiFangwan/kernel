@@ -19,10 +19,15 @@
 # Author: Adrien Bruneton
 #
 
-# Medfile detection dor Salome
+# Medfile detection for Salome
 #
 #  !! Please read the generic detection procedure in SalomeMacros.cmake !!
 #
 
 SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(MEDFile MEDFILE_INCLUDE_DIRS 1)
 #MARK_AS_ADVANCED()
+
+IF(MEDFILE_FOUND) 
+  SALOME_ACCUMULATE_HEADERS(MEDFILE_INCLUDE_DIRS)
+  SALOME_ACCUMULATE_ENVIRONMENT(LD_LIBRARY_PATH ${MEDFILE_LIBRARIES})
+ENDIF()

@@ -33,11 +33,11 @@
 
 #include "SALOME_Utils.hxx"
 
-#include "omniORB4/CORBA.h" 
+#include "omniORB4/CORBA.h"
 
 #include "Utils_CommException.hxx"
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning(disable:4251) // Warning DLL Interface ...
 #pragma warning(disable:4290) // Warning Exception ...
 #endif

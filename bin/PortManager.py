@@ -175,13 +175,13 @@ class _ThreadedTCPRequestHandler(SocketServer.BaseRequestHandler):
       pm.releasePort(port)
       response = "%s" % (RELEASE_PORT_ACK_MSG)
       _send(self.request, response)
-      #print "RELEASE_PORT:", port
+      print "RELEASE_PORT:", port
       if not pm.isBusy():
-        #print "Close server"
+        print "Close server"
         self.server.shutdown()
       #print pm
     elif data == STOP_SERVER_MSG:
-      #print "Close server"
+      print "Close server"
       self.server.shutdown()
 #
 
@@ -211,10 +211,10 @@ def __startServer():
     #server_thread.setDaemon(True)
     server_thread.start()
     #print "Server loop running in thread:", server_thread.getName()
-    #print "Server address:", pm_address
+    print "Server address:", pm_address
     #return address
   except:
-    #print "Server already started"
+    print "Server already started"
     #print "Server address:", pm_address
     #return pm_address
     pass
@@ -229,7 +229,7 @@ def __newClient(address, message):
     response = _receive(sock)
     if response.startswith(GET_PORT_ACK_MSG):
       port = int(response[len(GET_PORT_ACK_MSG)+1:])
-      #print "GET_PORT:", port
+      print "GET_PORT:", port
       return port
     elif response == RELEASE_PORT_ACK_MSG:
       #print "Received: %s" % response
@@ -237,7 +237,7 @@ def __newClient(address, message):
       pass
     sock.close()
   except socket.error:
-    #print "Unable to connect to server"
+    print "Unable to connect to server"
     return -1
 #
 

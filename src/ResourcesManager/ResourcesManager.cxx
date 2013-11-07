@@ -21,6 +21,7 @@
 //
 
 #include "ResourcesManager.hxx" 
+#include "SALOME_ResourcesCatalog_Handler.hxx"
 #include <Basics_Utils.hxx>
 #include <fstream>
 #include <iostream>
@@ -30,7 +31,7 @@
 #include <list>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef WNT
+#ifdef WIN32
 #else
 #include <unistd.h>
 #endif

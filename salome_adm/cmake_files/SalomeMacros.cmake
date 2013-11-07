@@ -286,31 +286,33 @@ MACRO(SALOME_PACKAGE_REPORT_AND_CHECK)
   IF(SALOME_PACKAGE_REPORT_JUSTIFY)
     SET(_length ${SALOME_PACKAGE_REPORT_JUSTIFY})
   ELSE()
-    SET(_length 10)
+    SET(_length 23)
   ENDIF()
   MESSAGE(STATUS "") 
   MESSAGE(STATUS "  Optional packages - Detection report ")
   MESSAGE(STATUS "  ==================================== ")
   MESSAGE(STATUS "")
-  LIST(LENGTH _SALOME_OPTIONAL_PACKAGES_names _list_len)
-  # Another CMake stupidity - FOREACH(... RANGE r) generates r+1 numbers ...
-  MATH(EXPR _range "${_list_len}-1")
-  FOREACH(_idx RANGE ${_range})  
-    LIST(GET _SALOME_OPTIONAL_PACKAGES_names ${_idx} _pkg_name)
-    LIST(GET _SALOME_OPTIONAL_PACKAGES_found ${_idx} _pkg_found)
-    LIST(GET _SALOME_OPTIONAL_PACKAGES_flags ${_idx} _pkg_flag)
-    SALOME_JUSTIFY_STRING(${_pkg_name} ${_length} _pkg_name)
-    IF(_pkg_found)
-      SET(_found_msg "Found")
-      SET(_flag_msg "")
-    ELSE()
-      SET(_will_fail ON)
-      SET(_found_msg "NOT Found")
-      SET(_flag_msg " - ${_pkg_flag} can be switched OFF to skip this prerequisite.")
-    ENDIF()
+  IF(DEFINED _SALOME_OPTIONAL_PACKAGES_names)
+    LIST(LENGTH _SALOME_OPTIONAL_PACKAGES_names _list_len)
+    # Another CMake stupidity - FOREACH(... RANGE r) generates r+1 numbers ...
+    MATH(EXPR _range "${_list_len}-1")
+    FOREACH(_idx RANGE ${_range})  
+      LIST(GET _SALOME_OPTIONAL_PACKAGES_names ${_idx} _pkg_name)
+      LIST(GET _SALOME_OPTIONAL_PACKAGES_found ${_idx} _pkg_found)
+      LIST(GET _SALOME_OPTIONAL_PACKAGES_flags ${_idx} _pkg_flag)
+      SALOME_JUSTIFY_STRING(${_pkg_name} ${_length} _pkg_name)
+      IF(_pkg_found)
+        SET(_found_msg "Found")
+        SET(_flag_msg "")
+      ELSE()
+        SET(_will_fail ON)
+        SET(_found_msg "NOT Found")
+        SET(_flag_msg " - ${_pkg_flag} can be switched OFF to skip this prerequisite.")
+      ENDIF()
     
-    MESSAGE(STATUS "  * ${_pkg_name}  ->  ${_found_msg}${_flag_msg}")
-  ENDFOREACH()
+      MESSAGE(STATUS "  * ${_pkg_name}  ->  ${_found_msg}${_flag_msg}")
+    ENDFOREACH()
+  ENDIF(DEFINED _SALOME_OPTIONAL_PACKAGES_names)
   MESSAGE(STATUS "")
   MESSAGE(STATUS "")
   
@@ -628,7 +630,211 @@ MACRO(SALOME_ACCUMULATE_HEADERS lst)
   FOREACH(l IN LISTS ${lst})
     LIST(FIND _${PROJECT_NAME}_EXTRA_HEADERS "${l}" _res)
     IF(_res EQUAL "-1")
-      LIST(APPEND _${PROJECT_NAME}_EXTRA_HEADERS "${l}")
+      IF(NOT "${l}" STREQUAL "/usr/include")
+        LIST(APPEND _${PROJECT_NAME}_EXTRA_HEADERS "${l}")
+      ENDIF()
     ENDIF()
   ENDFOREACH()
 ENDMACRO(SALOME_ACCUMULATE_HEADERS)
+
+#########################################################################
+# SALOME_ACCUMULATE_ENVIRONMENT()
+# 
+# USAGE: SALOME_ACCUMULATE_ENVIRONMENT(envvar value [value ...])
+#
+# ARGUMENTS:
+#   envvar [in] environment variable name, e.g. PATH
+#   value  [in] value(s) to be added to environment variable
+#
+# This macro is called in the various FindSalomeXYZ.cmake modules to 
+# accumulate environment variables, to be used later to run some command
+# in proper environment.
+#
+# 1. Each envrironment variable is stored in specific CMake variable
+#    _${PROJECT_NAME}_EXTRA_ENV_<var>, where <var> is name of variable.
+# 2. Full list of environment variable names is stored in CMake variable
+#    _${PROJECT_NAME}_EXTRA_ENV.
+#
+# Notes:
+# - The arguments list can include optional CHECK or NOCHECK keywords:
+#   * For all arguments following CHECK keyword the macro perform an
+#     additional check (see below); this is the default mode, it is suitable
+#     for path variables (PATH, LD_LIBRARY_PATH, etc).
+#   * For all arguments following NOCHECK keyword, no additional check is
+#     performed.
+#   Checking an argument means that we check:
+#    - That the path actually exists
+#    - That this is not a standard system path (starting with "/usr"); this avoids
+#   polluting LD_LIBRARY_PATH or PATH with things like "/usr/lib64" ...
+#
+MACRO(SALOME_ACCUMULATE_ENVIRONMENT envvar)
+  SET(_is_check ON)
+  FOREACH(_item ${ARGN})
+    IF(${_item} STREQUAL "NOCHECK")
+      SET(_is_check OFF)
+    ELSEIF(${_item} STREQUAL "CHECK")
+      SET(_is_check ON)
+    ELSE()
+      IF(_is_check)
+        IF(NOT IS_DIRECTORY ${_item})
+          IF(TARGET ${_item})
+            GET_TARGET_PROPERTY(_item ${_item} LOCATION)
+          ENDIF()        
+          GET_FILENAME_COMPONENT(_item ${_item} PATH)
+        ENDIF()    
+        IF(EXISTS ${_item})
+          STRING(REGEX MATCH "^(/usr|/lib|/bin)" _usr_find ${_item})
+          LIST(FIND _${PROJECT_NAME}_EXTRA_ENV_${envvar} ${_item} _res)
+          IF(NOT _usr_find AND _res EQUAL -1)
+              LIST(APPEND _${PROJECT_NAME}_EXTRA_ENV_${envvar} ${_item})
+          ENDIF()  
+        ENDIF()
+      ELSE(_is_check)
+        LIST(FIND _${PROJECT_NAME}_EXTRA_ENV_${envvar} ${_item} _res)
+        IF( _res EQUAL -1)
+          LIST(APPEND _${PROJECT_NAME}_EXTRA_ENV_${envvar} ${_item})
+        ENDIF()  
+      ENDIF(_is_check)
+    ENDIF()   
+  ENDFOREACH()
+  
+  LIST(FIND _${PROJECT_NAME}_EXTRA_ENV ${envvar} _res)
+  IF(_res EQUAL -1)
+    LIST(APPEND _${PROJECT_NAME}_EXTRA_ENV ${envvar})
+  ENDIF()
+  SET(_${PROJECT_NAME}_EXTRA_ENV_FULL "SET\(${PROJECT_NAME}_EXTRA_ENV ${_${PROJECT_NAME}_EXTRA_ENV}\)")
+  FOREACH(_res ${_${PROJECT_NAME}_EXTRA_ENV})
+    SET(_${PROJECT_NAME}_EXTRA_ENV_FULL "${_${PROJECT_NAME}_EXTRA_ENV_FULL}\nSET\(${PROJECT_NAME}_EXTRA_ENV_${_res} ${_${PROJECT_NAME}_EXTRA_ENV_${_res}}\)")
+  ENDFOREACH()
+ENDMACRO(SALOME_ACCUMULATE_ENVIRONMENT)
+
+#########################################################################
+# SALOME_GENERATE_ENVIRONMENT_SCRIPT()
+# 
+# USAGE: SALOME_GENERATE_ENVIRONMENT_SCRIPT(output script cmd opts)
+#
+# ARGUMENTS:
+#   output [out] output command, e.g. for creation of target.
+#   script [in]  output environement script name
+#   cmd    [in]  input command, e.g. sphinx or python command.
+#   opts   [in]  options for input command (cmd).
+#
+# This macro is called when it's necessary to use given environment to run some command. 
+# Macro generates environement script using previously created variables
+# _${PROJECT_NAME}_EXTRA_ENV_<var>, where <var> is name of variable and
+# _${PROJECT_NAME}_EXTRA_ENV (see marco SALOME_ACCUMULATE_ENVIRONMENT);
+# and puts generated command in proper environment into <output> argument.
+# 
+# Notes:
+# - If <script> is specified as relative path, it is computed from the current build
+#   directory.
+#
+MACRO(SALOME_GENERATE_ENVIRONMENT_SCRIPT output script cmd opts)
+  IF(IS_ABSOLUTE ${script})
+    SET(_script ${script})
+  ELSE()
+    SET(_script ${CMAKE_CURRENT_BINARY_DIR}/${script})
+  ENDIF()
+
+  SET(_env)
+  FOREACH(_item ${_${PROJECT_NAME}_EXTRA_ENV})
+    FOREACH(_val ${_${PROJECT_NAME}_EXTRA_ENV_${_item}})
+      IF(WIN32)
+        IF(${_item} STREQUAL "LD_LIBRARY_PATH")
+          SET(_item PATH)
+        ENDIF()
+        STRING(REPLACE "/" "\\" _env "${_env} @SET ${_item}=${_val};%${_item}%\n")
+        SET(_ext "bat")
+        SET(_call_cmd "call")
+      ELSE(WIN32)
+        SET(_env "${_env} export ${_item}=${_val}:\${${_item}}\n")
+        SET(_ext "sh")
+        SET(_call_cmd ".")
+      ENDIF(WIN32)
+    ENDFOREACH()
+  ENDFOREACH()
+  
+  SET(_script ${_script}.${_ext})
+  FILE(WRITE ${_script} "${_env}")
+  
+  SET(${output} ${_call_cmd} ${_script} && ${cmd} ${opts})
+  
+ENDMACRO(SALOME_GENERATE_ENVIRONMENT_SCRIPT)
+
+#########################################################################
+# SALOME_GENERATE_TESTS_ENVIRONMENT()
+# 
+# USAGE: SALOME_GENERATE_TESTS_ENVIRONMENT(output)
+#
+# ARGUMENTS:
+#   output [out] output environement variable.
+#
+# This macro generates <output> variable to use given environment to run some tests. 
+# Macro generates environement variable using previously created variables
+# _${PROJECT_NAME}_EXTRA_ENV_<var>, where <var> is name of variable and
+# _${PROJECT_NAME}_EXTRA_ENV (see marco SALOME_ACCUMULATE_ENVIRONMENT);
+# and puts this variable into <output> argument.
+#
+MACRO(SALOME_GENERATE_TESTS_ENVIRONMENT output)
+  SET(_env)
+  FOREACH(_item ${_${PROJECT_NAME}_EXTRA_ENV})
+    FOREACH(_val ${_${PROJECT_NAME}_EXTRA_ENV_${_item}})
+      IF(WIN32)
+        SET(_env "${_val};${_env}")
+      ELSE()
+        SET(_env "${_val}:${_env}")
+      ENDIF()
+    ENDFOREACH()
+    SET(_env " ${_item}=${_env}")
+  ENDFOREACH() 
+  SET(${output} ${_env})  
+ENDMACRO(SALOME_GENERATE_TESTS_ENVIRONMENT)
+
+#########################################################################
+# SALOME_APPEND_LIST_OF_LIST()
+# 
+# USAGE: SALOME_APPEND_LIST_OF_LIST(result element_list)
+#
+# Build a list of lists. The element_list is first parsed to convert it 
+# from 
+#     a;b;c;d;e
+# to 
+#     a,b,c,d,e
+#
+# It is then added to the big list 'result'. Hence 'result' looks like:
+#     a,b,c,d,e;f,g,h; ...
+#
+MACRO(SALOME_APPEND_LIST_OF_LIST result element_list)
+  SET(_tmp_res)
+  STRING(REPLACE ";" "," _tmp_res "${${element_list}}")
+  SET(${result} "${${result}};${_tmp_res}")  # LIST(APPEND ...) doesn't handle well empty elements!?
+ENDMACRO(SALOME_APPEND_LIST_OF_LIST)
+
+#########################################################################
+# SALOME_CONFIGURE_PREPARE()
+# 
+# USAGE: SALOME_CONFIGURE_PREPARE(pkg1 pkg2 ...)
+#
+# Prepare the variable that will be used to configure the file Salome<MODULE>Config.cmake,
+# namely:
+#    - _PREREQ_LIST      : the list of level 1 external prerequisites
+#    - _PREREQ_DIR_LIST  : their corresponding CMake directories (i.e. where the CMake configuration
+#    file for this package can be found, if there is any!)
+#    - _PREREQ_COMPO_LIST: the list of components requested when this package was invoked
+#
+# All this information is built from the package_list, the list of level 1 packages for this module.
+# Only the packages found in CONFIG mode are retained.
+#
+MACRO(SALOME_CONFIGURE_PREPARE)
+  SET(_tmp_prereq "${ARGV}")
+  SET(_PREREQ_LIST)
+  SET(_PREREQ_DIR_LIST)
+  SET(_PREREQ_COMPO_LIST)
+  FOREACH(_prereq IN LISTS _tmp_prereq)
+    IF(${_prereq}_DIR)
+      SET(_PREREQ_LIST "${_PREREQ_LIST} ${_prereq}")
+      SET(_PREREQ_DIR_LIST "${_PREREQ_DIR_LIST} \"${${_prereq}_DIR}\"")
+      SALOME_APPEND_LIST_OF_LIST(_PREREQ_COMPO_LIST Salome${_prereq}_COMPONENTS)
+    ENDIF()
+  ENDFOREACH()
+ENDMACRO(SALOME_CONFIGURE_PREPARE)

@@ -7,6 +7,7 @@
 # OMNIORB_VERSION      - OmniORB4 version
 # OMNIORB_IDL_COMPILER - OmniORB4 idl compiler command (omniidl)
 # OMNIORB_NAMESERVER   - OmniORB4 CORBA naming service (omniNames)
+# OMNIORB_PYTHONPATH   - path to the OmniORB Python modules 
 # and many other mainly used in UseOmniORB.cmake  
 #
 # Detection is made through calls to 
@@ -54,13 +55,23 @@ FIND_PATH(OMNIORB_INCLUDE_DIR omniORB4/CORBA.h)
 ##############################################################################
 # find libraries
 ##############################################################################
+
+# Win release / debug specific stuff:
+IF (WIN32)
+  IF(CMAKE_BUILD_TYPE STREQUAL Debug)
+    SET(OMNIORB_RD_SUFFIX d)
+  ELSE()
+    SET(OMNIORB_RD_SUFFIX)
+  ENDIF()
+ENDIF()
+
 IF (WIN32)
   FIND_LIBRARY(OMNIORB_LIBRARY_omniORB4 
-    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omniORB4_rt${CMAKE_STATIC_LIBRARY_SUFFIX})
+    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omniORB4_rt${OMNIORB_RD_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
   FIND_LIBRARY( OMNIORB_LIBRARY_omnithread
-    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omnithread_rt${CMAKE_STATIC_LIBRARY_SUFFIX})
+    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omnithread_rt${OMNIORB_RD_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
   FIND_LIBRARY( OMNIORB_LIBRARY_omniDynamic4
-    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omniDynamic4_rt${CMAKE_STATIC_LIBRARY_SUFFIX})
+    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}omniDynamic4_rt${OMNIORB_RD_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
 ELSE (WIN32)
   FIND_LIBRARY(OMNIORB_LIBRARY_omniORB4 NAMES omniORB4)
   FIND_LIBRARY(OMNIORB_LIBRARY_omnithread NAMES omnithread)
@@ -71,9 +82,9 @@ ENDIF (WIN32)
 
 IF (WIN32)
   FIND_LIBRARY( OMNIORB_LIBRARY_COS4
-    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}COS4_rt${CMAKE_STATIC_LIBRARY_SUFFIX})
+    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}COS4_rt${OMNIORB_RD_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX})
   FIND_LIBRARY( OMNIORB_LIBRARY_COSDynamic4
-    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}COSDynamic4_rt${CMAKE_STATIC_LIBRARY_SUFFIX}) 
+    NAMES ${CMAKE_STATIC_LIBRARY_PREFIX}COSDynamic4_rt${OMNIORB_RD_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}) 
 ELSE (WIN32)
   FIND_LIBRARY(OMNIORB_LIBRARY_COS4 NAMES COS4)
   FIND_LIBRARY(OMNIORB_LIBRARY_COSDynamic4 NAMES COSDynamic4)
@@ -84,10 +95,12 @@ ENDIF (WIN32)
 ##############################################################################
 IF (WIN32)
   FIND_PROGRAM( OMNIORB_IDL_COMPILER
-    NAMES omniidl PATHS bin/x86_win32
+    NAMES omniidl 
+    PATH_SUFFIXES x86_win32
     DOC "What is the path where omniidl (the idl compiler) can be found")
   FIND_PROGRAM( OMNIORB_OMNINAMES_COMMAND
-    NAMES omniNames PATHS bin/x86_win32 
+    NAMES omniNames 
+    PATH_SUFFIXES x86_win32
   DOC "What is the path where omniNames (the ORB server) can be found")
 ELSE(WIN32)
   FIND_PROGRAM(OMNIORB_IDL_COMPILER NAMES omniidl)
@@ -115,6 +128,10 @@ IF(OMNIORB_LIBRARY_COSDynamic4)
     LIST(APPEND OMNIORB_LIBRARIES ${OMNIORB_LIBRARY_COSDynamic4})
 ENDIF()
 
+# Set path to the OmniORB Python modules
+GET_FILENAME_COMPONENT(_tmp_ROOT_DIR "${OMNIORB_LIBRARIES}" PATH) 
+SET(OMNIORB_PYTHONPATH "${_tmp_ROOT_DIR}/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+
 # Optionaly, extract the the version number from the acconfig.h file:
 # The version check is done at the very bottom of this file.
 IF( EXISTS ${OMNIORB_INCLUDE_DIR}/omniORB4/acconfig.h )
@@ -131,7 +148,9 @@ SET(IDL_CLN_H .hh)
 SET(IDL_SRV_H .hh)
 SET(OMNIORB_DEFINITIONS "-D__x86__ -DCOMP_CORBA_DOUBLE -DCOMP_CORBA_LONG")
 IF(WIN32)
-  SET(OMNIORB_DEFINITIONS "${OMNIORB_DEFINITIONS} -D__WIN32__")
+  ## OmniORB isn`t defines SIZEOF_LONG and SIZEOF_INT on WIN32 platform
+  ## Note SIZE_OF_LONG calculates in the SalomeSetupPlatform.cmake 
+  SET(OMNIORB_DEFINITIONS "${OMNIORB_DEFINITIONS} -D__WIN32__ -DSIZEOF_INT=4 -DSIZEOF_LONG=${SIZE_OF_LONG}")
 ENDIF()
 IF(APPLE)
   SET(OMNIORB_DEFINITIONS "${OMNIORB_DEFINITIONS} -D__macos__")#for omnithread.h to be checked...

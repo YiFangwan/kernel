@@ -39,7 +39,7 @@
 
 #include <libxml/parser.h>
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning(disable:4251) // Warning DLL Interface ...
 #endif
 
@@ -53,7 +53,7 @@ public:
   virtual ~SALOME_ModuleCatalog_Handler();
 
   void ProcessXmlDocument(xmlDocPtr theDoc);
- 
+
 private:
 
   const char *test_path_prefix_name ;
@@ -71,65 +71,65 @@ private:
   const char *test_component_implname;
   const char *test_component_version;
   const char *test_component_comment;
-  
+
   const char *test_interface_name;
-  
+
   const char *test_service_name;
   const char *test_defaultservice;
   const char *test_typeofnode;
-  
+
   const char *test_inParameter_type;
   const char *test_inParameter_name;
   const char *test_inParameter;
   const char *test_inParameter_list;
-  
+
   const char *test_outParameter_type;
   const char *test_outParameter_name;
   const char *test_outParameter;
   const char *test_outParameter_list;
-  
+
   const char *test_inDataStreamParameter_type;
   const char *test_inDataStreamParameter_name;
   const char *test_inDataStreamParameter_dependency;
   const char *test_inDataStreamParameter;
   const char *test_inDataStreamParameter_list;
-  
+
   const char *test_outDataStreamParameter_type;
   const char *test_outDataStreamParameter_name;
   const char *test_outDataStreamParameter_dependency;
   const char *test_outDataStreamParameter;
   const char *test_outDataStreamParameter_list;
-  
+
   const char *test_service;
   const char *test_service_list;
   const char *test_interface_list;
   const char *test_constraint;
-  
+
   const char *test_component_list;
   const char *test_component;
-  
+
   ParserPathPrefix _pathPrefix;
-  
+
   ParserComponent _aModule;
-  
+
   ParserPathPrefixes&  _pathList;
   ParserComponents&    _moduleList;
-  
+
   ParserInterfaces _interfaceList;
   ParserInterface  _aInterface;
-  
+
   ParserServices   _serviceList;
   ParserService    _aService;
 
   ParserParameters _inParamList;
   ParserParameter  _inParam;
-  
+
   ParserParameters _outParamList;
   ParserParameter  _outParam;
-  
+
   ParserDataStreamParameters _inDataStreamParamList;
   ParserDataStreamParameter  _inDataStreamParam;
-  
+
   ParserDataStreamParameters _outDataStreamParamList;
   ParserDataStreamParameter  _outDataStreamParam;
 

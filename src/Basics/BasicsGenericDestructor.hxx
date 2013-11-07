@@ -49,13 +49,13 @@
 #define DEVTRACE(msg)
 #endif
 
-#ifdef WNT
+#ifdef WIN32
 #pragma warning(disable:4251) // Warning DLL Interface ...
 #endif
 
 // ============================================================================
 /*!
- * The PROTECTED_DELETE base class provides a protected destructor. 
+ * The PROTECTED_DELETE base class provides a protected destructor.
  * The only way to use PROTECTED_DELETE is inheritance:
  *   example: class LocalTraceBufferPool : public PROTECTED_DELETE
  * Herited class destructor must stay protected.
@@ -64,11 +64,11 @@
  * - use addObj(instance) to store the instance on the static list _objList,
  * - delete instance with deleteInstance(instance)
  *
- * This class is utilised with GENERIC_DESTRUCTOR and DESTRUCTOR_OF, 
+ * This class is utilised with GENERIC_DESTRUCTOR and DESTRUCTOR_OF,
  * to program automatic deletion of objects at the end of the process, while
  * keeping the possibility of an early destruction, if required. This is used
  * for unit testing and trace mecanism.
- */ 
+ */
 // ============================================================================
 
 class BASICS_EXPORT PROTECTED_DELETE
@@ -93,14 +93,14 @@ private:
  *
  * The only way to use the GENERIC_DESTRUCTOR class is inheritance:
  *   class SPECIFIC_DESTRUCTOR : public GENERIC_DESTRUCTOR
- * 
+ *
  * A generic destructor provides two methods:
  * -# a static method to add a destruction (object) to be performed:
  *    GENERIC_DESTRUCTOR::Add(GENERIC_DESTRUCTOR &anObject);
  *    The Destruction object is stored in a list of pointer to
  *    GENERIC_DESTRUCTOR objects.
  * -# an object method to execute the destruction : operator()().
- */ 
+ */
 // ============================================================================
 
 class BASICS_EXPORT GENERIC_DESTRUCTOR
@@ -114,7 +114,7 @@ public :
 };
 
 // ============================================================================
-/*! 
+/*!
  * The DESTRUCTOR_OF class allows the user to program - at any moment - the
  * destruction of an object at the end of the process.
  *
@@ -124,12 +124,12 @@ public :
  * POINT *ptrPoint = new POINT ;
  *
  * DESTRUCTOR_OF<POINT> *ptrDestruct = new DESTRUCTOR_OF<POINT>(*ptrPoint);
- * 
+ *
  * Note that neither ptrPoint, nor ptrDestruct should be destroyed by the user.
- * 
+ *
  * The destruction object must be created dynamically because it suscribes
  * itself in the list of destruction to be performed at the end of the process.
- */ 
+ */
 // ============================================================================
 
 template <class TYPE> class DESTRUCTOR_OF : public GENERIC_DESTRUCTOR
@@ -137,13 +137,13 @@ template <class TYPE> class DESTRUCTOR_OF : public GENERIC_DESTRUCTOR
 public:
   /*!
     Programs the destruction at the end of the process, of the object anObject.
-    This method records in _objectPtr the address of an object to be destroyed 
+    This method records in _objectPtr the address of an object to be destroyed
     at the end of the process
   */
   DESTRUCTOR_OF(TYPE &anObject):
     _objectPtr(&anObject)
   {
-    DEVTRACE(" DESTRUCTOR_OF " << typeid(anObject).name() 
+    DEVTRACE(" DESTRUCTOR_OF " << typeid(anObject).name()
              << " " << _objectPtr << " " << this );
     PROTECTED_DELETE::addObj(_objectPtr);
     assert(GENERIC_DESTRUCTOR::Add(*this) >= 0);
@@ -151,7 +151,7 @@ public:
 
   /*!
     Performs the destruction of the object.
-    This method really destroys the object pointed by _objectPtr. 
+    This method really destroys the object pointed by _objectPtr.
     It should be called at the end of the process (i.e. at exit).
   */
   virtual void operator()(void)

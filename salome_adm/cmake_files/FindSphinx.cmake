@@ -1,11 +1,9 @@
 # - Sphinx detection
 #
-# Output variable: SPHINX_EXECUTABLE
-#                  
+# Output variables:
+#   SPHINX_EXECUTABLE - path to the Sphinx executable
+#   SPHINX_PYTHONPATH - path to the Sphinx Python modules                 
 # 
-# The executable 'sphinx-build' is looked for and returned in the above variable.
-#
-
 ###########################################################################
 # Copyright (C) 2007-2013  CEA/DEN, EDF R&D, OPEN CASCADE
 #
@@ -30,8 +28,16 @@
 #
 ###########################################################################
 
-FIND_PROGRAM(SPHINX_EXECUTABLE sphinx-build)
+FIND_PROGRAM(SPHINX_EXECUTABLE sphinx-build PATH_SUFFIXES Scripts)
 
+# Get root dir locally, going up two levels from the exec:
+GET_FILENAME_COMPONENT(_tmp_ROOT_DIR "${SPHINX_EXECUTABLE}" PATH)
+GET_FILENAME_COMPONENT(_tmp_ROOT_DIR "${_tmp_ROOT_DIR}" PATH)
+IF(WIN32)
+  SET(SPHINX_PYTHONPATH "${_tmp_ROOT_DIR}/lib/site-packages")
+ELSE()
+  SET(SPHINX_PYTHONPATH "${_tmp_ROOT_DIR}/lib/python${PYTHON_VERSION_MAJOR}.${PYTHON_VERSION_MINOR}/site-packages")
+ENDIF()
 # Handle the standard arguments of the find_package() command:
 INCLUDE(FindPackageHandleStandardArgs)
 FIND_PACKAGE_HANDLE_STANDARD_ARGS(Sphinx REQUIRED_VARS SPHINX_EXECUTABLE)
