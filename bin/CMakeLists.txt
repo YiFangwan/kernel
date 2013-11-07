@@ -43,7 +43,6 @@ SET(SCRIPTS
   orbmodule.py
   ORBConfigFile.py
   parseConfigFile.py
-  PortManager.py
   runSalome
   runSalome.py
   runSession.py
@@ -58,9 +57,17 @@ SET(SCRIPTS
   setenv.py
   showNS.py
   shutdownSalome.py
-  Singleton.py
   virtual_salome.py
   waitContainers.py
   waitNS.py
   )
+
+IF(SALOME_USE_PORTMANAGER)
+  SET(PORTMANAGER_SCRIPTS
+    PortManager.py
+    Singleton.py
+    )
+  LIST(APPEND SCRIPTS ${PORTMANAGER_SCRIPTS})
+ENDIF()
+
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS})

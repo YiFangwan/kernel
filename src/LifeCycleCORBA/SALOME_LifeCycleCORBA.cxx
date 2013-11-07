@@ -621,6 +621,7 @@ void SALOME_LifeCycleCORBA::killOmniNames()
     system( cmd.c_str() );
   }
 
+#ifdef WITH_PORTMANAGER
   // shutdown portmanager
   if ( !portNumber.empty() )
   {
@@ -630,6 +631,7 @@ void SALOME_LifeCycleCORBA::killOmniNames()
     MESSAGE(cmd);
     system( cmd.c_str() );
   }
+#endif
 }
 
 //=============================================================================

@@ -141,8 +141,11 @@ def shutdownMyPort(port, cleanup=True):
     """
     if not port: return
 
-    from PortManager import releasePort
-    releasePort(port)
+    try:
+        from PortManager import releasePort
+        releasePort(port)
+    except ImportError:
+        pass
 
     from salome_utils import generateFileName
 
@@ -189,8 +192,11 @@ def killMyPort(port):
     Parameters:
     - port - port number
     """
-    import PortManager
-    PortManager.releasePort(port)
+    try:
+        import PortManager
+        PortManager.releasePort(port)
+    except ImportError:
+        pass
 
     from salome_utils import getShortHostName, getHostName
 

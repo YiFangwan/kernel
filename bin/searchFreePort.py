@@ -45,7 +45,7 @@ def __setup_config(nsport, args, save_config):
                                            extension="cfg",
                                            hidden=True,
                                            **kwargs)
-    #os.environ['LAST_RUNNING_CONFIG'] = last_running_config
+    os.environ['LAST_RUNNING_CONFIG'] = last_running_config
     try:
       if sys.platform == "win32":
         import shutil
@@ -64,12 +64,66 @@ def __setup_config(nsport, args, save_config):
   #
 #
 
-def searchFreePort(args={}, save_config=1, use_port=None):
-  """
-  Search free port for SALOME session.
-  Returns first found free port number.
-  """
+def searchFreePort_withoutPortManager(args={}, save_config=1, use_port=None):
+  # :NOTE: Under windows:
+  #        netstat options -l and -t are unavailable
+  #        grep command is unavailable
+  from subprocess import Popen, PIPE
+  (stdout, stderr) = Popen(['netstat','-an'], stdout=PIPE).communicate()
+  import StringIO
+  buf = StringIO.StringIO(stdout)
+  ports = buf.readlines()
 
+  #
+  def portIsUsed(port, data):
+    import re
+    regObj = re.compile( ".*tcp.*:([0-9]+).*:.*listen", re.IGNORECASE );
+    for item in data:
+      try:
+        p = int(regObj.match(item).group(1))
+        if p == port: return True
+        pass
+      except:
+        pass
+      pass
+    return False
+  #
+
+  if use_port:
+    print "Check if port can be used: %d" % use_port,
+    if not portIsUsed(use_port, ports):
+      print "- OK"
+      __setup_config(use_port, args, save_config)
+      return
+    else:
+      print "- KO: port is busy"
+    pass
+  #
+
+  print "Searching for a free port for naming service:",
+  #
+
+  NSPORT=2810
+  limit=NSPORT+100
+  #
+
+  while 1:
+    if not portIsUsed(NSPORT, ports):
+      print "%s - OK"%(NSPORT)
+      __setup_config(NSPORT, args, save_config)
+      break
+    print "%s"%(NSPORT),
+    if NSPORT == limit:
+      msg  = "\n"
+      msg += "Can't find a free port to launch omniNames\n"
+      msg += "Try to kill the running servers and then launch SALOME again.\n"
+      raise RuntimeError, msg
+    NSPORT=NSPORT+1
+    pass
+  #
+#
+
+def searchFreePort_withPortManager(args={}, save_config=1, use_port=None):
   from PortManager import getPort
   port = getPort(use_port)
 
@@ -92,4 +146,16 @@ def searchFreePort(args={}, save_config=1, use_port=None):
     __setup_config(port, args, save_config)
   else:
     print "Unable to obtain port"
+#
+
+def searchFreePort(args={}, save_config=1, use_port=None):
+  """
+  Search free port for SALOME session.
+  Returns first found free port number.
+  """
+  try:
+    import PortManager
+    searchFreePort_withPortManager(args, save_config, use_port)
+  except ImportError:
+    searchFreePort_withoutPortManager(args, save_config, use_port)
 #
