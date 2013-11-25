@@ -295,16 +295,16 @@ def __checkServer():
 
 def __getServerAddress(readonly=True):
   address = ("localhost", 0)
-  config_file, lock_file = _getConfigurationFilename()
-  lock = PortManagerLock(config_file, readonly, blocking=True)
-  lock.acquire()
   try:
+    config_file, lock_file = _getConfigurationFilename()
+    lock = PortManagerLock(config_file, readonly, blocking=True)
+    lock.acquire()
     address = eval(lock.handle.read())
+    lock.release()
   except (IOError, SyntaxError) as e:
     logger.debug("no configuration file")
     pass
   finally:
-    lock.release()
     return address
 #
 
