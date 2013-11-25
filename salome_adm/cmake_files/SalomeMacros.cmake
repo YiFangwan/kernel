@@ -20,7 +20,7 @@
 #
 
 #----------------------------------------------------------------------------
-# LIST_CONTAINS is a macro useful for determining whether a list has a 
+# LIST_CONTAINS is a macro useful for determining whether a list has a
 # particular entry
 #----------------------------------------------------------------------------
 MACRO(LIST_CONTAINS var value)
@@ -43,7 +43,7 @@ ENDMACRO(LIST_CONTAINS)
 # prefix: IN: a prefix to put on all variables it creates.
 #
 # arg_names: IN: a list of names.
-# For each item in arg_names, PARSE_ARGUMENTS will create a 
+# For each item in arg_names, PARSE_ARGUMENTS will create a
 # variable with that name, prefixed with prefix_. Each variable will be filled
 # with the arguments that occur after the given arg_name is encountered
 # up to the next arg_name or the end of the arguments. All options are
@@ -98,10 +98,10 @@ ENDMACRO(PARSE_ARGUMENTS)
 # ARGUMENTS:
 # file_list: IN : list of files to be installed. This list should be quoted.
 # path: IN : full pathname for installing.
-# 
+#
 # By default files to be installed as executable scripts.
 # If DEF_PERMS option is provided, than permissions for installed files are
-# only OWNER_WRITE, OWNER_READ, GROUP_READ, and WORLD_READ. 
+# only OWNER_WRITE, OWNER_READ, GROUP_READ, and WORLD_READ.
 #----------------------------------------------------------------------------
 MACRO(SALOME_INSTALL_SCRIPTS file_list path)
   PARSE_ARGUMENTS(SALOME_INSTALL_SCRIPTS "WORKING_DIRECTORY" "DEF_PERMS" ${ARGN})
@@ -116,7 +116,7 @@ MACRO(SALOME_INSTALL_SCRIPTS file_list path)
     ELSE()
       SET(file_name ${file})
       IF(SALOME_INSTALL_SCRIPTS_WORKING_DIRECTORY)
-	SET(PREFIX "${SALOME_INSTALL_SCRIPTS_WORKING_DIRECTORY}/")
+        SET(PREFIX "${SALOME_INSTALL_SCRIPTS_WORKING_DIRECTORY}/")
       ENDIF(SALOME_INSTALL_SCRIPTS_WORKING_DIRECTORY)
     ENDIF(IS_ABSOLUTE ${file})
     INSTALL(FILES ${PREFIX}${file} DESTINATION ${path} PERMISSIONS ${PERMS})
@@ -150,7 +150,7 @@ MACRO(INSTALL_AND_COMPILE_PYTHON_FILE PYFILE2COMPINST PYFILELOC)
 ENDMACRO(INSTALL_AND_COMPILE_PYTHON_FILE PYFILE2COMPINST PYFILELOC)
 
 #----------------------------------------------------------------------------
-# SALOME_CONFIGURE_FILE is a macro useful for copying a file to another location 
+# SALOME_CONFIGURE_FILE is a macro useful for copying a file to another location
 # and modify its contents.
 #
 # USAGE: SALOME_CONFIGURE_FILE(in_file out_file [INSTALL dir])
@@ -190,19 +190,19 @@ ENDMACRO(SALOME_CONFIGURE_FILE)
 #  text comparison is performed.
 #  result is a boolean.
 ###
-MACRO(SALOME_CHECK_EQUAL_PATHS varRes path1 path2)  
+MACRO(SALOME_CHECK_EQUAL_PATHS varRes path1 path2)
   SET("${varRes}" OFF)
   IF(EXISTS "${path1}")
     GET_FILENAME_COMPONENT(_tmp1 "${path1}" REALPATH)
   ELSE()
     SET(_tmp1 "${path1}")
-  ENDIF() 
+  ENDIF()
 
   IF(EXISTS "${path2}")
     GET_FILENAME_COMPONENT(_tmp2 "${path2}" REALPATH)
   ELSE()
     SET(_tmp2 "${path2}")
-  ENDIF() 
+  ENDIF()
 
   IF("${_tmp1}" STREQUAL "${_tmp2}")
     SET("${varRes}" ON)
@@ -213,9 +213,9 @@ ENDMACRO()
 ####
 # SALOME_LOG_OPTIONAL_PACKAGE(pkg flag)
 #
-# Register in global variables the detection status (found or not) of the optional package 'pkg' 
+# Register in global variables the detection status (found or not) of the optional package 'pkg'
 # and the configuration flag that should be turned off to avoid detection of the package.
-# The global variables are read again by SALOME_PACKAGE_REPORT_AND_CHECK to produce 
+# The global variables are read again by SALOME_PACKAGE_REPORT_AND_CHECK to produce
 # a summary report of the detection status and stops the process if necessary.
 MACRO(SALOME_LOG_OPTIONAL_PACKAGE pkg flag)
   # Was the package found
@@ -238,8 +238,8 @@ MACRO(SALOME_LOG_OPTIONAL_PACKAGE pkg flag)
     LIST(APPEND _SALOME_OPTIONAL_PACKAGES_names ${pkg})
     LIST(APPEND _SALOME_OPTIONAL_PACKAGES_found ${_isFound})
     LIST(APPEND _SALOME_OPTIONAL_PACKAGES_flags ${flag})
-  ENDIF() 
-  
+  ENDIF()
+
 ENDMACRO(SALOME_LOG_OPTIONAL_PACKAGE)
 
 ####
@@ -262,7 +262,7 @@ MACRO(SALOME_JUSTIFY_STRING input length result)
   STRING(LENGTH ${input} _input_length)
   MATH(EXPR _nb_spaces "${length}-${_input_length}-1")
   IF (_nb_spaces GREATER 0)
-    FOREACH(_idx RANGE ${_nb_spaces})  
+    FOREACH(_idx RANGE ${_nb_spaces})
       SET(${result} "${${result}} ")
     ENDFOREACH()
   ENDIF()
@@ -272,8 +272,8 @@ ENDMACRO(SALOME_JUSTIFY_STRING)
 # SALOME_PACKAGE_REPORT_AND_CHECK()
 #
 # Print a quick summary of the detection of optional prerequisites.
-# If a package was not found, the configuration is stopped. The summary also indicates 
-# which flag should be turned off to skip the detection of the package. 
+# If a package was not found, the configuration is stopped. The summary also indicates
+# which flag should be turned off to skip the detection of the package.
 #
 # If optional JUSTIFY argument is specified, names of packages
 # are left-justified to the given length; default value is 10.
@@ -288,7 +288,7 @@ MACRO(SALOME_PACKAGE_REPORT_AND_CHECK)
   ELSE()
     SET(_length 23)
   ENDIF()
-  MESSAGE(STATUS "") 
+  MESSAGE(STATUS "")
   MESSAGE(STATUS "  Optional packages - Detection report ")
   MESSAGE(STATUS "  ==================================== ")
   MESSAGE(STATUS "")
@@ -296,7 +296,7 @@ MACRO(SALOME_PACKAGE_REPORT_AND_CHECK)
     LIST(LENGTH _SALOME_OPTIONAL_PACKAGES_names _list_len)
     # Another CMake stupidity - FOREACH(... RANGE r) generates r+1 numbers ...
     MATH(EXPR _range "${_list_len}-1")
-    FOREACH(_idx RANGE ${_range})  
+    FOREACH(_idx RANGE ${_range})
       LIST(GET _SALOME_OPTIONAL_PACKAGES_names ${_idx} _pkg_name)
       LIST(GET _SALOME_OPTIONAL_PACKAGES_found ${_idx} _pkg_found)
       LIST(GET _SALOME_OPTIONAL_PACKAGES_flags ${_idx} _pkg_flag)
@@ -309,13 +309,13 @@ MACRO(SALOME_PACKAGE_REPORT_AND_CHECK)
         SET(_found_msg "NOT Found")
         SET(_flag_msg " - ${_pkg_flag} can be switched OFF to skip this prerequisite.")
       ENDIF()
-    
+
       MESSAGE(STATUS "  * ${_pkg_name}  ->  ${_found_msg}${_flag_msg}")
     ENDFOREACH()
   ENDIF(DEFINED _SALOME_OPTIONAL_PACKAGES_names)
   MESSAGE(STATUS "")
   MESSAGE(STATUS "")
-  
+
   # Failure if some packages were missing:
   IF(_will_fail)
     MESSAGE(FATAL_ERROR "Some required prerequisites have NOT been found. Take a look at the report above to fix this.")
@@ -328,18 +328,18 @@ ENDMACRO(SALOME_PACKAGE_REPORT_AND_CHECK)
 # example:  SALOME_FIND_PACKAGE(SalomeVTK VTK CONFIG)
 #
 # Encapsulate the call to the standard FIND_PACKAGE(standardPackageName) passing all the options
-# given when calling the command FIND_PACKAGE(SalomeXYZ). Those options are stored implicitly in 
+# given when calling the command FIND_PACKAGE(SalomeXYZ). Those options are stored implicitly in
 # CMake variables: xyz__FIND_QUIETLY, xyz_FIND_REQUIRED, etc ...
-# 
-# If a list of components was specified when invoking the initial FIND_PACKAGE(SalomeXyz ...) this is 
+#
+# If a list of components was specified when invoking the initial FIND_PACKAGE(SalomeXyz ...) this is
 # also handled properly.
 #
 # Modus is either MODULE or CONFIG (cf standard FIND_PACKAGE() documentation).
 # The last argument is optional and if set to TRUE will force the search to be OPTIONAL and QUIET.
-# If the package is looked for in CONFIG mode, the standard system paths are skipped. If you still want a 
+# If the package is looked for in CONFIG mode, the standard system paths are skipped. If you still want a
 # system installation to be found in this mode, you have to set the ROOT_DIR variable explicitly to /usr (for
-# example). 
-#  
+# example).
+#
 # This macro is to be called from within the FindSalomeXXXX.cmake file.
 #
 ####
@@ -354,62 +354,62 @@ MACRO(SALOME_FIND_PACKAGE englobPkg stdPkg mode)
       SET(_tmp_quiet "QUIET")
     ELSE()
       SET(_tmp_quiet)
-    ENDIF()  
+    ENDIF()
     IF(${englobPkg}_FIND_REQUIRED AND NOT _OPT_ARG)
       SET(_tmp_req "REQUIRED")
     ELSE()
       SET(_tmp_req)
-    ENDIF()  
+    ENDIF()
     IF(${englobPkg}_FIND_VERSION_EXACT)
       SET(_tmp_exact "EXACT")
     ELSE()
       SET(_tmp_exact)
     ENDIF()
 
-    # Call the CMake FIND_PACKAGE() command:    
+    # Call the CMake FIND_PACKAGE() command:
     STRING(TOLOWER ${stdPkg} _pkg_lc)
     IF(("${mode}" STREQUAL "NO_MODULE") OR ("${mode}" STREQUAL "CONFIG"))
       # Hope to find direclty a CMake config file, indicating the SALOME CMake file
       # paths (the command already looks in places like "share/cmake", etc ... by default)
       # Note the options NO_CMAKE_BUILDS_PATH, NO_CMAKE_PACKAGE_REGISTRY to avoid (under Windows)
       # looking into a previous CMake build done via a GUI, or into the Win registry.
-      # NO_CMAKE_SYSTEM_PATH and NO_SYSTEM_ENVIRONMENT_PATH ensure any _system_ files like 'xyz-config.cmake' 
-      # don't get loaded (typically Boost). To force their loading, set the XYZ_ROOT_DIR variable to '/usr'. 
+      # NO_CMAKE_SYSTEM_PATH and NO_SYSTEM_ENVIRONMENT_PATH ensure any _system_ files like 'xyz-config.cmake'
+      # don't get loaded (typically Boost). To force their loading, set the XYZ_ROOT_DIR variable to '/usr'.
       # See documentation of FIND_PACKAGE() for full details.
-      
+
       # Do we need to call the signature using components?
       IF(${englobPkg}_FIND_COMPONENTS)
-        FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
+        FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact}
               NO_MODULE ${_tmp_quiet} ${_tmp_req} COMPONENTS ${${englobPkg}_FIND_COMPONENTS}
               PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files"
               NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH
                 NO_SYSTEM_ENVIRONMENT_PATH)
       ELSE()
-        FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
+        FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact}
               NO_MODULE ${_tmp_quiet} ${_tmp_req}
               PATH_SUFFIXES "salome_adm/cmake_files" "adm_local/cmake_files"
               NO_CMAKE_BUILDS_PATH NO_CMAKE_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PACKAGE_REGISTRY NO_CMAKE_SYSTEM_PATH
                  NO_SYSTEM_ENVIRONMENT_PATH)
       ENDIF()
       MARK_AS_ADVANCED(${stdPkg}_DIR)
-      
+
     ELSEIF("${mode}" STREQUAL "MODULE")
-    
+
       # Do we need to call the signature using components?
       IF(${englobPkg}_FIND_COMPONENTS)
-        FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
+        FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact}
               MODULE ${_tmp_quiet} ${_tmp_req} COMPONENTS ${${englobPkg}_FIND_COMPONENTS})
       ELSE()
-        FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact} 
+        FIND_PACKAGE(${stdPkg} ${${englobPkg}_FIND_VERSION} ${_tmp_exact}
               MODULE ${_tmp_quiet} ${_tmp_req})
       ENDIF()
-      
+
     ELSE()
-    
+
       MESSAGE(FATAL_ERROR "Invalid mode argument in the call to the macro SALOME_FIND_PACKAGE. Should be CONFIG or MODULE.")
-      
+
     ENDIF()
-    
+
   ENDIF()
 ENDMACRO()
 
@@ -417,36 +417,36 @@ ENDMACRO()
 ####################################################################
 # SALOME_FIND_PACKAGE_DETECT_CONFLICTS(pkg referenceVariable upCount)
 #    pkg              : name of the system package to be detected
-#    referenceVariable: variable containing a path that can be browsed up to 
+#    referenceVariable: variable containing a path that can be browsed up to
 # retrieve the package root directory (xxx_ROOT_DIR)
 #    upCount          : number of times we have to go up from the path <referenceVariable>
 # to obtain the package root directory.
-#   
-# For example:  SALOME_FIND_PACKAGE_DETECT_CONFLICTS(SWIG SWIG_EXECUTABLE 2) 
+#
+# For example:  SALOME_FIND_PACKAGE_DETECT_CONFLICTS(SWIG SWIG_EXECUTABLE 2)
 #
 # Generic detection (and conflict check) procedure for package XYZ:
 # 1. Load a potential env variable XYZ_ROOT_DIR as a default choice for the cache entry XYZ_ROOT_DIR
 #    If empty, load a potential XYZ_ROOT_DIR_EXP as default value (path exposed by another package depending
 # directly on XYZ)
 # 2. Invoke FIND_PACKAGE() in this order:
-#    * in CONFIG mode first (if possible): priority is given to a potential 
+#    * in CONFIG mode first (if possible): priority is given to a potential
 #    "XYZ-config.cmake" file
-#    * then switch to the standard MODULE mode, appending on CMAKE_PREFIX_PATH 
+#    * then switch to the standard MODULE mode, appending on CMAKE_PREFIX_PATH
 # the above XYZ_ROOT_DIR variable
 # 3. Extract the path actually found into a temp variable _XYZ_TMP_DIR
 # 4. Warn if XYZ_ROOT_DIR is set and doesn't match what was found (e.g. when CMake found the system installation
 #    instead of what is pointed to by XYZ_ROOT_DIR - happens when a typo in the content of XYZ_ROOT_DIR).
 # 5. Conflict detection:
 #    * check the temp variable against a potentially existing XYZ_ROOT_DIR_EXP
-# 6. Finally expose what was *actually* found in XYZ_ROOT_DIR.  
-# 7. Specific stuff: for example exposing a prerequisite of XYZ to the rest of the world for future 
+# 6. Finally expose what was *actually* found in XYZ_ROOT_DIR.
+# 7. Specific stuff: for example exposing a prerequisite of XYZ to the rest of the world for future
 # conflict detection. This is added after the call to the macro by the callee.
 #
 MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   ##
   ## 0. Initialization
   ##
-  
+
   # Package name, upper case
   STRING(TOUPPER ${pkg} pkg_UC)
 
@@ -467,21 +467,21 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   ELSE()
      SET(_var_already_there FALSE)
   ENDIF()
-  #   Make cache entry 
+  #   Make cache entry
   SET(${pkg_UC}_ROOT_DIR "${_dflt_value}" CACHE PATH "Path to ${pkg_UC} directory")
 
   ##
   ## 2. Find package - try CONFIG mode first (i.e. looking for XYZ-config.cmake)
   ##
-  
+
   # Override the variable - don't append to it, as it would give precedence
-  # to what was stored there before!  
+  # to what was stored there before!
   SET(CMAKE_PREFIX_PATH "${${pkg_UC}_ROOT_DIR}")
-    
-  # Try find_package in config mode. This has the priority, but is 
+
+  # Try find_package in config mode. This has the priority, but is
   # performed QUIET and not REQUIRED:
   SALOME_FIND_PACKAGE("Salome${pkg}" ${pkg} NO_MODULE TRUE)
-  
+
   IF (${pkg_UC}_FOUND OR ${pkg}_FOUND)
     MESSAGE(STATUS "Found ${pkg} in CONFIG mode!")
   ENDIF()
@@ -493,7 +493,7 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
   ELSE()
     SALOME_FIND_PACKAGE("Salome${pkg}" ${pkg} MODULE TRUE)
   ENDIF()
-  
+
   # Set the "FOUND" variable for the SALOME wrapper:
   IF(${pkg_UC}_FOUND OR ${pkg}_FOUND)
     SET(SALOME${pkg_UC}_FOUND TRUE)
@@ -511,18 +511,18 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
       ENDIF()
     ENDIF()
   ENDIF()
-  
+
   IF (${pkg_UC}_FOUND OR ${pkg}_FOUND)
     ## 3. Set the root dir which was finally retained by going up "upDir" times
     ## from the given reference path. The variable "referenceVariable" may be a list.
-    ## In this case we take its first element. 
-    
+    ## In this case we take its first element.
+
     # First test if the variable exists, warn otherwise:
     IF(NOT DEFINED ${referenceVariable})
       MESSAGE(WARNING "${pkg}: the reference variable '${referenceVariable}' used when calling the macro "
       "SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS() is not defined.")
     ENDIF()
-    
+
     LIST(LENGTH ${referenceVariable} _tmp_len)
     IF(_tmp_len)
        LIST(GET ${referenceVariable} 0 _tmp_ROOT_DIR)
@@ -530,8 +530,8 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
        #  Note the double de-reference of "referenceVariable":
        SET(_tmp_ROOT_DIR "${${referenceVariable}}")
     ENDIF()
-    IF(${upCount}) 
-      FOREACH(_unused RANGE 1 ${upCount})        
+    IF(${upCount})
+      FOREACH(_unused RANGE 1 ${upCount})
         GET_FILENAME_COMPONENT(_tmp_ROOT_DIR "${_tmp_ROOT_DIR}" PATH)
       ENDFOREACH()
     ENDIF()
@@ -545,12 +545,12 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
         MESSAGE(WARNING "${pkg} was found, but not at the path given by the "
             "environment ${pkg_UC}_ROOT_DIR! Is the variable correctly set? "
             "The two paths are: ${_tmp_ROOT_DIR} and: ${_${pkg_UC}_ROOT_DIR_ENV}")
-        
+
       ELSE()
-        MESSAGE(STATUS "${pkg} found directory matches what was specified in the ${pkg_UC}_ROOT_DIR variable, all good!")    
+        MESSAGE(STATUS "${pkg} found directory matches what was specified in the ${pkg_UC}_ROOT_DIR variable, all good!")
       ENDIF()
     ELSE()
-        IF(NOT _var_already_there) 
+        IF(NOT _var_already_there)
           MESSAGE(STATUS "Variable ${pkg_UC}_ROOT_DIR was not explicitly defined. "
           "An installation was found anyway: ${_tmp_ROOT_DIR}")
         ENDIF()
@@ -561,42 +561,57 @@ MACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS pkg referenceVariable upCount)
     ##     From another prerequisite using the package:
     ##
     IF(${pkg_UC}_ROOT_DIR_EXP)
-        SALOME_CHECK_EQUAL_PATHS(_res "${_tmp_ROOT_DIR}" "${${pkg_UC}_ROOT_DIR_EXP}") 
+        SALOME_CHECK_EQUAL_PATHS(_res "${_tmp_ROOT_DIR}" "${${pkg_UC}_ROOT_DIR_EXP}")
         IF(NOT _res)
            MESSAGE(WARNING "Warning: ${pkg}: detected version conflicts with a previously found ${pkg}!"
                            " The two paths are " ${_tmp_ROOT_DIR} " vs " ${${pkg_UC}_ROOT_DIR_EXP})
         ELSE()
             MESSAGE(STATUS "${pkg} directory matches what was previously exposed by another prereq, all good!")
-        ENDIF()        
+        ENDIF()
     ENDIF()
-    
+
     ##
     ## 6. Save the detected installation
     ##
     SET(${pkg_UC}_ROOT_DIR "${_tmp_ROOT_DIR}")
-     
+
   ELSE()
-    MESSAGE(STATUS "${pkg} was not found.")  
+    MESSAGE(STATUS "${pkg} was not found.")
   ENDIF()
-  
+
   SET(Salome${pkg}_FOUND "${pkg}_FOUND")
 ENDMACRO(SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS)
 
 
 ####################################################################
 # SALOME_ADD_MPI_TO_HDF5()
-# 
+#
 # Overload the HDF5 flags so that they also contain MPI references.
 # This is to be used when HDF5 was compiled with MPI support;
-MACRO(SALOME_ADD_MPI_TO_HDF5)  
+MACRO(SALOME_ADD_MPI_TO_HDF5)
   SET(HDF5_INCLUDE_DIRS ${HDF5_INCLUDE_DIRS} ${MPI_INCLUDE_DIRS})
   SET(HDF5_DEFINITIONS "${HDF5_DEFINITIONS} ${MPI_DEFINITIONS}")
   SET(HDF5_LIBRARIES ${HDF5_LIBRARIES} ${MPI_LIBRARIES})
 ENDMACRO(SALOME_ADD_MPI_TO_HDF5)
 
 ####################################################################
+# SALOME_TOHEXA()
+# Convert a number (smaller than 16) into hexadecimal representation
+# with a leading 0.
+MACRO(SALOME_TOHEXA num result)
+  SET(_hexa_map a b c d e f)
+  IF(${num} LESS 10)
+    SET(${result} "0${num}")
+  ELSE()
+    MATH(EXPR _res "${num}-10" )
+    LIST(GET _hexa_map ${_res} _out)
+    SET(${result} "0${_out}")
+  ENDIF()
+ENDMACRO(SALOME_TOHEXA)
+
+####################################################################
 # SALOME_XVERSION()
-# 
+#
 # Computes hexadecimal version of SALOME package
 #
 # USAGE: SALOME_XVERSION(package)
@@ -613,17 +628,23 @@ ENDMACRO(SALOME_ADD_MPI_TO_HDF5)
 MACRO(SALOME_XVERSION pkg)
   STRING(TOUPPER ${pkg} _pkg_UC)
   IF(${_pkg_UC}_VERSION)
-    EXECUTE_PROCESS(COMMAND ${PYTHON_EXECUTABLE} -c "import sys; t=sys.argv[-1].split(\".\") ; t[:]=(int(elt) for elt in t) ; sys.stdout.write(\"0x%02x%02x%02x\"%tuple(t))" ${${_pkg_UC}_VERSION}
-                    OUTPUT_VARIABLE ${_pkg_UC}_XVERSION)
+    SET(_major)
+    SET(_minor)
+    SET(_patch)
+    SALOME_TOHEXA(${${_pkg_UC}_MAJOR_VERSION} _major)
+    SALOME_TOHEXA(${${_pkg_UC}_MINOR_VERSION} _minor)
+    SALOME_TOHEXA(${${_pkg_UC}_PATCH_VERSION} _patch)
+    SET(${_pkg_UC}_XVERSION "0x${_major}${_minor}${_patch}")
   ENDIF()
 ENDMACRO(SALOME_XVERSION)
 
+
 #########################################################################
 # SALOME_ACCUMULATE_HEADERS()
-# 
+#
 # This macro is called in the various FindSalomeXYZ.cmake modules to accumulate
-# internally the list of include headers to be saved for future export. 
-# The full set of include is saved in a variable called 
+# internally the list of include headers to be saved for future export.
+# The full set of include is saved in a variable called
 #      _${PROJECT_NAME}_EXTRA_HEADERS
 #
 MACRO(SALOME_ACCUMULATE_HEADERS lst)
@@ -639,14 +660,14 @@ ENDMACRO(SALOME_ACCUMULATE_HEADERS)
 
 #########################################################################
 # SALOME_ACCUMULATE_ENVIRONMENT()
-# 
+#
 # USAGE: SALOME_ACCUMULATE_ENVIRONMENT(envvar value [value ...])
 #
 # ARGUMENTS:
 #   envvar [in] environment variable name, e.g. PATH
 #   value  [in] value(s) to be added to environment variable
 #
-# This macro is called in the various FindSalomeXYZ.cmake modules to 
+# This macro is called in the various FindSalomeXYZ.cmake modules to
 # accumulate environment variables, to be used later to run some command
 # in proper environment.
 #
@@ -679,25 +700,25 @@ MACRO(SALOME_ACCUMULATE_ENVIRONMENT envvar)
         IF(NOT IS_DIRECTORY ${_item})
           IF(TARGET ${_item})
             GET_TARGET_PROPERTY(_item ${_item} LOCATION)
-          ENDIF()        
+          ENDIF()
           GET_FILENAME_COMPONENT(_item ${_item} PATH)
-        ENDIF()    
+        ENDIF()
         IF(EXISTS ${_item})
           STRING(REGEX MATCH "^(/usr|/lib|/bin)" _usr_find ${_item})
           LIST(FIND _${PROJECT_NAME}_EXTRA_ENV_${envvar} ${_item} _res)
           IF(NOT _usr_find AND _res EQUAL -1)
               LIST(APPEND _${PROJECT_NAME}_EXTRA_ENV_${envvar} ${_item})
-          ENDIF()  
+          ENDIF()
         ENDIF()
       ELSE(_is_check)
         LIST(FIND _${PROJECT_NAME}_EXTRA_ENV_${envvar} ${_item} _res)
         IF( _res EQUAL -1)
           LIST(APPEND _${PROJECT_NAME}_EXTRA_ENV_${envvar} ${_item})
-        ENDIF()  
+        ENDIF()
       ENDIF(_is_check)
-    ENDIF()   
+    ENDIF()
   ENDFOREACH()
-  
+
   LIST(FIND _${PROJECT_NAME}_EXTRA_ENV ${envvar} _res)
   IF(_res EQUAL -1)
     LIST(APPEND _${PROJECT_NAME}_EXTRA_ENV ${envvar})
@@ -710,7 +731,7 @@ ENDMACRO(SALOME_ACCUMULATE_ENVIRONMENT)
 
 #########################################################################
 # SALOME_GENERATE_ENVIRONMENT_SCRIPT()
-# 
+#
 # USAGE: SALOME_GENERATE_ENVIRONMENT_SCRIPT(output script cmd opts)
 #
 # ARGUMENTS:
@@ -719,12 +740,12 @@ ENDMACRO(SALOME_ACCUMULATE_ENVIRONMENT)
 #   cmd    [in]  input command, e.g. sphinx or python command.
 #   opts   [in]  options for input command (cmd).
 #
-# This macro is called when it's necessary to use given environment to run some command. 
+# This macro is called when it's necessary to use given environment to run some command.
 # Macro generates environement script using previously created variables
 # _${PROJECT_NAME}_EXTRA_ENV_<var>, where <var> is name of variable and
 # _${PROJECT_NAME}_EXTRA_ENV (see marco SALOME_ACCUMULATE_ENVIRONMENT);
 # and puts generated command in proper environment into <output> argument.
-# 
+#
 # Notes:
 # - If <script> is specified as relative path, it is computed from the current build
 #   directory.
@@ -736,6 +757,14 @@ MACRO(SALOME_GENERATE_ENVIRONMENT_SCRIPT output script cmd opts)
     SET(_script ${CMAKE_CURRENT_BINARY_DIR}/${script})
   ENDIF()
 
+  IF(WIN32)
+    SET(_ext "bat")
+    SET(_call_cmd "call")
+  ELSE()
+    SET(_ext "sh")
+    SET(_call_cmd ".")
+  ENDIF()
+
   SET(_env)
   FOREACH(_item ${_${PROJECT_NAME}_EXTRA_ENV})
     FOREACH(_val ${_${PROJECT_NAME}_EXTRA_ENV_${_item}})
@@ -744,32 +773,28 @@ MACRO(SALOME_GENERATE_ENVIRONMENT_SCRIPT output script cmd opts)
           SET(_item PATH)
         ENDIF()
         STRING(REPLACE "/" "\\" _env "${_env} @SET ${_item}=${_val};%${_item}%\n")
-        SET(_ext "bat")
-        SET(_call_cmd "call")
       ELSE(WIN32)
         SET(_env "${_env} export ${_item}=${_val}:\${${_item}}\n")
-        SET(_ext "sh")
-        SET(_call_cmd ".")
       ENDIF(WIN32)
     ENDFOREACH()
   ENDFOREACH()
-  
+
   SET(_script ${_script}.${_ext})
   FILE(WRITE ${_script} "${_env}")
-  
+
   SET(${output} ${_call_cmd} ${_script} && ${cmd} ${opts})
-  
+
 ENDMACRO(SALOME_GENERATE_ENVIRONMENT_SCRIPT)
 
 #########################################################################
 # SALOME_GENERATE_TESTS_ENVIRONMENT()
-# 
+#
 # USAGE: SALOME_GENERATE_TESTS_ENVIRONMENT(output)
 #
 # ARGUMENTS:
 #   output [out] output environement variable.
 #
-# This macro generates <output> variable to use given environment to run some tests. 
+# This macro generates <output> variable to use given environment to run some tests.
 # Macro generates environement variable using previously created variables
 # _${PROJECT_NAME}_EXTRA_ENV_<var>, where <var> is name of variable and
 # _${PROJECT_NAME}_EXTRA_ENV (see marco SALOME_ACCUMULATE_ENVIRONMENT);
@@ -777,28 +802,42 @@ ENDMACRO(SALOME_GENERATE_ENVIRONMENT_SCRIPT)
 #
 MACRO(SALOME_GENERATE_TESTS_ENVIRONMENT output)
   SET(_env)
+  SET(_WIN_LD_LIBRARY OFF)
   FOREACH(_item ${_${PROJECT_NAME}_EXTRA_ENV})
+    IF(${_item} STREQUAL "LD_LIBRARY_PATH")
+      SET(_WIN_LD_LIBRARY ON)
+    ENDIF()
+    SET(_env_${_item})
     FOREACH(_val ${_${PROJECT_NAME}_EXTRA_ENV_${_item}})
       IF(WIN32)
-        SET(_env "${_val};${_env}")
+        SET(_env_${_item} "${_val};${_env_${_item}}")
       ELSE()
-        SET(_env "${_val}:${_env}")
+        SET(_env_${_item} "${_val}:${_env_${_item}}")
       ENDIF()
     ENDFOREACH()
-    SET(_env " ${_item}=${_env}")
-  ENDFOREACH() 
-  SET(${output} ${_env})  
+  ENDFOREACH()
+
+  IF(_WIN_LD_LIBRARY AND WIN32)
+    SET(_env_PATH "${_env_PATH} ${_env_LD_LIBRARY_PATH}")
+  ENDIF()
+
+  FOREACH(_item ${_${PROJECT_NAME}_EXTRA_ENV})
+    IF(NOT(WIN32 AND ${_item} STREQUAL "LD_LIBRARY_PATH"))
+      SET(_env "${_item}=${_env_${_item}} ${_env}")
+    ENDIF()
+  ENDFOREACH()
+  SET(${output} ${_env})
 ENDMACRO(SALOME_GENERATE_TESTS_ENVIRONMENT)
 
 #########################################################################
 # SALOME_APPEND_LIST_OF_LIST()
-# 
+#
 # USAGE: SALOME_APPEND_LIST_OF_LIST(result element_list)
 #
-# Build a list of lists. The element_list is first parsed to convert it 
-# from 
+# Build a list of lists. The element_list is first parsed to convert it
+# from
 #     a;b;c;d;e
-# to 
+# to
 #     a,b,c,d,e
 #
 # It is then added to the big list 'result'. Hence 'result' looks like:
@@ -807,12 +846,20 @@ ENDMACRO(SALOME_GENERATE_TESTS_ENVIRONMENT)
 MACRO(SALOME_APPEND_LIST_OF_LIST result element_list)
   SET(_tmp_res)
   STRING(REPLACE ";" "," _tmp_res "${${element_list}}")
-  SET(${result} "${${result}};${_tmp_res}")  # LIST(APPEND ...) doesn't handle well empty elements!?
+
+  # Yet another CMake stupidity - LIST(LENGTH ";" var) returns 0
+  STRING(LENGTH result _list_len)
+  IF(NOT _list_len EQUAL 0)
+    SET(${result} "${${result}}${_tmp_res};")  # LIST(APPEND ...) doesn't handle well empty elements!?
+  ELSE()
+    SET(${result} "${_tmp_res};")              # to avoid redundant ';' at the beginning of the list
+  ENDIF()
+
 ENDMACRO(SALOME_APPEND_LIST_OF_LIST)
 
 #########################################################################
 # SALOME_CONFIGURE_PREPARE()
-# 
+#
 # USAGE: SALOME_CONFIGURE_PREPARE(pkg1 pkg2 ...)
 #
 # Prepare the variable that will be used to configure the file Salome<MODULE>Config.cmake,

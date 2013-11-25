@@ -169,7 +169,7 @@ Considering the elements described above, a procedure that works to
 get the packaged python structure is:
 
 * Rename the file ``salome.py`` in ``__init__.py`` (and adapt the
-  Makefile.am). This is located in the source directory
+  CMakeLists.txt). This is located in the source directory
   ``src/KERNEL_PY``.
 * Copy the sources files of the kernel part in the source directory
   ``src/KERNEL_PY`` starting with a stage named ``kernel`` including
@@ -238,7 +238,8 @@ Files to be added:
 * KERNEL: file ``src/KERNEL_PY/__init__.py`` (``salome.py`` renamed)
 * KERNEL: directory ``src/KERNEL_PY/kernel``
 * KERNEL: directory ``doc/docutils``
-* KERNEL: file ``salome_adm/unix/config_files/check_sphinx.m4``
+* KERNEL: file ``salome_adm/cmake_files/FindSalomeSphinx.cmake``
+* KERNEL: file ``salome_adm/cmake_files/FindSphinx.cmake``
 * GEOM  : directory ``src/GEOM_PY``
 * GEOM  : directory ``doc/docutils``
 * SMESH : directory ``src/SMESH_PY``
