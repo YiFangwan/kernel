@@ -33,6 +33,7 @@ from launchConfigureParser import verbose
 from server import process_id, Server
 import json
 import subprocess
+import sendTraces
 
 # -----------------------------------------------------------------------------
 
@@ -236,6 +237,7 @@ class LoggerServer(Server):
         print logfile
         print "==========================================================="
         self.CMD=['SALOME_Logger_Server', logfile]
+        self.logfile = logfile
         pass
     pass # end of LoggerServer class
 
@@ -480,9 +482,11 @@ def startSalome(args, modules_list, modules_root_dir):
     # and wait until it is registered in naming service
     #
 
+    sendTraces.logfile=None
     if args['logger']:
         myServer=LoggerServer(args)
         myServer.run()
+        sendTraces.logfile=myServer.logfile
         clt.waitLogger("Logger")
 
     # set siman python path before the session server launching to import scripts inside python console
@@ -888,6 +892,12 @@ def foreGround(clt, args):
         from killSalomeWithPort import killMyPort
         killMyPort(port)
         pass
+    if not sendTraces.logfile is None:
+      try:
+        sendTraces.sendSalome(sendTraces.logfile)
+      except Exception as err:
+        print "sendTraces failed:"
+        print err
     return
 #
 

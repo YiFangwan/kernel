@@ -54,6 +54,7 @@ SET(SCRIPTS
   salome_session.py
   salome_utils.py
   searchFreePort.py
+  sendTraces.py
   server.py
   setenv.py
   showNS.py

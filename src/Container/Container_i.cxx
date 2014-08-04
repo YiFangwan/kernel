@@ -44,6 +44,7 @@ int SIGUSR1 = 1000;
 #endif
 
 #include "utilities.h"
+#include "StucTrace.hxx"
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
 #include CORBA_SERVER_HEADER(SALOME_Exception)
@@ -396,7 +397,7 @@ void Engines_Container_i::Shutdown()
 bool
 Engines_Container_i::load_component_Library(const char* componentName, CORBA::String_out reason)
 {
-
+  STUC_TRACE("load_component_Library: " << componentName)
   //=================================================================
   // --- C++ implementation section 
   //=================================================================
