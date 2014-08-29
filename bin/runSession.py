@@ -25,6 +25,7 @@ import os
 import sys
 from optparse import OptionParser
 from NSparam import getNSparams
+from salome_utils import getUserName
 import socket
 import subprocess
 
@@ -72,7 +73,7 @@ If PORT is not given, try to connect to the remote session associated to port 28
       # neither MACHINE nor PORT are given
       # --- set omniORB configuration to current session if any
       omniorbUserPath = os.environ['OMNIORB_USER_PATH']
-      fileOmniConfig = omniorbUserPath + '/.omniORB_' + os.environ['USER'] + '_last.cfg'
+      fileOmniConfig = omniorbUserPath + '/.omniORB_' + getUserName() + '_last.cfg'
       if os.path.isfile(fileOmniConfig):
         os.environ['OMNIORB_CONFIG'] = fileOmniConfig
         # --- set environment variables for port and hostname of NamingService
