@@ -236,7 +236,7 @@ def getTmpDir():
     if sys.platform == "win32":
         # for Windows: temporarily using home directory for tmp files;
         # to be replaced with TEMP environment variable later...
-        dir = os.getenv("HOME")
+        dir = getHomeDir()
     else:
         # for Linux: use /tmp/logs/{user} folder
         dir = os.path.join( '/tmp', 'logs', getUserName() )
