@@ -62,7 +62,11 @@ def symlink(src, dest):
         if verbose:
             print 'Creating symlink %s' % dest
             pass
-        os.symlink(src, dest)
+        if hasattr(os,"symlink") :
+            os.symlink(src, dest)
+        else :
+            print "Do not create symlink %s. It is impossible on %s." % ( dest, sys.platform )
+            return
     else:
         if verbose:
             print 'Symlink %s already exists' % dest
