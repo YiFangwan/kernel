@@ -25,6 +25,7 @@
 import sys, os, re, socket
 #import commands
 from server import *
+from salome_utils import getTmpDir
 from Utils_Identity import getShortHostName
 from launchConfigureParser import verbose
 
@@ -39,12 +40,7 @@ class NamingServer(Server):
    LOGDIR="/tmp/logs/" + USER
 
    def initNSArgs(self):
-        if sys.platform == "win32":
-          # temporarily using home directory for Namning Service logs
-          # to be replaced with TEMP later...
-          os.environ["BaseDir"]=os.environ["HOME"]
-        else:
-          os.environ["BaseDir"]="/tmp"
+        os.environ['BaseDir'] = getTmpDir()
 
         try:
           os.mkdir(os.environ["BaseDir"] + "/logs")
