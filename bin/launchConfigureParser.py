@@ -1023,7 +1023,7 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
     ####################################################
     # apply command-line options to the arguments
     # each option given in command line overrides the option from xml config file
-    #
+    #prefi
     # Options: gui, desktop, log_file, resources,
     #          xterm, modules, embedded, standalone,
     #          portkill, killall, interp, splash,
