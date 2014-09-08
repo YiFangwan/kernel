@@ -110,7 +110,7 @@ class NamingServer(Server):
         #print "port=", aPort
         if sys.platform == "win32":
           #print "start omniNames -start " + aPort + " -logdir " + upath
-          self.CMD=['omniNames -start ' , aPort , ' -nohostname ', ' -logdir ' , '\"' + upath + '\"', ' -errlog', '\"' + upath+'/omniNameErrors.log' + '\"']
+          self.CMD=['omniNames', '-start' , aPort , '-nohostname', '-logdir' , os.path.realpath(upath), '-errlog', os.path.realpath(os.path.join(upath,'omniNameErrors.log'))]
           #os.system("start omniNames -start " + aPort + " -logdir " + upath)
         else:
           #self.CMD=['omniNames -start ' , aPort , ' -logdir ' , upath , ' &']
@@ -149,3 +149,4 @@ class NamingServer(Server):
 # example : ORBInitRef NameService=corbaname::dm2s0017:1515
 #2. start omninames with this port number like in orbmodile.py
 # example : omniNames -start 1515 -logdir ${BaseDir}/logs/${Username} &
+
