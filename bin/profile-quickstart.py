@@ -23,22 +23,8 @@ import os
 import shutil
 import optparse
 
-def generate_sources( options, args ):
-
-    source_dir = os.path.join( options.prefix, options.name )
-
-    if os.path.exists( source_dir ) and not options.force :
-        print "Directory %s already exsits." %source_dir
-        print "Use option --force to overwrite it."
-        return
-    else :
-        if os.path.exists( source_dir ) :
-            shutil.rmtree( source_dir )
-        os.makedirs( source_dir )
-
-# -----------------------------------------------------------------------------
-
-if __name__ == '__main__':
+# Options of this script
+def ProfileQuickStartParser() :
 
     parser = optparse.OptionParser( usage = "usage: python app-quickstart.py [options]" )
 
@@ -74,6 +60,30 @@ if __name__ == '__main__':
                       dest="force",
                       help="Overwrites existing sources")
 
-    (options, args) = parser.parse_args()
+    return parser
+
+
+#Generation of a template profile sources
+def generate_sources( options, args ) :
+
+    #Name of the profile sources
+    source_dir = os.path.join( options.prefix, options.name )
+
+    #Check if the directory of the sources already exists
+    if os.path.exists( source_dir ) and not options.force :
+        print "Directory %s already exsits." %source_dir
+        print "Use option --force to overwrite it."
+        return
+
+    # Create directory
+    if os.path.exists( source_dir ) :
+         shutil.rmtree( source_dir )
+    os.makedirs( source_dir )
+
+# -----------------------------------------------------------------------------
+
+if __name__ == '__main__':
+
+    (options, args) = ProfileQuickStartParser().parse_args()
 
     generate_sources( options, args )
