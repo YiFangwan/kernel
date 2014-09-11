@@ -2,9 +2,6 @@
 #  -*- coding: iso-8859-1 -*-
 # Copyright (C) 2007-2014  CEA/DEN, EDF R&D, OPEN CASCADE
 #
-# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
-#
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
@@ -22,10 +19,22 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+import os
+import shutil
 import optparse
 
 def generate_sources( options, args ):
-    pass
+
+    source_dir = os.path.join( options.prefix, options.name )
+
+    if os.path.exists( source_dir ) and not options.force :
+        print "Directory %s already exsits." %source_dir
+        print "Use option --force to overwrite it."
+        return
+    else :
+        if os.path.exists( source_dir ) :
+            shutil.rmtree( source_dir )
+        os.makedirs( source_dir )
 
 # -----------------------------------------------------------------------------
 
@@ -50,6 +59,20 @@ if __name__ == '__main__':
                       dest="modules",
                       default='KERNEL,GUI',
                       help="List of the application's modules")
+
+    parser.add_option('-n',
+                      "--name",
+                      type="string",
+                      action="store",
+                      dest="name",
+                      default='PROFILE',
+                      help="Name of the profile")
+
+    parser.add_option('-f',
+                      "--force",
+                      action="store_true",
+                      dest="force",
+                      help="Overwrites existing sources")
 
     (options, args) = parser.parse_args()
 
