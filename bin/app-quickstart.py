@@ -67,23 +67,28 @@ def ProfileQuickStartParser() :
 def generate_sources( options, args ) :
 
     #Set name of several directories
-    source_dir = os.path.join( options.prefix, options.name )
+    app_dir = os.path.join( options.prefix, options.name )
+    src_dir = os.path.join( app_dir, "src" )
     kernek_root_dir = os.environ["KERNEL_ROOT_DIR"]
-    template_dir = os.path.join( kernek_root_dir, "bin", "app-template"  )
+    bin_dir = os.path.join( kernek_root_dir, "bin" )
+    template_dir = os.path.join( bin_dir, "app-template"  )
 
     #Check if the directory of the sources already exists
-    if os.path.exists( source_dir ) and not options.force :
-        print "Directory %s already exists." %source_dir
+    if os.path.exists( app_dir ) and not options.force :
+        print "Directory %s already exists." %app_dir
         print "Use option --force to overwrite it."
         return
 
     #Copy template directory
-    if os.path.exists( source_dir ) :
-         shutil.rmtree( source_dir )
-    shutil.copytree( template_dir, source_dir )
+    if os.path.exists( app_dir ) :
+         shutil.rmtree( app_dir )
+    shutil.copytree( template_dir, app_dir )
 
     #Complete source directory
-    shutil.copy( os.path.join( kernek_root_dir, "LICENCE" ), source_dir )
+    shutil.copy( os.path.join( kernek_root_dir, "LICENCE" ), app_dir )
+    salomeContext_files = [ "salomeContext.py", "salomeContextUtils.py.in", "parseConfigFile.py" ]
+    for f in salomeContext_files :
+        shutil.copy( os.path.join( bin_dir, f ), src_dir )
 
 # -----------------------------------------------------------------------------
 
