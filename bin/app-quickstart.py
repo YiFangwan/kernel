@@ -66,8 +66,10 @@ def ProfileQuickStartParser() :
 #Generation of a template profile sources
 def generate_sources( options, args ) :
 
-    #Name of the profile sources
+    #Set name of several directories
     source_dir = os.path.join( options.prefix, options.name )
+    kernek_root_dir = os.environ["KERNEL_ROOT_DIR"]
+    template_dir = os.path.join( kernek_root_dir, "bin", "app-template"  )
 
     #Check if the directory of the sources already exists
     if os.path.exists( source_dir ) and not options.force :
@@ -75,12 +77,13 @@ def generate_sources( options, args ) :
         print "Use option --force to overwrite it."
         return
 
-    # Create directory
+    #Copy template directory
     if os.path.exists( source_dir ) :
          shutil.rmtree( source_dir )
-    template_dir = os.path.join( os.path.dirname(__file__), "app-template" )
     shutil.copytree( template_dir, source_dir )
-    #os.makedirs( source_dir )
+
+    #Complete source directory
+    shutil.copy( os.path.join( kernek_root_dir, "LICENCE" ), source_dir )
 
 # -----------------------------------------------------------------------------
 
