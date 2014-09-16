@@ -71,14 +71,16 @@ def generate_sources( options, args ) :
 
     #Check if the directory of the sources already exists
     if os.path.exists( source_dir ) and not options.force :
-        print "Directory %s already exsits." %source_dir
+        print "Directory %s already exists." %source_dir
         print "Use option --force to overwrite it."
         return
 
     # Create directory
     if os.path.exists( source_dir ) :
          shutil.rmtree( source_dir )
-    os.makedirs( source_dir )
+    template_dir = os.path.join( os.path.dirname(__file__), "app-template" )
+    shutil.copytree( template_dir, source_dir )
+    #os.makedirs( source_dir )
 
 # -----------------------------------------------------------------------------
 
