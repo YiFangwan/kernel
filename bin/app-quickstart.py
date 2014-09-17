@@ -86,9 +86,9 @@ def generate_sources( options, args ) :
 
     #Complete source directory
     shutil.copy( os.path.join( kernek_root_dir, "LICENCE" ), app_dir )
-    salomeContext_files = [ "salomeContext.py", "salomeContextUtils.py.in", "parseConfigFile.py" ]
-    for f in salomeContext_files :
-        shutil.copy( os.path.join( bin_dir, f ), src_dir )
+    shutil.copy( os.path.join( bin_dir, "salomeContext.py" ), src_dir )
+    shutil.copy( os.path.join( bin_dir, "parseConfigFile.py" ), src_dir )
+    shutil.copy( os.path.join( bin_dir, "salomeContextUtils.py.in" ), os.path.join( src_dir, "salomeContextUtils.py" ) )
 
 # -----------------------------------------------------------------------------
 
