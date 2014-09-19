@@ -35,6 +35,7 @@ SET(SCRIPTS
   runIDLparser
   addToKillList.py
   appli_gen.py
+  app-quickstart.py
   envSalome.py
   killSalome.py
   killSalomeWithPort.py
@@ -71,3 +72,5 @@ IF(SALOME_USE_PORTMANAGER)
 ENDIF()
 
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS})
+
+INSTALL( FILES app-template DESTINATION ${SALOME_INSTALL_SCRIPT_SCRIPTS})
