@@ -70,7 +70,7 @@ def generate_sources( options, args ) :
     app_dir = os.path.join( options.prefix, options.name )
     src_dir = os.path.join( app_dir, "src" )
     kernek_root_dir = os.environ["KERNEL_ROOT_DIR"]
-    bin_dir = os.path.join( kernek_root_dir, "bin" )
+    bin_dir = os.path.join( kernek_root_dir, "bin", "salome" )
     template_dir = os.path.join( bin_dir, "app-template"  )
 
     #Check if the directory of the sources already exists
@@ -85,10 +85,9 @@ def generate_sources( options, args ) :
     shutil.copytree( template_dir, app_dir )
 
     #Complete source directory
-    shutil.copy( os.path.join( kernek_root_dir, "LICENCE" ), app_dir )
-    shutil.copy( os.path.join( bin_dir, "salomeContext.py" ), src_dir )
-    shutil.copy( os.path.join( bin_dir, "parseConfigFile.py" ), src_dir )
-    shutil.copy( os.path.join( bin_dir, "salomeContextUtils.py.in" ), os.path.join( src_dir, "salomeContextUtils.py" ) )
+    contextFiles = [ "salomeContext.py", "salomeContextUtils.py", "parseConfigFile.py" ]
+    for f in contextFiles :
+        shutil.copy( os.path.join( bin_dir, f ), src_dir )
 
 # -----------------------------------------------------------------------------
 
