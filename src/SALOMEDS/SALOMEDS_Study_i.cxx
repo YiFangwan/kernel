@@ -25,6 +25,7 @@
 //  Module : SALOME
 //
 #include "utilities.h"
+#include <sstream>
 #include "SALOMEDS_Study_i.hxx"
 #include "SALOMEDS_StudyManager_i.hxx"
 #include "SALOMEDS_UseCaseIterator_i.hxx"
@@ -48,6 +49,7 @@
 #include "DF_Attribute.hxx"
 
 #include "Basics_Utils.hxx"
+#include "SALOME_KernelServices.hxx"
 
 #ifdef WIN32
 #include <process.h>
@@ -884,6 +886,15 @@ void SALOMEDS_Study_i::Close()
   //Does not need any more this iterator
   itcomponent->UnRegister();
 
+  // Notify GUI that study is closed
+  SALOME::Session_var aSession = KERNEL::getSalomeSession();
+  if ( !CORBA::is_nil(aSession) ) {
+    long studyId = aSession->GetActiveStudyId();
+    std::stringstream ss;
+    ss << "studyClosed:" << studyId;
+    std::string str = ss.str();
+    aSession->emitMessage(str.c_str());
+  }
 
   _impl->Close();
 }
