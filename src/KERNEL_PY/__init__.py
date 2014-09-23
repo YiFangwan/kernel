@@ -216,6 +216,7 @@ def salome_init(theStudyId=0,embedded=0):
     global sg
     global myStudyManager, myStudyId, myStudy, myStudyName
 
+    print "*** import salome ***"
     try:
         if salome_initial:
             salome_initial=0
@@ -238,13 +239,25 @@ def salome_init(theStudyId=0,embedded=0):
         ============================================
         """
         raise
+    
+def study_close():
+    print "*** study_close ***"
+    if myStudy.IsEmpty():
+        raise RuntimeError, "Study is already closed!"
+    else:
+        myStudy.Close()
+        salome_close()
+        pass 
+    pass
 
 def salome_close():
+    print "*** salome_close ***"
     global salome_initial
     salome_initial=1
     salome_iapp_close()
     salome_kernel_close()
     salome_study_close()
+    myStudyId, myStudy, myStudyName=None,None,None
     pass
 
 
