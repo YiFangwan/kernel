@@ -887,13 +887,15 @@ void SALOMEDS_Study_i::Close()
   itcomponent->UnRegister();
 
   // Notify GUI that study is closed
-  SALOME::Session_var aSession = KERNEL::getSalomeSession();
+  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
+  CORBA::Object_ptr obj = aNamingService->Resolve("/Kernel/Session");
+  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
   if ( !CORBA::is_nil(aSession) ) {
     long studyId = aSession->GetActiveStudyId();
     std::stringstream ss;
     ss << "studyClosed:" << studyId;
     std::string str = ss.str();
-    aSession->emitMessage(str.c_str());
+    aSession->emitMessageOneWay(str.c_str());
   }
 
   _impl->Close();
