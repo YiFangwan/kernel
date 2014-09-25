@@ -282,7 +282,6 @@ def getActiveStudy(theStudyId=0):
         if len(listOpenStudies) == 0:
             return None
         else:
-            print "getActiveStudy: GetStudyByName, salome_study_ID = ",salome_study_ID
             s = myStudyManager.GetStudyByName(listOpenStudies[0])
             salome_study_ID = s._get_StudyId()
     if verbose(): print"--- Study Id ", salome_study_ID
@@ -347,7 +346,6 @@ def salome_study_init(theStudyId=0):
         n (>0) : try connection to study with Id = n, or create a new one
                  if study not found.
     """
-    print "*** salome_study_init ***"
     global salome_study_initial
     global myStudyManager, myStudyId, myStudy, myStudyName
     global orb, lcc, naming_service, cm
@@ -367,7 +365,6 @@ def salome_study_init(theStudyId=0):
         myStudyId = getActiveStudy(theStudyId)
         if myStudyId == None :
             myStudyId = createNewStudy()
-            print "getActiveStudy: createNewStudy, salome_study_ID = ",salome_study_ID
         if verbose(): print "myStudyId",myStudyId
         myStudy = myStudyManager.GetStudyByID(myStudyId)
         myStudyName = myStudy._get_Name()
@@ -375,8 +372,7 @@ def salome_study_init(theStudyId=0):
     return myStudyManager, myStudyId, myStudy, myStudyName
 
 def salome_study_close():
-    print "*** salome_study_close ***"
-    global salome_study_initial, salome_study_ID
+    global salome_study_initial, salome_study_ID, myStudyId, myStudy, myStudyName
     salome_study_initial=1
     salome_study_ID=-1
     myStudyId, myStudy, myStudyName=None,None,None
