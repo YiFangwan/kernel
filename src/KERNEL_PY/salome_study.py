@@ -345,6 +345,7 @@ def salome_study_init(theStudyId=0):
         0      : create a new study (default).
         n (>0) : try connection to study with Id = n, or create a new one
                  if study not found.
+        n (str): try open study with the given file name.
     """
     global salome_study_initial
     global myStudyManager, myStudyId, myStudy, myStudyName
@@ -362,11 +363,19 @@ def salome_study_init(theStudyId=0):
         if verbose(): print "studyManager found"
 
         # get active study Id, ref and name
+        myStudy = None
         myStudyId = getActiveStudy(theStudyId)
         if myStudyId == None :
-            myStudyId = createNewStudy()
+            import types
+            if theStudyId and type(theStudyId) == types.StringType:
+                myStudy = myStudyManager.Open(theStudyId)
+                myStudyId = myStudy._get_StudyId()
+            else:
+                myStudyId = createNewStudy()
         if verbose(): print "myStudyId",myStudyId
-        myStudy = myStudyManager.GetStudyByID(myStudyId)
+
+        if myStudy == None:
+            myStudy = myStudyManager.GetStudyByID(myStudyId)
         myStudyName = myStudy._get_Name()
 
     return myStudyManager, myStudyId, myStudy, myStudyName
