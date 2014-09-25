@@ -237,6 +237,18 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(SALOMEDSImpl_Study* theImpl,
 
   theImpl->setNotifier(_notifier);
   theImpl->setGenObjRegister( _genObjRegister );
+
+  // Notify GUI that study was created
+  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
+  CORBA::Object_ptr obj = aNamingService->Resolve("/Kernel/Session");
+  SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
+  if ( !CORBA::is_nil(aSession) ) {
+    long studyId = aSession->GetActiveStudyId();
+    std::stringstream ss;
+    ss << "studyCreated:" << studyId;
+    std::string str = ss.str();
+    aSession->emitMessageOneWay(str.c_str());
+  }
 }
   
 //============================================================================
