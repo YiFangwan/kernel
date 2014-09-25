@@ -241,21 +241,20 @@ def salome_init(theStudyId=0,embedded=0):
     
 def study_close():
     global myStudy
-    if salome_study.myStudy:
-        global myStudyId, myStudyName
+    if myStudy:
         myStudy.Close()
-        salome_study_close()
-        myStudyId, myStudy, myStudyName=None,None,None
+        salome_close()
     else:
         raise RuntimeError, "Study is already closed!"
     pass
 
 def salome_close():
-    global salome_initial
+    global salome_initial, myStudy, myStudyId, myStudyName
     salome_initial=1
     salome_iapp_close()
     salome_kernel_close()
     salome_study_close()
+    myStudyId, myStudy, myStudyName=None,None,None
     pass
 
 
