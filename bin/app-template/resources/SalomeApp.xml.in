@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<document>  
+  <section name="launch">    
+    <parameter name="gui" value="yes"/>
+    <parameter name="splash" value="yes"/>
+    <parameter name="file" value="no"/>
+    <parameter name="key" value="no"/>
+    <parameter name="interp" value="no"/>
+    <parameter name="logger" value="no"/>
+    <parameter name="xterm" value="no"/>
+    <parameter name="portkill" value="no"/>
+    <parameter name="killall" value="no"/>
+    <parameter name="noexcepthandler" value="no"/>
+    <parameter name="modules" value="[LIST_OF_MODULES]"/>
+    <parameter name="pyModules" value=""/>
+    <parameter name="embedded" value="SalomeAppEngine,study,cppContainer,registry,moduleCatalog"/>
+    <parameter name="standalone" value=""/>
+  </section>
+  <section name="resources">
+    <parameter name="LightApp" value="%[NAME_OF_APPLICATION]_ROOT_DIR%/share/salome/resources"/>
+  </section>
+</document>

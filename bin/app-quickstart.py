@@ -24,7 +24,7 @@ import shutil
 import optparse
 
 # Options of this script
-def ProfileQuickStartParser() :
+def profileQuickStartParser() :
 
     parser = optparse.OptionParser( usage = "usage: python app-quickstart.py [options]" )
 
@@ -62,13 +62,23 @@ def ProfileQuickStartParser() :
 
     return parser
 
+#
+def profileReplaceStrings( src, dst, options ) :
+    with open( dst, "wt" ) as fout:
+        with open( src, "rt" ) as fin:
+            for line in fin:
+                fout.write( line.replace( '[LIST_OF_MODULES]', options.modules )/
+                                .replace( '[NAME_OF_APPLICATION]', options.name.upper() )/
+                                .replace( '<Name_of_Application>', options.name )/
+                                .replace( '(name_of_application)', options.name.lower() ) )
 
 #Generation of a template profile sources
-def generate_sources( options, args ) :
+def profileGenerateSources( options, args ) :
 
     #Set name of several directories
     app_dir = os.path.join( options.prefix, options.name )
     src_dir = os.path.join( app_dir, "src" )
+    resources_dir = os.path.join( app_dir, "resources" )
     kernek_root_dir = os.environ["KERNEL_ROOT_DIR"]
     bin_dir = os.path.join( kernek_root_dir, "bin", "salome" )
     template_dir = os.path.join( bin_dir, "app-template"  )
@@ -89,10 +99,15 @@ def generate_sources( options, args ) :
     for f in contextFiles :
         shutil.copy( os.path.join( bin_dir, f ), src_dir )
 
+    #Adapt source directory
+    profileReplaceStrings( os.path.join( template_dir, "resources", "SalomeApp.xml.in" ), os.path.join( resources_dir, "SalomeApp.xml.in" ), options )
+    profileReplaceStrings( os.path.join( template_dir, "resources", "CMakeLists.txt" ), os.path.join( resources_dir, "CMakeLists.txt" ), options )
+    profileReplaceStrings( os.path.join( template_dir, "CMakeLists.txt" ), os.path.join( app_dir, "CMakeLists.txt" ), options )
+
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__':
 
-    (options, args) = ProfileQuickStartParser().parse_args()
+    (options, args) = profileQuickStartParser().parse_args()
 
-    generate_sources( options, args )
+    profileGenerateSources( options, args )

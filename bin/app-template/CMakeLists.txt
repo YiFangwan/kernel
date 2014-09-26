@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8 FATAL_ERROR)
-
+PROJECT(Salome<Name_of_Application> C CXX)
 
 # Find KERNEL
 # ===========
@@ -38,9 +38,14 @@ ENDIF(EXISTS ${KERNEL_ROOT_DIR})
 SET(SALOME_INSTALL_SCRIPT_PYTHON "${SALOME_INSTALL_SCRIPT_PYTHON}" CACHE PATH 
    "Install path: SALOME Python scripts")
 
+# Specific to [NAME_OF_APPLICATION]:
+SET(SALOME_[NAME_OF_APPLICATION]_INSTALL_RES_DATA "${SALOME_INSTALL_RES}/(name_of_application)" CACHE PATH 
+    "Install path: SALOME PYHELLO specific data")
+
 MARK_AS_ADVANCED(SALOME_INSTALL_SCRIPT_PYTHON)
 
 
 # Sources 
 # ========
 ADD_SUBDIRECTORY( src )
+ADD_SUBDIRECTORY( resources )
