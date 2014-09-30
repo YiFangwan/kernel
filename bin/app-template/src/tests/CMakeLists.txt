@@ -21,13 +21,9 @@
 
 # scripts / static
 SET(_bin_SCRIPTS
-   salomeContext.py
-   salomeContextUtils.py
-   parseConfigFile.py
+   helloWorld.py
 )
 
 # --- rules ---
 SALOME_INSTALL_SCRIPTS("${_bin_SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})
 
-# --- sub-directories ---
-ADD_SUBDIRECTORY( tests )
