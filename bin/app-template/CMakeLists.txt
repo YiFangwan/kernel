@@ -45,6 +45,21 @@ ELSE(EXISTS ${KERNEL_ROOT_DIR})
   MESSAGE(FATAL_ERROR "We absolutely need a Salome KERNEL, please define KERNEL_ROOT_DIR")
 ENDIF(EXISTS ${KERNEL_ROOT_DIR})
 
+# User options
+# ============
+#OPTION(SALOME_BUILD_TESTS "Build SALOME tests" ON)
+OPTION(SALOME_BUILD_DOC "Generate SALOME <Name_of_Application> documentation" ON)
+
+#IF(SALOME_BUILD_TESTS)
+#  ENABLE_TESTING()
+#ENDIF()
+
+# KERNEL optionals:
+IF(SALOME_BUILD_DOC)
+  FIND_PACKAGE(SalomePython)
+  FIND_PACKAGE(SalomeSphinx)
+  SALOME_LOG_OPTIONAL_PACKAGE(Sphinx SALOME_BUILD_DOC)
+ENDIF()
 
 # Directories
 # (default values taken from KERNEL)
