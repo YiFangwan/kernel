@@ -21,7 +21,7 @@
 
 # scripts / static
 SET(_bin_DOCUMENTS
-   samples.pdf
+   sample.pdf
 )
 
 INSTALL(FILES ${_bin_DOCUMENTS} DESTINATION ${SALOME_INSTALL_DOC}/gui/${PROJECT_NAME_UC}/binaries)
