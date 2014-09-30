@@ -17,8 +17,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# --- config ---
-SALOME_CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/SalomeApp.xml.in ${CMAKE_CURRENT_BINARY_DIR}/SalomeApp.xml INSTALL ${SALOME_[NAME_OF_APPLICATION]_INSTALL_RES_DATA})
+# --- scripts ---
 
-# --- sub-directories ---
-ADD_SUBDIRECTORY( doc )
+# scripts / static
+SET(_bin_DOCUMENTS
+   samples.pdf
+)
+
+INSTALL(FILES ${_bin_DOCUMENTS} DESTINATION ${SALOME_INSTALL_DOC}/gui/${PROJECT_NAME_UC}/binaries)
