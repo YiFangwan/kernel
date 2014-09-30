@@ -78,33 +78,33 @@ def profileGenerateSources( options, args ) :
 
     #Set name of several directories
     app_dir = os.path.join( options.prefix, options.name )
-    src_dir = os.path.join( app_dir, "src" )
-    kernek_root_dir = os.environ["KERNEL_ROOT_DIR"]
-    bin_dir = os.path.join( kernek_root_dir, "bin", "salome" )
-    template_dir = os.path.join( bin_dir, "app-template"  )
+    kernel_root_dir = os.environ["KERNEL_ROOT_DIR"]
+    bin_salome_dir = os.path.join( kernel_root_dir, "bin", "salome" )
+    template_dir = os.path.join( bin_salome_dir, "app-template"  )
 
-    #Check if the directory of the sources already exists
-    if os.path.exists( app_dir ) and not options.force :
-        print "Directory %s already exists." %app_dir
-        print "Use option --force to overwrite it."
-        return
+    #Check if the directory of the sources already exists and delete it
+    if os.path.exists( app_dir ) :
+        if not options.force :
+            print "Directory %s already exists." %app_dir
+            print "Use option --force to overwrite it."
+            return
+        else :
+            shutil.rmtree( app_dir )
 
     #Copy template directory
-    if os.path.exists( app_dir ) :
-         shutil.rmtree( app_dir )
-    shutil.copytree( template_dir, app_dir )
+    os.mkdir( app_dir )
+    for root, dirs, files in os.walk( template_dir ) :
+        dst_dir = root.replace( template_dir, app_dir ) 
+        for d in dirs :
+            os.mkdir( os.path.join( dst_dir, d ) )
+        for f in files :
+            profileReplaceStrings( os.path.join( root, f ), os.path.join( dst_dir, f ), options )
 
     #Complete source directory
     contextFiles = [ "salomeContext.py", "salomeContextUtils.py", "parseConfigFile.py" ]
     for f in contextFiles :
-        shutil.copy( os.path.join( bin_dir, f ), src_dir )
+        shutil.copy( os.path.join( bin_salome_dir, f ), os.path.join( app_dir, "src" ) )
 
-    #Adapt source directory
-    profileReplaceStrings( os.path.join( template_dir, "resources", "SalomeApp.xml.in" ), os.path.join( os.path.join( app_dir, "resources" ), "SalomeApp.xml.in" ), options )
-    profileReplaceStrings( os.path.join( template_dir, "resources", "CMakeLists.txt" ), os.path.join( os.path.join( app_dir, "resources" ), "CMakeLists.txt" ), options )
-    profileReplaceStrings( os.path.join( template_dir, "CMakeLists.txt" ), os.path.join( app_dir, "CMakeLists.txt" ), options )
-    profileReplaceStrings( os.path.join( template_dir, "doc", "index.rst" ), os.path.join( os.path.join( app_dir, "doc" ), "index.rst" ), options )
-    profileReplaceStrings( os.path.join( template_dir, "doc", "conf.py.in" ), os.path.join( os.path.join( app_dir, "doc" ), "conf.py.in" ), options )
 
 # -----------------------------------------------------------------------------
 
