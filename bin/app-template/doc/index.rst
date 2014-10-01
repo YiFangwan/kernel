@@ -9,5 +9,5 @@ Outline
 .. toctree::
     :maxdepth: 1
 
-    <intro>
-    <link>
+    Introduction <intro>
+    Link to sample pdf file <link>
