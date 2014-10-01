@@ -113,7 +113,7 @@ html_theme = 'default'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['@SALOME_[NAME_OF_APPLICATION]_HTML_STATIC_PATH@']
+html_static_path = ['@SALOME_[NAME_OF_APPLICATION]_INSTALL_DOC_GUI@/_static']
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
