@@ -6,8 +6,9 @@
 Outline
 ===========================
 
+
 .. toctree::
     :maxdepth: 1
 
-    Introduction <intro>
-    Link to sample pdf file <link>
+    intro.rst
+    link.rst
