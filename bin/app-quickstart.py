@@ -41,7 +41,7 @@ def profileQuickStartParser() :
                       "--modules",
                       metavar="<module1,module2,...>",
                       type="string",
-                      action="append",
+                      action="store",
                       dest="modules",
                       default='KERNEL,GUI',
                       help="List of the application's modules")
