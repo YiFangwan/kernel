@@ -35,7 +35,7 @@ def profileQuickStartParser() :
                       action="store",
                       dest="prefix",
                       default='.',
-                      help="Where the application's sources will be generated")
+                      help="Where the application's sources will be generated. [Default : '.']")
 
     parser.add_option('-m',
                       "--modules",
@@ -44,15 +44,22 @@ def profileQuickStartParser() :
                       action="store",
                       dest="modules",
                       default='KERNEL,GUI',
-                      help="List of the application's modules")
+                      help="List of the application's modules. [Default : KERNEL,GUI]")
 
     parser.add_option('-n',
                       "--name",
                       type="string",
                       action="store",
                       dest="name",
-                      default='PROFILE',
-                      help="Name of the profile")
+                      help="Name of the application")
+
+    parser.add_option('-v',
+                      "--version",
+                      type="string",
+                      action="store",
+                      dest="version",
+                      default='1.0',
+                      help="Version of the application. [Default : 1.0]")
 
     parser.add_option('-f',
                       "--force",
@@ -111,5 +118,8 @@ def profileGenerateSources( options, args ) :
 if __name__ == '__main__':
 
     (options, args) = profileQuickStartParser().parse_args()
+
+    if not options.name :
+        raise RuntimeError( "A name must be given to the application. Please use option --name." )
 
     profileGenerateSources( options, args )
