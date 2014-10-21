@@ -17,58 +17,17 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(appliskel)
-
-SALOME_CONFIGURE_FILE(VERSION.in VERSION INSTALL ${SALOME_INSTALL_BINS})
-SALOME_CONFIGURE_FILE(salomeContextUtils.py.in salomeContextUtils.py)
+ADD_SUBDIRECTORY( ressources ) 
 
 # ===============================================================
 # Files to be installed
 # ===============================================================
 
-# These files are data, module or lib files
-#INSTALL(FILES config_appli.xml salome.launch DESTINATION ${SALOME_INSTALL_SCRIPT_DATA})
-
 # These files are executable scripts
 SET(SCRIPTS
-  appli_clean.sh
-  runIDLparser
-  addToKillList.py
-  appli_gen.py
-  envSalome.py
-  killSalome.py
-  killSalomeWithPort.py
-  launchConfigureParser.py
-  nameserver.py
-  NSparam.py
-  orbmodule.py
-  ORBConfigFile.py
-  parseConfigFile.py
-  runSalome
-  runSalome.py
-  runSession.py
-  runConsole.py
-  salomeConsole.py
-  ${CMAKE_CURRENT_BINARY_DIR}/salomeContextUtils.py
-  salomeContext.py
-  salome_session.py
-  salome_utils.py
-  searchFreePort.py
-  server.py
-  setenv.py
-  showNS.py
-  shutdownSalome.py
-  virtual_salome.py
-  waitContainers.py
-  waitNS.py
-  )
-
-IF(SALOME_USE_PORTMANAGER)
-  SET(PORTMANAGER_SCRIPTS
-    PortManager.py
-    )
-  LIST(APPEND SCRIPTS ${PORTMANAGER_SCRIPTS})
-ENDIF()
+  app-quickstart.py
+)
 
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS})
 
+INSTALL( DIRECTORY app-template DESTINATION ${SALOME_KERNEL_INSTALL_RES_DATA})
