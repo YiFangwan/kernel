@@ -17,6 +17,18 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+# --- resources ---
+SET([NAME_OF_APPLICATION]_RESOURCES_FILES
+  app_icon.png
+  splash.png
+  about.png
+  icon_about.png
+  app_logo.png
+)
+
+# --- rules ---
+INSTALL(FILES ${[NAME_OF_APPLICATION]_RESOURCES_FILES} DESTINATION ${SALOME_[NAME_OF_APPLICATION]_INSTALL_RES_DATA})
+
 # --- config ---
 SALOME_CONFIGURE_FILE(${CMAKE_CURRENT_SOURCE_DIR}/SalomeApp.xml.in ${CMAKE_CURRENT_BINARY_DIR}/SalomeApp.xml INSTALL ${SALOME_[NAME_OF_APPLICATION]_INSTALL_RES_DATA})
 

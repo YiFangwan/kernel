@@ -75,6 +75,7 @@ def profileReplaceStrings( src, dst, options ) :
         with open( src, "rt" ) as fin:
             for line in fin:
                 l = line.replace( '[LIST_OF_MODULES]', options.modules )
+                l = l.replace( '[VERSION]', options.version )
                 l = l.replace( '[NAME_OF_APPLICATION]', options.name.upper() )
                 l = l.replace( '<Name_of_Application>', options.name )
                 l = l.replace( '(name_of_application)', options.name.lower() )

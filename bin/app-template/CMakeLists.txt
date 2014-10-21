@@ -61,6 +61,25 @@ IF(SALOME_BUILD_DOC)
   SALOME_LOG_OPTIONAL_PACKAGE(Sphinx SALOME_BUILD_DOC)
 ENDIF()
 
+  
+# Find GUI
+# ===========
+
+SET(GUI_ROOT_DIR $ENV{GUI_ROOT_DIR} CACHE PATH "Path to the Salome GUI")
+IF(EXISTS ${GUI_ROOT_DIR})
+  LIST(APPEND CMAKE_MODULE_PATH "${GUI_ROOT_DIR}/adm_local/cmake_files")
+  FIND_PACKAGE(SalomeGUI REQUIRED)
+  FULL_GUI(TRUE) # check whether GUI builded in full mode and with CORBA
+  ADD_DEFINITIONS(${GUI_DEFINITIONS})
+  INCLUDE_DIRECTORIES(${GUI_INCLUDE_DIRS})
+ELSE(EXISTS ${GUI_ROOT_DIR})
+  MESSAGE(FATAL_ERROR "We absolutely need a Salome GUI, please define GUI_ROOT_DIR")
+ENDIF(EXISTS ${GUI_ROOT_DIR})
+
+# Qt4
+FIND_PACKAGE(SalomeQt4 REQUIRED COMPONENTS QtCore QtGui)
+INCLUDE(${QT_USE_FILE})
+
 # Directories
 # (default values taken from KERNEL)
 # ===========

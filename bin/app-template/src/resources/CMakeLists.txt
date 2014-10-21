@@ -17,18 +17,17 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# --- scripts ---
+INCLUDE(UseQt4Ext)
 
-# scripts / static
-SET(_bin_SCRIPTS
-   salomeContext.py
-   salomeContextUtils.py
-   parseConfigFile.py
-)
+# --- resources ---
+
+# resource files / to be processed by lrelease
+SET(_ts_RESOURCES
+  LightApp_images.ts
+  LightApp_msg_en.ts
+  LightApp_msg_fr.ts
+) 
 
 # --- rules ---
-SALOME_INSTALL_SCRIPTS("${_bin_SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})
 
-# --- sub-directories ---
-ADD_SUBDIRECTORY( tests )
-ADD_SUBDIRECTORY( resources )
+QT4_INSTALL_TS_RESOURCES("${_ts_RESOURCES}" "${SALOME_[NAME_OF_APPLICATION]_INSTALL_RES_DATA}")
