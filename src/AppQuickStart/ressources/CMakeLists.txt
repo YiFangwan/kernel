@@ -22,9 +22,9 @@
 # ===============================================================
 
 # These files are executable scripts
-SET(FILES
+SET(APPQUICKSTART_RESOURCES_FILES
   "Anita semi square.ttf"
   background.png
 )
 
-INSTALL( FILE ${FILES} DESTINATION ${SALOME_KERNEL_INSTALL_RES_DATA})
+INSTALL( FILES ${APPQUICKSTART_RESOURCES_FILES} DESTINATION ${SALOME_KERNEL_INSTALL_RES_DATA} )
