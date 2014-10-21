@@ -13,7 +13,7 @@
     </message>
     <message>
         <source>APP_NAME</source>
-        <translation><Name_of_Application></translation>
+        <translation><Name_of_Application> [SLOGAN]</translation>
     </message>
     <message>
         <source>APP_VERSION</source>

@@ -61,6 +61,14 @@ def profileQuickStartParser() :
                       default='1.0',
                       help="Version of the application. [Default : 1.0]")
 
+    parser.add_option('-s',
+                      "--slogan",
+                      type="string",
+                      action="store",
+                      dest="slogan",
+                      default='',
+                      help="Slogan of the application.")
+
     parser.add_option('-f',
                       "--force",
                       action="store_true",
@@ -69,26 +77,111 @@ def profileQuickStartParser() :
 
     return parser
 
-#
+
+
+#Create the splash screen
+def profileGenerateSplash( resources_dir, appname, version, subtext ):
+    import Image
+    import ImageDraw
+    import ImageFont
+
+    uname = unicode(appname, 'UTF-8')
+    uversion = unicode(version, 'UTF-8')
+
+    # fonts
+    fontbig = ImageFont.truetype( os.path.join( resources_dir, 'Anita semi square.ttf' ), 64)
+    fontsmall = ImageFont.truetype( os.path.join( resources_dir, 'Anita semi square.ttf' ), 20)
+    textColor = "rgb(255, 250, 250)"
+    shadowColor = "rgb(0, 0, 0)"
+
+    # dimensions
+    nbcar = len(uname)
+    width = 600
+    if nbcar > 12:
+        width = min( width*nbcar/12, 1024) #a little more
+    height = 300
+    borderX = 30 #50
+    borderY = 3 #30
+    shadowX = 2
+    shadowY = shadowX
+
+    # load background image 
+    f0 = os.path.join( resources_dir, "background.png" )
+    im = Image.open(f0)
+    im = im.resize( ( width, height ) )
+    draw = ImageDraw.Draw(im)
+
+    # add the name of the application
+    iw, ih = draw.textsize(uname, font=fontbig)
+    x = (width - iw) / 2.0 # horizontal center
+    y = (height - ih) / 2.0 # vertical center
+    draw.text((x+shadowX, y+shadowY), uname, font=fontbig, fill=shadowColor)
+    draw.text((x, y), uname, font=fontbig, fill=textColor)
+
+    # add subtext
+    if len(subtext) > 0:
+        iw, ih = draw.textsize(subtext, font=fontsmall)
+        draw.text((borderX+shadowX, height+shadowY-borderY-ih),
+                  subtext, font=fontsmall, fill=shadowColor)
+        draw.text((borderX, height-borderY-ih),
+                  subtext, font=fontsmall, fill=textColor)
+
+    # add the version if any
+    if len(version) > 0:
+        iw, ih = draw.textsize(uversion, font=fontsmall)
+        draw.text((width+shadowX-borderX-iw, height+shadowY-borderY-ih),
+                  uversion, font=fontsmall, fill=shadowColor)
+        draw.text((width-borderX-iw, height-borderY-ih),
+                  uversion, font=fontsmall, fill=textColor)
+
+    del draw
+    return im
+
+
+#Create the application logo
+def profileGenerateLogo( appname, font ):
+    import Image
+    import ImageDraw
+
+    uname = unicode(appname, 'UTF-8')
+
+    # evaluate size before deleting draw
+    im = Image.new( "RGBA", (1, 1), (0, 0, 0, 0) )
+    draw = ImageDraw.Draw( im )
+
+    im = Image.new( "RGBA", draw.textsize( uname, font=font ), (0, 0, 0, 0) )
+    draw = ImageDraw.Draw(im)
+    draw.text( (0+1, 0), uname, font=font, fill="rgb(0, 0, 0)" )
+    draw.text( (0, -1), uname, font=font, fill="rgb(191, 191, 191)" )
+
+    del draw
+    return im
+
+   
+#Replace strings in the template
 def profileReplaceStrings( src, dst, options ) :
     with open( dst, "wt" ) as fout:
         with open( src, "rt" ) as fin:
             for line in fin:
                 l = line.replace( '[LIST_OF_MODULES]', options.modules )
                 l = l.replace( '[VERSION]', options.version )
+                l = l.replace( '[SLOGAN]', options.slogan )
                 l = l.replace( '[NAME_OF_APPLICATION]', options.name.upper() )
                 l = l.replace( '<Name_of_Application>', options.name )
                 l = l.replace( '(name_of_application)', options.name.lower() )
                 fout.write( l )
+
 
 #Generation of a template profile sources
 def profileGenerateSources( options, args ) :
 
     #Set name of several directories
     app_dir = os.path.join( options.prefix, options.name )
+    app_resources_dir = os.path.join( app_dir, "resources" )
     kernel_root_dir = os.environ["KERNEL_ROOT_DIR"]
     bin_salome_dir = os.path.join( kernel_root_dir, "bin", "salome" )
-    template_dir = os.path.join( bin_salome_dir, "app-template"  )
+    kernel_resources_dir = os.path.join( kernel_root_dir, "share", "salome", "resources", "kernel" )
+    template_dir = os.path.join( kernel_resources_dir, "app-template" )
 
     #Check if the directory of the sources already exists and delete it
     if os.path.exists( app_dir ) :
@@ -112,6 +205,34 @@ def profileGenerateSources( options, args ) :
     contextFiles = [ "salomeContext.py", "salomeContextUtils.py", "parseConfigFile.py" ]
     for f in contextFiles :
         shutil.copy( os.path.join( bin_salome_dir, f ), os.path.join( app_dir, "src" ) )
+
+    #Search for python modules Image, ImageDraw and ImageFont
+    try:
+        import imp
+        imp.find_module('Image')
+        imp.find_module('ImageDraw')
+        imp.find_module('ImageFont')
+        found = True
+    except ImportError:
+        found = False
+
+    #Generate splash and logo
+    if found :
+        import ImageFont
+        font = ImageFont.truetype( os.path.join( kernel_resources_dir, "Anita semi square.ttf" ) , 18 )
+
+        #Generate and save logo
+        app_logo = profileGenerateLogo( options.name, font )
+        app_logo.save( os.path.join( app_resources_dir, 'app_logo.png'), "PNG" )
+
+        #Generate and splash screen and about image
+        if options.slogan :
+            subtext = options.slogan
+        else :
+            subtext = "Powered by SALOME"
+        im = profileGenerateSplash( kernel_resources_dir, options.name, options.version, subtext )
+        im.save( os.path.join( app_resources_dir, 'splash.png'), "PNG" )
+        im.save( os.path.join( app_resources_dir, 'about.png'), "PNG" )
 
 
 # -----------------------------------------------------------------------------
