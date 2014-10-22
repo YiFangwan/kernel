@@ -234,6 +234,9 @@ def profileGenerateSources( options, args ) :
         im.save( os.path.join( app_resources_dir, 'splash.png'), "PNG" )
         im.save( os.path.join( app_resources_dir, 'about.png'), "PNG" )
 
+    #End of script
+    print "Sources of %s were generated in %." %( options.name, app_dir )
+
 
 # -----------------------------------------------------------------------------
 
