@@ -176,7 +176,7 @@ def profileReplaceStrings( src, dst, options ) :
 def profileGenerateSources( options, args ) :
 
     #Set name of several directories
-    app_dir = os.path.join( options.prefix, options.name )
+    app_dir = options.prefix
     app_resources_dir = os.path.join( app_dir, "resources" )
     kernel_root_dir = os.environ["KERNEL_ROOT_DIR"]
     bin_salome_dir = os.path.join( kernel_root_dir, "bin", "salome" )
