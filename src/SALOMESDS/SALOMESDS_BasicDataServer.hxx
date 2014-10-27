@@ -21,10 +21,8 @@
 #ifndef __SALOMESDS_BASICDATASERVER_HXX__
 #define __SALOMESDS_BASICDATASERVER_HXX__
 
-#include "SALOMESDS_AutoRefCountPtr.hxx"
-
-#include "SALOME_SDS.hh"
-//#include CORBA_SERVER_HEADER(SALOME_SDS)
+#include "SALOMEconfig.h"
+#include CORBA_SERVER_HEADER(SALOME_SDS)
 
 #include "SALOMESDS_RefCountServ.hxx"
 

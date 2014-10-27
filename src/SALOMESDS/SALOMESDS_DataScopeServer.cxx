@@ -28,7 +28,7 @@
 
 using namespace SALOMESDS;
 
-DataScopeServer::DataScopeServer(const std::string& scopeName):_name(scopeName)
+DataScopeServer::DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName):_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName)
 {
 }
 
@@ -59,7 +59,8 @@ SALOME::StringDataServer_ptr DataScopeServer::createGlobalStringVar(const char *
     }
   AutoRefCountPtr<StringDataServer> tmp(new StringDataServer(varNameCpp));
   _vars.push_back(DynamicCastSafe<StringDataServer,BasicDataServer>(tmp));
-  return tmp->_this();
+  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  return SALOME::StringDataServer::_narrow(ret);
 }
 
 /*!
@@ -77,7 +78,8 @@ SALOME::AnyDataServer_ptr DataScopeServer::createGlobalAnyVar(const char *varNam
     }
   AutoRefCountPtr<AnyDataServer> tmp(new AnyDataServer(varNameCpp));
   _vars.push_back(DynamicCastSafe<AnyDataServer,BasicDataServer>(tmp));
-  return tmp->_this();
+  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  return SALOME::AnyDataServer::_narrow(ret);
 }
 
 std::vector< std::string > DataScopeServer::getAllVarNames() const
@@ -87,5 +89,24 @@ std::vector< std::string > DataScopeServer::getAllVarNames() const
   std::list< AutoRefCountPtr<BasicDataServer> >::const_iterator it(_vars.begin());
   for(std::size_t i=0;i<sz;it++,i++)
     ret[i]=(*it)->getVarNameCpp();
+  return ret;
+}
+
+CORBA::Object_var DataScopeServer::activateWithDedicatedPOA(BasicDataServer *ds)
+{
+  CORBA::Object_var obj(_orb->resolve_initial_references("RootPOA"));
+  PortableServer::POA_var rootPoa;
+  if(!CORBA::is_nil(obj))
+    rootPoa=PortableServer::POA::_narrow(obj);
+  PortableServer::POAManager_var pman(rootPoa->the_POAManager());
+  CORBA::PolicyList policies;
+  policies.length(1);
+  PortableServer::ThreadPolicy_var threadPol(rootPoa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
+  policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
+  PortableServer::POA_var poa(rootPoa->create_POA("SingleThPOA4SDS",pman,policies));
+  threadPol->destroy();
+  //
+  PortableServer::ObjectId_var id(poa->activate_object(ds));
+  CORBA::Object_var ret(poa->id_to_reference(id));
   return ret;
 }

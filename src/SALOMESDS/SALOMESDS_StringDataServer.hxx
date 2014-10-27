@@ -21,10 +21,10 @@
 #ifndef __SALOMESDS_STRINGDATASERVER_HXX__
 #define __SALOMESDS_STRINGDATASERVER_HXX__
 
-#include "SALOMESDS_BasicDataServer.hxx"
+#include "SALOMEconfig.h"
+#include CORBA_SERVER_HEADER(SALOME_SDS)
 
-#include "SALOME_SDS.hh"
-//#include CORBA_SERVER_HEADER(SALOME_SDS)
+#include "SALOMESDS_BasicDataServer.hxx"
 
 namespace SALOMESDS
 {

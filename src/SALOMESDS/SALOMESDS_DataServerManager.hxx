@@ -21,8 +21,8 @@
 #ifndef __SALOMESDS_DATASERVERMANAGER_HXX__
 #define __SALOMESDS_DATASERVERMANAGER_HXX__
 
-#include "SALOME_SDS.hh"
-//#include CORBA_SERVER_HEADER(SALOME_SDS)
+#include "SALOMEconfig.h"
+#include CORBA_SERVER_HEADER(SALOME_SDS)
 
 #include "SALOMESDS_AutoRefCountPtr.hxx"
 #include "SALOMESDS_DataScopeServer.hxx"
@@ -37,14 +37,22 @@ namespace SALOMESDS
   class DataServerManager : public virtual POA_SALOME::DataServerManager
   {
   public:
-    DataServerManager();
+    DataServerManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
     SALOME::DataScopeServer_ptr getDefaultScope();
     SALOME::DataScopeServer_ptr createDataScope(const char *scopeName);
     SALOME::DataScopeServer_ptr retriveDataScope(const char *scopeName);
     SALOME::DataScopeServer_ptr removeDataScope(const char *scopeName);
+    static std::string CreateAbsNameInNSFromScopeName(const std::string& scopeName);
+  public:
+    static const char NAME_IN_NS[];
+    static const char DFT_SCOPE_NAME_IN_NS[];
   private:
     AutoRefCountPtr<DataScopeServer> _dft_scope;
+    SALOME::DataScopeServer_var _ptr_dft_scope;
     std::list< AutoRefCountPtr<DataScopeServer> > _scopes;
+    CORBA::ORB_var _orb;
+    //! single thread poa
+    PortableServer::POA_var _poa;
   };
 }
 

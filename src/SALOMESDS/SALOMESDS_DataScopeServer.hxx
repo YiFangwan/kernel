@@ -21,8 +21,8 @@
 #ifndef __SALOMESDS_DATASCOPEERVER_HXX__
 #define __SALOMESDS_DATASCOPEERVER_HXX__
 
-#include "SALOME_SDS.hh"
-//#include CORBA_SERVER_HEADER(SALOME_SDS)
+#include "SALOMEconfig.h"
+#include CORBA_SERVER_HEADER(SALOME_SDS)
 
 #include "SALOMESDS_AutoRefCountPtr.hxx"
 #include "SALOMESDS_RefCountServ.hxx"
@@ -37,14 +37,16 @@ namespace SALOMESDS
   class DataScopeServer : public RefCountServ, public virtual POA_SALOME::DataScopeServer
   {
   public:
-    DataScopeServer(const std::string& scopeName);
+    DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName);
     DataScopeServer(const DataScopeServer& other);
     char *getScopeName();
     SALOME::StringDataServer_ptr createGlobalStringVar(const char *varName);
     SALOME::AnyDataServer_ptr createGlobalAnyVar(const char *varName);
   private:
     std::vector< std::string> getAllVarNames() const;
+    CORBA::Object_var activateWithDedicatedPOA(BasicDataServer *ds);
   private:
+    CORBA::ORB_var _orb;
     std::string _name;
     std::list< AutoRefCountPtr<BasicDataServer> > _vars;
   };
