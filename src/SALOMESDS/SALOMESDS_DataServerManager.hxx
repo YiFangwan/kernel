@@ -38,6 +38,7 @@ namespace SALOMESDS
   {
   public:
     DataServerManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
+    SALOME::StringVec *listScopes();
     SALOME::DataScopeServer_ptr getDefaultScope();
     SALOME::DataScopeServer_ptr createDataScope(const char *scopeName);
     SALOME::DataScopeServer_ptr retriveDataScope(const char *scopeName);
@@ -49,7 +50,7 @@ namespace SALOMESDS
   private:
     AutoRefCountPtr<DataScopeServer> _dft_scope;
     SALOME::DataScopeServer_var _ptr_dft_scope;
-    std::list< AutoRefCountPtr<DataScopeServer> > _scopes;
+    std::list< SALOME::DataScopeServer_var > _scopes;
     CORBA::ORB_var _orb;
     //! single thread poa
     PortableServer::POA_var _poa;

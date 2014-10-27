@@ -24,6 +24,7 @@
 #include "SALOMESDS_Exception.hxx"
 
 #include <sstream>
+#include <iterator>
 #include <algorithm>
 
 using namespace SALOMESDS;
@@ -47,6 +48,44 @@ char *DataScopeServer::getScopeName()
 /*!
  * Called remotely -> to protect against throw
  */
+SALOME::StringVec *DataScopeServer::listVars()
+{
+  SALOME::StringVec *ret(new SALOME::StringVec);
+  std::size_t sz(_vars.size());
+  ret->length(sz);
+  std::list< std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > >::iterator it(_vars.begin());
+  for(std::size_t i=0;i<sz;it++,i++)
+    {
+      BasicDataServer *obj((*it).second);
+      std::string name(obj->getVarNameCpp());
+      (*ret)[i]=CORBA::string_dup(name.c_str());
+    }
+  return ret;
+}
+
+/*!
+ * Called remotely -> to protect against throw
+ */
+SALOME::BasicDataServer_ptr DataScopeServer::retrieveVar(const char *varName)
+{
+  std::string varNameCpp(varName);
+  std::vector<std::string> allNames(getAllVarNames());
+  std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varNameCpp));
+  if(it==allNames.end())
+    {
+      std::ostringstream oss; oss << "DataScopeServer::retrieveVar : name \"" << varNameCpp << "\" does not exists ! Possibilities are :";
+      std::copy(allNames.begin(),allNames.end(),std::ostream_iterator<std::string>(oss,", "));
+      throw Exception(oss.str());
+    }
+  std::size_t pos(std::distance(allNames.begin(),it));
+  std::list< std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > >::iterator it0(_vars.begin());
+  for(std::size_t i=0;i<pos;i++,it0++);
+  return SALOME::BasicDataServer::_duplicate((*it0).first);
+}
+
+/*!
+ * Called remotely -> to protect against throw
+ */
 SALOME::StringDataServer_ptr DataScopeServer::createGlobalStringVar(const char *varName)
 {
   std::string varNameCpp(varName);
@@ -58,8 +97,9 @@ SALOME::StringDataServer_ptr DataScopeServer::createGlobalStringVar(const char *
       throw Exception(oss.str());
     }
   AutoRefCountPtr<StringDataServer> tmp(new StringDataServer(varNameCpp));
-  _vars.push_back(DynamicCastSafe<StringDataServer,BasicDataServer>(tmp));
   CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<StringDataServer,BasicDataServer>(tmp));
+  _vars.push_back(p);
   return SALOME::StringDataServer::_narrow(ret);
 }
 
@@ -77,8 +117,9 @@ SALOME::AnyDataServer_ptr DataScopeServer::createGlobalAnyVar(const char *varNam
       throw Exception(oss.str());
     }
   AutoRefCountPtr<AnyDataServer> tmp(new AnyDataServer(varNameCpp));
-  _vars.push_back(DynamicCastSafe<AnyDataServer,BasicDataServer>(tmp));
   CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<AnyDataServer,BasicDataServer>(tmp));
+  _vars.push_back(p);
   return SALOME::AnyDataServer::_narrow(ret);
 }
 
@@ -86,9 +127,9 @@ std::vector< std::string > DataScopeServer::getAllVarNames() const
 {
   std::size_t sz(_vars.size());
   std::vector<std::string> ret(sz);
-  std::list< AutoRefCountPtr<BasicDataServer> >::const_iterator it(_vars.begin());
+  std::list< std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > >::const_iterator it(_vars.begin());
   for(std::size_t i=0;i<sz;it++,i++)
-    ret[i]=(*it)->getVarNameCpp();
+    ret[i]=(*it).second->getVarNameCpp();
   return ret;
 }
 

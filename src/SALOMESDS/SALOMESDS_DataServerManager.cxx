@@ -51,10 +51,26 @@ DataServerManager::DataServerManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr
   id=_poa->activate_object(_dft_scope);
   obj=_poa->id_to_reference(id);
   _ptr_dft_scope=SALOME::DataScopeServer::_narrow(obj);
-  _scopes.push_back(_dft_scope);
+  _scopes.push_back(_ptr_dft_scope);
   //
   std::string fullNameInNS(CreateAbsNameInNSFromScopeName(DFT_SCOPE_NAME_IN_NS));
   ns.Register(_ptr_dft_scope,fullNameInNS.c_str());
+}
+
+SALOME::StringVec *DataServerManager::listScopes()
+{
+  SALOME::StringVec *ret(new SALOME::StringVec);
+  std::size_t sz(_scopes.size());
+  ret->length(sz);
+  std::list< SALOME::DataScopeServer_var >::iterator it(_scopes.begin());
+  for(std::size_t i=0;i<sz;it++,i++)
+    {
+      SALOME::DataScopeServer_var obj(*it);
+      char *name(obj->getScopeName());
+      (*ret)[i]=CORBA::string_dup(name);
+      CORBA::string_free(name);
+    }
+  return ret;
 }
 
 SALOME::DataScopeServer_ptr DataServerManager::getDefaultScope()

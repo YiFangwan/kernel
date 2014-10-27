@@ -40,6 +40,8 @@ namespace SALOMESDS
     DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName);
     DataScopeServer(const DataScopeServer& other);
     char *getScopeName();
+    SALOME::StringVec *listVars();
+    SALOME::BasicDataServer_ptr retrieveVar(const char *varName);
     SALOME::StringDataServer_ptr createGlobalStringVar(const char *varName);
     SALOME::AnyDataServer_ptr createGlobalAnyVar(const char *varName);
   private:
@@ -48,7 +50,7 @@ namespace SALOMESDS
   private:
     CORBA::ORB_var _orb;
     std::string _name;
-    std::list< AutoRefCountPtr<BasicDataServer> > _vars;
+    std::list< std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > > _vars;
   };
 }
 

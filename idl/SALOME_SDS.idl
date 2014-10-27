@@ -20,6 +20,8 @@
 
 module SALOME
 {
+  typedef sequence<string> StringVec;
+  
   interface BasicDataServer
   {
     string getVarName();
@@ -40,12 +42,15 @@ module SALOME
   interface DataScopeServer
   {
     string getScopeName();
+    StringVec listVars();
+    BasicDataServer retrieveVar(in string varName);
     StringDataServer createGlobalStringVar(in string varName);
     AnyDataServer createGlobalAnyVar(in string varName);
   };
 
   interface DataServerManager
   {
+    StringVec listScopes();
     DataScopeServer getDefaultScope();
     DataScopeServer createDataScope(in string scopeName);
     DataScopeServer retriveDataScope(in string scopeName);
