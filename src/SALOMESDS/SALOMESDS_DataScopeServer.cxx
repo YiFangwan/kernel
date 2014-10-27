@@ -103,7 +103,10 @@ CORBA::Object_var DataScopeServer::activateWithDedicatedPOA(BasicDataServer *ds)
   policies.length(1);
   PortableServer::ThreadPolicy_var threadPol(rootPoa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
   policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
-  PortableServer::POA_var poa(rootPoa->create_POA("SingleThPOA4SDS",pman,policies));
+  std::string name(ds->getVarNameCpp());
+  std::ostringstream oss; oss << "POA@" << name;
+  std::string zePOAName(oss.str());
+  PortableServer::POA_var poa(rootPoa->create_POA(zePOAName.c_str(),pman,policies));
   threadPol->destroy();
   //
   PortableServer::ObjectId_var id(poa->activate_object(ds));
