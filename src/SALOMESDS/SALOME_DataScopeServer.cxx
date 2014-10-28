@@ -50,8 +50,7 @@ int main(int argc, char* argv[])
   obj=poa2->id_to_reference(id);
   SALOME::DataScopeServer_var serverPtr(SALOME::DataScopeServer::_narrow(obj));
   //
-  std::ostringstream oss; oss << SALOMESDS::DataServerManager::NAME_IN_NS << "/" << scopeName;
-  std::string fullScopeName(oss.str());
+  std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(scopeName));
   SALOME_NamingService ns(orb);
   ns.Register(serverPtr,fullScopeName.c_str());
   //

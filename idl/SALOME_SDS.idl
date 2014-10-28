@@ -56,6 +56,6 @@ module SALOME
     DataScopeServer getDefaultScope();
     DataScopeServer createDataScope(in string scopeName);
     DataScopeServer retriveDataScope(in string scopeName);
-    DataScopeServer removeDataScope(in string scopeName);
+    void removeDataScope(in string scopeName);
   };
 };

@@ -42,7 +42,7 @@ namespace SALOMESDS
     SALOME::DataScopeServer_ptr getDefaultScope();
     SALOME::DataScopeServer_ptr createDataScope(const char *scopeName);
     SALOME::DataScopeServer_ptr retriveDataScope(const char *scopeName);
-    SALOME::DataScopeServer_ptr removeDataScope(const char *scopeName);
+    void removeDataScope(const char *scopeName);
     static std::string CreateAbsNameInNSFromScopeName(const std::string& scopeName);
   public:
     static const char NAME_IN_NS[];

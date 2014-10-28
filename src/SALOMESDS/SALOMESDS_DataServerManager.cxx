@@ -96,7 +96,7 @@ SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scope
   //
   SALOME_NamingService ns(_orb);
   std::string fullScopeName(CreateAbsNameInNSFromScopeName(scopeName));
-  std::ostringstream oss; oss << "SALOME_DataScopeServer" << " " << scopeName;
+  std::ostringstream oss; oss << "SALOME_DataScopeServer" << " " << scopeName << " ";
   SALOME_ContainerManager::AddOmninamesParams(oss,&ns);
   std::string command(oss.str());
   SALOME_ContainerManager::MakeTheCommandToBeLaunchedASync(command);
@@ -105,6 +105,8 @@ SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scope
   SALOME::DataScopeServer_var ret(SALOME::DataScopeServer::_nil());
   while (CORBA::is_nil(ret) && count)
     {
+      SALOME_ContainerManager::SleepInSecond(1);
+      count--;
       CORBA::Object_var obj(ns.Resolve(fullScopeName.c_str()));
       ret=SALOME::DataScopeServer::_narrow(obj);
     }
@@ -121,10 +123,9 @@ SALOME::DataScopeServer_ptr DataServerManager::retriveDataScope(const char *scop
   return SALOME::DataScopeServer::_duplicate(*it);
 }
 
-SALOME::DataScopeServer_ptr DataServerManager::removeDataScope(const char *scopeName)
+void DataServerManager::removeDataScope(const char *scopeName)
 {
   std::list< SALOME::DataScopeServer_var >::iterator it(getScopePtrGivenName(scopeName));
-  return SALOME::DataScopeServer::_duplicate(*it);
 }
 
 std::string DataServerManager::CreateAbsNameInNSFromScopeName(const std::string& scopeName)
