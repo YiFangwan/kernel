@@ -42,6 +42,8 @@
 #include <ServiceUnreachable.hxx>
 
 #include "SALOME_LifeCycleCORBA.hxx"
+#include "SALOME_ResourcesManager.hxx"
+
 #include CORBA_CLIENT_HEADER(SALOME_ModuleCatalog)
 #include CORBA_CLIENT_HEADER(SALOME_Session)
 #include CORBA_CLIENT_HEADER(DSC_Engines)

@@ -25,11 +25,36 @@
 
 using namespace SALOMESDS;
 
-BasicDataServer::BasicDataServer(const std::string& varName):_var_name(varName)
+BasicDataServer::BasicDataServer(const std::string& varName):_is_read_only(false),_var_name(varName)
 {
 }
 
+/*!
+ * Called remotely -> to protect against throw
+ */
 char *BasicDataServer::getVarName()
 {
   return CORBA::string_dup(_var_name.c_str());
+}
+
+/*!
+ * Called remotely -> to protect against throw
+ */
+void BasicDataServer::setReadOnlyStatus()
+{
+  _is_read_only=true;
+}
+
+/*!
+ * Called remotely -> to protect against throw
+ */
+void BasicDataServer::setRWStatus()
+{
+  _is_read_only=false;
+}
+
+void BasicDataServer::checkReadOnlyStatusRegardingConstness(const char *sender) const
+{
+  if(isReadOnly())
+    throw Exception(sender);
 }

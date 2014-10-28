@@ -35,8 +35,15 @@ namespace SALOMESDS
   public:
     BasicDataServer(const std::string& varName);
     char *getVarName();
+    void setReadOnlyStatus();
+    void setRWStatus();
     std::string getVarNameCpp() const { return _var_name; }
+  protected:
+    void checkReadOnlyStatusRegardingConstness(const char *sender) const;
+    bool isReadOnly() const { return _is_read_only; }
   private:
+    //! false by default
+    bool _is_read_only;
     std::string _var_name;
   };
 }

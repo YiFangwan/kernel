@@ -19,6 +19,7 @@
 // Author : Anthony GEAY (EDF R&D)
 
 #include "SALOMESDS_StringDataServer.hxx"
+#include "SALOMESDS_Exception.hxx"
 
 using namespace SALOMESDS;
 
@@ -31,6 +32,7 @@ StringDataServer::StringDataServer(const std::string& varName):BasicDataServer(v
  */
 void StringDataServer::setValueOf(const char *newValue)
 {
+  checkReadOnlyStatusRegardingConstness("StringDataServer::setValueOf : read only var !");
   _data=newValue;
 }
 

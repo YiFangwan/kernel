@@ -48,6 +48,8 @@ namespace SALOMESDS
     static const char NAME_IN_NS[];
     static const char DFT_SCOPE_NAME_IN_NS[];
   private:
+    std::list< SALOME::DataScopeServer_var >::iterator getScopePtrGivenName(const std::string& scopeName);
+  private:
     AutoRefCountPtr<DataScopeServer> _dft_scope;
     SALOME::DataScopeServer_var _ptr_dft_scope;
     std::list< SALOME::DataScopeServer_var > _scopes;

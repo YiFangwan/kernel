@@ -32,6 +32,7 @@
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_LifeCycleCORBA.hxx"
+#include "SALOME_ResourcesManager.hxx"
 #include "NamingService_WaitForServerReadiness.hxx"
 #include "OpUtil.hxx"
 #include "Utils_ORB_INIT.hxx"

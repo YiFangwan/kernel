@@ -19,6 +19,7 @@
 // Author : Anthony GEAY (EDF R&D)
 
 #include "SALOMESDS_AnyDataServer.hxx"
+#include "SALOMESDS_Exception.hxx"
 
 using namespace SALOMESDS;
 
@@ -31,6 +32,7 @@ AnyDataServer::AnyDataServer(const std::string& varName):BasicDataServer(varName
  */
 void AnyDataServer::setValueOf(const CORBA::Any& newValue)
 {
+  checkReadOnlyStatusRegardingConstness("StringDataServer::setValueOf : read only var !");
   delete _data;
   _data=new CORBA::Any(newValue);
 }

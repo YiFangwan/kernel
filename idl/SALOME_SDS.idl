@@ -25,6 +25,8 @@ module SALOME
   interface BasicDataServer
   {
     string getVarName();
+    void setReadOnlyStatus();
+    void setRWStatus();
   };
 
   interface StringDataServer : BasicDataServer
