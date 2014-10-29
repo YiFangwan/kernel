@@ -146,7 +146,11 @@ void DataScopeServer::shutdownIfNotHostedByDSM()
   if(!ret)
     _orb->shutdown(0);
   else
-    ret->_remove_ref();
+    {
+      PortableServer::ObjectId_var oid(_poa->servant_to_id(this));
+      _poa->deactivate_object(oid);
+      ret->_remove_ref();
+    }
 }
 
 /*!
