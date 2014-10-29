@@ -33,7 +33,7 @@ const char DataServerManager::NAME_IN_NS[]="/DataServerManager";
 
 const char DataServerManager::DFT_SCOPE_NAME_IN_NS[]="Default";
 
-DataServerManager::DataServerManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa):_orb(CORBA::ORB::_duplicate(orb))
+DataServerManager::DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb, PortableServer::POA_ptr poa):_orb(CORBA::ORB::_duplicate(orb))
 {
   DataScopeServer *dftScope(new DataScopeServer(orb,DFT_SCOPE_NAME_IN_NS));//_remove_ref will be call by DataScopeServer::shutdownIfNotHostedByDSM
   PortableServer::POAManager_var pman(poa->the_POAManager());
@@ -54,7 +54,7 @@ DataServerManager::DataServerManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr
   id=_poa->activate_object(dftScope);
   obj=_poa->id_to_reference(id);
   SALOME::DataScopeServer_var dftScopePtr(SALOME::DataScopeServer::_narrow(obj));
-  dftScope->setPOAAndRegister(_poa,dftScopePtr);
+  dftScope->setPOAAndRegister(argc,argv,_poa,dftScopePtr);
 }
 
 SALOME::StringVec *DataServerManager::listScopes()

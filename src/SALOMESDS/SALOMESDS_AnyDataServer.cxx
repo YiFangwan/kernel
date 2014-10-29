@@ -23,7 +23,7 @@
 
 using namespace SALOMESDS;
 
-AnyDataServer::AnyDataServer(const std::string& varName):BasicDataServer(varName),_data(new CORBA::Any)
+AnyDataServer::AnyDataServer(DataScopeServer *father, const std::string& varName):BasicDataServer(father,varName),_data(new CORBA::Any)
 {
 }
 

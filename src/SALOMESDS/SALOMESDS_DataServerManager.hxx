@@ -36,7 +36,7 @@ namespace SALOMESDS
   class DataServerManager : public virtual POA_SALOME::DataServerManager
   {
   public:
-    DataServerManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
+    DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
     SALOME::StringVec *listScopes();
     SALOME::DataScopeServer_ptr getDefaultScope();
     SALOME::DataScopeServer_ptr createDataScope(const char *scopeName);

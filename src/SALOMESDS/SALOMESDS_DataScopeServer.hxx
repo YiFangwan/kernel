@@ -28,6 +28,8 @@
 #include "SALOMESDS_AutoRefCountPtr.hxx"
 #include "SALOMESDS_BasicDataServer.hxx"
 
+#include <Python.h>
+
 #include <string>
 #include <vector>
 #include <list>
@@ -45,12 +47,19 @@ namespace SALOMESDS
     SALOME::StringDataServer_ptr createGlobalStringVar(const char *varName);
     SALOME::AnyDataServer_ptr createGlobalAnyVar(const char *varName);
     void shutdownIfNotHostedByDSM();
+    ~DataScopeServer();
   public:
-    void setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr);
+    void setPOAAndRegister(int argc, char *argv[], PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr);
+    PyObject *getGlobals() const { return _globals; }
+    PyObject *getLocals() const { return _locals; }
+    PyObject *getPickler() const { return _pickler; }
   private:
     std::vector< std::string> getAllVarNames() const;
     CORBA::Object_var activateWithDedicatedPOA(BasicDataServer *ds);
   private:
+    PyObject *_globals;
+    PyObject *_locals;
+    PyObject *_pickler;
     PortableServer::POA_var _poa;
     CORBA::ORB_var _orb;
     std::string _name;

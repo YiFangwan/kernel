@@ -33,6 +33,7 @@ module SALOME
   {
     void setValueOf(in string newValue);
     string getValueOf();
+    string invokePythonMethodOn(in string method, in string args);
   };
 
   interface AnyDataServer : BasicDataServer

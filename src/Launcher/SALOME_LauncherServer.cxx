@@ -99,7 +99,7 @@ int main(int argc, char* argv[])
       SALOME_Launcher *lServ(new SALOME_Launcher(orb,root_poa));
       lServ->_remove_ref();
       //
-      SALOMESDS::DataServerManager *dsm(new SALOMESDS::DataServerManager(orb,root_poa));
+      SALOMESDS::DataServerManager *dsm(new SALOMESDS::DataServerManager(argc,argv,orb,root_poa));
       dsm->_remove_ref();
       //
       orb->run();

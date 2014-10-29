@@ -27,7 +27,7 @@
 #include <string>
 #include <sstream>
 
-int main(int argc, char* argv[])
+int main(int argc, char *argv[])
 {
   std::string scopeName;
   if(argc<=1)
@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
   PortableServer::ObjectId_var id(poa2->activate_object(server));
   obj=poa2->id_to_reference(id);
   SALOME::DataScopeServer_var serverPtr(SALOME::DataScopeServer::_narrow(obj));
-  server->setPOAAndRegister(poa2,serverPtr);
+  server->setPOAAndRegister(argc,argv,poa2,serverPtr);
   //
   orb->run();
   server->_remove_ref();

@@ -30,10 +30,12 @@
 
 namespace SALOMESDS
 {
+  class DataScopeServer;
+  
   class BasicDataServer : public RefCountServ, public virtual POA_SALOME::BasicDataServer
   {
   public:
-    BasicDataServer(const std::string& varName);
+    BasicDataServer(DataScopeServer *father, const std::string& varName);
     char *getVarName();
     void setReadOnlyStatus();
     void setRWStatus();
@@ -41,6 +43,8 @@ namespace SALOMESDS
   protected:
     void checkReadOnlyStatusRegardingConstness(const char *sender) const;
     bool isReadOnly() const { return _is_read_only; }
+  protected:
+    DataScopeServer *_father;
   private:
     //! false by default
     bool _is_read_only;

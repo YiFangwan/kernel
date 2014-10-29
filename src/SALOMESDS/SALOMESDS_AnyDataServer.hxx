@@ -31,7 +31,7 @@ namespace SALOMESDS
   class AnyDataServer : public BasicDataServer, public virtual POA_SALOME::AnyDataServer
   {
   public:
-    AnyDataServer(const std::string& varName);
+    AnyDataServer(DataScopeServer *father, const std::string& varName);
     void setValueOf(const CORBA::Any& newValue);
     CORBA::Any *getValueOf();
   private:

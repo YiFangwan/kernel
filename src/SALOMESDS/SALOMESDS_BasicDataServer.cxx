@@ -25,7 +25,7 @@
 
 using namespace SALOMESDS;
 
-BasicDataServer::BasicDataServer(const std::string& varName):_is_read_only(false),_var_name(varName)
+BasicDataServer::BasicDataServer(DataScopeServer *father, const std::string& varName):_father(father),_is_read_only(false),_var_name(varName)
 {
 }
 

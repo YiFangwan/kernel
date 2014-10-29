@@ -24,6 +24,8 @@
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOME_SDS)
 
+#include <Python.h>
+
 #include "SALOMESDS_BasicDataServer.hxx"
 
 namespace SALOMESDS
@@ -31,11 +33,19 @@ namespace SALOMESDS
   class StringDataServer : public BasicDataServer, public virtual POA_SALOME::StringDataServer
   {
   public:
-    StringDataServer(const std::string& varName);
+    StringDataServer(DataScopeServer *father, const std::string& varName);
+    ~StringDataServer();
     void setValueOf(const char *newValue);
     char *getValueOf();
+    char *invokePythonMethodOn(const char *method, const char *args);
   private:
+    PyObject *getPyObjFromPickled(const std::string& pickledData);
+    std::string pickelize(PyObject *obj);
+  private:
+    static const char FAKE_VAR_NAME_FOR_WORK[];
     std::string _data;
+  private:
+    PyCodeObject *_code_for_pickle;
   };
 }
 

@@ -31,12 +31,19 @@
 
 using namespace SALOMESDS;
 
-DataScopeServer::DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName):_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName)
+DataScopeServer::DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName)
 {
 }
 
-DataScopeServer::DataScopeServer(const DataScopeServer& other):_name(other._name),_vars(other._vars)
+DataScopeServer::DataScopeServer(const DataScopeServer& other):_globals(0),_locals(0),_pickler(0),_name(other._name),_vars(other._vars)
 {
+}
+
+DataScopeServer::~DataScopeServer()
+{
+  // _globals is borrowed ref -> do nothing
+  Py_DECREF(_locals);
+  //_pickler is borrowed ref -> do nothing
 }
 
 /*!
@@ -98,7 +105,7 @@ SALOME::StringDataServer_ptr DataScopeServer::createGlobalStringVar(const char *
       std::ostringstream oss; oss << "DataScopeServer::createGlobalStringVar : name \"" << varNameCpp << "\" already exists !";
       throw Exception(oss.str());
     }
-  AutoRefCountPtr<StringDataServer> tmp(new StringDataServer(varNameCpp));
+  AutoRefCountPtr<StringDataServer> tmp(new StringDataServer(this,varNameCpp));
   CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
   std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<StringDataServer,BasicDataServer>(tmp));
   _vars.push_back(p);
@@ -118,7 +125,7 @@ SALOME::AnyDataServer_ptr DataScopeServer::createGlobalAnyVar(const char *varNam
       std::ostringstream oss; oss << "DataScopeServer::createGlobalAnyVar : name \"" << varNameCpp << "\" already exists !";
       throw Exception(oss.str());
     }
-  AutoRefCountPtr<AnyDataServer> tmp(new AnyDataServer(varNameCpp));
+  AutoRefCountPtr<AnyDataServer> tmp(new AnyDataServer(this,varNameCpp));
   CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
   std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<AnyDataServer,BasicDataServer>(tmp));
   _vars.push_back(p);
@@ -156,12 +163,27 @@ void DataScopeServer::shutdownIfNotHostedByDSM()
 /*!
  * \a ptr has been activated by the POA \a poa.
  */
-void DataScopeServer::setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr)
+void DataScopeServer::setPOAAndRegister(int argc, char *argv[], PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr)
 {
   _poa=poa;
   std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
   SALOME_NamingService ns(_orb);
   ns.Register(ptr,fullScopeName.c_str());
+  Py_Initialize();
+  PySys_SetArgv(argc,argv);
+  PyObject *mainmod(PyImport_AddModule("__main__"));
+  _globals=PyModule_GetDict(mainmod);
+  if(PyDict_GetItemString(_globals, "__builtins__") == NULL)
+    {
+      PyObject *bimod(PyImport_ImportModule("__builtin__"));
+      if (bimod == NULL || PyDict_SetItemString(_globals, "__builtins__", bimod) != 0)
+        Py_FatalError("can't add __builtins__ to __main__");
+      Py_XDECREF(bimod);
+    }
+  _locals=PyDict_New();
+  //if(PyRun_String("import cPickle\n",Py_single_input,_globals,_locals)!=0)
+  //  throw Exception("DataScopeServer::setPOAAndRegister : cPickle is not available !");
+  /*_pickler=PyDict_GetItemString(_globals,"cPickle");*/
 }
 
 std::vector< std::string > DataScopeServer::getAllVarNames() const
