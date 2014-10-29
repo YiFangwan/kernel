@@ -49,13 +49,10 @@ int main(int argc, char* argv[])
   PortableServer::ObjectId_var id(poa2->activate_object(server));
   obj=poa2->id_to_reference(id);
   SALOME::DataScopeServer_var serverPtr(SALOME::DataScopeServer::_narrow(obj));
-  //
-  std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(scopeName));
-  SALOME_NamingService ns(orb);
-  ns.Register(serverPtr,fullScopeName.c_str());
+  server->setPOAAndRegister(poa2,serverPtr);
   //
   orb->run();
-  server->decrRef();
+  server->_remove_ref();
   return 0;
 }
 

@@ -41,6 +41,8 @@ module SALOME
     any getValueOf();
   };
 
+  interface DataServerManager;
+
   interface DataScopeServer
   {
     string getScopeName();
@@ -48,6 +50,7 @@ module SALOME
     BasicDataServer retrieveVar(in string varName);
     StringDataServer createGlobalStringVar(in string varName);
     AnyDataServer createGlobalAnyVar(in string varName);
+    void shutdownIfNotHostedByDSM();
   };
 
   interface DataServerManager
@@ -57,5 +60,6 @@ module SALOME
     DataScopeServer createDataScope(in string scopeName);
     DataScopeServer retriveDataScope(in string scopeName);
     void removeDataScope(in string scopeName);
+    void shutdownScopes();
   };
 };

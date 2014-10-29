@@ -19,8 +19,10 @@
 // Author : Anthony GEAY (EDF R&D)
 
 #include "SALOMESDS_DataScopeServer.hxx"
+#include "SALOMESDS_DataServerManager.hxx"
 #include "SALOMESDS_StringDataServer.hxx"
 #include "SALOMESDS_AnyDataServer.hxx"
+#include "SALOME_NamingService.hxx"
 #include "SALOMESDS_Exception.hxx"
 
 #include <sstream>
@@ -33,7 +35,7 @@ DataScopeServer::DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeNam
 {
 }
 
-DataScopeServer::DataScopeServer(const DataScopeServer& other):RefCountServ(other),_name(other._name),_vars(other._vars)
+DataScopeServer::DataScopeServer(const DataScopeServer& other):_name(other._name),_vars(other._vars)
 {
 }
 
@@ -121,6 +123,41 @@ SALOME::AnyDataServer_ptr DataScopeServer::createGlobalAnyVar(const char *varNam
   std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<AnyDataServer,BasicDataServer>(tmp));
   _vars.push_back(p);
   return SALOME::AnyDataServer::_narrow(ret);
+}
+
+void DataScopeServer::shutdownIfNotHostedByDSM()
+{
+  SALOME_NamingService ns(_orb);
+  CORBA::Object_var obj(ns.Resolve(DataServerManager::NAME_IN_NS));
+  SALOME::DataServerManager_var dsm(SALOME::DataServerManager::_narrow(obj));
+  if(CORBA::is_nil(dsm))
+    return ;
+  // destroy ref in the naming service
+  std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
+  ns.Destroy_Name(fullScopeName.c_str());
+  // establish if dsm and this shared the same POA. If yes dsm and this are collocated !
+  PortableServer::ServantBase *ret(0);
+  try
+    {
+      ret=_poa->reference_to_servant(dsm);
+    }
+  catch(...) { ret=0; }
+  //
+  if(!ret)
+    _orb->shutdown(0);
+  else
+    ret->_remove_ref();
+}
+
+/*!
+ * \a ptr has been activated by the POA \a poa.
+ */
+void DataScopeServer::setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr)
+{
+  _poa=poa;
+  std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
+  SALOME_NamingService ns(_orb);
+  ns.Register(ptr,fullScopeName.c_str());
 }
 
 std::vector< std::string > DataScopeServer::getAllVarNames() const

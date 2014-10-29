@@ -25,6 +25,7 @@
 #include "SALOME_NamingService.hxx"
 
 #include <sstream>
+#include <algorithm>
 
 using namespace SALOMESDS;
 
@@ -32,8 +33,9 @@ const char DataServerManager::NAME_IN_NS[]="/DataServerManager";
 
 const char DataServerManager::DFT_SCOPE_NAME_IN_NS[]="Default";
 
-DataServerManager::DataServerManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa):_dft_scope(new DataScopeServer(orb,DFT_SCOPE_NAME_IN_NS)),_orb(CORBA::ORB::_duplicate(orb))
+DataServerManager::DataServerManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr poa):_orb(CORBA::ORB::_duplicate(orb))
 {
+  DataScopeServer *dftScope(new DataScopeServer(orb,DFT_SCOPE_NAME_IN_NS));//_remove_ref will be call by DataScopeServer::shutdownIfNotHostedByDSM
   PortableServer::POAManager_var pman(poa->the_POAManager());
   CORBA::PolicyList policies;
   policies.length(1);
@@ -49,49 +51,36 @@ DataServerManager::DataServerManager(CORBA::ORB_ptr orb, PortableServer::POA_ptr
   SALOME_NamingService ns(orb);
   ns.Register(obj2,NAME_IN_NS);
   // the default DataScopeServer object is the only one hosted by the current process
-  id=_poa->activate_object(_dft_scope);
+  id=_poa->activate_object(dftScope);
   obj=_poa->id_to_reference(id);
-  _ptr_dft_scope=SALOME::DataScopeServer::_narrow(obj);
-  _scopes.push_back(_ptr_dft_scope);
-  //
-  std::string fullNameInNS(CreateAbsNameInNSFromScopeName(DFT_SCOPE_NAME_IN_NS));
-  ns.Register(_ptr_dft_scope,fullNameInNS.c_str());
+  SALOME::DataScopeServer_var dftScopePtr(SALOME::DataScopeServer::_narrow(obj));
+  dftScope->setPOAAndRegister(_poa,dftScopePtr);
 }
 
 SALOME::StringVec *DataServerManager::listScopes()
 {
+  std::vector<std::string> scopes(listOfScopesCpp());
   SALOME::StringVec *ret(new SALOME::StringVec);
-  std::size_t sz(_scopes.size());
+  std::size_t sz(scopes.size());
   ret->length(sz);
-  std::list< SALOME::DataScopeServer_var >::iterator it(_scopes.begin());
-  for(std::size_t i=0;i<sz;it++,i++)
-    {
-      SALOME::DataScopeServer_var obj(*it);
-      char *name(obj->getScopeName());
-      (*ret)[i]=CORBA::string_dup(name);
-      CORBA::string_free(name);
-    }
+  for(std::size_t i=0;i<sz;i++)
+    (*ret)[i]=CORBA::string_dup(scopes[i].c_str());
   return ret;
 }
 
 SALOME::DataScopeServer_ptr DataServerManager::getDefaultScope()
 {
-  return SALOME::DataScopeServer::_duplicate(_ptr_dft_scope);
+  return retriveDataScope(DFT_SCOPE_NAME_IN_NS);
 }
 
 SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scopeName)
 {
   std::string scopeNameCpp(scopeName);
-  std::size_t sz(_scopes.size());
-  std::list< SALOME::DataScopeServer_var >::iterator it(_scopes.begin());
-  for(std::size_t i=0;i<sz;it++,i++)
+  std::vector<std::string> scopes(listOfScopesCpp());
+  if(std::find(scopes.begin(),scopes.end(),scopeNameCpp)!=scopes.end())
     {
-      CORBA::String_var zeName((*it)->getScopeName());
-      if(scopeNameCpp==(const char *)zeName)
-        {
-          std::ostringstream oss; oss << "DataServerManager::createDataScope : scope name \"" << scopeName << "\" already exists !";
-          throw Exception(oss.str());
-        }
+      std::ostringstream oss; oss << "DataServerManager::createDataScope : scope name \"" << scopeName << "\" already exists !";
+      throw Exception(oss.str());
     }
   //
   SALOME_NamingService ns(_orb);
@@ -110,22 +99,26 @@ SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scope
       CORBA::Object_var obj(ns.Resolve(fullScopeName.c_str()));
       ret=SALOME::DataScopeServer::_narrow(obj);
     }
-  if(!CORBA::is_nil(ret))
-    {
-      _scopes.push_back(ret);
-    }
   return SALOME::DataScopeServer::_duplicate(ret);
 }
 
 SALOME::DataScopeServer_ptr DataServerManager::retriveDataScope(const char *scopeName)
 {
-  std::list< SALOME::DataScopeServer_var >::iterator it(getScopePtrGivenName(scopeName));
-  return SALOME::DataScopeServer::_duplicate(*it);
+  SALOME::DataScopeServer_var ret(getScopePtrGivenName(scopeName));
+  return SALOME::DataScopeServer::_duplicate(ret);
 }
 
 void DataServerManager::removeDataScope(const char *scopeName)
 {
-  std::list< SALOME::DataScopeServer_var >::iterator it(getScopePtrGivenName(scopeName));
+  SALOME::DataScopeServer_var scs(getScopePtrGivenName(scopeName));
+  scs->shutdownIfNotHostedByDSM();
+}
+
+void DataServerManager::shutdownScopes()
+{
+  std::vector<std::string> scopeNames(listOfScopesCpp());
+  for(std::vector<std::string>::const_iterator it=scopeNames.begin();it!=scopeNames.end();it++)
+    getScopePtrGivenName(*it)->shutdownIfNotHostedByDSM();
 }
 
 std::string DataServerManager::CreateAbsNameInNSFromScopeName(const std::string& scopeName)
@@ -134,22 +127,26 @@ std::string DataServerManager::CreateAbsNameInNSFromScopeName(const std::string&
   return oss.str();
 }
 
-std::list< SALOME::DataScopeServer_var >::iterator DataServerManager::getScopePtrGivenName(const std::string& scopeName)
+std::vector<std::string> DataServerManager::listOfScopesCpp()
 {
-  std::size_t sz(_scopes.size());
-  std::list< SALOME::DataScopeServer_var >::iterator it(_scopes.begin());
-  bool found(false);
-  for(std::size_t i=0;i<sz;it++,i++)
-    {
-      CORBA::String_var zeName((*it)->getScopeName());
-      found=(scopeName==(const char *)zeName);
-      if(found)
-        break;
-    }
-  if(!found)
+  SALOME_NamingService ns(_orb);
+  ns.Change_Directory(NAME_IN_NS);
+  std::vector<std::string> ret(ns.list_directory());
+  return ret;
+}
+
+SALOME::DataScopeServer_var DataServerManager::getScopePtrGivenName(const std::string& scopeName)
+{
+  std::vector<std::string> scopes(listOfScopesCpp());
+  std::size_t sz(scopes.size());
+  if(std::find(scopes.begin(),scopes.end(),scopeName)==scopes.end())
     {
       std::ostringstream oss; oss << "DataServerManager::getScopePtrGivenName : scope name \"" << scopeName << "\" does not exist !";
       throw Exception(oss.str());
     }
-  return it;
+  SALOME_NamingService ns(_orb);
+  std::string fullScopeName(CreateAbsNameInNSFromScopeName(scopeName));
+  CORBA::Object_var obj(ns.Resolve(fullScopeName.c_str()));
+  SALOME::DataScopeServer_var ret(SALOME::DataScopeServer::_narrow(obj));
+  return ret;
 }

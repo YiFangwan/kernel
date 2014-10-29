@@ -24,8 +24,8 @@
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOME_SDS)
 
-#include "SALOMESDS_AutoRefCountPtr.hxx"
 #include "SALOMESDS_RefCountServ.hxx"
+#include "SALOMESDS_AutoRefCountPtr.hxx"
 #include "SALOMESDS_BasicDataServer.hxx"
 
 #include <string>
@@ -34,7 +34,7 @@
 
 namespace SALOMESDS
 {
-  class DataScopeServer : public RefCountServ, public virtual POA_SALOME::DataScopeServer
+  class DataScopeServer : public virtual POA_SALOME::DataScopeServer
   {
   public:
     DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName);
@@ -44,10 +44,14 @@ namespace SALOMESDS
     SALOME::BasicDataServer_ptr retrieveVar(const char *varName);
     SALOME::StringDataServer_ptr createGlobalStringVar(const char *varName);
     SALOME::AnyDataServer_ptr createGlobalAnyVar(const char *varName);
+    void shutdownIfNotHostedByDSM();
+  public:
+    void setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr);
   private:
     std::vector< std::string> getAllVarNames() const;
     CORBA::Object_var activateWithDedicatedPOA(BasicDataServer *ds);
   private:
+    PortableServer::POA_var _poa;
     CORBA::ORB_var _orb;
     std::string _name;
     std::list< std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > > _vars;

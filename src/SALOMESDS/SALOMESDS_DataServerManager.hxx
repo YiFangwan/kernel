@@ -27,7 +27,6 @@
 #include "SALOMESDS_AutoRefCountPtr.hxx"
 #include "SALOMESDS_DataScopeServer.hxx"
 
-#include <list>
 #include <string>
 
 namespace SALOMESDS
@@ -43,16 +42,15 @@ namespace SALOMESDS
     SALOME::DataScopeServer_ptr createDataScope(const char *scopeName);
     SALOME::DataScopeServer_ptr retriveDataScope(const char *scopeName);
     void removeDataScope(const char *scopeName);
+    void shutdownScopes();
     static std::string CreateAbsNameInNSFromScopeName(const std::string& scopeName);
   public:
     static const char NAME_IN_NS[];
     static const char DFT_SCOPE_NAME_IN_NS[];
   private:
-    std::list< SALOME::DataScopeServer_var >::iterator getScopePtrGivenName(const std::string& scopeName);
+    std::vector<std::string> listOfScopesCpp();
+    SALOME::DataScopeServer_var getScopePtrGivenName(const std::string& scopeName);
   private:
-    AutoRefCountPtr<DataScopeServer> _dft_scope;
-    SALOME::DataScopeServer_var _ptr_dft_scope;
-    std::list< SALOME::DataScopeServer_var > _scopes;
     CORBA::ORB_var _orb;
     //! single thread poa
     PortableServer::POA_var _poa;
