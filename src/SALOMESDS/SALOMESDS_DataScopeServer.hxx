@@ -41,6 +41,7 @@ namespace SALOMESDS
   public:
     DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName);
     DataScopeServer(const DataScopeServer& other);
+    void ping();
     char *getScopeName();
     SALOME::StringVec *listVars();
     SALOME::BasicDataServer_ptr retrieveVar(const char *varName);

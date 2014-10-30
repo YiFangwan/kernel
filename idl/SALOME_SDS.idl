@@ -21,6 +21,7 @@
 module SALOME
 {
   typedef sequence<string> StringVec;
+  typedef sequence<octet> ByteVec;
   
   interface BasicDataServer
   {
@@ -31,9 +32,9 @@ module SALOME
 
   interface StringDataServer : BasicDataServer
   {
-    void setValueOf(in string newValue);
-    string getValueOf();
-    string invokePythonMethodOn(in string method, in string args);
+    void setValueOf(in ByteVec newValue);
+    ByteVec getValueOf();
+    ByteVec invokePythonMethodOn(in string method, in ByteVec args);
   };
 
   interface AnyDataServer : BasicDataServer
@@ -46,6 +47,7 @@ module SALOME
 
   interface DataScopeServer
   {
+    void ping();
     string getScopeName();
     StringVec listVars();
     BasicDataServer retrieveVar(in string varName);
@@ -57,10 +59,14 @@ module SALOME
   interface DataServerManager
   {
     StringVec listScopes();
+    StringVec listAliveAndKickingScopes();
     DataScopeServer getDefaultScope();
+    boolean isAliveAndKicking(in string scopeName);
     DataScopeServer createDataScope(in string scopeName);
     DataScopeServer retriveDataScope(in string scopeName);
+    DataScopeServer giveADataScopeCalled(in string scopeName);
     void removeDataScope(in string scopeName);
+    void cleanScopesInNS();
     void shutdownScopes();
   };
 };

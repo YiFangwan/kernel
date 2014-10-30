@@ -49,6 +49,13 @@ DataScopeServer::~DataScopeServer()
 /*!
  * Called remotely -> to protect against throw
  */
+void DataScopeServer::ping()
+{
+}
+
+/*!
+ * Called remotely -> to protect against throw
+ */
 char *DataScopeServer::getScopeName()
 {
   return CORBA::string_dup(_name.c_str());

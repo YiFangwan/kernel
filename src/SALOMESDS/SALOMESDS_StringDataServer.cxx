@@ -37,27 +37,29 @@ StringDataServer::~StringDataServer()
 /*!
  * Called remotely -> to protect against throw
  */
-void StringDataServer::setValueOf(const char *newValue)
+void StringDataServer::setValueOf(const SALOME::ByteVec& newValue)
 {
   checkReadOnlyStatusRegardingConstness("StringDataServer::setValueOf : read only var !");
-  _data=newValue;
+  FromByteSeqToCpp(newValue,_data);
 }
 
 /*!
  * Called remotely -> to protect against throw
  */
-char *StringDataServer::getValueOf()
+SALOME::ByteVec *StringDataServer::getValueOf()
 {
-  return CORBA::string_dup(_data.c_str());
+  return FromCppToByteSeq(_data);
 }
 
 /*!
  * Called remotely -> to protect against throw
  */
-char *StringDataServer::invokePythonMethodOn(const char *method, const char *args)
+SALOME::ByteVec *StringDataServer::invokePythonMethodOn(const char *method, const SALOME::ByteVec& args)
 {
   PyObject *self(getPyObjFromPickled(_data));
-  PyObject *argsPy(getPyObjFromPickled(args));
+  std::string argsCpp;
+  FromByteSeqToCpp(args,argsCpp);
+  PyObject *argsPy(getPyObjFromPickled(argsCpp));
   //
   PyObject *selfMeth(PyObject_GetAttrString(self,method));
   if(!selfMeth)
@@ -67,18 +69,42 @@ char *StringDataServer::invokePythonMethodOn(const char *method, const char *arg
     }
   PyObject *res(PyObject_CallObject(selfMeth,argsPy));
   _data=pickelize(self);// if it is a non const method !
-  std::string ret(pickelize(res));
+  std::string retCpp(pickelize(res));
   // to test : res and self
   Py_XDECREF(selfMeth);
   //
   Py_XDECREF(argsPy);
-  return CORBA::string_dup(ret.c_str());
+  return FromCppToByteSeq(retCpp);
+}
+
+void StringDataServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret)
+{
+  std::size_t sz(bsToBeConv.length());
+  ret.resize(sz,' ');
+  char *buf(const_cast<char *>(ret.c_str()));
+  for(std::size_t i=0;i<sz;i++)
+    buf[i]=bsToBeConv[i];
+}
+
+SALOME::ByteVec *StringDataServer::FromCppToByteSeq(const std::string& strToBeConv)
+{
+  SALOME::ByteVec *ret(new SALOME::ByteVec);
+  const char *buf(strToBeConv.c_str());
+  std::size_t sz(strToBeConv.size());
+  ret->length(sz);
+  for(std::size_t i=0;i<sz;i++)
+    (*ret)[i]=buf[i];
+  return ret;
 }
 
 //! New reference returned
 PyObject *StringDataServer::getPyObjFromPickled(const std::string& pickledData)
 {
-  PyObject *pickledDataPy(PyString_FromString(pickledData.c_str()));
+  std::size_t sz(pickledData.size());
+  PyObject *pickledDataPy(PyString_FromStringAndSize(NULL,sz));// agy : do not use PyString_FromString because std::string hides a vector of byte.
+  char *buf(PyString_AsString(pickledDataPy));// this buf can be used thanks to python documentation.
+  const char *inBuf(pickledData.c_str());
+  std::copy(inBuf,inBuf+sz,buf);
   PyObject *selfMeth(PyObject_GetAttrString(_father->getPickler(),"loads"));
   PyObject *args(PyTuple_New(1)); PyTuple_SetItem(args,0,pickledDataPy);
   PyObject *ret(PyObject_CallObject(selfMeth,args));
@@ -97,7 +123,12 @@ std::string StringDataServer::pickelize(PyObject *obj)
   PyObject *retPy(PyObject_CallObject(selfMeth,args));
   Py_XDECREF(selfMeth);
   Py_XDECREF(args);
-  std::string ret(PyString_AsString(retPy));
+  std::size_t sz(PyString_Size(retPy));
+  std::string ret(sz,'\0');
+  const char *buf(PyString_AsString(retPy));
+  char *inBuf(const_cast<char *>(ret.c_str()));
+  for(std::size_t i=0;i<sz;i++)
+    inBuf[i]=buf[i];
   Py_XDECREF(retPy);
   return ret;
 }

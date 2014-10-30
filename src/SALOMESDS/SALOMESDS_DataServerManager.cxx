@@ -70,9 +70,41 @@ SALOME::StringVec *DataServerManager::listScopes()
   return ret;
 }
 
+SALOME::StringVec *DataServerManager::listAliveAndKickingScopes()
+{
+  std::vector<std::string> scopes(listOfScopesCpp());
+  std::size_t sz(scopes.size());
+  std::vector<std::string> retCpp; retCpp.reserve(sz);
+  for(std::size_t i=0;i<sz;i++)
+    {
+      if(isAliveAndKicking(scopes[i].c_str()))
+        retCpp.push_back(scopes[i]);
+    }
+  //
+  SALOME::StringVec *ret(new SALOME::StringVec);
+  sz=retCpp.size();
+  ret->length(sz);
+  for(std::size_t i=0;i<sz;i++)
+    (*ret)[i]=CORBA::string_dup(retCpp[i].c_str());
+  return ret;
+}
+
 SALOME::DataScopeServer_ptr DataServerManager::getDefaultScope()
 {
   return retriveDataScope(DFT_SCOPE_NAME_IN_NS);
+}
+
+CORBA::Boolean DataServerManager::isAliveAndKicking(const char *scopeName)
+{
+  SALOME::DataScopeServer_var scopePtr(getScopePtrGivenName(scopeName));
+  CORBA::Boolean ret(true);
+  try
+    {
+      scopePtr->ping();
+    }
+  catch(...)
+    { ret=false; }
+  return ret;
 }
 
 SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scopeName)
@@ -87,7 +119,7 @@ SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scope
   //
   SALOME_NamingService ns(_orb);
   std::string fullScopeName(CreateAbsNameInNSFromScopeName(scopeName));
-  std::ostringstream oss; oss << "valgrind SALOME_DataScopeServer" << " " << scopeName << " ";
+  std::ostringstream oss; oss << "SALOME_DataScopeServer" << " " << scopeName << " ";
   SALOME_ContainerManager::AddOmninamesParams(oss,&ns);
   std::string command(oss.str());
   SALOME_ContainerManager::MakeTheCommandToBeLaunchedASync(command);
@@ -104,6 +136,28 @@ SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scope
   return SALOME::DataScopeServer::_duplicate(ret);
 }
 
+SALOME::DataScopeServer_ptr DataServerManager::giveADataScopeCalled(const char *scopeName)
+{
+  std::string scopeNameCpp(scopeName);
+  std::vector<std::string> scopes(listOfScopesCpp());
+  if(std::find(scopes.begin(),scopes.end(),scopeNameCpp)==scopes.end())
+    {
+      return createDataScope(scopeName);
+    }
+  else
+    {
+      if(isAliveAndKicking(scopeName))
+        return retriveDataScope(scopeName);
+      else
+        {
+          SALOME_NamingService ns(_orb);
+          std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(scopeNameCpp));
+          ns.Destroy_Name(fullScopeName.c_str());
+          return createDataScope(scopeName);
+        }
+    }
+}
+
 SALOME::DataScopeServer_ptr DataServerManager::retriveDataScope(const char *scopeName)
 {
   SALOME::DataScopeServer_var ret(getScopePtrGivenName(scopeName));
@@ -114,6 +168,20 @@ void DataServerManager::removeDataScope(const char *scopeName)
 {
   SALOME::DataScopeServer_var scs(getScopePtrGivenName(scopeName));
   scs->shutdownIfNotHostedByDSM();
+}
+
+void DataServerManager::cleanScopesInNS()
+{
+  SALOME_NamingService ns(_orb);
+  std::vector<std::string> scopes(listOfScopesCpp());
+  for(std::vector<std::string>::const_iterator it=scopes.begin();it!=scopes.end();it++)
+    {
+      if(!isAliveAndKicking((*it).c_str()))
+        {
+          std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(*it));
+          ns.Destroy_Name(fullScopeName.c_str());
+        }
+    }
 }
 
 void DataServerManager::shutdownScopes()

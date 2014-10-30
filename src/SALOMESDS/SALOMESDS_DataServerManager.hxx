@@ -38,10 +38,14 @@ namespace SALOMESDS
   public:
     DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb, PortableServer::POA_ptr poa);
     SALOME::StringVec *listScopes();
+    SALOME::StringVec *listAliveAndKickingScopes();
     SALOME::DataScopeServer_ptr getDefaultScope();
+    CORBA::Boolean isAliveAndKicking(const char *scopeName);
     SALOME::DataScopeServer_ptr createDataScope(const char *scopeName);
     SALOME::DataScopeServer_ptr retriveDataScope(const char *scopeName);
+    SALOME::DataScopeServer_ptr giveADataScopeCalled(const char *scopeName);
     void removeDataScope(const char *scopeName);
+    void cleanScopesInNS();
     void shutdownScopes();
     static std::string CreateAbsNameInNSFromScopeName(const std::string& scopeName);
   public:

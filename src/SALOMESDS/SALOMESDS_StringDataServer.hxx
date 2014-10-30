@@ -35,10 +35,12 @@ namespace SALOMESDS
   public:
     StringDataServer(DataScopeServer *father, const std::string& varName);
     ~StringDataServer();
-    void setValueOf(const char *newValue);
-    char *getValueOf();
-    char *invokePythonMethodOn(const char *method, const char *args);
+    void setValueOf(const SALOME::ByteVec& newValue);
+    SALOME::ByteVec *getValueOf();
+    SALOME::ByteVec *invokePythonMethodOn(const char *method, const SALOME::ByteVec& args);
   private:
+    static void FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret);
+    static SALOME::ByteVec *FromCppToByteSeq(const std::string& strToBeConv);
     PyObject *getPyObjFromPickled(const std::string& pickledData);
     std::string pickelize(PyObject *obj);
   private:
