@@ -35,8 +35,8 @@ namespace SALOMESDS
   public:
     StringDataServer(DataScopeServer *father, const std::string& varName);
     ~StringDataServer();
-    void setValueOf(const SALOME::ByteVec& newValue);
-    SALOME::ByteVec *getValueOf();
+    void setSerializedContent(const SALOME::ByteVec& newValue);
+    SALOME::ByteVec *fetchSerializedContent();
     SALOME::ByteVec *invokePythonMethodOn(const char *method, const SALOME::ByteVec& args);
   private:
     static void FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret);

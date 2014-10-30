@@ -37,7 +37,6 @@ SET(COMMON_LIBS SalomeNS SalomeContainer SalomeIDLKernel ${OMNIORB_LIBRARIES} ${
 SET(SalomeSDS_SOURCES
   SALOMESDS_Exception.cxx
   SALOMESDS_RefCountServ.cxx
-  SALOMESDS_AnyDataServer.cxx
   SALOMESDS_BasicDataServer.cxx
   SALOMESDS_DataScopeServer.cxx
   SALOMESDS_DataServerManager.cxx

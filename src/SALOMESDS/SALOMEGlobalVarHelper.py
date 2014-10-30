@@ -43,7 +43,7 @@ class SALOMEGlobalVarHelper:
     
     def assign(self,elt):
         st=cPickle.dumps(elt,cPickle.HIGHEST_PROTOCOL)
-        self._var_ptr.setValueOf(st)
+        self._var_ptr.setSerializedContent(st)
         pass
         
     def __getattr__(self,*args):
@@ -57,5 +57,5 @@ class SALOMEGlobalVarHelper:
         return self.local_copy().__repr__()
 
     def local_copy(self):
-        return cPickle.loads(self._var_ptr.getValueOf())    
+        return cPickle.loads(self._var_ptr.fetchSerializedContent())    
     pass

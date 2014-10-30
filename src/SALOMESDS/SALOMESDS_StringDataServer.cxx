@@ -37,16 +37,16 @@ StringDataServer::~StringDataServer()
 /*!
  * Called remotely -> to protect against throw
  */
-void StringDataServer::setValueOf(const SALOME::ByteVec& newValue)
+void StringDataServer::setSerializedContent(const SALOME::ByteVec& newValue)
 {
-  checkReadOnlyStatusRegardingConstness("StringDataServer::setValueOf : read only var !");
+  checkReadOnlyStatusRegardingConstness("StringDataServer::setSerializedContent : read only var !");
   FromByteSeqToCpp(newValue,_data);
 }
 
 /*!
  * Called remotely -> to protect against throw
  */
-SALOME::ByteVec *StringDataServer::getValueOf()
+SALOME::ByteVec *StringDataServer::fetchSerializedContent()
 {
   return FromCppToByteSeq(_data);
 }

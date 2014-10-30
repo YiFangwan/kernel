@@ -21,7 +21,6 @@
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_DataServerManager.hxx"
 #include "SALOMESDS_StringDataServer.hxx"
-#include "SALOMESDS_AnyDataServer.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOMESDS_Exception.hxx"
 
@@ -117,26 +116,6 @@ SALOME::StringDataServer_ptr DataScopeServer::createGlobalStringVar(const char *
   std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<StringDataServer,BasicDataServer>(tmp));
   _vars.push_back(p);
   return SALOME::StringDataServer::_narrow(ret);
-}
-
-/*!
- * Called remotely -> to protect against throw
- */
-SALOME::AnyDataServer_ptr DataScopeServer::createGlobalAnyVar(const char *varName)
-{
-  std::string varNameCpp(varName);
-  std::vector<std::string> allNames(getAllVarNames());
-  std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varNameCpp));
-  if(it!=allNames.end())
-    {
-      std::ostringstream oss; oss << "DataScopeServer::createGlobalAnyVar : name \"" << varNameCpp << "\" already exists !";
-      throw Exception(oss.str());
-    }
-  AutoRefCountPtr<AnyDataServer> tmp(new AnyDataServer(this,varNameCpp));
-  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
-  std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<AnyDataServer,BasicDataServer>(tmp));
-  _vars.push_back(p);
-  return SALOME::AnyDataServer::_narrow(ret);
 }
 
 void DataScopeServer::shutdownIfNotHostedByDSM()

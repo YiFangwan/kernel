@@ -30,17 +30,15 @@ module SALOME
     void setRWStatus();
   };
 
+  /*interface PythonDataServer : BasicDataServer
+  {
+  };*/
+
   interface StringDataServer : BasicDataServer
   {
-    void setValueOf(in ByteVec newValue);
-    ByteVec getValueOf();
+    void setSerializedContent(in ByteVec newValue);
+    ByteVec fetchSerializedContent();
     ByteVec invokePythonMethodOn(in string method, in ByteVec args);
-  };
-
-  interface AnyDataServer : BasicDataServer
-  {
-    void setValueOf(in any newValue);
-    any getValueOf();
   };
 
   interface DataServerManager;
@@ -52,7 +50,6 @@ module SALOME
     StringVec listVars();
     BasicDataServer retrieveVar(in string varName);
     StringDataServer createGlobalStringVar(in string varName);
-    AnyDataServer createGlobalAnyVar(in string varName);
     void shutdownIfNotHostedByDSM();
   };
 
