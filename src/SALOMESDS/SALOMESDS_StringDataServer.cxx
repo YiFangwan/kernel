@@ -26,17 +26,12 @@
 
 using namespace SALOMESDS;
 
-const char StringDataServer::FAKE_VAR_NAME_FOR_WORK[]="_tmp8739023zP";
-
-StringDataServer::StringDataServer(DataScopeServer *father, const std::string& varName):BasicDataServer(father,varName),_code_for_pickle(0)
+StringDataServer::StringDataServer(DataScopeServer *father, const std::string& varName):BasicDataServer(father,varName)
 {
-  std::ostringstream codeStr; codeStr << " ; cPickle.dumps(" << FAKE_VAR_NAME_FOR_WORK << ",cPickle.HIGHEST_PROTOCOL)";
-  _code_for_pickle=(PyCodeObject*)Py_CompileString(codeStr.str().c_str(),getVarNameCpp().c_str(),Py_eval_input);//Py_file_input Py_eval_input
 }
 
 StringDataServer::~StringDataServer()
 {
-  Py_XDECREF(_code_for_pickle);
 }
 
 /*!
@@ -70,7 +65,7 @@ char *StringDataServer::invokePythonMethodOn(const char *method, const char *arg
       std::ostringstream oss; oss << "StringDataServer::invokePythonMethodOn : Method \"" << method << "\" is not available !";
       throw Exception(oss.str());
     }
-  PyObject *res(PyObject_CallObject(self,argsPy));
+  PyObject *res(PyObject_CallObject(selfMeth,argsPy));
   _data=pickelize(self);// if it is a non const method !
   std::string ret(pickelize(res));
   // to test : res and self
@@ -85,8 +80,9 @@ PyObject *StringDataServer::getPyObjFromPickled(const std::string& pickledData)
 {
   PyObject *pickledDataPy(PyString_FromString(pickledData.c_str()));
   PyObject *selfMeth(PyObject_GetAttrString(_father->getPickler(),"loads"));
-  PyObject *ret(PyObject_CallObject(selfMeth,pickledDataPy));
-  Py_XDECREF(pickledDataPy);
+  PyObject *args(PyTuple_New(1)); PyTuple_SetItem(args,0,pickledDataPy);
+  PyObject *ret(PyObject_CallObject(selfMeth,args));
+  Py_XDECREF(args);
   Py_XDECREF(selfMeth);
   return ret;
 }
@@ -94,11 +90,14 @@ PyObject *StringDataServer::getPyObjFromPickled(const std::string& pickledData)
 //! obj is consumed by this method.
 std::string StringDataServer::pickelize(PyObject *obj)
 {
-  PyObject *key(PyString_FromString(FAKE_VAR_NAME_FOR_WORK));
-  PyDict_SetItem(_father->getGlobals(),key,obj);
-  PyObject *retPy(PyEval_EvalCode(_code_for_pickle,_father->getGlobals(),_father->getLocals()));
-  if(!PyString_Check(retPy))
-    throw Exception("StringDataServer::pickelize : internal error #0 !");
+  PyObject *args(PyTuple_New(2));
+  PyTuple_SetItem(args,0,obj);
+  PyTuple_SetItem(args,1,PyInt_FromLong(2));// because "assert(cPickle.HIGHEST_PROTOCOL is 2)"
+  PyObject *selfMeth(PyObject_GetAttrString(_father->getPickler(),"dumps"));
+  PyObject *retPy(PyObject_CallObject(selfMeth,args));
+  Py_XDECREF(selfMeth);
+  Py_XDECREF(args);
   std::string ret(PyString_AsString(retPy));
+  Py_XDECREF(retPy);
   return ret;
 }

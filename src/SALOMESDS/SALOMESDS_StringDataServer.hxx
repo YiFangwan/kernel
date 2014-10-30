@@ -44,8 +44,6 @@ namespace SALOMESDS
   private:
     static const char FAKE_VAR_NAME_FOR_WORK[];
     std::string _data;
-  private:
-    PyCodeObject *_code_for_pickle;
   };
 }
 

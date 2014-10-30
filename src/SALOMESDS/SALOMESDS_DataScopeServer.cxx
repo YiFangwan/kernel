@@ -42,8 +42,8 @@ DataScopeServer::DataScopeServer(const DataScopeServer& other):_globals(0),_loca
 DataScopeServer::~DataScopeServer()
 {
   // _globals is borrowed ref -> do nothing
-  Py_DECREF(_locals);
-  //_pickler is borrowed ref -> do nothing
+  Py_XDECREF(_locals);
+  Py_XDECREF(_pickler);
 }
 
 /*!
@@ -160,15 +160,8 @@ void DataScopeServer::shutdownIfNotHostedByDSM()
     }
 }
 
-/*!
- * \a ptr has been activated by the POA \a poa.
- */
-void DataScopeServer::setPOAAndRegister(int argc, char *argv[], PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr)
+void DataScopeServer::initializePython(int argc, char *argv[])
 {
-  _poa=poa;
-  std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
-  SALOME_NamingService ns(_orb);
-  ns.Register(ptr,fullScopeName.c_str());
   Py_Initialize();
   PySys_SetArgv(argc,argv);
   PyObject *mainmod(PyImport_AddModule("__main__"));
@@ -181,9 +174,23 @@ void DataScopeServer::setPOAAndRegister(int argc, char *argv[], PortableServer::
       Py_XDECREF(bimod);
     }
   _locals=PyDict_New();
+  PyObject *tmp(PyList_New(0));
+  _pickler=PyImport_ImportModuleLevel(const_cast<char *>("cPickle"),_globals,_locals,tmp,-1);
+  //Py_XDECREF(tmp);
   //if(PyRun_String("import cPickle\n",Py_single_input,_globals,_locals)!=0)
   //  throw Exception("DataScopeServer::setPOAAndRegister : cPickle is not available !");
   /*_pickler=PyDict_GetItemString(_globals,"cPickle");*/
+}
+
+/*!
+ * \a ptr has been activated by the POA \a poa.
+ */
+void DataScopeServer::setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr)
+{
+  _poa=poa;
+  std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
+  SALOME_NamingService ns(_orb);
+  ns.Register(ptr,fullScopeName.c_str());
 }
 
 std::vector< std::string > DataScopeServer::getAllVarNames() const

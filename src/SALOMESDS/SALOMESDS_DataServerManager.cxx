@@ -43,6 +43,8 @@ DataServerManager::DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb,
   policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
   _poa=poa->create_POA("SingleThPOA4SDS",pman,policies);
   threadPol->destroy();
+  //
+  dftScope->initializePython(argc,argv);// agy : Very important ! invoke this method BEFORE activation !
   // activate this to be ready to be usable from NS.
   PortableServer::ObjectId_var id(_poa->activate_object(this));
   CORBA::Object_var obj(_poa->id_to_reference(id));
@@ -54,7 +56,7 @@ DataServerManager::DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb,
   id=_poa->activate_object(dftScope);
   obj=_poa->id_to_reference(id);
   SALOME::DataScopeServer_var dftScopePtr(SALOME::DataScopeServer::_narrow(obj));
-  dftScope->setPOAAndRegister(argc,argv,_poa,dftScopePtr);
+  dftScope->setPOAAndRegister(_poa,dftScopePtr);// agy : Very important ! invoke this method BEFORE activation ! Because this method initializes Python !
 }
 
 SALOME::StringVec *DataServerManager::listScopes()
@@ -85,7 +87,7 @@ SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scope
   //
   SALOME_NamingService ns(_orb);
   std::string fullScopeName(CreateAbsNameInNSFromScopeName(scopeName));
-  std::ostringstream oss; oss << "SALOME_DataScopeServer" << " " << scopeName << " ";
+  std::ostringstream oss; oss << "valgrind SALOME_DataScopeServer" << " " << scopeName << " ";
   SALOME_ContainerManager::AddOmninamesParams(oss,&ns);
   std::string command(oss.str());
   SALOME_ContainerManager::MakeTheCommandToBeLaunchedASync(command);

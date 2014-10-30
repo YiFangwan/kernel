@@ -49,7 +49,8 @@ namespace SALOMESDS
     void shutdownIfNotHostedByDSM();
     ~DataScopeServer();
   public:
-    void setPOAAndRegister(int argc, char *argv[], PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr);
+    void initializePython(int argc, char *argv[]);
+    void setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr);
     PyObject *getGlobals() const { return _globals; }
     PyObject *getLocals() const { return _locals; }
     PyObject *getPickler() const { return _pickler; }
