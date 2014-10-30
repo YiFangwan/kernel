@@ -68,6 +68,11 @@ SALOME::ByteVec *StringDataServer::invokePythonMethodOn(const char *method, cons
       throw Exception(oss.str());
     }
   PyObject *res(PyObject_CallObject(selfMeth,argsPy));
+  if(!res)
+    {
+      std::ostringstream oss; oss << "StringDataServer::invokePythonMethodOn : Problem during invokation serverside of Method \"" << method << "\" !";
+      throw Exception(oss.str());
+    }
   _data=pickelize(self);// if it is a non const method !
   std::string retCpp(pickelize(res));
   // to test : res and self
