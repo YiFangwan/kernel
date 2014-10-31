@@ -19,6 +19,7 @@
 // Author : Anthony GEAY (EDF R&D)
 
 #include "SALOMESDS_BasicDataServer.hxx"
+#include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_Exception.hxx"
 
 #include <sstream>
@@ -37,6 +38,11 @@ char *BasicDataServer::getVarName()
   return CORBA::string_dup(_var_name.c_str());
 }
 
+char *BasicDataServer::getScopeName()
+{
+  return _father->getScopeName();
+}
+
 /*!
  * Called remotely -> to protect against throw
  */
@@ -51,6 +57,21 @@ void BasicDataServer::setReadOnlyStatus()
 void BasicDataServer::setRWStatus()
 {
   _is_read_only=false;
+}
+
+void BasicDataServer::Register()
+{
+  incrRef();
+}
+
+void BasicDataServer::UnRegister()
+{
+  decrRef();
+}
+
+void BasicDataServer::Destroy()
+{
+  enforcedRelease();
 }
 
 void BasicDataServer::checkReadOnlyStatusRegardingConstness(const char *sender) const

@@ -22,23 +22,17 @@
 import SALOME
 import cPickle
 
-class SALOMEGlobalVarMethodHelper:
-    def __init__(self,varPtr,meth):
+class SALOMEGlobalVarHelper:
+    def __init__(self,varPtr,isTemporaryVar=False):
         assert(isinstance(varPtr,SALOME._objref_StringDataServer))
         self._var_ptr=varPtr
-        self._meth=meth
+        if not isTemporaryVar:
+            self._var_ptr.Register()
+        self._is_temp=isTemporaryVar
         pass
 
-    def __call__(self,*args):
-        #print "__call__ %s : %s"%(self._meth,str(args))
-        ret=self._var_ptr.invokePythonMethodOn(self._meth,cPickle.dumps(args,cPickle.HIGHEST_PROTOCOL))
-        return cPickle.loads(ret)
-    pass
-
-class SALOMEGlobalVarHelper:
-    def __init__(self,varPtr):
-        assert(isinstance(varPtr,SALOME._objref_StringDataServer))
-        self._var_ptr=varPtr
+    def __del__(self):
+        self._var_ptr.UnRegister()
         pass
     
     def assign(self,elt):
@@ -46,9 +40,9 @@ class SALOMEGlobalVarHelper:
         self._var_ptr.setSerializedContent(st)
         pass
         
-    def __getattr__(self,*args):
-        #print "__getattr__,%s"%(str(args))
-        return SALOMEGlobalVarMethodHelper(self._var_ptr,args[0])
+    def __getattr__(self,meth):
+        #print "__getattr__,%s"%(meth)
+        return SALOMEGlobalVarMethodHelper(self._var_ptr,meth)
 
     def __str__(self):
         return self.local_copy().__str__()
@@ -58,4 +52,26 @@ class SALOMEGlobalVarHelper:
 
     def local_copy(self):
         return cPickle.loads(self._var_ptr.fetchSerializedContent())    
+    pass
+
+class SALOMEGlobalVarMethodHelper:
+    def __init__(self,varPtr,meth):
+        assert(isinstance(varPtr,SALOME._objref_StringDataServer))
+        self._var_ptr=varPtr
+        self._var_ptr.Register()
+        self._meth=meth
+        pass
+
+    def __call__(self,*args):
+        #print "__call__ %s : %s"%(self._meth,str(args))
+        ret=self._var_ptr.invokePythonMethodOn(self._meth,cPickle.dumps(args,cPickle.HIGHEST_PROTOCOL))
+        ret=SALOMEGlobalVarHelper(ret,True)
+        if self._meth not in ["__len__","__coerce__"]:
+            return ret
+        else:
+            return ret.local_copy()
+
+    def __del__(self):
+        self._var_ptr.UnRegister()
+        pass
     pass

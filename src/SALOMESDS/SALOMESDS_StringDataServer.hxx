@@ -34,18 +34,24 @@ namespace SALOMESDS
   {
   public:
     StringDataServer(DataScopeServer *father, const std::string& varName);
+    StringDataServer(DataScopeServer *father, const std::string& varName, PyObject *obj);
     ~StringDataServer();
     void setSerializedContent(const SALOME::ByteVec& newValue);
     SALOME::ByteVec *fetchSerializedContent();
-    SALOME::ByteVec *invokePythonMethodOn(const char *method, const SALOME::ByteVec& args);
+    SALOME::StringDataServer_ptr invokePythonMethodOn(const char *method, const SALOME::ByteVec& args);
+  public:
+    void setPOA(PortableServer::POA_var poa) { _poa=poa; }
   private:
+    PortableServer::POA_var getPOA();
     static void FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret);
     static SALOME::ByteVec *FromCppToByteSeq(const std::string& strToBeConv);
     PyObject *getPyObjFromPickled(const std::string& pickledData);
     std::string pickelize(PyObject *obj);
+    void setNewPyObj(PyObject *obj);
   private:
     static const char FAKE_VAR_NAME_FOR_WORK[];
-    std::string _data;
+    PyObject *_self;
+    PortableServer::POA_var _poa;
   };
 }
 

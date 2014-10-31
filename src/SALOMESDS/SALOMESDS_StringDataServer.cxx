@@ -22,16 +22,25 @@
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_Exception.hxx"
 
+#include <iostream>
 #include <sstream>
 
 using namespace SALOMESDS;
 
-StringDataServer::StringDataServer(DataScopeServer *father, const std::string& varName):BasicDataServer(father,varName)
+StringDataServer::StringDataServer(DataScopeServer *father, const std::string& varName):BasicDataServer(father,varName),_self(Py_None)
+{
+  Py_XINCREF(Py_None);
+}
+
+//! obj is consumed
+StringDataServer::StringDataServer(DataScopeServer *father, const std::string& varName, PyObject *obj):BasicDataServer(father,varName),_self(obj)
 {
 }
 
 StringDataServer::~StringDataServer()
 {
+  std::cerr << "~~~~~~~~~~ StringDataServer : " << getVarNameCpp() << std::endl;
+  Py_XDECREF(_self);
 }
 
 /*!
@@ -40,7 +49,9 @@ StringDataServer::~StringDataServer()
 void StringDataServer::setSerializedContent(const SALOME::ByteVec& newValue)
 {
   checkReadOnlyStatusRegardingConstness("StringDataServer::setSerializedContent : read only var !");
-  FromByteSeqToCpp(newValue,_data);
+  std::string data;
+  FromByteSeqToCpp(newValue,data);
+  setNewPyObj(getPyObjFromPickled(data));
 }
 
 /*!
@@ -48,38 +59,46 @@ void StringDataServer::setSerializedContent(const SALOME::ByteVec& newValue)
  */
 SALOME::ByteVec *StringDataServer::fetchSerializedContent()
 {
-  return FromCppToByteSeq(_data);
+  Py_XINCREF(_self);//because pickelize consume _self
+  return FromCppToByteSeq(pickelize(_self));
 }
 
 /*!
  * Called remotely -> to protect against throw
  */
-SALOME::ByteVec *StringDataServer::invokePythonMethodOn(const char *method, const SALOME::ByteVec& args)
+SALOME::StringDataServer_ptr StringDataServer::invokePythonMethodOn(const char *method, const SALOME::ByteVec& args)
 {
-  PyObject *self(getPyObjFromPickled(_data));
+  if(!_self)
+    throw Exception("StringDataServer::invokePythonMethodOn : self is NULL !");
   std::string argsCpp;
   FromByteSeqToCpp(args,argsCpp);
   PyObject *argsPy(getPyObjFromPickled(argsCpp));
   //
-  PyObject *selfMeth(PyObject_GetAttrString(self,method));
+  PyObject *selfMeth(PyObject_GetAttrString(_self,method));
   if(!selfMeth)
     {
       std::ostringstream oss; oss << "StringDataServer::invokePythonMethodOn : Method \"" << method << "\" is not available !";
       throw Exception(oss.str());
     }
-  PyObject *res(PyObject_CallObject(selfMeth,argsPy));
+  PyObject *res(PyObject_CallObject(selfMeth,argsPy));// self can have been modified by this call !
+  Py_XDECREF(selfMeth);
+  Py_XDECREF(argsPy);
   if(!res)
     {
       std::ostringstream oss; oss << "StringDataServer::invokePythonMethodOn : Problem during invokation serverside of Method \"" << method << "\" !";
       throw Exception(oss.str());
     }
-  _data=pickelize(self);// if it is a non const method !
-  std::string retCpp(pickelize(res));
-  // to test : res and self
-  Py_XDECREF(selfMeth);
-  //
-  Py_XDECREF(argsPy);
-  return FromCppToByteSeq(retCpp);
+  StringDataServer *ret(new StringDataServer(_father,DataScopeServer::BuildTmpVarNameFrom(getVarNameCpp()),res));
+  PortableServer::POA_var poa(_father->getPOA());
+  ret->setPOA(poa);
+  PortableServer::ObjectId_var id(poa->activate_object(ret));
+  CORBA::Object_var obj(poa->id_to_reference(id));
+  return SALOME::StringDataServer::_narrow(obj);
+}
+
+PortableServer::POA_var StringDataServer::getPOA()
+{
+  return _poa;
 }
 
 void StringDataServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret)
@@ -136,4 +155,15 @@ std::string StringDataServer::pickelize(PyObject *obj)
     inBuf[i]=buf[i];
   Py_XDECREF(retPy);
   return ret;
+}
+
+//! obj is consumed by this method.
+void StringDataServer::setNewPyObj(PyObject *obj)
+{
+  if(!obj)
+    throw Exception("StringDataServer::setNewPyObj : trying to assign a NULL pyobject in this !");
+  if(obj==_self)
+    return ;
+  Py_XDECREF(_self);
+  _self=obj;
 }

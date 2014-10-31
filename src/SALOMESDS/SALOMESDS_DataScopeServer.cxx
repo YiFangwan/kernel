@@ -30,6 +30,8 @@
 
 using namespace SALOMESDS;
 
+std::size_t DataScopeServer::COUNTER=0;
+
 DataScopeServer::DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName)
 {
 }
@@ -118,6 +120,22 @@ SALOME::StringDataServer_ptr DataScopeServer::createGlobalStringVar(const char *
   return SALOME::StringDataServer::_narrow(ret);
 }
 
+/*!
+ * Called remotely -> to protect against throw
+ */
+SALOME::StringDataServer_ptr DataScopeServer::createGlobalTmpVar(const SALOME::ByteVec& newValue)
+{
+  static const char TMP_VAR_NAME[]="TmP";
+  std::string vn(BuildTmpVarNameFrom(TMP_VAR_NAME));
+  StringDataServer *retCpp(new StringDataServer(this,vn));
+  retCpp->setPOA(_poa);
+  retCpp->setSerializedContent(newValue);
+  //
+  PortableServer::ObjectId_var id(_poa->activate_object(retCpp));
+  CORBA::Object_var ret(_poa->id_to_reference(id));
+  return SALOME::StringDataServer::_narrow(ret);
+}
+
 void DataScopeServer::shutdownIfNotHostedByDSM()
 {
   SALOME_NamingService ns(_orb);
@@ -162,10 +180,6 @@ void DataScopeServer::initializePython(int argc, char *argv[])
   _locals=PyDict_New();
   PyObject *tmp(PyList_New(0));
   _pickler=PyImport_ImportModuleLevel(const_cast<char *>("cPickle"),_globals,_locals,tmp,-1);
-  //Py_XDECREF(tmp);
-  //if(PyRun_String("import cPickle\n",Py_single_input,_globals,_locals)!=0)
-  //  throw Exception("DataScopeServer::setPOAAndRegister : cPickle is not available !");
-  /*_pickler=PyDict_GetItemString(_globals,"cPickle");*/
 }
 
 /*!
@@ -177,6 +191,13 @@ void DataScopeServer::setPOAAndRegister(PortableServer::POA_var poa, SALOME::Dat
   std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
   SALOME_NamingService ns(_orb);
   ns.Register(ptr,fullScopeName.c_str());
+}
+
+std::string DataScopeServer::BuildTmpVarNameFrom(const std::string& varName)
+{
+  std::ostringstream oss;
+  oss << varName << "@" << COUNTER++;
+  return oss.str();
 }
 
 std::vector< std::string > DataScopeServer::getAllVarNames() const

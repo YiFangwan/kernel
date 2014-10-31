@@ -32,11 +32,18 @@ bool RefCountServ::decrRef() const
   bool ret((--_cnt)==0);
   if(ret)
     {
-      PortableServer::ObjectId_var oid = (const_cast<RefCountServ *>(this))->_default_POA()->servant_to_id(const_cast<RefCountServ *>(this));
-      (const_cast<RefCountServ *>(this))->_default_POA()->deactivate_object(oid);
-      (const_cast<RefCountServ *>(this))->_remove_ref();
+      RefCountServ *thisNC(const_cast<RefCountServ *>(this));
+      thisNC->enforcedRelease();
     }
   return ret;
+}
+
+void RefCountServ::enforcedRelease()
+{
+  PortableServer::POA_var poa(getPOA());
+  PortableServer::ObjectId_var oid(poa->servant_to_id(this));
+  poa->deactivate_object(oid);
+  _remove_ref();
 }
 
 RefCountServ::RefCountServ():_cnt(1)

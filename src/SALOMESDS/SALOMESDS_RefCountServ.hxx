@@ -30,7 +30,9 @@ namespace SALOMESDS
   public:
     void incrRef() const;
     bool decrRef() const;
+    virtual PortableServer::POA_var getPOA() = 0;
   protected:
+    void enforcedRelease();
     RefCountServ();
     RefCountServ(const RefCountServ& other);
     virtual ~RefCountServ();

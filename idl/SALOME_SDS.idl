@@ -18,27 +18,26 @@
 //
 // Author : Anthony GEAY (EDF R&D)
 
+#include "SALOME_GenericObj.idl"
+
 module SALOME
 {
   typedef sequence<string> StringVec;
   typedef sequence<octet> ByteVec;
   
-  interface BasicDataServer
+  interface BasicDataServer : GenericObj
   {
     string getVarName();
+    string getScopeName();
     void setReadOnlyStatus();
     void setRWStatus();
   };
-
-  /*interface PythonDataServer : BasicDataServer
-  {
-  };*/
 
   interface StringDataServer : BasicDataServer
   {
     void setSerializedContent(in ByteVec newValue);
     ByteVec fetchSerializedContent();
-    ByteVec invokePythonMethodOn(in string method, in ByteVec args);
+    StringDataServer invokePythonMethodOn(in string method, in ByteVec args);
   };
 
   interface DataServerManager;
@@ -50,6 +49,7 @@ module SALOME
     StringVec listVars();
     BasicDataServer retrieveVar(in string varName);
     StringDataServer createGlobalStringVar(in string varName);
+    StringDataServer createGlobalTmpVar(in ByteVec newValue);
     void shutdownIfNotHostedByDSM();
   };
 

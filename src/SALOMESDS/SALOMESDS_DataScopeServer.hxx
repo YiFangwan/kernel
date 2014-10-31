@@ -46,6 +46,7 @@ namespace SALOMESDS
     SALOME::StringVec *listVars();
     SALOME::BasicDataServer_ptr retrieveVar(const char *varName);
     SALOME::StringDataServer_ptr createGlobalStringVar(const char *varName);
+    SALOME::StringDataServer_ptr createGlobalTmpVar(const SALOME::ByteVec& newValue);
     void shutdownIfNotHostedByDSM();
     ~DataScopeServer();
   public:
@@ -54,6 +55,8 @@ namespace SALOMESDS
     PyObject *getGlobals() const { return _globals; }
     PyObject *getLocals() const { return _locals; }
     PyObject *getPickler() const { return _pickler; }
+    PortableServer::POA_var getPOA() { return _poa; }
+    static std::string BuildTmpVarNameFrom(const std::string& varName);
   private:
     std::vector< std::string> getAllVarNames() const;
     CORBA::Object_var activateWithDedicatedPOA(BasicDataServer *ds);
@@ -65,6 +68,7 @@ namespace SALOMESDS
     CORBA::ORB_var _orb;
     std::string _name;
     std::list< std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > > _vars;
+    static std::size_t COUNTER;
   };
 }
 
