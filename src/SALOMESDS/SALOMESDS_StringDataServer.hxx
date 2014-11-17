@@ -33,7 +33,8 @@ namespace SALOMESDS
   class StringDataServer : public BasicDataServer, public virtual POA_SALOME::StringDataServer
   {
   public:
-    StringDataServer(DataScopeServer *father, const std::string& varName);
+    StringDataServer(DataScopeServer *father, const std::string& typeName, const std::string& varName);
+    StringDataServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value);
     StringDataServer(DataScopeServer *father, const std::string& varName, PyObject *obj);
     ~StringDataServer();
     void setSerializedContent(const SALOME::ByteVec& newValue);
@@ -48,6 +49,8 @@ namespace SALOMESDS
     PyObject *getPyObjFromPickled(const std::string& pickledData);
     std::string pickelize(PyObject *obj);
     void setNewPyObj(PyObject *obj);
+    void setSerializedContentInternal(const SALOME::ByteVec& newValue);
+    static PyObject *CreateDftObjFromType(PyObject *globals, const std::string& typeName);
   private:
     static const char FAKE_VAR_NAME_FOR_WORK[];
     PyObject *_self;

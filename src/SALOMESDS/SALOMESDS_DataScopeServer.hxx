@@ -45,7 +45,7 @@ namespace SALOMESDS
     char *getScopeName();
     SALOME::StringVec *listVars();
     SALOME::BasicDataServer_ptr retrieveVar(const char *varName);
-    SALOME::StringDataServer_ptr createGlobalStringVar(const char *varName);
+    SALOME::StringDataServer_ptr createGlobalStringVar(const char *typeName, const char *varName);
     SALOME::StringDataServer_ptr createGlobalTmpVar(const SALOME::ByteVec& newValue);
     void shutdownIfNotHostedByDSM();
     ~DataScopeServer();

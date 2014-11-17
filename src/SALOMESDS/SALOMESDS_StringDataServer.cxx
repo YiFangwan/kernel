@@ -27,9 +27,14 @@
 
 using namespace SALOMESDS;
 
-StringDataServer::StringDataServer(DataScopeServer *father, const std::string& varName):BasicDataServer(father,varName),_self(Py_None)
+StringDataServer::StringDataServer(DataScopeServer *father, const std::string& typeName, const std::string& varName):BasicDataServer(father,varName),_self(0)
 {
-  Py_XINCREF(Py_None);
+  _self=CreateDftObjFromType(father->getGlobals(),typeName);
+}
+
+StringDataServer::StringDataServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value):BasicDataServer(father,varName),_self(0)
+{
+  setSerializedContentInternal(value);
 }
 
 //! obj is consumed
@@ -48,10 +53,7 @@ StringDataServer::~StringDataServer()
  */
 void StringDataServer::setSerializedContent(const SALOME::ByteVec& newValue)
 {
-  checkReadOnlyStatusRegardingConstness("StringDataServer::setSerializedContent : read only var !");
-  std::string data;
-  FromByteSeqToCpp(newValue,data);
-  setNewPyObj(getPyObjFromPickled(data));
+  setSerializedContentInternal(newValue);
 }
 
 /*!
@@ -166,4 +168,32 @@ void StringDataServer::setNewPyObj(PyObject *obj)
     return ;
   Py_XDECREF(_self);
   _self=obj;
+}
+
+void StringDataServer::setSerializedContentInternal(const SALOME::ByteVec& newValue)
+{
+  checkReadOnlyStatusRegardingConstness("StringDataServer::setSerializedContent : read only var !");
+  std::string data;
+  FromByteSeqToCpp(newValue,data);
+  setNewPyObj(getPyObjFromPickled(data));
+}
+
+PyObject *StringDataServer::CreateDftObjFromType(PyObject *globals, const std::string& typeName)
+{
+  PyObject *builtins(PyDict_GetItemString(globals,"__builtins__"));
+  if(!builtins)
+    throw Exception("StringDataServer constructor : no __builtins__ in globals !");
+  PyObject *builtins2(PyModule_GetDict(builtins));
+  if(!builtins2)
+    throw Exception("StringDataServer constructor : internal error fail to invoke __dict__ on __builtins__ !");
+  PyObject *tmp(PyDict_GetItemString(builtins2,typeName.c_str()));
+  if(!tmp)
+    {
+      std::ostringstream oss; oss << "StringDataServer::CreateDftObjFromType : Invalid type name \"" << typeName << "\" !";
+      throw Exception(oss.str());
+    }
+  PyObject *args(PyTuple_New(0));
+  PyObject *ret(PyObject_CallObject(tmp,args));
+  Py_XDECREF(args);
+  return ret;
 }

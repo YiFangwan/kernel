@@ -48,7 +48,7 @@ module SALOME
     string getScopeName();
     StringVec listVars();
     BasicDataServer retrieveVar(in string varName);
-    StringDataServer createGlobalStringVar(in string varName);
+    StringDataServer createGlobalStringVar(in string typeName, in string varName);
     StringDataServer createGlobalTmpVar(in ByteVec newValue);
     void shutdownIfNotHostedByDSM();
   };

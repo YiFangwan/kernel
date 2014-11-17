@@ -103,9 +103,9 @@ SALOME::BasicDataServer_ptr DataScopeServer::retrieveVar(const char *varName)
 /*!
  * Called remotely -> to protect against throw
  */
-SALOME::StringDataServer_ptr DataScopeServer::createGlobalStringVar(const char *varName)
+SALOME::StringDataServer_ptr DataScopeServer::createGlobalStringVar(const char *typeName, const char *varName)
 {
-  std::string varNameCpp(varName);
+  std::string varNameCpp(varName),typeNameCpp(typeName);
   std::vector<std::string> allNames(getAllVarNames());
   std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varNameCpp));
   if(it!=allNames.end())
@@ -113,7 +113,7 @@ SALOME::StringDataServer_ptr DataScopeServer::createGlobalStringVar(const char *
       std::ostringstream oss; oss << "DataScopeServer::createGlobalStringVar : name \"" << varNameCpp << "\" already exists !";
       throw Exception(oss.str());
     }
-  AutoRefCountPtr<StringDataServer> tmp(new StringDataServer(this,varNameCpp));
+  AutoRefCountPtr<StringDataServer> tmp(new StringDataServer(this,typeNameCpp,varNameCpp));
   CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
   std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<StringDataServer,BasicDataServer>(tmp));
   _vars.push_back(p);
@@ -127,9 +127,8 @@ SALOME::StringDataServer_ptr DataScopeServer::createGlobalTmpVar(const SALOME::B
 {
   static const char TMP_VAR_NAME[]="TmP";
   std::string vn(BuildTmpVarNameFrom(TMP_VAR_NAME));
-  StringDataServer *retCpp(new StringDataServer(this,vn));
+  StringDataServer *retCpp(new StringDataServer(this,vn,newValue));
   retCpp->setPOA(_poa);
-  retCpp->setSerializedContent(newValue);
   //
   PortableServer::ObjectId_var id(_poa->activate_object(retCpp));
   CORBA::Object_var ret(_poa->id_to_reference(id));

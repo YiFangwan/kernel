@@ -206,7 +206,15 @@ class Caller:
 PyHandlerTypeMap={int:Int,list:List,tuple:Tuple,dict:Dict}
 
 def GetHandlerFromRef(objCorba,isTempVar=False):
+    """ Returns a client that allows to handle a remote corba ref of a global var easily.
+    """
     v=cPickle.loads(objCorba.fetchSerializedContent())
     if v is None:
         return None
     return PyHandlerTypeMap[v.__class__](objCorba,isTempVar)
+
+def GetHandlerFromName(scopeName,varName):
+    import salome
+    dsm=salome.naming_service.Resolve("/DataServerManager")
+    d2s=dsm.giveADataScopeCalled(scopeName)
+    return GetHandlerFromRef(d2s.retrieveVar("a"),False)
