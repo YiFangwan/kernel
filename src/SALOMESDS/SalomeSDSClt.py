@@ -217,4 +217,4 @@ def GetHandlerFromName(scopeName,varName):
     import salome
     dsm=salome.naming_service.Resolve("/DataServerManager")
     d2s=dsm.giveADataScopeCalled(scopeName)
-    return GetHandlerFromRef(d2s.retrieveVar("a"),False)
+    return GetHandlerFromRef(d2s.retrieveVar(varName),False)
