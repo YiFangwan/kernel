@@ -19,11 +19,10 @@
 #
 # Author : Anthony Geay
 
-# dict,list,tuple,int,float,str
 import SALOME
 import cPickle
 
-class List(object):
+class WrappedType(object):
     def __init__(self,varPtr,isTemporaryVar=False):
         assert(isinstance(varPtr,SALOME._objref_StringDataServer))
         self._var_ptr=varPtr
@@ -32,13 +31,32 @@ class List(object):
         self._is_temp=isTemporaryVar
         pass
 
-    def __del__(self):
-        self._var_ptr.UnRegister()
-        pass
+    def local_copy(self):
+        return cPickle.loads(self._var_ptr.fetchSerializedContent())
+
+    def __str__(self):
+        return self.local_copy().__str__()
+
+    def __repr__(self):
+        return self.local_copy().__repr__()
+
+    def __reduce__(self):
+        return (self._wrapped_type,(self.local_copy(),))
 
     def assign(self,elt):
         st=cPickle.dumps(elt,cPickle.HIGHEST_PROTOCOL)
         self._var_ptr.setSerializedContent(st)
+        pass
+
+    def __del__(self):
+        self._var_ptr.UnRegister()
+        pass
+    pass
+
+class List(WrappedType):
+    def __init__(self,varPtr,isTemporaryVar=False):
+        WrappedType.__init__(self,varPtr,isTemporaryVar)
+        self._wrapped_type=list
         pass
 
     def __getitem__(self,*args):
@@ -51,33 +69,16 @@ class List(object):
 
     def append(self,*args):
         ret=Caller(self._var_ptr,"append")
-        return ret(*args)
+        return ret(*args) 
 
-    def __str__(self):
-        return self.local_copy().__str__()
-
-    def __repr__(self):
-        return self.local_copy().__repr__()
-
-    def local_copy(self):
-        return cPickle.loads(self._var_ptr.fetchSerializedContent())
-
-    def __reduce__(self):
-        return (list,(self.local_copy(),))
-
+    def __len__(self):
+        return len(self.local_copy())
     pass
 
-class Tuple(object):
+class Tuple(WrappedType):
     def __init__(self,varPtr,isTemporaryVar=False):
-        assert(isinstance(varPtr,SALOME._objref_StringDataServer))
-        self._var_ptr=varPtr
-        if not isTemporaryVar:
-            self._var_ptr.Register()
-        self._is_temp=isTemporaryVar
-        pass
-
-    def __del__(self):
-        self._var_ptr.UnRegister()
+        WrappedType.__init__(self,varPtr,isTemporaryVar)
+        self._wrapped_type=tuple
         pass
 
     def assign(self,elt):
@@ -92,78 +93,16 @@ class Tuple(object):
     def __setitem__(self,*args):
         ret=Caller(self._var_ptr,"__setitem__")
         return ret(*args)
-
-    def __str__(self):
-        return self.local_copy().__str__()
-
-    def __repr__(self):
-        return self.local_copy().__repr__()
-
-    def local_copy(self):
-        return cPickle.loads(self._var_ptr.fetchSerializedContent())
-
-    def __reduce__(self):
-        return (tuple,(self.local_copy(),))
-
-    pass
-        
-
-class Int(object):
-    def __init__(self,varPtr,isTemporaryVar=False):
-        assert(isinstance(varPtr,SALOME._objref_StringDataServer))
-        self._var_ptr=varPtr
-        if not isTemporaryVar:
-            self._var_ptr.Register()
-        self._is_temp=isTemporaryVar
-        pass
-
-    def __del__(self):
-        self._var_ptr.UnRegister()
-        pass
-
-    def __iadd__(self,*args):
-        ret=Caller(self._var_ptr,"__add__")
-        return ret(*args)
-
-    def __isub__(self,*args):
-        ret=Caller(self._var_ptr,"__sub__")
-        return ret(*args)
-
-    def assign(self,elt):
-        st=cPickle.dumps(elt,cPickle.HIGHEST_PROTOCOL)
-        self._var_ptr.setSerializedContent(st)
-        pass
-
-    def __str__(self):
-        return self.local_copy().__str__()
-
-    def __repr__(self):
-        return self.local_copy().__repr__()
-
-    def local_copy(self):
-        return cPickle.loads(self._var_ptr.fetchSerializedContent())
-
-    def __reduce__(self):
-        return (int,(self.local_copy(),))
+    
+    def __len__(self):
+        return len(self.local_copy())
 
     pass
 
-class Dict(object):
+class Dict(WrappedType):
     def __init__(self,varPtr,isTemporaryVar=False):
-        assert(isinstance(varPtr,SALOME._objref_StringDataServer))
-        self._var_ptr=varPtr
-        if not isTemporaryVar:
-            self._var_ptr.Register()
-        self._is_temp=isTemporaryVar
-        pass
-
-    def __del__(self):
-        self._var_ptr.UnRegister()
-        pass
-
-    def assign(self,elt):
-        st=cPickle.dumps(elt,cPickle.HIGHEST_PROTOCOL)
-        self._var_ptr.setSerializedContent(st)
+        WrappedType.__init__(self,varPtr,isTemporaryVar)
+        self._wrapped_type=dict
         pass
 
     def __getitem__(self,*args):
@@ -177,18 +116,67 @@ class Dict(object):
     def __len__(self):
         return len(self.local_copy())
 
-    def __str__(self):
-        return self.local_copy().__str__()
+    pass
 
-    def __repr__(self):
-        return self.local_copy().__repr__()
+class Float(WrappedType):
+    def __init__(self,varPtr,isTemporaryVar=False):
+        WrappedType.__init__(self,varPtr,isTemporaryVar)
+        self._wrapped_type=float
+        pass
 
-    def local_copy(self):
-        return cPickle.loads(self._var_ptr.fetchSerializedContent())
+    def __iadd__(self,*args):
+        ret=Caller(self._var_ptr,"__add__")
+        return ret(*args)
 
-    def __reduce__(self):
-        return (dict,(self.local_copy(),))
+    def __isub__(self,*args):
+        ret=Caller(self._var_ptr,"__sub__")
+        return ret(*args)
+    pass
 
+class Int(WrappedType):
+    def __init__(self,varPtr,isTemporaryVar=False):
+        WrappedType.__init__(self,varPtr,isTemporaryVar)
+        self._wrapped_type=int
+        pass
+
+    def __iadd__(self,*args):
+        ret=Caller(self._var_ptr,"__add__")
+        return ret(*args)
+
+    def __isub__(self,*args):
+        ret=Caller(self._var_ptr,"__sub__")
+        return ret(*args)
+
+    def __imul__(self,*args):
+        ret=Caller(self._var_ptr,"__mul__")
+        return ret(*args)
+
+    def __idiv__(self,*args):
+        ret=Caller(self._var_ptr,"__div__")
+        return ret(*args)
+
+    def __add__(self,*args):
+        ret=Caller(self._var_ptr,"__add__")
+        return ret(*args)
+
+    def __sub__(self,*args):
+        ret=Caller(self._var_ptr,"__sub__")
+        return ret(*args)
+
+    def __mul__(self,*args):
+        ret=Caller(self._var_ptr,"__mul__")
+        return ret(*args)
+
+    def __div__(self,*args):
+        ret=Caller(self._var_ptr,"__div__")
+        return ret(*args)
+    pass
+
+class String(WrappedType):
+    def __init__(self,varPtr,isTemporaryVar=False):
+        WrappedType.__init__(self,varPtr,isTemporaryVar)
+        self._wrapped_type=int
+        pass
     pass
 
 class Caller:
@@ -203,11 +191,12 @@ class Caller:
         return GetHandlerFromRef(ret,True)
     pass
 
-PyHandlerTypeMap={int:Int,list:List,tuple:Tuple,dict:Dict}
+PyHandlerTypeMap={int:Int,float:Float,str:String,list:List,tuple:Tuple,dict:Dict}
 
 def GetHandlerFromRef(objCorba,isTempVar=False):
     """ Returns a client that allows to handle a remote corba ref of a global var easily.
     """
+    assert(isinstance(objCorba,SALOME._objref_StringDataServer))
     v=cPickle.loads(objCorba.fetchSerializedContent())
     if v is None:
         return None
