@@ -99,3 +99,12 @@ INSTALL(CODE "FILE(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/USERS)")
 ADD_SUBDIRECTORY( src )
 ADD_SUBDIRECTORY( resources )
 ADD_SUBDIRECTORY( doc )
+
+# Additional files 
+# ================
+SET(_salome_context_API_SCRIPTS
+   ${KERNEL_ROOT_DIR}/bin/salome/salomeContext.py
+   ${KERNEL_ROOT_DIR}/bin/salome/salomeContextUtils.py
+   ${KERNEL_ROOT_DIR}/bin/salome/parseConfigFile.py
+)
+SALOME_INSTALL_SCRIPTS("${_salome_context_API_SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})

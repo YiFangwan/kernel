@@ -17,18 +17,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# --- scripts ---
-
-# scripts / static
-SET(_bin_SCRIPTS
-   salomeContext.py
-   salomeContextUtils.py
-   parseConfigFile.py
-)
-
-# --- rules ---
-SALOME_INSTALL_SCRIPTS("${_bin_SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})
-
 # --- sub-directories ---
 ADD_SUBDIRECTORY( tests )
 ADD_SUBDIRECTORY( resources )
