@@ -241,10 +241,20 @@ def profileGenerateSources( options, args ) :
 # -----------------------------------------------------------------------------
 
 if __name__ == '__main__':
-
+    #Get options and args
     (options, args) = profileQuickStartParser().parse_args()
 
+    #Check name of the application
     if not options.name :
         raise RuntimeError( "A name must be given to the application. Please use option --name." )
 
+    #Check that no modules has the name of the application
+    if options.name in options.modules.split( ',' ) :
+        raise RuntimeError( "An application cannnot be named like one of its modules.\nWhat about naming your application %sIS (%s In Salome) ?" %( options.name,options.name ) )
+
+    #Check if the prefix is a directory
+    if not os.path.isdir( options.prefix ) :
+        raise RuntimeError( "%s is not a directory." % options.prefix )
+
+    #Generate sources of the profile
     profileGenerateSources( options, args )

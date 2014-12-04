@@ -100,7 +100,7 @@ ADD_SUBDIRECTORY( src )
 ADD_SUBDIRECTORY( resources )
 ADD_SUBDIRECTORY( doc )
 
-# Additional files 
+# Additional files
 # ================
 SET(_salome_context_API_SCRIPTS
    ${KERNEL_ROOT_DIR}/bin/salome/salomeContext.py
