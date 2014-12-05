@@ -216,14 +216,17 @@ def profileGenerateSources( options, args ) :
     except ImportError:
         found = False
 
-    #Generate splash and logo
+    #Generate logo and splash
+    logo_destination = os.path.join( app_resources_dir, 'app_logo.png')
+    splash_destination = os.path.join( app_resources_dir, 'splash.png')
+    about_destination = os.path.join( app_resources_dir, 'about.png')
     if found :
         import ImageFont
         font = ImageFont.truetype( os.path.join( kernel_resources_dir, "Anita semi square.ttf" ) , 18 )
 
         #Generate and save logo
         app_logo = profileGenerateLogo( options.name, font )
-        app_logo.save( os.path.join( app_resources_dir, 'app_logo.png'), "PNG" )
+        app_logo.save( logo_destination, "PNG" )
 
         #Generate and splash screen and about image
         if options.slogan :
@@ -231,8 +234,17 @@ def profileGenerateSources( options, args ) :
         else :
             subtext = "Powered by SALOME"
         im = profileGenerateSplash( kernel_resources_dir, options.name, options.version, subtext )
-        im.save( os.path.join( app_resources_dir, 'splash.png'), "PNG" )
-        im.save( os.path.join( app_resources_dir, 'about.png'), "PNG" )
+        im.save( splash_destination, "PNG" )
+        im.save( about_destination, "PNG" )
+    else :
+        gui_resources_dir = os.path.join( os.environ["GUI_ROOT_DIR"], "share", "salome", "resources", "gui" )
+        logo_name = os.path.join( gui_resources_dir, "icon_applogo.png" )
+        if os.path.exists( logo_name ) :
+            shutil.copy( logo_name, logo_destination )
+        about_name = os.path.join( gui_resources_dir, "icon_about.png" )
+        if os.path.exists( about_name ) :
+            shutil.copy( about_name, about_destination )
+            shutil.copy( about_name, splash_destination )
 
     #End of script
     print "Sources of %s were generated in %s." %( options.name, app_dir )
