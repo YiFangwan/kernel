@@ -260,13 +260,9 @@ if __name__ == '__main__':
     if not options.name :
         raise RuntimeError( "A name must be given to the application. Please use option --name." )
 
-    #Check that no modules has the name of the application
-    if options.name in options.modules.split( ',' ) :
-        raise RuntimeError( "An application cannnot be named like one of its modules.\nWhat about naming your application %sIS (%s In Salome) ?" %( options.name,options.name ) )
-
-    #Check if the prefix is a directory
-    if not os.path.isdir( options.prefix ) :
-        raise RuntimeError( "%s is not a directory." % options.prefix )
+    #Check if the prefix's parent is a directory
+    if not os.path.isdir( os.path.dirname( options.prefix ) ) :
+        raise RuntimeError( "%s is not a directory." % os.path.dirname( options.prefix ) )
 
     #Generate sources of the profile
     profileGenerateSources( options, args )
