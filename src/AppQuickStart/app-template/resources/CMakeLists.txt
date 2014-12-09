@@ -18,7 +18,7 @@
 #
 
 # --- resources ---
-SET([NAME_OF_APPLICATION]_RESOURCES_FILES
+SET([NAME_OF_APPLICATION]_PROFILE_RESOURCES_FILES
   app_icon.png
   splash.png
   about.png
