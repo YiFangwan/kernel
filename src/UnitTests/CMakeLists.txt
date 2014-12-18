@@ -32,7 +32,13 @@ INCLUDE_DIRECTORIES(
 # ===============================================================
 
 # Executable scripts to be installed
+SET(py_SCRIPTS
+    UnitTests.py
+    prepare_test.py
+)
+
 SALOME_INSTALL_SCRIPTS(UnitTests.py ${SALOME_INSTALL_SCRIPT_SCRIPTS})
+SALOME_INSTALL_SCRIPTS(prepare_test.py ${SALOME_INSTALL_SCRIPT_SCRIPTS}/Tests)
 
 # ===============================================================
 # Executables targets

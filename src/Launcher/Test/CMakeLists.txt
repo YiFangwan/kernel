@@ -19,10 +19,15 @@
 
 # --- rules ---
 
+SET(py_SCRIPTS
+    test_launcher.py
+)
+SALOME_INSTALL_SCRIPTS(${py_SCRIPTS} ${SALOME_INSTALL_SCRIPT_SCRIPTS}/Tests)
+
 IF(NOT WIN32)
   ADD_TEST(NAME SalomeLauncher
-           COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../UnitTests/prepare_test.py
-           ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py
+           COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_SCRIPT_SCRIPTS}/Tests/prepare_test.py
+           ${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_SCRIPT_SCRIPTS}/Tests/test_launcher.py
            -d KERNEL_ROOT_DIR=${CMAKE_INSTALL_PREFIX}
           )
 ENDIF()
