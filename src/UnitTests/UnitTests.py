@@ -83,3 +83,4 @@ launcher.Shutdown()
 # kill Test process
 
 TestKiller.killProcess(runSalome.process_id)
+exit(ret)

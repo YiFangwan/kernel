@@ -31,6 +31,11 @@
 CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest );
 CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 
+// --- generic Main program from Basic/Test
+
+#include "BasicMainTest.hxx"
+
+/*
 #include <cppunit/CompilerOutputter.h>
 #include <cppunit/TestResult.h>
 #include <cppunit/TestResultCollector.h>
@@ -61,7 +66,7 @@ CPPUNIT_TEST_SUITE_REGISTRATION( SALOMEDSTest_Embedded );
 /*!
  *  Main program source for Unit Tests with cppunit package does not depend
  *  on actual tests, so we use the same for all partial unit tests.
- */
+ * /
 // ============================================================================
 
 int main(int argc, char* argv[])
@@ -181,3 +186,4 @@ int main(int argc, char* argv[])
 
   return wasSucessful ? 0 : 1;
 }
+*/

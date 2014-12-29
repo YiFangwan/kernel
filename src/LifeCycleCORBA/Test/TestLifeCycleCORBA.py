@@ -86,3 +86,4 @@ launcher.Shutdown()
 addToKillList.killList()
 
 TestKiller.killProcess(runSalome.process_id)
+exit(ret)

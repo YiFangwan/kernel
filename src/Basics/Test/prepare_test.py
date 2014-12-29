@@ -3,14 +3,16 @@
 
 usage="""
 This script prepares the test environment and runs a test script:
- - clean and create test directory
- - create a SALOME application
+ - if SALOME_APPLI_PATH is not defined, create a new SALOME application
  - launch salome
  - launch the test script within SALOME environment
  - kill salome
 
  This script uses the following environment variables:
-   - ROOT_SALOME : directory which contains salome_context.cfg.
+   - SALOME_APPLI_PATH : directory of a SALOME application, target of the test
+   - ROOT_SALOME : if SALOME_APPLI_PATH is not defined, use ROOT_SALOME in
+                  order to provide a directory which contains the file
+                  salome_context.cfg and build a new application based on it.
                   This variable is usually defined in salome_prerequisites.sh
    - KERNEL_ROOT_DIR and YACS_ROOT_DIR : directories of modules installation
                   Those variables are usually defined in salome_modules.sh
@@ -19,11 +21,17 @@ This script prepares the test environment and runs a test script:
 
 import os
 import sys
+import shutil
 
 class TestEnvironment:
-  def setUp(self):
-    import shutil
-    shutil.rmtree("appli", ignore_errors=True)
+  def findSalomeAppli(self):
+    self.appli_dir = os.getenv("SALOME_APPLI_PATH")
+    if os.path.isdir(self.appli_dir):
+      return
+    else:
+      print "Invalid SALOME_APPLI_PATH. Trying to build a customised Salome application."
+      self.appli_dir = "appli"
+    shutil.rmtree(self.appli_dir, ignore_errors=True)
     
     # create config_appli.xml in current directory
     salome_path = os.getenv("ROOT_SALOME", "")
@@ -64,21 +72,22 @@ class TestEnvironment:
     # create a SALOME application
     appli_gen_file = os.path.join(kernel_path,
                                   "bin","salome","appli_gen.py")
-    appli_dir = "appli"
-    os.system(appli_gen_file + " --prefix="+appli_dir+
+    os.system(appli_gen_file + " --prefix="+self.appli_dir+
                                " --config=config_appli.xml")
     
+  def startSalome(self):
     # start salome
     import imp
-    sys.path[:0] = [os.path.join(appli_dir, "bin", "salome", "appliskel")]
-    self.salome_module = imp.load_source("SALOME", os.path.join(appli_dir, "salome"))
+    sys.path[:0] = [os.path.join(self.appli_dir, "bin", "salome", "appliskel")]
+    self.salome_module = imp.load_source("SALOME",
+                                       os.path.join(self.appli_dir, "salome"))
     try:
       self.salome_module.main(["start", "-t"])
     except SystemExit, e:
       # There is an exit() call in salome.main. Just ignore it.
       pass
     
-  def run(self, script):
+  def runTest(self, script):
     ret = 0
     try:
       ret = self.salome_module.main(["shell", script])
@@ -108,8 +117,9 @@ if __name__ == '__main__':
     os.environ[opts[0]] = opts[1]
   
   envTest = TestEnvironment()
-  envTest.setUp()
-  ret = envTest.run(args.command)
+  envTest.findSalomeAppli()
+  envTest.startSalome()
+  ret = envTest.runTest(args.command)
   envTest.tearDown()
   exit(ret)
   pass

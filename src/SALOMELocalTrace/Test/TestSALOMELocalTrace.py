@@ -37,3 +37,4 @@ command = ['TestSALOMELocalTrace']
 ret = os.spawnvp(os.P_WAIT, command[0], command)
 
 # no process to kill
+exit(ret)

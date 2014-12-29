@@ -32,13 +32,7 @@ INCLUDE_DIRECTORIES(
 # ===============================================================
 
 # Executable scripts to be installed
-SET(py_SCRIPTS
-    UnitTests.py
-    prepare_test.py
-)
-
 SALOME_INSTALL_SCRIPTS(UnitTests.py ${SALOME_INSTALL_SCRIPT_SCRIPTS})
-SALOME_INSTALL_SCRIPTS(prepare_test.py ${SALOME_INSTALL_SCRIPT_SCRIPTS}/Tests)
 
 # ===============================================================
 # Executables targets
@@ -100,3 +94,10 @@ ENDIF()
 ADD_EXECUTABLE(UnitTests UnitTests.cxx)
 TARGET_LINK_LIBRARIES(UnitTests ${COMMON_LIBS})
 INSTALL(TARGETS UnitTests DESTINATION ${SALOME_INSTALL_BINS})
+IF(NOT WIN32)
+  ADD_TEST(NAME UnitTests
+           COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_SCRIPT_SCRIPTS}/Tests/prepare_test.py
+           ${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_SCRIPT_PYTHON}/UnitTests.py
+           -d KERNEL_ROOT_DIR=${CMAKE_INSTALL_PREFIX}
+          )
+ENDIF()
