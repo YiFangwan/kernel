@@ -28,6 +28,14 @@
 #include <iterator>
 #include <algorithm>
 
+// agy : awful, to be factorized with ContainerManager.
+#ifndef WIN32
+#include <unistd.h>
+#else
+#include <process.h>
+#define getpid _getpid
+#endif
+
 using namespace SALOMESDS;
 
 std::size_t DataScopeServer::COUNTER=0;
@@ -179,6 +187,23 @@ void DataScopeServer::initializePython(int argc, char *argv[])
   _locals=PyDict_New();
   PyObject *tmp(PyList_New(0));
   _pickler=PyImport_ImportModuleLevel(const_cast<char *>("cPickle"),_globals,_locals,tmp,-1);
+}
+
+void DataScopeServer::registerToSalomePiDict() const
+{
+  PyObject *mod(PyImport_ImportModule("addToKillList"));
+  if(!mod)
+    return;
+  PyObject *meth(PyObject_GetAttrString(mod,"addToKillList"));
+  if(!meth)
+    { Py_XDECREF(mod); return ; }
+  PyObject *args(PyTuple_New(2));
+  PyTuple_SetItem(args,0,PyInt_FromLong(getpid()));
+  PyTuple_SetItem(args,1,PyString_FromString("SALOME_DataScopeServer"));
+  PyObject *res(PyObject_CallObject(meth,args));
+  Py_XDECREF(args);
+  Py_XDECREF(res);
+  Py_XDECREF(mod);
 }
 
 /*!

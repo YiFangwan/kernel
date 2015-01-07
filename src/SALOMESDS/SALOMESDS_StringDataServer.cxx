@@ -166,6 +166,18 @@ void StringDataServer::setNewPyObj(PyObject *obj)
     throw Exception("StringDataServer::setNewPyObj : trying to assign a NULL pyobject in this !");
   if(obj==_self)
     return ;
+  if(_self)
+    {
+      PyObject *selfType(PyObject_Type(_self));
+      if(PyObject_IsInstance(obj,selfType)!=1)
+        {
+          Py_XDECREF(obj);
+          Py_XDECREF(selfType);
+          throw Exception("StringDataServer::setNewPyObj : type of new object is not the same than those previously set !");
+        }
+      else
+        Py_XDECREF(selfType);
+    }
   Py_XDECREF(_self);
   _self=obj;
 }

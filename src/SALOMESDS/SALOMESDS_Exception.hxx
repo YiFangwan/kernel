@@ -21,19 +21,17 @@
 #ifndef __SALOMESDS_EXCEPTION_HXX__
 #define __SALOMESDS_EXCEPTION_HXX__
 
+#include "SALOMEconfig.h"
+#include CORBA_SERVER_HEADER(SALOME_Exception)
+
 #include <string>
-#include <exception>
 
 namespace SALOMESDS
 {
-  class Exception : public std::exception
+  class Exception : public SALOME::SALOME_Exception
   {
   public:
     Exception(const std::string& reason);
-    ~Exception() throw ();
-    const char *what() const throw();
-  protected:
-    std::string _reason;
   };
 }
 

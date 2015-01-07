@@ -47,6 +47,7 @@ int main(int argc, char *argv[])
   PortableServer::POA_var poa2(poa->create_POA("SingleThPOA4SDS",mgr,policies));
   threadPol->destroy();
   server->initializePython(argc,argv);// agy : Very important ! invoke this method BEFORE activation !
+  server->registerToSalomePiDict();
   PortableServer::ObjectId_var id(poa2->activate_object(server));
   obj=poa2->id_to_reference(id);
   SALOME::DataScopeServer_var serverPtr(SALOME::DataScopeServer::_narrow(obj));

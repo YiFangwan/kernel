@@ -19,6 +19,7 @@
 // Author : Anthony GEAY (EDF R&D)
 
 #include "SALOME_GenericObj.idl"
+#include "SALOME_Exception.idl"
 
 module SALOME
 {
@@ -35,9 +36,9 @@ module SALOME
 
   interface StringDataServer : BasicDataServer
   {
-    void setSerializedContent(in ByteVec newValue);
-    ByteVec fetchSerializedContent();
-    StringDataServer invokePythonMethodOn(in string method, in ByteVec args);
+    void setSerializedContent(in ByteVec newValue) raises (SALOME::SALOME_Exception);
+    ByteVec fetchSerializedContent() raises (SALOME::SALOME_Exception);
+    StringDataServer invokePythonMethodOn(in string method, in ByteVec args) raises (SALOME::SALOME_Exception);
   };
 
   interface DataServerManager;
@@ -47,23 +48,23 @@ module SALOME
     void ping();
     string getScopeName();
     StringVec listVars();
-    BasicDataServer retrieveVar(in string varName);
-    StringDataServer createGlobalStringVar(in string typeName, in string varName);
-    StringDataServer createGlobalTmpVar(in ByteVec newValue);
+    BasicDataServer retrieveVar(in string varName) raises (SALOME::SALOME_Exception);
+    StringDataServer createGlobalStringVar(in string typeName, in string varName) raises (SALOME::SALOME_Exception);
+    StringDataServer createGlobalTmpVar(in ByteVec newValue) raises (SALOME::SALOME_Exception);
     void shutdownIfNotHostedByDSM();
   };
 
   interface DataServerManager
   {
     StringVec listScopes();
-    StringVec listAliveAndKickingScopes();
-    DataScopeServer getDefaultScope();
-    boolean isAliveAndKicking(in string scopeName);
-    DataScopeServer createDataScope(in string scopeName);
-    DataScopeServer retriveDataScope(in string scopeName);
+    StringVec listAliveAndKickingScopes() raises (SALOME::SALOME_Exception);
+    DataScopeServer getDefaultScope() raises (SALOME::SALOME_Exception);
+    boolean isAliveAndKicking(in string scopeName) raises (SALOME::SALOME_Exception);
+    DataScopeServer createDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
+    DataScopeServer retriveDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
     DataScopeServer giveADataScopeCalled(in string scopeName);
-    void removeDataScope(in string scopeName);
+    void removeDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
     void cleanScopesInNS();
-    void shutdownScopes();
+    void shutdownScopes() raises (SALOME::SALOME_Exception);
   };
 };

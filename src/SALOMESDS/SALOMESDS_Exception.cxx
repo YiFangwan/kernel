@@ -20,15 +20,13 @@
 
 #include "SALOMESDS_Exception.hxx"
 
-SALOMESDS::Exception::Exception(const std::string& reason):_reason(reason)
+SALOMESDS::Exception::Exception(const std::string& reason)
 {
+  SALOME::ExceptionStruct es;
+  es.type=SALOME::INTERNAL_ERROR;
+  es.text=CORBA::string_dup(reason.c_str());
+  es.lineNumber=0;
+  (*this).details=es;
 }
 
-SALOMESDS::Exception::~Exception() throw ()
-{
-}
 
-const char *SALOMESDS::Exception::what() const throw()
-{
-  return _reason.c_str();
-}
