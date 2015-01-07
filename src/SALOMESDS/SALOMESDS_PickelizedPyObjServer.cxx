@@ -18,7 +18,7 @@
 //
 // Author : Anthony GEAY (EDF R&D)
 
-#include "SALOMESDS_StringDataServer.hxx"
+#include "SALOMESDS_PickelizedPyObjServer.hxx"
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_Exception.hxx"
 
@@ -27,83 +27,37 @@
 
 using namespace SALOMESDS;
 
-StringDataServer::StringDataServer(DataScopeServer *father, const std::string& typeName, const std::string& varName):BasicDataServer(father,varName),_self(0)
-{
-  _self=CreateDftObjFromType(father->getGlobals(),typeName);
-}
-
-StringDataServer::StringDataServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value):BasicDataServer(father,varName),_self(0)
+PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value):BasicDataServer(father,varName),_self(0)
 {
   setSerializedContentInternal(value);
 }
 
 //! obj is consumed
-StringDataServer::StringDataServer(DataScopeServer *father, const std::string& varName, PyObject *obj):BasicDataServer(father,varName),_self(obj)
+PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServer *father, const std::string& varName, PyObject *obj):BasicDataServer(father,varName),_self(obj)
 {
 }
 
-StringDataServer::~StringDataServer()
+PickelizedPyObjServer::~PickelizedPyObjServer()
 {
-  std::cerr << "~~~~~~~~~~ StringDataServer : " << getVarNameCpp() << std::endl;
+  std::cerr << "~~~~~~~~~~ PickelizedPyObjServer : " << getVarNameCpp() << std::endl;
   Py_XDECREF(_self);
 }
 
 /*!
  * Called remotely -> to protect against throw
  */
-void StringDataServer::setSerializedContent(const SALOME::ByteVec& newValue)
-{
-  setSerializedContentInternal(newValue);
-}
-
-/*!
- * Called remotely -> to protect against throw
- */
-SALOME::ByteVec *StringDataServer::fetchSerializedContent()
+SALOME::ByteVec *PickelizedPyObjServer::fetchSerializedContent()
 {
   Py_XINCREF(_self);//because pickelize consume _self
   return FromCppToByteSeq(pickelize(_self));
 }
 
-/*!
- * Called remotely -> to protect against throw
- */
-SALOME::StringDataServer_ptr StringDataServer::invokePythonMethodOn(const char *method, const SALOME::ByteVec& args)
-{
-  if(!_self)
-    throw Exception("StringDataServer::invokePythonMethodOn : self is NULL !");
-  std::string argsCpp;
-  FromByteSeqToCpp(args,argsCpp);
-  PyObject *argsPy(getPyObjFromPickled(argsCpp));
-  //
-  PyObject *selfMeth(PyObject_GetAttrString(_self,method));
-  if(!selfMeth)
-    {
-      std::ostringstream oss; oss << "StringDataServer::invokePythonMethodOn : Method \"" << method << "\" is not available !";
-      throw Exception(oss.str());
-    }
-  PyObject *res(PyObject_CallObject(selfMeth,argsPy));// self can have been modified by this call !
-  Py_XDECREF(selfMeth);
-  Py_XDECREF(argsPy);
-  if(!res)
-    {
-      std::ostringstream oss; oss << "StringDataServer::invokePythonMethodOn : Problem during invokation serverside of Method \"" << method << "\" !";
-      throw Exception(oss.str());
-    }
-  StringDataServer *ret(new StringDataServer(_father,DataScopeServer::BuildTmpVarNameFrom(getVarNameCpp()),res));
-  PortableServer::POA_var poa(_father->getPOA());
-  ret->setPOA(poa);
-  PortableServer::ObjectId_var id(poa->activate_object(ret));
-  CORBA::Object_var obj(poa->id_to_reference(id));
-  return SALOME::StringDataServer::_narrow(obj);
-}
-
-PortableServer::POA_var StringDataServer::getPOA()
+PortableServer::POA_var PickelizedPyObjServer::getPOA()
 {
   return _poa;
 }
 
-void StringDataServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret)
+void PickelizedPyObjServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret)
 {
   std::size_t sz(bsToBeConv.length());
   ret.resize(sz,' ');
@@ -112,7 +66,7 @@ void StringDataServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::
     buf[i]=bsToBeConv[i];
 }
 
-SALOME::ByteVec *StringDataServer::FromCppToByteSeq(const std::string& strToBeConv)
+SALOME::ByteVec *PickelizedPyObjServer::FromCppToByteSeq(const std::string& strToBeConv)
 {
   SALOME::ByteVec *ret(new SALOME::ByteVec);
   const char *buf(strToBeConv.c_str());
@@ -124,7 +78,7 @@ SALOME::ByteVec *StringDataServer::FromCppToByteSeq(const std::string& strToBeCo
 }
 
 //! New reference returned
-PyObject *StringDataServer::getPyObjFromPickled(const std::string& pickledData)
+PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::string& pickledData)
 {
   std::size_t sz(pickledData.size());
   PyObject *pickledDataPy(PyString_FromStringAndSize(NULL,sz));// agy : do not use PyString_FromString because std::string hides a vector of byte.
@@ -140,7 +94,7 @@ PyObject *StringDataServer::getPyObjFromPickled(const std::string& pickledData)
 }
 
 //! obj is consumed by this method.
-std::string StringDataServer::pickelize(PyObject *obj)
+std::string PickelizedPyObjServer::pickelize(PyObject *obj)
 {
   PyObject *args(PyTuple_New(2));
   PyTuple_SetItem(args,0,obj);
@@ -160,10 +114,10 @@ std::string StringDataServer::pickelize(PyObject *obj)
 }
 
 //! obj is consumed by this method.
-void StringDataServer::setNewPyObj(PyObject *obj)
+void PickelizedPyObjServer::setNewPyObj(PyObject *obj)
 {
   if(!obj)
-    throw Exception("StringDataServer::setNewPyObj : trying to assign a NULL pyobject in this !");
+    throw Exception("PickelizedPyObjServer::setNewPyObj : trying to assign a NULL pyobject in this !");
   if(obj==_self)
     return ;
   if(_self)
@@ -173,7 +127,7 @@ void StringDataServer::setNewPyObj(PyObject *obj)
         {
           Py_XDECREF(obj);
           Py_XDECREF(selfType);
-          throw Exception("StringDataServer::setNewPyObj : type of new object is not the same than those previously set !");
+          throw Exception("PickelizedPyObjServer::setNewPyObj : type of new object is not the same than those previously set !");
         }
       else
         Py_XDECREF(selfType);
@@ -182,26 +136,25 @@ void StringDataServer::setNewPyObj(PyObject *obj)
   _self=obj;
 }
 
-void StringDataServer::setSerializedContentInternal(const SALOME::ByteVec& newValue)
+void PickelizedPyObjServer::setSerializedContentInternal(const SALOME::ByteVec& newValue)
 {
-  checkReadOnlyStatusRegardingConstness("StringDataServer::setSerializedContent : read only var !");
   std::string data;
   FromByteSeqToCpp(newValue,data);
   setNewPyObj(getPyObjFromPickled(data));
 }
 
-PyObject *StringDataServer::CreateDftObjFromType(PyObject *globals, const std::string& typeName)
+PyObject *PickelizedPyObjServer::CreateDftObjFromType(PyObject *globals, const std::string& typeName)
 {
   PyObject *builtins(PyDict_GetItemString(globals,"__builtins__"));
   if(!builtins)
-    throw Exception("StringDataServer constructor : no __builtins__ in globals !");
+    throw Exception("PickelizedPyObjServer constructor : no __builtins__ in globals !");
   PyObject *builtins2(PyModule_GetDict(builtins));
   if(!builtins2)
-    throw Exception("StringDataServer constructor : internal error fail to invoke __dict__ on __builtins__ !");
+    throw Exception("PickelizedPyObjServer constructor : internal error fail to invoke __dict__ on __builtins__ !");
   PyObject *tmp(PyDict_GetItemString(builtins2,typeName.c_str()));
   if(!tmp)
     {
-      std::ostringstream oss; oss << "StringDataServer::CreateDftObjFromType : Invalid type name \"" << typeName << "\" !";
+      std::ostringstream oss; oss << "PickelizedPyObjServer::CreateDftObjFromType : Invalid type name \"" << typeName << "\" !";
       throw Exception(oss.str());
     }
   PyObject *args(PyTuple_New(0));

@@ -45,8 +45,8 @@ namespace SALOMESDS
     char *getScopeName();
     SALOME::StringVec *listVars();
     SALOME::BasicDataServer_ptr retrieveVar(const char *varName);
-    SALOME::StringDataServer_ptr createGlobalStringVar(const char *typeName, const char *varName);
-    SALOME::StringDataServer_ptr createGlobalTmpVar(const SALOME::ByteVec& newValue);
+    SALOME::PickelizedPyObjRdOnlyServer_ptr createRdOnlyVar(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::PickelizedPyObjRdWrServer_ptr createRdWrVar(const char *typeName, const char *varName);
     void shutdownIfNotHostedByDSM();
     ~DataScopeServer();
   public:
@@ -61,6 +61,7 @@ namespace SALOMESDS
   private:
     std::vector< std::string> getAllVarNames() const;
     CORBA::Object_var activateWithDedicatedPOA(BasicDataServer *ds);
+    void checkNotAlreadyExistingVar(const std::string& varName);
   private:
     PyObject *_globals;
     PyObject *_locals;

@@ -18,42 +18,25 @@
 //
 // Author : Anthony GEAY (EDF R&D)
 
-#include "SALOMESDS_BasicDataServer.hxx"
-#include "SALOMESDS_DataScopeServer.hxx"
-#include "SALOMESDS_Exception.hxx"
+#ifndef __SALOMESDS_PICKELIZEDPYOBJRDONLYSERVER_HXX__
+#define __SALOMESDS_PICKELIZEDPYOBJRDONLYSERVER_HXX__
 
-#include <sstream>
+#include "SALOMEconfig.h"
+#include CORBA_SERVER_HEADER(SALOME_SDS)
 
-using namespace SALOMESDS;
+#include <Python.h>
 
-BasicDataServer::BasicDataServer(DataScopeServer *father, const std::string& varName):_father(father),_var_name(varName)
+#include "SALOMESDS_PickelizedPyObjServer.hxx"
+
+namespace SALOMESDS
 {
+  class PickelizedPyObjRdOnlyServer : public PickelizedPyObjServer, public virtual POA_SALOME::PickelizedPyObjRdOnlyServer
+  {
+  public:
+    PickelizedPyObjRdOnlyServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjRdOnlyServer(DataScopeServer *father, const std::string& varName, PyObject *obj);
+    ~PickelizedPyObjRdOnlyServer();
+  };
 }
 
-/*!
- * Called remotely -> to protect against throw
- */
-char *BasicDataServer::getVarName()
-{
-  return CORBA::string_dup(_var_name.c_str());
-}
-
-char *BasicDataServer::getScopeName()
-{
-  return _father->getScopeName();
-}
-
-void BasicDataServer::Register()
-{
-  incrRef();
-}
-
-void BasicDataServer::UnRegister()
-{
-  decrRef();
-}
-
-void BasicDataServer::Destroy()
-{
-  enforcedRelease();
-}
+#endif

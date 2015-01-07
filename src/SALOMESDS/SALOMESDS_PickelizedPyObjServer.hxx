@@ -18,8 +18,8 @@
 //
 // Author : Anthony GEAY (EDF R&D)
 
-#ifndef __SALOMESDS_STRINGDATASERVER_HXX__
-#define __SALOMESDS_STRINGDATASERVER_HXX__
+#ifndef __SALOMESDS_PICKELIZEDPYOBJSERVER_HXX__
+#define __SALOMESDS_PICKELIZEDPYOBJSERVER_HXX__
 
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOME_SDS)
@@ -30,19 +30,17 @@
 
 namespace SALOMESDS
 {
-  class StringDataServer : public BasicDataServer, public virtual POA_SALOME::StringDataServer
+  class PickelizedPyObjServer : public BasicDataServer, public virtual POA_SALOME::PickelizedPyObjServer
   {
   public:
-    StringDataServer(DataScopeServer *father, const std::string& typeName, const std::string& varName);
-    StringDataServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value);
-    StringDataServer(DataScopeServer *father, const std::string& varName, PyObject *obj);
-    ~StringDataServer();
+    PickelizedPyObjServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjServer(DataScopeServer *father, const std::string& varName, PyObject *obj);
+    ~PickelizedPyObjServer();
     void setSerializedContent(const SALOME::ByteVec& newValue);
     SALOME::ByteVec *fetchSerializedContent();
-    SALOME::StringDataServer_ptr invokePythonMethodOn(const char *method, const SALOME::ByteVec& args);
   public:
     void setPOA(PortableServer::POA_var poa) { _poa=poa; }
-  private:
+  protected:
     PortableServer::POA_var getPOA();
     static void FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret);
     static SALOME::ByteVec *FromCppToByteSeq(const std::string& strToBeConv);
@@ -51,7 +49,7 @@ namespace SALOMESDS
     void setNewPyObj(PyObject *obj);
     void setSerializedContentInternal(const SALOME::ByteVec& newValue);
     static PyObject *CreateDftObjFromType(PyObject *globals, const std::string& typeName);
-  private:
+  protected:
     static const char FAKE_VAR_NAME_FOR_WORK[];
     PyObject *_self;
     PortableServer::POA_var _poa;

@@ -40,7 +40,10 @@ SET(SalomeSDS_SOURCES
   SALOMESDS_BasicDataServer.cxx
   SALOMESDS_DataScopeServer.cxx
   SALOMESDS_DataServerManager.cxx
-  SALOMESDS_StringDataServer.cxx
+  SALOMESDS_PickelizedPyObjServer.cxx
+  SALOMESDS_PickelizedPyObjRdOnlyServer.cxx
+  SALOMESDS_PickelizedPyObjRdExtServer.cxx
+  SALOMESDS_PickelizedPyObjRdWrServer.cxx
   )
 
 ADD_LIBRARY(SalomeSDS ${SalomeSDS_SOURCES})

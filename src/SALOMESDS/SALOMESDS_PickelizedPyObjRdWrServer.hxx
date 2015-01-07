@@ -18,36 +18,27 @@
 //
 // Author : Anthony GEAY (EDF R&D)
 
-#ifndef __SALOMESDS_BASICDATASERVER_HXX__
-#define __SALOMESDS_BASICDATASERVER_HXX__
+#ifndef __SALOMESDS_PICKELIZEDPYOBJRDWRSERVER_HXX__
+#define __SALOMESDS_PICKELIZEDPYOBJRDWRSERVER_HXX__
 
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOME_SDS)
 
-#include "SALOMESDS_RefCountServ.hxx"
+#include <Python.h>
 
-#include <string>
+#include "SALOMESDS_PickelizedPyObjServer.hxx"
 
 namespace SALOMESDS
 {
-  class DataScopeServer;
-  
-  class BasicDataServer : public RefCountServ, public virtual POA_SALOME::BasicDataServer
+  class PickelizedPyObjRdWrServer : public PickelizedPyObjServer, public virtual POA_SALOME::PickelizedPyObjRdWrServer
   {
   public:
-    BasicDataServer(DataScopeServer *father, const std::string& varName);
-    char *getVarName();
-    char *getScopeName();
-  public:
-    void Register();
-    void UnRegister();
-    void Destroy();
-  public:
-    std::string getVarNameCpp() const { return _var_name; }
-  protected:
-    DataScopeServer *_father;
-  private:
-    std::string _var_name;
+    PickelizedPyObjRdWrServer(DataScopeServer *father, const std::string& typeName, const std::string& varName);
+    PickelizedPyObjRdWrServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjRdWrServer(DataScopeServer *father, const std::string& varName, PyObject *obj);
+    ~PickelizedPyObjRdWrServer();
+    void setSerializedContent(const SALOME::ByteVec& newValue);
+    SALOME::PickelizedPyObjRdWrServer_ptr invokePythonMethodOn(const char *method, const SALOME::ByteVec& args);
   };
 }
 

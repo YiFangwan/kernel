@@ -30,15 +30,26 @@ module SALOME
   {
     string getVarName();
     string getScopeName();
-    void setReadOnlyStatus();
-    void setRWStatus();
   };
 
-  interface StringDataServer : BasicDataServer
+  interface PickelizedPyObjServer : BasicDataServer
+  {
+    ByteVec fetchSerializedContent() raises (SALOME::SALOME_Exception);
+  };
+
+  interface PickelizedPyObjRdOnlyServer : PickelizedPyObjServer
+  {
+  };
+
+  interface PickelizedPyObjRdExtServer : PickelizedPyObjServer
+  {
+    PickelizedPyObjRdExtServer invokePythonMethodOn(in string method, in ByteVec args) raises (SALOME::SALOME_Exception);
+  };
+
+  interface PickelizedPyObjRdWrServer : PickelizedPyObjServer
   {
     void setSerializedContent(in ByteVec newValue) raises (SALOME::SALOME_Exception);
-    ByteVec fetchSerializedContent() raises (SALOME::SALOME_Exception);
-    StringDataServer invokePythonMethodOn(in string method, in ByteVec args) raises (SALOME::SALOME_Exception);
+    PickelizedPyObjRdWrServer invokePythonMethodOn(in string method, in ByteVec args) raises (SALOME::SALOME_Exception);
   };
 
   interface DataServerManager;
@@ -49,8 +60,8 @@ module SALOME
     string getScopeName();
     StringVec listVars();
     BasicDataServer retrieveVar(in string varName) raises (SALOME::SALOME_Exception);
-    StringDataServer createGlobalStringVar(in string typeName, in string varName) raises (SALOME::SALOME_Exception);
-    StringDataServer createGlobalTmpVar(in ByteVec newValue) raises (SALOME::SALOME_Exception);
+    PickelizedPyObjRdOnlyServer createRdOnlyVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    PickelizedPyObjRdWrServer createRdWrVar(in string typeName, in string varName) raises (SALOME::SALOME_Exception);
     void shutdownIfNotHostedByDSM();
   };
 
