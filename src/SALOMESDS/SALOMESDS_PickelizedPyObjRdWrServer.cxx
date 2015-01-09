@@ -74,8 +74,32 @@ SALOME::PickelizedPyObjRdWrServer_ptr PickelizedPyObjRdWrServer::invokePythonMet
   Py_XDECREF(argsPy);
   if(!res)
     {
+      std::ostringstream oss,oss2,oss3;
+      PyObject *errTyp(0),*errValue(0),*errTB(0);
+      PyErr_Fetch(&errTyp,&errValue,&errTB);
+      oss2 << "(";
+      if(errTyp)
+        {
+          PyObject *ob(PyObject_Str(errTyp));
+          oss2 << " type : \"" << (const char *)PyString_AsString(ob) << "\"";
+          Py_XDECREF(ob); Py_XDECREF(errTyp);
+        }
+      if(errValue)
+        {
+          PyObject *ob(PyObject_Str(errValue));
+          oss2 << " value : \"" << (const char *)PyString_AsString(ob) << "\"";
+          Py_XDECREF(ob); Py_XDECREF(errValue);
+        }
+      oss2 << " )";
+      if(errTB)
+        {
+          PyObject *ob(PyObject_Str(errTB));
+          oss2 << "( traceback : \"" << (const char *)PyString_AsString(ob) << "\"";
+          Py_XDECREF(ob); Py_XDECREF(errTB);
+        }
+      oss2 << " )";
       PyErr_Clear();
-      std::ostringstream oss; oss << "PickelizedPyObjRdWrServer::invokePythonMethodOn : Problem during invokation serverside of Method \"" << method << "\" !";
+      oss << "PickelizedPyObjRdWrServer::invokePythonMethodOn : Problem during invokation serverside of Method \"" << method << "\" ! Details are : " << oss2.str() << "\n\n" << "TraceBack is : " << oss3.str(); 
       throw Exception(oss.str());
     }
   PickelizedPyObjRdWrServer *ret(new PickelizedPyObjRdWrServer(_father,DataScopeServer::BuildTmpVarNameFrom(getVarNameCpp()),res));

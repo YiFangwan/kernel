@@ -98,8 +98,6 @@ class List(WrappedType):
     def sort(self,*args):
         ret=Caller(self._var_ptr,"sort")
         return ret(*args)
-
-    #
     
     def count(self,*args):
         return self.local_copy().count(*args)
@@ -210,68 +208,52 @@ class Float(WrappedType):
         pass
 
     def __iadd__(self,*args):
-        ret=Caller(self._var_ptr,"__add__")
-        return ret(*args)
+        return self.local_copy().__add__(*args)
 
     def __isub__(self,*args):
-        ret=Caller(self._var_ptr,"__sub__")
-        return ret(*args)
+        return self.local_copy().__sub__(*args)
 
     def __imul__(self,*args):
-        ret=Caller(self._var_ptr,"__mul__")
-        return ret(*args)
+        return self.local_copy().__mul__(*args)
 
     def __idiv__(self,*args):
-        ret=Caller(self._var_ptr,"__div__")
-        return ret(*args)
+        return self.local_copy().__div__(*args)
 
     def __add__(self,*args):
-        ret=Caller(self._var_ptr,"__add__")
-        return ret(*args)
+        return self.local_copy().__add__(*args)
 
     def __sub__(self,*args):
-        ret=Caller(self._var_ptr,"__sub__")
-        return ret(*args)
+        return self.local_copy().__sub__(*args)
 
     def __mul__(self,*args):
-        ret=Caller(self._var_ptr,"__mul__")
-        return ret(*args)
+        return self.local_copy().__mul__(*args)
 
     def __div__(self,*args):
-        ret=Caller(self._var_ptr,"__div__")
-        return ret(*args)
+        return self.local_copy().__div__(*args)
     
     def __pow__(self,*args):
-        ret=Caller(self._var_ptr,"__pow__")
-        return ret(*args)
+        return self.local_copy().__pow__(*args)
 
     def as_integer_ratio(self,*args):
-        ret=Caller(self._var_ptr,"as_integer_ratio")
-        return ret(*args)
+        return self.local_copy().as_integer_ratio(*args)
 
     def conjugate(self,*args):
-        ret=Caller(self._var_ptr,"conjugate")
-        return ret(*args)
+        return self.local_copy().conjugate(*args)
 
     def fromhex(self,*args):
-        ret=Caller(self._var_ptr,"fromhex")
-        return ret(*args)
+        return self.local_copy().fromhex(*args)
 
     def hex(self,*args):
-        ret=Caller(self._var_ptr,"hex")
-        return ret(*args)
+        return self.local_copy().hex(*args)
 
     def imag(self,*args):
-        ret=Caller(self._var_ptr,"imag")
-        return ret(*args)
+        return self.local_copy().imag(*args)
 
     def is_integer(self,*args):
-        ret=Caller(self._var_ptr,"is_integer")
-        return ret(*args)
+        return self.local_copy().is_integer(*args)
 
     def real(self,*args):
-        ret=Caller(self._var_ptr,"real")
-        return ret(*args)
+        return self.local_copy().real(*args)
     pass
 
 class Int(WrappedType):
@@ -281,64 +263,55 @@ class Int(WrappedType):
         pass
 
     def __iadd__(self,*args):
-        ret=Caller(self._var_ptr,"__add__")
-        return ret(*args)
+        return self.local_copy().__add__(*args)
 
     def __isub__(self,*args):
-        ret=Caller(self._var_ptr,"__sub__")
-        return ret(*args)
+        return self.local_copy().__sub__(*args)
 
     def __imul__(self,*args):
-        ret=Caller(self._var_ptr,"__mul__")
-        return ret(*args)
+        return self.local_copy().__mul__(*args)
 
+    def __imod__(self,*args):
+        return self.local_copy().__mod__(*args)
+    
     def __idiv__(self,*args):
-        ret=Caller(self._var_ptr,"__div__")
-        return ret(*args)
+        return self.local_copy().__div__(*args)
 
     def __add__(self,*args):
-        ret=Caller(self._var_ptr,"__add__")
-        return ret(*args)
+        return self.local_copy().__add__(*args)
 
     def __sub__(self,*args):
-        ret=Caller(self._var_ptr,"__sub__")
-        return ret(*args)
+        return self.local_copy().__sub__(*args)
 
     def __mul__(self,*args):
-        ret=Caller(self._var_ptr,"__mul__")
-        return ret(*args)
+        return self.local_copy().__mul__(*args)
+
+    def __mod__(self,*args):
+        return self.local_copy().__mod__(*args)
 
     def __div__(self,*args):
-        ret=Caller(self._var_ptr,"__div__")
-        return ret(*args)
-
+        return self.local_copy().__div__(*args)
+    
     def __pow__(self,*args):
-        ret=Caller(self._var_ptr,"__pow__")
-        return ret(*args)
+        return self.local_copy().__pow__(*args)
 
     def bit_length(self,*args):
-        ret=Caller(self._var_ptr,"bit_length")
-        return ret(*args)
+        return self.local_copy().bit_length(*args)
 
     def conjugate(self,*args):
-        ret=Caller(self._var_ptr,"conjugate")
-        return ret(*args)
+        return self.local_copy().conjugate(*args)
 
     def denominator(self,*args):
-        ret=Caller(self._var_ptr,"denominator")
-        return ret(*args)
+        return self.local_copy().denominator(*args)
 
     def imag(self,*args):
-        ret=Caller(self._var_ptr,"imag")
-        return ret(*args)
+        return self.local_copy().imag(*args)
     
     def numerator(self,*args):
-        ret=Caller(self._var_ptr,"numerator")
-        return ret(*args)
+        return self.local_copy().numerator(*args)
 
     def real(self,*args):
-        ret=Caller(self._var_ptr,"real")
-        return ret(*args)
+        return self.local_copy().real(*args)
     pass
 
 class String(WrappedType):
@@ -348,168 +321,127 @@ class String(WrappedType):
         pass
 
     def __add__(self,*args):
-        ret=Caller(self._var_ptr,"__add__")
-        return ret(*args)
+        return self.local_copy().__add__(*args)
 
     def __iadd__(self,*args):
-        ret=Caller(self._var_ptr,"__add__")
-        return ret(*args)
+        return self.local_copy().__add__(*args)
 
     def __getitem__(self,*args):
-        ret=Caller(self._var_ptr,"__getitem__")
-        return ret(*args)
+        return self.local_copy().__getitem__(*args)
 
     def capitalize(self,*args):
-        ret=Caller(self._var_ptr,"capitalize")
-        return ret(*args)
+        return self.local_copy().capitalize(*args)
 
     def center(self,*args):
-        ret=Caller(self._var_ptr,"center")
-        return ret(*args)
+        return self.local_copy().center(*args)
 
     def count(self,*args):
-        ret=Caller(self._var_ptr,"count")
-        return ret(*args)
+        return self.local_copy().count(*args)
 
     def decode(self,*args):
-        ret=Caller(self._var_ptr,"decode")
-        return ret(*args)
+        return self.local_copy().decode(*args)
 
     def encode(self,*args):
-        ret=Caller(self._var_ptr,"encode")
-        return ret(*args)
+        return self.local_copy().encode(*args)
 
     def endswith(self,*args):
-        ret=Caller(self._var_ptr,"endswith")
-        return ret(*args)
+        return self.local_copy().endswith(*args)
 
     def expandtabs(self,*args):
-        ret=Caller(self._var_ptr,"expandtabs")
-        return ret(*args)
+        return self.local_copy().expandtabs(*args)
 
     def find(self,*args):
-        ret=Caller(self._var_ptr,"find")
-        return ret(*args)
+        return self.local_copy().find(*args)
 
     def format(self,*args):
-        ret=Caller(self._var_ptr,"format")
-        return ret(*args)
+        return self.local_copy().format(*args)
 
     def index(self,*args):
-        ret=Caller(self._var_ptr,"index")
-        return ret(*args)
+        return self.local_copy().index(*args)
 
     def isalnum(self,*args):
-        ret=Caller(self._var_ptr,"isalnum")
-        return ret(*args)
+        return self.local_copy().isalnum(*args)
 
     def isalpha(self,*args):
-        ret=Caller(self._var_ptr,"isalpha")
-        return ret(*args)
+        return self.local_copy().isalpha(*args)
 
     def isdigit(self,*args):
-        ret=Caller(self._var_ptr,"isdigit")
-        return ret(*args)
+        return self.local_copy().isdigit(*args)
 
     def islower(self,*args):
-        ret=Caller(self._var_ptr,"islower")
-        return ret(*args)
+        return self.local_copy().islower(*args)
 
     def isspace(self,*args):
-        ret=Caller(self._var_ptr,"isspace")
-        return ret(*args)
+        return self.local_copy().isspace(*args)
 
     def istitle(self,*args):
-        ret=Caller(self._var_ptr,"istitle")
-        return ret(*args)
+        return self.local_copy().istitle(*args)
 
     def isupper(self,*args):
-        ret=Caller(self._var_ptr,"isupper")
-        return ret(*args)
+        return self.local_copy().isupper(*args)
 
     def join(self,*args):
-        ret=Caller(self._var_ptr,"join")
-        return ret(*args)
+        return self.local_copy().join(*args)
 
     def ljust(self,*args):
-        ret=Caller(self._var_ptr,"ljust")
-        return ret(*args)
+        return self.local_copy().ljust(*args)
 
     def lower(self,*args):
-        ret=Caller(self._var_ptr,"lower")
-        return ret(*args)
+        return self.local_copy().lower(*args)
 
     def lstrip(self,*args):
-        ret=Caller(self._var_ptr,"lstrip")
-        return ret(*args)
+        return self.local_copy().lstrip(*args)
 
     def partition(self,*args):
-        ret=Caller(self._var_ptr,"partition")
-        return ret(*args)
+        return self.local_copy().partition(*args)
 
     def replace(self,*args):
-        ret=Caller(self._var_ptr,"replace")
-        return ret(*args)
+        return self.local_copy().replace(*args)
 
     def rfind(self,*args):
-        ret=Caller(self._var_ptr,"rfind")
-        return ret(*args)
+        return self.local_copy().rfind(*args)
 
     def rindex(self,*args):
-        ret=Caller(self._var_ptr,"rindex")
-        return ret(*args)
+        return self.local_copy().rindex(*args)
 
     def rjust(self,*args):
-        ret=Caller(self._var_ptr,"rjust")
-        return ret(*args)
+        return self.local_copy().rjust(*args)
 
     def rpartition(self,*args):
-        ret=Caller(self._var_ptr,"rpartition")
-        return ret(*args)
+        return self.local_copy().rpartition(*args)
 
     def rsplit(self,*args):
-        ret=Caller(self._var_ptr,"rsplit")
-        return ret(*args)
+        return self.local_copy().rsplit(*args)
 
     def rstrip(self,*args):
-        ret=Caller(self._var_ptr,"rstrip")
-        return ret(*args)
+        return self.local_copy().rstrip(*args)
 
     def split(self,*args):
-        ret=Caller(self._var_ptr,"split")
-        return ret(*args)
+        return self.local_copy().split(*args)
 
     def splitlines(self,*args):
-        ret=Caller(self._var_ptr,"splitlines")
-        return ret(*args)
+        return self.local_copy().splitlines(*args)
 
     def startswith(self,*args):
-        ret=Caller(self._var_ptr,"startswith")
-        return ret(*args)
+        return self.local_copy().startswith(*args)
 
     def strip(self,*args):
-        ret=Caller(self._var_ptr,"strip")
-        return ret(*args)
+        return self.local_copy().strip(*args)
 
     def swapcase(self,*args):
-        ret=Caller(self._var_ptr,"swapcase")
-        return ret(*args)
+        return self.local_copy().swapcase(*args)
 
     def title(self,*args):
-        ret=Caller(self._var_ptr,"title")
-        return ret(*args)
+        return self.local_copy().title(*args)
 
     def translate(self,*args):
-        ret=Caller(self._var_ptr,"translate")
-        return ret(*args)
+        return self.local_copy().translate(*args)
 
     def upper(self,*args):
-        ret=Caller(self._var_ptr,"upper")
-        return ret(*args)
+        return self.local_copy().upper(*args)
 
     def zfill(self,*args):
-        ret=Caller(self._var_ptr,"zfill")
-        return ret(*args)
+        return self.local_copy().zfill(*args)
 
     def __len__(self):
         return len(self.local_copy())
