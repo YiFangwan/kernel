@@ -21,6 +21,7 @@
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_DataServerManager.hxx"
 #include "SALOMESDS_PickelizedPyObjRdOnlyServer.hxx"
+#include "SALOMESDS_PickelizedPyObjRdExtServer.hxx"
 #include "SALOMESDS_PickelizedPyObjRdWrServer.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOMESDS_Exception.hxx"
@@ -118,6 +119,17 @@ SALOME::PickelizedPyObjRdOnlyServer_ptr DataScopeServer::createRdOnlyVar(const c
   std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<PickelizedPyObjRdOnlyServer,BasicDataServer>(tmp));
   _vars.push_back(p);
   return SALOME::PickelizedPyObjRdOnlyServer::_narrow(ret);
+}
+
+SALOME::PickelizedPyObjRdExtServer_ptr DataScopeServer::createRdExtVar(const char *varName, const SALOME::ByteVec& constValue)
+{
+  std::string varNameCpp(varName);
+  checkNotAlreadyExistingVar(varNameCpp);
+  AutoRefCountPtr<PickelizedPyObjRdExtServer> tmp(new PickelizedPyObjRdExtServer(this,varNameCpp,constValue));
+  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<PickelizedPyObjRdExtServer,BasicDataServer>(tmp));
+  _vars.push_back(p);
+  return SALOME::PickelizedPyObjRdExtServer::_narrow(ret);
 }
 
 /*!

@@ -1,4 +1,4 @@
-#  -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 # Copyright (C) 2007-2014  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
@@ -109,29 +109,6 @@ class List(WrappedType):
         return len(self.local_copy())
     pass
 
-class Tuple(WrappedType):
-    def __init__(self,varPtr,isTemporaryVar=False):
-        WrappedType.__init__(self,varPtr,isTemporaryVar)
-        self._wrapped_type=tuple
-        pass
-
-    def __getitem__(self,*args):
-        ret=Caller(self._var_ptr,"__getitem__")
-        return ret(*args)
-    
-    # work on local copy
-
-    def count(self,*args):
-        return self.local_copy().count(*args)
-
-    def index(self,*args):
-        return self.local_copy().index(*args)
-    
-    def __len__(self):
-        return len(self.local_copy())
-
-    pass
-
 class Dict(WrappedType):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
@@ -196,6 +173,29 @@ class Dict(WrappedType):
     def copy(self,*args):
         return self.local_copy().copy(*args)
 
+    def __len__(self):
+        return len(self.local_copy())
+
+    pass
+
+class Tuple(WrappedType):
+    def __init__(self,varPtr,isTemporaryVar=False):
+        WrappedType.__init__(self,varPtr,isTemporaryVar)
+        self._wrapped_type=tuple
+        pass
+
+    def __getitem__(self,*args):
+        ret=Caller(self._var_ptr,"__getitem__")
+        return ret(*args)
+    
+    # work on local copy
+
+    def count(self,*args):
+        return self.local_copy().count(*args)
+
+    def index(self,*args):
+        return self.local_copy().index(*args)
+    
     def __len__(self):
         return len(self.local_copy())
 
@@ -469,9 +469,22 @@ def GetHandlerFromRef(objCorba,isTempVar=False):
     if v is None:
         return None
     return PyHandlerTypeMap[v.__class__](objCorba,isTempVar)
+    
+    
+def CreateRdOnlyGlobalVar(value,varName,scopeName):
+    import salome
+    dsm=salome.naming_service.Resolve("/DataServerManager")
+    d2s,isCreated=dsm.giveADataScopeCalled()
+    return GetHandlerFromRef(d2s.createRdOnlyVar(varName,cPickle.dumps(value,cPickle.HIGHEST_PROTOCOL)),False)
+    
+def CreateRdExtGlobalVar(value,varName,scopeName):
+    import salome
+    dsm=salome.naming_service.Resolve("/DataServerManager")
+    d2s,isCreated=dsm.giveADataScopeCalled()
+    return GetHandlerFromRef(d2s.createRdExtVar(varName,cPickle.dumps(value,cPickle.HIGHEST_PROTOCOL)),False)
 
 def GetHandlerFromName(scopeName,varName):
     import salome
     dsm=salome.naming_service.Resolve("/DataServerManager")
-    d2s=dsm.giveADataScopeCalled(scopeName)
+    d2s=dsm.retriveDataScope(scopeName)
     return GetHandlerFromRef(d2s.retrieveVar(varName),False)

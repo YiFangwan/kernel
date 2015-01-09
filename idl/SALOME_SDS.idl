@@ -61,6 +61,7 @@ module SALOME
     StringVec listVars();
     BasicDataServer retrieveVar(in string varName) raises (SALOME::SALOME_Exception);
     PickelizedPyObjRdOnlyServer createRdOnlyVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    PickelizedPyObjRdExtServer createRdExtVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     PickelizedPyObjRdWrServer createRdWrVar(in string typeName, in string varName) raises (SALOME::SALOME_Exception);
     void shutdownIfNotHostedByDSM();
   };
@@ -73,7 +74,7 @@ module SALOME
     boolean isAliveAndKicking(in string scopeName) raises (SALOME::SALOME_Exception);
     DataScopeServer createDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
     DataScopeServer retriveDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
-    DataScopeServer giveADataScopeCalled(in string scopeName);
+    DataScopeServer giveADataScopeCalled(in string scopeName, out boolean isCreated);
     void removeDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
     void cleanScopesInNS();
     void shutdownScopes() raises (SALOME::SALOME_Exception);

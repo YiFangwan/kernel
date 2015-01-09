@@ -1,4 +1,4 @@
-#  -*- coding: iso-8859-1 -*-
+# -*- coding: utf-8 -*-
 # Copyright (C) 2007-2014  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
@@ -53,7 +53,7 @@ a=dsm.retriveDataScope("S2").createRdWrVar("int","a")
 sname="S7"
 dsm=salome.naming_service.Resolve("/DataServerManager")
 st=cPickle.dumps([],cPickle.HIGHEST_PROTOCOL)
-a=dsm.giveADataScopeCalled(sname).createRdWrVar("list","a")
+a=dsm.giveADataScopeCalled(sname)[0].createRdWrVar("list","a")
 dsm.giveADataScopeCalled(sname)
 a.setSerializedContent(cPickle.dumps([0,],cPickle.HIGHEST_PROTOCOL))
 assert(cPickle.loads(a.fetchSerializedContent())==[0,])
@@ -67,7 +67,7 @@ for i in xrange(0,1000):
 dsm.removeDataScope(sname)
 #
 sname="S4"
-d2s=dsm.giveADataScopeCalled(sname)
+d2s,_=dsm.giveADataScopeCalled(sname)
 d2s.createRdWrVar("list","a")
 a=SalomeSDSClt.GetHandlerFromRef(dsm.retriveDataScope(sname).retrieveVar("a"))
 a.append(1)
@@ -79,7 +79,7 @@ assert(dsm.isAliveAndKicking(sname))
 #
 dsm=salome.naming_service.Resolve("/DataServerManager")
 sname="S11"
-d2s=dsm.giveADataScopeCalled(sname)
+d2s,_=dsm.giveADataScopeCalled(sname)
 d2s.createRdWrVar("dict","a")
 a=SalomeSDSClt.GetHandlerFromName(sname,"a")
 assert(isinstance(a,SalomeSDSClt.Dict))

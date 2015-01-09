@@ -43,7 +43,7 @@ namespace SALOMESDS
     CORBA::Boolean isAliveAndKicking(const char *scopeName);
     SALOME::DataScopeServer_ptr createDataScope(const char *scopeName);
     SALOME::DataScopeServer_ptr retriveDataScope(const char *scopeName);
-    SALOME::DataScopeServer_ptr giveADataScopeCalled(const char *scopeName);
+    SALOME::DataScopeServer_ptr giveADataScopeCalled(const char *scopeName, CORBA::Boolean& isCreated);
     void removeDataScope(const char *scopeName);
     void cleanScopesInNS();
     void shutdownScopes();

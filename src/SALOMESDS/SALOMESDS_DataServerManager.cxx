@@ -136,23 +136,28 @@ SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scope
   return SALOME::DataScopeServer::_duplicate(ret);
 }
 
-SALOME::DataScopeServer_ptr DataServerManager::giveADataScopeCalled(const char *scopeName)
+SALOME::DataScopeServer_ptr DataServerManager::giveADataScopeCalled(const char *scopeName, CORBA::Boolean& isCreated)
 {
   std::string scopeNameCpp(scopeName);
   std::vector<std::string> scopes(listOfScopesCpp());
   if(std::find(scopes.begin(),scopes.end(),scopeNameCpp)==scopes.end())
     {
+      isCreated=true;
       return createDataScope(scopeName);
     }
   else
     {
       if(isAliveAndKicking(scopeName))
-        return retriveDataScope(scopeName);
+        {
+          isCreated=false;
+          return retriveDataScope(scopeName);
+        }
       else
         {
           SALOME_NamingService ns(_orb);
           std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(scopeNameCpp));
           ns.Destroy_Name(fullScopeName.c_str());
+          isCreated=true;
           return createDataScope(scopeName);
         }
     }
