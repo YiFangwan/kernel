@@ -119,12 +119,10 @@ SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scope
   //
   SALOME_NamingService ns(_orb);
   std::string fullScopeName(CreateAbsNameInNSFromScopeName(scopeName));
-  std::ostringstream oss; oss << "valgrind --leak-check=yes SALOME_DataScopeServer" << " " << scopeName << " ";
+  std::ostringstream oss; oss << "SALOME_DataScopeServer" << " " << scopeName << " ";
   SALOME_ContainerManager::AddOmninamesParams(oss,&ns);
   std::string command(oss.str());
-  //SALOME_ContainerManager::MakeTheCommandToBeLaunchedASync(command);
-  command+=" > err.log 2>&1 &";
-  std::cerr << "************** " << command << std::endl;
+  SALOME_ContainerManager::MakeTheCommandToBeLaunchedASync(command);
   int status(SALOME_ContainerManager::SystemThreadSafe(command.c_str()));
   int count(SALOME_ContainerManager::GetTimeOutToLoaunchServer());
   SALOME::DataScopeServer_var ret(SALOME::DataScopeServer::_nil());

@@ -66,7 +66,7 @@ module SALOME
     void deleteVar(in string varName) raises (SALOME::SALOME_Exception);
     PickelizedPyObjRdOnlyServer createRdOnlyVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     PickelizedPyObjRdExtServer createRdExtVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
-    PickelizedPyObjRdWrServer createRdWrVar(in string typeName, in string varName) raises (SALOME::SALOME_Exception);
+    //PickelizedPyObjRdWrServer createRdWrVar(in string typeName, in string varName) raises (SALOME::SALOME_Exception);
     void shutdownIfNotHostedByDSM();
   };
 

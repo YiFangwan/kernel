@@ -67,6 +67,12 @@ class SalomeSDS2Test(unittest.TestCase):
     a._var_ptr.getMyDataScopeServer().deleteVar("a")
     pass
 
+  def testReadOnly1(self):
+    a=SalomeSDSClt.CreateRdOnlyGlobalVar({"ab":4,"cd":[5,77]},"a","Scope0")
+    self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77]})
+    self.assertRaises(AttributeError,a.__getitem__,"ab")
+    a._var_ptr.getMyDataScopeServer().deleteVar("a")
+
   def setUp(self):
     salome.salome_init()
     pass
