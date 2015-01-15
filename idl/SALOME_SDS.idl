@@ -26,8 +26,11 @@ module SALOME
   typedef sequence<string> StringVec;
   typedef sequence<octet> ByteVec;
   
+  interface DataScopeServer;
+
   interface BasicDataServer : GenericObj
   {
+    DataScopeServer getMyDataScopeServer();
     string getVarName();
     string getScopeName();
   };
@@ -60,6 +63,7 @@ module SALOME
     string getScopeName();
     StringVec listVars();
     BasicDataServer retrieveVar(in string varName) raises (SALOME::SALOME_Exception);
+    void deleteVar(in string varName) raises (SALOME::SALOME_Exception);
     PickelizedPyObjRdOnlyServer createRdOnlyVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     PickelizedPyObjRdExtServer createRdExtVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     PickelizedPyObjRdWrServer createRdWrVar(in string typeName, in string varName) raises (SALOME::SALOME_Exception);

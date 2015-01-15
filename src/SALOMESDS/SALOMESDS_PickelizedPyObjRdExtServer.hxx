@@ -38,9 +38,10 @@ namespace SALOMESDS
     ~PickelizedPyObjRdExtServer();
     SALOME::PickelizedPyObjRdExtServer_ptr invokePythonMethodOn(const char *method, const SALOME::ByteVec& args);
   private:
-    void checkRdExtnessOf(const std::string& methodName);
-    void checkListRdExtnessOf(const std::string& methodName);
-    void checkDictRdExtnessOf(const std::string& methodName);
+    void checkRdExtnessOf(const std::string& methodName, PyObject *argsPy);
+    void checkListRdExtnessOf(const std::string& methodName, PyObject *argsPy);
+    void checkDictRdExtnessOf(const std::string& methodName, PyObject *argsPy);
+    void checkDictSetitemRdExtness(PyObject *argsPy);
   };
 }
 

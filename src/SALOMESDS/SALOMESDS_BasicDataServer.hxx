@@ -36,6 +36,7 @@ namespace SALOMESDS
   {
   public:
     BasicDataServer(DataScopeServer *father, const std::string& varName);
+    SALOME::DataScopeServer_ptr getMyDataScopeServer();
     char *getVarName();
     char *getScopeName();
   public:
@@ -44,6 +45,8 @@ namespace SALOMESDS
     void Destroy();
   public:
     std::string getVarNameCpp() const { return _var_name; }
+  protected:
+    PortableServer::POA_var getPOA();
   protected:
     DataScopeServer *_father;
   private:

@@ -80,7 +80,7 @@ SALOME::StringVec *DataScopeServer::listVars()
   SALOME::StringVec *ret(new SALOME::StringVec);
   std::size_t sz(_vars.size());
   ret->length(sz);
-  std::list< std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > >::iterator it(_vars.begin());
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it(_vars.begin());
   for(std::size_t i=0;i<sz;it++,i++)
     {
       BasicDataServer *obj((*it).second);
@@ -90,9 +90,6 @@ SALOME::StringVec *DataScopeServer::listVars()
   return ret;
 }
 
-/*!
- * Called remotely -> to protect against throw
- */
 SALOME::BasicDataServer_ptr DataScopeServer::retrieveVar(const char *varName)
 {
   std::string varNameCpp(varName);
@@ -105,18 +102,35 @@ SALOME::BasicDataServer_ptr DataScopeServer::retrieveVar(const char *varName)
       throw Exception(oss.str());
     }
   std::size_t pos(std::distance(allNames.begin(),it));
-  std::list< std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > >::iterator it0(_vars.begin());
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it0(_vars.begin());
   for(std::size_t i=0;i<pos;i++,it0++);
   return SALOME::BasicDataServer::_duplicate((*it0).first);
+}
+
+void DataScopeServer::deleteVar(const char *varName)
+{
+  std::string varNameCpp(varName);
+  std::vector<std::string> allNames(getAllVarNames());
+  std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varNameCpp));
+  if(it==allNames.end())
+    {
+      std::ostringstream oss; oss << "DataScopeServer::deleteVar : name \"" << varNameCpp << "\" does not exists ! Possibilities are :";
+      std::copy(allNames.begin(),allNames.end(),std::ostream_iterator<std::string>(oss,", "));
+      throw Exception(oss.str());
+    }
+  std::size_t pos(std::distance(allNames.begin(),it));
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it0(_vars.begin());
+  (*it0).first->UnRegister();
+  _vars.erase(it0);
 }
 
 SALOME::PickelizedPyObjRdOnlyServer_ptr DataScopeServer::createRdOnlyVar(const char *varName, const SALOME::ByteVec& constValue)
 {
   std::string varNameCpp(varName);
   checkNotAlreadyExistingVar(varNameCpp);
-  AutoRefCountPtr<PickelizedPyObjRdOnlyServer> tmp(new PickelizedPyObjRdOnlyServer(this,varNameCpp,constValue));
+  PickelizedPyObjRdOnlyServer *tmp(new PickelizedPyObjRdOnlyServer(this,varNameCpp,constValue));
   CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
-  std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<PickelizedPyObjRdOnlyServer,BasicDataServer>(tmp));
+  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
   return SALOME::PickelizedPyObjRdOnlyServer::_narrow(ret);
 }
@@ -125,9 +139,9 @@ SALOME::PickelizedPyObjRdExtServer_ptr DataScopeServer::createRdExtVar(const cha
 {
   std::string varNameCpp(varName);
   checkNotAlreadyExistingVar(varNameCpp);
-  AutoRefCountPtr<PickelizedPyObjRdExtServer> tmp(new PickelizedPyObjRdExtServer(this,varNameCpp,constValue));
+  PickelizedPyObjRdExtServer *tmp(new PickelizedPyObjRdExtServer(this,varNameCpp,constValue));
   CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
-  std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<PickelizedPyObjRdExtServer,BasicDataServer>(tmp));
+  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
   return SALOME::PickelizedPyObjRdExtServer::_narrow(ret);
 }
@@ -139,9 +153,9 @@ SALOME::PickelizedPyObjRdWrServer_ptr DataScopeServer::createRdWrVar(const char 
 {
   std::string varNameCpp(varName),typeNameCpp(typeName);
   checkNotAlreadyExistingVar(varNameCpp);
-  AutoRefCountPtr<PickelizedPyObjRdWrServer> tmp(new PickelizedPyObjRdWrServer(this,typeNameCpp,varNameCpp));
+  PickelizedPyObjRdWrServer *tmp(new PickelizedPyObjRdWrServer(this,typeNameCpp,varNameCpp));
   CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
-  std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > p(SALOME::BasicDataServer::_narrow(ret),DynamicCastSafe<PickelizedPyObjRdWrServer,BasicDataServer>(tmp));
+  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
   return SALOME::PickelizedPyObjRdWrServer::_narrow(ret);
 }
@@ -231,7 +245,7 @@ std::vector< std::string > DataScopeServer::getAllVarNames() const
 {
   std::size_t sz(_vars.size());
   std::vector<std::string> ret(sz);
-  std::list< std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > >::const_iterator it(_vars.begin());
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it(_vars.begin());
   for(std::size_t i=0;i<sz;it++,i++)
     ret[i]=(*it).second->getVarNameCpp();
   return ret;
@@ -239,23 +253,8 @@ std::vector< std::string > DataScopeServer::getAllVarNames() const
 
 CORBA::Object_var DataScopeServer::activateWithDedicatedPOA(BasicDataServer *ds)
 {
-  CORBA::Object_var obj(_orb->resolve_initial_references("RootPOA"));
-  PortableServer::POA_var rootPoa;
-  if(!CORBA::is_nil(obj))
-    rootPoa=PortableServer::POA::_narrow(obj);
-  PortableServer::POAManager_var pman(rootPoa->the_POAManager());
-  CORBA::PolicyList policies;
-  policies.length(1);
-  PortableServer::ThreadPolicy_var threadPol(rootPoa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
-  policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
-  std::string name(ds->getVarNameCpp());
-  std::ostringstream oss; oss << "POA@" << name;
-  std::string zePOAName(oss.str());
-  PortableServer::POA_var poa(rootPoa->create_POA(zePOAName.c_str(),pman,policies));
-  threadPol->destroy();
-  //
-  PortableServer::ObjectId_var id(poa->activate_object(ds));
-  CORBA::Object_var ret(poa->id_to_reference(id));
+  PortableServer::ObjectId_var id(_poa->activate_object(ds));
+  CORBA::Object_var ret(_poa->id_to_reference(id));
   return ret;
 }
 
@@ -265,7 +264,7 @@ void DataScopeServer::checkNotAlreadyExistingVar(const std::string& varName)
   std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varName));
   if(it!=allNames.end())
     {
-      std::ostringstream oss; oss << "DataScopeServer::createGlobalStringVar : name \"" << varName << "\" already exists !";
+      std::ostringstream oss; oss << "DataScopeServer::checkNotAlreadyExistingVar : name \"" << varName << "\" already exists !";
       throw Exception(oss.str());
     }
 }

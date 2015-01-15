@@ -30,6 +30,12 @@ BasicDataServer::BasicDataServer(DataScopeServer *father, const std::string& var
 {
 }
 
+SALOME::DataScopeServer_ptr BasicDataServer::getMyDataScopeServer()
+{
+  CORBA::Object_var obj(getPOA()->servant_to_reference(_father));
+  return SALOME::DataScopeServer::_narrow(obj);
+}
+
 /*!
  * Called remotely -> to protect against throw
  */
@@ -56,4 +62,9 @@ void BasicDataServer::UnRegister()
 void BasicDataServer::Destroy()
 {
   enforcedRelease();
+}
+
+PortableServer::POA_var BasicDataServer::getPOA()
+{
+  return _father->getPOA();
 }

@@ -38,10 +38,7 @@ namespace SALOMESDS
     ~PickelizedPyObjServer();
     void setSerializedContent(const SALOME::ByteVec& newValue);
     SALOME::ByteVec *fetchSerializedContent();
-  public:
-    void setPOA(PortableServer::POA_var poa) { _poa=poa; }
   protected:
-    PortableServer::POA_var getPOA();
     static void FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret);
     static SALOME::ByteVec *FromCppToByteSeq(const std::string& strToBeConv);
     PyObject *getPyObjFromPickled(const std::string& pickledData);

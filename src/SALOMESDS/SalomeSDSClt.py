@@ -24,7 +24,7 @@ import cPickle
 
 class WrappedType(object):
     def __init__(self,varPtr,isTemporaryVar=False):
-        assert(isinstance(varPtr,SALOME._objref_PickelizedPyObjRdWrServer))
+        assert(isinstance(varPtr,SALOME._objref_PickelizedPyObjServer))
         self._var_ptr=varPtr
         if not isTemporaryVar:
             self._var_ptr.Register()
@@ -44,6 +44,7 @@ class WrappedType(object):
         return (self._wrapped_type,(self.local_copy(),))
 
     def assign(self,elt):
+        assert(isinstance(self._var_ptr,SALOME._objref_PickelizedPyObjRdWrServer))
         st=cPickle.dumps(elt,cPickle.HIGHEST_PROTOCOL)
         self._var_ptr.setSerializedContent(st)
         pass
@@ -449,7 +450,7 @@ class String(WrappedType):
 
 class Caller:
     def __init__(self,varPtr,meth):
-        assert(isinstance(varPtr,SALOME._objref_PickelizedPyObjRdWrServer))
+        assert(isinstance(varPtr,SALOME._objref_PickelizedPyObjServer))
         self._var_ptr=varPtr
         self._meth=meth
         pass
@@ -464,9 +465,10 @@ PyHandlerTypeMap={int:Int,float:Float,str:String,list:List,tuple:Tuple,dict:Dict
 def GetHandlerFromRef(objCorba,isTempVar=False):
     """ Returns a client that allows to handle a remote corba ref of a global var easily.
     """
-    assert(isinstance(objCorba,SALOME._objref_PickelizedPyObjRdWrServer))
+    assert(isinstance(objCorba,SALOME._objref_PickelizedPyObjServer))
     v=cPickle.loads(objCorba.fetchSerializedContent())
     if v is None:
+        objCorba.UnRegister()
         return None
     return PyHandlerTypeMap[v.__class__](objCorba,isTempVar)
     
@@ -474,13 +476,13 @@ def GetHandlerFromRef(objCorba,isTempVar=False):
 def CreateRdOnlyGlobalVar(value,varName,scopeName):
     import salome
     dsm=salome.naming_service.Resolve("/DataServerManager")
-    d2s,isCreated=dsm.giveADataScopeCalled()
+    d2s,isCreated=dsm.giveADataScopeCalled(scopeName)
     return GetHandlerFromRef(d2s.createRdOnlyVar(varName,cPickle.dumps(value,cPickle.HIGHEST_PROTOCOL)),False)
     
 def CreateRdExtGlobalVar(value,varName,scopeName):
     import salome
     dsm=salome.naming_service.Resolve("/DataServerManager")
-    d2s,isCreated=dsm.giveADataScopeCalled()
+    d2s,isCreated=dsm.giveADataScopeCalled(scopeName)
     return GetHandlerFromRef(d2s.createRdExtVar(varName,cPickle.dumps(value,cPickle.HIGHEST_PROTOCOL)),False)
 
 def GetHandlerFromName(scopeName,varName):

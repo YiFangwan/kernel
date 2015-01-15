@@ -40,7 +40,6 @@ PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServer *father, const std:
 
 PickelizedPyObjServer::~PickelizedPyObjServer()
 {
-  std::cerr << "~~~~~~~~~~ PickelizedPyObjServer : " << getVarNameCpp() << std::endl;
   Py_XDECREF(_self);
 }
 
@@ -51,11 +50,6 @@ SALOME::ByteVec *PickelizedPyObjServer::fetchSerializedContent()
 {
   Py_XINCREF(_self);//because pickelize consume _self
   return FromCppToByteSeq(pickelize(_self));
-}
-
-PortableServer::POA_var PickelizedPyObjServer::getPOA()
-{
-  return _poa;
 }
 
 void PickelizedPyObjServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret)

@@ -47,10 +47,10 @@ SALOME::PickelizedPyObjRdExtServer_ptr PickelizedPyObjRdExtServer::invokePythonM
 {
   if(!_self)
     throw Exception("PickelizedPyObjRdExtServer::invokePythonMethodOn : self is NULL !");
-  checkRdExtnessOf(method);
   std::string argsCpp;
   FromByteSeqToCpp(args,argsCpp);
   PyObject *argsPy(getPyObjFromPickled(argsCpp));
+  checkRdExtnessOf(method,argsPy);
   //
   PyObject *selfMeth(PyObject_GetAttrString(_self,method));
   if(!selfMeth)
@@ -68,42 +68,70 @@ SALOME::PickelizedPyObjRdExtServer_ptr PickelizedPyObjRdExtServer::invokePythonM
     }
   PickelizedPyObjRdExtServer *ret(new PickelizedPyObjRdExtServer(_father,DataScopeServer::BuildTmpVarNameFrom(getVarNameCpp()),res));
   PortableServer::POA_var poa(_father->getPOA());
-  ret->setPOA(poa);
   PortableServer::ObjectId_var id(poa->activate_object(ret));
   CORBA::Object_var obj(poa->id_to_reference(id));
   return SALOME::PickelizedPyObjRdExtServer::_narrow(obj);
 }
 
-void PickelizedPyObjRdExtServer::checkRdExtnessOf(const std::string& methodName)
+void PickelizedPyObjRdExtServer::checkRdExtnessOf(const std::string& methodName, PyObject *argsPy)
 {
   if(!_self)
-    throw Exception("PickelizedPyObjRdExtServer::checkRdExtnessOf : self is NULL !");
+    {
+      Py_XDECREF(argsPy);
+      throw Exception("PickelizedPyObjRdExtServer::checkRdExtnessOf : self is NULL !");
+    }
   if(PyTuple_Check(_self)==1 || PyString_Check(_self)==1 || PyInt_Check(_self)==1 || PyBool_Check(_self)==1 || PyFloat_Check(_self)==1)
     return ;//_self is tuple, str, int or float -> immutable in python. So no method can break the RdExtness of _self.
   if(PyList_Check(_self)==1)
-    checkListRdExtnessOf(methodName);
+    checkListRdExtnessOf(methodName,argsPy);
   else if(PyDict_Check(_self)==1)
-    checkDictRdExtnessOf(methodName);
+    checkDictRdExtnessOf(methodName,argsPy);
   else
     throw Exception("PickelizedPyObjRdExtServer::checkRdExtnessOf : Supported python types are [list,tuple,dict,str,int,float] !");
 }
 
-void PickelizedPyObjRdExtServer::checkListRdExtnessOf(const std::string& methodName)
+void PickelizedPyObjRdExtServer::checkListRdExtnessOf(const std::string& methodName, PyObject *argsPy)
 {
   static const char *THE_RDEXT_METH_OF_LIST[]={"__getitem__","append","extend","insert","reverse","sort"};
   for(std::size_t i=0;i<sizeof(THE_RDEXT_METH_OF_LIST)/sizeof(const char *);i++)
     if(methodName==THE_RDEXT_METH_OF_LIST[i])
       return ;
-  std::ostringstream oss; oss << "PickelizedPyObjRdExtServer::checkListRdExtnessOf : The method \"" << methodName << "\" is a method that can lead to a loss of data ! Supported method of \"list \"without loss of data are : __getitem__, append, extend, insert,reverse, sort !";
+  Py_XDECREF(argsPy);
+  std::ostringstream oss; oss << "PickelizedPyObjRdExtServer::checkListRdExtnessOf : The method \"" << methodName << "\" is a method that can lead to a loss of data ! Supported method of \"list \"without loss of data are : __getitem__, append, extend, insert, reverse, sort !";
   throw Exception(oss.str());
 }
 
-void PickelizedPyObjRdExtServer::checkDictRdExtnessOf(const std::string& methodName)
+void PickelizedPyObjRdExtServer::checkDictRdExtnessOf(const std::string& methodName, PyObject *argsPy)
 {
   static const char *THE_RDEXT_METH_OF_DICT[]={"__getitem__","get","items","keys","setdefault","update","values"};
   for(std::size_t i=0;i<sizeof(THE_RDEXT_METH_OF_DICT)/sizeof(const char *);i++)
     if(methodName==THE_RDEXT_METH_OF_DICT[i])
       return ;
-  std::ostringstream oss; oss << "PickelizedPyObjRdExtServer::checkDictRdExtnessOf : The method \"" << methodName << "\" is a method that can lead to a loss of data ! Supported method of \"list \"without loss of data are : __getitem__, get, items, keys, setdefault, update, values !";
+  if(methodName=="__setitem__")
+    {
+      checkDictSetitemRdExtness(argsPy);
+      return ;
+    }
+  Py_XDECREF(argsPy);
+  std::ostringstream oss; oss << "PickelizedPyObjRdExtServer::checkDictRdExtnessOf : The method \"" << methodName << "\" is a method that can lead to a loss of data ! Supported method of \"list \"without loss of data are : __getitem__, __setitem__(with conditions), get, items, keys, setdefault, update, values !";
   throw Exception(oss.str());
+}
+
+void PickelizedPyObjRdExtServer::checkDictSetitemRdExtness(PyObject *argsPy)
+{
+  if(PyTuple_Check(argsPy)==0)
+    {
+      Py_XDECREF(argsPy);
+      throw Exception("PickelizedPyObjRdExtServer::checkDictSetitemRdExtness : args of dic(self).__setitem__ is not a tuple !");
+    }
+  if(PyTuple_Size(argsPy)!=2)
+    {
+      Py_XDECREF(argsPy);
+      throw Exception("PickelizedPyObjRdExtServer::checkDictSetitemRdExtness : tuple of dic(self).__setitem__ has not a size equal to 2 !");
+    }
+  if(PyDict_GetItem(_self,PyTuple_GetItem(argsPy,0))!=0)
+    {// argsPy[0] is already a key of _self -> __setitem__ is NOT RdExt !
+      Py_XDECREF(argsPy);
+      throw Exception("PickelizedPyObjRdExtServer::checkDictSetitemRdExtness : specified key of __setitem__ already exists ! RdExt property is not applied !");
+    }
 }

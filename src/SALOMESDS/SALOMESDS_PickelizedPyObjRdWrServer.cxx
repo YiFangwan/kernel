@@ -104,7 +104,6 @@ SALOME::PickelizedPyObjRdWrServer_ptr PickelizedPyObjRdWrServer::invokePythonMet
     }
   PickelizedPyObjRdWrServer *ret(new PickelizedPyObjRdWrServer(_father,DataScopeServer::BuildTmpVarNameFrom(getVarNameCpp()),res));
   PortableServer::POA_var poa(_father->getPOA());
-  ret->setPOA(poa);
   PortableServer::ObjectId_var id(poa->activate_object(ret));
   CORBA::Object_var obj(poa->id_to_reference(id));
   return SALOME::PickelizedPyObjRdWrServer::_narrow(obj);

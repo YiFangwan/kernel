@@ -45,6 +45,7 @@ namespace SALOMESDS
     char *getScopeName();
     SALOME::StringVec *listVars();
     SALOME::BasicDataServer_ptr retrieveVar(const char *varName);
+    void deleteVar(const char *varName);
     SALOME::PickelizedPyObjRdOnlyServer_ptr createRdOnlyVar(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::PickelizedPyObjRdExtServer_ptr createRdExtVar(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::PickelizedPyObjRdWrServer_ptr createRdWrVar(const char *typeName, const char *varName);
@@ -70,7 +71,7 @@ namespace SALOMESDS
     PortableServer::POA_var _poa;
     CORBA::ORB_var _orb;
     std::string _name;
-    std::list< std::pair< SALOME::BasicDataServer_var, AutoRefCountPtr<BasicDataServer> > > _vars;
+    std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > > _vars;
     static std::size_t COUNTER;
   };
 }
