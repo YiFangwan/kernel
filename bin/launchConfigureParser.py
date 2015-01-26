@@ -167,17 +167,13 @@ def version_id(fname):
 ###
 def defaultUserFile(appname=salomeappname, cfgname=salomecfgname):
     v = version()
-    if sys.platform == "win32":
-      filename = os.path.join(getHomeDir(), "{0}.xml.{1}".format(appname, v))
-    else:
-        if cfgname:
-            filename = os.path.join(getHomeDir(), ".config", cfgname, "{0}rc.{1}".format(appname, v))
-            pass
-        else:
-            filename = os.path.join(getHomeDir(), "{0}rc.{1}".format(appname, v))
-            pass
-        pass
-    return filename
+    filetmpl = sys.platform == "win32" and "{0}.xml.{1}" or "{0}rc.{1}"
+    paths = []
+    paths.append(getHomeDir())
+    paths.append(".config")
+    if cfgname: paths.append(cfgname)
+    paths.append(filetmpl.format(appname, v))
+    return os.path.join(*paths)
 
 ###
 # Get user configuration file name
@@ -201,19 +197,20 @@ def userFile(appname, cfgname):
     if not id0: return None                      # bad version id -> can't detect appropriate file
 
     # ... get all existing user preferences files
-    if sys.platform == "win32":
-        files = glob.glob(os.path.join(getHomeDir(), "{0}.xml.*".format(appname)))
-    else:
-        files = []
-        if cfgname:
-            # Since v6.6.0 - in ~/.config/salome directory, without dot prefix
-            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, "{0}rc.*".format(appname)))
-            # Since v6.5.0 - in ~/.config/salome directory, dot-prefixed (backward compatibility)
-            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, ".{0}rc.*".format(appname)))
-            pass
-        # old style (before v6.5.0) - in ~ directory, dot-prefixed
-        files += glob.glob(os.path.join(getHomeDir(), ".{0}rc.*".format(appname)))
+    filetmpl1 = sys.platform == "win32" and "{0}.xml.*" or "{0}rc.*"
+    filetmpl2 = sys.platform == "win32" and filetmpl1 or "." + filetmpl1
+    files = []
+    if cfgname:
+        # Since v6.6.0 - in ~/.config/salome directory, without dot prefix
+        files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, filetmpl1.format(appname)))
+        # Since v6.5.0 - in ~/.config/salome directory, dot-prefixed (backward compatibility)
+        if filetmpl2 and filetmpl2 != filetmpl1:
+            files += glob.glob(os.path.join(getHomeDir(), ".config", cfgname, filetmpl2.format(appname)))
         pass
+    # old style (before v6.5.0) - in ~ directory, dot-prefixed
+    if filetmpl2 and filetmpl2 != filetmpl1:
+        files += glob.glob(os.path.join(getHomeDir(), filetmpl2.format(appname)))
+    pass
 
     # ... loop through all files and find most appopriate file (with closest id)
     appr_id   = -1
@@ -947,13 +944,14 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
         else:
             dirs += re.split('[;|:]', os.getenv(config_var))
 
-    gui_available = True
-    gui_resources_dir = os.path.join(os.getenv("GUI_ROOT_DIR"),'share','salome','resources','gui')
-    if os.getenv("GUI_ROOT_DIR") and os.path.isdir( gui_resources_dir ):
-        dirs.append(gui_resources_dir)
+    gui_available = False
+    if os.getenv("GUI_ROOT_DIR"):
+        gui_resources_dir = os.path.join(os.getenv("GUI_ROOT_DIR"),'share','salome','resources','gui')
+        if os.path.isdir( gui_resources_dir ):
+            gui_available = True
+            dirs.append(gui_resources_dir)
         pass
-    else:
-        gui_available = False
+    if not gui_available:
         kernel_resources_dir = os.path.join(os.getenv("KERNEL_ROOT_DIR"),'bin','salome','appliskel')
         if os.getenv("KERNEL_ROOT_DIR") and os.path.isdir( kernel_resources_dir ):
           dirs.append(kernel_resources_dir)

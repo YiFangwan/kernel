@@ -18,6 +18,7 @@
 #
 
 SET(SUBDIR_BASE
+  AppQuickStart
   Basics
   SALOMELocalTrace
   HDFPersist
@@ -37,6 +38,7 @@ SET(SUBDIR_CORBA
   Notification
   NOTIFICATION_SWIG
   Container
+  SALOMESDS
   TestContainer
   Launcher
   LifeCycleCORBA

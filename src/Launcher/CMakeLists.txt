@@ -37,6 +37,7 @@ INCLUDE_DIRECTORIES(
   ${CMAKE_CURRENT_SOURCE_DIR}/../Notification
   ${CMAKE_CURRENT_SOURCE_DIR}/../Container
   ${CMAKE_CURRENT_SOURCE_DIR}/../ResourcesManager
+  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMESDS
   ${PROJECT_BINARY_DIR}/idl
 )
 
@@ -99,6 +100,7 @@ IF(NOT SALOME_LAUNCHER_ONLY)
   SET(SALOME_LauncherServer_LIBS
     Launcher
     SalomeLauncher
+    SalomeSDS
     SALOMEBasics
     SALOMELocalTrace
     ${LIBBATCH_LIBRARIES}

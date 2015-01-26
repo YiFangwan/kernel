@@ -24,12 +24,16 @@
 #include "BatchTest.hxx"
 #include "OpUtil.hxx"
 #include "SALOME_ContainerManager.hxx"
+#include "SALOME_NamingService.hxx"
+#include "SALOME_ResourcesManager.hxx"
 #include "Utils_CorbaException.hxx"
 
 
 #include "Launcher_Job_Command.hxx"
 #include "Launcher_Job_YACSFile.hxx"
 #include "Launcher_Job_PythonSALOME.hxx"
+
+#include "utilities.h"
 
 #ifdef WIN32
 # include <process.h>
@@ -59,7 +63,7 @@ SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa
   _NS = new SALOME_NamingService(orb);
   _ResManager = new SALOME_ResourcesManager(orb,poa,_NS);
   _l.SetResourcesManager(_ResManager->GetImpl());
-  _ContManager = new SALOME_ContainerManager(orb,poa,_ResManager,_NS);
+  _ContManager = new SALOME_ContainerManager(orb,poa,_NS);
   _ResManager->_remove_ref();
   _ContManager->_remove_ref();
 
