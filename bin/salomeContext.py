@@ -115,6 +115,21 @@ class SalomeContext:
   def runSalome(self, args):
     # Run this module as a script, in order to use appropriate Python interpreter
     # according to current path (initialized from environment files).
+    mpi_module_option = "--with_mpi_module="
+    mpi_module = [x for x in args if x.startswith(mpi_module_option)]
+    if mpi_module:
+      mpi_module = mpi_module[0][len(mpi_module_option):]
+      print "Trying to load MPI module: %s..."%mpi_module,
+      try:
+        out, err = subprocess.call(["modulecmd", "python", "load", mpi_module]).communicate()
+        exec out # define specific environment variables
+        print " OK"
+      except:
+        print " ** Failed **"
+        pass
+      args = [x for x in args if not x.startswith(mpi_module_option)]
+      pass
+
     import os
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     env_copy = os.environ.copy()
@@ -233,21 +248,6 @@ class SalomeContext:
         sys.exit(0)
       # try to default to "start" command
       command = "_runAppli"
-
-    mpi_module_option = "--with_mpi_module="
-    mpi_module = [x for x in args if x.startswith(mpi_module_option)]
-    if mpi_module:
-      mpi_module = mpi_module[0][len(mpi_module_option):]
-      print "Trying to load MPI module: %s..."%mpi_module,
-      import subprocess
-      try:
-        subprocess.call(["module", "load", mpi_module])
-        print " OK"
-      except:
-        print " ** Failed **"
-        pass
-      options = [x for x in options if not x.startswith(mpi_module_option)]
-      pass
 
     try:
       res = getattr(self, command)(options) # run appropriate method
