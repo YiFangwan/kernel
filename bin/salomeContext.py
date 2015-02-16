@@ -40,7 +40,7 @@ Usage: salome [command] [options] [--config=<file,folder,...>]
 
 Commands:
 =========
-    start         Starts a SALOME session (through virtual application)
+    start           Starts a SALOME session (through virtual application)
     context       Initializes SALOME context.
     shell         Initializes SALOME context, and executes scripts passed
                   as command arguments
@@ -213,9 +213,9 @@ class SalomeContext:
     options = args[1:]
 
     availableCommands = {
-      'start' :   '_runAppli',
+      'start'   : '_runAppli',
       'context' : '_setContext',
-      'shell' :   '_runSession',
+      'shell'   : '_runSession',
       'connect' : '_runConsole',
       'kill'    : '_kill',
       'killall' : '_killAll',
@@ -359,9 +359,7 @@ class SalomeContext:
     return proc.communicate()
   #
 
-  def _runSession(self, args=None):
-    if args is None:
-      args = []
+  def _runSession(self, args=[]):
     sys.argv = ['runSession'] + args
     import runSession
     params, args = runSession.configureSession(args, exe="salome shell")
