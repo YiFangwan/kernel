@@ -40,18 +40,18 @@ Usage: salome [command] [options] [--config=<file,folder,...>]
 
 Commands:
 =========
-    start         Starts a SALOME session (through virtual application)
-    context       Initializes SALOME context.
-    shell         Initializes SALOME context, and executes scripts passed
-                  as command arguments
-    connect       Connects a Python console to the active SALOME session
+    start           Starts a SALOME session (through virtual application)
+    context         Initializes SALOME context.
+    shell           Initializes SALOME context, and executes scripts passed
+                    as command arguments
+    connect         Connects a Python console to the active SALOME session
     kill <port(s)>  Terminate SALOME session running on given ports for current user
                     Port numbers must be separated by blank characters
-    killall       Kill all SALOME running sessions for current user
+    killall         Kill *all* SALOME running sessions for current user
     test            Run SALOME tests.
-    info          Display some information about SALOME
-    help          Show this message
-    coffee        Yes! SALOME can also make coffee!!
+    info            Display some information about SALOME
+    help            Show this message
+    coffee          Yes! SALOME can also make coffee!!
 
 If no command is given, default to start.
 
@@ -213,9 +213,9 @@ class SalomeContext:
     options = args[1:]
 
     availableCommands = {
-      'start' :   '_runAppli',
+      'start'   : '_runAppli',
       'context' : '_setContext',
-      'shell' :   '_runSession',
+      'shell'   : '_runSession',
       'connect' : '_runConsole',
       'kill'    : '_kill',
       'killall' : '_killAll',
