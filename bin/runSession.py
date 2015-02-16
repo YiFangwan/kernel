@@ -56,7 +56,7 @@ def configureSession(args=None, exe=None):
 If command is not given a shell is opened; else execute the given command.\n
 * Command may be an executable script or program, either identified by its full path or located in a directory pointed by a system variable (e.g. PATH).\n
 * Command may also be a series of Python scripts with arguments: [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
-Python file arguments, if any, must be comma-separated (without blank characters) and prefixed by "args:" (without quotes).
+Python file arguments, if any, must be comma-separated (without blank characters) and prefixed by "args:" keyword (without quotes).
 For example:
        salome shell hello.py add.py args:1,2 hello.py args:you
 will successively say hello, add 1+2, and say hello to you.
