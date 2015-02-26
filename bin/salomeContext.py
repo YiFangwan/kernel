@@ -431,15 +431,12 @@ class SalomeContext:
   #
 
   def _runTests(self, args=[]):
-    sys.argv = ['runTests'] + args
-    import runTests
-    params, args = runTests.configureTests(args, exe="salome test")
-
-    sys.argv = ['runTests'] + args
+    sys.argv = ['runTests']
     import setenv
     setenv.main(True)
 
-    return runTests.runTests(params, args)
+    import runTests
+    return runTests.runTests(args, exe="salome test")
   #
 
   def _showInfo(self, unused=None):

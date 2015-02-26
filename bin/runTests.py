@@ -18,103 +18,97 @@
 #
 
 import os
-from optparse import OptionParser
-from salomeContextUtils import getScriptsAndArgs, formatScriptsAndArgs
+import sys
+import select
+import subprocess
 
-# Use to display newlines (\n) in epilog
-class MyParser(OptionParser):
-    def format_epilog(self, formatter):
-        return self.epilog
-#
-
-class TestParameters:
-  def __init__(self, resources):
-    self.resources = resources
-#
-
-def configureTests(args=None, exe=None):
-  if args is None:
-    args = []
+def __configureTests(args=[], exe=None):
   if exe:
-      usage = "Usage: %s [options] [components]"%exe
+      usage = "Usage: %s [options]"%exe
   else:
-      usage = "Usage: %prog [options] [components]"
+      usage = "Usage: %prog [options]"
   epilog  = """\n
-Run tests of SALOME components (KERNEL, YACS...). If components are not given, run tests of each avaible component.\n
-* Tests can be restricted to a set of components.
-* For each component, a subset of test files may be given using "with:" syntax.\n
-Examples:
-* Running all tests of all available components:
-       salome test
-* Running all tests of components KERNEL and YACS:
-       salome test KERNEL YACS
-* Running tests named test04 and test07 of component KERNEL:
-       salome test KERNEL with:test04,test07
-* Running tests named test04 and test07 of component KERNEL, and tests named test11 and test12 of component YACS:
-       salome test KERNEL with:test04,test07 YACS with:test11,test12
+Run tests of SALOME components provided with application.\n
+Principal options are:
+    -h,--help
+        Show this help message and exit.
 
-Components must be separated by blank characters.
-Tests files, if specified, must be comma-separated (without blank characters) and prefixed by "with:" keyword (without quotes).\n
+    -V,--verbose
+        Enable verbose output from tests.
+    -VV,--extra-verbose
+        Enable more verbose output from tests.
+    -Q,--quiet
+        Suppress all output.
+
+    -N,--show-only
+        Show available tests (without running them).
+
+    -R <regex>, --tests-regex <regex>
+        Run tests matching regular expression.
+    -E <regex>, --exclude-regex <regex>
+        Exclude tests matching regular expression.
+
+    -L <regex>, --label-regex <regex>
+        Run tests with labels matching regular expression.
+    -LE <regex>, --label-exclude <regex>
+        Exclude tests with labels matching regular expression.
+
+For complete description of available options, pleaser refer to ctest documentation.\n
 """
-  parser = MyParser(usage=usage, epilog=epilog)
-  parser.add_option("-r", "--resources", metavar="<resources>", default=0,
-                    action="store", type="string", dest="resources",
-                    help="A catalog of available resources (if a local test need to connect a remote machine)."
-                    )
-  try:
-    (options, args) = parser.parse_args(args)
-  except Exception, e:
-    print e
-    return
+  if not args:
+    return []
 
-  params = TestParameters(options.resources)
-  return params, args
+  if args[0] in ["-h", "--help"]:
+    print usage + epilog
+    sys.exit(0)
+
+  return args
 #
 
-class ComponentAndTests:
-  # component: the component to be tested
-  # tests: subset of component tests to be run
-  def __init__(self, component=None, tests=None):
-    self.component = component
-    self.tests = tests
-  #
-  def __repr__(self):
-    msg = "\n# Component: %s\n"%self.component
-    msg += "     * Tests: %s\n"%self.tests
-    return msg
-  #
+# tests must be in ${ABSOLUTE_APPLI_PATH}/${__testSubDir}/
+__testSubDir = "bin/salome/test"
+
+# Both display process stdout&stderr to console and capture them to variables
+def __runTest(command, workdir):
+  p = subprocess.Popen(command, cwd=workdir, stdout=subprocess.PIPE, stderr=subprocess.PIPE, bufsize=1)
+  stdout = []
+  stderr = []
+
+  while True:
+    reads = [p.stdout.fileno(), p.stderr.fileno()]
+    ret = select.select(reads, [], [])
+
+    for fd in ret[0]:
+      if fd == p.stdout.fileno():
+        read = p.stdout.readline()
+        sys.stdout.write(read)
+        stdout.append(read)
+        pass
+      if fd == p.stderr.fileno():
+        read = p.stderr.readline()
+        sys.stderr.write(read)
+        stderr.append(read)
+        pass
+      pass
+
+    if p.poll() != None:
+      break
+    pass
+
+  return p.returncode, "".join(stdout), "".join(stderr)
 #
 
-# Return an array of ComponentAndTests objects
-def getComponentAndTestFiles(args=[]):
-  # Syntax of args: component [with:a1,...,an] ... component [with:a1,...,an]
-  compoTests = []
-  currentKey = None
-  withPrefix = "with:"
+def runTests(args, exe=None):
+  args = __configureTests(args, exe)
 
-  for i in range(len(args)):
-    elt = os.path.expanduser(args[i])
+  appliPath = os.getenv("ABSOLUTE_APPLI_PATH")
+  if not appliPath:
+      raise SalomeContextException("Unable to find application path. Please check that the variable ABSOLUTE_APPLI_PATH is set.")
 
-    if elt.startswith(withPrefix):
-      if not currentKey:
-        raise SalomeContextException("test files list must follow corresponding component in command line.")
-      elt = elt.replace(withPrefix, '')
-      compoTests[len(compoTests)-1].tests = elt.split(",")
-      currentKey = None
-    else:
-      currentKey = elt
-      compoTests.append(ComponentAndTests(component=currentKey))
-  # end for loop
-  return compoTests
-#
+  testPath = os.path.join(appliPath, __testSubDir)
 
-def runTests(params, args):
-  compoTests = getComponentAndTestFiles(args)
-  print compoTests
+  command = ["ctest"] + args
+  res, out, err = __runTest(command, testPath)
 
-
-  # :TODO: run tests
-
-
-
+  sys.exit(res)
 #
