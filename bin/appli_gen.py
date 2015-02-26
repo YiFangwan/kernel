@@ -189,7 +189,8 @@ def install(prefix, config_file, verbose=0):
             options.verbose = verbose
             options.clear = 0
             options.prefix = home_dir
-            options.module = _config[module]
+            options.module_name = module
+            options.module_path = _config[module]
             virtual_salome.link_module(options)
             pass
         pass
@@ -202,7 +203,7 @@ def install(prefix, config_file, verbose=0):
                'runAppli',           # OBSOLETE (replaced by salome)
                'runConsole',         # OBSOLETE (replaced by salome)
                'runRemote.sh',
-               'runSalomeScript',
+               'runSalomeScript',    # OBSOLETE (replaced by salome)
                'runSession',         # OBSOLETE (replaced by salome)
                'salome',
                'update_catalogs.py',
@@ -219,7 +220,7 @@ def install(prefix, config_file, verbose=0):
     virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
 
     if _config.has_key("prereq_path") and os.path.isfile(_config["prereq_path"]):
-        shutil.copyfile(_config["prereq_path"], 
+        shutil.copyfile(_config["prereq_path"],
                         os.path.join(home_dir, 'env.d', 'envProducts.sh'))
         pass
     else:
@@ -235,7 +236,7 @@ def install(prefix, config_file, verbose=0):
         pass
 
     if _config.has_key("system_conf_path") and os.path.isfile(_config["system_conf_path"]):
-        shutil.copyfile(_config["system_conf_path"], 
+        shutil.copyfile(_config["system_conf_path"],
                         os.path.join(home_dir, 'env.d', 'envConfSystem.sh'))
         pass
 
@@ -335,7 +336,7 @@ def main():
                       metavar="<configuration file>",
                       help="XML configuration file (default %(default)s)")
 
-    parser.add_argument('-v', '--verbose', action='count', 
+    parser.add_argument('-v', '--verbose', action='count',
                       default=0, help="Increase verbosity")
 
     options = parser.parse_args()

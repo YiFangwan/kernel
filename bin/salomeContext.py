@@ -115,19 +115,11 @@ class SalomeContext:
   def runSalome(self, args):
     # Run this module as a script, in order to use appropriate Python interpreter
     # according to current path (initialized from environment files).
-#    kill = False
-#    for e in args:
-#      if "--shutdown-server" in e:
-#        kill = True
-#        args.remove(e)
-
     import os
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     env_copy = os.environ.copy()
     proc = subprocess.Popen(['python', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), pickle.dumps(self), pickle.dumps(args)], shell=False, close_fds=True, env=env_copy)
     msg = proc.communicate()
- #   if kill:
- #     self._killAll(args)
     return msg, proc.returncode
   #
 
@@ -381,15 +373,12 @@ class SalomeContext:
   #
 
   def _runTests(self, args=[]):
-    sys.argv = ['runTests'] + args
-    import runTests
-    params, args = runTests.configureTests(args, exe="salome test")
-
-    sys.argv = ['runTests'] + args
+    sys.argv = ['runTests']
     import setenv
     setenv.main(True)
 
-    return runTests.runTests(params, args)
+    import runTests
+    return runTests.runTests(args, exe="salome test")
   #
 
   def _showInfo(self, unused=None):
