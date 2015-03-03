@@ -28,6 +28,7 @@ class SalomeSession(object):
     sys.argv = ['runSalome'] + args
 
     if "INGUI" in args:
+      # :WARNING: NOT TESTED YET
       sys.argv += ["--gui"]
       sys.argv += ["--show-desktop=1"]
       sys.argv += ["--splash=0"]
@@ -35,6 +36,7 @@ class SalomeSession(object):
       #sys.argv += ["--embedded=SalomeAppEngine,cppContainer,registry,moduleCatalog"]
     else:
       sys.argv += ["--terminal"]
+      sys.argv += ["--shutdown-servers=1"]
       #sys.argv += ["--modules=MED,PARAVIS,GUI"]
       pass
 
