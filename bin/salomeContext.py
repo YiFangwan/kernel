@@ -40,7 +40,7 @@ Usage: salome [command] [options] [--config=<file,folder,...>]
 
 Commands:
 =========
-    start           Starts a SALOME session (through virtual application)
+    start         Starts a SALOME session (through virtual application)
     context       Initializes SALOME context.
     shell         Initializes SALOME context, and executes scripts passed
                   as command arguments
