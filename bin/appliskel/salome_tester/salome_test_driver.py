@@ -32,7 +32,9 @@ def runTest(command):
   p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
   out, err = p.communicate()
   res = p.returncode
-
+  # About res value:
+  # A negative value -N indicates that the child was terminated by signal N (Unix only).
+  # On Unix, the value 11 generally corresponds to a segmentation fault.
   return res, out, err
 #
 
