@@ -24,7 +24,7 @@ import os
 #      args=["--gui", "--show-desktop=1", "--splash=0"]
 #      args=["--terminal","--modules=MED,PARAVIS,GUI"]
 class SalomeSession(object):
-  def __init__(self, args=[]):
+  def __init__(self, args=[], shutdownAtExit=True):
     sys.argv = ['runSalome'] + args
 
     if "INGUI" in args:
@@ -36,7 +36,8 @@ class SalomeSession(object):
       #sys.argv += ["--embedded=SalomeAppEngine,cppContainer,registry,moduleCatalog"]
     else:
       sys.argv += ["--terminal"]
-      sys.argv += ["--shutdown-servers=1"]
+      if shutdownAtExit:
+        sys.argv += ["--shutdown-servers=1"]
       #sys.argv += ["--modules=MED,PARAVIS,GUI"]
       pass
 
@@ -49,12 +50,12 @@ class SalomeSession(object):
 #
 
 # Run SALOME
-def startSession():
+def startSession(shutdownAtExit=True):
   import tempfile
   log = tempfile.NamedTemporaryFile(suffix='_nsport.log', delete=False)
   log.close()
   import salome
-  salome_session = SalomeSession(args=["--ns-port-log=%s"%log.name])
+  salome_session = SalomeSession(args=["--ns-port-log=%s"%log.name],shutdownAtExit=shutdownAtExit)
   salome.salome_init()
   session_server = salome.naming_service.Resolve('/Kernel/Session')
   if session_server:
