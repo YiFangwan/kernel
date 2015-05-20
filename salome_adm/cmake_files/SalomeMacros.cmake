@@ -109,6 +109,9 @@ MACRO(SALOME_INSTALL_SCRIPTS file_list path)
   IF(NOT SALOME_INSTALL_SCRIPTS_DEF_PERMS)
     SET(PERMS ${PERMS} OWNER_EXECUTE GROUP_EXECUTE WORLD_EXECUTE)
   ENDIF(NOT SALOME_INSTALL_SCRIPTS_DEF_PERMS)
+  SET(_all_pyc)
+  SET(_all_pyo)
+  SET(_all_subdirs)
   FOREACH(file ${file_list})
     SET(PREFIX "")
     SET(_source_prefix "")
@@ -122,12 +125,15 @@ MACRO(SALOME_INSTALL_SCRIPTS file_list path)
     INSTALL(FILES ${PREFIX}${file} DESTINATION ${path} PERMISSIONS ${PERMS})
     GET_FILENAME_COMPONENT(ext ${file} EXT)
     GET_FILENAME_COMPONENT(we_ext ${file} NAME_WE)
+    GET_FILENAME_COMPONENT(single_dir ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE) 
     IF(ext STREQUAL .py)    
       # Generate and install the pyc and pyo
       # [ABN] Important: we avoid references or usage of CMAKE_INSTALL_PREFIX which is not correctly set 
       # when using CPack.       
       SET(_pyc_file "${CMAKE_CURRENT_BINARY_DIR}/${we_ext}.pyc")
       SET(_pyo_file "${CMAKE_CURRENT_BINARY_DIR}/${we_ext}.pyo")
+      LIST(APPEND _all_pyc ${_pyc_file})
+      LIST(APPEND _all_pyo ${_pyo_file})
       ADD_CUSTOM_COMMAND(
            OUTPUT ${_pyc_file}
            COMMAND ${PYTHON_EXECUTABLE} -c "import py_compile ; py_compile.compile('${_source_prefix}${file}', '${_pyc_file}' )"
@@ -140,13 +146,20 @@ MACRO(SALOME_INSTALL_SCRIPTS file_list path)
            DEPENDS ${PREFIX}${file}
            VERBATIM
        )
-      STRING(REPLACE "/" "_" tgt_name ${_source_prefix}${file})
-      ADD_CUSTOM_TARGET("PYCOMPILE_${tgt_name}" ALL DEPENDS ${_pyc_file} ${_pyo_file})
       # Install the .pyo and the .pyc
       INSTALL(FILES ${_pyc_file} DESTINATION ${path} PERMISSIONS ${PERMS})
       INSTALL(FILES ${_pyo_file} DESTINATION ${path} PERMISSIONS ${PERMS})
     ENDIF(ext STREQUAL .py)
   ENDFOREACH(file ${file_list})
+  # Generate only one target for all requested Python script compilation.
+  # Make sure that the target name is unique too. 
+  IF(_all_pyc)
+     SET(_cnt 0)
+     WHILE(TARGET "PYCOMPILE_${single_dir}_${_cnt}")
+       MATH(EXPR _cnt ${_cnt}+1)
+     ENDWHILE()
+     ADD_CUSTOM_TARGET("PYCOMPILE_${single_dir}_${_cnt}" ALL DEPENDS ${_all_pyc} ${_all_pyo})
+  ENDIF()
 ENDMACRO(SALOME_INSTALL_SCRIPTS)
 
 #----------------------------------------------------------------------------
