@@ -97,14 +97,7 @@ SALOME::DataScopeServer_ptr DataServerManager::getDefaultScope()
 CORBA::Boolean DataServerManager::isAliveAndKicking(const char *scopeName)
 {
   SALOME::DataScopeServer_var scopePtr(getScopePtrGivenName(scopeName));
-  CORBA::Boolean ret(true);
-  try
-    {
-      scopePtr->ping();
-    }
-  catch(...)
-    { ret=false; }
-  return ret;
+  return IsAliveAndKicking(scopePtr);
 }
 
 SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scopeName)
@@ -200,6 +193,18 @@ std::string DataServerManager::CreateAbsNameInNSFromScopeName(const std::string&
 {
   std::ostringstream oss; oss << NAME_IN_NS << "/" << scopeName;
   return oss.str();
+}
+
+CORBA::Boolean DataServerManager::IsAliveAndKicking(SALOME::DataScopeServer_ptr scopePtr)
+{
+  CORBA::Boolean ret(true);
+  try
+    {
+      scopePtr->ping();
+    }
+  catch(...)
+    { ret=false; }
+  return ret;
 }
 
 std::vector<std::string> DataServerManager::listOfScopesCpp()

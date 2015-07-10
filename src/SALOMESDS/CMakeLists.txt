@@ -44,6 +44,8 @@ SET(SalomeSDS_SOURCES
   SALOMESDS_PickelizedPyObjRdOnlyServer.cxx
   SALOMESDS_PickelizedPyObjRdExtServer.cxx
   SALOMESDS_PickelizedPyObjRdWrServer.cxx
+  SALOMESDS_TransactionFactory.cxx
+  SALOMESDS_Transaction.cxx
   )
 
 ADD_LIBRARY(SalomeSDS ${SalomeSDS_SOURCES})

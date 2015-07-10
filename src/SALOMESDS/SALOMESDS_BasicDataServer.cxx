@@ -64,7 +64,7 @@ void BasicDataServer::Destroy()
   enforcedRelease();
 }
 
-PortableServer::POA_var BasicDataServer::getPOA()
+PortableServer::POA_var BasicDataServer::getPOA() const
 {
   return _father->getPOA();
 }

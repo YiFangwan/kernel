@@ -62,6 +62,7 @@ module SALOME
     void ping();
     string getScopeName();
     StringVec listVars();
+    boolean existVar(in string varName) raises (SALOME::SALOME_Exception);
     BasicDataServer retrieveVar(in string varName) raises (SALOME::SALOME_Exception);
     void deleteVar(in string varName) raises (SALOME::SALOME_Exception);
     PickelizedPyObjRdOnlyServer createRdOnlyVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
@@ -82,5 +83,17 @@ module SALOME
     void removeDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
     void cleanScopesInNS();
     void shutdownScopes() raises (SALOME::SALOME_Exception);
+  };
+
+  interface Transaction
+  {
+  };
+
+  typedef sequence<Transaction> ListOfTransaction;
+
+  interface TransactionFactory
+  {
+    Transaction createRdOnlyVar(in string varName, in string scopeName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    void atomicApply(in ListOfTransaction transactions) raises (SALOME::SALOME_Exception);
   };
 };

@@ -90,6 +90,15 @@ SALOME::StringVec *DataScopeServer::listVars()
   return ret;
 }
 
+CORBA::Boolean DataScopeServer::existVar(const char *varName)
+{
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it(_vars.begin());
+  for(;it!=_vars.end();it++)
+    if((*it).second->getVarNameCpp()==varName)
+      return true;
+  return false;
+}
+
 SALOME::BasicDataServer_ptr DataScopeServer::retrieveVar(const char *varName)
 {
   std::string varNameCpp(varName);

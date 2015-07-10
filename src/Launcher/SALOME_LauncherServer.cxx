@@ -22,6 +22,7 @@
 
 #include "SALOME_Launcher.hxx"
 #include "SALOMESDS_DataServerManager.hxx"
+#include "SALOMESDS_TransactionFactory.hxx"
 #include "utilities.h"
 #include <sstream>
 #include <iostream>
@@ -101,6 +102,9 @@ int main(int argc, char* argv[])
       //
       SALOMESDS::DataServerManager *dsm(new SALOMESDS::DataServerManager(argc,argv,orb,root_poa));
       dsm->_remove_ref();
+      //
+      SALOMESDS::TransactionFactory *tf(new SALOMESDS::TransactionFactory(dsm));
+      tf->_remove_ref();
       //
       orb->run();
       orb->destroy();

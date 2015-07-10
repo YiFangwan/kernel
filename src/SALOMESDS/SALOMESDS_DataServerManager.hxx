@@ -49,7 +49,10 @@ namespace SALOMESDS
     void removeDataScope(const char *scopeName);
     void cleanScopesInNS();
     void shutdownScopes();
+  public:
+    CORBA::ORB_var getORB() { return _orb; }
     static std::string CreateAbsNameInNSFromScopeName(const std::string& scopeName);
+    static CORBA::Boolean IsAliveAndKicking(SALOME::DataScopeServer_ptr scopePtr);
   public:
     static const char NAME_IN_NS[];
     static const char DFT_SCOPE_NAME_IN_NS[];

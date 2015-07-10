@@ -45,6 +45,7 @@ namespace SALOMESDS
     void ping();
     char *getScopeName();
     SALOME::StringVec *listVars();
+    CORBA::Boolean existVar(const char *varName);
     SALOME::BasicDataServer_ptr retrieveVar(const char *varName);
     void deleteVar(const char *varName);
     SALOME::PickelizedPyObjRdOnlyServer_ptr createRdOnlyVar(const char *varName, const SALOME::ByteVec& constValue);

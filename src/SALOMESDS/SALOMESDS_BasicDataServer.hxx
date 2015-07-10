@@ -46,7 +46,7 @@ namespace SALOMESDS
   public:
     std::string getVarNameCpp() const { return _var_name; }
   protected:
-    PortableServer::POA_var getPOA();
+    PortableServer::POA_var getPOA() const;
   protected:
     DataScopeServer *_father;
   private:

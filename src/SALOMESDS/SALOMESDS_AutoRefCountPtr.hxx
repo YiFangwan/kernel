@@ -23,8 +23,16 @@
 
 #include "SALOMESDS_Exception.hxx"
 
+#include "omniORB4/CORBA.h"
+
 namespace SALOMESDS
 {
+  class POAHolder
+  {
+  public:
+    virtual PortableServer::POA_var getPOA() const = 0;
+  };
+  
   template<class T>
   class AutoRefCountPtr
   {
@@ -73,6 +81,27 @@ namespace SALOMESDS
       ptr->incrRef();
     return ret;
   }
+
+  template<class T>
+  class AutoServantPtr
+  {
+  public:
+    AutoServantPtr(T *ptr=0):_ptr(ptr) { }
+    ~AutoServantPtr() { destroyPtr(); }
+    bool operator==(const AutoServantPtr& other) const { return _ptr==other._ptr; }
+    bool operator==(const T *other) const { return _ptr==other; }
+    AutoServantPtr &operator=(T *ptr) { if(_ptr!=ptr) { destroyPtr(); _ptr=ptr; } return *this; }
+    T *operator->() { return _ptr ; }
+    const T *operator->() const { return _ptr; }
+    T& operator*() { return *_ptr; }
+    const T& operator*() const { return *_ptr; }
+    operator T *() { return _ptr; }
+    operator const T *() const { return _ptr; }
+  private:
+    void destroyPtr() { if(!_ptr) return; }
+  private:
+    T *_ptr;
+  };
 }
 
 #endif
