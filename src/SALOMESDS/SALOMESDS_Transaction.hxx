@@ -38,6 +38,7 @@ namespace SALOMESDS
   public:
     Transaction(TransactionFactory *tf, const std::string& varName, const std::string& scopeName):_tf(tf),_var_name(varName),_scope_name(scopeName) { }
     virtual void checkAliveAndKicking();
+    virtual void prepareRollBackInCaseOfFailure() = 0;
   public:
     static void FromByteSeqToVB(const SALOME::ByteVec& bsToBeConv, std::vector<unsigned char>& ret);
   protected:
@@ -51,6 +52,7 @@ namespace SALOMESDS
   public:
     TransactionVarCreate(TransactionFactory *tf, const std::string& varName, const std::string& scopeName, const SALOME::ByteVec& constValue);
     void checkAliveAndKicking();
+    void prepareRollBackInCaseOfFailure();
   protected:
     std::vector<unsigned char> _data;
   };

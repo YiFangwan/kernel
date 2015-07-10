@@ -48,6 +48,10 @@ TransactionVarCreate::TransactionVarCreate(TransactionFactory *tf, const std::st
   FromByteSeqToVB(constValue,_data);
 }
 
+void TransactionVarCreate::prepareRollBackInCaseOfFailure()
+{//nothing it is not a bug
+}
+
 void TransactionVarCreate::checkAliveAndKicking()
 {
   SALOME::DataScopeServer_var dsc(_tf->getDSM()->retriveDataScope(_scope_name.c_str()));

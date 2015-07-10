@@ -27,10 +27,17 @@
 
 namespace SALOMESDS
 {
-  class POAHolder
+  class POAHolder : public virtual PortableServer::ServantBase
   {
   public:
     virtual PortableServer::POA_var getPOA() const = 0;
+    void enforcedRelease()
+    {
+      PortableServer::POA_var poa(getPOA());
+      PortableServer::ObjectId_var oid(poa->servant_to_id(this));
+      poa->deactivate_object(oid);
+      _remove_ref();
+    }
   };
   
   template<class T>
@@ -86,7 +93,8 @@ namespace SALOMESDS
   class AutoServantPtr
   {
   public:
-    AutoServantPtr(T *ptr=0):_ptr(ptr) { }
+    AutoServantPtr(T *ptr=0):_ptr(ptr),_ph(0) { }
+    void setHolder(POAHolder *ph) { _ph=ph; }
     ~AutoServantPtr() { destroyPtr(); }
     bool operator==(const AutoServantPtr& other) const { return _ptr==other._ptr; }
     bool operator==(const T *other) const { return _ptr==other; }
@@ -98,9 +106,17 @@ namespace SALOMESDS
     operator T *() { return _ptr; }
     operator const T *() const { return _ptr; }
   private:
-    void destroyPtr() { if(!_ptr) return; }
+    void destroyPtr()
+    {
+      if(!_ptr)
+        return;
+      if(!_ph)
+        throw Exception("AutoServantPtr : null POA holder !");
+      _ph->enforcedRelease();
+    }
   private:
     T *_ptr;
+    POAHolder *_ph;
   };
 }
 

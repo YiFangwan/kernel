@@ -33,7 +33,7 @@ namespace SALOMESDS
 {
   class DataServerManager;
 
-  class SALOMESDS_EXPORT TransactionFactory : public virtual POA_SALOME::TransactionFactory
+  class SALOMESDS_EXPORT TransactionFactory : public virtual POA_SALOME::TransactionFactory, POAHolder
   {
   public:
     TransactionFactory(DataServerManager *dsm);

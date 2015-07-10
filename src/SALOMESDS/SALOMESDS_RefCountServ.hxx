@@ -31,7 +31,6 @@ namespace SALOMESDS
     void incrRef() const;
     bool decrRef() const;
   protected:
-    void enforcedRelease();
     RefCountServ();
     RefCountServ(const RefCountServ& other);
     virtual ~RefCountServ();

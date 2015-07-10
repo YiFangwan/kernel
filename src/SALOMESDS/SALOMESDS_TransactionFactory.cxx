@@ -81,5 +81,8 @@ void TransactionFactory::atomicApply(const SALOME::ListOfTransaction& transactio
         }
       elt->_remove_ref();
       transactionsCpp[i]=elt;
+      transactionsCpp[i].setHolder(this);
     }
+  for(std::size_t i=0;i<sz;i++)
+    transactionsCpp[i]->checkAliveAndKicking();
 }

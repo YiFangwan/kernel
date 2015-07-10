@@ -61,6 +61,7 @@ namespace SALOMESDS
     PyObject *getLocals() const { return _locals; }
     PyObject *getPickler() const { return _pickler; }
     PortableServer::POA_var getPOA() { return _poa; }
+    CORBA::ORB_var getORB() { return _orb; }
     static std::string BuildTmpVarNameFrom(const std::string& varName);
   private:
     std::vector< std::string> getAllVarNames() const;
