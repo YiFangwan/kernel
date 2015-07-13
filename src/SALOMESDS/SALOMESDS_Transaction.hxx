@@ -25,6 +25,8 @@
 #include CORBA_SERVER_HEADER(SALOME_SDS)
 
 #include "SALOMESDS_Defines.hxx"
+#include "SALOMESDS_Exception.hxx"
+#include "SALOMESDS_DataServerManager.hxx"
 
 #include <string>
 #include <vector>
@@ -34,20 +36,26 @@ namespace SALOMESDS
   class SALOMESDS_EXPORT Transaction : public virtual POA_SALOME::Transaction
   {
   public:
-    Transaction(const std::string& varName):_var_name(varName) { }
+    Transaction(DataScopeServerTransaction *dsct, const std::string& varName):_dsct(dsct),_var_name(varName) { if(!_dsct) throw Exception("Transaction constructor error !"); }
     std::string getVarName() const { return _var_name; }
     virtual void prepareRollBackInCaseOfFailure() = 0;
+    virtual void perform() = 0;
+    virtual void rollBack() = 0;
   public:
     static void FromByteSeqToVB(const SALOME::ByteVec& bsToBeConv, std::vector<unsigned char>& ret);
+    static void FromVBToByteSeq(const std::vector<unsigned char>& bsToBeConv, SALOME::ByteVec& ret);
   protected:
+    DataScopeServerTransaction *_dsct;
     std::string _var_name;
   };
 
   class TransactionVarCreate : public Transaction
   {
   public:
-    TransactionVarCreate(const std::string& varName, const SALOME::ByteVec& constValue);
+    TransactionVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue);
+    void checkNotAlreadyExisting() { _dsct->checkNotAlreadyExistingVar(_var_name); }
     void prepareRollBackInCaseOfFailure();
+    void rollBack();
   protected:
     std::vector<unsigned char> _data;
   };
@@ -55,7 +63,22 @@ namespace SALOMESDS
   class TransactionRdOnlyVarCreate : public TransactionVarCreate
   {
   public:
-    TransactionRdOnlyVarCreate(const std::string& varName, const SALOME::ByteVec& constValue):TransactionVarCreate(varName,constValue) { }
+    TransactionRdOnlyVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
+    void perform();
+  };
+
+  class TransactionRdExtVarCreate : public TransactionVarCreate
+  {
+  public:
+    TransactionRdExtVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
+    void perform();
+  };
+
+  class TransactionRdWrVarCreate : public TransactionVarCreate
+  {
+  public:
+    TransactionRdWrVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
+    void perform();
   };
 }
 

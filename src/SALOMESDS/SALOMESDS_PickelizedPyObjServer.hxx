@@ -33,8 +33,8 @@ namespace SALOMESDS
   class PickelizedPyObjServer : public BasicDataServer, public virtual POA_SALOME::PickelizedPyObjServer
   {
   public:
-    PickelizedPyObjServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value);
-    PickelizedPyObjServer(DataScopeServer *father, const std::string& varName, PyObject *obj);
+    PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value);
+    PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj);
     ~PickelizedPyObjServer();
     void setSerializedContent(const SALOME::ByteVec& newValue);
     SALOME::ByteVec *fetchSerializedContent();

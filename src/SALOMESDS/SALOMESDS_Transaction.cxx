@@ -19,7 +19,6 @@
 // Author : Anthony GEAY (EDF R&D)
 
 #include "SALOMESDS_Transaction.hxx"
-#include "SALOMESDS_DataServerManager.hxx"
 #include "SALOMESDS_Exception.hxx"
 
 #include <sstream>
@@ -35,11 +34,47 @@ void Transaction::FromByteSeqToVB(const SALOME::ByteVec& bsToBeConv, std::vector
     buf[i]=bsToBeConv[i];
 }
 
-TransactionVarCreate::TransactionVarCreate(const std::string& varName, const SALOME::ByteVec& constValue):Transaction(varName)
+void Transaction::FromVBToByteSeq(const std::vector<unsigned char>& bsToBeConv, SALOME::ByteVec& ret)
+{
+  std::size_t sz(bsToBeConv.size());
+  ret.length(sz);
+  for(std::size_t i=0;i<sz;i++)
+    ret[i]=bsToBeConv[i];
+}
+
+TransactionVarCreate::TransactionVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue):Transaction(dsct,varName)
 {
   FromByteSeqToVB(constValue,_data);
 }
 
 void TransactionVarCreate::prepareRollBackInCaseOfFailure()
 {//nothing it is not a bug
+  checkNotAlreadyExisting();
+}
+
+void TransactionVarCreate::rollBack()
+{
+  if(_dsct->existVar(_var_name.c_str()))
+    _dsct->deleteVar(_var_name.c_str());
+}
+
+void TransactionRdOnlyVarCreate::perform()
+{
+  SALOME::ByteVec data2;
+  FromVBToByteSeq(_data,data2);
+  _dsct->createRdOnlyVarInternal(_var_name,data2);
+}
+
+void TransactionRdExtVarCreate::perform()
+{
+  SALOME::ByteVec data2;
+  FromVBToByteSeq(_data,data2);
+  _dsct->createRdExtVarInternal(_var_name,data2);
+}
+
+void TransactionRdWrVarCreate::perform()
+{
+  SALOME::ByteVec data2;
+  FromVBToByteSeq(_data,data2);
+  _dsct->createRdWrVarInternal(_var_name,data2);
 }

@@ -84,6 +84,8 @@ module SALOME
   interface DataScopeServerTransaction : DataScopeServerBase
   {
     Transaction createRdOnlyVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    Transaction createRdExtVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    Transaction createRdWrVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     void atomicApply(in ListOfTransaction transactions) raises (SALOME::SALOME_Exception);
   };
 

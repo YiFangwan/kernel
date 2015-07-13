@@ -303,13 +303,71 @@ DataScopeServerTransaction::DataScopeServerTransaction(const DataScopeServerTran
 {
 }
 
+void DataScopeServerTransaction::createRdOnlyVarInternal(const std::string& varName, const SALOME::ByteVec& constValue)
+{
+  checkNotAlreadyExistingVar(varName);
+  PickelizedPyObjRdOnlyServer *tmp(new PickelizedPyObjRdOnlyServer(this,varName,constValue));
+  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+  _vars.push_back(p);
+}
+
+void DataScopeServerTransaction::createRdExtVarInternal(const std::string& varName, const SALOME::ByteVec& constValue)
+{
+  checkNotAlreadyExistingVar(varName);
+  PickelizedPyObjRdExtServer *tmp(new PickelizedPyObjRdExtServer(this,varName,constValue));
+  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+  _vars.push_back(p);
+}
+
+void DataScopeServerTransaction::createRdWrVarInternal(const std::string& varName, const SALOME::ByteVec& constValue)
+{
+  checkNotAlreadyExistingVar(varName);
+  PickelizedPyObjRdWrServer *tmp(new PickelizedPyObjRdWrServer(this,varName,constValue));
+  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
+  _vars.push_back(p);
+}
+
 SALOME::Transaction_ptr DataScopeServerTransaction::createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue)
 {
-  TransactionRdOnlyVarCreate *ret(new TransactionRdOnlyVarCreate(varName,constValue));
+  TransactionRdOnlyVarCreate *ret(new TransactionRdOnlyVarCreate(this,varName,constValue));
+  ret->checkNotAlreadyExisting();
   PortableServer::ObjectId_var id(_poa->activate_object(ret));
   CORBA::Object_var obj(_poa->id_to_reference(id));
   return SALOME::Transaction::_narrow(obj);
 }
+
+SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtVarTransac(const char *varName, const SALOME::ByteVec& constValue)
+{
+  TransactionRdExtVarCreate *ret(new TransactionRdExtVarCreate(this,varName,constValue));
+  ret->checkNotAlreadyExisting();
+  PortableServer::ObjectId_var id(_poa->activate_object(ret));
+  CORBA::Object_var obj(_poa->id_to_reference(id));
+  return SALOME::Transaction::_narrow(obj);
+}
+
+SALOME::Transaction_ptr DataScopeServerTransaction::createRdWrVarTransac(const char *varName, const SALOME::ByteVec& constValue)
+{
+  TransactionRdWrVarCreate *ret(new TransactionRdWrVarCreate(this,varName,constValue));
+  ret->checkNotAlreadyExisting();
+  PortableServer::ObjectId_var id(_poa->activate_object(ret));
+  CORBA::Object_var obj(_poa->id_to_reference(id));
+  return SALOME::Transaction::_narrow(obj);
+}
+
+class TrustTransaction
+{
+public:
+  TrustTransaction():_must_rollback(0),_ptr(0) { }
+  void setTransaction(Transaction *t, bool *mustRollback) { if(!t || !mustRollback) throw Exception("TrustTransaction Error #1"); _must_rollback=mustRollback; t->prepareRollBackInCaseOfFailure(); }
+  void operate() { _ptr->perform(); }
+  ~TrustTransaction() { if(!_ptr) return ; if(*_must_rollback) _ptr->rollBack(); }
+private:
+  bool *_must_rollback;
+  Transaction *_ptr;
+};
 
 void DataScopeServerTransaction::atomicApply(const SALOME::ListOfTransaction& transactions)
 {
@@ -340,8 +398,15 @@ void DataScopeServerTransaction::atomicApply(const SALOME::ListOfTransaction& tr
       transactionsCpp[i]=elt;
       transactionsCpp[i].setHolder(this);
     }
-  for(std::size_t i=0;i<sz;i++)
-    transactionsCpp[i]->prepareRollBackInCaseOfFailure();
+  {// important do not merge loops ! 
+    std::vector<TrustTransaction> transactions2(sz);
+    bool mustRollback(true);
+    for(std::size_t i=0;i<sz;i++)
+      transactions2[i].setTransaction(transactionsCpp[i],&mustRollback);
+    for(std::size_t i=0;i<sz;i++)
+      transactions2[i].operate();
+    mustRollback=false;
+  }
 }
 
 DataScopeServerTransaction::~DataScopeServerTransaction()

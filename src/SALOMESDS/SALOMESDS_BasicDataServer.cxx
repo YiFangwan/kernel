@@ -28,7 +28,7 @@ using namespace SALOMESDS;
 
 int BasicDataServer::POA_CNT=0;
 
-BasicDataServer::BasicDataServer(DataScopeServer *father, const std::string& varName):_father(father),_var_name(varName)
+BasicDataServer::BasicDataServer(DataScopeServerBase *father, const std::string& varName):_father(father),_var_name(varName)
 {
   PortableServer::POA_var poa(_father->getPOA());
   PortableServer::POAManager_var pman(poa->the_POAManager());

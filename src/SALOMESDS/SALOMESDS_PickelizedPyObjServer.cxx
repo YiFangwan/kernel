@@ -27,13 +27,13 @@
 
 using namespace SALOMESDS;
 
-PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServer *father, const std::string& varName, const SALOME::ByteVec& value):BasicDataServer(father,varName),_self(0)
+PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, const SALOME::ByteVec& value):BasicDataServer(father,varName),_self(0)
 {
   setSerializedContentInternal(value);
 }
 
 //! obj is consumed
-PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServer *father, const std::string& varName, PyObject *obj):BasicDataServer(father,varName),_self(0)
+PickelizedPyObjServer::PickelizedPyObjServer(DataScopeServerBase *father, const std::string& varName, PyObject *obj):BasicDataServer(father,varName),_self(0)
 {
   setNewPyObj(obj);
 }
