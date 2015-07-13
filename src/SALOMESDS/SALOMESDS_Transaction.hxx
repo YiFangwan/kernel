@@ -37,6 +37,8 @@ namespace SALOMESDS
   {
   public:
     Transaction(TransactionFactory *tf, const std::string& varName, const std::string& scopeName):_tf(tf),_var_name(varName),_scope_name(scopeName) { }
+    std::string getScopeName() const { return _scope_name; }
+    std::string getVarName() const { return _var_name; }
     virtual void checkAliveAndKicking();
     virtual void prepareRollBackInCaseOfFailure() = 0;
   public:

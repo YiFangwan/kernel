@@ -59,7 +59,9 @@ SALOME::Transaction_ptr TransactionFactory::createRdOnlyVar(const char *varName,
 void TransactionFactory::atomicApply(const SALOME::ListOfTransaction& transactions)
 {
   std::size_t sz(transactions.length());
-  std::vector< AutoServantPtr<Transaction> > transactionsCpp;
+  if(sz==0)
+    return ;
+  std::vector< AutoServantPtr<Transaction> > transactionsCpp(sz);
   for(std::size_t i=0;i<sz;i++)
     {
       PortableServer::ServantBase *eltBase(0);
@@ -83,6 +85,10 @@ void TransactionFactory::atomicApply(const SALOME::ListOfTransaction& transactio
       transactionsCpp[i]=elt;
       transactionsCpp[i].setHolder(this);
     }
+  std::string scopeName(transactionsCpp[0]->getScopeName());
+  for(std::size_t i=0;i<sz;i++)
+    if(transactionsCpp[i]->getScopeName()!=scopeName)
+      throw Exception("TransactionFactory::atomicApply : all transactions must refer the same scope !");
   for(std::size_t i=0;i<sz;i++)
     transactionsCpp[i]->checkAliveAndKicking();
 }
