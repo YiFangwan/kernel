@@ -52,6 +52,27 @@ SALOME::ByteVec *PickelizedPyObjServer::fetchSerializedContent()
   return FromCppToByteSeq(pickelize(_self));
 }
 
+bool PickelizedPyObjServer::isDict()
+{
+  if(PyDict_Check(_self))
+    return true;
+  else
+    return false;
+}
+
+void PickelizedPyObjServer::addKeyValueHard(const std::vector<unsigned char>& key, const std::vector<unsigned char>& value)
+{
+  if(!isDict())
+    throw Exception("PickelizedPyObjServer::addKeyValueHard : not a dict !");
+  PyObject *k(getPyObjFromPickled(key));
+  PyObject *v(getPyObjFromPickled(value));
+  bool isOK(PyDict_SetItem(_self,k,v)==0);
+  Py_XDECREF(k);
+  Py_XDECREF(v);
+  if(!isOK)
+    throw Exception("PickelizedPyObjServer::addKeyValueHard : error when trying to add key,value to dict !");
+}
+
 void PickelizedPyObjServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret)
 {
   std::size_t sz(bsToBeConv.length());
@@ -79,6 +100,22 @@ PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::string& pickledD
   PyObject *pickledDataPy(PyString_FromStringAndSize(NULL,sz));// agy : do not use PyString_FromString because std::string hides a vector of byte.
   char *buf(PyString_AsString(pickledDataPy));// this buf can be used thanks to python documentation.
   const char *inBuf(pickledData.c_str());
+  std::copy(inBuf,inBuf+sz,buf);
+  PyObject *selfMeth(PyObject_GetAttrString(_father->getPickler(),"loads"));
+  PyObject *args(PyTuple_New(1)); PyTuple_SetItem(args,0,pickledDataPy);
+  PyObject *ret(PyObject_CallObject(selfMeth,args));
+  Py_XDECREF(args);
+  Py_XDECREF(selfMeth);
+  return ret;
+}
+
+//! New reference returned
+PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::vector<unsigned char>& pickledData)
+{
+  std::size_t sz(pickledData.size());
+  PyObject *pickledDataPy(PyString_FromStringAndSize(NULL,sz));// agy : do not use PyString_FromString because std::string hides a vector of byte.
+  char *buf(PyString_AsString(pickledDataPy));// this buf can be used thanks to python documentation.
+  const unsigned char *inBuf(&pickledData[0]);
   std::copy(inBuf,inBuf+sz,buf);
   PyObject *selfMeth(PyObject_GetAttrString(_father->getPickler(),"loads"));
   PyObject *args(PyTuple_New(1)); PyTuple_SetItem(args,0,pickledDataPy);

@@ -63,13 +63,13 @@ module SALOME
     string getScopeName();
     StringVec listVars();
     boolean existVar(in string varName) raises (SALOME::SALOME_Exception);
-    BasicDataServer retrieveVar(in string varName) raises (SALOME::SALOME_Exception);
     void deleteVar(in string varName) raises (SALOME::SALOME_Exception);
     void shutdownIfNotHostedByDSM();
   };
 
   interface DataScopeServer : DataScopeServerBase
   {
+    BasicDataServer retrieveVar(in string varName) raises (SALOME::SALOME_Exception);
     PickelizedPyObjRdOnlyServer createRdOnlyVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     PickelizedPyObjRdExtServer createRdExtVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     //PickelizedPyObjRdWrServer createRdWrVar(in string typeName, in string varName) raises (SALOME::SALOME_Exception);
@@ -83,6 +83,7 @@ module SALOME
 
   interface DataScopeServerTransaction : DataScopeServerBase
   {
+    ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
     Transaction createRdOnlyVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction createRdExtVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction createRdWrVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);

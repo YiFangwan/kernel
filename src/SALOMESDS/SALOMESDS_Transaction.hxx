@@ -38,9 +38,13 @@ namespace SALOMESDS
   public:
     Transaction(DataScopeServerTransaction *dsct, const std::string& varName):_dsct(dsct),_var_name(varName) { if(!_dsct) throw Exception("Transaction constructor error !"); }
     std::string getVarName() const { return _var_name; }
+    void checkNotAlreadyExisting() { _dsct->checkNotAlreadyExistingVar(_var_name); }
+    void checkVarExisting() { _dsct->checkExistingVar(_var_name); }
     virtual void prepareRollBackInCaseOfFailure() = 0;
     virtual void perform() = 0;
     virtual void rollBack() = 0;
+    virtual void notify() = 0;
+    virtual ~Transaction();
   public:
     static void FromByteSeqToVB(const SALOME::ByteVec& bsToBeConv, std::vector<unsigned char>& ret);
     static void FromVBToByteSeq(const std::vector<unsigned char>& bsToBeConv, SALOME::ByteVec& ret);
@@ -53,9 +57,9 @@ namespace SALOMESDS
   {
   public:
     TransactionVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue);
-    void checkNotAlreadyExisting() { _dsct->checkNotAlreadyExistingVar(_var_name); }
     void prepareRollBackInCaseOfFailure();
     void rollBack();
+    void notify();
   protected:
     std::vector<unsigned char> _data;
   };
@@ -79,6 +83,24 @@ namespace SALOMESDS
   public:
     TransactionRdWrVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue):TransactionVarCreate(dsct,varName,constValue) { }
     void perform();
+  };
+
+  class PickelizedPyObjServer;
+
+  class TransactionAddKeyValueHard : public Transaction
+  {
+  public:
+    TransactionAddKeyValueHard(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    void prepareRollBackInCaseOfFailure();
+    void perform();
+    void rollBack();
+    void notify();
+    ~TransactionAddKeyValueHard();
+  private:
+    std::vector<unsigned char> _key;
+    std::vector<unsigned char> _value;
+    std::string _zeDataBefore;
+    PickelizedPyObjServer *_varc;
   };
 }
 

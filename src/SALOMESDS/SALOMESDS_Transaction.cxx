@@ -20,6 +20,7 @@
 
 #include "SALOMESDS_Transaction.hxx"
 #include "SALOMESDS_Exception.hxx"
+#include "SALOMESDS_PickelizedPyObjServer.hxx"
 
 #include <sstream>
 
@@ -42,6 +43,10 @@ void Transaction::FromVBToByteSeq(const std::vector<unsigned char>& bsToBeConv, 
     ret[i]=bsToBeConv[i];
 }
 
+Transaction::~Transaction()
+{
+}
+
 TransactionVarCreate::TransactionVarCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue):Transaction(dsct,varName)
 {
   FromByteSeqToVB(constValue,_data);
@@ -56,6 +61,13 @@ void TransactionVarCreate::rollBack()
 {
   if(_dsct->existVar(_var_name.c_str()))
     _dsct->deleteVar(_var_name.c_str());
+}
+
+/*!
+ TODO : To be implemented.
+ */
+void TransactionVarCreate::notify()
+{
 }
 
 void TransactionRdOnlyVarCreate::perform()
@@ -77,4 +89,55 @@ void TransactionRdWrVarCreate::perform()
   SALOME::ByteVec data2;
   FromVBToByteSeq(_data,data2);
   _dsct->createRdWrVarInternal(_var_name,data2);
+}
+
+TransactionAddKeyValueHard::TransactionAddKeyValueHard(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value):Transaction(dsct,varName),_varc(0)
+{
+  FromByteSeqToVB(key,_key);
+  FromByteSeqToVB(value,_value);
+}
+
+void TransactionAddKeyValueHard::prepareRollBackInCaseOfFailure()
+{
+  checkNotAlreadyExisting();
+  //
+  BasicDataServer *var(_dsct->retrieveVarInternal2(_var_name.c_str()));
+  _varc=dynamic_cast<PickelizedPyObjServer *>(var);
+  if(!_varc)
+    {
+      std::ostringstream oss; oss << "TransactionAddKeyValueHard::prepareRollBackInCaseOfFailure : var \"" << _var_name << "\"exists but it is not serialized !";
+      throw Exception(oss.str());
+    }
+  if(!_varc->isDict())
+    {
+      std::ostringstream oss; oss << "TransactionAddKeyValueHard::prepareRollBackInCaseOfFailure : var \"" << _var_name << "\"exists but it is not a Dict !";
+      throw Exception(oss.str());
+    }
+  //
+  _zeDataBefore.clear();
+  SALOME::ByteVec *zeDataBefore(_varc->fetchSerializedContent());
+  PickelizedPyObjServer::FromByteSeqToCpp(*zeDataBefore,_zeDataBefore);
+}
+
+void TransactionAddKeyValueHard::perform()
+{
+  _varc->addKeyValueHard(_key,_value);
+}
+
+void TransactionAddKeyValueHard::rollBack()
+{
+  PyObject *obj(_varc->getPyObjFromPickled(_zeDataBefore));
+  _varc->setNewPyObj(obj);
+  _zeDataBefore.clear();
+}
+
+/*!
+ TODO : To be implemented.
+ */
+void TransactionAddKeyValueHard::notify()
+{
+}
+
+TransactionAddKeyValueHard::~TransactionAddKeyValueHard()
+{
 }

@@ -46,7 +46,8 @@ namespace SALOMESDS
     char *getScopeName();
     SALOME::StringVec *listVars();
     CORBA::Boolean existVar(const char *varName);
-    SALOME::BasicDataServer_ptr retrieveVar(const char *varName);
+    SALOME::BasicDataServer_ptr retrieveVarInternal(const char *varName);
+    BasicDataServer *retrieveVarInternal2(const std::string& varName);
     void deleteVar(const char *varName);
     void shutdownIfNotHostedByDSM();
     ~DataScopeServerBase();
@@ -65,6 +66,9 @@ namespace SALOMESDS
     std::vector< std::string> getAllVarNames() const;
     CORBA::Object_var activateWithDedicatedPOA(BasicDataServer *ds);
     void checkNotAlreadyExistingVar(const std::string& varName);
+    void checkExistingVar(const std::string& varName);
+  protected:
+    std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator retrieveVarInternal3(const std::string& varName);
   protected:
     PyObject *_globals;
     PyObject *_locals;
@@ -81,6 +85,7 @@ namespace SALOMESDS
   public:
     DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName);
     DataScopeServer(const DataScopeServer& other);
+    SALOME::BasicDataServer_ptr retrieveVar(const char *varName) { return retrieveVarInternal(varName); }
     SALOME::PickelizedPyObjRdOnlyServer_ptr createRdOnlyVar(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::PickelizedPyObjRdExtServer_ptr createRdExtVar(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::PickelizedPyObjRdWrServer_ptr createRdWrVar(const char *typeName, const char *varName);
@@ -97,15 +102,16 @@ namespace SALOMESDS
     void createRdExtVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
     void createRdWrVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
   public://remotely callable
+    SALOME::ByteVec *fetchSerializedContent(const char *varName);
     SALOME::Transaction_ptr createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdExtVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdWrVarTransac(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::Transaction_ptr addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
     void atomicApply(const SALOME::ListOfTransaction& transactions);
   };
   
   /*
   SALOME::Transaction_ptr addKeyValueInVarErrorIfAlreadyExisting(const char *varName, const char *scopeName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
-  SALOME::Transaction_ptr addKeyValueInVarHard(const char *varName, const char *scopeName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
   SALOME::Transaction_ptr removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const char *scopeName, const SALOME::ByteVec& key);
   SALOME::ByteVec *waitForKeyInVar(const char *varName, const char *scopeName, const SALOME::ByteVec& constKey);
   SALOME::ByteVec *waitForKeyInVarAndKillIt(const char *varName, const char *scopeName, const SALOME::ByteVec& constKey, SALOME::Transaction_out transaction);*/

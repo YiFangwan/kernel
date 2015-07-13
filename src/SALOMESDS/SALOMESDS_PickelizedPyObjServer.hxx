@@ -28,6 +28,8 @@
 
 #include "SALOMESDS_BasicDataServer.hxx"
 
+#include <vector>
+
 namespace SALOMESDS
 {
   class PickelizedPyObjServer : public BasicDataServer, public virtual POA_SALOME::PickelizedPyObjServer
@@ -38,10 +40,14 @@ namespace SALOMESDS
     ~PickelizedPyObjServer();
     void setSerializedContent(const SALOME::ByteVec& newValue);
     SALOME::ByteVec *fetchSerializedContent();
-  protected:
+  public:
+    bool isDict();
+    void addKeyValueHard(const std::vector<unsigned char>& key, const std::vector<unsigned char>& value);
+  public:
     static void FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret);
     static SALOME::ByteVec *FromCppToByteSeq(const std::string& strToBeConv);
     PyObject *getPyObjFromPickled(const std::string& pickledData);
+    PyObject *getPyObjFromPickled(const std::vector<unsigned char>& pickledData);
     std::string pickelize(PyObject *obj);
     void setNewPyObj(PyObject *obj);
     void setSerializedContentInternal(const SALOME::ByteVec& newValue);
