@@ -19,20 +19,12 @@
 // Author : Anthony GEAY (EDF R&D)
 
 #include "SALOMESDS_Transaction.hxx"
-#include "SALOMESDS_TransactionFactory.hxx"
 #include "SALOMESDS_DataServerManager.hxx"
 #include "SALOMESDS_Exception.hxx"
 
 #include <sstream>
 
 using namespace SALOMESDS;
-
-void Transaction::checkAliveAndKicking()
-{
-  SALOME::DataScopeServer_var dsc(_tf->getDSM()->retriveDataScope(_scope_name.c_str()));
-  if(!DataServerManager::IsAliveAndKicking(dsc))
-    throw Exception("Transaction::checkAliveAndKicking : not alive !");
-}
 
 void Transaction::FromByteSeqToVB(const SALOME::ByteVec& bsToBeConv, std::vector<unsigned char>& ret)
 {
@@ -43,23 +35,11 @@ void Transaction::FromByteSeqToVB(const SALOME::ByteVec& bsToBeConv, std::vector
     buf[i]=bsToBeConv[i];
 }
 
-TransactionVarCreate::TransactionVarCreate(TransactionFactory *tf, const std::string& varName, const std::string& scopeName, const SALOME::ByteVec& constValue):Transaction(tf,varName,scopeName)
+TransactionVarCreate::TransactionVarCreate(const std::string& varName, const SALOME::ByteVec& constValue):Transaction(varName)
 {
   FromByteSeqToVB(constValue,_data);
 }
 
 void TransactionVarCreate::prepareRollBackInCaseOfFailure()
 {//nothing it is not a bug
-}
-
-void TransactionVarCreate::checkAliveAndKicking()
-{
-  SALOME::DataScopeServer_var dsc(_tf->getDSM()->retriveDataScope(_scope_name.c_str()));
-  if(!DataServerManager::IsAliveAndKicking(dsc))
-    throw Exception("TransactionVarCreate::checkAliveAndKicking : not alive !");
-  if(dsc->existVar(_var_name.c_str()))
-    {
-      std::ostringstream oss; oss << "TransactionVarCreate::checkAliveAndKicking : var \"" << _var_name << "\" already exists in scope named \"" << _scope_name << "\" !";
-      throw Exception(oss.str());
-    }
 }

@@ -37,11 +37,11 @@
 
 namespace SALOMESDS
 {
-  class SALOMESDS_EXPORT DataScopeServer : public virtual POA_SALOME::DataScopeServer
+  class SALOMESDS_EXPORT DataScopeServerBase : public virtual POA_SALOME::DataScopeServerBase, public POAHolder
   {
   public:
-    DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName);
-    DataScopeServer(const DataScopeServer& other);
+    DataScopeServerBase(CORBA::ORB_ptr orb, const std::string& scopeName);
+    DataScopeServerBase(const DataScopeServerBase& other);
     void ping();
     char *getScopeName();
     SALOME::StringVec *listVars();
@@ -52,22 +52,22 @@ namespace SALOMESDS
     SALOME::PickelizedPyObjRdExtServer_ptr createRdExtVar(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::PickelizedPyObjRdWrServer_ptr createRdWrVar(const char *typeName, const char *varName);
     void shutdownIfNotHostedByDSM();
-    ~DataScopeServer();
+    ~DataScopeServerBase();
   public:
     void initializePython(int argc, char *argv[]);
     void registerToSalomePiDict() const;
-    void setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr);
+    void setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServerBase_ptr ptr);
     PyObject *getGlobals() const { return _globals; }
     PyObject *getLocals() const { return _locals; }
     PyObject *getPickler() const { return _pickler; }
-    PortableServer::POA_var getPOA() { return _poa; }
+    PortableServer::POA_var getPOA() const { return _poa; }
     CORBA::ORB_var getORB() { return _orb; }
     static std::string BuildTmpVarNameFrom(const std::string& varName);
-  private:
+  protected:
     std::vector< std::string> getAllVarNames() const;
     CORBA::Object_var activateWithDedicatedPOA(BasicDataServer *ds);
     void checkNotAlreadyExistingVar(const std::string& varName);
-  private:
+  protected:
     PyObject *_globals;
     PyObject *_locals;
     PyObject *_pickler;
@@ -77,6 +77,36 @@ namespace SALOMESDS
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > > _vars;
     static std::size_t COUNTER;
   };
+  
+  class SALOMESDS_EXPORT DataScopeServer : public DataScopeServerBase, public virtual POA_SALOME::DataScopeServer
+  {
+  public:
+    DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName);
+    DataScopeServer(const DataScopeServer& other);
+    SALOME::PickelizedPyObjRdOnlyServer_ptr createRdOnlyVar(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::PickelizedPyObjRdExtServer_ptr createRdExtVar(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::PickelizedPyObjRdWrServer_ptr createRdWrVar(const char *typeName, const char *varName);
+    ~DataScopeServer();
+  };
+
+  class SALOMESDS_EXPORT DataScopeServerTransaction : public DataScopeServerBase, public virtual POA_SALOME::DataScopeServerTransaction
+  {
+  public:
+    DataScopeServerTransaction(CORBA::ORB_ptr orb, const std::string& scopeName);
+    DataScopeServerTransaction(const DataScopeServerTransaction& other);
+    SALOME::Transaction_ptr createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue);
+    void atomicApply(const SALOME::ListOfTransaction& transactions);
+    ~DataScopeServerTransaction();
+  };
+  
+  /*SALOME::Transaction_ptr createRdOnlyVar(const char *varName, const char *scopeName, const SALOME::ByteVec& constValue);
+  SALOME::Transaction_ptr createRdExtVar(const char *varName, const char *scopeName, const SALOME::ByteVec& constValue);
+  SALOME::Transaction_ptr createRdWrVar(const char *varName, const char *scopeName, const SALOME::ByteVec& constValue);
+  SALOME::Transaction_ptr addKeyValueInVarErrorIfAlreadyExisting(const char *varName, const char *scopeName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+  SALOME::Transaction_ptr addKeyValueInVarHard(const char *varName, const char *scopeName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+  SALOME::Transaction_ptr removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const char *scopeName, const SALOME::ByteVec& key);
+  SALOME::ByteVec *waitForKeyInVar(const char *varName, const char *scopeName, const SALOME::ByteVec& constKey);
+  SALOME::ByteVec *waitForKeyInVarAndKillIt(const char *varName, const char *scopeName, const SALOME::ByteVec& constKey, SALOME::Transaction_out transaction);*/
 }
 
 #endif

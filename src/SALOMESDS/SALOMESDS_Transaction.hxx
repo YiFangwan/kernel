@@ -31,29 +31,22 @@
 
 namespace SALOMESDS
 {
-  class TransactionFactory;
-
   class SALOMESDS_EXPORT Transaction : public virtual POA_SALOME::Transaction
   {
   public:
-    Transaction(TransactionFactory *tf, const std::string& varName, const std::string& scopeName):_tf(tf),_var_name(varName),_scope_name(scopeName) { }
-    std::string getScopeName() const { return _scope_name; }
+    Transaction(const std::string& varName):_var_name(varName) { }
     std::string getVarName() const { return _var_name; }
-    virtual void checkAliveAndKicking();
     virtual void prepareRollBackInCaseOfFailure() = 0;
   public:
     static void FromByteSeqToVB(const SALOME::ByteVec& bsToBeConv, std::vector<unsigned char>& ret);
   protected:
-    TransactionFactory *_tf;
     std::string _var_name;
-    std::string _scope_name;
   };
 
   class TransactionVarCreate : public Transaction
   {
   public:
-    TransactionVarCreate(TransactionFactory *tf, const std::string& varName, const std::string& scopeName, const SALOME::ByteVec& constValue);
-    void checkAliveAndKicking();
+    TransactionVarCreate(const std::string& varName, const SALOME::ByteVec& constValue);
     void prepareRollBackInCaseOfFailure();
   protected:
     std::vector<unsigned char> _data;
@@ -62,7 +55,7 @@ namespace SALOMESDS
   class TransactionRdOnlyVarCreate : public TransactionVarCreate
   {
   public:
-    TransactionRdOnlyVarCreate(TransactionFactory *tf, const std::string& varName, const std::string& scopeName, const SALOME::ByteVec& constValue):TransactionVarCreate(tf,varName,scopeName,constValue) { }
+    TransactionRdOnlyVarCreate(const std::string& varName, const SALOME::ByteVec& constValue):TransactionVarCreate(varName,constValue) { }
   };
 }
 

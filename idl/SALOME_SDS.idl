@@ -57,7 +57,7 @@ module SALOME
 
   interface DataServerManager;
 
-  interface DataScopeServer
+  interface DataScopeServerBase
   {
     void ping();
     string getScopeName();
@@ -65,24 +65,14 @@ module SALOME
     boolean existVar(in string varName) raises (SALOME::SALOME_Exception);
     BasicDataServer retrieveVar(in string varName) raises (SALOME::SALOME_Exception);
     void deleteVar(in string varName) raises (SALOME::SALOME_Exception);
-    PickelizedPyObjRdOnlyServer createRdOnlyVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
-    PickelizedPyObjRdExtServer createRdExtVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
-    //PickelizedPyObjRdWrServer createRdWrVar(in string typeName, in string varName) raises (SALOME::SALOME_Exception);
     void shutdownIfNotHostedByDSM();
   };
 
-  interface DataServerManager
+  interface DataScopeServer : DataScopeServerBase
   {
-    StringVec listScopes();
-    StringVec listAliveAndKickingScopes() raises (SALOME::SALOME_Exception);
-    DataScopeServer getDefaultScope() raises (SALOME::SALOME_Exception);
-    boolean isAliveAndKicking(in string scopeName) raises (SALOME::SALOME_Exception);
-    DataScopeServer createDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
-    DataScopeServer retriveDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
-    DataScopeServer giveADataScopeCalled(in string scopeName, out boolean isCreated);
-    void removeDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
-    void cleanScopesInNS();
-    void shutdownScopes() raises (SALOME::SALOME_Exception);
+    PickelizedPyObjRdOnlyServer createRdOnlyVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    PickelizedPyObjRdExtServer createRdExtVar(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    //PickelizedPyObjRdWrServer createRdWrVar(in string typeName, in string varName) raises (SALOME::SALOME_Exception);
   };
 
   interface Transaction
@@ -91,9 +81,28 @@ module SALOME
 
   typedef sequence<Transaction> ListOfTransaction;
 
-  interface TransactionFactory
+  interface DataScopeServerTransaction : DataScopeServerBase
   {
-    Transaction createRdOnlyVar(in string varName, in string scopeName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    Transaction createRdOnlyVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     void atomicApply(in ListOfTransaction transactions) raises (SALOME::SALOME_Exception);
+  };
+
+  interface DataServerManager
+  {
+    StringVec listScopes();
+    StringVec listAliveAndKickingScopes() raises (SALOME::SALOME_Exception);
+    DataScopeServer getDefaultScope() raises (SALOME::SALOME_Exception);
+    boolean isAliveAndKicking(in string scopeName) raises (SALOME::SALOME_Exception);
+    //
+    DataScopeServer createDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
+    DataScopeServer giveADataScopeCalled(in string scopeName, out boolean isCreated);
+    //
+    DataScopeServerTransaction createDataScopeTransaction(in string scopeName) raises (SALOME::SALOME_Exception);
+    DataScopeServerTransaction giveADataScopeTransactionCalled(in string scopeName, out boolean isCreated);
+    //
+    DataScopeServerBase retriveDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
+    void removeDataScope(in string scopeName) raises (SALOME::SALOME_Exception);
+    void cleanScopesInNS();
+    void shutdownScopes() raises (SALOME::SALOME_Exception);
   };
 };

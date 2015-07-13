@@ -23,6 +23,7 @@
 #include "SALOMESDS_PickelizedPyObjRdOnlyServer.hxx"
 #include "SALOMESDS_PickelizedPyObjRdExtServer.hxx"
 #include "SALOMESDS_PickelizedPyObjRdWrServer.hxx"
+#include "SALOMESDS_Transaction.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOMESDS_Exception.hxx"
 
@@ -40,17 +41,17 @@
 
 using namespace SALOMESDS;
 
-std::size_t DataScopeServer::COUNTER=0;
+std::size_t DataScopeServerBase::COUNTER=0;
 
-DataScopeServer::DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName)
+DataScopeServerBase::DataScopeServerBase(CORBA::ORB_ptr orb, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName)
 {
 }
 
-DataScopeServer::DataScopeServer(const DataScopeServer& other):_globals(0),_locals(0),_pickler(0),_name(other._name),_vars(other._vars)
+DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):_globals(0),_locals(0),_pickler(0),_name(other._name),_vars(other._vars)
 {
 }
 
-DataScopeServer::~DataScopeServer()
+DataScopeServerBase::~DataScopeServerBase()
 {
   // _globals is borrowed ref -> do nothing
   Py_XDECREF(_locals);
@@ -60,14 +61,14 @@ DataScopeServer::~DataScopeServer()
 /*!
  * Called remotely -> to protect against throw
  */
-void DataScopeServer::ping()
+void DataScopeServerBase::ping()
 {
 }
 
 /*!
  * Called remotely -> to protect against throw
  */
-char *DataScopeServer::getScopeName()
+char *DataScopeServerBase::getScopeName()
 {
   return CORBA::string_dup(_name.c_str());
 }
@@ -75,7 +76,7 @@ char *DataScopeServer::getScopeName()
 /*!
  * Called remotely -> to protect against throw
  */
-SALOME::StringVec *DataScopeServer::listVars()
+SALOME::StringVec *DataScopeServerBase::listVars()
 {
   SALOME::StringVec *ret(new SALOME::StringVec);
   std::size_t sz(_vars.size());
@@ -90,7 +91,7 @@ SALOME::StringVec *DataScopeServer::listVars()
   return ret;
 }
 
-CORBA::Boolean DataScopeServer::existVar(const char *varName)
+CORBA::Boolean DataScopeServerBase::existVar(const char *varName)
 {
   std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it(_vars.begin());
   for(;it!=_vars.end();it++)
@@ -99,14 +100,14 @@ CORBA::Boolean DataScopeServer::existVar(const char *varName)
   return false;
 }
 
-SALOME::BasicDataServer_ptr DataScopeServer::retrieveVar(const char *varName)
+SALOME::BasicDataServer_ptr DataScopeServerBase::retrieveVar(const char *varName)
 {
   std::string varNameCpp(varName);
   std::vector<std::string> allNames(getAllVarNames());
   std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varNameCpp));
   if(it==allNames.end())
     {
-      std::ostringstream oss; oss << "DataScopeServer::retrieveVar : name \"" << varNameCpp << "\" does not exists ! Possibilities are :";
+      std::ostringstream oss; oss << "DataScopeServerBase::retrieveVar : name \"" << varNameCpp << "\" does not exists ! Possibilities are :";
       std::copy(allNames.begin(),allNames.end(),std::ostream_iterator<std::string>(oss,", "));
       throw Exception(oss.str());
     }
@@ -116,14 +117,14 @@ SALOME::BasicDataServer_ptr DataScopeServer::retrieveVar(const char *varName)
   return SALOME::BasicDataServer::_duplicate((*it0).first);
 }
 
-void DataScopeServer::deleteVar(const char *varName)
+void DataScopeServerBase::deleteVar(const char *varName)
 {
   std::string varNameCpp(varName);
   std::vector<std::string> allNames(getAllVarNames());
   std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varNameCpp));
   if(it==allNames.end())
     {
-      std::ostringstream oss; oss << "DataScopeServer::deleteVar : name \"" << varNameCpp << "\" does not exists ! Possibilities are :";
+      std::ostringstream oss; oss << "DataScopeServerBase::deleteVar : name \"" << varNameCpp << "\" does not exists ! Possibilities are :";
       std::copy(allNames.begin(),allNames.end(),std::ostream_iterator<std::string>(oss,", "));
       throw Exception(oss.str());
     }
@@ -131,6 +132,125 @@ void DataScopeServer::deleteVar(const char *varName)
   std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it0(_vars.begin());
   (*it0).first->UnRegister();
   _vars.erase(it0);
+}
+
+void DataScopeServerBase::shutdownIfNotHostedByDSM()
+{
+  SALOME_NamingService ns(_orb);
+  CORBA::Object_var obj(ns.Resolve(DataServerManager::NAME_IN_NS));
+  SALOME::DataServerManager_var dsm(SALOME::DataServerManager::_narrow(obj));
+  if(CORBA::is_nil(dsm))
+    return ;
+  // destroy ref in the naming service
+  std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
+  ns.Destroy_Name(fullScopeName.c_str());
+  // establish if dsm and this shared the same POA. If yes dsm and this are collocated !
+  PortableServer::ServantBase *ret(0);
+  try
+    {
+      ret=_poa->reference_to_servant(dsm);
+    }
+  catch(...) { ret=0; }
+  //
+  if(!ret)
+    _orb->shutdown(0);
+  else
+    {
+      PortableServer::ObjectId_var oid(_poa->servant_to_id(this));
+      _poa->deactivate_object(oid);
+      ret->_remove_ref();
+    }
+}
+
+void DataScopeServerBase::initializePython(int argc, char *argv[])
+{
+  Py_Initialize();
+  PySys_SetArgv(argc,argv);
+  PyObject *mainmod(PyImport_AddModule("__main__"));
+  _globals=PyModule_GetDict(mainmod);
+  if(PyDict_GetItemString(_globals, "__builtins__") == NULL)
+    {
+      PyObject *bimod(PyImport_ImportModule("__builtin__"));
+      if (bimod == NULL || PyDict_SetItemString(_globals, "__builtins__", bimod) != 0)
+        Py_FatalError("can't add __builtins__ to __main__");
+      Py_XDECREF(bimod);
+    }
+  _locals=PyDict_New();
+  PyObject *tmp(PyList_New(0));
+  _pickler=PyImport_ImportModuleLevel(const_cast<char *>("cPickle"),_globals,_locals,tmp,-1);
+}
+
+void DataScopeServerBase::registerToSalomePiDict() const
+{
+  PyObject *mod(PyImport_ImportModule("addToKillList"));
+  if(!mod)
+    return;
+  PyObject *meth(PyObject_GetAttrString(mod,"addToKillList"));
+  if(!meth)
+    { Py_XDECREF(mod); return ; }
+  PyObject *args(PyTuple_New(2));
+  PyTuple_SetItem(args,0,PyInt_FromLong(getpid()));
+  PyTuple_SetItem(args,1,PyString_FromString("SALOME_DataScopeServerBase"));
+  PyObject *res(PyObject_CallObject(meth,args));
+  Py_XDECREF(args);
+  Py_XDECREF(res);
+  Py_XDECREF(mod);
+}
+
+/*!
+ * \a ptr has been activated by the POA \a poa.
+ */
+void DataScopeServerBase::setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServerBase_ptr ptr)
+{
+  _poa=poa;
+  std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
+  SALOME_NamingService ns(_orb);
+  ns.Register(ptr,fullScopeName.c_str());
+}
+
+std::string DataScopeServerBase::BuildTmpVarNameFrom(const std::string& varName)
+{
+  std::ostringstream oss;
+  oss << varName << "@" << COUNTER++;
+  return oss.str();
+}
+
+std::vector< std::string > DataScopeServerBase::getAllVarNames() const
+{
+  std::size_t sz(_vars.size());
+  std::vector<std::string> ret(sz);
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it(_vars.begin());
+  for(std::size_t i=0;i<sz;it++,i++)
+    ret[i]=(*it).second->getVarNameCpp();
+  return ret;
+}
+
+CORBA::Object_var DataScopeServerBase::activateWithDedicatedPOA(BasicDataServer *ds)
+{
+  PortableServer::ObjectId_var id(_poa->activate_object(ds));
+  CORBA::Object_var ret(_poa->id_to_reference(id));
+  return ret;
+}
+
+void DataScopeServerBase::checkNotAlreadyExistingVar(const std::string& varName)
+{
+  std::vector<std::string> allNames(getAllVarNames());
+  std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varName));
+  if(it!=allNames.end())
+    {
+      std::ostringstream oss; oss << "DataScopeServerBase::checkNotAlreadyExistingVar : name \"" << varName << "\" already exists !";
+      throw Exception(oss.str());
+    }
+}
+
+///////
+
+DataScopeServer::DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName):DataScopeServerBase(orb,scopeName)
+{
+}
+
+DataScopeServer::DataScopeServer(const DataScopeServer& other):DataScopeServerBase(other)
+{
 }
 
 SALOME::PickelizedPyObjRdOnlyServer_ptr DataScopeServer::createRdOnlyVar(const char *varName, const SALOME::ByteVec& constValue)
@@ -169,111 +289,62 @@ SALOME::PickelizedPyObjRdWrServer_ptr DataScopeServer::createRdWrVar(const char 
   return SALOME::PickelizedPyObjRdWrServer::_narrow(ret);
 }
 
-void DataScopeServer::shutdownIfNotHostedByDSM()
+DataScopeServer::~DataScopeServer()
 {
-  SALOME_NamingService ns(_orb);
-  CORBA::Object_var obj(ns.Resolve(DataServerManager::NAME_IN_NS));
-  SALOME::DataServerManager_var dsm(SALOME::DataServerManager::_narrow(obj));
-  if(CORBA::is_nil(dsm))
+}
+
+////////
+
+DataScopeServerTransaction::DataScopeServerTransaction(CORBA::ORB_ptr orb, const std::string& scopeName):DataScopeServerBase(orb,scopeName)
+{
+}
+
+DataScopeServerTransaction::DataScopeServerTransaction(const DataScopeServerTransaction& other):DataScopeServerBase(other)
+{
+}
+
+SALOME::Transaction_ptr DataScopeServerTransaction::createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue)
+{
+  TransactionRdOnlyVarCreate *ret(new TransactionRdOnlyVarCreate(varName,constValue));
+  PortableServer::ObjectId_var id(_poa->activate_object(ret));
+  CORBA::Object_var obj(_poa->id_to_reference(id));
+  return SALOME::Transaction::_narrow(obj);
+}
+
+void DataScopeServerTransaction::atomicApply(const SALOME::ListOfTransaction& transactions)
+{
+  std::size_t sz(transactions.length());
+  if(sz==0)
     return ;
-  // destroy ref in the naming service
-  std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
-  ns.Destroy_Name(fullScopeName.c_str());
-  // establish if dsm and this shared the same POA. If yes dsm and this are collocated !
-  PortableServer::ServantBase *ret(0);
-  try
+  std::vector< AutoServantPtr<Transaction> > transactionsCpp(sz);
+  for(std::size_t i=0;i<sz;i++)
     {
-      ret=_poa->reference_to_servant(dsm);
+      PortableServer::ServantBase *eltBase(0);
+      Transaction *elt(0);
+      try
+        {
+          eltBase=_poa->reference_to_servant(transactions[i]);
+          elt=dynamic_cast<Transaction *>(eltBase);
+        }
+      catch(...)
+        {
+          std::ostringstream oss; oss << "DataScopeServerTransaction::atomicApply : the elt #" << i << " is invalid !";
+          throw Exception(oss.str());
+        }
+      if(!elt)
+        {
+          std::ostringstream oss; oss << "DataScopeServerTransaction::atomicApply : the elt #" << i << " is null ?";
+          throw Exception(oss.str());
+        }
+      elt->_remove_ref();
+      transactionsCpp[i]=elt;
+      transactionsCpp[i].setHolder(this);
     }
-  catch(...) { ret=0; }
-  //
-  if(!ret)
-    _orb->shutdown(0);
-  else
-    {
-      PortableServer::ObjectId_var oid(_poa->servant_to_id(this));
-      _poa->deactivate_object(oid);
-      ret->_remove_ref();
-    }
+  for(std::size_t i=0;i<sz;i++)
+    transactionsCpp[i]->prepareRollBackInCaseOfFailure();
 }
 
-void DataScopeServer::initializePython(int argc, char *argv[])
+DataScopeServerTransaction::~DataScopeServerTransaction()
 {
-  Py_Initialize();
-  PySys_SetArgv(argc,argv);
-  PyObject *mainmod(PyImport_AddModule("__main__"));
-  _globals=PyModule_GetDict(mainmod);
-  if(PyDict_GetItemString(_globals, "__builtins__") == NULL)
-    {
-      PyObject *bimod(PyImport_ImportModule("__builtin__"));
-      if (bimod == NULL || PyDict_SetItemString(_globals, "__builtins__", bimod) != 0)
-        Py_FatalError("can't add __builtins__ to __main__");
-      Py_XDECREF(bimod);
-    }
-  _locals=PyDict_New();
-  PyObject *tmp(PyList_New(0));
-  _pickler=PyImport_ImportModuleLevel(const_cast<char *>("cPickle"),_globals,_locals,tmp,-1);
 }
 
-void DataScopeServer::registerToSalomePiDict() const
-{
-  PyObject *mod(PyImport_ImportModule("addToKillList"));
-  if(!mod)
-    return;
-  PyObject *meth(PyObject_GetAttrString(mod,"addToKillList"));
-  if(!meth)
-    { Py_XDECREF(mod); return ; }
-  PyObject *args(PyTuple_New(2));
-  PyTuple_SetItem(args,0,PyInt_FromLong(getpid()));
-  PyTuple_SetItem(args,1,PyString_FromString("SALOME_DataScopeServer"));
-  PyObject *res(PyObject_CallObject(meth,args));
-  Py_XDECREF(args);
-  Py_XDECREF(res);
-  Py_XDECREF(mod);
-}
-
-/*!
- * \a ptr has been activated by the POA \a poa.
- */
-void DataScopeServer::setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr)
-{
-  _poa=poa;
-  std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
-  SALOME_NamingService ns(_orb);
-  ns.Register(ptr,fullScopeName.c_str());
-}
-
-std::string DataScopeServer::BuildTmpVarNameFrom(const std::string& varName)
-{
-  std::ostringstream oss;
-  oss << varName << "@" << COUNTER++;
-  return oss.str();
-}
-
-std::vector< std::string > DataScopeServer::getAllVarNames() const
-{
-  std::size_t sz(_vars.size());
-  std::vector<std::string> ret(sz);
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it(_vars.begin());
-  for(std::size_t i=0;i<sz;it++,i++)
-    ret[i]=(*it).second->getVarNameCpp();
-  return ret;
-}
-
-CORBA::Object_var DataScopeServer::activateWithDedicatedPOA(BasicDataServer *ds)
-{
-  PortableServer::ObjectId_var id(_poa->activate_object(ds));
-  CORBA::Object_var ret(_poa->id_to_reference(id));
-  return ret;
-}
-
-void DataScopeServer::checkNotAlreadyExistingVar(const std::string& varName)
-{
-  std::vector<std::string> allNames(getAllVarNames());
-  std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varName));
-  if(it!=allNames.end())
-    {
-      std::ostringstream oss; oss << "DataScopeServer::checkNotAlreadyExistingVar : name \"" << varName << "\" already exists !";
-      throw Exception(oss.str());
-    }
-}
