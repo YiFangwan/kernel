@@ -51,6 +51,11 @@ ENDIF()
 FOREACH(_res ${SalomeKERNEL_EXTRA_ENV})
   SALOME_ACCUMULATE_ENVIRONMENT(${_res} "${SalomeKERNEL_EXTRA_ENV_${_res}}")
 ENDFOREACH()
+# Accumulate own environment variables
+SALOME_ACCUMULATE_ENVIRONMENT(PYTHONPATH ${CMAKE_PREFIX_PATH}/${SALOME_INSTALL_BINS}
+                                         ${CMAKE_PREFIX_PATH}/${SALOME_INSTALL_PYTHON}
+                                         ${CMAKE_PREFIX_PATH}/${SALOME_INSTALL_PYTHON_SHARED})
+SALOME_ACCUMULATE_ENVIRONMENT(LD_LIBRARY_PATH ${CMAKE_PREFIX_PATH}/${SALOME_INSTALL_LIBS})
 
 #----------------------------------------------------------------------------
 # KERNEL_WITH_CORBA is a macro useful for determining whether a KERNEL module 
