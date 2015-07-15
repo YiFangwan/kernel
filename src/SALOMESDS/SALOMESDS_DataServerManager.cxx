@@ -117,7 +117,7 @@ typename T::PtrType CreateDataScope(const std::string& scopeName, const std::vec
     }
   //
   std::string fullScopeName(DataServerManager::CreateAbsNameInNSFromScopeName(scopeName));
-  std::ostringstream oss; oss << "SALOME_DataScopeServer" << " " << scopeName << " " << isTransactionInt;
+  std::ostringstream oss; oss << "SALOME_DataScopeServer" << " " << scopeName << " " << isTransactionInt << " ";
   SALOME_ContainerManager::AddOmninamesParams(oss,&ns);
   std::string command(oss.str());
   SALOME_ContainerManager::MakeTheCommandToBeLaunchedASync(command);
@@ -176,7 +176,7 @@ public:
   typedef SALOME::DataScopeServer TheType;
   static const bool IsTransaction=false;
   static PtrType nil() { return SALOME::DataScopeServer::_nil(); }
-  static VarType narrow(CORBA::Object_ptr obj) { return SALOME::DataScopeServer::_narrow(obj); }
+  static PtrType narrow(CORBA::Object_ptr obj) { return SALOME::DataScopeServer::_narrow(obj); }
   static PtrType duplicate(PtrType obj) { return SALOME::DataScopeServer::_duplicate(obj); }
 };
 
@@ -188,7 +188,7 @@ public:
   typedef SALOME::DataScopeServerTransaction TheType;
   static const bool IsTransaction=true;
   static PtrType nil() { return SALOME::DataScopeServerTransaction::_nil(); }
-  static VarType narrow(CORBA::Object_ptr obj) { return SALOME::DataScopeServerTransaction::_narrow(obj); }
+  static PtrType narrow(CORBA::Object_ptr obj) { return SALOME::DataScopeServerTransaction::_narrow(obj); }
   static PtrType duplicate(PtrType obj) { return SALOME::DataScopeServerTransaction::_duplicate(obj); }
 };
 

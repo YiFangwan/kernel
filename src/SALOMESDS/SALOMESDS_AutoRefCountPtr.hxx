@@ -31,6 +31,14 @@ namespace SALOMESDS
   {
   public:
     virtual PortableServer::POA_var getPOA() const = 0;
+    CORBA::Object_var activate()
+    {
+      PortableServer::POA_var poa(getPOA());
+      PortableServer::ObjectId_var id(poa->activate_object(this));
+      CORBA::Object_var ret(poa->id_to_reference(id));
+      return ret;
+    }
+    
     void enforcedRelease()
     {
       PortableServer::POA_var poa(getPOA());
@@ -89,12 +97,11 @@ namespace SALOMESDS
     return ret;
   }
 
-  template<class T>
+  template<class T>// T is expected to be a POAHolder subclass
   class AutoServantPtr
   {
   public:
-    AutoServantPtr(T *ptr=0):_ptr(ptr),_ph(0) { }
-    void setHolder(POAHolder *ph) { _ph=ph; }
+    AutoServantPtr(T *ptr=0):_ptr(ptr) { }
     ~AutoServantPtr() { destroyPtr(); }
     bool operator==(const AutoServantPtr& other) const { return _ptr==other._ptr; }
     bool operator==(const T *other) const { return _ptr==other; }
@@ -110,13 +117,10 @@ namespace SALOMESDS
     {
       if(!_ptr)
         return;
-      if(!_ph)
-        throw Exception("AutoServantPtr : null POA holder !");
-      _ph->enforcedRelease();
+      _ptr->enforcedRelease();
     }
   private:
     T *_ptr;
-    POAHolder *_ph;
   };
 }
 

@@ -151,9 +151,7 @@ void DataScopeServerBase::shutdownIfNotHostedByDSM()
     _orb->shutdown(0);
   else
     {
-      PortableServer::ObjectId_var oid(_poa->servant_to_id(this));
-      _poa->deactivate_object(oid);
-      ret->_remove_ref();
+      enforcedRelease();
     }
 }
 
@@ -220,13 +218,6 @@ std::vector< std::string > DataScopeServerBase::getAllVarNames() const
   return ret;
 }
 
-CORBA::Object_var DataScopeServerBase::activateWithDedicatedPOA(BasicDataServer *ds)
-{
-  PortableServer::ObjectId_var id(_poa->activate_object(ds));
-  CORBA::Object_var ret(_poa->id_to_reference(id));
-  return ret;
-}
-
 void DataScopeServerBase::checkNotAlreadyExistingVar(const std::string& varName)
 {
   std::vector<std::string> allNames(getAllVarNames());
@@ -280,7 +271,7 @@ SALOME::PickelizedPyObjRdOnlyServer_ptr DataScopeServer::createRdOnlyVar(const c
   std::string varNameCpp(varName);
   checkNotAlreadyExistingVar(varNameCpp);
   PickelizedPyObjRdOnlyServer *tmp(new PickelizedPyObjRdOnlyServer(this,varNameCpp,constValue));
-  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  CORBA::Object_var ret(tmp->activate());
   std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
   return SALOME::PickelizedPyObjRdOnlyServer::_narrow(ret);
@@ -291,7 +282,7 @@ SALOME::PickelizedPyObjRdExtServer_ptr DataScopeServer::createRdExtVar(const cha
   std::string varNameCpp(varName);
   checkNotAlreadyExistingVar(varNameCpp);
   PickelizedPyObjRdExtServer *tmp(new PickelizedPyObjRdExtServer(this,varNameCpp,constValue));
-  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  CORBA::Object_var ret(tmp->activate());
   std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
   return SALOME::PickelizedPyObjRdExtServer::_narrow(ret);
@@ -305,7 +296,7 @@ SALOME::PickelizedPyObjRdWrServer_ptr DataScopeServer::createRdWrVar(const char 
   std::string varNameCpp(varName),typeNameCpp(typeName);
   checkNotAlreadyExistingVar(varNameCpp);
   PickelizedPyObjRdWrServer *tmp(new PickelizedPyObjRdWrServer(this,typeNameCpp,varNameCpp));
-  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  CORBA::Object_var ret(tmp->activate());
   std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
   return SALOME::PickelizedPyObjRdWrServer::_narrow(ret);
@@ -329,7 +320,7 @@ void DataScopeServerTransaction::createRdOnlyVarInternal(const std::string& varN
 {
   checkNotAlreadyExistingVar(varName);
   PickelizedPyObjRdOnlyServer *tmp(new PickelizedPyObjRdOnlyServer(this,varName,constValue));
-  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  CORBA::Object_var ret(tmp->activate());
   std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
 }
@@ -338,7 +329,7 @@ void DataScopeServerTransaction::createRdExtVarInternal(const std::string& varNa
 {
   checkNotAlreadyExistingVar(varName);
   PickelizedPyObjRdExtServer *tmp(new PickelizedPyObjRdExtServer(this,varName,constValue));
-  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  CORBA::Object_var ret(tmp->activate());
   std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
 }
@@ -347,7 +338,7 @@ void DataScopeServerTransaction::createRdWrVarInternal(const std::string& varNam
 {
   checkNotAlreadyExistingVar(varName);
   PickelizedPyObjRdWrServer *tmp(new PickelizedPyObjRdWrServer(this,varName,constValue));
-  CORBA::Object_var ret(activateWithDedicatedPOA(tmp));
+  CORBA::Object_var ret(tmp->activate());
   std::pair< SALOME::BasicDataServer_var, BasicDataServer * > p(SALOME::BasicDataServer::_narrow(ret),tmp);
   _vars.push_back(p);
 }
@@ -368,8 +359,7 @@ SALOME::Transaction_ptr DataScopeServerTransaction::createRdOnlyVarTransac(const
 {
   TransactionRdOnlyVarCreate *ret(new TransactionRdOnlyVarCreate(this,varName,constValue));
   ret->checkNotAlreadyExisting();
-  PortableServer::ObjectId_var id(_poa->activate_object(ret));
-  CORBA::Object_var obj(_poa->id_to_reference(id));
+  CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
 }
 
@@ -377,8 +367,7 @@ SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtVarTransac(const 
 {
   TransactionRdExtVarCreate *ret(new TransactionRdExtVarCreate(this,varName,constValue));
   ret->checkNotAlreadyExisting();
-  PortableServer::ObjectId_var id(_poa->activate_object(ret));
-  CORBA::Object_var obj(_poa->id_to_reference(id));
+  CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
 }
 
@@ -386,8 +375,7 @@ SALOME::Transaction_ptr DataScopeServerTransaction::createRdWrVarTransac(const c
 {
   TransactionRdWrVarCreate *ret(new TransactionRdWrVarCreate(this,varName,constValue));
   ret->checkNotAlreadyExisting();
-  PortableServer::ObjectId_var id(_poa->activate_object(ret));
-  CORBA::Object_var obj(_poa->id_to_reference(id));
+  CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
 }
 
@@ -395,8 +383,7 @@ SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarHard(const c
 {
   TransactionAddKeyValueHard *ret(new TransactionAddKeyValueHard(this,varName,key,value));
   ret->checkNotAlreadyExisting();
-  PortableServer::ObjectId_var id(_poa->activate_object(ret));
-  CORBA::Object_var obj(_poa->id_to_reference(id));
+  CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
 }
 
@@ -439,7 +426,6 @@ void DataScopeServerTransaction::atomicApply(const SALOME::ListOfTransaction& tr
         }
       elt->_remove_ref();
       transactionsCpp[i]=elt;
-      transactionsCpp[i].setHolder(this);
     }
   {// important do not merge loops ! 
     std::vector<TrustTransaction> transactions2(sz);

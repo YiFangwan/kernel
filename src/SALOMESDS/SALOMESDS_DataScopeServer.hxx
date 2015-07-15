@@ -64,7 +64,6 @@ namespace SALOMESDS
     static std::string BuildTmpVarNameFrom(const std::string& varName);
   public:
     std::vector< std::string> getAllVarNames() const;
-    CORBA::Object_var activateWithDedicatedPOA(BasicDataServer *ds);
     void checkNotAlreadyExistingVar(const std::string& varName);
     void checkExistingVar(const std::string& varName);
   protected:

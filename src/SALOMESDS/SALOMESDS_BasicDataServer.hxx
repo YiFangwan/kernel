@@ -46,13 +46,11 @@ namespace SALOMESDS
   public:
     std::string getVarNameCpp() const { return _var_name; }
   protected:
-    PortableServer::POA_var getPOA() const { return _poa; }
+    PortableServer::POA_var getPOA() const;
   protected:
     DataScopeServerBase *_father;
   private:
     std::string _var_name;
-    PortableServer::POA_var _poa;
-    static int POA_CNT;
   };
 }
 

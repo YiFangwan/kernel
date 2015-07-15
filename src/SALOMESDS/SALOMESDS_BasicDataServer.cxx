@@ -26,11 +26,9 @@
 
 using namespace SALOMESDS;
 
-int BasicDataServer::POA_CNT=0;
-
 BasicDataServer::BasicDataServer(DataScopeServerBase *father, const std::string& varName):_father(father),_var_name(varName)
 {
-  PortableServer::POA_var poa(_father->getPOA());
+  /*PortableServer::POA_var poa(_father->getPOA());
   PortableServer::POAManager_var pman(poa->the_POAManager());
   CORBA::Object_var obj(_father->getORB()->resolve_initial_references("RootPOA"));
   PortableServer::POA_var rootPOA(PortableServer::POA::_narrow(obj));
@@ -40,7 +38,7 @@ BasicDataServer::BasicDataServer(DataScopeServerBase *father, const std::string&
   policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
   std::ostringstream poaName; poaName << "POA_" <<  POA_CNT++ << "_" << _var_name;
   _poa=rootPOA->create_POA(poaName.str().c_str(),pman,policies);
-  threadPol->destroy();
+  threadPol->destroy();*/
 }
 
 SALOME::DataScopeServer_ptr BasicDataServer::getMyDataScopeServer()
@@ -77,3 +75,7 @@ void BasicDataServer::Destroy()
   enforcedRelease();
 }
 
+PortableServer::POA_var BasicDataServer::getPOA() const
+{
+  return _father->getPOA();
+}

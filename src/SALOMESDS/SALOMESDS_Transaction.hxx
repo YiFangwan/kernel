@@ -33,13 +33,14 @@
 
 namespace SALOMESDS
 {
-  class SALOMESDS_EXPORT Transaction : public virtual POA_SALOME::Transaction
+  class SALOMESDS_EXPORT Transaction : public virtual POA_SALOME::Transaction, public POAHolder
   {
   public:
     Transaction(DataScopeServerTransaction *dsct, const std::string& varName):_dsct(dsct),_var_name(varName) { if(!_dsct) throw Exception("Transaction constructor error !"); }
     std::string getVarName() const { return _var_name; }
     void checkNotAlreadyExisting() { _dsct->checkNotAlreadyExistingVar(_var_name); }
     void checkVarExisting() { _dsct->checkExistingVar(_var_name); }
+    PortableServer::POA_var getPOA() const { return _dsct->getPOA(); }
     virtual void prepareRollBackInCaseOfFailure() = 0;
     virtual void perform() = 0;
     virtual void rollBack() = 0;
