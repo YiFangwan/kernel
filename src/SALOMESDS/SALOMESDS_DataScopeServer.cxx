@@ -23,6 +23,7 @@
 #include "SALOMESDS_PickelizedPyObjRdOnlyServer.hxx"
 #include "SALOMESDS_PickelizedPyObjRdExtServer.hxx"
 #include "SALOMESDS_PickelizedPyObjRdWrServer.hxx"
+#include "SALOMESDS_KeyWaiter.hxx"
 #include "SALOMESDS_Transaction.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOMESDS_Exception.hxx"
@@ -102,13 +103,13 @@ CORBA::Boolean DataScopeServerBase::existVar(const char *varName)
 
 SALOME::BasicDataServer_ptr DataScopeServerBase::retrieveVarInternal(const char *varName)
 {
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it0(retrieveVarInternal3(varName));
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it0(retrieveVarInternal3(varName));
   return SALOME::BasicDataServer::_duplicate((*it0).first);
 }
 
 BasicDataServer *DataScopeServerBase::retrieveVarInternal2(const std::string& varName)
 {
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it0(retrieveVarInternal3(varName));
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it0(retrieveVarInternal3(varName));
   return (*it0).second;
 }
 
@@ -218,7 +219,7 @@ std::vector< std::string > DataScopeServerBase::getAllVarNames() const
   return ret;
 }
 
-void DataScopeServerBase::checkNotAlreadyExistingVar(const std::string& varName)
+void DataScopeServerBase::checkNotAlreadyExistingVar(const std::string& varName) const
 {
   std::vector<std::string> allNames(getAllVarNames());
   std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varName));
@@ -229,7 +230,7 @@ void DataScopeServerBase::checkNotAlreadyExistingVar(const std::string& varName)
     }
 }
 
-void DataScopeServerBase::checkExistingVar(const std::string& varName)
+void DataScopeServerBase::checkExistingVar(const std::string& varName) const
 {
   std::vector<std::string> allNames(getAllVarNames());
   std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varName));
@@ -240,7 +241,25 @@ void DataScopeServerBase::checkExistingVar(const std::string& varName)
     }
 }
 
-std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator DataScopeServerBase::retrieveVarInternal3(const std::string& varName)
+PickelizedPyObjServer *DataScopeServerBase::checkVarExistingAndDict(const std::string& varName)
+{
+  checkExistingVar(varName);
+  BasicDataServer *var(retrieveVarInternal2(varName.c_str()));
+  PickelizedPyObjServer *ret(dynamic_cast<PickelizedPyObjServer *>(var));
+  if(!ret)
+    {
+      std::ostringstream oss; oss << "TransactionAddKeyValueHard::prepareRollBackInCaseOfFailure : var \"" << varName << "\"exists but it is not serialized !";
+      throw Exception(oss.str());
+    }
+  if(!ret->isDict())
+    {
+      std::ostringstream oss; oss << "TransactionAddKeyValueHard::prepareRollBackInCaseOfFailure : var \"" << varName << "\"exists but it is not a Dict !";
+      throw Exception(oss.str());
+    }
+  return ret;
+}
+
+std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator DataScopeServerBase::retrieveVarInternal3(const std::string& varName) const
 {
   std::vector<std::string> allNames(getAllVarNames());
   std::vector<std::string>::iterator it(std::find(allNames.begin(),allNames.end(),varName));
@@ -251,7 +270,7 @@ std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterat
       throw Exception(oss.str());
     }
   std::size_t pos(std::distance(allNames.begin(),it));
-  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator it0(_vars.begin());
+  std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator it0(_vars.begin());
   for(std::size_t i=0;i<pos;i++,it0++);
   return it0;
 }
@@ -310,9 +329,12 @@ DataScopeServer::~DataScopeServer()
 
 DataScopeServerTransaction::DataScopeServerTransaction(CORBA::ORB_ptr orb, const std::string& scopeName):DataScopeServerBase(orb,scopeName)
 {
+  CORBA::Object_var obj(_orb->resolve_initial_references("RootPOA"));
+  PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
+  _poa_for_key_waiter=poa;
 }
 
-DataScopeServerTransaction::DataScopeServerTransaction(const DataScopeServerTransaction& other):DataScopeServerBase(other)
+DataScopeServerTransaction::DataScopeServerTransaction(const DataScopeServerTransaction& other):DataScopeServerBase(other),_poa_for_key_waiter(other.getPOA4KeyWaiter())
 {
 }
 
@@ -357,34 +379,42 @@ SALOME::ByteVec *DataScopeServerTransaction::fetchSerializedContent(const char *
 
 SALOME::Transaction_ptr DataScopeServerTransaction::createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue)
 {
+  checkNotAlreadyExistingVar(varName);
   TransactionRdOnlyVarCreate *ret(new TransactionRdOnlyVarCreate(this,varName,constValue));
-  ret->checkNotAlreadyExisting();
   CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
 }
 
 SALOME::Transaction_ptr DataScopeServerTransaction::createRdExtVarTransac(const char *varName, const SALOME::ByteVec& constValue)
 {
+  checkNotAlreadyExistingVar(varName);
   TransactionRdExtVarCreate *ret(new TransactionRdExtVarCreate(this,varName,constValue));
-  ret->checkNotAlreadyExisting();
   CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
 }
 
 SALOME::Transaction_ptr DataScopeServerTransaction::createRdWrVarTransac(const char *varName, const SALOME::ByteVec& constValue)
 {
+  checkNotAlreadyExistingVar(varName);
   TransactionRdWrVarCreate *ret(new TransactionRdWrVarCreate(this,varName,constValue));
-  ret->checkNotAlreadyExisting();
   CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
 }
 
 SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value)
 {
+  checkNotAlreadyExistingVar(varName);
   TransactionAddKeyValueHard *ret(new TransactionAddKeyValueHard(this,varName,key,value));
-  ret->checkNotAlreadyExisting();
   CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
+}
+
+SALOME::KeyWaiter_ptr DataScopeServerTransaction::waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal)
+{
+  checkVarExistingAndDict(varName);
+  KeyWaiter *ret(new KeyWaiter(this,keyVal));
+  CORBA::Object_var obj(ret->activate());
+  return SALOME::KeyWaiter::_narrow(obj);
 }
 
 class TrustTransaction

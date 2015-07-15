@@ -94,14 +94,36 @@ SALOME::ByteVec *PickelizedPyObjServer::FromCppToByteSeq(const std::string& strT
 }
 
 //! New reference returned
-PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::string& pickledData)
+PyObject *PickelizedPyObjServer::GetPyObjFromPickled(const std::string& pickledData, DataScopeServerBase *dsb)
 {
   std::size_t sz(pickledData.size());
   PyObject *pickledDataPy(PyString_FromStringAndSize(NULL,sz));// agy : do not use PyString_FromString because std::string hides a vector of byte.
   char *buf(PyString_AsString(pickledDataPy));// this buf can be used thanks to python documentation.
   const char *inBuf(pickledData.c_str());
   std::copy(inBuf,inBuf+sz,buf);
-  PyObject *selfMeth(PyObject_GetAttrString(_father->getPickler(),"loads"));
+  PyObject *selfMeth(PyObject_GetAttrString(dsb->getPickler(),"loads"));
+  PyObject *args(PyTuple_New(1)); PyTuple_SetItem(args,0,pickledDataPy);
+  PyObject *ret(PyObject_CallObject(selfMeth,args));
+  Py_XDECREF(args);
+  Py_XDECREF(selfMeth);
+  return ret;
+}
+
+//! New reference returned
+PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::string& pickledData)
+{
+  return GetPyObjFromPickled(pickledData,_father);
+}
+
+//! New reference returned
+PyObject *PickelizedPyObjServer::GetPyObjFromPickled(const std::vector<unsigned char>& pickledData, DataScopeServerBase *dsb)
+{
+  std::size_t sz(pickledData.size());
+  PyObject *pickledDataPy(PyString_FromStringAndSize(NULL,sz));// agy : do not use PyString_FromString because std::string hides a vector of byte.
+  char *buf(PyString_AsString(pickledDataPy));// this buf can be used thanks to python documentation.
+  const unsigned char *inBuf(&pickledData[0]);
+  std::copy(inBuf,inBuf+sz,buf);
+  PyObject *selfMeth(PyObject_GetAttrString(dsb->getPickler(),"loads"));
   PyObject *args(PyTuple_New(1)); PyTuple_SetItem(args,0,pickledDataPy);
   PyObject *ret(PyObject_CallObject(selfMeth,args));
   Py_XDECREF(args);
@@ -112,17 +134,7 @@ PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::string& pickledD
 //! New reference returned
 PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::vector<unsigned char>& pickledData)
 {
-  std::size_t sz(pickledData.size());
-  PyObject *pickledDataPy(PyString_FromStringAndSize(NULL,sz));// agy : do not use PyString_FromString because std::string hides a vector of byte.
-  char *buf(PyString_AsString(pickledDataPy));// this buf can be used thanks to python documentation.
-  const unsigned char *inBuf(&pickledData[0]);
-  std::copy(inBuf,inBuf+sz,buf);
-  PyObject *selfMeth(PyObject_GetAttrString(_father->getPickler(),"loads"));
-  PyObject *args(PyTuple_New(1)); PyTuple_SetItem(args,0,pickledDataPy);
-  PyObject *ret(PyObject_CallObject(selfMeth,args));
-  Py_XDECREF(args);
-  Py_XDECREF(selfMeth);
-  return ret;
+  return GetPyObjFromPickled(pickledData,_father);
 }
 
 //! obj is consumed by this method.

@@ -37,6 +37,8 @@
 
 namespace SALOMESDS
 {
+  class PickelizedPyObjServer;
+
   class SALOMESDS_EXPORT DataScopeServerBase : public virtual POA_SALOME::DataScopeServerBase, public POAHolder
   {
   public:
@@ -64,10 +66,11 @@ namespace SALOMESDS
     static std::string BuildTmpVarNameFrom(const std::string& varName);
   public:
     std::vector< std::string> getAllVarNames() const;
-    void checkNotAlreadyExistingVar(const std::string& varName);
-    void checkExistingVar(const std::string& varName);
+    void checkNotAlreadyExistingVar(const std::string& varName) const;
+    void checkExistingVar(const std::string& varName) const;
+    PickelizedPyObjServer *checkVarExistingAndDict(const std::string& varName);
   protected:
-    std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator retrieveVarInternal3(const std::string& varName);
+    std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator retrieveVarInternal3(const std::string& varName) const;
   protected:
     PyObject *_globals;
     PyObject *_locals;
@@ -100,13 +103,17 @@ namespace SALOMESDS
     void createRdOnlyVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
     void createRdExtVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
     void createRdWrVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
+    PortableServer::POA_var getPOA4KeyWaiter() const { return _poa_for_key_waiter; }
   public://remotely callable
     SALOME::ByteVec *fetchSerializedContent(const char *varName);
     SALOME::Transaction_ptr createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdExtVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdWrVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    SALOME::KeyWaiter_ptr waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal);
     void atomicApply(const SALOME::ListOfTransaction& transactions);
+  private:
+    PortableServer::POA_var _poa_for_key_waiter;
   };
   
   /*

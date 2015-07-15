@@ -99,20 +99,7 @@ TransactionAddKeyValueHard::TransactionAddKeyValueHard(DataScopeServerTransactio
 
 void TransactionAddKeyValueHard::prepareRollBackInCaseOfFailure()
 {
-  checkNotAlreadyExisting();
-  //
-  BasicDataServer *var(_dsct->retrieveVarInternal2(_var_name.c_str()));
-  _varc=dynamic_cast<PickelizedPyObjServer *>(var);
-  if(!_varc)
-    {
-      std::ostringstream oss; oss << "TransactionAddKeyValueHard::prepareRollBackInCaseOfFailure : var \"" << _var_name << "\"exists but it is not serialized !";
-      throw Exception(oss.str());
-    }
-  if(!_varc->isDict())
-    {
-      std::ostringstream oss; oss << "TransactionAddKeyValueHard::prepareRollBackInCaseOfFailure : var \"" << _var_name << "\"exists but it is not a Dict !";
-      throw Exception(oss.str());
-    }
+  _varc=checkVarExistingAndDict();
   //
   _zeDataBefore.clear();
   SALOME::ByteVec *zeDataBefore(_varc->fetchSerializedContent());

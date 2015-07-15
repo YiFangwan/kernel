@@ -46,6 +46,8 @@ namespace SALOMESDS
   public:
     static void FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret);
     static SALOME::ByteVec *FromCppToByteSeq(const std::string& strToBeConv);
+    static PyObject *GetPyObjFromPickled(const std::string& pickledData, DataScopeServerBase *dsb);
+    static PyObject *GetPyObjFromPickled(const std::vector<unsigned char>& pickledData, DataScopeServerBase *dsb);
     PyObject *getPyObjFromPickled(const std::string& pickledData);
     PyObject *getPyObjFromPickled(const std::vector<unsigned char>& pickledData);
     std::string pickelize(PyObject *obj);

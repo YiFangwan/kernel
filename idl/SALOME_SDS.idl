@@ -81,12 +81,18 @@ module SALOME
 
   typedef sequence<Transaction> ListOfTransaction;
 
+  interface KeyWaiter
+  {
+    ByteVec waitFor() raises (SALOME::SALOME_Exception);
+  };
+
   interface DataScopeServerTransaction : DataScopeServerBase
   {
     ByteVec fetchSerializedContent(in string varName) raises (SALOME::SALOME_Exception);
     Transaction createRdOnlyVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction createRdExtVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
     Transaction createRdWrVarTransac(in string varName, in ByteVec constValue) raises (SALOME::SALOME_Exception);
+    KeyWaiter waitForKeyInVar(in string varName, in ByteVec keyVal) raises (SALOME::SALOME_Exception);
     void atomicApply(in ListOfTransaction transactions) raises (SALOME::SALOME_Exception);
   };
 

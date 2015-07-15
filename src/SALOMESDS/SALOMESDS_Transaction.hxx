@@ -33,6 +33,8 @@
 
 namespace SALOMESDS
 {
+  class PickelizedPyObjServer;
+
   class SALOMESDS_EXPORT Transaction : public virtual POA_SALOME::Transaction, public POAHolder
   {
   public:
@@ -40,6 +42,7 @@ namespace SALOMESDS
     std::string getVarName() const { return _var_name; }
     void checkNotAlreadyExisting() { _dsct->checkNotAlreadyExistingVar(_var_name); }
     void checkVarExisting() { _dsct->checkExistingVar(_var_name); }
+    PickelizedPyObjServer *checkVarExistingAndDict() { return _dsct->checkVarExistingAndDict(_var_name); }
     PortableServer::POA_var getPOA() const { return _dsct->getPOA(); }
     virtual void prepareRollBackInCaseOfFailure() = 0;
     virtual void perform() = 0;
