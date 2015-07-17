@@ -24,12 +24,14 @@
 
 using namespace SALOMESDS;
 
-KeyWaiter::KeyWaiter(DataScopeServerTransaction *dst, const SALOME::ByteVec& keyVal):_dst(dst),_ze_key(0),_ze_value(0)
+KeyWaiter::KeyWaiter(PickelizedPyObjServer *dst, const SALOME::ByteVec& keyVal):_dst(dst),_ze_key(0),_ze_value(0)
 {
+  if(!dynamic_cast<DataScopeServerTransaction *>(dst->getFather()))
+    throw Exception("KeyWaiter constructor : Invalid glob var ! Invalid DataScope hosting it ! DataScopeServerTransaction excpected !");
   std::string st;
   PickelizedPyObjServer::FromByteSeqToCpp(keyVal,st);
-  _ze_key=PickelizedPyObjServer::GetPyObjFromPickled(st,_dst);
-  PyObject *selfMeth(PyObject_GetAttrString(_dst->getPickler(),"__contains__"));
+  _ze_key=PickelizedPyObjServer::GetPyObjFromPickled(st,getDSS());
+  PyObject *selfMeth(PyObject_GetAttrString(_dst->getPyObj(),"__contains__"));
   PyObject *args(PyTuple_New(1));
   PyTuple_SetItem(args,0,_ze_key); Py_XINCREF(_ze_key); // _ze_key is stolen by PyTuple_SetItem
   PyObject *retPy(PyObject_CallObject(selfMeth,args));
@@ -38,7 +40,22 @@ KeyWaiter::KeyWaiter(DataScopeServerTransaction *dst, const SALOME::ByteVec& key
   //
   if(retPy!=Py_False && retPy!=Py_True)
     throw Exception("KeyWaiter constructor : unexpected return of dict.__contains__ !");
-  
+  if(retPy==Py_True)
+    {
+      selfMeth=PyObject_GetAttrString(_dst->getPyObj(),"__getitem__");
+      args=PyTuple_New(1);
+      PyTuple_SetItem(args,0,_ze_key); Py_XINCREF(_ze_key); // _ze_key is stolen by PyTuple_SetItem
+      retPy=PyObject_CallObject(selfMeth,args);
+      if(!retPy)
+        throw Exception("KeyWaiter constructor : dict.__contains__ says true but fails to return value !");
+      _ze_value=retPy;
+      Py_XDECREF(args);
+      Py_XDECREF(selfMeth);
+    }
+  else
+    {
+      //dst->addWaiter();
+    }
   Py_XDECREF(retPy);
 }
 
@@ -51,10 +68,18 @@ KeyWaiter::~KeyWaiter()
 
 PortableServer::POA_var KeyWaiter::getPOA() const
 {
-  return _dst->getPOA4KeyWaiter();
+  return getDSS()->getPOA4KeyWaiter();
 }
 
 SALOME::ByteVec *KeyWaiter::waitFor()
 {
+  if(_ze_value)
+    {
+      Py_XINCREF(_ze_value);
+      std::string st(PickelizedPyObjServer::Pickelize(_ze_value,_dst->getFather()));
+      return PickelizedPyObjServer::FromCppToByteSeq(st);
+    }
+  else
+    throw Exception("KeyWaiter::waitFor : not implemented yet !");
   return 0;
 }

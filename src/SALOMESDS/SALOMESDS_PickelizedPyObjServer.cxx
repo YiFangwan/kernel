@@ -138,12 +138,12 @@ PyObject *PickelizedPyObjServer::getPyObjFromPickled(const std::vector<unsigned 
 }
 
 //! obj is consumed by this method.
-std::string PickelizedPyObjServer::pickelize(PyObject *obj)
+std::string PickelizedPyObjServer::Pickelize(PyObject *obj, DataScopeServerBase *dsb)
 {
   PyObject *args(PyTuple_New(2));
   PyTuple_SetItem(args,0,obj);
   PyTuple_SetItem(args,1,PyInt_FromLong(2));// because "assert(cPickle.HIGHEST_PROTOCOL is 2)"
-  PyObject *selfMeth(PyObject_GetAttrString(_father->getPickler(),"dumps"));
+  PyObject *selfMeth(PyObject_GetAttrString(dsb->getPickler(),"dumps"));
   PyObject *retPy(PyObject_CallObject(selfMeth,args));
   Py_XDECREF(selfMeth);
   Py_XDECREF(args);
@@ -155,6 +155,12 @@ std::string PickelizedPyObjServer::pickelize(PyObject *obj)
     inBuf[i]=buf[i];
   Py_XDECREF(retPy);
   return ret;
+}
+
+//! obj is consumed by this method.
+std::string PickelizedPyObjServer::pickelize(PyObject *obj)
+{
+  return Pickelize(obj,_father);
 }
 
 //! obj is consumed by this method.

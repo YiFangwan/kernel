@@ -411,8 +411,8 @@ SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarHard(const c
 
 SALOME::KeyWaiter_ptr DataScopeServerTransaction::waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal)
 {
-  checkVarExistingAndDict(varName);
-  KeyWaiter *ret(new KeyWaiter(this,keyVal));
+  PickelizedPyObjServer *pickelObj(checkVarExistingAndDict(varName));
+  KeyWaiter *ret(new KeyWaiter(pickelObj,keyVal));
   CORBA::Object_var obj(ret->activate());
   return SALOME::KeyWaiter::_narrow(obj);
 }

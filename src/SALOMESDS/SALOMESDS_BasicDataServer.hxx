@@ -44,6 +44,7 @@ namespace SALOMESDS
     void UnRegister();
     void Destroy();
   public:
+    DataScopeServerBase *getFather() const { return _father; }
     std::string getVarNameCpp() const { return _var_name; }
   protected:
     PortableServer::POA_var getPOA() const;
