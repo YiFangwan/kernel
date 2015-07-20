@@ -401,6 +401,39 @@ SALOME::Transaction_ptr DataScopeServerTransaction::createRdWrVarTransac(const c
   return SALOME::Transaction::_narrow(obj);
 }
 
+void DataScopeServerTransaction::addWaitKey(KeyWaiter *kw)
+{
+  if(!kw)
+    throw Exception("DataScopeServerTransaction::addWaitKey : NULL input object !");
+  _waiting_keys.push_back(kw);
+}
+
+void DataScopeServerTransaction::pingKey(PyObject *keyObj)
+{
+  PyObject *cmpObj(getPyCmpFunc());
+  if(!keyObj)
+    throw Exception("Key Object is NULL !");
+  PyObject *args(PyTuple_New(2));
+  PyTuple_SetItem(args,0,keyObj); Py_XINCREF(keyObj);
+  std::size_t ii(0);
+  for(std::list< KeyWaiter *>::iterator it=_waiting_keys.begin();it!=_waiting_keys.end();it++,ii++)
+    {
+      PyObject *waitKey((*it)->getKeyPyObj());
+      PyTuple_SetItem(args,1,waitKey); Py_XINCREF(waitKey);
+      PyObject *res(PyObject_CallObject(cmpObj,args));
+      if(res==NULL)
+        {
+          std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " error during cmp(k,wk[i]) !";
+          throw Exception(oss.str());
+        }
+      Py_XDECREF(res);
+    }
+}
+
+void DataScopeServerTransaction::notifyKey(PyObject *keyObj, PyObject *valueObj)
+{
+}
+
 SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value)
 {
   checkNotAlreadyExistingVar(varName);
@@ -468,6 +501,23 @@ void DataScopeServerTransaction::atomicApply(const SALOME::ListOfTransaction& tr
   }
   for(std::size_t i=0;i<sz;i++)
     transactionsCpp[i]->notify();
+}
+
+/*!
+ * Returns borrowed reference.
+ */
+PyObject *DataScopeServerTransaction::getPyCmpFunc()
+{
+  PyObject *builtins(PyDict_GetItemString(_globals,"__builtins__"));//borrowed
+  if(builtins==NULL)
+    throw Exception("Fail to find reference to builtins !");
+  PyObject *builtins2(PyModule_GetDict(builtins));//borrowed
+  if(builtins2==NULL)
+    throw Exception("Fail to invoke __dict__ on builtins !");
+  PyObject *cmpObj(PyDict_GetItemString(builtins2,"cmp"));
+  if(cmpObj==NULL)
+    throw Exception("Fail to find cmp in __builtins__ !");
+  return cmpObj;
 }
 
 DataScopeServerTransaction::~DataScopeServerTransaction()

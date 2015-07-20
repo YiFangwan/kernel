@@ -54,7 +54,7 @@ KeyWaiter::KeyWaiter(PickelizedPyObjServer *dst, const SALOME::ByteVec& keyVal):
     }
   else
     {
-      //dst->addWaiter();
+      getDSS()->addWaitKey(this);
     }
   Py_XDECREF(retPy);
 }

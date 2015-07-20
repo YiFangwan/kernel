@@ -93,8 +93,11 @@ void TransactionRdWrVarCreate::perform()
 
 TransactionAddKeyValueHard::TransactionAddKeyValueHard(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value):Transaction(dsct,varName),_varc(0)
 {
-  FromByteSeqToVB(key,_key);
-  FromByteSeqToVB(value,_value);
+  std::vector<unsigned char> key2,value2;
+  FromByteSeqToVB(key,key2);
+  FromByteSeqToVB(value,value2);
+  _key=PickelizedPyObjServer::GetPyObjFromPickled(key2,_dsct);
+  _value=PickelizedPyObjServer::GetPyObjFromPickled(value2,_dsct);
 }
 
 void TransactionAddKeyValueHard::prepareRollBackInCaseOfFailure()
@@ -104,6 +107,7 @@ void TransactionAddKeyValueHard::prepareRollBackInCaseOfFailure()
   _zeDataBefore.clear();
   SALOME::ByteVec *zeDataBefore(_varc->fetchSerializedContent());
   PickelizedPyObjServer::FromByteSeqToCpp(*zeDataBefore,_zeDataBefore);
+  _dsct->pingKey(_key);// check that key is OK with all waiting keys
 }
 
 void TransactionAddKeyValueHard::perform()
@@ -118,13 +122,13 @@ void TransactionAddKeyValueHard::rollBack()
   _zeDataBefore.clear();
 }
 
-/*!
- TODO : To be implemented.
- */
 void TransactionAddKeyValueHard::notify()
 {
+  _dsct->notifyKey(_key,_value);
 }
 
 TransactionAddKeyValueHard::~TransactionAddKeyValueHard()
 {
+  Py_XDECREF(_key);
+  Py_XDECREF(_value);
 }

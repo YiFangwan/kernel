@@ -101,8 +101,8 @@ namespace SALOMESDS
     void notify();
     ~TransactionAddKeyValueHard();
   private:
-    std::vector<unsigned char> _key;
-    std::vector<unsigned char> _value;
+    PyObject *_key;
+    PyObject *_value;
     std::string _zeDataBefore;
     PickelizedPyObjServer *_varc;
   };

@@ -37,6 +37,7 @@
 
 namespace SALOMESDS
 {
+  class KeyWaiter;
   class PickelizedPyObjServer;
 
   class SALOMESDS_EXPORT DataScopeServerBase : public virtual POA_SALOME::DataScopeServerBase, public POAHolder
@@ -104,6 +105,9 @@ namespace SALOMESDS
     void createRdExtVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
     void createRdWrVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
     PortableServer::POA_var getPOA4KeyWaiter() const { return _poa_for_key_waiter; }
+    void addWaitKey(KeyWaiter *kw);
+    void pingKey(PyObject *keyObj);
+    void notifyKey(PyObject *keyObj, PyObject *valueObj);
   public://remotely callable
     SALOME::ByteVec *fetchSerializedContent(const char *varName);
     SALOME::Transaction_ptr createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue);
@@ -113,7 +117,10 @@ namespace SALOMESDS
     SALOME::KeyWaiter_ptr waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal);
     void atomicApply(const SALOME::ListOfTransaction& transactions);
   private:
+    PyObject *getPyCmpFunc();
+  private:
     PortableServer::POA_var _poa_for_key_waiter;
+    std::list< KeyWaiter * > _waiting_keys;
   };
   
   /*

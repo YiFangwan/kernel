@@ -60,15 +60,11 @@ bool PickelizedPyObjServer::isDict()
     return false;
 }
 
-void PickelizedPyObjServer::addKeyValueHard(const std::vector<unsigned char>& key, const std::vector<unsigned char>& value)
+void PickelizedPyObjServer::addKeyValueHard(PyObject *key, PyObject *value)
 {
   if(!isDict())
     throw Exception("PickelizedPyObjServer::addKeyValueHard : not a dict !");
-  PyObject *k(getPyObjFromPickled(key));
-  PyObject *v(getPyObjFromPickled(value));
-  bool isOK(PyDict_SetItem(_self,k,v)==0);
-  Py_XDECREF(k);
-  Py_XDECREF(v);
+  bool isOK(PyDict_SetItem(_self,key,value)==0);
   if(!isOK)
     throw Exception("PickelizedPyObjServer::addKeyValueHard : error when trying to add key,value to dict !");
 }

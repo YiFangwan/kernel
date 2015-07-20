@@ -42,7 +42,7 @@ namespace SALOMESDS
     SALOME::ByteVec *fetchSerializedContent();
   public:
     bool isDict();
-    void addKeyValueHard(const std::vector<unsigned char>& key, const std::vector<unsigned char>& value);
+    void addKeyValueHard(PyObject *key, PyObject *value);
     PyObject *getPyObj() const { return _self; }
   public:
     static void FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret);

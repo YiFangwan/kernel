@@ -39,6 +39,7 @@ namespace SALOMESDS
   {
   public:
     KeyWaiter(PickelizedPyObjServer *dst, const SALOME::ByteVec& keyVal);
+    PyObject *getKeyPyObj() const { return _ze_key; }
     virtual ~KeyWaiter();
     PortableServer::POA_var getPOA() const;
     SALOME::ByteVec *waitFor();
