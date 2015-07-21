@@ -31,6 +31,8 @@
 
 #include <Python.h>
 
+#include <semaphore.h>
+
 namespace SALOMESDS
 {
   class DataScopeServerTransaction;
@@ -38,17 +40,20 @@ namespace SALOMESDS
   class SALOMESDS_EXPORT KeyWaiter : public virtual POA_SALOME::KeyWaiter, public POAHolder
   {
   public:
-    KeyWaiter(PickelizedPyObjServer *dst, const SALOME::ByteVec& keyVal);
+    KeyWaiter(PickelizedPyObjServer *var, const SALOME::ByteVec& keyVal);
     PyObject *getKeyPyObj() const { return _ze_key; }
     virtual ~KeyWaiter();
     PortableServer::POA_var getPOA() const;
     SALOME::ByteVec *waitFor();
+    void valueJustCome(PyObject *val);
+    void go();
   private:
-    DataScopeServerTransaction *getDSS() const { return static_cast<DataScopeServerTransaction *>(_dst->getFather()); }//thanks to dynamic_cast in constructor
+    DataScopeServerTransaction *getDSS() const { return static_cast<DataScopeServerTransaction *>(_var->getFather()); }//thanks to dynamic_cast in constructor
   private:
-    PickelizedPyObjServer *_dst;
+    PickelizedPyObjServer *_var;
     PyObject *_ze_key;
     PyObject *_ze_value;
+    sem_t _sem;
   };
 }
 

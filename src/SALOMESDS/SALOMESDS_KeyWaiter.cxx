@@ -22,16 +22,22 @@
 #include "SALOMESDS_DataScopeServer.hxx"
 #include "SALOMESDS_PickelizedPyObjServer.hxx"
 
+#include <sstream>
+
 using namespace SALOMESDS;
 
-KeyWaiter::KeyWaiter(PickelizedPyObjServer *dst, const SALOME::ByteVec& keyVal):_dst(dst),_ze_key(0),_ze_value(0)
+KeyWaiter::KeyWaiter(PickelizedPyObjServer *var, const SALOME::ByteVec& keyVal):_var(var),_ze_key(0),_ze_value(0)
 {
-  if(!dynamic_cast<DataScopeServerTransaction *>(dst->getFather()))
+  if(sem_init(&_sem,0,0)!=0)// put value to 0 to lock by default
+    throw Exception("KeyWaiter constructor : Error on initialization of semaphore !");
+  if(!var)
+    throw Exception("KeyWaiter constructor : Invalid glob var is NULL !");
+  if(!dynamic_cast<DataScopeServerTransaction *>(var->getFather()))
     throw Exception("KeyWaiter constructor : Invalid glob var ! Invalid DataScope hosting it ! DataScopeServerTransaction excpected !");
   std::string st;
   PickelizedPyObjServer::FromByteSeqToCpp(keyVal,st);
   _ze_key=PickelizedPyObjServer::GetPyObjFromPickled(st,getDSS());
-  PyObject *selfMeth(PyObject_GetAttrString(_dst->getPyObj(),"__contains__"));
+  PyObject *selfMeth(PyObject_GetAttrString(_var->getPyObj(),"__contains__"));
   PyObject *args(PyTuple_New(1));
   PyTuple_SetItem(args,0,_ze_key); Py_XINCREF(_ze_key); // _ze_key is stolen by PyTuple_SetItem
   PyObject *retPy(PyObject_CallObject(selfMeth,args));
@@ -42,7 +48,7 @@ KeyWaiter::KeyWaiter(PickelizedPyObjServer *dst, const SALOME::ByteVec& keyVal):
     throw Exception("KeyWaiter constructor : unexpected return of dict.__contains__ !");
   if(retPy==Py_True)
     {
-      selfMeth=PyObject_GetAttrString(_dst->getPyObj(),"__getitem__");
+      selfMeth=PyObject_GetAttrString(_var->getPyObj(),"__getitem__");
       args=PyTuple_New(1);
       PyTuple_SetItem(args,0,_ze_key); Py_XINCREF(_ze_key); // _ze_key is stolen by PyTuple_SetItem
       retPy=PyObject_CallObject(selfMeth,args);
@@ -51,10 +57,11 @@ KeyWaiter::KeyWaiter(PickelizedPyObjServer *dst, const SALOME::ByteVec& keyVal):
       _ze_value=retPy;
       Py_XDECREF(args);
       Py_XDECREF(selfMeth);
+      go();//notify that value already arrives -> unlock
     }
   else
     {
-      getDSS()->addWaitKey(this);
+      getDSS()->addWaitKey(this);// key not present let the DataScope managing it !
     }
   Py_XDECREF(retPy);
 }
@@ -73,13 +80,30 @@ PortableServer::POA_var KeyWaiter::getPOA() const
 
 SALOME::ByteVec *KeyWaiter::waitFor()
 {
+  sem_wait(&_sem);
+  if(!_ze_value)
+    throw Exception("KeyWaiter::waitFor : internal error !");
+  Py_XINCREF(_ze_value);
+  std::string st(PickelizedPyObjServer::Pickelize(_ze_value,_var->getFather()));
+  return PickelizedPyObjServer::FromCppToByteSeq(st);
+}
+
+/*!
+ * WARNING call this method before calling go !
+ */
+void KeyWaiter::valueJustCome(PyObject *val)
+{
   if(_ze_value)
+    Py_XDECREF(_ze_value);
+  _ze_value=val;
+  Py_XINCREF(_ze_value);
+}
+
+void KeyWaiter::go()
+{
+  if(sem_post(&_sem)!=0)
     {
-      Py_XINCREF(_ze_value);
-      std::string st(PickelizedPyObjServer::Pickelize(_ze_value,_dst->getFather()));
-      return PickelizedPyObjServer::FromCppToByteSeq(st);
+      std::ostringstream oss; oss << "KeyWaiter::go : error on post of semaphore ! ";
+      throw Exception(oss.str());
     }
-  else
-    throw Exception("KeyWaiter::waitFor : not implemented yet !");
-  return 0;
 }

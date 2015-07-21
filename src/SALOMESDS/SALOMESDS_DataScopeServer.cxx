@@ -412,10 +412,11 @@ void DataScopeServerTransaction::pingKey(PyObject *keyObj)
 {
   PyObject *cmpObj(getPyCmpFunc());
   if(!keyObj)
-    throw Exception("Key Object is NULL !");
+    throw Exception("ataScopeServerTransaction::pingKey : Key Object is NULL !");
   PyObject *args(PyTuple_New(2));
   PyTuple_SetItem(args,0,keyObj); Py_XINCREF(keyObj);
   std::size_t ii(0);
+  // this part does nothing except to be sure that in notify key all will be OK.
   for(std::list< KeyWaiter *>::iterator it=_waiting_keys.begin();it!=_waiting_keys.end();it++,ii++)
     {
       PyObject *waitKey((*it)->getKeyPyObj());
@@ -426,12 +427,52 @@ void DataScopeServerTransaction::pingKey(PyObject *keyObj)
           std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " error during cmp(k,wk[i]) !";
           throw Exception(oss.str());
         }
+      PyInt_AsLong(res);
+      if(PyErr_Occurred())
+        {
+          std::ostringstream oss; oss << "DataScopeServerTransaction::pingKey : for object id #" << ii << " error during interpretation of cmp(k,wk[i]) !";
+          throw Exception(oss.str());
+        }
       Py_XDECREF(res);
     }
 }
 
 void DataScopeServerTransaction::notifyKey(PyObject *keyObj, PyObject *valueObj)
 {
+  PyObject *cmpObj(getPyCmpFunc());
+  if(!keyObj)
+    throw Exception("DataScopeServerTransaction::notifyKey : MAIN INTERNAL ERROR ! Key Object is NULL !");
+  PyObject *args(PyTuple_New(2));
+  PyTuple_SetItem(args,0,keyObj); Py_XINCREF(keyObj);
+  std::size_t ii(0);
+  std::list< KeyWaiter *> newList,listOfEltToWakeUp;
+  for(std::list< KeyWaiter *>::iterator it=_waiting_keys.begin();it!=_waiting_keys.end();it++,ii++)
+    {
+      PyObject *waitKey((*it)->getKeyPyObj());
+      PyTuple_SetItem(args,1,waitKey); Py_XINCREF(waitKey);
+      PyObject *res(PyObject_CallObject(cmpObj,args));
+      if(res==NULL)
+        {
+          std::ostringstream oss; oss << "DataScopeServerTransaction::notifyKey : MAIN INTERNAL ERROR ! for object id #" << ii << " error during cmp(k,wk[i]) !";
+          throw Exception(oss.str());
+        }
+      long resCpp(PyInt_AsLong(res));
+      if(PyErr_Occurred())
+        {
+          std::ostringstream oss; oss << "DataScopeServerTransaction::notifyKey : MAIN INTERNAL ERROR ! for object id #" << ii << " error during interpretation of cmp(k,wk[i]) !";
+          throw Exception(oss.str());
+        }
+      Py_XDECREF(res);
+      if(resCpp==0)
+        listOfEltToWakeUp.push_back(*it);
+      else
+        newList.push_back(*it);
+    }
+  for(std::list< KeyWaiter *>::iterator it=listOfEltToWakeUp.begin();it!=listOfEltToWakeUp.end();it++)
+    (*it)->valueJustCome(valueObj);
+  for(std::list< KeyWaiter *>::iterator it=listOfEltToWakeUp.begin();it!=listOfEltToWakeUp.end();it++)
+    (*it)->go();
+  _waiting_keys=newList;
 }
 
 SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value)
