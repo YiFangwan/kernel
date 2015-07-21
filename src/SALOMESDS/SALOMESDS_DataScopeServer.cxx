@@ -331,7 +331,16 @@ DataScopeServerTransaction::DataScopeServerTransaction(CORBA::ORB_ptr orb, const
 {
   CORBA::Object_var obj(_orb->resolve_initial_references("RootPOA"));
   PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
-  _poa_for_key_waiter=poa;
+  //
+  PortableServer::POAManager_var mgr(poa->the_POAManager());
+  CORBA::PolicyList policies;
+  policies.length(1);
+  PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::ORB_CTRL_MODEL));
+  policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
+  PortableServer::POA_var poa2(poa->create_POA("POAForWaiters",mgr,policies));
+  threadPol->destroy();
+  //
+  _poa_for_key_waiter=poa2;
 }
 
 DataScopeServerTransaction::DataScopeServerTransaction(const DataScopeServerTransaction& other):DataScopeServerBase(other),_poa_for_key_waiter(other.getPOA4KeyWaiter())
@@ -477,7 +486,7 @@ void DataScopeServerTransaction::notifyKey(PyObject *keyObj, PyObject *valueObj)
 
 SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value)
 {
-  checkNotAlreadyExistingVar(varName);
+  checkVarExistingAndDict(varName);
   TransactionAddKeyValueHard *ret(new TransactionAddKeyValueHard(this,varName,key,value));
   CORBA::Object_var obj(ret->activate());
   return SALOME::Transaction::_narrow(obj);
@@ -495,7 +504,7 @@ class TrustTransaction
 {
 public:
   TrustTransaction():_must_rollback(0),_ptr(0) { }
-  void setTransaction(Transaction *t, bool *mustRollback) { if(!t || !mustRollback) throw Exception("TrustTransaction Error #1"); _must_rollback=mustRollback; t->prepareRollBackInCaseOfFailure(); }
+  void setTransaction(Transaction *t, bool *mustRollback) { if(!t || !mustRollback) throw Exception("TrustTransaction Error #1"); _ptr=t; _must_rollback=mustRollback; _ptr->prepareRollBackInCaseOfFailure(); }
   void operate() { _ptr->perform(); }
   ~TrustTransaction() { if(!_ptr) return ; if(*_must_rollback) _ptr->rollBack(); }
 private:

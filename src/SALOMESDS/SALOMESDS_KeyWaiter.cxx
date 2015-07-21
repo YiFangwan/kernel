@@ -85,7 +85,9 @@ SALOME::ByteVec *KeyWaiter::waitFor()
     throw Exception("KeyWaiter::waitFor : internal error !");
   Py_XINCREF(_ze_value);
   std::string st(PickelizedPyObjServer::Pickelize(_ze_value,_var->getFather()));
-  return PickelizedPyObjServer::FromCppToByteSeq(st);
+  SALOME::ByteVec *ret(PickelizedPyObjServer::FromCppToByteSeq(st));
+  enforcedRelease();
+  return ret;
 }
 
 /*!
