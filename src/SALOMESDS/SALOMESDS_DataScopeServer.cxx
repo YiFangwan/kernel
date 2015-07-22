@@ -202,7 +202,6 @@ void DataScopeServerBase::registerInNS(SALOME::DataScopeServerBase_ptr ptr)
   std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
   SALOME_NamingService ns(_orb);
   ns.Register(ptr,fullScopeName.c_str());
-  _ptr_of_this=SALOME::DataScopeServerBase::_duplicate(ptr);
 }
 
 std::string DataScopeServerBase::BuildTmpVarNameFrom(const std::string& varName)
