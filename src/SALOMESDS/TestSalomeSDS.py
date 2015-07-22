@@ -45,9 +45,9 @@ def work(t):
     generateKey(varName,scopeName)
     return 0
   else:
-    import TestSalomeSDS3
+    import TestSalomeSDSHelper0
     import os,subprocess
-    fname=os.path.splitext(TestSalomeSDS3.__file__)[0]+".py"
+    fname=os.path.splitext(TestSalomeSDSHelper0.__file__)[0]+".py"
     proc=subprocess.Popen(["python",fname],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
     out,err=proc.communicate()
     if proc.returncode!=0:
@@ -55,7 +55,7 @@ def work(t):
       print err
     return proc.returncode
 
-class SalomeSDS2Test(unittest.TestCase):
+class SalomeSDSTest(unittest.TestCase):
   
   def testList1(self):
     a=SalomeSDSClt.CreateRdExtGlobalVar([],"a","Scope0")
@@ -111,7 +111,7 @@ class SalomeSDS2Test(unittest.TestCase):
     if scopeName in dsm.listScopes():
       dsm.removeDataScope(scopeName)
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
-    assert(isCreated)
+    self.assertTrue(isCreated)
     #
     t0=dss.createRdExtVarTransac(varName,obj2Str({"ab":[4,5,6]}))
     dss.atomicApply([t0])
@@ -119,14 +119,14 @@ class SalomeSDS2Test(unittest.TestCase):
     t1=dss.addKeyValueInVarHard(varName,obj2Str("cd"),obj2Str([7,8,9,10]))
     dss.atomicApply([t1])
     #
-    assert(str2Obj(dss.fetchSerializedContent(varName))=={'ab':[4,5,6],'cd':[7,8,9,10]})
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
     wk=dss.waitForKeyInVar(varName,obj2Str("cd"))
-    assert(str2Obj(wk.waitFor())==[7,8,9,10])
+    self.assertEqual(str2Obj(wk.waitFor()),[7,8,9,10])
     #
     nbProc=8
     pool=mp.Pool(processes=nbProc)
     asyncResult=pool.map_async(work,[(i,varName,scopeName) for i in xrange(nbProc)])
-    assert(asyncResult.get()==nbProc*[0])
+    self.assertEqual(asyncResult.get(),nbProc*[0]) # <- the big test is here !
     dsm.removeDataScope(scopeName)
 
   def setUp(self):
