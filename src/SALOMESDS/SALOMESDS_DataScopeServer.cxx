@@ -46,6 +46,7 @@ std::size_t DataScopeServerBase::COUNTER=0;
 
 DataScopeServerBase::DataScopeServerBase(CORBA::ORB_ptr orb, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName)
 {
+  pthread_mutex_init(&_mutex_for_py_interp,0);
 }
 
 DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):_globals(0),_locals(0),_pickler(0),_name(other._name),_vars(other._vars)
@@ -159,6 +160,7 @@ void DataScopeServerBase::shutdownIfNotHostedByDSM()
 void DataScopeServerBase::initializePython(int argc, char *argv[])
 {
   Py_Initialize();
+  PyEval_InitThreads();
   PySys_SetArgv(argc,argv);
   PyObject *mainmod(PyImport_AddModule("__main__"));
   _globals=PyModule_GetDict(mainmod);

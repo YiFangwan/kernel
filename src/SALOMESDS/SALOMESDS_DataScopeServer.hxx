@@ -30,6 +30,7 @@
 #include "SALOMESDS_Defines.hxx"
 
 #include <Python.h>
+#include <pthread.h>
 
 #include <string>
 #include <vector>
@@ -70,6 +71,7 @@ namespace SALOMESDS
     void checkNotAlreadyExistingVar(const std::string& varName) const;
     void checkExistingVar(const std::string& varName) const;
     PickelizedPyObjServer *checkVarExistingAndDict(const std::string& varName);
+    pthread_mutex_t *getMutexForPyInterp() { return &_mutex_for_py_interp; }
   protected:
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator retrieveVarInternal3(const std::string& varName) const;
   protected:
@@ -80,6 +82,7 @@ namespace SALOMESDS
     CORBA::ORB_var _orb;
     std::string _name;
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > > _vars;
+    pthread_mutex_t _mutex_for_py_interp;
     static std::size_t COUNTER;
   };
   

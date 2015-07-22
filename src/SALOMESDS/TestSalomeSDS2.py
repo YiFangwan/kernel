@@ -23,7 +23,37 @@ import SalomeSDSClt
 import SALOME
 import salome
 import unittest
+import cPickle
 import gc
+import time
+import multiprocessing as mp
+
+def obj2Str(obj):
+  return cPickle.dumps(obj,cPickle.HIGHEST_PROTOCOL)
+def str2Obj(strr):
+  return cPickle.loads(strr)
+def generateKey(varName,scopeName):
+  dsm=salome.naming_service.Resolve("/DataServerManager")
+  dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+  assert(not isCreated)
+  t=dss.addKeyValueInVarHard(varName,obj2Str("ef"),obj2Str([11,14,100]))
+  time.sleep(3)
+  dss.atomicApply([t])
+def work(t):
+  i,varName,scopeName=t
+  if i==0:
+    generateKey(varName,scopeName)
+    return 0
+  else:
+    import TestSalomeSDS3
+    import os,subprocess
+    fname=os.path.splitext(TestSalomeSDS3.__file__)[0]+".py"
+    proc=subprocess.Popen(["python",fname],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    out,err=proc.communicate()
+    if proc.returncode!=0:
+      print out
+      print err
+    return proc.returncode
 
 class SalomeSDS2Test(unittest.TestCase):
   
@@ -72,6 +102,32 @@ class SalomeSDS2Test(unittest.TestCase):
     self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77]})
     self.assertRaises(Exception,a.__getitem__,"ab")
     a.ptr().getMyDataScopeServer().deleteVar("a")
+
+  def testTransaction1(self):
+    scopeName="Scope1"
+    varName="a"
+    dsm=salome.naming_service.Resolve("/DataServerManager")
+    dsm.cleanScopesInNS()
+    if scopeName in dsm.listScopes():
+      dsm.removeDataScope(scopeName)
+    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+    assert(isCreated)
+    #
+    t0=dss.createRdExtVarTransac(varName,obj2Str({"ab":[4,5,6]}))
+    dss.atomicApply([t0])
+    #
+    t1=dss.addKeyValueInVarHard(varName,obj2Str("cd"),obj2Str([7,8,9,10]))
+    dss.atomicApply([t1])
+    #
+    assert(str2Obj(dss.fetchSerializedContent(varName))=={'ab':[4,5,6],'cd':[7,8,9,10]})
+    wk=dss.waitForKeyInVar(varName,obj2Str("cd"))
+    assert(str2Obj(wk.waitFor())==[7,8,9,10])
+    #
+    nbProc=8
+    pool=mp.Pool(processes=nbProc)
+    asyncResult=pool.map_async(work,[(i,varName,scopeName) for i in xrange(nbProc)])
+    assert(asyncResult.get()==nbProc*[0])
+    dsm.removeDataScope(scopeName)
 
   def setUp(self):
     salome.salome_init()

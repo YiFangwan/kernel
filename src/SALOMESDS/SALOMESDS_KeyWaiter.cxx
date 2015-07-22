@@ -26,6 +26,15 @@
 
 using namespace SALOMESDS;
 
+class MutexLocker
+{
+public:
+  MutexLocker(DataScopeServerBase *dss):_dss(dss) { pthread_mutex_lock(_dss->getMutexForPyInterp()); }
+  ~MutexLocker() { pthread_mutex_unlock(_dss->getMutexForPyInterp()); }
+private:
+  DataScopeServerBase *_dss;
+};
+
 KeyWaiter::KeyWaiter(PickelizedPyObjServer *var, const SALOME::ByteVec& keyVal):_var(var),_ze_key(0),_ze_value(0)
 {
   if(sem_init(&_sem,0,0)!=0)// put value to 0 to lock by default
@@ -83,8 +92,12 @@ SALOME::ByteVec *KeyWaiter::waitFor()
   sem_wait(&_sem);
   if(!_ze_value)
     throw Exception("KeyWaiter::waitFor : internal error !");
-  Py_XINCREF(_ze_value);
-  std::string st(PickelizedPyObjServer::Pickelize(_ze_value,_var->getFather()));
+  std::string st;
+  {
+    MutexLocker ml(_var->getFather());
+    Py_XINCREF(_ze_value);
+    st=PickelizedPyObjServer::Pickelize(_ze_value,_var->getFather());
+  }
   SALOME::ByteVec *ret(PickelizedPyObjServer::FromCppToByteSeq(st));
   enforcedRelease();
   return ret;
