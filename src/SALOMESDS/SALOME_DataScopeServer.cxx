@@ -55,10 +55,11 @@ int main(int argc, char *argv[])
   threadPol->destroy();
   server->initializePython(argc,argv);// agy : Very important ! invoke this method BEFORE activation !
   server->registerToSalomePiDict();
-  PortableServer::ObjectId_var id(poa2->activate_object(server));
-  obj=poa2->id_to_reference(id);
+  //
+  server->setPOA(poa2);
+  obj=server->activate();
   SALOME::DataScopeServerBase_var serverPtr(SALOME::DataScopeServerBase::_narrow(obj));
-  server->setPOAAndRegister(poa2,serverPtr);
+  server->registerInNS(serverPtr);
   //
   orb->run();
   server->_remove_ref();

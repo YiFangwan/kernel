@@ -53,10 +53,10 @@ DataServerManager::DataServerManager(int argc, char *argv[], CORBA::ORB_ptr orb,
   SALOME_NamingService ns(orb);
   ns.Register(obj2,NAME_IN_NS);
   // the default DataScopeServer object is the only one hosted by the current process
-  id=_poa->activate_object(dftScope);
-  obj=_poa->id_to_reference(id);
+  dftScope->setPOA(_poa);
+  obj=dftScope->activate();
   SALOME::DataScopeServer_var dftScopePtr(SALOME::DataScopeServer::_narrow(obj));
-  dftScope->setPOAAndRegister(_poa,dftScopePtr);// agy : Very important ! invoke this method BEFORE activation ! Because this method initializes Python !
+  dftScope->registerInNS(dftScopePtr);// agy : Very important ! invoke this method BEFORE activation ! Because this method initializes Python !
 }
 
 SALOME::StringVec *DataServerManager::listScopes()

@@ -46,7 +46,6 @@ std::size_t DataScopeServerBase::COUNTER=0;
 
 DataScopeServerBase::DataScopeServerBase(CORBA::ORB_ptr orb, const std::string& scopeName):_globals(0),_locals(0),_pickler(0),_orb(CORBA::ORB::_duplicate(orb)),_name(scopeName)
 {
-  pthread_mutex_init(&_mutex_for_py_interp,0);
 }
 
 DataScopeServerBase::DataScopeServerBase(const DataScopeServerBase& other):_globals(0),_locals(0),_pickler(0),_name(other._name),_vars(other._vars)
@@ -193,15 +192,17 @@ void DataScopeServerBase::registerToSalomePiDict() const
   Py_XDECREF(mod);
 }
 
-/*!
- * \a ptr has been activated by the POA \a poa.
- */
-void DataScopeServerBase::setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServerBase_ptr ptr)
+void DataScopeServerBase::setPOA(PortableServer::POA_var poa)
 {
   _poa=poa;
+}
+
+void DataScopeServerBase::registerInNS(SALOME::DataScopeServerBase_ptr ptr)
+{
   std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(_name));
   SALOME_NamingService ns(_orb);
   ns.Register(ptr,fullScopeName.c_str());
+  _ptr_of_this=SALOME::DataScopeServerBase::_duplicate(ptr);
 }
 
 std::string DataScopeServerBase::BuildTmpVarNameFrom(const std::string& varName)
@@ -529,6 +530,21 @@ SALOME::KeyWaiter_ptr DataScopeServerTransaction::waitForKeyInVarAndKillIt(const
   transac=SALOME::Transaction::_narrow(obj2);
   //
   return SALOME::KeyWaiter::_narrow(obj);
+}
+
+SALOME::ByteVec *DataScopeServerTransaction::waitForMonoThrRev(SALOME::KeyWaiter_ptr kw)
+{
+  PortableServer::ServantBase *ret(0);
+  try
+    {
+      ret=_poa_for_key_waiter->reference_to_servant(kw);
+    }
+  catch(...) { ret=0; }
+  KeyWaiter *retc(dynamic_cast<KeyWaiter *>(ret));
+  if(!retc)
+    throw Exception("DataScopeServerTransaction::invokeMonoThr : internal error 1 !");
+  retc->_remove_ref();
+  retc->waitForMonoThr();
 }
 
 class TrustTransaction

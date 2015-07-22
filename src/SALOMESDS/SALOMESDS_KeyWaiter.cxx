@@ -26,15 +26,6 @@
 
 using namespace SALOMESDS;
 
-class MutexLocker
-{
-public:
-  MutexLocker(DataScopeServerBase *dss):_dss(dss) { pthread_mutex_lock(_dss->getMutexForPyInterp()); }
-  ~MutexLocker() { pthread_mutex_unlock(_dss->getMutexForPyInterp()); }
-private:
-  DataScopeServerBase *_dss;
-};
-
 KeyWaiter::KeyWaiter(PickelizedPyObjServer *var, const SALOME::ByteVec& keyVal):_var(var),_ze_key(0),_ze_value(0)
 {
   if(sem_init(&_sem,0,0)!=0)// put value to 0 to lock by default
@@ -87,16 +78,26 @@ SALOME::ByteVec *KeyWaiter::waitFor()
 {
   sem_wait(&_sem);
   if(!_ze_value)
-    throw Exception("KeyWaiter::waitFor : internal error !");
-  std::string st;
+    throw Exception("KeyWaiter::waitFor : internal error 1 !");
+  SALOME::ByteVec *ret(0);
   {
-    MutexLocker ml(_var->getFather());
-    Py_XINCREF(_ze_value);
-    st=PickelizedPyObjServer::Pickelize(_ze_value,_var->getFather());
+    SALOME::DataScopeServerBase_var ptr(_var->getFather()->getObjectRefMTA());
+    SALOME::DataScopeServerTransaction_var ptr2(SALOME::DataScopeServerTransaction::_narrow(ptr));
+    if(CORBA::is_nil(ptr2))
+      throw Exception("KeyWaiter::waitFor : internal error 2 !");
+    CORBA::Object_var thisPtr(getPOA()->servant_to_reference(this));
+    SALOME::KeyWaiter_var thisPtr2(SALOME::KeyWaiter::_narrow(thisPtr));
+    ret=ptr2->waitForMonoThrRev(thisPtr2);
   }
-  SALOME::ByteVec *ret(PickelizedPyObjServer::FromCppToByteSeq(st));
   enforcedRelease();
   return ret;
+}
+
+SALOME::ByteVec *KeyWaiter::waitForMonoThr()
+{
+  Py_XINCREF(_ze_value);
+  std::string st(PickelizedPyObjServer::Pickelize(_ze_value,_var->getFather()));
+  return PickelizedPyObjServer::FromCppToByteSeq(st);
 }
 
 /*!

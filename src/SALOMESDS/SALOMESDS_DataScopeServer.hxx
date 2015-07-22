@@ -30,7 +30,6 @@
 #include "SALOMESDS_Defines.hxx"
 
 #include <Python.h>
-#include <pthread.h>
 
 #include <string>
 #include <vector>
@@ -58,12 +57,15 @@ namespace SALOMESDS
   public:
     void initializePython(int argc, char *argv[]);
     void registerToSalomePiDict() const;
-    void setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServerBase_ptr ptr);
+    void setPOA(PortableServer::POA_var poa);
+    void registerInNS(SALOME::DataScopeServerBase_ptr ptr);
     PyObject *getGlobals() const { return _globals; }
     PyObject *getLocals() const { return _locals; }
     PyObject *getPickler() const { return _pickler; }
     PortableServer::POA_var getPOA() const { return _poa; }
     CORBA::ORB_var getORB() { return _orb; }
+    //! MTA = Mono thread activated
+    SALOME::DataScopeServerBase_var getObjectRefMTA() { return _ptr_of_this ;}
     std::string getScopeNameCpp() const { return _name; }
     static std::string BuildTmpVarNameFrom(const std::string& varName);
   public:
@@ -71,7 +73,6 @@ namespace SALOMESDS
     void checkNotAlreadyExistingVar(const std::string& varName) const;
     void checkExistingVar(const std::string& varName) const;
     PickelizedPyObjServer *checkVarExistingAndDict(const std::string& varName);
-    pthread_mutex_t *getMutexForPyInterp() { return &_mutex_for_py_interp; }
   protected:
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator retrieveVarInternal3(const std::string& varName) const;
   protected:
@@ -82,7 +83,8 @@ namespace SALOMESDS
     CORBA::ORB_var _orb;
     std::string _name;
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > > _vars;
-    pthread_mutex_t _mutex_for_py_interp;
+    // CORBA pointer of this activated by monothread POA _poa.
+    SALOME::DataScopeServerBase_var _ptr_of_this;
     static std::size_t COUNTER;
   };
   
@@ -111,6 +113,7 @@ namespace SALOMESDS
     void addWaitKey(KeyWaiter *kw);
     void pingKey(PyObject *keyObj);
     void notifyKey(PyObject *keyObj, PyObject *valueObj);
+    SALOME::ByteVec *waitForMonoThrRev(SALOME::KeyWaiter_ptr kw);
   public://remotely callable
     SALOME::ByteVec *fetchSerializedContent(const char *varName);
     SALOME::Transaction_ptr createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue);
