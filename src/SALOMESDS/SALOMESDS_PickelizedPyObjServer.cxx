@@ -60,13 +60,36 @@ bool PickelizedPyObjServer::isDict()
     return false;
 }
 
+void PickelizedPyObjServer::checkKeyNotAlreadyPresent(PyObject *key)
+{
+  checkKeyPresence(key,false);
+}
+
+void PickelizedPyObjServer::checkKeyPresent(PyObject *key)
+{
+  checkKeyPresence(key,true);
+}
+
 void PickelizedPyObjServer::addKeyValueHard(PyObject *key, PyObject *value)
 {
-  if(!isDict())
-    throw Exception("PickelizedPyObjServer::addKeyValueHard : not a dict !");
   bool isOK(PyDict_SetItem(_self,key,value)==0);
   if(!isOK)
     throw Exception("PickelizedPyObjServer::addKeyValueHard : error when trying to add key,value to dict !");
+}
+
+void PickelizedPyObjServer::addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value)
+{
+  checkKeyNotAlreadyPresent(key);
+  bool isOK(PyDict_SetItem(_self,key,value)==0);
+  if(!isOK)
+    throw Exception("PickelizedPyObjServer::addKeyValueErrorIfAlreadyExisting : error when trying to add key,value to dict !");
+}
+
+void PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key)
+{
+  checkKeyPresent(key);
+  if(PyDict_DelItem(_self,key)!=0)
+    throw Exception("PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting : error during deletion of key in dict !");
 }
 
 void PickelizedPyObjServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret)
@@ -209,4 +232,30 @@ PyObject *PickelizedPyObjServer::CreateDftObjFromType(PyObject *globals, const s
   PyObject *ret(PyObject_CallObject(tmp,args));
   Py_XDECREF(args);
   return ret;
+}
+
+void PickelizedPyObjServer::checkKeyPresence(PyObject *key, bool presence)
+{
+  if(!isDict())
+    throw Exception("PickelizedPyObjServer::checkKeyPresence : not a dict !");
+  PyObject *selfMeth(PyObject_GetAttrString(_self,"__contains__"));//new ref
+  PyObject *args(PyTuple_New(1));
+  PyTuple_SetItem(args,0,key); Py_XINCREF(key);// key is stolen by PyTuple_SetItem
+  PyObject *retPy(PyObject_CallObject(selfMeth,args));
+  Py_XDECREF(args);
+  Py_XDECREF(selfMeth);
+  //
+  if(retPy!=Py_False && retPy!=Py_True)
+    throw Exception("PickelizedPyObjServer::checkKeyPresence : unexpected return of dict.__contains__ !");
+  if(!presence)
+    {
+      if(retPy==Py_True)
+        throw Exception("PickelizedPyObjServer::checkKeyPresence : key is already present and it should not !");
+    }
+  else
+    {
+      if(retPy==Py_False)
+        throw Exception("PickelizedPyObjServer::checkKeyPresence : key is not present and it should !");
+    }
+  Py_XDECREF(retPy);
 }

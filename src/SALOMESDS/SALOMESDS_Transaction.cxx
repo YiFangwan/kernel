@@ -91,7 +91,26 @@ void TransactionRdWrVarCreate::perform()
   _dsct->createRdWrVarInternal(_var_name,data2);
 }
 
-TransactionAddKeyValueHard::TransactionAddKeyValueHard(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value):Transaction(dsct,varName),_varc(0)
+TransactionDictModify::TransactionDictModify(DataScopeServerTransaction *dsct, const std::string& varName):Transaction(dsct,varName),_varc(0)
+{
+  _varc=checkVarExistingAndDict();
+}
+
+void TransactionDictModify::prepareRollBackInCaseOfFailure()
+{
+  _zeDataBefore.clear();
+  SALOME::ByteVec *zeDataBefore(_varc->fetchSerializedContent());
+  PickelizedPyObjServer::FromByteSeqToCpp(*zeDataBefore,_zeDataBefore);
+}
+
+void TransactionDictModify::rollBack()
+{
+  PyObject *obj(_varc->getPyObjFromPickled(_zeDataBefore));
+  _varc->setNewPyObj(obj);
+  _zeDataBefore.clear();
+}
+
+TransactionAddKeyValue::TransactionAddKeyValue(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value):TransactionDictModify(dsct,varName)
 {
   std::vector<unsigned char> key2,value2;
   FromByteSeqToVB(key,key2);
@@ -100,14 +119,25 @@ TransactionAddKeyValueHard::TransactionAddKeyValueHard(DataScopeServerTransactio
   _value=PickelizedPyObjServer::GetPyObjFromPickled(value2,_dsct);
 }
 
-void TransactionAddKeyValueHard::prepareRollBackInCaseOfFailure()
+void TransactionAddKeyValue::prepareRollBackInCaseOfFailure()
 {
-  _varc=checkVarExistingAndDict();
-  //
-  _zeDataBefore.clear();
-  SALOME::ByteVec *zeDataBefore(_varc->fetchSerializedContent());
-  PickelizedPyObjServer::FromByteSeqToCpp(*zeDataBefore,_zeDataBefore);
+  TransactionDictModify::prepareRollBackInCaseOfFailure();
   _dsct->pingKey(_key);// check that key is OK with all waiting keys
+}
+
+void TransactionAddKeyValue::notify()
+{
+  _dsct->notifyKey(_key,_value);
+}
+
+TransactionAddKeyValue::~TransactionAddKeyValue()
+{
+  Py_XDECREF(_key);
+  Py_XDECREF(_value);
+}
+
+TransactionAddKeyValueHard::TransactionAddKeyValueHard(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value):TransactionAddKeyValue(dsct,varName,key,value)
+{
 }
 
 void TransactionAddKeyValueHard::perform()
@@ -115,20 +145,36 @@ void TransactionAddKeyValueHard::perform()
   _varc->addKeyValueHard(_key,_value);
 }
 
-void TransactionAddKeyValueHard::rollBack()
+TransactionAddKeyValueErrorIfAlreadyExisting::TransactionAddKeyValueErrorIfAlreadyExisting(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value):TransactionAddKeyValue(dsct,varName,key,value)
 {
-  PyObject *obj(_varc->getPyObjFromPickled(_zeDataBefore));
-  _varc->setNewPyObj(obj);
-  _zeDataBefore.clear();
+  _varc->checkKeyNotAlreadyPresent(_key);
 }
 
-void TransactionAddKeyValueHard::notify()
+void TransactionAddKeyValueErrorIfAlreadyExisting::perform()
 {
-  _dsct->notifyKey(_key,_value);
+  _varc->addKeyValueErrorIfAlreadyExisting(_key,_value);
 }
 
-TransactionAddKeyValueHard::~TransactionAddKeyValueHard()
+TransactionRemoveKeyInVarErrorIfNotAlreadyExisting::TransactionRemoveKeyInVarErrorIfNotAlreadyExisting(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key):TransactionDictModify(dsct,varName),_key(0)
+{
+  std::vector<unsigned char> key2;
+  FromByteSeqToVB(key,key2);
+  _key=PickelizedPyObjServer::GetPyObjFromPickled(key2,_dsct);
+}
+
+void TransactionRemoveKeyInVarErrorIfNotAlreadyExisting::perform()
+{
+  _varc->removeKeyInVarErrorIfNotAlreadyExisting(_key);
+}
+
+/*!
+ * not implementation it is not a bug !
+ */
+void TransactionRemoveKeyInVarErrorIfNotAlreadyExisting::notify()
+{
+}
+
+TransactionRemoveKeyInVarErrorIfNotAlreadyExisting::~TransactionRemoveKeyInVarErrorIfNotAlreadyExisting()
 {
   Py_XDECREF(_key);
-  Py_XDECREF(_value);
 }

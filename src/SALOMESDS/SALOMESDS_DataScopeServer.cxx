@@ -494,11 +494,40 @@ SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarHard(const c
   return SALOME::Transaction::_narrow(obj);
 }
 
+SALOME::Transaction_ptr DataScopeServerTransaction::addKeyValueInVarErrorIfAlreadyExisting(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value)
+{
+  checkVarExistingAndDict(varName);
+  TransactionAddKeyValueErrorIfAlreadyExisting *ret(new TransactionAddKeyValueErrorIfAlreadyExisting(this,varName,key,value));
+  CORBA::Object_var obj(ret->activate());
+  return SALOME::Transaction::_narrow(obj);
+}
+
+SALOME::Transaction_ptr DataScopeServerTransaction::removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const SALOME::ByteVec& key)
+{
+  checkVarExistingAndDict(varName);
+  TransactionRemoveKeyInVarErrorIfNotAlreadyExisting *ret(new TransactionRemoveKeyInVarErrorIfNotAlreadyExisting(this,varName,key));
+  CORBA::Object_var obj(ret->activate());
+  return SALOME::Transaction::_narrow(obj);
+}
+
 SALOME::KeyWaiter_ptr DataScopeServerTransaction::waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal)
 {
   PickelizedPyObjServer *pickelObj(checkVarExistingAndDict(varName));
   KeyWaiter *ret(new KeyWaiter(pickelObj,keyVal));
-  CORBA::Object_var obj(ret->activate());
+  CORBA::Object_var obj(ret->activate());//KeyWaiter instance activated inside a multithread POA contrary to all of objects in SALOMESDS in single thread !
+  return SALOME::KeyWaiter::_narrow(obj);
+}
+
+SALOME::KeyWaiter_ptr DataScopeServerTransaction::waitForKeyInVarAndKillIt(const char *varName, const SALOME::ByteVec& keyVal, SALOME::Transaction_out transac)
+{
+  PickelizedPyObjServer *pickelObj(checkVarExistingAndDict(varName));
+  KeyWaiter *ret0(new KeyWaiter(pickelObj,keyVal));
+  CORBA::Object_var obj(ret0->activate());//KeyWaiter instance activated inside a multithread POA contrary to all of objects in SALOMESDS in single thread !
+  //
+  TransactionRemoveKeyInVarErrorIfNotAlreadyExisting *ret1(new TransactionRemoveKeyInVarErrorIfNotAlreadyExisting(this,varName,keyVal));
+  CORBA::Object_var obj2(ret1->activate());
+  transac=SALOME::Transaction::_narrow(obj2);
+  //
   return SALOME::KeyWaiter::_narrow(obj);
 }
 

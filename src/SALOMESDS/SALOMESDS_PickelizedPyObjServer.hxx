@@ -42,7 +42,11 @@ namespace SALOMESDS
     SALOME::ByteVec *fetchSerializedContent();
   public:
     bool isDict();
+    void checkKeyNotAlreadyPresent(PyObject *key);
+    void checkKeyPresent(PyObject *key);
     void addKeyValueHard(PyObject *key, PyObject *value);
+    void addKeyValueErrorIfAlreadyExisting(PyObject *key, PyObject *value);
+    void removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key);
     PyObject *getPyObj() const { return _self; }
   public:
     static void FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, std::string& ret);
@@ -56,6 +60,8 @@ namespace SALOMESDS
     void setNewPyObj(PyObject *obj);
     void setSerializedContentInternal(const SALOME::ByteVec& newValue);
     static PyObject *CreateDftObjFromType(PyObject *globals, const std::string& typeName);
+  private:
+    void checkKeyPresence(PyObject *key, bool presence);
   protected:
     static const char FAKE_VAR_NAME_FOR_WORK[];
     PyObject *_self;

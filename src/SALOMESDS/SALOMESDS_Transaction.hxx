@@ -40,9 +40,8 @@ namespace SALOMESDS
   public:
     Transaction(DataScopeServerTransaction *dsct, const std::string& varName):_dsct(dsct),_var_name(varName) { if(!_dsct) throw Exception("Transaction constructor error !"); }
     std::string getVarName() const { return _var_name; }
-    void checkNotAlreadyExisting() { _dsct->checkNotAlreadyExistingVar(_var_name); }
     void checkVarExisting() { _dsct->checkExistingVar(_var_name); }
-    PickelizedPyObjServer *checkVarExistingAndDict() { return _dsct->checkVarExistingAndDict(_var_name); }
+    void checkNotAlreadyExisting() { _dsct->checkNotAlreadyExistingVar(_var_name); }
     PortableServer::POA_var getPOA() const { return _dsct->getPOA(); }
     virtual void prepareRollBackInCaseOfFailure() = 0;
     virtual void perform() = 0;
@@ -91,20 +90,53 @@ namespace SALOMESDS
 
   class PickelizedPyObjServer;
 
-  class TransactionAddKeyValueHard : public Transaction
+  class TransactionDictModify : public Transaction
+  {
+  public:
+    TransactionDictModify(DataScopeServerTransaction *dsct, const std::string& varName);
+    PickelizedPyObjServer *checkVarExistingAndDict() { return _dsct->checkVarExistingAndDict(_var_name); }
+    void prepareRollBackInCaseOfFailure();
+    void rollBack();
+  protected:
+    std::string _zeDataBefore;
+    PickelizedPyObjServer *_varc;
+  };
+
+  class TransactionAddKeyValue : public TransactionDictModify
+  {
+  public:
+    TransactionAddKeyValue(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    void prepareRollBackInCaseOfFailure();
+    void notify();
+    ~TransactionAddKeyValue();
+  protected:
+    PyObject *_key;
+    PyObject *_value;
+  };
+
+  class TransactionAddKeyValueHard : public TransactionAddKeyValue
   {
   public:
     TransactionAddKeyValueHard(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
-    void prepareRollBackInCaseOfFailure();
     void perform();
-    void rollBack();
+  };
+
+  class TransactionAddKeyValueErrorIfAlreadyExisting : public TransactionAddKeyValue
+  {
+  public:
+    TransactionAddKeyValueErrorIfAlreadyExisting(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    void perform();
+  };
+
+  class TransactionRemoveKeyInVarErrorIfNotAlreadyExisting : public TransactionDictModify
+  {
+  public:
+    TransactionRemoveKeyInVarErrorIfNotAlreadyExisting(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& key);
+    void perform();
     void notify();
-    ~TransactionAddKeyValueHard();
+    ~TransactionRemoveKeyInVarErrorIfNotAlreadyExisting();
   private:
     PyObject *_key;
-    PyObject *_value;
-    std::string _zeDataBefore;
-    PickelizedPyObjServer *_varc;
   };
 }
 

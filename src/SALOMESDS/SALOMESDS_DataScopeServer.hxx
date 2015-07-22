@@ -117,7 +117,10 @@ namespace SALOMESDS
     SALOME::Transaction_ptr createRdExtVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr createRdWrVarTransac(const char *varName, const SALOME::ByteVec& constValue);
     SALOME::Transaction_ptr addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    SALOME::Transaction_ptr addKeyValueInVarErrorIfAlreadyExisting(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    SALOME::Transaction_ptr removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const SALOME::ByteVec& key);
     SALOME::KeyWaiter_ptr waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal);
+    SALOME::KeyWaiter_ptr waitForKeyInVarAndKillIt(const char *varName, const SALOME::ByteVec& keyVal, SALOME::Transaction_out transac);
     void atomicApply(const SALOME::ListOfTransaction& transactions);
   private:
     PyObject *getPyCmpFunc();
@@ -125,12 +128,6 @@ namespace SALOMESDS
     PortableServer::POA_var _poa_for_key_waiter;
     std::list< KeyWaiter * > _waiting_keys;
   };
-  
-  /*
-  SALOME::Transaction_ptr addKeyValueInVarErrorIfAlreadyExisting(const char *varName, const char *scopeName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
-  SALOME::Transaction_ptr removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const char *scopeName, const SALOME::ByteVec& key);
-  SALOME::ByteVec *waitForKeyInVar(const char *varName, const char *scopeName, const SALOME::ByteVec& constKey);
-  SALOME::ByteVec *waitForKeyInVarAndKillIt(const char *varName, const char *scopeName, const SALOME::ByteVec& constKey, SALOME::Transaction_out transaction);*/
 }
 
 #endif

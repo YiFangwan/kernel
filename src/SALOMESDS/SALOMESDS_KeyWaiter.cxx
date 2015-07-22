@@ -46,7 +46,7 @@ KeyWaiter::KeyWaiter(PickelizedPyObjServer *var, const SALOME::ByteVec& keyVal):
   std::string st;
   PickelizedPyObjServer::FromByteSeqToCpp(keyVal,st);
   _ze_key=PickelizedPyObjServer::GetPyObjFromPickled(st,getDSS());
-  PyObject *selfMeth(PyObject_GetAttrString(_var->getPyObj(),"__contains__"));
+  PyObject *selfMeth(PyObject_GetAttrString(_var->getPyObj(),"__contains__"));//new ref
   PyObject *args(PyTuple_New(1));
   PyTuple_SetItem(args,0,_ze_key); Py_XINCREF(_ze_key); // _ze_key is stolen by PyTuple_SetItem
   PyObject *retPy(PyObject_CallObject(selfMeth,args));
