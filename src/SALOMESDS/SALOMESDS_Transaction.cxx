@@ -99,8 +99,9 @@ TransactionDictModify::TransactionDictModify(DataScopeServerTransaction *dsct, c
 void TransactionDictModify::prepareRollBackInCaseOfFailure()
 {
   _zeDataBefore.clear();
-  SALOME::ByteVec *zeDataBefore(_varc->fetchSerializedContent());
-  PickelizedPyObjServer::FromByteSeqToCpp(*zeDataBefore,_zeDataBefore);
+  PyObject *zeDictPy(_varc->getPyObj());
+  Py_XINCREF(zeDictPy);
+  _zeDataBefore=_varc->pickelize(zeDictPy);
 }
 
 void TransactionDictModify::rollBack()

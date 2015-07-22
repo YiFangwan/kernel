@@ -57,15 +57,11 @@ KeyWaiter::KeyWaiter(PickelizedPyObjServer *var, const SALOME::ByteVec& keyVal):
     throw Exception("KeyWaiter constructor : unexpected return of dict.__contains__ !");
   if(retPy==Py_True)
     {
-      selfMeth=PyObject_GetAttrString(_var->getPyObj(),"__getitem__");
-      args=PyTuple_New(1);
-      PyTuple_SetItem(args,0,_ze_key); Py_XINCREF(_ze_key); // _ze_key is stolen by PyTuple_SetItem
-      retPy=PyObject_CallObject(selfMeth,args);
-      if(!retPy)
-        throw Exception("KeyWaiter constructor : dict.__contains__ says true but fails to return value !");
-      _ze_value=retPy;
-      Py_XDECREF(args);
-      Py_XDECREF(selfMeth);
+      PyObject *retPy2(PyDict_GetItem(_var->getPyObj(),_ze_key));
+      if(retPy2==NULL)
+        throw Exception("KeyWaiter constructor : dict.getitem fails !");
+      Py_XINCREF(retPy2);
+      _ze_value=retPy2;
       go();//notify that value already arrives -> unlock
     }
   else
@@ -108,6 +104,8 @@ SALOME::ByteVec *KeyWaiter::waitFor()
  */
 void KeyWaiter::valueJustCome(PyObject *val)
 {
+  if(_ze_value==val)
+    return ;
   if(_ze_value)
     Py_XDECREF(_ze_value);
   _ze_value=val;

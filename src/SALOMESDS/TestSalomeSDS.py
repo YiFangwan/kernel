@@ -150,6 +150,51 @@ class SalomeSDSTest(unittest.TestCase):
     wk=dss.waitForKeyInVar(varName,obj2Str("cd"))
     self.assertEqual(str2Obj(wk.waitFor()),[7,8,9,10])
 
+  def testTransaction3(self):
+    scopeName="Scope1"
+    varName="a"
+    dsm=salome.naming_service.Resolve("/DataServerManager")
+    dsm.cleanScopesInNS()
+    if scopeName in dsm.listScopes():
+      dsm.removeDataScope(scopeName)
+    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+    self.assertTrue(isCreated)
+    #
+    t0=dss.createRdExtVarTransac(varName,obj2Str({"ab":[4,5,6]}))
+    dss.atomicApply([t0])
+    #
+    t1=dss.addKeyValueInVarErrorIfAlreadyExisting(varName,obj2Str("cd"),obj2Str([7,8,9,10]))
+    dss.atomicApply([t1])
+    #
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
+    #
+    t2=dss.removeKeyInVarErrorIfNotAlreadyExisting(varName,obj2Str("ab"))
+    dss.atomicApply([t2])
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'cd':[7,8,9,10]})
+
+  def testTransaction4(self):
+    scopeName="Scope1"
+    varName="a"
+    dsm=salome.naming_service.Resolve("/DataServerManager")
+    dsm.cleanScopesInNS()
+    if scopeName in dsm.listScopes():
+      dsm.removeDataScope(scopeName)
+    dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
+    self.assertTrue(isCreated)
+    #
+    t0=dss.createRdExtVarTransac(varName,obj2Str({"ab":[4,5,6]}))
+    dss.atomicApply([t0])
+    #
+    t1=dss.addKeyValueInVarHard(varName,obj2Str("cd"),obj2Str([7,8,9,10]))
+    dss.atomicApply([t1])
+    #
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
+    wk,t2=dss.waitForKeyInVarAndKillIt(varName,obj2Str("cd"))
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
+    self.assertEqual(str2Obj(wk.waitFor()),[7,8,9,10])
+    dss.atomicApply([t2])
+    self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6]})
+
   def setUp(self):
     salome.salome_init()
     pass
