@@ -244,19 +244,9 @@ else
   CAS_KERNEL="$CAS_LDPATH -lTKernel"
   CAS_MATH="$CAS_LDPATH -lTKMath"
 
-  CAS_OCAF="$CAS_LDPATH -lPTKernel -lTKernel -lTKCDF -lTKLCAF -lTKPCAF -lTKStdSchema"
-  CAS_OCAFVIS="$CAS_LDPATH -lTKCAF -lTKPLCAF -lTKPShape -lTKStdLSchema -lTKShapeSchema"
+  CAS_OCAF="$CAS_LDPATH -lPTKernel -lTKernel -lTKCDF -lTKLCAF"
+  CAS_OCAFVIS="$CAS_LDPATH -lTKCAF"
 
-  if test -f ${CAS_LIBDIR}/libStdPlugin.so ; then
-    # standard plugin library libStdPlugin has been added in CASCADE 5.2.3
-    CAS_STDPLUGIN="StdPlugin"
-    CAS_OCAFVIS="$CAS_OCAFVIS -lStdPlugin -lStdLPlugin"
-  elif test -f ${CAS_LIBDIR}/libTKStdSchema.so ; then
-    # standard plugin has been renamed in CASCADE 6.5
-    CAS_STDPLUGIN=TKStdSchema
-    CAS_OCAFVIS="$CAS_OCAFVIS -lTKStdSchema -lTKStdLSchema"
-  fi
-  
   CAS_TKV3d="$CAS_LDPATH -lTKV3d"
   CAS_VIEWER="$CAS_TKV3d -lTKService"
 
