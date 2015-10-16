@@ -1555,9 +1555,10 @@ void ReadNoteBookVariables(SALOMEDSImpl_Study* theStudy, HDFgroup* theGroup)
       SALOMEDSImpl_GenericVariable* aVariable = 
         new SALOMEDSImpl_ScalarVariable(aVarType,std::string(aVarName));
       aVariable->Load(std::string(currentVarValue));
-	  aVarsMap.insert(std::make_pair<int,SALOMEDSImpl_GenericVariable*>(order,aVariable));
+      std::pair<int,SALOMEDSImpl_GenericVariable*> p = std::make_pair(order,aVariable);
+      aVarsMap.insert(p);
       delete [] currentVarValue;
-	}
+    }
   }
   
   std::map<int,SALOMEDSImpl_GenericVariable*>::const_iterator it= aVarsMap.begin();
