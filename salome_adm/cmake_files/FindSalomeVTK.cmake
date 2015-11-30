@@ -26,7 +26,7 @@
 
 # List the required components:
 SET(SalomeVTK_COMPONENTS 
-  vtkRenderingFreeTypeOpenGL
+  #vtkRenderingFreeTypeOpenGL
   vtkRenderingLOD 
   vtkRenderingAnnotation 
   vtkFiltersParallel
