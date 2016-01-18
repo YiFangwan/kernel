@@ -44,6 +44,7 @@ SET(DATA
   FindSalomeMPI.cmake
   FindSalomeOmniORB.cmake
   FindSalomeOmniORBPy.cmake
+  FindSalomeParaView.cmake
   FindSalomePThread.cmake
   FindSalomePython.cmake
   FindSalomeSphinx.cmake
