@@ -33,32 +33,32 @@ import platform
 from salomeContextUtils import SalomeContextException
 
 def usage():
-  #exeName = os.path.splitext(os.path.basename(__file__))[0]
-
   msg = '''\
 Usage: salome [command] [options] [--config=<file,folder,...>]
 
 Commands:
 =========
-    start           Starts a SALOME session (through virtual application)
-    context         Initializes SALOME context.
-    shell           Initializes SALOME context, and executes scripts passed
-                    as command arguments
-    connect         Connects a Python console to the active SALOME session
-    kill <port(s)>  Terminate SALOME session running on given ports for current user
-                    Port numbers must be separated by blank characters
-    killall         Kill *all* SALOME running sessions for current user
+    start           Start a new SALOME instance.
+    context         Initialize SALOME context. Current environment is extended.
+    shell           Initialize SALOME context, attached to the last created SALOME
+                    instance if any, and executes scripts passed as command arguments.
+                    User works in a Shell terminal; SALOME environment is set but
+                    application is not started.
+    connect         Connect a Python console to the active SALOME instance.
+    kill <port(s)>  Terminate SALOME instances running on given ports for current user.
+                    Port numbers must be separated by blank characters.
+    killall         Terminate *all* SALOME running instances for current user.
+                    Do not start a new one.
     test            Run SALOME tests.
-    info            Display some information about SALOME
-    help            Show this message
-    coffee          Yes! SALOME can also make coffee!!
+    info            Display some information about SALOME.
+    help            Show this message.
 
 If no command is given, default to start.
 
 Command options:
 ================
     Use salome <command> --help to show help on command ; available for commands:
-    start, shell, test.
+    start, shell, connect, test, info.
 
 --config=<file,folder,...>
 ==========================
@@ -239,13 +239,16 @@ class SalomeContext:
   See usage for details on commands.
   """
   def _startSalome(self, args):
+    import os
+    import sys
     try:
-      import os
+      from setenv import add_path
       absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH')
-      import sys
       path = os.path.realpath(os.path.join(absoluteAppliPath, "bin", "salome"))
-      if not path in sys.path:
-        sys.path[:0] = [path]
+      add_path(path, "PYTHONPATH")
+      path = os.path.realpath(os.path.join(absoluteAppliPath, "bin", "salome", "appliskel"))
+      add_path(path, "PYTHONPATH")
+
     except:
       pass
 
@@ -330,11 +333,13 @@ class SalomeContext:
     sys.path[:0] = pythonpath
   #
 
-  def _runAppli(self, args=[]):
+  def _runAppli(self, args=None):
+    if args is None:
+      args = []
     # Initialize SALOME environment
     sys.argv = ['runSalome'] + args
     import setenv
-    setenv.main(True)
+    setenv.main(True, exeName="salome start")
 
     import runSalome
     runSalome.runSalome()
@@ -360,7 +365,9 @@ class SalomeContext:
     return proc.communicate()
   #
 
-  def _runSession(self, args=[]):
+  def _runSession(self, args=None):
+    if args is None:
+      args = []
     sys.argv = ['runSession'] + args
     import runSession
     params, args = runSession.configureSession(args, exe="salome shell")
@@ -372,18 +379,21 @@ class SalomeContext:
     return runSession.runSession(params, args)
   #
 
-  def _runConsole(self, args=[]):
+  def _runConsole(self, args=None):
+    if args is None:
+      args = []
     # Initialize SALOME environment
-    sys.argv = ['runConsole'] + args
+    sys.argv = ['runConsole']
     import setenv
     setenv.main(True)
 
-    cmd = ["python", "-c", "import runConsole\nrunConsole.connect()" ]
-    proc = subprocess.Popen(cmd, shell=False, close_fds=True)
-    return proc.communicate()
+    import runConsole
+    return runConsole.connect(args)
   #
 
-  def _kill(self, args=[]):
+  def _kill(self, args=None):
+    if args is None:
+      args = []
     ports = args
     if not ports:
       print "Port number(s) not provided to command: salome kill <port(s)>"
@@ -420,7 +430,9 @@ class SalomeContext:
       pass
   #
 
-  def _runTests(self, args=[]):
+  def _runTests(self, args=None):
+    if args is None:
+      args = []
     sys.argv = ['runTests']
     import setenv
     setenv.main(True)
@@ -429,9 +441,35 @@ class SalomeContext:
     return runTests.runTests(args, exe="salome test")
   #
 
-  def _showInfo(self, unused=None):
-    print "Running with python", platform.python_version()
-    self._runAppli(["--version"])
+  def _showInfo(self, args=None):
+    if args is None:
+      args = []
+
+    usage = "Usage: salome info [options]"
+    epilog  = """\n
+Display some information about SALOME.\n
+Available options are:
+    -p,--ports        Show list of busy ports (running SALOME instances).
+    -v,--version      Show running SALOME version.
+    -h,--help         Show this message.
+"""
+    if not args:
+      args = ["--version"]
+
+    if "-h" in args or "--help" in args:
+      print usage + epilog
+      return
+
+    if "-p" in args or "--ports" in args:
+      import PortManager
+      ports = PortManager.getBusyPorts()
+      print "SALOME instances are running on ports:", ports
+      if ports:
+        print "Last started instance on port %s"%ports[-1]
+
+    if "-v" in args or "--version" in args:
+      print "Running with python", platform.python_version()
+      self._runAppli(["--version"])
   #
 
   def _usage(self, unused=None):

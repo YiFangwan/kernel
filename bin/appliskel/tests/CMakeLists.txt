@@ -18,4 +18,5 @@
 #
 
 ADD_SUBDIRECTORY(concurrentSession)
-ADD_SUBDIRECTORY(launcher)
+ADD_SUBDIRECTORY(salomeInstance)
+ADD_SUBDIRECTORY(salomeCommand)

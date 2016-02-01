@@ -21,18 +21,63 @@
 
 import SALOME
 import cPickle
+import SALOMEWrappedStdType
 
-class WrappedType(object):
+class InvokatorStyle(object):
+    def __init__(self,varPtr):
+        self._var_ptr=varPtr
+    def ptr(self):
+        return self._var_ptr
+    pass
+
+class InvokatorPossibleStyle(InvokatorStyle):
+    def __init__(self,varPtr):
+        InvokatorStyle.__init__(self,varPtr)
+        assert(self.__class__.IsOK(varPtr))
+
+    def invokePythonMethodOn(self,meth,argsInStrFrmt):
+        return self._var_ptr.invokePythonMethodOn(meth,argsInStrFrmt)
+        
+    @classmethod
+    def IsOK(cls,varPtr):
+        return isinstance(varPtr,SALOME._objref_PickelizedPyObjRdExtServer) or isinstance(varPtr,SALOME._objref_PickelizedPyObjRdWrServer)
+    pass
+
+class InvokatorImpossibleStyle(InvokatorStyle):
+    def __init__(self,varPtr):
+        InvokatorStyle.__init__(self,varPtr)
+        assert(self.__class__.IsOK(varPtr))
+        
+    def invokePythonMethodOn(self,meth,argsInStrFrmt):
+        raise Exception("Cannot invoke because it is readonly var !")
+
+    @classmethod
+    def IsOK(cls,varPtr):
+        return isinstance(varPtr,SALOME._objref_PickelizedPyObjRdOnlyServer)
+    pass
+
+def InvokatorStyleFactory(varPtr):
+    if InvokatorImpossibleStyle.IsOK(varPtr):
+        return InvokatorImpossibleStyle(varPtr)
+    if InvokatorPossibleStyle.IsOK(varPtr):
+        return InvokatorPossibleStyle(varPtr)
+    raise Exception("InvokatorStyleFactory : unmanaged type of var (%s)!"%(type(varPtr)))
+    pass
+
+class WrappedType(SALOMEWrappedStdType.WrappedType):
     def __init__(self,varPtr,isTemporaryVar=False):
         assert(isinstance(varPtr,SALOME._objref_PickelizedPyObjServer))
-        self._var_ptr=varPtr
+        self._var_ptr=InvokatorStyleFactory(varPtr)
         if not isTemporaryVar:
-            self._var_ptr.Register()
+            self._var_ptr.ptr().Register()
         self._is_temp=isTemporaryVar
         pass
 
+    def ptr(self):
+        return self._var_ptr.ptr()
+
     def local_copy(self):
-        return cPickle.loads(self._var_ptr.fetchSerializedContent())
+        return cPickle.loads(self._var_ptr.ptr().fetchSerializedContent())
 
     def __str__(self):
         return self.local_copy().__str__()
@@ -44,17 +89,18 @@ class WrappedType(object):
         return (self._wrapped_type,(self.local_copy(),))
 
     def assign(self,elt):
-        assert(isinstance(self._var_ptr,SALOME._objref_PickelizedPyObjRdWrServer))
+        ptrCorba=self._var_ptr.ptr()
+        assert(isinstance(ptrCorba,SALOME._objref_PickelizedPyObjRdWrServer))
         st=cPickle.dumps(elt,cPickle.HIGHEST_PROTOCOL)
-        self._var_ptr.setSerializedContent(st)
+        ptrCorba.setSerializedContent(st)
         pass
 
     def __del__(self):
-        self._var_ptr.UnRegister()
+        self._var_ptr.ptr().UnRegister()
         pass
     pass
 
-class List(WrappedType):
+class List(WrappedType,SALOMEWrappedStdType.List):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
         self._wrapped_type=list
@@ -99,7 +145,7 @@ class List(WrappedType):
     def sort(self,*args):
         ret=Caller(self._var_ptr,"sort")
         return ret(*args)
-    
+    # work on local copy
     def count(self,*args):
         return self.local_copy().count(*args)
 
@@ -110,7 +156,7 @@ class List(WrappedType):
         return len(self.local_copy())
     pass
 
-class Dict(WrappedType):
+class Dict(WrappedType,SALOMEWrappedStdType.Dict):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
         self._wrapped_type=dict
@@ -179,7 +225,7 @@ class Dict(WrappedType):
 
     pass
 
-class Tuple(WrappedType):
+class Tuple(WrappedType,SALOMEWrappedStdType.Tuple):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
         self._wrapped_type=tuple
@@ -202,7 +248,7 @@ class Tuple(WrappedType):
 
     pass
 
-class Float(WrappedType):
+class Float(WrappedType,SALOMEWrappedStdType.Float):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
         self._wrapped_type=float
@@ -257,7 +303,7 @@ class Float(WrappedType):
         return self.local_copy().real(*args)
     pass
 
-class Int(WrappedType):
+class Int(WrappedType,SALOMEWrappedStdType.Int):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
         self._wrapped_type=int
@@ -315,7 +361,7 @@ class Int(WrappedType):
         return self.local_copy().real(*args)
     pass
 
-class String(WrappedType):
+class String(WrappedType,SALOMEWrappedStdType.String):
     def __init__(self,varPtr,isTemporaryVar=False):
         WrappedType.__init__(self,varPtr,isTemporaryVar)
         self._wrapped_type=int
@@ -450,7 +496,6 @@ class String(WrappedType):
 
 class Caller:
     def __init__(self,varPtr,meth):
-        assert(isinstance(varPtr,SALOME._objref_PickelizedPyObjServer))
         self._var_ptr=varPtr
         self._meth=meth
         pass
@@ -475,18 +520,21 @@ def GetHandlerFromRef(objCorba,isTempVar=False):
     
 def CreateRdOnlyGlobalVar(value,varName,scopeName):
     import salome
+    salome.salome_init()
     dsm=salome.naming_service.Resolve("/DataServerManager")
     d2s,isCreated=dsm.giveADataScopeCalled(scopeName)
     return GetHandlerFromRef(d2s.createRdOnlyVar(varName,cPickle.dumps(value,cPickle.HIGHEST_PROTOCOL)),False)
     
 def CreateRdExtGlobalVar(value,varName,scopeName):
     import salome
+    salome.salome_init()
     dsm=salome.naming_service.Resolve("/DataServerManager")
     d2s,isCreated=dsm.giveADataScopeCalled(scopeName)
     return GetHandlerFromRef(d2s.createRdExtVar(varName,cPickle.dumps(value,cPickle.HIGHEST_PROTOCOL)),False)
 
-def GetHandlerFromName(scopeName,varName):
+def GetHandlerFromName(varName,scopeName):
     import salome
+    salome.salome_init()
     dsm=salome.naming_service.Resolve("/DataServerManager")
     d2s=dsm.retriveDataScope(scopeName)
     return GetHandlerFromRef(d2s.retrieveVar(varName),False)

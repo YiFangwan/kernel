@@ -254,10 +254,18 @@ Engines_Container_i::~Engines_Container_i()
     delete _id;
   if(_NS)
     delete _NS;
-  if(!CORBA::is_nil(_dftPyNode))
-    _dftPyNode->UnRegister();
-  if(!CORBA::is_nil(_dftPyScriptNode))
-    _dftPyScriptNode->UnRegister();
+  for(std::map<std::string,Engines::PyNode_var>::iterator it=_dftPyNode.begin();it!=_dftPyNode.end();it++)
+    {
+      Engines::PyNode_var tmpVar((*it).second);
+      if(!CORBA::is_nil(tmpVar))
+        tmpVar->UnRegister();
+    }
+  for(std::map<std::string,Engines::PyScriptNode_var>::iterator it=_dftPyScriptNode.begin();it!=_dftPyScriptNode.end();it++)
+    {
+      Engines::PyScriptNode_var tmpVar((*it).second);
+      if(!CORBA::is_nil(tmpVar))
+        tmpVar->UnRegister();
+    }
 }
 
 //=============================================================================
@@ -958,6 +966,41 @@ Engines_Container_i::createPythonInstance(std::string CompName, int studyId,
   return iobject._retn();
 }
 
+char *
+Engines_Container_i::create_python_service_instance(const char * CompName,
+                                                    CORBA::String_out reason)
+{
+  CORBA::Object_var object = CORBA::Object::_nil();
+
+  _numInstanceMutex.lock() ; // lock on the instance number
+  _numInstance++ ;
+  int numInstance = _numInstance ;
+  _numInstanceMutex.unlock() ;
+
+  char aNumI[12];
+  sprintf( aNumI , "%d" , numInstance ) ;
+  std::string instanceName = std::string(CompName) + "_inst_" + aNumI ;
+  std::string component_registerName = _containerName + "/" + instanceName;
+
+  PyGILState_STATE gstate = PyGILState_Ensure();
+  PyObject *result = PyObject_CallMethod(_pyCont,
+                                         (char*)"create_component_instance",
+                                         (char*)"ssl",
+                                         CompName,
+                                         instanceName.c_str(),
+                                         0);
+  const char *ior;
+  const char *error;
+  PyArg_ParseTuple(result,"ss", &ior, &error);
+  reason = CORBA::string_dup(error);
+  char * _ior = CORBA::string_dup(ior);
+  Py_DECREF(result);
+  PyGILState_Release(gstate);
+
+  return _ior;
+}
+
+
 //=============================================================================
 //! Create a new component instance (C++ implementation)
 /*! 
@@ -1645,16 +1688,25 @@ Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, cons
     std::string astr=PyString_AsString(result);
     Py_DECREF(res);
     PyGILState_Release(gstate);
-
     if(ierr==0)
       {
-        CORBA::Object_var obj = _orb->string_to_object(astr.c_str());
-        node = Engines::PyNode::_narrow(obj);
-        if(!CORBA::is_nil(_dftPyNode))
-          _dftPyNode->UnRegister();
-        _dftPyNode = node;
-        if(!CORBA::is_nil(_dftPyNode))
-          _dftPyNode->Register();
+        Utils_Locker lck(&_mutexForDftPy);
+        CORBA::Object_var obj=_orb->string_to_object(astr.c_str());
+        node=Engines::PyNode::_narrow(obj);
+        std::map<std::string,Engines::PyNode_var>::iterator it(_dftPyNode.find(nodeName));
+        if(it==_dftPyNode.end())
+          {
+            _dftPyNode[nodeName]=node;
+          }
+        else
+          {
+            Engines::PyNode_var oldNode((*it).second);
+            if(!CORBA::is_nil(oldNode))
+              oldNode->UnRegister();
+            (*it).second=node;
+          }
+        if(!CORBA::is_nil(node))
+          node->Register();
         return node._retn();
       }
     else
@@ -1664,7 +1716,6 @@ Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, cons
         es.text = astr.c_str();
         throw SALOME::SALOME_Exception(es);
       }
-
 }
 
 //=============================================================================
@@ -1672,12 +1723,20 @@ Engines::PyNode_ptr Engines_Container_i::createPyNode(const char* nodeName, cons
  *
  */
 //=============================================================================
-Engines::PyNode_ptr  Engines_Container_i::getDefaultPyNode()
+Engines::PyNode_ptr  Engines_Container_i::getDefaultPyNode(const char *nodeName)
 {
-  if(!CORBA::is_nil(_dftPyNode))
-    return Engines::PyNode::_duplicate(_dftPyNode);
-  else
+  Utils_Locker lck(&_mutexForDftPy);
+  std::map<std::string,Engines::PyNode_var>::iterator it(_dftPyNode.find(nodeName));
+  if(it==_dftPyNode.end())
     return Engines::PyNode::_nil();
+  else
+    {
+      Engines::PyNode_var tmpVar((*it).second);
+      if(!CORBA::is_nil(tmpVar))
+        return Engines::PyNode::_duplicate(tmpVar);
+      else
+        return Engines::PyNode::_nil();
+    }
 }
 
 //=============================================================================
@@ -1715,13 +1774,23 @@ Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* no
 
     if(ierr==0)
       {
-        CORBA::Object_var obj = _orb->string_to_object(astr.c_str());
-        node = Engines::PyScriptNode::_narrow(obj);
-        if(!CORBA::is_nil(_dftPyScriptNode))
-          _dftPyScriptNode->UnRegister();
-        _dftPyScriptNode = node;
-        if(!CORBA::is_nil(_dftPyScriptNode))
-          _dftPyScriptNode->Register();
+        Utils_Locker lck(&_mutexForDftPy);
+        CORBA::Object_var obj=_orb->string_to_object(astr.c_str());
+        node=Engines::PyScriptNode::_narrow(obj);
+        std::map<std::string,Engines::PyScriptNode_var>::iterator it(_dftPyScriptNode.find(nodeName));
+        if(it==_dftPyScriptNode.end())
+          {
+            _dftPyScriptNode[nodeName]=node;
+          }
+        else
+          {
+            Engines::PyScriptNode_var oldNode((*it).second);
+            if(!CORBA::is_nil(oldNode))
+              oldNode->UnRegister();
+            (*it).second=node;
+          }
+        if(!CORBA::is_nil(node))
+          node->Register();
         return node._retn();
       }
     else
@@ -1738,12 +1807,20 @@ Engines::PyScriptNode_ptr Engines_Container_i::createPyScriptNode(const char* no
  *
  */
 //=============================================================================
-Engines::PyScriptNode_ptr Engines_Container_i::getDefaultPyScriptNode()
+Engines::PyScriptNode_ptr Engines_Container_i::getDefaultPyScriptNode(const char *nodeName)
 {
-  if(!CORBA::is_nil(_dftPyScriptNode))
-    return Engines::PyScriptNode::_duplicate(_dftPyScriptNode);
-  else
+  Utils_Locker lck(&_mutexForDftPy);
+  std::map<std::string,Engines::PyScriptNode_var>::iterator it(_dftPyScriptNode.find(nodeName));
+  if(it==_dftPyScriptNode.end())
     return Engines::PyScriptNode::_nil();
+  else
+    {
+      Engines::PyScriptNode_var tmpVar((*it).second);
+      if(!CORBA::is_nil(tmpVar))
+        return Engines::PyScriptNode::_duplicate(tmpVar);
+      else
+        return Engines::PyScriptNode::_nil();
+    }
 }
 
 //=============================================================================

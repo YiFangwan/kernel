@@ -30,6 +30,7 @@
 #define _SALOME_CONTAINER_I_HXX_
 
 #include "SALOME_Container.hxx"
+#include "Utils_Mutex.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_Component)
@@ -75,7 +76,12 @@ public:
   create_component_instance_env( const char* componentName,
                                  CORBA::Long studyId,          // 0 for multiStudy
                                  const Engines::FieldsDict& env,
-                                 CORBA::String_out reason); 
+                                 CORBA::String_out reason);
+
+  virtual char *
+  create_python_service_instance(const char* CompName,
+                                 CORBA::String_out reason);
+
   Engines::EngineComponent_ptr
   find_component_instance( const char* registeredName,
                            CORBA::Long studyId); // 0 for multiStudy
@@ -106,9 +112,9 @@ public:
   virtual Engines::Salome_file_ptr createSalome_file(const char* origFileName);
   void copyFile(Engines::Container_ptr container, const char* remoteFile, const char* localFile);
   Engines::PyNode_ptr createPyNode(const char* nodeName, const char* code);
-  Engines::PyNode_ptr getDefaultPyNode();
+  Engines::PyNode_ptr getDefaultPyNode(const char *nodeName);
   Engines::PyScriptNode_ptr createPyScriptNode(const char* nodeName, const char* code);
-  Engines::PyScriptNode_ptr getDefaultPyScriptNode();
+  Engines::PyScriptNode_ptr getDefaultPyScriptNode(const char *nodeName);
   // --- local C++ methods
 
   Engines::EngineComponent_ptr
@@ -156,8 +162,9 @@ protected:
   std::map<std::string,Engines::EngineComponent_var> _listInstances_map;
   std::map<std::string,Engines::fileRef_var> _fileRef_map;
   std::map<std::string,Engines::Salome_file_var> _Salome_file_map;
-  Engines::PyScriptNode_var _dftPyScriptNode;
-  Engines::PyNode_var _dftPyNode;
+  std::map<std::string,Engines::PyScriptNode_var> _dftPyScriptNode;
+  std::map<std::string,Engines::PyNode_var> _dftPyNode;
+  Utils_Mutex _mutexForDftPy;
   std::list<std::string> _tmp_files;
   Engines::fileTransfer_var _fileTransfer;
 

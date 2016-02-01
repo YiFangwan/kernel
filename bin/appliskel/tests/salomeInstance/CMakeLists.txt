@@ -16,18 +16,15 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
-# Author: Vadim SANDLER
-#
 
-# SimanIO detection dor Salome
-#
-#  !! Please read the generic detection procedure in SalomeMacros.cmake !!
-#
+FILE(GLOB py_scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.py")
 
-SALOME_FIND_PACKAGE_AND_DETECT_CONFLICTS(SimanIO SIMANIO_INCLUDE_DIRS 1)
-#MARK_AS_ADVANCED()
+LIST(APPEND scripts ${py_scripts})
 
-IF(SIMANIO_FOUND)
-  SALOME_ACCUMULATE_HEADERS(SIMANIO_INCLUDE_DIRS)
-  SALOME_ACCUMULATE_ENVIRONMENT(LD_LIBRARY_PATH ${SIMANIO_LIBRARIES})
-ENDIF()
+# Application tests
+INSTALL(FILES CTestTestfileInstall.cmake
+        DESTINATION ${KERNEL_TEST_DIR}/salomeInstance
+        RENAME CTestTestfile.cmake)
+
+INSTALL(FILES ${scripts}
+        DESTINATION ${KERNEL_TEST_DIR}/salomeInstance)

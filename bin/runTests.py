@@ -22,7 +22,9 @@ import sys
 import select
 import subprocess
 
-def __configureTests(args=[], exe=None):
+def __configureTests(args=None, exe=None):
+  if args is None:
+    args = []
   if exe:
       usage = "Usage: %s [options]"%exe
   else:
@@ -32,6 +34,10 @@ Run tests of SALOME components provided with application.\n
 Principal options are:
     -h,--help
         Show this help message and exit.
+
+    --print-labels
+        Print the list of all labels associated with the test set.
+        This option will not run any tests.
 
     -V,--verbose
         Enable verbose output from tests.

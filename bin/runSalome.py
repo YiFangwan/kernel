@@ -99,11 +99,8 @@ class InterpServer(Server):
         global process_id
         command = self.CMD
         print "INTERPSERVER::command = ", command
-        if sys.platform == "win32":
-          import win32pm
-          pid = win32pm.spawnpid( string.join(command, " "),'-nc' )
-        else:
-          pid = os.spawnvp(os.P_NOWAIT, command[0], command)
+        import subprocess
+        pid = subprocess.Popen(command).pid
         process_id[pid]=self.CMD
         self.PID = pid
 
@@ -139,29 +136,6 @@ def get_cata_path(list_modules,modules_root_dir):
                     modules_cata[module_name]=cata_file
 
     return cata_path
-
-_siman_name = None
-def simanStudyName(args):
-    global _siman_name
-    if _siman_name is None:
-        # siman session paramenters and checkout processing
-        _siman_name = ""
-        if 'siman' in args:
-            siman_data = []
-            for param in [ 'study', 'scenario', 'user']:
-                siman_param = "siman_%s"%param
-                if siman_param in args:
-                    siman_data.append(args[siman_param])
-                else:
-                    print "SIMAN %s must be defined using parameter --siman-%s=XXX" % (siman_param, siman_param)
-                    pass
-                pass
-            if len(siman_data) == 3:
-                _siman_name = "_".join(siman_data)
-                pass
-            pass
-        pass
-    return _siman_name
 
 class CatalogServer(Server):
     def __init__(self,args):
@@ -280,9 +254,6 @@ class SessionServer(Server):
                     pass
                 if self.args['study_hdf'] is not None:
                     self.SCMD2+=['--study-hdf=%s'%self.args['study_hdf']]
-                    pass
-                if simanStudyName(self.args):
-                    self.SCMD2+=['--siman-study=%s'%simanStudyName(self.args)]
                     pass
                 pass
                 if self.args.has_key('pyscript') and len(self.args['pyscript']) > 0:
@@ -484,14 +455,6 @@ def startSalome(args, modules_list, modules_root_dir):
         myServer.run()
         clt.waitLogger("Logger")
 
-    # set siman python path before the session server launching to import scripts inside python console
-    if simanStudyName(args):
-        # MPV: use os.environ here because session server is launched in separated process and sys.path is missed in this case
-        from salome_utils import getTmpDir
-        ppath = os.path.join(getTmpDir, "SimanSalome", args['siman_study'],
-                             args['siman_scenario'], args['siman_user'])
-        os.environ["PYTHONPATH"] = ppath + os.pathsep + os.environ["PYTHONPATH"]
-
     # Launch  Session Server (to show splash ASAP)
     #
 
@@ -640,27 +603,6 @@ def startSalome(args, modules_list, modules_root_dir):
         except ImportError:
             pass
 
-    # siman session paramenters and checkout processing
-    if simanStudyName(args):
-        print '**********************************************'
-        print "Siman study name= '" + simanStudyName(args) + "'"
-        import SALOMEDS
-        obj = clt.Resolve('myStudyManager')
-        myStudyManager = obj._narrow(SALOMEDS.StudyManager)
-        aNewStudy = myStudyManager.NewStudy(simanStudyName(args))
-        aSimS = myStudyManager.GetSimanStudy()
-        aSimS._set_StudyId(args['siman_study'])
-        aSimS._set_ScenarioId(args['siman_scenario'])
-        aSimS._set_UserId(args['siman_user'])
-        aSimS.CheckOut(aNewStudy)
-        # if session server is enabled, activate the created study
-        if args["gui"]:
-            print "Activate the SIMAN study in the SALOME GUI"
-            obj = clt.Resolve('/Kernel/Session')
-            mySession = obj._narrow(SALOME.Session)
-            mySession.emitMessage("simanCheckoutDone " + simanStudyName(args))
-        print '**********************************************'
-
     return clt
 
 # -----------------------------------------------------------------------------
@@ -797,7 +739,7 @@ def no_main():
 
 # -----------------------------------------------------------------------------
 
-def main():
+def main(exeName=None):
     """Salome launch as a main application"""
 
     # define folder to store omniorb config (initially in virtual application folder)
@@ -809,7 +751,7 @@ def main():
         sys.exit(1)
 
     from salome_utils import getHostName
-    args, modules_list, modules_root_dir = setenv.get_config()
+    args, modules_list, modules_root_dir = setenv.get_config(exeName=exeName)
     print "runSalome running on %s" % getHostName()
 
     kill_salome(args)

@@ -82,6 +82,10 @@ public:
                                  const Engines::FieldsDict& env,
                                  CORBA::String_out reason);
 
+  virtual char*
+  create_python_service_instance(const char* CompName,
+                                 CORBA::String_out reason);
+
   Engines::EngineComponent_ptr
   find_component_instance( const char* registeredName,
                            CORBA::Long studyId); // 0 for multiStudy
@@ -138,9 +142,9 @@ public:
   virtual Engines::Salome_file_ptr createSalome_file(const char* origFileName);
   void copyFile(Engines::Container_ptr container, const char* remoteFile, const char* localFile);
   Engines::PyNode_ptr createPyNode(const char* nodeName, const char* code);
-  Engines::PyNode_ptr getDefaultPyNode();
+  Engines::PyNode_ptr getDefaultPyNode(const char *nodeName);
   Engines::PyScriptNode_ptr createPyScriptNode(const char* nodeName, const char* code);
-  Engines::PyScriptNode_ptr getDefaultPyScriptNode();
+  Engines::PyScriptNode_ptr getDefaultPyScriptNode(const char *nodeName);
 protected:
 
   SALOME_NamingService *_NS;

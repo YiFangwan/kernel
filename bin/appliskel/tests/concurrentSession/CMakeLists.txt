@@ -22,4 +22,10 @@ FILE(GLOB sh_scripts "${CMAKE_CURRENT_SOURCE_DIR}/*.sh")
 
 LIST(APPEND scripts ${py_scripts} ${sh_scripts})
 
-SALOME_INSTALL_SCRIPTS("${scripts}" ${SALOME_INSTALL_SCRIPT_SCRIPTS}/appliskel/tests/concurrentSession)
+# Application tests
+INSTALL(FILES CTestTestfileInstall.cmake
+        DESTINATION ${KERNEL_TEST_DIR}/concurrentSession
+        RENAME CTestTestfile.cmake)
+
+INSTALL(FILES ${scripts}
+        DESTINATION ${KERNEL_TEST_DIR}/concurrentSession)

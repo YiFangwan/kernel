@@ -66,10 +66,6 @@ valgrind_session_nam = "valgrind_session"
 shutdown_servers_nam = "shutdown_servers"
 foreground_nam = "foreground"
 wake_up_session_nam = "wake_up_session"
-siman_nam = "siman"
-siman_study_nam = "siman_study"
-siman_scenario_nam = "siman_scenario"
-siman_user_nam = "siman_user"
 
 # values in XML configuration file giving specific module parameters (<module_name> section)
 # which are stored in opts with key <module_name>_<parameter> (eg SMESH_plugins)
@@ -126,7 +122,13 @@ def version():
 def version_id(fname):
     major = minor = release = dev1 = dev2 = 0
     vers = fname.split(".")
-    if len(vers) > 0: major = int(vers[0])
+    if len(vers) > 0:
+      try:
+        major = int(vers[0])
+      except ValueError:
+        # If salome version given is DEV, the call to int('DEV') will fail with
+        # a ValueError exception
+        pass
     try:
       if len(vers) > 1: minor = int(vers[1])
     except ValueError:
@@ -307,6 +309,15 @@ class xml_parser:
         return strloc
         pass
 
+    def strValue( self, str ):
+        strloc = str
+        try:
+            if isinstance(strloc, types.UnicodeType): strloc = strloc.encode().strip()
+            else: strloc = strloc.strip()
+        except:
+            pass
+        return strloc
+
     def startElement(self, name, attrs):
         self.space.append(name)
         self.current = None
@@ -341,14 +352,15 @@ class xml_parser:
                 key = nam
             else:                         # key for <module> section
                 key = self.section + "_" + nam
+            key = self.strValue( key )
             if nam in boolKeys:
                 self.opts[key] = self.boolValue( val )  # assign boolean value: 0 or 1
             elif nam in intKeys:
                 self.opts[key] = self.intValue( val )   # assign integer value
             elif nam in listKeys:
-                self.opts[key] = filter( lambda a: a.strip(), re.split( "[:;,]", val ) ) # assign list value: []
+                self.opts[key] = [ self.strValue( a ) for a in re.split( "[:;,]", val ) ] # assign list value: []
             else:
-                self.opts[key] = val
+                self.opts[key] = self.strValue( val ) # string value
             pass
         pass
 
@@ -484,7 +496,7 @@ def store_boolean (option, opt, value, parser, *args):
         for attribute in args:
             setattr(parser.values, attribute, value)
 
-def CreateOptionParser (theAdditionalOptions=None):
+def CreateOptionParser (theAdditionalOptions=None, exeName=None):
     if theAdditionalOptions is None:
         theAdditionalOptions = []
     # GUI/Terminal. Default: GUI
@@ -781,40 +793,6 @@ def CreateOptionParser (theAdditionalOptions=None):
                              dest="use_port",
                                    help=help_str)
 
-    # SIMAN launch mode
-    help_str = "Special mode for interacting with SIMAN."
-    o_siman = optparse.Option("--siman",
-                              action="store_true",
-                              dest="siman",
-                              help=help_str)
-
-    # SIMAN study
-    help_str = "SIMAN study identifier."
-    o_siman_study = optparse.Option("--siman-study",
-                                    metavar="<id>",
-                                    type="string",
-                                    action="store",
-                                    dest="siman_study",
-                                    help=help_str)
-
-    # SIMAN scenario
-    help_str = "SIMAN scenario identifier."
-    o_siman_scenario = optparse.Option("--siman-scenario",
-                                       metavar="<id>",
-                                       type="string",
-                                       action="store",
-                                       dest="siman_scenario",
-                                       help=help_str)
-
-    # SIMAN user
-    help_str = "SIMAN user identifier."
-    o_siman_user = optparse.Option("--siman-user",
-                                   metavar="<id>",
-                                   type="string",
-                                   action="store",
-                                   dest="siman_user",
-                                   help=help_str)
-
     # All options
     opt_list = [o_t,o_g, # GUI/Terminal
                 o_d,o_o, # Desktop
@@ -844,10 +822,6 @@ def CreateOptionParser (theAdditionalOptions=None):
                 o_wake_up,
                 o_slm,   # Server launch mode
                 o_port,  # Use port
-                o_siman,         # Siman launch mode
-                o_siman_study,   # Siman study
-                o_siman_scenario,# Siman scenario
-                o_siman_user,    # Siman user
                 ]
 
     #std_options = ["gui", "desktop", "log_file", "resources",
@@ -857,9 +831,12 @@ def CreateOptionParser (theAdditionalOptions=None):
 
     opt_list += theAdditionalOptions
 
-    a_usage = """%prog [options] [STUDY_FILE] [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
+    if not exeName:
+      exeName = "%prog"
+
+    a_usage = """%s [options] [STUDY_FILE] [PYTHON_FILE [args] [PYTHON_FILE [args]...]]
 Python file arguments, if any, must be comma-separated (without blank characters) and prefixed by "args:" (without quotes), e.g. myscript.py args:arg1,arg2=val,...
-"""
+"""%exeName
     version_str = "Salome %s" % version()
     pars = optparse.OptionParser(usage=a_usage, version=version_str, option_list=opt_list)
 
@@ -875,7 +852,7 @@ Python file arguments, if any, must be comma-separated (without blank characters
 args = {}
 #def get_env():
 #args = []
-def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgname):
+def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgname, exeName=None):
     ###
     # Collect launch configuration files:
     # - The environment variable "<appname>Config" (SalomeAppConfig) which can
@@ -915,7 +892,7 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
 
     ############################
     # parse command line options
-    pars = CreateOptionParser(theAdditionalOptions)
+    pars = CreateOptionParser(theAdditionalOptions, exeName=exeName)
     (cmd_opts, cmd_args) = pars.parse_args(sys.argv[1:])
     ############################
 
@@ -1162,16 +1139,6 @@ def get_env(theAdditionalOptions=None, appname=salomeappname, cfgname=salomecfgn
     # wake up session
     if cmd_opts.wake_up_session is not None:
         args[wake_up_session_nam] = cmd_opts.wake_up_session
-
-    # siman options
-    if cmd_opts.siman is not None:
-        args[siman_nam] = cmd_opts.siman
-    if cmd_opts.siman_study is not None:
-        args[siman_study_nam] = cmd_opts.siman_study
-    if cmd_opts.siman_scenario is not None:
-        args[siman_scenario_nam] = cmd_opts.siman_scenario
-    if cmd_opts.siman_user is not None:
-        args[siman_user_nam] = cmd_opts.siman_user
 
     ####################################################
     # Add <theAdditionalOptions> values to args

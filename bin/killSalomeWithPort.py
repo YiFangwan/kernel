@@ -248,12 +248,11 @@ def __killMyPort(port, filedict):
                 for l in lines:
                     try:
                         pidfield = l.split()[0] # pid should be at the first position
+                        if verbose(): print 'stop process '+pidfield+' : omniNames'
                         if sys.platform == "win32":
-                            import win32pm #@UnresolvedImport
-                            if verbose(): print 'stop process '+pidfield+' : omniNames'
-                            win32pm.killpid(int(pidfield),0)
+                            from salome_utils import win32killpid
+                            win32killpid(int(pidfield))
                         else:
-                            if verbose(): print 'stop process '+pidfield+' : omniNames'
                             os.kill(int(pidfield),signal.SIGKILL)
                             pass
                         pass
@@ -296,8 +295,8 @@ def __killMyPort(port, filedict):
 
                         try:
                             if sys.platform == "win32":
-                                import win32pm #@UnresolvedImport @Reimport
-                                win32pm.killpid(int(pid),0)
+                                from salome_utils import win32killpid
+                                win32killpid(int(pid))
                             else:
                                 os.kill(int(pid),signal.SIGKILL)
                                 pass
@@ -374,6 +373,16 @@ def killMyPort(port):
         import PortManager # do not remove! Test for PortManager availability!
         filedict = getPiDict(port)
         if not os.path.isfile(filedict): # removed by previous call, see (1)
+            if verbose():
+                print "SALOME on port %s: already removed by previous call"%port
+            # Remove port from PortManager config file
+            try:
+                from PortManager import releasePort
+                if verbose():
+                    print "Removing port from PortManager configuration file"
+                releasePort(port)
+            except ImportError:
+                pass
             return
     except:
         pass
@@ -423,8 +432,8 @@ def killMyPortSpy(pid, port):
     dt = 1.0
     while 1:
         if sys.platform == "win32":
-            from win32pm import killpid #@UnresolvedImport
-            if killpid(int(pid), 0) != 0:
+            from salome_utils import win32killpid
+            if win32killpid(int(pid)) != 0:
                 return
         else:
             from os import kill

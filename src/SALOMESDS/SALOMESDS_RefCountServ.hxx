@@ -21,18 +21,17 @@
 #ifndef __SALOMESDS_REFCOUNTSERV_HXX__
 #define __SALOMESDS_REFCOUNTSERV_HXX__
 
-#include <omniORB4/CORBA.h>
+#include "SALOMESDS_AutoRefCountPtr.hxx"
 
 namespace SALOMESDS
 {
-  class RefCountServ : public virtual PortableServer::ServantBase
+  class RefCountServ : public virtual PortableServer::ServantBase, public POAHolder
   {
   public:
     void incrRef() const;
     bool decrRef() const;
-    virtual PortableServer::POA_var getPOA() = 0;
+    int getCounter() const { return _cnt; }
   protected:
-    void enforcedRelease();
     RefCountServ();
     RefCountServ(const RefCountServ& other);
     virtual ~RefCountServ();

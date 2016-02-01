@@ -37,35 +37,60 @@
 
 namespace SALOMESDS
 {
-  class SALOMESDS_EXPORT DataScopeServer : public virtual POA_SALOME::DataScopeServer
+  class SALOMESDS_EXPORT DataScopeKiller : public POA_SALOME::DataScopeKiller
   {
   public:
-    DataScopeServer(CORBA::ORB_ptr orb, const std::string& scopeName);
-    DataScopeServer(const DataScopeServer& other);
+    DataScopeKiller(CORBA::ORB_ptr orb):_orb(CORBA::ORB::_duplicate(orb)) { }
+    void shutdown();
+  private:
+    CORBA::ORB_var _orb;
+  };
+  
+  class KeyWaiter;
+  class PickelizedPyObjServer;
+
+  class SALOMESDS_EXPORT DataScopeServerBase : public virtual POA_SALOME::DataScopeServerBase, public POAHolder
+  {
+  public:
+    DataScopeServerBase(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName);
+    DataScopeServerBase(const DataScopeServerBase& other);
     void ping();
     char *getScopeName();
     SALOME::StringVec *listVars();
-    SALOME::BasicDataServer_ptr retrieveVar(const char *varName);
+    CORBA::Boolean existVar(const char *varName);
+    SALOME::BasicDataServer_ptr retrieveVarInternal(const char *varName);
     void deleteVar(const char *varName);
-    SALOME::PickelizedPyObjRdOnlyServer_ptr createRdOnlyVar(const char *varName, const SALOME::ByteVec& constValue);
-    SALOME::PickelizedPyObjRdExtServer_ptr createRdExtVar(const char *varName, const SALOME::ByteVec& constValue);
-    SALOME::PickelizedPyObjRdWrServer_ptr createRdWrVar(const char *typeName, const char *varName);
-    void shutdownIfNotHostedByDSM();
-    ~DataScopeServer();
+    CORBA::Boolean shutdownIfNotHostedByDSM(SALOME::DataScopeKiller_out killer);
+    SALOME::ByteVec *fetchSerializedContent(const char *varName);
+    SALOME::SeqOfByteVec *getAllKeysOfVarWithTypeDict(const char *varName);
+    ~DataScopeServerBase();
   public:
+    BasicDataServer *retrieveVarInternal2(const std::string& varName);
     void initializePython(int argc, char *argv[]);
     void registerToSalomePiDict() const;
-    void setPOAAndRegister(PortableServer::POA_var poa, SALOME::DataScopeServer_ptr ptr);
+    void setPOA(PortableServer::POA_var poa);
+    void registerInNS(SALOME::DataScopeServerBase_ptr ptr);
     PyObject *getGlobals() const { return _globals; }
     PyObject *getLocals() const { return _locals; }
     PyObject *getPickler() const { return _pickler; }
-    PortableServer::POA_var getPOA() { return _poa; }
+    PortableServer::POA_var getPOA() const { return _poa; }
+    CORBA::ORB_var getORB() { return _orb; }
+    std::string getScopeNameCpp() const { return _name; }
     static std::string BuildTmpVarNameFrom(const std::string& varName);
-  private:
+  public:
     std::vector< std::string> getAllVarNames() const;
-    CORBA::Object_var activateWithDedicatedPOA(BasicDataServer *ds);
-    void checkNotAlreadyExistingVar(const std::string& varName);
-  private:
+    void checkNotAlreadyExistingVar(const std::string& varName) const;
+    void checkExistingVar(const std::string& varName) const;
+    PickelizedPyObjServer *checkVarExistingAndDict(const std::string& varName);
+  public:
+    void moveStatusOfVarFromRdWrToRdOnly(const std::string& varName);
+    void moveStatusOfVarFromRdOnlyToRdWr(const std::string& varName);
+    void moveStatusOfVarFromRdExtOrRdExtInitToRdExtInit(const std::string& varName);
+    void moveStatusOfVarFromRdExtInitToRdExt(const std::string& varName);
+  protected:
+    std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::const_iterator retrieveVarInternal3(const std::string& varName) const;
+    std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > >::iterator retrieveVarInternal4(const std::string& varName);
+  protected:
     PyObject *_globals;
     PyObject *_locals;
     PyObject *_pickler;
@@ -73,7 +98,56 @@ namespace SALOMESDS
     CORBA::ORB_var _orb;
     std::string _name;
     std::list< std::pair< SALOME::BasicDataServer_var, BasicDataServer * > > _vars;
+    SALOME::DataScopeKiller_var _killer;
     static std::size_t COUNTER;
+  };
+  
+  class SALOMESDS_EXPORT DataScopeServer : public DataScopeServerBase, public virtual POA_SALOME::DataScopeServer
+  {
+  public:
+    DataScopeServer(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName);
+    DataScopeServer(const DataScopeServer& other);
+    SALOME::BasicDataServer_ptr retrieveVar(const char *varName) { return retrieveVarInternal(varName); }
+    SALOME::PickelizedPyObjRdOnlyServer_ptr createRdOnlyVar(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::PickelizedPyObjRdExtServer_ptr createRdExtVar(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::PickelizedPyObjRdWrServer_ptr createRdWrVar(const char *typeName, const char *varName);
+    ~DataScopeServer();
+  };
+
+  class SALOMESDS_EXPORT DataScopeServerTransaction : public DataScopeServerBase, public virtual POA_SALOME::DataScopeServerTransaction
+  {
+  public://not remotely callable
+    DataScopeServerTransaction(CORBA::ORB_ptr orb, SALOME::DataScopeKiller_var killer, const std::string& scopeName);
+    DataScopeServerTransaction(const DataScopeServerTransaction& other);
+    ~DataScopeServerTransaction();
+    void createRdOnlyVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
+    void createRdExtVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
+    void createRdExtInitVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
+    void createRdWrVarInternal(const std::string& varName, const SALOME::ByteVec& constValue);
+    PortableServer::POA_var getPOA4KeyWaiter() const { return _poa_for_key_waiter; }
+    void addWaitKey(KeyWaiter *kw);
+    void pingKey(PyObject *keyObj);
+    void notifyKey(const std::string& varName, PyObject *keyObj, PyObject *valueObj);
+    SALOME::ByteVec *waitForMonoThrRev(SALOME::KeyWaiter_ptr kw);
+  public://remotely callable
+    char *getAccessOfVar(const char *varName);
+    SALOME::Transaction_ptr createRdOnlyVarTransac(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::Transaction_ptr createRdExtVarTransac(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::Transaction_ptr createRdExtInitVarTransac(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::Transaction_ptr createRdWrVarTransac(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::Transaction_ptr addKeyValueInVarHard(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    SALOME::Transaction_ptr addKeyValueInVarErrorIfAlreadyExisting(const char *varName, const SALOME::ByteVec& key, const SALOME::ByteVec& value);
+    SALOME::TransactionMultiKeyAddSession_ptr addMultiKeyValueSession(const char *varName);
+    SALOME::Transaction_ptr removeKeyInVarErrorIfNotAlreadyExisting(const char *varName, const SALOME::ByteVec& key);
+    SALOME::TransactionRdWrAccess_ptr createWorkingVarTransac(const char *varName, const SALOME::ByteVec& constValue);
+    SALOME::KeyWaiter_ptr waitForKeyInVar(const char *varName, const SALOME::ByteVec& keyVal);
+    SALOME::KeyWaiter_ptr waitForKeyInVarAndKillIt(const char *varName, const SALOME::ByteVec& keyVal, SALOME::Transaction_out transac);
+    void atomicApply(const SALOME::ListOfTransaction& transactions);
+  private:
+    PyObject *getPyCmpFunc();
+  private:
+    PortableServer::POA_var _poa_for_key_waiter;
+    std::list< KeyWaiter * > _waiting_keys;
   };
 }
 

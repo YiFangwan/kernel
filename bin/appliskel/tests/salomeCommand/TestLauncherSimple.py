@@ -18,25 +18,29 @@
 #
 
 import unittest
-
-import os
-import sys
-import imp
 import logging
 
 class TestLauncher(unittest.TestCase):
 
   def setUp(self):
-    path_to_launcher = os.getenv("SALOME_LAUNCHER")
-    appli_dir = os.path.dirname(path_to_launcher)
-    sys.path[:0] = [os.path.join(appli_dir, "bin", "salome", "appliskel")]
-
-    self.SALOME = imp.load_source("SALOME", os.path.join(appli_dir,"salome"))
+    from salome_instance import SalomeInstance
+    self.instance = SalomeInstance.start()
+    print "Instance created and now running on port", self.instance.get_port()
    #
+
+  def tearDown(self):
+    print "Terminate instance running on port", self.instance.get_port()
+    self.instance.stop()
+  #
 
   def testHello(self):
     try:
-      self.SALOME.main(["shell", "hello.py"])
+      import setenv
+      setenv.main(True)
+      import runSession
+      args = ["hello.py"]
+      params, args = runSession.configureSession(args, exe="salome shell")
+      return runSession.runSession(params, args)
     except SystemExit, e:
       if str(e) != '0':
         logging.error(e)
@@ -44,10 +48,5 @@ class TestLauncher(unittest.TestCase):
 #
 
 if __name__ == "__main__":
-  path_to_launcher = os.getenv("SALOME_LAUNCHER")
-  if not path_to_launcher:
-    msg = "Error: please set SALOME_LAUNCHER variable to the salome command of your application folder."
-    raise Exception(msg)
-
   unittest.main()
 #
