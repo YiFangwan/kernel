@@ -28,6 +28,7 @@
 #include "SALOME_ModuleCatalog.hh"
 #include "Basics_Utils.hxx"
 #include "Basics_DirUtils.hxx"
+#include "pidof.hxx"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
@@ -1295,14 +1296,29 @@ std::set<pid_t> SALOME_ContainerManager::getpidofprogram(const std::string progr
 {
   std::set<pid_t> thepids;
   std::string tmpFile = Kernel_Utils::GetTmpFileName();
-  std::string cmd;
   std::string thepid;
-  cmd = "pidof " + program + " > " + tmpFile;
-  SystemThreadSafe(cmd.c_str());
-  std::ifstream fpi(tmpFile.c_str(),std::ios::in);
-  while(fpi >> thepid){
-    thepids.insert(atoi(thepid.c_str()));
+  
+  char* programc = new char[program.size() + 1];
+  std::copy(program.begin(), program.end(), programc);
+  programc[program.size()] = '\0';
+  
+  thepids = get_pidof(programc); 
+  delete[] programc;
+  
+  std::ofstream fi(tmpFile.c_str(), std::ios::app); 
+  
+  if(fi)
+  {
+    for (std::set<pid_t>::iterator i = thepids.begin(); i != thepids.end(); i++) 
+    {
+      pid_t pid = *i;
+      fi << pid;
+      fi << " ";
+    }
+    fi << std::endl;
+    fi.close();
   }
+  
   return thepids;
 }
 
