@@ -139,9 +139,9 @@ class TestSessionArgs(unittest.TestCase):
     self.session(self.lines2+self.add3)
     self.assertLogFileContentsEqual(self.lines2Msg+self.add3Msg)
   #
-  def testLinesUnreadable(self):
-    self.session(self.linesUnreadable)
-    self.assertLogFileContentsEqual(self.linesUnreadableMsg)
+#  def testLinesUnreadable(self):
+#    self.session(self.linesUnreadable)
+#    self.assertLogFileContentsEqual(self.linesUnreadableMsg)
   #
   def testAddAddHello(self):
     self.session(self.add3+self.add3+self.hello1)
