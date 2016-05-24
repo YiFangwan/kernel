@@ -29,26 +29,27 @@ import signal
 # Run test
 def runTest(command):
   print "Running:", " ".join(command)
-  p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-
-  while True:
-    try:
-      out = p.stdout.readline()
-      sys.stdout.write(out)
-    except: # raised IOError or OSError if output is empty
-      pass
-
-    returncode = p.poll()
-    if not returncode is None:
-      sys.stdout.flush()
-      break
-    pass
-
+  p = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+  out, err = p.communicate()
+  res = p.returncode
   # About res value:
   # A negative value -N indicates that the child was terminated by signal N (Unix only).
   # On Unix, the value 11 generally corresponds to a segmentation fault.
-  #return res, out, err
-  return p.returncode
+  return res, out, err
+#
+
+# Display output and errors
+def processResult(res, out, err):
+  if out:
+    print out
+    pass
+  if err:
+    print "    ** Detected error **"
+    print "Error code: ", res
+    print err,
+    print "    ** end of message **"
+    pass
+  return res
 #
 
 # Timeout management
@@ -95,7 +96,8 @@ if __name__ == "__main__":
   try:
     salome_instance = SalomeInstance.start(shutdown_servers=True)
     port = salome_instance.get_port()
-    res = runTest(test_and_args)
+    res, out, err = runTest(test_and_args)
+    res = processResult(res, out, err)
   except TimeoutException:
     print "FAILED : timeout(%s) is reached"%timeout_delay
   except:
