@@ -17,47 +17,13 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(deprecated)
-
-# ===============================================================
-# Files to be installed
-# ===============================================================
-
-# These files are data, module or lib files
 SET(DATA
-  FindCAS.cmake
-  FindCppUnit.cmake
-  FindGraphviz.cmake
-  FindSalomeKERNEL.cmake
-  FindOmniORB.cmake
-  FindOmniORBPy.cmake
-  FindPThread.cmake
-  FindSalomeBoost.cmake
-  FindSalomeCAS.cmake
-  FindSalomeCppUnit.cmake
-  FindSalomeDoxygen.cmake
-  FindSalomeGraphviz.cmake
-  FindSalomeHDF5.cmake
-  FindSalomeLibBatch.cmake
-  FindSalomeLibXml2.cmake
-  FindSalomeMEDFile.cmake
-  FindSalomeMPI.cmake
-  FindSalomeOmniORB.cmake
-  FindSalomeOmniORBPy.cmake
-  FindSalomePThread.cmake
-  FindSalomePythonLibs.cmake
-  FindSalomePythonInterp.cmake
-  FindSalomeNumPySciPy.cmake
-  FindSalomeSphinx.cmake
-  FindSalomeSWIG.cmake
-  FindSphinx.cmake
-  FindSalomeVTK.cmake
-  FindMEDFile.cmake
-  UseOmniORB.cmake
-  SalomeMacros.cmake
-  SalomeSetupPlatform.cmake
+    FindLibBatch.cmake
+    FindPaco.cmake
+    FindSalomeKERNEL.cmake
+    FindSalomeLibBatch.cmake
+    FindSalomePaco.cmake
 )
 INSTALL(FILES ${DATA} DESTINATION ${SALOME_INSTALL_CMAKE})
 
-# These files are executable scripts
 SALOME_INSTALL_SCRIPTS(prepare_generating_doc.py ${SALOME_INSTALL_SCRIPT_SCRIPTS})
