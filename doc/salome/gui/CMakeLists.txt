@@ -17,8 +17,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE(${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/SalomeMacros.cmake)
-
 SALOME_CONFIGURE_FILE(doxyfile.in doxyfile)
 SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
 
