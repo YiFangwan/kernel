@@ -37,6 +37,7 @@ SET(${PROJECT_NAME_UC}_VERSION
 SET(${PROJECT_NAME_UC}_VERSION_DEV 1)
 
 # Common CMake macros
+# ===================
 SET(CONFIGURATION_ROOT_DIR $ENV{CONFIGURATION_ROOT_DIR} CACHE PATH "Path to the Salome CMake configuration files")
 IF(EXISTS ${CONFIGURATION_ROOT_DIR})
   LIST(APPEND CMAKE_MODULE_PATH "${CONFIGURATION_ROOT_DIR}/cmake")
@@ -44,9 +45,6 @@ IF(EXISTS ${CONFIGURATION_ROOT_DIR})
 ELSE()
   MESSAGE(FATAL_ERROR "We absolutely need the Salome CMake configuration files, please define CONFIGURATION_ROOT_DIR !")
 ENDIF()
-# Our macros
-LIST(APPEND CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/salome_adm/cmake_files")
-
 
 # Platform setup
 # ==============
