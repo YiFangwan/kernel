@@ -20,7 +20,7 @@
 SALOME_CONFIGURE_FILE(doxyfile.in doxyfile)
 SALOME_CONFIGURE_FILE(static/header.html.in static/header.html)
 
-SET(gen_doc "${CMAKE_SOURCE_DIR}/salome_adm/cmake_files/prepare_generating_doc.py")
+SET(gen_doc "${CMAKE_SOURCE_DIR}/salome_adm/prepare_generating_doc.py")
 IF(WIN32)
   STRING(REPLACE "/" "\\" gen_doc ${gen_doc})
 ENDIF(WIN32)
@@ -51,8 +51,6 @@ ADD_CUSTOM_TARGET(usr_docs ${CMAKE_COMMAND} -E make_directory tmp
   VERBATIM 
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}             
 )
-
-ADD_DEPENDENCIES(usr_docs html_docs)
 
 INSTALL(CODE "EXECUTE_PROCESS(COMMAND \"${CMAKE_COMMAND}\" --build ${PROJECT_BINARY_DIR} --target usr_docs)")
 INSTALL(DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/KERNEL DESTINATION ${SALOME_INSTALL_DOC}/gui)
