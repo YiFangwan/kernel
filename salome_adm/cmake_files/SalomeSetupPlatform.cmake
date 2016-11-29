@@ -20,8 +20,10 @@
 ## Detect architecture
 IF(WIN32)
   SET(MACHINE WINDOWS)
+  SET(PATH_SEP ";")
 ELSE()
   SET(MACHINE PCLINUX)
+  SET(PATH_SEP ":")
 ENDIF()
 
 ## Test for 64 bits
