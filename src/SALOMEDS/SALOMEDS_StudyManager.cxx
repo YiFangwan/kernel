@@ -241,6 +241,9 @@ bool SALOMEDS_StudyManager::CanCopy(const _PTR(SObject)& theSO)
 bool SALOMEDS_StudyManager::Copy(const _PTR(SObject)& theSO)
 {
   SALOMEDS_SObject* aSO = dynamic_cast<SALOMEDS_SObject*>(theSO.get());
+  if (!aSO)
+    return false;
+
   bool ret;
   if (_isLocal) {
     SALOMEDS::Locker lock;
