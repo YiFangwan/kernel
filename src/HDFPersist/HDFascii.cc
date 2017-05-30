@@ -35,6 +35,7 @@
 #include <string>
 
 #ifdef WIN32
+#include <Basics_Utils.hxx>
 #include <io.h>
 #include <time.h>
 #include <windows.h>
@@ -86,7 +87,16 @@ void WriteSimpleData( FILE* fp, HDFdataset *hdf_dataset, hdf_type type, long siz
 //============================================================================
 bool HDFascii::isASCII(const char* thePath) {
   int fd;
-  if(!(fd = open(thePath, O_RDONLY))) return false;
+#ifdef WIN32		
+		wchar_t* wstr = Kernel_Utils::ConvertToWideChar(thePath);
+		if(!(fd = _wopen(wstr, O_RDONLY))) {
+			delete wstr;
+			return false;
+		}
+		delete wstr;
+#else
+	if(!(fd = open(thePath, O_RDONLY))) return false;
+#endif  
   char* aBuffer = new char[9];
   aBuffer[8] = (char)0;
   read(fd, aBuffer, 8); 

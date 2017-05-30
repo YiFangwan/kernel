@@ -138,4 +138,23 @@ namespace Kernel_Utils
   #endif
 #endif
 
+#ifdef WIN32
+
+//Converts char* to windows wchar_t*
+wchar_t* ConvertToWideChar(const char* multibytearray) {
+		int wchars_num =  MultiByteToWideChar( CP_UTF8 , 0 , multibytearray , -1, NULL , 0 );
+		wchar_t* wstr = new wchar_t[wchars_num];
+		MultiByteToWideChar( CP_UTF8 , 0 , multibytearray , -1, wstr , wchars_num );
+		return wstr;
+}
+
+//Converts std::string to windows std::wstring
+std::wstring ConvertToWideString(std::string multibytearray) {
+	wchar_t* wstr = ConvertToWideChar(multibytearray.c_str());
+	std::wstring result(wstr);
+	delete[] wstr;
+	return result;
+}
+#endif
+
 }

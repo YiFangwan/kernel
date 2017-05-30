@@ -913,12 +913,13 @@ bool SALOMEDSImpl_StudyManager::Impl_SaveAs(const std::string& aStudyUrl,
     if(buffer[aLen-1] == '\n') buffer[aLen-1] = char(0);
 #ifdef WIN32
     aCmd = "move /Y \"" + aStudyTmpDir + std::string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl) +"\"";
+		std::wstring wstr = Kernel_Utils::ConvertToWideString(aCmd);
+		errors = _wsystem(wstr.c_str());
 #else 
     aCmd = "mv -f \"" + aStudyTmpDir + std::string(buffer) + "\" \"" + SALOMEDSImpl_Tool::GetDirFromPath(aStudyUrl)+"\"";
+		errors = system(aCmd.c_str());
 #endif
-    errors = system(aCmd.c_str());
   }
-
   delete []buffer;
   fclose(fp);
 

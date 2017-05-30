@@ -65,6 +65,13 @@ namespace Kernel_Utils
   BASICS_EXPORT int setenv(const char*, const char*, int);
 #endif
 #endif
+
+#ifdef WIN32
+	//Converts char* to windows wchar_t*
+	BASICS_EXPORT wchar_t* ConvertToWideChar(const char* multibytearray);
+	//Converts std::string to windows std::wstring
+	BASICS_EXPORT std::wstring ConvertToWideString(std::string multibytearray);
+#endif
 }
 
 

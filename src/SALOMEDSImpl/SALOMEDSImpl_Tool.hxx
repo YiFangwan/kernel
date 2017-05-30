@@ -78,7 +78,6 @@ public:
 
   //Returns a name of the user
   static std::string GetUserName();
-
 };
 #endif
 

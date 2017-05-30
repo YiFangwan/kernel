@@ -382,4 +382,3 @@ std::string SALOMEDSImpl_Tool::GetUserName()
 
 
 
-
