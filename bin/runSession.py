@@ -213,7 +213,8 @@ def __runLocalSession(command):
           sys.stdout.write("".join(outmsg))
         if errmsg:
           sys.stderr.write("".join(errmsg))
-        sys.exit(1)
+        #sys.exit(1)
+        return 1
 
     return 0
   else:
