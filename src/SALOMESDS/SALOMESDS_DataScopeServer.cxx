@@ -52,34 +52,8 @@ void DataScopeKiller::shutdown()
   _orb->shutdown(0);
 }
 
-RequestSwitcher::RequestSwitcher(CORBA::ORB_ptr orb, DataScopeServerBase *ds):_ds(ds)
+RequestSwitcher::RequestSwitcher(CORBA::ORB_ptr orb, DataScopeServerBase *ds):RequestSwitcherBase(orb),_ds(ds)
 {
-  CORBA::Object_var obj(orb->resolve_initial_references("RootPOA"));
-  PortableServer::POA_var poa(PortableServer::POA::_narrow(obj));
-  _poa_manager_under_control=poa->the_POAManager();
-  //
-  CORBA::PolicyList policies;
-  policies.length(1);
-  PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
-  policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
-  // all is in PortableServer::POAManager::_nil. By specifying _nil cf Advanced CORBA Programming with C++ p 506
-  // a new POA manager is created. This POA manager is independant from POA manager of the son ones.
-  _poa_for_request_control=poa->create_POA("4RqstSwitcher",PortableServer::POAManager::_nil(),policies);
-  threadPol->destroy();
-  PortableServer::POAManager_var mgr(_poa_for_request_control->the_POAManager());
-  mgr->activate();
-  //obj=orb->resolve_initial_references ("POACurrent");// agy : usage of POACurrent breaks the hold_requests. Why ?
-  //PortableServer::Current_var current(PortableServer::Current::_narrow(obj));
-}
-
-void RequestSwitcher::holdRequests()
-{
-  _poa_manager_under_control->hold_requests(true);
-}
-
-void RequestSwitcher::activeRequests()
-{
-  _poa_manager_under_control->activate();
 }
 
 SALOME::StringVec *RequestSwitcher::listVars()
@@ -833,7 +807,7 @@ SALOME::ByteVec *DataScopeServerTransaction::waitForMonoThrRev(SALOME::KeyWaiter
   KeyWaiter *retc(dynamic_cast<KeyWaiter *>(ret));
   if(!retc)
     throw Exception("DataScopeServerTransaction::invokeMonoThr : internal error 1 !");
-  retc->_remove_ref();// restore the counter afer _poa_for_key_waiter->reference_to_servant(kw)
+  retc->_remove_ref();// restore the counter after _poa_for_key_waiter->reference_to_servant(kw)
   SALOME::ByteVec *zeRet(retc->waitForMonoThr());
   retc->enforcedRelease();
   return zeRet;
@@ -850,7 +824,7 @@ SALOME::ByteVec *DataScopeServerTransaction::waitForAndKill(SALOME::KeyWaiter_pt
   KeyWaiter *retc(dynamic_cast<KeyWaiter *>(ret));
   if(!retc)
     throw Exception("DataScopeServerTransaction::invokeMonoThr : internal error 1 !");
-  retc->_remove_ref();// restore the counter afer _poa_for_key_waiter->reference_to_servant(kw)
+  retc->_remove_ref();// restore the counter after _poa_for_key_waiter->reference_to_servant(kw)
   SALOME::ByteVec *zeRet(retc->waitForAndKill());
   retc->enforcedRelease();
   return zeRet;
