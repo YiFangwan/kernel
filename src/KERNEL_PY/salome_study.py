@@ -396,14 +396,22 @@ def salome_study_init(theStudyPath=None):
         pass
 
     # get active study Id, ref and name
-    myStudy = None
-    myStudyId = getActiveStudy()
-    if myStudyId == None :
-        import types
-        if theStudyPath and type(theStudyPath) == types.StringType:
-            myStudyId = openStudy(theStudyPath)
+    concurrentCreate=True
+    while(concurrentCreate):
+        myStudy = None
+        myStudyId = getActiveStudy()
+        if myStudyId == None :
+            import types
+            if theStudyPath and type(theStudyPath) == types.StringType:
+                myStudyId = openStudy(theStudyPath)
+            else:
+                try:
+                    myStudyId = createNewStudy()
+                    concurrentCreate=False
+                except:
+                    print "concurrent createNewStudy, retry"
         else:
-            myStudyId = createNewStudy()
+            concurrentCreate=False
     if verbose(): print "myStudyId", myStudyId
 
     if myStudy == None:
