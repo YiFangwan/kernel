@@ -124,6 +124,9 @@ SALOME_ContainerManager::SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableSer
     {
       //wait(NULL); // wait(?) for a child end
       _pid_mpiServer = pid;
+      std::stringstream aCommand ;
+      aCommand << "addToKillList.py " << getpid() << " ompi-server " << urifile.str() << std::ends ;
+      system(aCommand.str().c_str());
     }
   }
 #elif defined(MPICH)

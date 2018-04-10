@@ -22,8 +22,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-import os, sys, pickle, signal
+import os, sys, pickle, signal, re, time
 from launchConfigureParser import verbose
+import subprocess as sp
+
+_ompi_server = "ompi-server"
 
 ########## adds to the kill list of SALOME one more process ##########
 
@@ -122,7 +125,49 @@ def killList(port=None):
     os.remove(filedict)
     pass
 
+def isMatchingKey(pid,keyToFind):
+    import os
+    pat=re.compile("[\s]+")
+    p=sp.Popen(["ps","ocmd",str(pid)],stdout=sp.PIPE)
+    ret,_=p.communicate()
+    if p.returncode != 0:
+        return False
+    ret=ret.decode("utf-8")
+    lines=ret.split("\n")
+    if len(lines) != 3:
+        return False
+    res2=pat.split(lines[1])
+    if len(res2) != 3:
+        return False
+    res2=os.path.basename(res2[-1])
+    return res2==keyToFind
+
+def findZePID(key_to_find):
+    p=sp.Popen(["pidof",_ompi_server],stdout=sp.PIPE)
+    ret,_=p.communicate()
+    assert(p.returncode==0)
+    ret=ret.decode("utf-8")
+    pat=re.compile("[\s]+")
+    pat.split(ret)
+    pids=[int(elt) for elt in pat.split(ret) if elt!=""]
+    zePids=[p for p in pids if isMatchingKey(p,key_to_find)]
+    assert(len(zePids)==1)
+    return zePids[0]
+
+def findZePIDWait(key_to_find):
+    for i in range(10):
+        try:
+            time.sleep(0.2)
+            return findZePID(key_to_find)
+        except:
+            pass
+    assert(False)
+
 if __name__ == "__main__":
     if verbose(): print sys.argv
-    addToKillList(sys.argv[1], sys.argv[2])
+    if sys.argv[2]!=_ompi_server:
+        addToKillList(sys.argv[1], sys.argv[2])
+    else:
+        true_pid = findZePIDWait(os.path.basename(sys.argv[3]))
+        addToKillList(true_pid, sys.argv[2])
     pass
