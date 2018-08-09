@@ -410,3 +410,63 @@ else: # not in gui mode, Paravis can not be tested
 # ---- update object browser
 if salome.hasDesktop():
     salome.sg.updateObjBrowser();
+
+print("======================================================================")
+print("           %d. Test Shaper " % step); step+=1
+print("======================================================================")
+from salome.shaper import model
+
+model.begin()
+
+# ---- create document
+print()
+print("--- Create a new document ...")
+partSet = model.moduleDocument()
+Part_1 = model.addPart(partSet)
+Part_1_doc = Part_1.document()
+print("OK")
+
+# ---- create sketch
+print()
+print("--- Create a sketch ...")
+Sketch_1 = model.addSketch(Part_1_doc, model.defaultPlane("XOY"))
+SketchLine_1 = Sketch_1.addLine(0, 50, 25, 50)
+SketchLine_2 = Sketch_1.addLine(25, 50, 25, 25)
+SketchConstraintCoincidence_1 = Sketch_1.setCoincident(SketchLine_1.endPoint(), SketchLine_2.startPoint())
+SketchLine_3 = Sketch_1.addLine(25, 25, 50, 25)
+SketchConstraintCoincidence_2 = Sketch_1.setCoincident(SketchLine_2.endPoint(), SketchLine_3.startPoint())
+SketchLine_4 = Sketch_1.addLine(50, 25, 50, 0)
+SketchConstraintCoincidence_3 = Sketch_1.setCoincident(SketchLine_3.endPoint(), SketchLine_4.startPoint())
+SketchLine_5 = Sketch_1.addLine(50, 0, 0, 0)
+SketchConstraintCoincidence_4 = Sketch_1.setCoincident(SketchLine_4.endPoint(), SketchLine_5.startPoint())
+SketchLine_6 = Sketch_1.addLine(0, 0, 0, 50)
+SketchConstraintCoincidence_5 = Sketch_1.setCoincident(SketchLine_5.endPoint(), SketchLine_6.startPoint())
+SketchConstraintCoincidence_6 = Sketch_1.setCoincident(SketchLine_1.startPoint(), SketchLine_6.endPoint())
+model.do()
+print("OK")
+
+# ---- create an extrusion
+print()
+print("--- Create an extrusion from sketch ...")
+selection = [model.selection("COMPOUND", "Sketch_1")]
+Extrusion_1 = model.addExtrusion(Part_1_doc, [model.selection("COMPOUND", "Sketch_1")], model.selection(), 100, 0)
+print("OK")
+
+# ---- create a box
+print()
+print("--- Create a box ...")
+Box_1 = model.addBox(Part_1_doc, 100, 100, 100)
+print("OK")
+
+# ---- create a cut
+print()
+print("--- Create a cut ...")
+Cut_1 = model.addCut(Part_1_doc, [model.selection("SOLID", "Box_1_1")], [model.selection("SOLID", "Extrusion_1_1")])
+print("OK")
+
+model.do()
+model.end()
+
+# ---- update object browser
+if salome.hasDesktop():
+    salome.sg.updateObjBrowser();
