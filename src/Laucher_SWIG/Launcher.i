@@ -21,6 +21,7 @@
 
 %{
 #include "SALOME_ResourcesCatalog_Parser.hxx"
+#include "Launcher_Job.hxx"
 %}
 
 class ParserResourcesType
@@ -29,4 +30,29 @@ public:
   ParserResourcesType();
   ~ParserResourcesType();
   std::string getAccessProtocolTypeStr() const;
+  std::string getResourceTypeStr() const;
+  std::string getBatchTypeStr() const;
+  std::string getMpiImplTypeStr() const;
+  std::string getClusterInternalProtocolStr() const;
+  std::string getCanLaunchBatchJobsStr() const;
+  std::string getCanRunContainersStr() const;
+
+  void setAccessProtocolTypeStr(const std::string & protocolTypeStr);
+  void setResourceTypeStr(const std::string & resourceTypeStr);
+  void setBatchTypeStr(const std::string & batchTypeStr);
+  void setMpiImplTypeStr(const std::string & mpiImplTypeStr);
+  void setClusterInternalProtocolStr(const std::string & internalProtocolTypeStr);
+  void setCanLaunchBatchJobsStr(const std::string & canLaunchBatchJobsStr);
+  void setCanRunContainersStr(const std::string & canRunContainersStr);
 };
+
+namespace Launcher
+{
+  class Job
+  {
+    public:
+      Job();
+      virtual ~Job();
+      virtual void update_job() = 0;
+  };
+}
