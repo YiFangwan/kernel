@@ -91,7 +91,7 @@ public:
   void SetResourcesManager( ResourcesManager_cpp* rm ) {_ResManager = rm;}
 
   // Used by SALOME_Launcher
-  ResourcesManager_cpp *_ResManager;
+  ResourcesManager_cpp *_ResManager = nullptr;
 protected:
 
   virtual void notifyObservers(const std::string & event_name, const std::string & event_data) {}

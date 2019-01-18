@@ -24,7 +24,35 @@
 #include "Launcher_Job.hxx"
 #include "Launcher_Job_SALOME.hxx"
 #include "Launcher_Job_YACSFile.hxx"
+#include "Launcher.hxx"
+#include "ResourcesManager.hxx"
 %}
+
+%include std_string.i
+
+struct resourceParams
+{
+  resourceParams();
+
+  std::string name;
+  std::string hostname;
+  bool can_launch_batch_jobs;
+  bool can_run_containers;
+  std::string OS;
+  long nb_proc;
+  long nb_node;
+  long nb_proc_per_node;
+  long cpu_clock;
+  long mem_mb;
+  std::vector<std::string> componentList;
+  std::vector<std::string> resourceList;
+};
+
+class ResourcesManager_cpp
+{
+ public:
+  ResourcesManager_cpp(const char *xmlFilePath);
+};
 
 class ParserResourcesType
 {
@@ -150,3 +178,28 @@ namespace Launcher
     virtual void checkSpecificParameters();
   };
 }
+
+class Launcher_cpp
+{
+public:
+  Launcher_cpp();
+  virtual ~Launcher_cpp();
+  void         createJob(Launcher::Job * new_job);
+  void         launchJob(int job_id);
+  const char * getJobState(int job_id);
+  const char * getAssignedHostnames(int job_id); // Get names or ids of hosts assigned to the job
+  void         getJobResults(int job_id, std::string directory);
+  void         clearJobWorkingDir(int job_id);
+  bool         getJobDumpState(int job_id, std::string directory);
+  bool         getJobWorkFile(int job_id, std::string work_file, std::string directory);
+  void         stopJob(int job_id);
+  void         removeJob(int job_id);
+  std::string  dumpJob(int job_id);
+  int restoreJob(const std::string& dumpedJob);
+  std::list<int> loadJobs(const char* jobs_file);
+  void saveJobs(const char* jobs_file);
+  long createJobWithFile(std::string xmlExecuteFile, std::string clusterName);
+  std::map<int, Launcher::Job *> getJobs();
+  void addJobDirectlyToMap(Launcher::Job * new_job);
+  void SetResourcesManager( ResourcesManager_cpp *rm );
+};
