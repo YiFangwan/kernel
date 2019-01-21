@@ -29,6 +29,20 @@
 %}
 
 %include std_string.i
+%exception
+{
+  try {
+    $function
+      }
+  catch(LauncherException& e)
+    {
+      SWIG_exception_fail(SWIG_RuntimeError,e.msg.c_str());
+    }
+  catch (...)
+    {
+      SWIG_exception_fail(SWIG_UnknownError, "Unknown");
+    }
+}
 
 struct resourceParams
 {
