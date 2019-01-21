@@ -90,6 +90,10 @@ public:
   void setCanRunContainersStr(const std::string & canRunContainersStr);
 };
 
+%feature("unref") Launcher::Job "$this->decrRef();"
+%feature("unref") Launcher::Job_SALOME "$this->decrRef();"
+%feature("unref") Launcher::Job_YACSFile "$this->decrRef();"
+
 namespace Launcher
 {
   class Job
