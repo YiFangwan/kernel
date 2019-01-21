@@ -26,9 +26,59 @@
 #include "Launcher_Job_YACSFile.hxx"
 #include "Launcher.hxx"
 #include "ResourcesManager.hxx"
+
+static PyObject *convertJob(Launcher::Job *job, int owner)
+{
+  PyObject *ret(nullptr);
+  if(!job)
+    {
+      Py_XINCREF(Py_None);
+      return Py_None;
+    }
+  if(dynamic_cast<Launcher::Job_YACSFile *>(job))
+    return SWIG_NewPointerObj((void*)dynamic_cast<Launcher::Job_YACSFile *>(job),SWIGTYPE_p_Launcher__Job_YACSFile,owner);
+  throw LauncherException("Not recognized type of job on downcast !");
+}
+
 %}
 
 %include std_string.i
+
+%typemap(out) const std::list<std::string>&
+{
+  std::size_t i;
+  std::list<std::string>::const_iterator iL;
+  $result = PyList_New($1->size());
+  for (i=0, iL=$1->cbegin(); iL!=$1->cend(); i++, iL++)
+    PyList_SetItem($result,i,PyUnicode_FromString((*iL).c_str())); 
+}
+
+%typemap(out) const std::map<std::string, std::string> &
+{
+  $result = PyDict_New();
+  for(std::map<std::string, std::string>::const_iterator iL=$1->cbegin();iL!=$1->cend();iL++)
+    {
+      PyObject *a(PyUnicode_FromString((*iL).first.c_str()));
+      PyObject *b(PyUnicode_FromString((*iL).second.c_str()));
+      PyDict_SetItem($result,a,b);
+      Py_DECREF(a); Py_DECREF(b);
+    }
+}
+
+%typemap(out) std::vector<std::string> *
+{
+  std::size_t i;
+  std::vector<std::string>::const_iterator iL;
+  $result = PyList_New($1->size());
+  for (i=0, iL=$1->cbegin(); iL!=$1->cend(); i++, iL++)
+    PyList_SetItem($result,i,PyUnicode_FromString((*iL).c_str())); 
+}
+
+%typemap(out) Launcher::Job *
+{
+  $result=convertJob($1,$owner);
+}
+   
 %exception
 {
   try {
@@ -220,4 +270,55 @@ public:
   std::map<int, Launcher::Job *> getJobs();
   void addJobDirectlyToMap(Launcher::Job * new_job);
   void SetResourcesManager( ResourcesManager_cpp *rm );
+  Launcher::Job * findJob(int job_id);
 };
+
+%pythoncode %{
+def SendJobToSession(self, job_id, sessionId):
+    def job_type_traducer(jyf):
+        dico = {'Job_YACSFile' : 'yacs_file'}
+        st = type(jyf).__name__
+        if st not in dico:
+            raise RuntimeError("Not recognized type %s !"%st)
+        return dico[st]
+    #
+    def resource_required_func(jyf):
+        import Engines
+        rp =jyf.getResourceRequiredParams()
+        l12 = [('name', None), ('hostname', None), ('can_launch_batch_jobs', None), ('can_run_containers', None), ('OS', None), ('componentList', None), ('nb_proc', None), ('mem_mb', None), ('cpu_clock', None), ('nb_node', None), ('nb_proc_per_node', None), ('policy', lambda x: 'cycl'), ('resList', lambda x: x.resourceList)]
+        kw2={}
+        for a,b in l12:
+            if a and not b:
+                kw2[a]=getattr(rp,a)
+            else:
+                if a and b:
+                    kw2[a]=b(rp)
+        return Engines.ResourceParameters(**kw2)
+    #
+    filest = self.dumpJob(job_id);
+    # Connect to SALOME session a retrieve its SalomeLauncher object
+    import os
+    os.environ["OMNIORB_CONFIG"]=sessionId
+    import Engines
+    import orbmodule
+    clt=orbmodule.client()
+    sl = clt.Resolve("SalomeLauncher")
+    # swig to CORBA translation
+    # Job_YACSFile -> Engines.JobParameters and resourceParams -> Engines.ResourceParameters()
+    l21= [('job_name', None), ('job_type', job_type_traducer), ('job_file', None), ('pre_command', None), ('env_file', None), ('in_files', lambda x: x.get_in_files()), ('out_files', lambda x: x.get_out_files()), ('work_directory', None), ('local_directory', None), ('result_directory', None), ('maximum_duration', None), ('resource_required',resource_required_func) , ('queue', None), ('partition', None), ('exclusive', None), ('mem_per_cpu', None), ('wckey', lambda x: x.getWCKey() ), ('extra_params', None), ('specific_parameters', lambda x: list(x.getSpecificParameters().items())), ('launcher_file', None), ('launcher_args', None)]
+    kw={}
+    jyf = self.findJob(job_id)
+    for a,b in l21:
+        if not b and a:
+            kw[a]=eval("jyf.get%s()"%"".join(["%s%s"%(elt2[0].upper(),elt2[1:]) for elt2 in a.split("_")]),{"jyf" : jyf})
+        else:
+            if a and b:
+                kw[a]=b(jyf)
+    jyc = Engines.JobParameters(**kw)
+    ########################
+    bpc = sl.createJob(jyc)
+    sl.restoreJob(filest)
+
+Launcher_cpp.sendJobToSession = SendJobToSession
+del SendJobToSession
+%}
