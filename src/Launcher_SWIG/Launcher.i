@@ -274,7 +274,13 @@ public:
 };
 
 %pythoncode %{
-def SendJobToSession(self, job_id, sessionId):
+def sendJobToSession(self, job_id, sessionId=None):
+    """Send job specified by its job_id in self to a remote SALOME session.
+    Doing so, it's possible to follow the job created locally into the JobManager module of the target SALOME session.
+    SALOME session is specified by the file pointed by the content of OMNIORB_CONFIG environement var. The content of this var is called sessionId.
+    If sessionId is let untouched, the current OMNIORB_CONFIG environement var is used.
+    If this method fails to connect to the target SALOME session a RuntimeError exception will be thrown.
+    """
     def job_type_traducer(jyf):
         dico = {'Job_YACSFile' : 'yacs_file'}
         st = type(jyf).__name__
@@ -298,11 +304,15 @@ def SendJobToSession(self, job_id, sessionId):
     filest = self.dumpJob(job_id);
     # Connect to SALOME session a retrieve its SalomeLauncher object
     import os
-    os.environ["OMNIORB_CONFIG"]=sessionId
+    if sessionId is not None:
+      os.environ["OMNIORB_CONFIG"]=sessionId
     import Engines
     import orbmodule
-    clt=orbmodule.client()
-    sl = clt.Resolve("SalomeLauncher")
+    try:
+      clt=orbmodule.client()
+      sl = clt.Resolve("SalomeLauncher")
+    except:
+      raise RuntimeError("Fail to connect to the remote SALOME session.")
     # swig to CORBA translation
     # Job_YACSFile -> Engines.JobParameters and resourceParams -> Engines.ResourceParameters()
     l21= [('job_name', None), ('job_type', job_type_traducer), ('job_file', None), ('pre_command', None), ('env_file', None), ('in_files', lambda x: x.get_in_files()), ('out_files', lambda x: x.get_out_files()), ('work_directory', None), ('local_directory', None), ('result_directory', None), ('maximum_duration', None), ('resource_required',resource_required_func) , ('queue', None), ('partition', None), ('exclusive', None), ('mem_per_cpu', None), ('wckey', lambda x: x.getWCKey() ), ('extra_params', None), ('specific_parameters', lambda x: list(x.getSpecificParameters().items())), ('launcher_file', None), ('launcher_args', None)]
@@ -319,6 +329,6 @@ def SendJobToSession(self, job_id, sessionId):
     bpc = sl.createJob(jyc)
     sl.restoreJob(filest)
 
-Launcher_cpp.sendJobToSession = SendJobToSession
-del SendJobToSession
+Launcher_cpp.sendJobToSession = sendJobToSession
+del sendJobToSession
 %}
