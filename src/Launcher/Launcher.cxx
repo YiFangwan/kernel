@@ -378,7 +378,8 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
   ParserLauncherType job_params = ParseXmlFile(xmlExecuteFile);
 
   // Creating a new job
-  Launcher::Job_Command * new_job = new Launcher::Job_Command();
+  auto JobDel = [] (Launcher::Job *job) { if(job) job->decrRef(); };
+  std::unique_ptr<Launcher::Job_Command, decltype(JobDel)> new_job(new Launcher::Job_Command,JobDel);
 
   std::string cmdFile = Kernel_Utils::GetTmpFileName();  
 #ifndef WIN32
@@ -413,7 +414,7 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
   p.mem_mb = 0;
   new_job->setResourceRequiredParams(p);
 
-  createJob(new_job);
+  createJob(new_job.get());
   return new_job->getNumber();
 }
 
@@ -535,7 +536,6 @@ void
 Launcher_cpp::createJob(Launcher::Job * new_job)
 {
   LAUNCHER_INFOS("Launcher compiled without LIBBATCH - cannot create a job !!!");
-  delete new_job;
   throw LauncherException("Method Launcher_cpp::createJob is not available "
                           "(libBatch was not present at compilation time)");
 }
