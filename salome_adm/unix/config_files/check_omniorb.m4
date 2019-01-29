@@ -211,7 +211,7 @@ then
 
   OMNIORB_IDLCXXFLAGS="-Wba -nf -I${OMNIORB_ROOT}/idl"
   OMNIORB_PACOIDLCXXFLAGS="-nf -I${OMNIORB_ROOT}/idl"
-  OMNIORB_IDLPYFLAGS_1='-bpython -nf '
+  OMNIORB_IDLPYFLAGS_1='-bpython -p /opt/omniorbpy/4.2.2/lib/python3.6/site-packages/omniidl_be -nf '
   OMNIORB_IDLPYFLAGS_2=" -I${OMNIORB_ROOT}/idl"
   OMNIORB_IDLPYFLAGS=${OMNIORB_IDLPYFLAGS_1}${OMNIORB_IDLPYFLAGS_2}
 
