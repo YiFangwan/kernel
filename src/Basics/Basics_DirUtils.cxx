@@ -219,7 +219,7 @@ namespace Kernel_Utils
 #ifdef UNICODE
 	  std::wstring aPathToCheck = utf8_decode_s( thePath );
 #else
-	  aPathToCheck = thePath;
+	  std::string aPathToCheck = thePath;
 #endif
     if (  GetFileAttributes ( aPathToCheck.c_str()  ) == 0xFFFFFFFF  ) {
       if (  GetLastError () == FILE_ATTRIBUTE_READONLY ) {
@@ -304,7 +304,7 @@ namespace Kernel_Utils
 #ifdef UNICODE
 	std::wstring aPathToCheck = utf8_decode_s(thePath);
 #else
-	aPathToCheck = thePath;
+	std::string aPathToCheck = thePath;
 #endif
 
     HANDLE hFile = FindFirstFile( aPathToCheck.c_str(), &aFileData );
