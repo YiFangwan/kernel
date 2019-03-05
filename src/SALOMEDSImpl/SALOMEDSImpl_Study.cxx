@@ -2119,7 +2119,12 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
 
   //Create a file that will contain a main Study script
   std::fstream fp;
+#if defined(WIN32) && defined(UNICODE)
+  std::wstring aConverterFN = Kernel_Utils::utf8_decode_s(aFileName);
+  fp.open(aConverterFN.c_str(), std::ios::out);
+#else
   fp.open(aFileName.c_str(), std::ios::out);
+#endif
 
 #ifdef WIN32
   bool isOpened = fp.is_open();
@@ -2237,7 +2242,12 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
       aFileName += aScriptName+ std::string(".py");
       aSeqOfFileNames.push_back(aFileName);
 
+#if defined(WIN32) && defined(UNICODE)
+      std::wstring aConverterFN2 = Kernel_Utils::utf8_decode_s(aFileName);
+      fp2.open(aConverterFN2.c_str(), std::ios::out);
+#else
       fp2.open(aFileName.c_str(), std::ios::out);
+#endif
 
 #ifdef WIN32
       isOpened = fp2.is_open();
