@@ -1854,11 +1854,12 @@ void Engines_Container_i::clearTemporaryFiles()
   std::list<std::string>::const_iterator it;
   for ( it = _tmp_files.begin(); it != _tmp_files.end(); ++it ) {
 #ifdef WIN32
-    std::string command = "del /F /P";
+    std::string command = (GetFileAttributes((*it).c_str()) == FILE_ATTRIBUTE_DIRECTORY) ? "rd /Q \"" : "del /F /Q \"";
 #else
     std::string command = "rm -rf ";
 #endif
     command += *it;
+	command += "\" 2>NUL";
     system( command.c_str() );
   }
   _tmp_files.clear();
