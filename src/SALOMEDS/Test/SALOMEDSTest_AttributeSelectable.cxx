@@ -60,8 +60,6 @@ void SALOMEDSTest::testAttributeSelectable()
   _attr->SetSelectable(true);
 
   CPPUNIT_ASSERT(_attr->IsSelectable());
-
-  study->Clear();
 }
 
 

@@ -54,8 +54,6 @@ void SALOMEDSTest::testSComponentIterator()
     CPPUNIT_ASSERT(i<2);
     CPPUNIT_ASSERT(ci->Value()->ComponentDataType() == v[i]);
   }
-
-  study->Clear();
 }
 
 

@@ -71,7 +71,6 @@ public:
 
   virtual PortableServer::POA_ptr _default_POA();
 
-  virtual void Init();
   virtual void Clear();
 
   //! method to Open a Study
@@ -348,5 +347,8 @@ public:
 
   virtual void attach(SALOMEDS::Observer_ptr theObs, CORBA::Boolean modify);
   virtual void detach(SALOMEDS::Observer_ptr theObs);
+  
+ private:
+  void Clear_internal(); //Internal method
 };
 #endif

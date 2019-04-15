@@ -116,8 +116,6 @@ void SALOMEDSTest::testAttributeSequenceOfInteger()
     isRaised = true;
   }
   CPPUNIT_ASSERT(isRaised);
-
-  study->Clear();
 }
 
 

@@ -135,8 +135,6 @@ void SALOMEDSTest::testAttributeParameter()
   CPPUNIT_ASSERT(_attr->IsSet("StrArray", PT_STRARRAY) && _attr->GetStrArray("StrArray")[0] == "hello");
   CPPUNIT_ASSERT(_attr->IsSet("StrArray", PT_STRARRAY) && _attr->GetStrArray("StrArray")[1] == "world");
   */
-
-  study->Clear();
 }
 
 

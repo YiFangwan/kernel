@@ -65,8 +65,6 @@ void SALOMEDSTest::testAttributeFlags()
   CPPUNIT_ASSERT(_attr->Get(2));
 
   CPPUNIT_ASSERT(!_attr->Get(4));
-
-  study->Clear();
 }
 
 

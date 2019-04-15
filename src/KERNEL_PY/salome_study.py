@@ -306,8 +306,6 @@ def salome_study_init(theStudyPath=None):
         if isinstance(theStudyPath, bytes):
             theStudyPath = str(theStudyPath, 'UTF8')
         openStudy(theStudyPath)
-    else:
-        myStudy.Init()
 
     myStudyName = myStudy._get_Name()
 

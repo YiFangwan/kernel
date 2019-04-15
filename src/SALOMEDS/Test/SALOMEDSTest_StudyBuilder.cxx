@@ -210,6 +210,4 @@ void SALOMEDSTest::testStudyBuilder()
   CPPUNIT_ASSERT(!ior.empty());
 
   system("rm -f srn_SALOMEDS_UnitTests.hdf");
-
-  study3->Clear();
 }

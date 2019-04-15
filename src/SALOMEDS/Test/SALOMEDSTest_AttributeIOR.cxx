@@ -58,8 +58,6 @@ void SALOMEDSTest::testAttributeIOR()
   _attr->SetValue(ior);
 
   CPPUNIT_ASSERT(ior == _attr->Value());
-
-  study->Clear();
 }
 
 

@@ -178,8 +178,6 @@ void SALOMEDSTest::testAttributeTableOfReal()
   data2 = _attr->GetColumn(3);
 
   CPPUNIT_ASSERT(data2.size() == 3 && data2[0] == 11.11 && data2[1] == -22.22 && data2[2] == -33.33);
-
-  study->Clear();
 }
 
 

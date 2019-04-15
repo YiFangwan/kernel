@@ -559,13 +559,9 @@ Searches for a definite %SObject with a definite GUID and returns True if it fin
 */
     UseCaseBuilder  GetUseCaseBuilder() raises(StudyInvalidReference);
 
-/*! \brief Clear a study object
+/*! \brief Clear the previous and initialize new empty study object
 */
     void Clear() raises(StudyInvalidReference);
-
-/*! \brief Initialization a study object
-*/
-    void Init() raises(StudyInvalidReference);
 
 /*! \brief Open a study by url
 
@@ -1281,8 +1277,7 @@ can be called by any component and which provide the following functionality:
     \param aSComponent The according %SComponent
      */
 
-    void Close (in SComponent aSComponent);
-    //void Close ( in string  aIORSComponent);
+    void Close ();
 
     /*! Gets the type of the data
 

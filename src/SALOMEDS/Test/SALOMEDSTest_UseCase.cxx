@@ -144,8 +144,6 @@ void SALOMEDSTest::testUseCase()
   it->Next();
   CPPUNIT_ASSERT(it->More());
   CPPUNIT_ASSERT(it->Value()->GetID() == so1->GetID());
-
-  study->Clear();
 }
 #undef SALOMEDS_ALL_TESTS
 

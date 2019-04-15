@@ -207,11 +207,11 @@ def salome_init(path=None, embedded=False):
     
 def salome_close():
     global salome_initial, myStudy, myStudyName
-    try:
+    #try:
         # study can be clear either from GUI or directly with salome.myStudy.Clear()
-        myStudy.Clear()
-    except:
-        pass
+    #    myStudy.Clear()
+    #except:
+    #    pass
     salome_initial=True
     salome_iapp_close()
     salome_study_close()

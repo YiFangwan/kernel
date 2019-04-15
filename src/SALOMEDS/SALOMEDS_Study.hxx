@@ -53,7 +53,6 @@ public:
   ~SALOMEDS_Study();
 
   virtual void Clear();
-  virtual void Init();
 
   virtual bool Open(const std::string& theStudyUrl);
 

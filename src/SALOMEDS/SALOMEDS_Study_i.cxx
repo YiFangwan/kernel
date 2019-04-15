@@ -258,7 +258,7 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(CORBA::ORB_ptr orb)
   _factory = new SALOMEDS_DriverFactory_i(_orb);
   _closed  = true;
 
-  Init();
+  Clear();
 }
 
 //============================================================================
@@ -268,7 +268,7 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(CORBA::ORB_ptr orb)
 //============================================================================
 SALOMEDS_Study_i::~SALOMEDS_Study_i()
 {
-  Clear();
+  Clear_internal();
   delete _factory;
   delete _impl;
 }
@@ -278,8 +278,9 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
  *  Purpose  : Initialize study components
  */
 //============================================================================
-void SALOMEDS_Study_i::Init()
+void SALOMEDS_Study_i::Clear()
 {
+  Clear_internal();
   if (!_closed)
     //throw SALOMEDS::Study::StudyInvalidReference();
     return;
@@ -309,54 +310,37 @@ void SALOMEDS_Study_i::Init()
  *  Purpose  : Clear study components
  */
 //============================================================================
-void SALOMEDS_Study_i::Clear()
+void SALOMEDS_Study_i::Clear_internal()
 {
   if (_closed)
     return;
 
   SALOMEDS::Locker lock;
-
-  //delete the builder servant
-  PortableServer::POA_var poa=_default_POA();
-  PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
-  poa->deactivate_object(anObjectId.in());
-  _builder->_remove_ref();
+  if (_builder) {
+    //delete the builder servant
+    PortableServer::POA_var poa=_default_POA();
+    PortableServer::ObjectId_var anObjectId = poa->servant_to_id(_builder);
+    poa->deactivate_object(anObjectId.in());
+    _builder->_remove_ref();
+  }
 
   RemovePostponed(-1);
 
-  if (_impl->GetDocument()) {
-    SALOMEDS::SComponentIterator_var itcomponent = NewComponentIterator();
-    for (; itcomponent->More(); itcomponent->Next()) {
-      SALOMEDS::SComponent_var sco = itcomponent->Value();
-      CORBA::String_var compodatatype=sco->ComponentDataType();
-      MESSAGE ( "Look for an engine for data type :"<< compodatatype);
-      // if there is an associated Engine call its method for closing
-      CORBA::String_var IOREngine;
-      if (sco->ComponentIOR(IOREngine)) {
-        // we have found the associated engine to write the data
-        MESSAGE ( "We have found an engine for data type :"<< compodatatype);
-        //_narrow can throw a corba exception
-        try {
-          CORBA::Object_var obj = _orb->string_to_object(IOREngine);
-          if (!CORBA::is_nil(obj)) {
-            SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
-            if (!anEngine->_is_nil())  {
-              SALOMEDS::unlock();
-              anEngine->Close(sco);
-              SALOMEDS::lock();
-            }
-          }
-        }
-        catch (CORBA::Exception&) {
-        }
+  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
+  if( aNamingService->Change_Directory("/Containers") ) {
+
+    std::vector<std::string> dirContent = aNamingService->list_directory_recurs();    
+    for( std::vector<std::string>::iterator iter = dirContent.begin(); iter!=dirContent.end(); iter++ ) {      
+      CORBA::Object_var obj = aNamingService->Resolve( ( *iter ).c_str() );      
+      SALOMEDS::Driver_var anEngine = SALOMEDS::Driver::_narrow(obj) ;
+      if ( !CORBA::is_nil( anEngine ) )  {
+	SALOMEDS::unlock();
+	anEngine->Close();
+	SALOMEDS::lock();	
       }
-      sco->UnRegister();
     }
-
-    //Does not need any more this iterator
-    itcomponent->UnRegister();
   }
-
+  
   // Notify GUI that study is cleared
   SALOMEDS::sendMessageToGUI( "studyCleared" );
 
@@ -395,8 +379,7 @@ bool SALOMEDS_Study_i::Open(const wchar_t* aWUrl)
   throw(SALOME::SALOME_Exception)
 {
   if (!_closed)
-    Clear();
-  Init();
+  Clear();
   SALOMEDS::Locker lock;
 
   Unexpect aCatch(SalomeException);
@@ -1050,9 +1033,6 @@ SALOMEDS::UseCaseBuilder_ptr SALOMEDS_Study_i::GetUseCaseBuilder()
 {
   SALOMEDS::Locker lock; 
 
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
-
   SALOMEDS_UseCaseBuilder_i* UCBuilder = new SALOMEDS_UseCaseBuilder_i(_impl->GetUseCaseBuilder(), _orb);
   SALOMEDS::UseCaseBuilder_var uc = UCBuilder->_this();
   return uc._retn();
@@ -1084,8 +1064,8 @@ void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/)
 {  
   SALOMEDS::Locker lock; 
 
-  if (_closed)
-    throw SALOMEDS::Study::StudyInvalidReference();  
+  //  if (_closed)
+  //  throw SALOMEDS::Study::StudyInvalidReference();  
 
   std::vector<std::string> anIORs = _impl->GetIORs();
   int i, aSize = (int)anIORs.size();

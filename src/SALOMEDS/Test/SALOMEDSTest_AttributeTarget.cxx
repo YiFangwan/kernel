@@ -78,8 +78,6 @@ void SALOMEDSTest::testAttributeTarget()
   CPPUNIT_ASSERT(v.size() == 1);
 
   CPPUNIT_ASSERT(v[0]->GetID() == "0:1:3");
-
-  study->Clear();
 }
 
 

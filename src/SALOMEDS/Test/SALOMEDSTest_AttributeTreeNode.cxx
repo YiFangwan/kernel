@@ -184,8 +184,6 @@ void SALOMEDSTest::testAttributeTreeNode()
   std::string value = "0e1c36e6-1111-4d90-ab3b-18a14310e648";
   _PTR(AttributeTreeNode) _attr_guid = studyBuilder->FindOrCreateAttribute(so, "AttributeTreeNodeGUID"+value);
   CPPUNIT_ASSERT(_attr_guid && _attr_guid->GetTreeID() == value);
-  
-  study->Clear();
 }
 #undef SALOMEDS_ALL_TESTS
 

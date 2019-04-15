@@ -165,14 +165,11 @@ bool SALOMEDS_Driver_i::LoadASCII(const SALOMEDSImpl_SComponent& theComponent,
   return isOk;
 }
 
-void SALOMEDS_Driver_i::Close(const SALOMEDSImpl_SComponent& theComponent)
+void SALOMEDS_Driver_i::Close()
 {
-  SALOMEDS::SComponent_var sco = SALOMEDS_SComponent_i::New (theComponent, _orb);
-
   SALOMEDS::unlock();
   if ( !CORBA::is_nil(_driver) )
-    _driver->Close(sco.in());
-  sco->UnRegister();
+    _driver->Close();
   SALOMEDS::lock();
 }
 

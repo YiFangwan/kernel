@@ -110,14 +110,6 @@ void SALOMEDS_Study::InitORB()
   _orb = init(0 , 0 ) ;
 }
 
-void SALOMEDS_Study::Init()
-{
-  if(CORBA::is_nil(_corba_impl))
-    return;
-
-  _corba_impl->Init();
-}
-
 void SALOMEDS_Study::Clear()
 {
   if(CORBA::is_nil(_corba_impl))

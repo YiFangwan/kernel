@@ -110,8 +110,6 @@ void SALOMEDSTest::testAttributeSequenceOfReal()
     isRaised = true;
   }
   CPPUNIT_ASSERT(isRaised);
-
-  study->Clear();
 }
 
 

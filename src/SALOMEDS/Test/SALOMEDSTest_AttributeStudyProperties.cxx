@@ -102,8 +102,6 @@ void SALOMEDSTest::testAttributeStudyProperties()
 
   _attr->GetModificationsList(vs, vi[0], vi[1], vi[2], vi[3], vi[4], true);
   CPPUNIT_ASSERT(vs[0] == "srn" && vi[0][0] == 1 && vi[1][0] == 2 && vi[2][0] == 3 && vi[3][0] == 4 && vi[4][0] == 5);
-
-  study->Clear();
 }
 
 

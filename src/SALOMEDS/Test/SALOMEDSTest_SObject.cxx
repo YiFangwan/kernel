@@ -111,8 +111,6 @@ void SALOMEDSTest::testSObject()
   //Check method GetObject
   CORBA::Object_var obj = dynamic_cast<SALOMEDS_SObject*>(so.get())->GetObject();
   CPPUNIT_ASSERT(!CORBA::is_nil(obj));
-
-  study->Clear();
 }
 
 

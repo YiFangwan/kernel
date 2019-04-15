@@ -60,8 +60,6 @@ void SALOMEDSTest::testAttributeExpandable()
   _attr->SetExpandable(true);
 
   CPPUNIT_ASSERT(_attr->IsExpandable());
-
-  study->Clear();
 }
 
 

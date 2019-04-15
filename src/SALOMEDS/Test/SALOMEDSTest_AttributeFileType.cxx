@@ -62,8 +62,6 @@ void SALOMEDSTest::testAttributeFileType()
   //Try to set empty string
   _attr->SetValue("");
   CPPUNIT_ASSERT(_attr->Value() == "");
-
-  study->Clear();
 }
 
 

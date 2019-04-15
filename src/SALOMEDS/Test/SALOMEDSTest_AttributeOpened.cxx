@@ -60,8 +60,6 @@ void SALOMEDSTest::testAttributeOpened()
   _attr->SetOpened(false);
 
   CPPUNIT_ASSERT(!_attr->IsOpened());
-
-  study->Clear();
 }
 
 

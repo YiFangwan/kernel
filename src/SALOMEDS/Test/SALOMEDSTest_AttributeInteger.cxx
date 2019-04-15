@@ -54,8 +54,6 @@ void SALOMEDSTest::testAttributeInteger()
 
   //Check method Value
   CPPUNIT_ASSERT(_attr->Value() == value);
-
-  study->Clear();
 }
 
 

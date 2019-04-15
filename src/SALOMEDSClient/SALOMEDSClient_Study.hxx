@@ -49,7 +49,6 @@ class SALOMEDSClient_Study
 public:
   virtual ~SALOMEDSClient_Study() {}
 
-  virtual void Init() = 0;
   virtual void Clear() = 0;
 
   virtual bool Open(const std::string& theStudyUrl) = 0;

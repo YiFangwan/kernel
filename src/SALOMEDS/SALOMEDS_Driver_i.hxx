@@ -69,7 +69,7 @@ public:
                          const std::string& theURL,
                          bool isMultiFile);
 
-  virtual void Close(const SALOMEDSImpl_SComponent& theComponent);
+  virtual void Close();
  
   virtual std::string ComponentDataType();
 

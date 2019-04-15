@@ -61,8 +61,6 @@ void SALOMEDSTest::testAttributeDrawable()
   _attr->SetDrawable(false);
 
   CPPUNIT_ASSERT(!_attr->IsDrawable());
-
-  study->Clear();
 }
 
 

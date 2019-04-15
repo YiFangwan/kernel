@@ -59,8 +59,6 @@ void SALOMEDSTest::testSComponent()
 
   //Check method ComponentDataType
   CPPUNIT_ASSERT(sco->ComponentDataType() == "Test");
-
-  study->Clear();
 }
 
 

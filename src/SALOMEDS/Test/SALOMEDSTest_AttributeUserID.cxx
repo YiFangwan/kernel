@@ -60,7 +60,6 @@ void SALOMEDSTest::testAttributeUserID()
   _PTR(AttributeUserID) _attr2 = studyBuilder->FindOrCreateAttribute(so, "AttributeUserID"+value);
   CPPUNIT_ASSERT(_attr2 && _attr2->Value() == value);
   
-  study->Clear();
 }
 
 

@@ -62,8 +62,6 @@ void SALOMEDSTest::testAttributeGraphic()
   CPPUNIT_ASSERT(!_attr->GetVisibility(0));
   _attr->SetVisibility(-1, true);
   CPPUNIT_ASSERT(_attr->GetVisibility(-1));
-
-  study->Clear();
 }
 
 
