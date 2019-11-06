@@ -69,8 +69,8 @@ def writeORBConfigFile(path, host, port, kwargs={}):
   import socket
   # get ip address on default interface (for instance eth0) to limit listening on this interface (cyber security request)
   ipDefault = socket.gethostbyname(socket.gethostname())
-  orbdata.append("%sendPoint = giop:tcp:127.0.0.1:%s"%(prefix,''))
-  orbdata.append("%sendPoint = giop:tcp:%s:%s"%(prefix, ipDefault,''))
+  #orbdata.append("%sendPoint = giop:tcp:127.0.0.1:%s"%(prefix,''))
+  #orbdata.append("%sendPoint = giop:tcp:%s:%s"%(prefix, ipDefault,''))
 
   orbdata.append("")
 
