@@ -255,6 +255,13 @@ def install(prefix, config_file, verbose=0):
             pass
         pass
 
+    # Sort test labels by name in generated CTestTestfile.cmake
+    with open(ctest_file) as f:
+        lines = f.readlines()
+    lines.sort()
+    with open(ctest_file, "w") as f:
+        f.write("".join(lines))
+
     # Generate CTestCustom.cmake to handle long output
     ctest_custom = os.path.join(home_dir, 'bin', 'salome', 'test', "CTestCustom.cmake")
     with open(ctest_custom, 'w') as f:
@@ -279,7 +286,7 @@ def install(prefix, config_file, verbose=0):
         pass
 
 
-    # Copy salome script 
+    # Copy salome script
     salome_script = open(os.path.join(appliskel_dir, "salome")).read()
     salome_file = os.path.join(home_dir, "salome")
     try:
@@ -330,7 +337,7 @@ def install(prefix, config_file, verbose=0):
         pass
 
     # Create environment file: configSalome.sh
-    
+
     if "python_version" in _config:
        versionPython_split = _config["python_version"].split('.')
        versionPython = versionPython_split[0] + "." + versionPython_split[1]
