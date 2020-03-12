@@ -133,9 +133,10 @@ class SalomeContext:
 
     absoluteAppliPath = os.getenv('ABSOLUTE_APPLI_PATH','')
     env_copy = os.environ.copy()
-    selfBytes= pickle.dumps(self, protocol=0)
-    argsBytes= pickle.dumps(args, protocol=0)
-    proc = subprocess.Popen(['python3', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), selfBytes.decode(), argsBytes.decode()], shell=False, close_fds=True, env=env_copy)
+    with tempfile.NamedTemporaryFile(delete=False) as selfFile, tempfile.NamedTemporaryFile(delete=False) as argsFile:
+      pickle.dump(self, selfFile, protocol=0)
+      pickle.dump(args, argsFile, protocol=0)
+    proc = subprocess.Popen(['python3', os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), selfFile.name, argsFile.name], shell=False, close_fds=True, env=env_copy)
     out, err = proc.communicate()
     return out, err, proc.returncode
   #
@@ -644,11 +645,16 @@ Available options are:
 
 if __name__ == "__main__":
   if len(sys.argv) == 3:
-    context = pickle.loads(sys.argv[1].encode())
-    args = pickle.loads(sys.argv[2].encode())
+    with open(sys.argv[1], 'rb') as selfFile, open(sys.argv[2], 'rb') as argsFile:
+      context = pickle.load(selfFile)
+      args = pickle.load(argsFile)
+      selfFile.close()
+      argsFile.close()
+      os.unlink(sys.argv[1])
+      os.unlink(sys.argv[2])
 
-    status = context._startSalome(args)
-    sys.exit(status)
+      status = context._startSalome(args)
+      sys.exit(status)
   else:
     usage()
 #
