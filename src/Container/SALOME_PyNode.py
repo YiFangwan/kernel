@@ -143,6 +143,32 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode: %s, outargsname: %s" % (self.nodeName,outargsname),0))
 
+  def executeFirst(self,argsin):
+    """ Same than first part of self.execute to reduce memory peak."""
+    try:
+      _,kws=pickle.loads(argsin)
+      self.context.update(kws)
+      exec(self.ccode, self.context)
+    except:
+      exc_typ,exc_val,exc_fr=sys.exc_info()
+      l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode:First %s" % (self.nodeName),0))
+
+  def executeSecond(self,outargsname):
+    """ Same than second part of self.execute to reduce memory peak."""
+    try:
+      argsout=[]
+      for arg in outargsname:
+        if arg not in self.context:
+          raise KeyError("There is no variable %s in context" % arg)
+        argsout.append(self.context[arg])
+      argsout=pickle.dumps(tuple(argsout),-1)
+      return argsout
+    except:
+      exc_typ,exc_val,exc_fr=sys.exc_info()
+      l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyScriptNode:Second %s, outargsname: %s" % (self.nodeName,outargsname),0))
+
   def getValueOfVarInContext(self,varName):
     try:
       return pickle.dumps(self.context[varName],-1)
