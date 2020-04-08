@@ -145,10 +145,10 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
 
   def executeFirst(self,argsin):
     """ Same than first part of self.execute to reduce memory peak."""
+    import time
     try:
       _,kws=pickle.loads(argsin)
       self.context.update(kws)
-      exec(self.ccode, self.context)
     except:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
@@ -157,6 +157,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
   def executeSecond(self,outargsname):
     """ Same than second part of self.execute to reduce memory peak."""
     try:
+      exec(self.ccode, self.context)
       argsout=[]
       for arg in outargsname:
         if arg not in self.context:
