@@ -68,6 +68,15 @@ class PyNode_i (Engines__POA.PyNode,Generic):
     self.context["my_container"] = self.my_container
     exec(ccode, self.context)
 
+  def getContainer(self):
+    return self.my_container
+
+  def getCode(self):
+    return self.code
+
+  def getName(self):
+    return self.nodeName
+
   def defineNewCustomVar(self,varName,valueOfVar):
     self.context[varName] = pickle.loads(valueOfVar)
     pass
@@ -105,6 +114,15 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
     self.ccode=compile(code,nodeName,'exec')
     self.context={}
     self.context["my_container"] = self.my_container
+
+  def getContainer(self):
+    return self.my_container
+
+  def getCode(self):
+    return self.code
+
+  def getName(self):
+    return self.nodeName
 
   def defineNewCustomVar(self,varName,valueOfVar):
     self.context[varName] = pickle.loads(valueOfVar)
