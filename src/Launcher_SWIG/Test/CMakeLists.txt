@@ -20,20 +20,10 @@
 # --- rules ---
 
 IF(NOT WIN32)
-# ** Now in CTestTestfileInstall.cmake **
-# ** In this file only remain unit tests (no SALOME session is needed) **
-#  ADD_TEST(NAME SalomeLauncher
-#           COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../UnitTests/prepare_test.py
-#           ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py
-#           -d KERNEL_ROOT_DIR=${CMAKE_INSTALL_PREFIX}
-#          )
   INSTALL(PROGRAMS ${CMAKE_CURRENT_SOURCE_DIR}/test_swig_launcher.py
           DESTINATION ${KERNEL_TEST_DIR}/Launcher_SWIG)
 
   INSTALL(FILES CTestTestfileInstall.cmake
           DESTINATION ${KERNEL_TEST_DIR}/Launcher_SWIG
           RENAME CTestTestfile.cmake)
-
-  INSTALL(PROGRAMS ${STRESS_TEST_FILES}
-          DESTINATION ${KERNEL_TEST_DIR}/Launcher_SWIG)
 ENDIF()

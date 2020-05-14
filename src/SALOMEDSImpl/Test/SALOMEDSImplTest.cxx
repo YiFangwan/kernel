@@ -27,7 +27,6 @@
 #include <string>
 #include <vector>
 #include <cstdlib>
-#include "utilities.h"
 
 #include "SALOMEDSImpl_AttributeParameter.hxx"
 #include "SALOMEDSImpl_Study.hxx"

@@ -1,4 +1,8 @@
-# Copyright (C) 2012-2020  CEA/DEN, EDF R&D, OPEN CASCADE
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2020  CEA/DEN, EDF R&D, OPEN CASCADE
+#
+# Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+# CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,13 +21,20 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(DSC_Basic)
+import sys, signal,string,subprocess
+import subprocess
+import setenv
 
-IF(NOT WIN32)
-  ADD_SUBDIRECTORY(DSC_User)
-  ADD_SUBDIRECTORY(DSC_Python)
-ENDIF()
+# get SALOME environment :
+# here we need KERNEL_ROOT_DIR, PATH, LD_LIBRARY_PATH
 
-IF(SALOME_PACO_PARALLEL)
-  ADD_SUBDIRECTORY(ParallelDSC)
-ENDIF()
+args, modules_list, modules_root_dir = setenv.get_config()
+setenv.set_env(args, modules_list, modules_root_dir)
+
+# execute Unit Test
+
+command = ['./TestDF']
+ret = subprocess.call(command)
+
+# no process to kill
+exit(ret)

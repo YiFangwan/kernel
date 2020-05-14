@@ -20,14 +20,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//  SALOME Basics : general SALOME definitions and tools (C++ part - no CORBA)
-//  File   : BasicGenericDestructor.hxx
-//  Author : Antoine YESSAYAN, Paul RASCLE, EDF
-//  Module : SALOME
-//  $Header$
-//
-#ifndef _BASICGENERICDESTRUCTOR_HXX_
-#define _BASICGENERICDESTRUCTOR_HXX_
+#ifndef BASICS_GENERICDESTRUCTOR_HXX
+#define BASICS_GENERICDESTRUCTOR_HXX
 
 #include "SALOME_Basics.hxx"
 
@@ -39,7 +33,9 @@
 #include <cstdlib>
 #include <pthread.h>
 
-//#define _DEVDEBUG_
+// Uncomment for extra debug trace
+// -------------------------------
+// #define _DEVDEBUG_
 
 #ifdef _DEVDEBUG_
 #define MYDEVTRACE {std::cerr << __FILE__ << " [" << __LINE__ << "] : ";}
@@ -174,4 +170,4 @@ private:
   TYPE *_objectPtr;
 };
 
-# endif
+# endif // BASICS_GENERICDESTRUCTOR_HXX

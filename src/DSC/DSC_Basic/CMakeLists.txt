@@ -20,15 +20,27 @@
 INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIR}
   ${OMNIORB_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${PROJECT_SOURCE_DIR}/src/Container
-  ${PROJECT_SOURCE_DIR}/src/GenericObj
-  ${PROJECT_SOURCE_DIR}/src/Notification
-  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
-  ${PROJECT_SOURCE_DIR}/src/Basics
-  ${PROJECT_SOURCE_DIR}/src/NamingService
-  ${PROJECT_SOURCE_DIR}/src/Utils
-  ${PROJECT_BINARY_DIR}/idl
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/Container
+  ${CMAKE_SOURCE_DIR}/src/GenericObj
+  ${CMAKE_SOURCE_DIR}/src/Notification
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/NamingService
+  ${CMAKE_SOURCE_DIR}/src/Utils
+)
+
+ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
+
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${OMNIORB_LIBRARIES}
+  SALOMELocalTrace
+  SalomeContainer
+  SalomeNS
+  SalomeIDLKernel
 )
 
 SET(SalomeDSCContainer_SOURCES
@@ -37,10 +49,8 @@ SET(SalomeDSCContainer_SOURCES
   PortProperties_i.cxx
 )
 
-ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
-
 ADD_LIBRARY(SalomeDSCContainer ${SalomeDSCContainer_SOURCES})
-TARGET_LINK_LIBRARIES(SalomeDSCContainer SalomeContainer ${OMNIORB_LIBRARIES})
+TARGET_LINK_LIBRARIES(SalomeDSCContainer ${_link_LIBRARIES})
 INSTALL(TARGETS SalomeDSCContainer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 SET(SALOME_ConnectionManagerServer_SOURCES
@@ -48,17 +58,22 @@ SET(SALOME_ConnectionManagerServer_SOURCES
   ConnectionManager_i.cxx
 )
 
-SET(SALOME_ConnectionManagerServer_LIBS
-  SalomeIDLKernel
-  SalomeNS
-  SALOMELocalTrace
-  SalomeContainer 
-  ${OMNIORB_LIBRARIES}
-)
-
 ADD_EXECUTABLE(SALOME_ConnectionManagerServer ${SALOME_ConnectionManagerServer_SOURCES})
-TARGET_LINK_LIBRARIES(SALOME_ConnectionManagerServer ${SALOME_ConnectionManagerServer_LIBS})
+TARGET_LINK_LIBRARIES(SALOME_ConnectionManagerServer ${_link_LIBRARIES})
 INSTALL(TARGETS SALOME_ConnectionManagerServer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_BINS})
 
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+SET(SalomeDSCContainer_HEADERS
+  ConnectionManager_i.hxx
+  DSC_Basic.hxx
+  DSC_Callbacks.hxx
+  DSC_i.hxx
+  DSC_interface.hxx
+  PortProperties_i.hxx
+)
+
+INSTALL(FILES ${SalomeDSCContainer_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+
+UNSET(SalomeDSCContainer_SOURCES)
+UNSET(SALOME_ConnectionManagerServer_SOURCES)
+UNSET(SalomeDSCContainer_HEADERS)
+UNSET(_link_LIBRARIES)

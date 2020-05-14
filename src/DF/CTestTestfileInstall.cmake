@@ -1,4 +1,4 @@
-# Copyright (C) 2012-2020  CEA/DEN, EDF R&D, OPEN CASCADE
+# Copyright (C) 2015-2020  CEA/DEN, EDF R&D
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,13 +17,11 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY(DSC_Basic)
-
 IF(NOT WIN32)
-  ADD_SUBDIRECTORY(DSC_User)
-  ADD_SUBDIRECTORY(DSC_Python)
-ENDIF()
-
-IF(SALOME_PACO_PARALLEL)
-  ADD_SUBDIRECTORY(ParallelDSC)
+  SET(TEST_NAME ${COMPONENT_NAME}_DF)
+  ADD_TEST(${TEST_NAME} ${SALOME_TEST_DRIVER} ${TIMEOUT} TestDF.py)
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
+                                    LABELS "${COMPONENT_NAME}"
+                                    ENVIRONMENT "LD_LIBRARY_PATH=${KERNEL_TEST_LIB}:$ENV{LD_LIBRARY_PATH}"
+                      )
 ENDIF()

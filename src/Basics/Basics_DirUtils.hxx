@@ -17,13 +17,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//  SALOME Utils : general SALOME's definitions and tools
-//  File   : Basics_DirUtils.hxx
-//  Author  : Alexander A. BORODIN
-//  Module : SALOME
-//
-#ifndef _Basics_DIRUTILS_HXX_
-#define _Basics_DIRUTILS_HXX_
+#ifndef BASICS_DIRUTILS_HXX
+#define BASICS_DIRUTILS_HXX
 
 #include "SALOME_Basics.hxx"
 
@@ -75,4 +70,4 @@ namespace Kernel_Utils
   BASICS_EXPORT std::string HomePath();
 }
 
-#endif
+#endif // BASICS_DIRUTILS_HXX

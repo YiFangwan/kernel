@@ -15,7 +15,7 @@ ABBREVIATE_BRIEF       =
 ALWAYS_DETAILED_SEC    = YES
 INLINE_INHERITED_MEMB  = YES
 FULL_PATH_NAMES        = YES
-STRIP_FROM_PATH        = @PROJECT_BINARY_DIR@ @PROJECT_SOURCE_DIR@
+STRIP_FROM_PATH        = @CMAKE_BINARY_DIR@ @CMAKE_SOURCE_DIR@
 STRIP_FROM_INC_PATH    = 
 SHORT_NAMES            = NO
 JAVADOC_AUTOBRIEF      = YES
@@ -77,22 +77,22 @@ WARN_LOGFILE           = log.txt
 #---------------------------------------------------------------------------
 INPUT                  = \
                @CMAKE_CURRENT_BINARY_DIR@/tmp \
-		       @PROJECT_SOURCE_DIR@/doc/salome \
-		       @PROJECT_SOURCE_DIR@/bin \
-		       @PROJECT_SOURCE_DIR@/idl \
-		       @PROJECT_SOURCE_DIR@/src/Container \
-		       @PROJECT_SOURCE_DIR@/src/LifeCycleCORBA \
-		       @PROJECT_SOURCE_DIR@/src/NamingService \
-		       @PROJECT_SOURCE_DIR@/src/Notification \
-		       @PROJECT_SOURCE_DIR@/src/Utils \
-		       @PROJECT_SOURCE_DIR@/src/DSC
+		       @CMAKE_SOURCE_DIR@/doc/salome \
+		       @CMAKE_SOURCE_DIR@/bin \
+		       @CMAKE_SOURCE_DIR@/idl \
+		       @CMAKE_SOURCE_DIR@/src/Container \
+		       @CMAKE_SOURCE_DIR@/src/LifeCycleCORBA \
+		       @CMAKE_SOURCE_DIR@/src/NamingService \
+		       @CMAKE_SOURCE_DIR@/src/Notification \
+		       @CMAKE_SOURCE_DIR@/src/Utils \
+		       @CMAKE_SOURCE_DIR@/src/DSC
 
 FILE_PATTERNS          = *.dox *.idl *.hxx *.cxx *.py
 RECURSIVE              = YES
 EXCLUDE                = 
 EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = 
-EXAMPLE_PATH           = @PROJECT_SOURCE_DIR@/doc/salome/examples
+EXAMPLE_PATH           = @CMAKE_SOURCE_DIR@/doc/salome/examples
 EXAMPLE_PATTERNS       = 
 EXAMPLE_RECURSIVE      = NO
 IMAGE_PATH             = @CMAKE_CURRENT_SOURCE_DIR@/images

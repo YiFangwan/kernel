@@ -20,28 +20,18 @@
 INCLUDE_DIRECTORIES(
   ${CPPUNIT_INCLUDE_DIRS}
   ${PTHREAD_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics/Test
-  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
-  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace/Test
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/Basics/Test
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace/Test
 )
-
-# ===============================================================
-# Files to be installed
-# ===============================================================
-
-# Executable scripts to be installed
-SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/UnitTests)
-INSTALL(PROGRAMS UnitTests.py DESTINATION ${LOCAL_TEST_DIR})
-
-# ===============================================================
-# Executables targets
-# ===============================================================
 
 ADD_DEFINITIONS(${CPPUNIT_DEFINITIONS})
 
-SET(COMMON_LIBS
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
   ${CPPUNIT_LIBRARIES}
   SALOMEBasics
   SALOMELocalTrace
@@ -51,27 +41,27 @@ SET(COMMON_LIBS
 IF(NOT SALOME_LIGHT_ONLY)
   INCLUDE_DIRECTORIES(
     ${OMNIORB_INCLUDE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMETraceCollector
-    ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMETraceCollector/Test
-    ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
-    ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService/Test
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Utils/Test
-    ${CMAKE_CURRENT_SOURCE_DIR}/../LifeCycleCORBA
-    ${CMAKE_CURRENT_SOURCE_DIR}/../LifeCycleCORBA/Test
-    ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMDESImpl
-    ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMEDSImpl/Test
-    ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMDES
-    ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMEDS/Test
-    ${PROJECT_BINARY_DIR}/idl
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Registry
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Notification
-    ${CMAKE_CURRENT_SOURCE_DIR}/../ResourcesManager
+    ${CMAKE_BINARY_DIR}/idl
+    ${CMAKE_SOURCE_DIR}/src/SALOMETraceCollector
+    ${CMAKE_SOURCE_DIR}/src/SALOMETraceCollector/Test
+    ${CMAKE_SOURCE_DIR}/src/NamingService
+    ${CMAKE_SOURCE_DIR}/src/NamingService/Test
+    ${CMAKE_SOURCE_DIR}/src/Utils
+    ${CMAKE_SOURCE_DIR}/src/Utils/Test
+    ${CMAKE_SOURCE_DIR}/src/LifeCycleCORBA
+    ${CMAKE_SOURCE_DIR}/src/LifeCycleCORBA/Test
+    ${CMAKE_SOURCE_DIR}/src/SALOMDESImpl
+    ${CMAKE_SOURCE_DIR}/src/SALOMEDSImpl/Test
+    ${CMAKE_SOURCE_DIR}/src/SALOMDES
+    ${CMAKE_SOURCE_DIR}/src/SALOMEDS/Test
+    ${CMAKE_SOURCE_DIR}/src/Registry
+    ${CMAKE_SOURCE_DIR}/src/Notification
+    ${CMAKE_SOURCE_DIR}/src/ResourcesManager
   )
   ADD_DEFINITIONS(-DWITH_CORBA ${OMNIORB_DEFINITIONS})
 
-  SET(COMMON_LIBS
-    ${COMMON_LIBS}
+  LIST(APPEND _link_LIBRARIES
+    ${OMNIORB_LIBRARIES}
     Registry
     SalomeNotification
     SalomeResourcesManager
@@ -88,14 +78,19 @@ IF(NOT SALOME_LIGHT_ONLY)
     SalomeDS
     SALOMEDSTest
     SalomeIDLKernel
-    ${OMNIORB_LIBRARIES}
   )
 ENDIF()
 
+SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/UnitTests)
+
 ADD_EXECUTABLE(UnitTests UnitTests.cxx)
-TARGET_LINK_LIBRARIES(UnitTests ${COMMON_LIBS})
+TARGET_LINK_LIBRARIES(UnitTests ${_link_LIBRARIES})
 INSTALL(TARGETS UnitTests DESTINATION ${LOCAL_TEST_DIR})
 
 INSTALL(FILES CTestTestfileInstall.cmake
         DESTINATION ${LOCAL_TEST_DIR}
         RENAME CTestTestfile.cmake)
+
+INSTALL(PROGRAMS UnitTests.py DESTINATION ${LOCAL_TEST_DIR})
+
+UNSET(_link_LIBRARIES)

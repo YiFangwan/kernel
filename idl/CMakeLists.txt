@@ -42,7 +42,6 @@ SET(SalomeIDLKernel_IDLSOURCES
   SALOME_GenericObj.idl
   SALOME_Types.idl
   SALOME_Session.idl
-  nstest.idl
   DSC_Engines.idl
   SALOME_Ports.idl
   SALOME_PyNode.idl
@@ -51,15 +50,28 @@ SET(SalomeIDLKernel_IDLSOURCES
   SALOME_ParamPorts.idl
   SALOME_Parametric.idl
   SALOME_MPIObject.idl
-  SALOME_TestComponent.idl
-  SALOME_TestModuleCatalog.idl
   SALOME_CommonTypes.idl
   SALOME_ExternalServerLauncher.idl
   ${CMAKE_CURRENT_BINARY_DIR}/Calcium_Ports.idl
 )
 
+IF(SALOME_BUILD_TESTS)
+  LIST(APPEND SalomeIDLKernel_IDLSOURCES 
+              nstest.idl
+              SALOME_TestModuleCatalog.idl
+              SALOME_TestComponent.idl
+  )
+ENDIF()
+
 IF(SALOME_USE_MPI)
-  SET(SalomeIDLKernel_IDLSOURCES ${SalomeIDLKernel_IDLSOURCES} SALOME_MPIContainer.idl SALOME_TestMPIComponent.idl)
+  LIST(APPEND SalomeIDLKernel_IDLSOURCES 
+              SALOME_MPIContainer.idl
+  )
+  IF(SALOME_BUILD_TESTS)
+    LIST(APPEND SalomeIDLKernel_IDLSOURCES 
+                SALOME_TestMPIComponent.idl
+    )
+  ENDIF()
 ENDIF(SALOME_USE_MPI)
 
 SET(IDL_INCLUDE_DIRS

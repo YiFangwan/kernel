@@ -21,24 +21,28 @@ INCLUDE_DIRECTORIES(
   ${CPPUNIT_INCLUDE_DIRS}
   ${OMNIORB_INCLUDE_DIR}
   ${PTHREAD_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${PROJECT_SOURCE_DIR}/src/Basics/Test
-  ${CMAKE_CURRENT_SOURCE_DIR}/..
-  ${PROJECT_SOURCE_DIR}/src/NamingService
-  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
-  ${PROJECT_SOURCE_DIR}/src/Basics
-  ${PROJECT_SOURCE_DIR}/src/Utils
-  ${PROJECT_SOURCE_DIR}/src/LifeCycleCORBA
-  ${PROJECT_SOURCE_DIR}/src/Container
-  ${PROJECT_SOURCE_DIR}/src/Notification
-  ${PROJECT_SOURCE_DIR}/src/GenericObj
-  ${PROJECT_BINARY_DIR}/idl
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/Basics/Test
+  ${CMAKE_SOURCE_DIR}/src/NamingService
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/Utils
+  ${CMAKE_SOURCE_DIR}/src/LifeCycleCORBA
+  ${CMAKE_SOURCE_DIR}/src/Container
+  ${CMAKE_SOURCE_DIR}/src/Notification
+  ${CMAKE_SOURCE_DIR}/src/GenericObj
+  ${CMAKE_SOURCE_DIR}/src/KernelHelpers
 )
 
+ADD_DEFINITIONS(${CPPUNIT_DEFINITIONS} ${OMNIORB_DEFINITIONS})
+
 SET(SalomeKernelHelpersTest_LIBS
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${OMNIORB_LIBRARIES}
   ${CPPUNIT_LIBRARIES}
   SalomeKernelHelpers
-  ${OMNIORB_LIBRARIES}
   SalomeNS
   SALOMELocalTrace
   SALOMEBasics
@@ -50,8 +54,6 @@ SET(SalomeKernelHelpersTest_LIBS
   SalomeIDLKernel
 )
 
-ADD_DEFINITIONS(${CPPUNIT_DEFINITIONS} ${OMNIORB_DEFINITIONS})
-
 SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/KernelHelpers)
 
 ADD_LIBRARY(SalomeKernelHelpersTest KernelHelpersUnitTests.cxx)
@@ -59,16 +61,14 @@ TARGET_LINK_LIBRARIES(SalomeKernelHelpersTest ${SalomeKernelHelpersTest_LIBS})
 INSTALL(TARGETS SalomeKernelHelpersTest DESTINATION ${KERNEL_TEST_LIB})
 
 ADD_EXECUTABLE(TestKernelHelpers TestKernelHelpers.cxx)
-TARGET_LINK_LIBRARIES(TestKernelHelpers SalomeKernelHelpersTest ${SalomeKernelHelpersTest_LIBS})
-#ADD_TEST(TestKernelHelpers TestKernelHelpers)
+TARGET_LINK_LIBRARIES(TestKernelHelpers ${SalomeKernelHelpersTest_LIBS} SalomeKernelHelpersTest)
 INSTALL(TARGETS TestKernelHelpers DESTINATION ${LOCAL_TEST_DIR})
 
-# Executable scripts to be installed
 INSTALL(FILES TestKernelHelpers.py DESTINATION ${LOCAL_TEST_DIR})
-
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${LOCAL_TEST_DIR})
 
 INSTALL(FILES CTestTestfileInstall.cmake
         DESTINATION ${LOCAL_TEST_DIR}
         RENAME CTestTestfile.cmake)
+
+SET(LOCAL_TEST_DIR)
+UNSET(SalomeKernelHelpersTest_LIBS)

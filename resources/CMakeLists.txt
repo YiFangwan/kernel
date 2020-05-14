@@ -21,14 +21,19 @@
 # Files to be installed
 # ===============================================================
 
-# These files are data, module or lib files
-INSTALL(FILES CatalogModulePersonnel.xml_skel DESTINATION ${SALOME_KERNEL_INSTALL_RES_DATA})
+IF(NOT SALOME_LIGHT_ONLY)
+  CONFIGURE_FILE(CatalogResources.xml.in CatalogResources.xml @ONLY)
+  CONFIGURE_FILE(KERNELCatalog.xml.in KERNELCatalog.xml @ONLY)
 
-SALOME_CONFIGURE_FILE(CatalogResources.xml.in CatalogResources.xml INSTALL ${SALOME_KERNEL_INSTALL_RES_DATA})
+  SET(_resources
+    CatalogModulePersonnel.xml_skel 
+    SALOMEDS_Resources 
+    channel.cfg
+    ${CMAKE_CURRENT_BINARY_DIR}/CatalogResources.xml
+    ${CMAKE_CURRENT_BINARY_DIR}/KERNELCatalog.xml
+  )
+ENDIF()
 
-INSTALL(FILES channel.cfg SALOMEDS_Resources DESTINATION ${SALOME_KERNEL_INSTALL_RES_DATA})
-SALOME_CONFIGURE_FILE(KERNELCatalog.xml.in KERNELCatalog.xml INSTALL ${SALOME_KERNEL_INSTALL_RES_DATA})
+INSTALL(FILES ${_resources} DESTINATION ${SALOME_KERNEL_INSTALL_RES_DATA})
 
-
-
-
+UNSET(_resources)

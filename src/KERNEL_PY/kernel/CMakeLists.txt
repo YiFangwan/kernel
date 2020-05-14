@@ -46,3 +46,5 @@ LIST(APPEND mypkgpython_PYTHON
     ${CMAKE_CURRENT_BINARY_DIR}/logconfig.py
 )
 SALOME_INSTALL_SCRIPTS("${mypkgpython_PYTHON}" ${SALOME_INSTALL_PYTHON}/salome/kernel)
+
+UNSET(mypkgpython_PYTHON)

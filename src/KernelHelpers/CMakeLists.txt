@@ -20,19 +20,23 @@
 INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIR}
   ${OMNIORB_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
-  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
-  ${CMAKE_CURRENT_SOURCE_DIR}/../LifeCycleCORBA
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Container
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Notification
-  ${CMAKE_CURRENT_SOURCE_DIR}/../GenericObj
-  ${PROJECT_BINARY_DIR}/idl
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/NamingService
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/Utils
+  ${CMAKE_SOURCE_DIR}/src/LifeCycleCORBA
+  ${CMAKE_SOURCE_DIR}/src/Container
+  ${CMAKE_SOURCE_DIR}/src/Notification
+  ${CMAKE_SOURCE_DIR}/src/GenericObj
 )
 
+ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
+
 SET(SalomeKernelHelpers_LIBS
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
   ${OMNIORB_LIBRARIES}
   SalomeNS
   SALOMELocalTrace
@@ -51,15 +55,28 @@ SET(SalomeKernelHelpers_SOURCES
   SALOMEDS_DriverDefaultImpl.cxx
 )
 
-ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
+SET(SalomeKernelHelpers_HEADERS
+  KernelHelpers.hxx
+  SALOMEDS_DriverDefaultImpl.hxx
+  SALOME_KernelServices.hxx
+  SALOME_StudyEditor.hxx
+)
 
 ADD_LIBRARY(SalomeKernelHelpers ${SalomeKernelHelpers_SOURCES})
 TARGET_LINK_LIBRARIES(SalomeKernelHelpers ${SalomeKernelHelpers_LIBS})
 INSTALL(TARGETS SalomeKernelHelpers EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
-ADD_EXECUTABLE(KernelHelpersUseCases KernelHelpersUseCases.cxx)
-TARGET_LINK_LIBRARIES(KernelHelpersUseCases SalomeKernelHelpers ${SalomeKernelHelpers_LIBS})
-INSTALL(TARGETS KernelHelpersUseCases DESTINATION ${SALOME_INSTALL_BINS})
+INSTALL(FILES ${SalomeKernelHelpers_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
 
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+IF(SALOME_BUILD_TESTS)
+  ADD_EXECUTABLE(KernelHelpersUseCases KernelHelpersUseCases.cxx)
+  TARGET_LINK_LIBRARIES(KernelHelpersUseCases ${SalomeKernelHelpers_LIBS} SalomeKernelHelpers)
+  INSTALL(TARGETS KernelHelpersUseCases DESTINATION ${SALOME_INSTALL_BINS})
+ENDIF()
+
+UNSET(SalomeKernelHelpers_SOURCES)
+UNSET(SalomeKernelHelpers_HEADERS)
+
+IF(SALOME_BUILD_TESTS)
+  ADD_SUBDIRECTORY(Test)
+ENDIF()

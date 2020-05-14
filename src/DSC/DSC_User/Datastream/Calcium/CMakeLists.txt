@@ -18,23 +18,34 @@
 #
 
 INCLUDE_DIRECTORIES(
+  ${PTHREAD_INCLUDE_DIR}
   ${OMNIORB_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User/Datastream
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User/Datastream/Palm
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User/Datastream/Calcium
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User/Basic
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_Basic
-  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
-  ${PROJECT_SOURCE_DIR}/src/Basics
-  ${PROJECT_SOURCE_DIR}/src/Utils
-  ${PROJECT_SOURCE_DIR}/src/Container
-  ${PROJECT_SOURCE_DIR}/src/GenericObj
-  ${PROJECT_SOURCE_DIR}/src/Notification
-  ${PROJECT_BINARY_DIR}/idl
-  ${PROJECT_BINARY_DIR}/src/DSC/DSC_User/Datastream/Calcium
+  ${Boost_INCLUDE_DIR}
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User/Datastream
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User/Datastream/Palm
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User/Datastream/Calcium
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User/Basic
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_Basic
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/Utils
+  ${CMAKE_SOURCE_DIR}/src/Container
+  ${CMAKE_SOURCE_DIR}/src/GenericObj
+  ${CMAKE_SOURCE_DIR}/src/Notification
+  ${CMAKE_CURRENT_BINARY_DIR}
+)
+
+ADD_DEFINITIONS(${BOOST_DEFINITIONS} ${OMNIORB_DEFINITIONS})
+
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${OMNIORB_LIBRARIES}
+  SalomeDSCSuperv
+  SalomeContainer 
 )
 
 SET(SalomeCalcium_SOURCES
@@ -52,11 +63,8 @@ SET(SalomeCalcium_SOURCES
   calcium_destructors_port_uses.cxx
 )
 
-ADD_DEFINITIONS(${BOOST_DEFINITIONS} ${OMNIORB_DEFINITIONS})
-
 ADD_LIBRARY(SalomeCalcium ${SalomeCalcium_SOURCES})
-TARGET_LINK_LIBRARIES(SalomeCalcium SalomeDSCSuperv SalomeContainer ${OMNIORB_LIBRARIES} ${PLATFORM_LIBS})
-
+TARGET_LINK_LIBRARIES(SalomeCalcium ${_link_LIBRARIES})
 INSTALL(TARGETS SalomeCalcium EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 SET(CalciumC_SOURCES
@@ -64,19 +72,21 @@ SET(CalciumC_SOURCES
   Calcium.cxx
   calciumf.c
 )
-ADD_LIBRARY(CalciumC ${CalciumC_SOURCES})
-TARGET_LINK_LIBRARIES(CalciumC SalomeDSCSuperv SalomeCalcium)
 
+ADD_LIBRARY(CalciumC ${CalciumC_SOURCES})
+TARGET_LINK_LIBRARIES(CalciumC ${_link_LIBRARIES} SalomeCalcium)
 INSTALL(TARGETS CalciumC EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
-ADD_EXECUTABLE(test_DataIdContainer_Calcium test_DataIdContainer.cxx)
-TARGET_LINK_LIBRARIES(test_DataIdContainer_Calcium SalomeDSCSuperv SalomeContainer SalomeCalcium OpUtil SALOMELocalTrace ${OMNIORB_LIBRARIES} ${PLATFORM_LIBS})
+IF(SALOME_BUILD_TESTS)
+  ADD_EXECUTABLE(test_DataIdContainer_Calcium test_DataIdContainer.cxx)
+  TARGET_LINK_LIBRARIES(test_DataIdContainer_Calcium ${_link_LIBRARIES} SalomeCalcium)
+ENDIF()
 
 SALOME_CONFIGURE_FILE(calcium_integer_port_uses.hxx.in calcium_integer_port_uses.hxx)
 SALOME_CONFIGURE_FILE(CalciumProvidesPort.hxx.in CalciumProvidesPort.hxx)
 SALOME_CONFIGURE_FILE(CalciumFortranInt.h.in CalciumFortranInt.h)
 
-SET(COMMON_HEADERS
+SET(Calcium_HEADERS
   Calcium.hxx
   CalciumCInterface.hxx
   CalciumCouplingPolicy.hxx
@@ -113,4 +123,9 @@ SET(COMMON_HEADERS
   ${CMAKE_CURRENT_BINARY_DIR}/CalciumProvidesPort.hxx
   ${CMAKE_CURRENT_BINARY_DIR}/calcium_integer_port_uses.hxx
 )
-INSTALL(FILES ${COMMON_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+INSTALL(FILES ${Calcium_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+
+UNSET(SalomeCalcium_SOURCES)
+UNSET(CalciumC_SOURCES)
+UNSET(Calcium_HEADERS)
+UNSET(_link_LIBRARIES)

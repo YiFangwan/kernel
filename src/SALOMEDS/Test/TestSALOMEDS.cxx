@@ -20,10 +20,6 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-// --- include all SALOMEDS Test from basics until the present directory
-//
-#include "SALOMELocalTraceTest.hxx"
-#include "SALOMEDSImplTest.hxx"
 #include "SALOMEDSTest.hxx"
 
 // --- Registers the fixture into the 'registry'

@@ -20,16 +20,25 @@
 INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIR}
   ${PTHREAD_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/idl
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_Basic
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User
-  ${PROJECT_SOURCE_DIR}/src/Container
-  ${PROJECT_SOURCE_DIR}/src/GenericObj
-  ${PROJECT_SOURCE_DIR}/src/Notification
-  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
-  ${PROJECT_SOURCE_DIR}/src/Basics
-  ${PROJECT_SOURCE_DIR}/src/Utils)
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_Basic
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User
+  ${CMAKE_SOURCE_DIR}/src/Container
+  ${CMAKE_SOURCE_DIR}/src/GenericObj
+  ${CMAKE_SOURCE_DIR}/src/Notification
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/Utils)
+
+ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
+
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${OMNIORB_LIBRARIES}
+  SalomeDSCSuperv
+)
 
 SET(SalomeDSCSupervBasic_SOURCES
   basic_port_factory.cxx
@@ -37,10 +46,18 @@ SET(SalomeDSCSupervBasic_SOURCES
   data_short_port_provides.cxx
 )
 
-ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 ADD_LIBRARY(SalomeDSCSupervBasic ${SalomeDSCSupervBasic_SOURCES})
-TARGET_LINK_LIBRARIES(SalomeDSCSupervBasic SalomeDSCSuperv)
+TARGET_LINK_LIBRARIES(SalomeDSCSupervBasic ${_link_LIBRARIES})
 INSTALL(TARGETS SalomeDSCSupervBasic EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+SET(SalomeDSCSupervBasic_HEADERS
+  basic_port_factory.hxx
+  data_short_port_provides.hxx
+  data_short_port_uses.hxx
+)
+
+INSTALL(FILES ${SalomeDSCSupervBasic_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+
+UNSET(SalomeDSCSupervBasic_SOURCES)
+SET(SalomeDSCSupervBasic_HEADERS)
+UNSET(_link_LIBRARIES)

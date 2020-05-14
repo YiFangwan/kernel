@@ -16,6 +16,7 @@
 #
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
+
 CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8 FATAL_ERROR)
 INCLUDE(CMakeDependentOption)
 
@@ -176,28 +177,32 @@ SALOME_ACCUMULATE_ENVIRONMENT(PYTHONPATH NOCHECK ${CMAKE_INSTALL_PREFIX}/${SALOM
 SALOME_ACCUMULATE_ENVIRONMENT(LD_LIBRARY_PATH NOCHECK ${CMAKE_INSTALL_PREFIX}/${SALOME_INSTALL_LIBS})
 
 # For salome test
-SET(KERNEL_TEST_DIR ${SALOME_INSTALL_SCRIPT_SCRIPTS}/test)
-SET(KERNEL_TEST_LIB ${SALOME_INSTALL_SCRIPT_SCRIPTS}/test/lib)
-CONFIGURE_FILE(CTestTestfileInstall.cmake.in CTestTestfileInstall.cmake @ONLY)
-INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfileInstall.cmake
-        DESTINATION ${KERNEL_TEST_DIR}
-        RENAME CTestTestfile.cmake)
+IF(SALOME_BUILD_TESTS)
+  SET(KERNEL_TEST_DIR ${SALOME_INSTALL_SCRIPT_SCRIPTS}/test)
+  SET(KERNEL_TEST_LIB ${SALOME_INSTALL_SCRIPT_SCRIPTS}/test/lib)
+  CONFIGURE_FILE(CTestTestfileInstall.cmake.in CTestTestfileInstall.cmake @ONLY)
+  INSTALL(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfileInstall.cmake
+          DESTINATION ${KERNEL_TEST_DIR}
+          RENAME CTestTestfile.cmake)
+ENDIF()
 
-# Sources
-# ========
+# Process subdirs
+# ===============
 IF(NOT SALOME_LIGHT_ONLY)
   ADD_SUBDIRECTORY(idl)
 ENDIF()
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(resources)
-ADD_SUBDIRECTORY(bin)
+IF(NOT SALOME_LIGHT_ONLY)
+  ADD_SUBDIRECTORY(bin)
+ENDIF()
 ADD_SUBDIRECTORY(salome_adm)
 IF(SALOME_BUILD_DOC)
   ADD_SUBDIRECTORY(doc)
 ENDIF()
 
-# Header configuration
-# ====================
+# Configure and install version header file
+# =========================================
 SALOME_XVERSION(${PROJECT_NAME})
 SALOME_CONFIGURE_FILE(KERNEL_version.h.in KERNEL_version.h INSTALL ${SALOME_INSTALL_HEADERS})
 
@@ -205,67 +210,10 @@ SALOME_CONFIGURE_FILE(KERNEL_version.h.in KERNEL_version.h INSTALL ${SALOME_INST
 # ====================
 INCLUDE(CMakePackageConfigHelpers)
 
-# List of targets in this project we want to make visible to the rest of the world.
-# They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
+# Export targets to the build tree
+EXPORT(EXPORT ${PROJECT_NAME}TargetGroup FILE ${PROJECT_NAME}Targets.cmake)
 
-SET(_${PROJECT_NAME}_exposed_targets
-  SALOMEBasics SALOMELocalTrace SalomeHDFPersist OpUtil)
-
-# CORBA specific targets:
-IF(NOT SALOME_LIGHT_ONLY)
-  LIST(APPEND _${PROJECT_NAME}_exposed_targets
-    DF SalomeLoggerServer with_loggerTraceCollector SalomeNS SalomeGenericObj
-    Registry SalomeCatalog ResourcesManager SalomeResourcesManager
-    SalomeNotification SalomeContainer SalomeSDS Launcher SalomeLauncher
-    SalomeLifeCycleCORBA SalomeDSClient TOOLSDS SalomeKernelHelpers
-    SalomeDSImpl SalomeDS SalomeCommunication SalomeDSCContainer)
-  # Temporary solution for package src\DSC on windows
-  IF(NOT WIN32)
-    LIST(APPEND _${PROJECT_NAME}_exposed_targets
-      CalciumC SalomeCalcium SalomeDatastream SalomePalm SalomeDSCSupervBasic
-      SalomeDSCSuperv)
-    IF(SALOME_PACO_PARALLEL)
-      LIST(APPEND _${PROJECT_NAME}_exposed_targets SalomeParallelDSCContainer)
-    ENDIF()
-  ENDIF()
-ENDIF()
-
-# MPI specific targets:
-IF(SALOME_USE_MPI)
-  LIST(APPEND _${PROJECT_NAME}_exposed_targets
-    SalomeMPIContainer SalomeTestMPIComponentEngine)
-ENDIF()
-
-# Test targets:
-IF(SALOME_BUILD_TESTS)
-  LIST(APPEND _${PROJECT_NAME}_exposed_targets SALOMELocalTraceTest UnitTests)
-  IF(NOT SALOME_LIGHT_ONLY)
-    LIST(APPEND _${PROJECT_NAME}_exposed_targets
-      SALOMETraceCollectorTest UtilsTest NamingServiceTest SalomeTestComponentEngine
-      LifeCycleCORBATest SalomeKernelHelpersTest SALOMEDSImplTest SALOMEDSTest)
-  ENDIF()
-ENDIF()
-
-# PACO specific targets:
-IF(SALOME_PACO_PARALLEL)
-  LIST(APPEND _${PROJECT_NAME}_exposed_targets SalomeParallelContainer)
-ENDIF()
-
-IF(NOT SALOME_LIGHT_ONLY)
-  LIST(APPEND _${PROJECT_NAME}_exposed_targets SalomeIDLKernel)
-  IF(SALOME_PACO_PARALLEL)
-    LIST(APPEND _${PROJECT_NAME}_exposed_targets SalomeParallelIDLKernel)
-  ENDIF()
-ENDIF()
-
-# Add all targets to the build-tree export set
-EXPORT(TARGETS ${_${PROJECT_NAME}_exposed_targets}
-  FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Targets.cmake)
-
-# Create the configuration files:
-#   - in the build tree:
-
-#      Ensure the variables are always defined for the configure:
+# Ensure the variables are always defined for the configure:
 SET(CPPUNIT_ROOT_DIR "${CPPUNIT_ROOT_DIR}")
 SET(GRAPHVIZ_ROOT_DIR "${GRAPHVIZ_ROOT_DIR}")
 SET(DOXYGEN_ROOT_DIR "${DOXYGEN_ROOT_DIR}")
@@ -275,14 +223,15 @@ SET(OMNIORB_ROOT_DIR "${OMNIORB_ROOT_DIR}")
 SET(OMNIORBPY_ROOT_DIR "${OMNIORBPY_ROOT_DIR}")
 SET(LIBBATCH_ROOT_DIR "${LIBBATCH_ROOT_DIR}")
 
-SET(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include" "${PROJECT_BINARY_DIR}/include")
+SET(CONF_INCLUDE_DIRS "${CMAKE_SOURCE_DIR}/include" "${CMAKE_BINARY_DIR}/include")
 
 # Build variables that will be expanded when configuring Salome<MODULE>Config.cmake:
 SALOME_CONFIGURE_PREPARE(CppUnit Graphviz Doxygen Sphinx MPI omniORB LibBatch
                          PThread Boost HDF5 libXml2 Python)
 
+# Generate confifguration
 CONFIGURE_PACKAGE_CONFIG_FILE(${PROJECT_NAME}Config.cmake.in
-    ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
+    ${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake
     INSTALL_DESTINATION "${SALOME_INSTALL_CMAKE}"
     PATH_VARS CONF_INCLUDE_DIRS SALOME_INSTALL_CMAKE CMAKE_INSTALL_PREFIX
        CPPUNIT_ROOT_DIR GRAPHVIZ_ROOT_DIR DOXYGEN_ROOT_DIR
@@ -290,27 +239,15 @@ CONFIGURE_PACKAGE_CONFIG_FILE(${PROJECT_NAME}Config.cmake.in
        PTHREAD_ROOT_DIR BOOST_ROOT_DIR HDF5_ROOT_DIR LIBXML2_ROOT_DIR
        PYTHON_ROOT_DIR SWIG_ROOT_DIR)
 
-#   - in the install tree (VSR 16/08/2013: TEMPORARILY COMMENT THIS - TO REMOVE?):
-#       Get the relative path of the include directory so
-#       we can register it in the generated configuration files:
-#SET(CONF_INCLUDE_DIRS "${CMAKE_INSTALL_PREFIX}/${INSTALL_INCLUDE_DIR}")
-#CONFIGURE_PACKAGE_CONFIG_FILE(salome_adm/cmake_files/${PROJECT_NAME}Config.cmake.in
-#    ${PROJECT_BINARY_DIR}/to_install/${PROJECT_NAME}Config.cmake
-#    INSTALL_DESTINATION "${SALOME_INSTALL_CMAKE}"
-#    PATH_VARS CONF_INCLUDE_DIRS SALOME_INSTALL_CMAKE CMAKE_INSTALL_PREFIX
-#       CPPUNIT_ROOT_DIR GRAPHVIZ_ROOT_DIR DOXYGEN_ROOT_DIR
-#       SPHINX_ROOT_DIR MPI_ROOT_DIR OMNIORB_ROOT_DIR OMNIORBPY_ROOT_DIR LIBBATCH_ROOT_DIR
-#       PTHREAD_ROOT_DIR BOOST_ROOT_DIR HDF5_ROOT_DIR LIBXML2_ROOT_DIR
-#       PYTHON_ROOT_DIR SWIG_ROOT_DIR)
-
-WRITE_BASIC_PACKAGE_VERSION_FILE(${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
+# Generate project version file
+WRITE_BASIC_PACKAGE_VERSION_FILE(${CMAKE_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake
     VERSION ${${PROJECT_NAME_UC}_VERSION}
     COMPATIBILITY AnyNewerVersion)
 
 # Install the CMake configuration files:
 INSTALL(FILES
-  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
-  "${PROJECT_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
+  "${CMAKE_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
+  "${CMAKE_BINARY_DIR}/${PROJECT_NAME}ConfigVersion.cmake"
   DESTINATION "${SALOME_INSTALL_CMAKE}")
 
 # Install the export set for use with the install-tree

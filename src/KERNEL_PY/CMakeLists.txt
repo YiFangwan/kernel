@@ -21,25 +21,23 @@ ADD_SUBDIRECTORY(kernel)
 
 SET(salomepython_PYTHON
   omnipatch.py
+  Help.py
+  PyInterp.py
+  batchmode_salome.py
+  kernel_test.py
+  salome_test.py
+  salome_kernel.py
+  salome_study.py
+  salome_iapp.py
+  salome_ComponentGUI.py
+  iparameters.py
+  salome_version.py
+  salome_notebook.py
+  salome_pynode.py
+  salome_genericobj.py
 )
-
-SET(salomepython_PYTHON
-    ${salomepython_PYTHON}
-    Help.py
-    PyInterp.py
-    batchmode_salome.py
-    kernel_test.py
-    salome_test.py
-    salome_kernel.py
-    salome_study.py
-    salome_iapp.py
-    salome_ComponentGUI.py
-    iparameters.py
-    salome_version.py
-    salome_notebook.py
-    salome_pynode.py
-    salome_genericobj.py
-  )
 
 SALOME_INSTALL_SCRIPTS("${salomepython_PYTHON}" ${SALOME_INSTALL_PYTHON})
 SALOME_INSTALL_SCRIPTS(__init__.py ${SALOME_INSTALL_PYTHON}/salome)
+
+UNSET(salomepython_PYTHON)

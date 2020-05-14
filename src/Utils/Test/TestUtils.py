@@ -23,9 +23,6 @@
 
 import sys, os,signal,string,subprocess
 import subprocess
-import runSalome
-import orbmodule
-import TestKiller
 import setenv
 
 # get SALOME environment :
@@ -33,23 +30,10 @@ import setenv
 args, modules_list, modules_root_dir = setenv.get_config()
 setenv.set_env(args, modules_list, modules_root_dir)
 
-# launch CORBA naming server
-
-clt=orbmodule.client()
-
-# launch CORBA logger server
-
-myServer=runSalome.LoggerServer(args)
-myServer.run()
-clt.waitLogger("Logger")
-
 # execute Unit Test
 
 command = ['./TestUtils']
 ret = subprocess.call(command)
 
-# kill Test process
-
-TestKiller.killProcess(runSalome.process_id)
-TestKiller.closeSalome()
+# no process to kill
 exit(ret)

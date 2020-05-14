@@ -28,7 +28,6 @@
 //
 #include "SALOMEDS_Tool.hxx"
 
-#include "utilities.h"
 #include "Basics_DirUtils.hxx"
 #include "Basics_Utils.hxx"
 

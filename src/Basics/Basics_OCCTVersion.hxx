@@ -20,9 +20,6 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-// File   : Basics_OCCTVersion.hxx
-// Author : Julia DOROVSKIKH, Open CASCADE S.A.S (julia.dorovskikh@opencascade.com)
-
 #ifndef BASICS_OCCTVERSION_HXX
 #define BASICS_OCCTVERSION_HXX
 

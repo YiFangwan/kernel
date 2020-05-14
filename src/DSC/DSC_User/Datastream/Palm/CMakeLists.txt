@@ -18,32 +18,47 @@
 #
 
 INCLUDE_DIRECTORIES(
+  ${PTHREAD_INCLUDE_DIR}
   ${OMNIORB_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User/Datastream
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_Basic
-  ${PROJECT_SOURCE_DIR}/src/Container
-  ${PROJECT_SOURCE_DIR}/src/GenericObj
-  ${PROJECT_SOURCE_DIR}/src/Notification
-  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
-  ${PROJECT_SOURCE_DIR}/src/Basics
-  ${PROJECT_SOURCE_DIR}/src/Utils
-  ${PROJECT_BINARY_DIR}/idl
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User/Datastream
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_Basic
+  ${CMAKE_SOURCE_DIR}/src/Container
+  ${CMAKE_SOURCE_DIR}/src/GenericObj
+  ${CMAKE_SOURCE_DIR}/src/Notification
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/Utils
 )
-
 
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${OMNIORB_LIBRARIES}
+)
+
 ADD_LIBRARY(SalomePalm palm_port_factory.cxx)
-TARGET_LINK_LIBRARIES(SalomePalm SalomeDSCSuperv ${OMNIORB_LIBRARIES})
+TARGET_LINK_LIBRARIES(SalomePalm ${_link_LIBRARIES} SalomeDSCSuperv)
 
 INSTALL(TARGETS SalomePalm EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
-ADD_EXECUTABLE(test_DataIdContainer_Palm test_DataIdContainer.cxx)
-ADD_DEPENDENCIES(test_DataIdContainer_Palm SalomeIDLKernel)
-TARGET_LINK_LIBRARIES(test_DataIdContainer_Palm ${OMNIORB_LIBRARIES})
+IF(SALOME_BUILD_TESTS)
+  ADD_EXECUTABLE(test_DataIdContainer_Palm test_DataIdContainer.cxx)
+  TARGET_LINK_LIBRARIES(test_DataIdContainer_Palm ${_link_LIBRARIES})
+ENDIF()
 
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+SET(SalomePalm_HEADERS
+  PalmCouplingPolicy.hxx
+  palm_data_seq_short_port_provides.hxx
+  palm_data_short_port_provides.hxx
+  palm_port_factory.hxx
+)
 
+INSTALL(FILES ${SalomePalm_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+
+UNSET(SalomePalm_HEADERS)
+UNSET(_link_LIBRARIES)

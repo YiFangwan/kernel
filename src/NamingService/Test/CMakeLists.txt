@@ -19,60 +19,57 @@
 
 INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIR}
-  ${CPPUNIT_INCLUDE_DIRS}
+  ${CPPUNIT_INCLUDE_DIRS}ti
   ${OMNIORB_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../NamingService
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../Basics
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMELocalTrace
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../Utils
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../LifeCycleCORBA
-  ${PROJECT_BINARY_DIR}/idl
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMELocalTrace/Test
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../SALOMETraceCollector/Test
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../Utils/Test
-  ${CMAKE_CURRENT_SOURCE_DIR}/../../Basics/Test
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/Basics/Test
+  ${CMAKE_SOURCE_DIR}/src/Utils
+  ${CMAKE_SOURCE_DIR}/src/Utils/Test
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace/Test
+  ${CMAKE_SOURCE_DIR}/src/SALOMETraceCollector
+  ${CMAKE_SOURCE_DIR}/src/SALOMETraceCollector/Test
+  ${CMAKE_SOURCE_DIR}/src/NamingService
+  ${CMAKE_SOURCE_DIR}/src/LifeCycleCORBA
 )
 
-# This local variable defines the list of dependent libraries common to all target in this package.
-SET(COMMON_LIBS
-    ${CPPUNIT_LIBRARIES}
-    SalomeNS
-    SalomeLifeCycleCORBA
-    ${OMNIORB_LIBRARIES}
-    ${PLATFORM_LIBS}
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${OMNIORB_LIBRARIES}
+  ${CPPUNIT_LIBRARIES}
+  SalomeNS
+  SalomeLifeCycleCORBA
 )
 
 ADD_DEFINITIONS(${CPPUNIT_DEFINITIONS} ${OMNIORB_DEFINITIONS})
+
 SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/NamingService)
 
 ADD_LIBRARY(NamingServiceTest NamingServiceTest.cxx)
-TARGET_LINK_LIBRARIES(NamingServiceTest ${COMMON_LIBS})
+TARGET_LINK_LIBRARIES(NamingServiceTest ${_link_LIBRARIES})
 INSTALL(TARGETS NamingServiceTest DESTINATION ${KERNEL_TEST_LIB})
 
-SET(TestNamingService_LIBS
+SET(_exe_LIBRARIES
+  ${_link_LIBRARIES}
   NamingServiceTest
-  SalomeNS
-  SALOMELocalTraceTest
-  SALOMELocalTrace
   SALOMETraceCollectorTest
+  SALOMELocalTraceTest
   UtilsTest
-  OpUtil
-  SALOMEBasics
-  SalomeIDLKernel
-  ${COMMON_LIBS}
 )
 
 ADD_EXECUTABLE(TestNamingService TestNamingService.cxx)
-TARGET_LINK_LIBRARIES(TestNamingService ${TestNamingService_LIBS})
+TARGET_LINK_LIBRARIES(TestNamingService ${_exe_LIBRARIES})
 INSTALL(TARGETS TestNamingService DESTINATION ${LOCAL_TEST_DIR})
 
-# Executable scripts to be installed
-INSTALL(FILES TestNamingService.py DESTINATION ${LOCAL_TEST_DIR})
-
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${LOCAL_TEST_DIR})
+INSTALL(PROGRAMS TestNamingService.py DESTINATION ${LOCAL_TEST_DIR})
 
 INSTALL(FILES CTestTestfileInstall.cmake
         DESTINATION ${LOCAL_TEST_DIR}
         RENAME CTestTestfile.cmake)
+
+UNSET(LOCAL_TEST_DIR)
+UNSET(_link_LIBRARIES)
+UNSET(_exe_LIBRARIES)

@@ -20,29 +20,49 @@
 INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIR}
   ${PTHREAD_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
-  ${PROJECT_BINARY_DIR}/idl
-  )
-
-SET(SalomeNS_SOURCES
-  SALOME_NamingService.cxx
-  ServiceUnreachable.cxx
-  NamingService_WaitForServerReadiness.cxx
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/Utils
 )
 
-
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
-ADD_LIBRARY(SalomeNS ${SalomeNS_SOURCES})
-ADD_DEPENDENCIES(SalomeNS SalomeIDLKernel)
-TARGET_LINK_LIBRARIES(SalomeNS OpUtil)
 
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${OMNIORB_LIBRARIES}
+  SALOMEBasics
+  OpUtil
+  SalomeIDLKernel
+)
+
+SET(SalomeNS_SOURCES
+  NamingService_WaitForServerReadiness.cxx
+  SALOME_NamingService.cxx
+  ServiceUnreachable.cxx
+)
+
+SET(SalomeNS_HEADERS
+  NamingService_WaitForServerReadiness.hxx
+  SALOME_NamingService_defs.hxx
+  SALOME_NamingService.hxx
+  ServiceUnreachable.hxx
+)
+
+ADD_LIBRARY(SalomeNS ${SalomeNS_SOURCES})
+TARGET_LINK_LIBRARIES(SalomeNS ${_link_LIBRARIES})
 INSTALL(TARGETS SalomeNS EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
-# Executable scripts to be installed
 SALOME_INSTALL_SCRIPTS(SALOME_NamingServicePy.py ${SALOME_INSTALL_SCRIPT_PYTHON})
 
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+INSTALL(FILES ${SalomeNS_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+
+UNSET(SalomeNS_SOURCES)
+UNSET(SalomeNS_HEADERS)
+UNSET(_link_LIBRARIES)
+
+IF(SALOME_BUILD_TESTS)
+  ADD_SUBDIRECTORY(Test)
+ENDIF()

@@ -17,7 +17,6 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-# Scripts to be installed
 SET(SCRIPTS
   LifeCycleCORBA_SWIGTest.py
   testresourcemanager.py
@@ -27,7 +26,11 @@ SET(SCRIPTS
 )
 
 SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/LifeCycleCORBA_SWIG)
+
 INSTALL(FILES ${SCRIPTS} DESTINATION ${LOCAL_TEST_DIR})
+
 INSTALL(FILES CTestTestfileInstall.cmake
         DESTINATION ${LOCAL_TEST_DIR}
         RENAME CTestTestfile.cmake)
+
+UNSET(SCRIPTS)

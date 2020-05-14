@@ -18,7 +18,9 @@
 #
 
 ADD_SUBDIRECTORY(salome_tester)
-ADD_SUBDIRECTORY(tests)
+IF(SALOME_BUILD_TESTS)
+  ADD_SUBDIRECTORY(tests)
+ENDIF()
 
 # ===============================================================
 # Files to be installed

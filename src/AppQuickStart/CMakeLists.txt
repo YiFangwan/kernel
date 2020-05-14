@@ -17,7 +17,7 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-ADD_SUBDIRECTORY( ressources ) 
+ADD_SUBDIRECTORY(resources)
 
 # ===============================================================
 # Files to be installed
@@ -30,4 +30,6 @@ SET(SCRIPTS
 
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_SCRIPTS})
 
-INSTALL( DIRECTORY app-template DESTINATION ${SALOME_KERNEL_INSTALL_RES_DATA})
+INSTALL(DIRECTORY app-template DESTINATION ${SALOME_KERNEL_INSTALL_RES_DATA})
+
+UNSET(SCRIPTS)

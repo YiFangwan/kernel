@@ -17,25 +17,32 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE_DIRECTORIES(
-  ${Boost_INCLUDE_DIRS}
-  ${OMNIORB_INCLUDE_DIR}
-  ${PTHREAD_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${PROJECT_SOURCE_DIR}/src/Container
-  ${PROJECT_SOURCE_DIR}/src/GenericObj
-  ${PROJECT_SOURCE_DIR}/src/Notification
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_Basic
-  ${PROJECT_SOURCE_DIR}/src/SALOMELocalTrace
-  ${PROJECT_SOURCE_DIR}/src/Basics
-  ${PROJECT_SOURCE_DIR}/src/Utils
-  ${PROJECT_BINARY_DIR}/idl
-)
-
 ADD_SUBDIRECTORY(Basic)
 ADD_SUBDIRECTORY(Datastream)
 
-ADD_DEFINITIONS(${OMNIORB_DEFINITIONS} ${BOOST_DEFINITIONS})
+INCLUDE_DIRECTORIES(
+  ${OMNIORB_INCLUDE_DIR}
+  ${PTHREAD_INCLUDE_DIR}
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/Container
+  ${CMAKE_SOURCE_DIR}/src/GenericObj
+  ${CMAKE_SOURCE_DIR}/src/Notification
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_Basic
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/Utils
+)
+
+ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
+
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${OMNIORB_LIBRARIES}
+  OpUtil
+  SALOMELocalTrace
+)
 
 SET(SalomeDSCSuperv_SOURCES
   base_port.cxx
@@ -45,12 +52,25 @@ SET(SalomeDSCSuperv_SOURCES
 )
 
 ADD_LIBRARY(SalomeDSCSuperv ${SalomeDSCSuperv_SOURCES})
-TARGET_LINK_LIBRARIES(SalomeDSCSuperv SalomeDSCContainer ${PLATFORM_LIBS})
+TARGET_LINK_LIBRARIES(SalomeDSCSuperv ${_link_LIBRARIES} SalomeDSCContainer)
 INSTALL(TARGETS SalomeDSCSuperv EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
-ADD_EXECUTABLE(test_DSC_Exception test_DSC_Exception.cxx)
-TARGET_LINK_LIBRARIES(test_DSC_Exception OpUtil SALOMELocalTrace 
-    ${OMNIORB_LIBRARIES} ${PLATFORM_LIBS} ${PTHREAD_LIBRARIES})
+IF(SALOME_BUILD_TESTS)
+  ADD_EXECUTABLE(test_DSC_Exception test_DSC_Exception.cxx)
+  TARGET_LINK_LIBRARIES(test_DSC_Exception ${_link_LIBRARIES})
+ENDIF()
 
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+SET(SalomeDSCSuperv_HEADERS
+  base_port.hxx
+  DSC_Exception.hxx
+  port_factory.hxx
+  provides_port.hxx
+  Superv_Component_i.hxx
+  uses_port.hxx
+)
+
+INSTALL(FILES ${SalomeDSCSuperv_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+
+UNSET(SalomeDSCSuperv_SOURCES)
+UNSET(SalomeDSCSuperv_HEADERS)
+UNSET(_link_LIBRARIES)

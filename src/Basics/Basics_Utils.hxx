@@ -17,13 +17,8 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//  SALOME Utils : general SALOME's definitions and tools
-//  File   : Basics_DirUtils.hxx
-//  Author  : Alexander A. BORODIN
-//  Module : SALOME
-//
-#ifndef _Basics_UTILS_HXX_
-#define _Basics_UTILS_HXX_
+#ifndef BASICS_UTILS_HXX
+#define BASICS_UTILS_HXX
 
 #include "SALOME_Basics.hxx"
 #include <string>
@@ -155,4 +150,4 @@ double ToDouble(const T &arg) {
 #define LOG STDLOG
 
 
-#endif //_Basics_UTILS_HXX_
+#endif // BASICS_UTILS_HXX

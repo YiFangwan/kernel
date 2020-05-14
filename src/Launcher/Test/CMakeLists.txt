@@ -19,24 +19,15 @@
 
 # --- rules ---
 
+SET(LOCAL_TEST_DIR ${KERNEL_TEST_DIR}/Launcher)
+
 IF(NOT WIN32)
-# ** Now in CTestTestfileInstall.cmake **
-# ** In this file only remain unit tests (no SALOME session is needed) **
-#  ADD_TEST(NAME SalomeLauncher
-#           COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CURRENT_SOURCE_DIR}/../../UnitTests/prepare_test.py
-#           ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py
-#           -d KERNEL_ROOT_DIR=${CMAKE_INSTALL_PREFIX}
-#          )
-  INSTALL(FILES ${CMAKE_CURRENT_SOURCE_DIR}/test_launcher.py
-          DESTINATION ${KERNEL_TEST_DIR}/Launcher)
+  INSTALL(PROGRAMS test_stress.sh launcher_use_case.py test_launcher.py
+          DESTINATION ${LOCAL_TEST_DIR})
 
   INSTALL(FILES CTestTestfileInstall.cmake
-          DESTINATION ${KERNEL_TEST_DIR}/Launcher
+          DESTINATION ${LOCAL_TEST_DIR}
           RENAME CTestTestfile.cmake)
-  SET(STRESS_TEST_FILES
-      test_stress.sh
-      launcher_use_case.py
-      )
-  INSTALL(PROGRAMS ${STRESS_TEST_FILES}
-          DESTINATION ${KERNEL_TEST_DIR}/Launcher)
 ENDIF()
+
+UNSET(LOCAL_TEST_DIR)

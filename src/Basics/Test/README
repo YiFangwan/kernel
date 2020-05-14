@@ -1,0 +1,7 @@
+Write tests with cppunit
+========================
+
+BasicMainTest.hxx is the file containg main() function that configures and runs
+unitary tests.
+
+To use it, just include this header to the test program written with the cppunit.

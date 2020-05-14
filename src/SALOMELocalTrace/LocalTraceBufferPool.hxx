@@ -39,7 +39,7 @@
 #include <dispatch/dispatch.h>
 #endif
 #include "BaseTraceCollector.hxx"
-#include "BasicsGenericDestructor.hxx"
+#include "Basics_GenericDestructor.hxx"
 
 #define BRIEF_MESS  2
 #define ABORT_MESS  1   // for traceType field in struct LocalTrace_TraceInfo

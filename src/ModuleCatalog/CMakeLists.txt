@@ -21,23 +21,26 @@ INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIR}
   ${OMNIORB_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
-  ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
-  ${PROJECT_BINARY_DIR}/idl
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/NamingService
+  ${CMAKE_SOURCE_DIR}/src/Utils
 )
 
-# This local variable defines the list of dependent libraries common to all target in this package.
-SET(COMMON_LIBS
+ADD_DEFINITIONS(${LIBXML2_DEFINITIONS} ${OMNIORB_DEFINITIONS})
+
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${LIBXML2_LIBRARIES}
+  ${OMNIORB_LIBRARIES}
   SalomeNS
   OpUtil
   SALOMELocalTrace
   SALOMEBasics
   SalomeIDLKernel
-  ${LIBXML2_LIBRARIES}
-  ${PTHREAD_LIBRARIES}
 )
 
 SET(SalomeCatalog_SOURCES
@@ -46,29 +49,33 @@ SET(SalomeCatalog_SOURCES
   SALOME_ModuleCatalog_impl.cxx
   SALOME_ModuleCatalog_Acomponent_impl.cxx
 )
-ADD_DEFINITIONS(${LIBXML2_DEFINITIONS} ${OMNIORB_DEFINITIONS})
+
+SET(SalomeCatalog_HEADERS
+  SALOME_ModuleCatalog.hxx
+  SALOME_ModuleCatalog_Acomponent_impl.hxx
+  SALOME_ModuleCatalog_impl.hxx
+)
 
 ADD_LIBRARY(SalomeCatalog ${SalomeCatalog_SOURCES})
-TARGET_LINK_LIBRARIES(SalomeCatalog ${COMMON_LIBS})
+TARGET_LINK_LIBRARIES(SalomeCatalog ${_link_LIBRARIES})
 INSTALL(TARGETS SalomeCatalog EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
 ADD_EXECUTABLE(SALOME_ModuleCatalog_Server SALOME_ModuleCatalog_Server.cxx)
-TARGET_LINK_LIBRARIES(SALOME_ModuleCatalog_Server SalomeCatalog ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
+TARGET_LINK_LIBRARIES(SALOME_ModuleCatalog_Server ${_link_LIBRARIES} SalomeCatalog)
 
 ADD_EXECUTABLE(SALOME_ModuleCatalog_Client SALOME_ModuleCatalog_Client.cxx)
-TARGET_LINK_LIBRARIES(SALOME_ModuleCatalog_Client SalomeCatalog ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
+TARGET_LINK_LIBRARIES(SALOME_ModuleCatalog_Client ${_link_LIBRARIES} SalomeCatalog)
 
 INSTALL(TARGETS SALOME_ModuleCatalog_Server SALOME_ModuleCatalog_Client 
         EXPORT ${PROJECT_NAME}TargetGroup
         DESTINATION ${SALOME_INSTALL_BINS})
 
-# Executable scripts to be installed
-SALOME_INSTALL_SCRIPTS(TestModuleCatalog.py ${SALOME_INSTALL_SCRIPT_PYTHON})
+IF(SALOME_BUILD_TESTS)
+  SALOME_INSTALL_SCRIPTS(TestModuleCatalog.py ${SALOME_INSTALL_SCRIPT_PYTHON})
+ENDIF()
 
-SET(COMMON_HEADERS_HXX
-  SALOME_ModuleCatalog.hxx
-  SALOME_ModuleCatalog_Acomponent_impl.hxx
-  SALOME_ModuleCatalog_impl.hxx
-  )
+INSTALL(FILES ${SalomeCatalog_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
 
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+UNSET(SalomeCatalog_SOURCES)
+UNSET(SalomeCatalog_HEADERS)
+UNSET(_link_LIBRARIES)

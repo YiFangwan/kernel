@@ -38,6 +38,7 @@ SUBDIRS( Launcher
          SALOMEDSImpl
          SALOMESDS
          Utils
+         DF
          UnitTests
          salomeInstance
          salomeCommand

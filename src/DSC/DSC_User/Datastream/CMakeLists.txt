@@ -17,32 +17,33 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-INCLUDE_DIRECTORIES(
-  ${Boost_INCLUDE_DIRS}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${PROJECT_SOURCE_DIR}/src/DSC/DSC_User
-  ${PROJECT_BINARY_DIR}/src/DSC/DSC_User/Datastream/Palm
-  ${PROJECT_BINARY_DIR}/src/DSC/DSC_User/Datastream/Calcium
-  ${CMAKE_CURRENT_SOURCE_DIR}/..
-)
-
 ADD_SUBDIRECTORY(Palm)
 ADD_SUBDIRECTORY(Calcium)
 
-# This local variable defines the list of dependent libraries common to all target in this package.
-SET(COMMON_LIBS
+INCLUDE_DIRECTORIES(
+  ${PTHREAD_INCLUDE_DIR}
+  ${OMNIORB_INCLUDE_DIR}
+  ${Boost_INCLUDE_DIRS}
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_SOURCE_DIR}/src/DSC/DSC_User
+)
+
+ADD_DEFINITIONS(${BOOST_DEFINITIONS} ${OMNIORB_DEFINITIONS})
+
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${OMNIORB_LIBRARIES}
   SalomePalm
   SalomeCalcium
   SalomeDSCSuperv
 )
 
-ADD_DEFINITIONS(${BOOST_DEFINITIONS})
-
 ADD_LIBRARY(SalomeDatastream fake.cc)
-TARGET_LINK_LIBRARIES(SalomeDatastream ${COMMON_LIBS})
+TARGET_LINK_LIBRARIES(SalomeDatastream ${_link_LIBRARIES})
 INSTALL(TARGETS SalomeDatastream EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
-SET(COMMON_HEADERS_HXX
+SET(SalomeDatastream_HEADERS
   AdjacentFunctor.hxx
   ConstTraits.hxx
   CorbaTypeManipulator.hxx
@@ -56,4 +57,7 @@ SET(COMMON_HEADERS_HXX
   IteratorTraits.hxx
 )
 
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+INSTALL(FILES ${SalomeDatastream_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+
+UNSET(SalomeDatastream_HEADERS)
+UNSET(_link_LIBRARIES)

@@ -21,22 +21,24 @@ INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIR}
   ${HDF5_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
-  ${CMAKE_CURRENT_SOURCE_DIR}/../HDFPersist
-  ${CMAKE_CURRENT_SOURCE_DIR}/../DF
-  ${PROJECT_BINARY_DIR}
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/HDFPersist
+  ${CMAKE_SOURCE_DIR}/src/DF
 )
 
-# This local variable defines the list of FLAGS common to all target in this package.
-ADD_DEFINITIONS(${BOOST_DEFINITIONS})
-# This local variable defines the list of dependent libraries common to all target in this package.  
-SET(COMMON_LIBS
+ADD_DEFINITIONS(${HDF5_DEFINITIONS} ${BOOST_DEFINITIONS})
+
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${HDF5_C_LIBRARIES}
   SALOMEBasics
+  SALOMELocalTrace
   SalomeHDFPersist
   DF
-  ${HDF5_C_LIBRARIES}
 )
 
 SET(SalomeDSImpl_SOURCES
@@ -90,20 +92,77 @@ SET(SalomeDSImpl_SOURCES
   SALOMEDSImpl_ScalarVariable.cxx
 ) 
 
+SET(SalomeDSImpl_HEADERS
+  SALOMEDSImpl_AttributeComment.hxx
+  SALOMEDSImpl_AttributeDrawable.hxx
+  SALOMEDSImpl_AttributeExpandable.hxx
+  SALOMEDSImpl_AttributeExternalFileDef.hxx
+  SALOMEDSImpl_AttributeFileType.hxx
+  SALOMEDSImpl_AttributeFlags.hxx
+  SALOMEDSImpl_AttributeGraphic.hxx
+  SALOMEDSImpl_AttributeInteger.hxx
+  SALOMEDSImpl_AttributeIOR.hxx
+  SALOMEDSImpl_AttributeLocalID.hxx
+  SALOMEDSImpl_AttributeName.hxx
+  SALOMEDSImpl_AttributeOpened.hxx
+  SALOMEDSImpl_AttributeParameter.hxx
+  SALOMEDSImpl_AttributePersistentRef.hxx
+  SALOMEDSImpl_AttributePixMap.hxx
+  SALOMEDSImpl_AttributePythonObject.hxx
+  SALOMEDSImpl_AttributeReal.hxx
+  SALOMEDSImpl_AttributeReference.hxx
+  SALOMEDSImpl_AttributeSelectable.hxx
+  SALOMEDSImpl_AttributeSequenceOfInteger.hxx
+  SALOMEDSImpl_AttributeSequenceOfReal.hxx
+  SALOMEDSImpl_Attributes.hxx
+  SALOMEDSImpl_AttributeString.hxx
+  SALOMEDSImpl_AttributeStudyProperties.hxx
+  SALOMEDSImpl_AttributeTable.hxx
+  SALOMEDSImpl_AttributeTableOfInteger.hxx
+  SALOMEDSImpl_AttributeTableOfReal.hxx
+  SALOMEDSImpl_AttributeTableOfString.hxx
+  SALOMEDSImpl_AttributeTarget.hxx
+  SALOMEDSImpl_AttributeTextColor.hxx
+  SALOMEDSImpl_AttributeTextHighlightColor.hxx
+  SALOMEDSImpl_AttributeTreeNode.hxx
+  SALOMEDSImpl_AttributeUserID.hxx
+  SALOMEDSImpl_Callback.hxx
+  SALOMEDSImpl_ChildIterator.hxx
+  SALOMEDSImpl_ChildNodeIterator.hxx
+  SALOMEDSImpl_Defines.hxx
+  SALOMEDSImpl_Driver.hxx
+  SALOMEDSImpl_GenericAttribute.hxx
+  SALOMEDSImpl_GenericVariable.hxx
+  SALOMEDSImpl_IParameters.hxx
+  SALOMEDSImpl_ScalarVariable.hxx
+  SALOMEDSImpl_SComponent.hxx
+  SALOMEDSImpl_SComponentIterator.hxx
+  SALOMEDSImpl_SObject.hxx
+  SALOMEDSImpl_StudyBuilder.hxx
+  SALOMEDSImpl_Study.hxx
+  SALOMEDSImpl_TMPFile.hxx
+  SALOMEDSImpl_UseCaseBuilder.hxx
+  SALOMEDSImpl_UseCaseIterator.hxx
+)
+#  SALOMEDSImpl_Tool.hxx
+#  SALOMEDSImpl_StudyHandle.hxx
+
 ADD_LIBRARY(SalomeDSImpl ${SalomeDSImpl_SOURCES})
-TARGET_LINK_LIBRARIES(SalomeDSImpl SALOMELocalTrace ${COMMON_LIBS} ${PLATFORM_LIBS})
+TARGET_LINK_LIBRARIES(SalomeDSImpl ${_link_LIBRARIES})
 INSTALL(TARGETS SalomeDSImpl EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
-ADD_EXECUTABLE(testDS testDS.cxx)
-TARGET_LINK_LIBRARIES(testDS SalomeDSImpl ${COMMON_LIBS} ${PLATFORM_LIBS})
-INSTALL(TARGETS testDS DESTINATION ${SALOME_INSTALL_BINS})
+IF(SALOME_BUILD_TESTS)
+  ADD_EXECUTABLE(testDS testDS.cxx)
+  TARGET_LINK_LIBRARIES(testDS ${_link_LIBRARIES} SalomeDSImpl)
+  INSTALL(TARGETS testDS DESTINATION ${SALOME_INSTALL_BINS})
+ENDIF()
 
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-SET(NOINST_HEADERS_HXX
-  SALOMEDSImpl_Tool.hxx
-  SALOMEDSImpl_StudyHandle.hxx
-)
-FOREACH(HEADER ${NOINST_HEADERS_HXX})
-  LIST(REMOVE_ITEM COMMON_HEADERS_HXX ${CMAKE_CURRENT_SOURCE_DIR}/${HEADER})
-ENDFOREACH(HEADER ${NOINST_HEADERS_HXX})
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+INSTALL(FILES ${SalomeDSImpl_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+
+UNSET(_link_LIBRARIES)
+UNSET(SalomeDSImpl_SOURCES)
+UNSET(SalomeDSImpl_HEADERS)
+
+IF(SALOME_BUILD_TESTS)
+  ADD_SUBDIRECTORY(Test)
+ENDIF()

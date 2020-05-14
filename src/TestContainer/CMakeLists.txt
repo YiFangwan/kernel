@@ -20,26 +20,25 @@
 INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIR}
   ${OMNIORB_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
-  ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Registry
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Notification
-  ${CMAKE_CURRENT_SOURCE_DIR}/../ResourcesManager
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Container
-  ${CMAKE_CURRENT_SOURCE_DIR}/../GenericObj
-  ${PROJECT_BINARY_DIR}/idl
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/NamingService
+  ${CMAKE_SOURCE_DIR}/src/Utils
+  ${CMAKE_SOURCE_DIR}/src/Registry
+  ${CMAKE_SOURCE_DIR}/src/Notification
+  ${CMAKE_SOURCE_DIR}/src/ResourcesManager
+  ${CMAKE_SOURCE_DIR}/src/Container
+  ${CMAKE_SOURCE_DIR}/src/GenericObj
 )
 
-SET(SalomeTestComponentEngine_SOURCES
-  SALOME_TestComponent.hxx
-  SALOME_TestComponent_i.cxx
-  SALOME_TestComponent_i.hxx
-)
+ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
 
-SET(COMMON_LIBS
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${OMNIORB_LIBRARIES}
   SalomeContainer
   Registry
   SalomeNotification
@@ -51,25 +50,32 @@ SET(COMMON_LIBS
   SalomeIDLKernel
 )
 
-ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
+SET(SalomeTestComponentEngine_SOURCES
+  SALOME_TestComponent.hxx
+  SALOME_TestComponent_i.cxx
+  SALOME_TestComponent_i.hxx
+)
 
 ADD_LIBRARY(SalomeTestComponentEngine ${SalomeTestComponentEngine_SOURCES})
-TARGET_LINK_LIBRARIES(SalomeTestComponentEngine ${COMMON_LIBS})
-
-INSTALL(TARGETS SalomeTestComponentEngine EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
+TARGET_LINK_LIBRARIES(SalomeTestComponentEngine ${_link_LIBRARIES})
+INSTALL(TARGETS SalomeTestComponentEngine DESTINATION ${SALOME_INSTALL_LIBS})
 
 ADD_EXECUTABLE(TestLogger TestLogger.cxx)
-TARGET_LINK_LIBRARIES(TestLogger SalomeTestComponentEngine SALOMEBasics ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
+TARGET_LINK_LIBRARIES(TestLogger ${_link_LIBRARIES} SalomeTestComponentEngine)
 
 ADD_EXECUTABLE(TestContainer TestContainer.cxx)
-TARGET_LINK_LIBRARIES(TestContainer SalomeTestComponentEngine SALOMEBasics ${COMMON_LIBS} ${OMNIORB_LIBRARIES})
+TARGET_LINK_LIBRARIES(TestContainer ${_link_LIBRARIES} SalomeTestComponentEngine)
 
-INSTALL(TARGETS TestLogger TestContainer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_BINS})
+INSTALL(TARGETS TestLogger TestContainer DESTINATION ${SALOME_INSTALL_BINS})
 
-# Executable scripts to be installed
 SET(SCRIPTS
   SALOME_TestComponentPy.py
   TestComponentPy.py
   TestLogger.py
 )
+
 SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})
+
+UNSET(SCRIPTS)
+UNSET(SalomeTestComponentEngine_SOURCES)
+UNSET(_link_LIBRARIES)

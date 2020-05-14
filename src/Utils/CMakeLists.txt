@@ -17,65 +17,87 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
+INCLUDE_DIRECTORIES(${PTHREAD_INCLUDE_DIR})
 IF(NOT SALOME_LIGHT_ONLY)
-
-  INCLUDE_DIRECTORIES(
-    ${OMNIORB_INCLUDE_DIR}
-    ${PTHREAD_INCLUDE_DIR}
-    ${PROJECT_BINARY_DIR}/salome_adm
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-    ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
-    ${PROJECT_BINARY_DIR}/idl
-  )
-  ADD_DEFINITIONS(${OMNIORB_DEFINITIONS} ${PTHREAD_DEFINITIONS})
-  SET(COMMON_LIBS
-    SALOMELocalTrace 
-    SalomeIDLKernel 
-    ${OMNIORB_LIBRARIES} 
-    ${PTHREAD_LIBRARIES}
-  )
-  SET(OpUtil_SOURCES
-    Utils_Timer.cxx
-    duplicate.cxx
-    Utils_CommException.cxx
-    Utils_SALOME_Exception.cxx
-    Utils_Identity.cxx
-    Utils_ORB_INIT.cxx
-    Utils_DESTRUCTEUR_GENERIQUE.cxx
-    Utils_ExceptHandlers.cxx
-    Utils_Mutex.cxx
-  )
-  FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx" )
-  
-ELSE()
-
-  INCLUDE_DIRECTORIES(
-    ${PTHREAD_INCLUDE_DIR}
-    ${PROJECT_BINARY_DIR}/salome_adm
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-    ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
-  )
-  SET(COMMON_LIBS
-    SALOMELocalTrace
-    ${PTHREAD_LIBRARIES}
-  )
-  SET(OpUtil_SOURCES
-    Utils_SALOME_Exception.cxx
-    duplicate.cxx
-  )  
-  SET(COMMON_HEADERS_HXX Utils_SALOME_Exception.hxx) 
-  
+  INCLUDE_DIRECTORIES(${OMNIORB_INCLUDE_DIR})
+ENDIF()
+INCLUDE_DIRECTORIES(
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+)
+IF(NOT SALOME_LIGHT_ONLY)
+  INCLUDE_DIRECTORIES(${CMAKE_BINARY_DIR}/idl)
 ENDIF()
 
-SET(COMMON_SCRIPTS
-  Utils_Identity.py 
-  SALOME_utilities.py
+IF(NOT SALOME_LIGHT_ONLY)
+  ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
+ENDIF()
+
+SET(_link_LIBRARIES ${PTHREAD_LIBRARIES})
+IF(NOT SALOME_LIGHT_ONLY)
+  SET(_link_LIBRARIES ${_link_LIBRARIES} ${OMNIORB_LIBRARIES})
+ENDIF()
+SET(_link_LIBRARIES ${_link_LIBRARIES} SALOMELocalTrace)
+IF(NOT SALOME_LIGHT_ONLY)
+  SET(_link_LIBRARIES ${_link_LIBRARIES} SalomeIDLKernel)
+ENDIF()
+
+SET(OpUtil_SOURCES
+  Utils_SALOME_Exception.cxx
+  duplicate.cxx
+)  
+IF(NOT SALOME_LIGHT_ONLY)
+  SET(OpUtil_SOURCES ${OpUtil_SOURCES}
+      Utils_CommException.cxx
+      Utils_DESTRUCTEUR_GENERIQUE.cxx
+      Utils_ExceptHandlers.cxx
+      Utils_Identity.cxx
+      Utils_Mutex.cxx
+      Utils_ORB_INIT.cxx
+      Utils_Timer.cxx
+  )
+ENDIF()
+
+SET(OpUtil_HEADERS
+  OpUtil.hxx
+  Utils_SALOME_Exception.hxx
 )
-SALOME_INSTALL_SCRIPTS("${COMMON_SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})
+IF(NOT SALOME_LIGHT_ONLY)
+  SET(OpUtil_HEADERS ${OpUtil_HEADERS}
+  SALOME_Utils.hxx
+  Utils_CommException.hxx
+  Utils_CorbaException.hxx
+  Utils_DESTRUCTEUR_GENERIQUE.hxx
+  Utils_ExceptHandlers.hxx
+  Utils_Identity.hxx
+  Utils_Mutex.hxx
+  Utils_ORB_INIT.hxx
+  Utils_SINGLETON.hxx
+  Utils_Timer.hxx
+  )
+ENDIF()
+
+IF(NOT SALOME_LIGHT_ONLY)
+  SET(OpUtil_SCRIPTS
+    Utils_Identity.py 
+    SALOME_utilities.py
+  )
+ENDIF()
 
 ADD_LIBRARY(OpUtil ${OpUtil_SOURCES})
-TARGET_LINK_LIBRARIES(OpUtil ${COMMON_LIBS})
+TARGET_LINK_LIBRARIES(OpUtil ${_link_LIBRARIES})
 INSTALL(TARGETS OpUtil EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+
+INSTALL(FILES ${OpUtil_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+
+SALOME_INSTALL_SCRIPTS("${OpUtil_SCRIPTS}" ${SALOME_INSTALL_SCRIPT_PYTHON})
+
+UNSET(OpUtil_SOURCES)
+UNSET(OpUtil_HEADERS)
+UNSET(OpUtil_SCRIPTS)
+UNSET(_link_LIBRARIES)
+
+IF(SALOME_BUILD_TESTS)
+  ADD_SUBDIRECTORY(Test)
+ENDIF()

@@ -20,15 +20,72 @@
 INCLUDE_DIRECTORIES(
   ${OMNIORB_INCLUDE_DIR}
   ${Boost_INCLUDE_DIR}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${PROJECT_BINARY_DIR}/idl
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
 )
 
-ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})
+ADD_DEFINITIONS(${OMNIORB_DEFINITIONS} ${BOOST_DEFINITIONS})
+
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  ${OMNIORB_LIBRARIES}
+  SalomeIDLKernel
+)
+
+SET(SalomeDSClient_HEADERS
+  SALOMEDSClient_AttributeComment.hxx
+  SALOMEDSClient_AttributeDrawable.hxx
+  SALOMEDSClient_AttributeExpandable.hxx
+  SALOMEDSClient_AttributeExternalFileDef.hxx
+  SALOMEDSClient_AttributeFileType.hxx
+  SALOMEDSClient_AttributeFlags.hxx
+  SALOMEDSClient_AttributeGraphic.hxx
+  SALOMEDSClient_AttributeInteger.hxx
+  SALOMEDSClient_AttributeIOR.hxx
+  SALOMEDSClient_AttributeLocalID.hxx
+  SALOMEDSClient_AttributeName.hxx
+  SALOMEDSClient_AttributeOpened.hxx
+  SALOMEDSClient_AttributeParameter.hxx
+  SALOMEDSClient_AttributePersistentRef.hxx
+  SALOMEDSClient_AttributePixMap.hxx
+  SALOMEDSClient_AttributePythonObject.hxx
+  SALOMEDSClient_AttributeReal.hxx
+  SALOMEDSClient_AttributeSelectable.hxx
+  SALOMEDSClient_AttributeSequenceOfInteger.hxx
+  SALOMEDSClient_AttributeSequenceOfReal.hxx
+  SALOMEDSClient_AttributeString.hxx
+  SALOMEDSClient_AttributeStudyProperties.hxx
+  SALOMEDSClient_AttributeTable.hxx
+  SALOMEDSClient_AttributeTableOfInteger.hxx
+  SALOMEDSClient_AttributeTableOfReal.hxx
+  SALOMEDSClient_AttributeTableOfString.hxx
+  SALOMEDSClient_AttributeTarget.hxx
+  SALOMEDSClient_AttributeTextColor.hxx
+  SALOMEDSClient_AttributeTextHighlightColor.hxx
+  SALOMEDSClient_AttributeTreeNode.hxx
+  SALOMEDSClient_AttributeUserID.hxx
+  SALOMEDSClient_ChildIterator.hxx
+  SALOMEDSClient_ClientFactory.hxx
+  SALOMEDSClient_definitions.hxx
+  SALOMEDSClient_GenericAttribute.hxx
+  SALOMEDSClient.hxx
+  SALOMEDSClient_IParameters.hxx
+  SALOMEDSClient_Observer.hxx
+  SALOMEDSClient_SComponent.hxx
+  SALOMEDSClient_SComponentIterator.hxx
+  SALOMEDSClient_SObject.hxx
+  SALOMEDSClient_StudyBuilder.hxx
+  SALOMEDSClient_Study.hxx
+  SALOMEDSClient_UseCaseBuilder.hxx
+  SALOMEDSClient_UseCaseIterator.hxx
+)
 
 ADD_LIBRARY(SalomeDSClient SALOMEDSClient_ClientFactory.cxx)
-TARGET_LINK_LIBRARIES(SalomeDSClient SalomeIDLKernel ${PLATFORM_LIBS})
+TARGET_LINK_LIBRARIES(SalomeDSClient ${_link_LIBRARIES})
 INSTALL(TARGETS SalomeDSClient EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
-FILE(GLOB COMMON_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+INSTALL(FILES ${SalomeDSClient_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+
+UNSET(SalomeDSClient_HEADERS)
+UNSET(_link_LIBRARIES)

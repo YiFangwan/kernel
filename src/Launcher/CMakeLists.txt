@@ -28,42 +28,23 @@ INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIR}
   ${Boost_INCLUDE_DIR}
   ${LIBBATCH_INCLUDE_DIRS}
-  ${PROJECT_BINARY_DIR}/salome_adm
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMELocalTrace
-  ${CMAKE_CURRENT_SOURCE_DIR}/../NamingService
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Utils
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Registry
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Notification
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Container
-  ${CMAKE_CURRENT_SOURCE_DIR}/../ResourcesManager
-  ${CMAKE_CURRENT_SOURCE_DIR}/../SALOMESDS
-  ${PROJECT_BINARY_DIR}/idl
+  ${CMAKE_BINARY_DIR}/salome_adm
+  ${CMAKE_BINARY_DIR}/idl
+  ${CMAKE_SOURCE_DIR}/src/Basics
+  ${CMAKE_SOURCE_DIR}/src/SALOMELocalTrace
+  ${CMAKE_SOURCE_DIR}/src/NamingService
+  ${CMAKE_SOURCE_DIR}/src/Utils
+  ${CMAKE_SOURCE_DIR}/src/Registry
+  ${CMAKE_SOURCE_DIR}/src/Notification
+  ${CMAKE_SOURCE_DIR}/src/Container
+  ${CMAKE_SOURCE_DIR}/src/ResourcesManager
+  ${CMAKE_SOURCE_DIR}/src/SALOMESDS
 )
 
 ADD_DEFINITIONS(${LIBXML2_DEFINITIONS} ${BOOST_DEFINITIONS} ${OMNIORB_DEFINITIONS})
 IF(SALOME_USE_LIBBATCH)
   ADD_DEFINITIONS(-DWITH_LIBBATCH)
 ENDIF(SALOME_USE_LIBBATCH)
-
-# This local variable defines the list of dependent libraries common to all target in this package.
-SET(COMMON_LIBS
-  Registry
-  SalomeNotification
-  SalomeContainer
-  SalomeResourcesManager
-  SalomeNS
-  OpUtil
-  SALOMELocalTrace
-  SALOMEBasics
-  SalomeIDLKernel
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
-  ${LIBBATCH_LIBRARIES}
-  ${OMNIORB_LIBRARIES}
-  ${LIBXML2_LIBRARIES}
-  ${PYTHON_LIBRARIES}
-)
 
 SET(Launcher_SOURCES
   SALOME_Launcher_Parser.cxx
@@ -78,46 +59,65 @@ SET(Launcher_SOURCES
   Launcher_XML_Persistence.cxx
 )
 
-ADD_LIBRARY(Launcher ${Launcher_SOURCES})
-TARGET_LINK_LIBRARIES(Launcher ResourcesManager ${LIBBATCH_LIBRARIES} ${LIBXML2_LIBS} ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY})
-INSTALL(TARGETS Launcher EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
-
-SET(TestLauncher_LIBS
+SET(Launcher_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
   ${LIBXML2_LIBRARIES}
-  ResourcesManager
-  Launcher
+  ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY}
   ${LIBBATCH_LIBRARIES}
-  ${Boost_FILESYSTEM_LIBRARY}
-  ${Boost_SYSTEM_LIBRARY}
+  ResourcesManager
 )
 
-# TestLauncher needs only (and must need only) libxml, libbatch, ResourceManager and Launcher libraries!
-ADD_EXECUTABLE(TestLauncher TestLauncher.cxx)
-TARGET_LINK_LIBRARIES(TestLauncher ${TestLauncher_LIBS})
-INSTALL(TARGETS TestLauncher DESTINATION ${SALOME_INSTALL_BINS})
+ADD_LIBRARY(Launcher ${Launcher_SOURCES})
+TARGET_LINK_LIBRARIES(Launcher ${Launcher_LIBRARIES})
+INSTALL(TARGETS Launcher EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
-ADD_LIBRARY(SalomeLauncher BatchTest.cxx SALOME_Launcher.cxx SALOME_ExternalServerLauncher.cxx SALOME_LauncherException.cxx SALOME_ExternalServerHandler.cxx)
-TARGET_LINK_LIBRARIES(SalomeLauncher Launcher ${COMMON_LIBS})
-INSTALL(TARGETS SalomeLauncher EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
-  
-SET(SALOME_LauncherServer_LIBS
-  Launcher
-  SalomeLauncher
-  SalomeSDS
-  SALOMEBasics
-  SALOMELocalTrace
-  ${LIBBATCH_LIBRARIES}
+IF(SALOME_BUILD_TESTS)
+  # TestLauncher needs only (and must need only)
+  # libxml, libbatch, ResourceManager and Launcher libraries!
+  ADD_EXECUTABLE(TestLauncher TestLauncher.cxx)
+  TARGET_LINK_LIBRARIES(TestLauncher ${Launcher_LIBRARIES} Launcher)
+  INSTALL(TARGETS TestLauncher DESTINATION ${SALOME_INSTALL_BINS})
+  INSTALL(FILES testLauncher.xml DESTINATION ${SALOME_KERNEL_INSTALL_RES_DATA})
+ENDIF()
+
+SET(SalomeLauncher_SOURCES
+  BatchTest.cxx
+  SALOME_Launcher.cxx
+  SALOME_ExternalServerLauncher.cxx
+  SALOME_LauncherException.cxx
+  SALOME_ExternalServerHandler.cxx
+)
+
+SET(SalomeLauncher_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
   ${OMNIORB_LIBRARIES}
   ${LIBXML2_LIBRARIES}
   ${PYTHON_LIBRARIES}
+  ${Boost_FILESYSTEM_LIBRARY} ${Boost_SYSTEM_LIBRARY}
+  ${LIBBATCH_LIBRARIES}
+  Registry
+  SalomeNotification
+  SalomeContainer
+  SalomeResourcesManager
+  SalomeNS
+  OpUtil
+  SALOMELocalTrace
+  SALOMEBasics
+  SalomeIDLKernel
+  Launcher
 )
 
+ADD_LIBRARY(SalomeLauncher ${SalomeLauncher_SOURCES})
+TARGET_LINK_LIBRARIES(SalomeLauncher ${SalomeLauncher_LIBRARIES})
+INSTALL(TARGETS SalomeLauncher EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
+  
 ADD_EXECUTABLE(SALOME_LauncherServer SALOME_LauncherServer.cxx)
-TARGET_LINK_LIBRARIES(SALOME_LauncherServer ${SALOME_LauncherServer_LIBS})
+TARGET_LINK_LIBRARIES(SALOME_LauncherServer ${SalomeLauncher_LIBRARIES} SalomeLauncher SalomeSDS)
 INSTALL(TARGETS SALOME_LauncherServer EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_BINS})
 
-SET(COMMON_HEADERS_HXX
-  BatchTest.hxx
+SET(Launcher_HEADERS
   Launcher.hxx
   Launcher_Job.hxx
   Launcher_Job_Command.hxx
@@ -132,11 +132,16 @@ SET(COMMON_HEADERS_HXX
   SALOME_ExternalServerLauncher.hxx
   SALOME_LauncherException.hxx
 )
+INSTALL(FILES ${Launcher_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
 
-SET(LAUNCHER_PYTHON_SCRIPTS
+SET(Launcher_SCRIPTS
   launcher_proxy.py
 )
+SALOME_INSTALL_SCRIPTS("${Launcher_SCRIPTS}" ${SALOME_INSTALL_PYTHON})
 
-INSTALL(FILES ${COMMON_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
-INSTALL(FILES testLauncher.xml DESTINATION ${SALOME_KERNEL_INSTALL_RES_DATA})
-SALOME_INSTALL_SCRIPTS("${LAUNCHER_PYTHON_SCRIPTS}" ${SALOME_INSTALL_PYTHON})
+SET(Launcher_SOURCES)
+SET(Launcher_LIBRARIES)
+SET(SalomeLauncher_SOURCES)
+SET(SalomeLauncher_LIBRARIES)
+SET(Launcher_HEADERS)
+SET(Launcher_SCRIPTS)

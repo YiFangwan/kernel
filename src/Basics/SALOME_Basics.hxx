@@ -17,24 +17,17 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//  SALOME Basics : general SALOME definitions and tools (C++ part - no CORBA)
-//  File   : SALOME_Basics.hxx
-//  Author : Alexander A. BORODIN
-//  Module : SALOME
-//  $Header$
-//
-#ifndef _SALOME_BASICS_HXX_
-#define _SALOME_BASICS_HXX_
-
+#ifndef SALOME_BASICS_HXX
+#define SALOME_BASICS_HXX
 
 #ifdef WIN32
 # if defined BASICS_EXPORTS || defined SALOMEBasics_EXPORTS
-#  define BASICS_EXPORT __declspec( dllexport )
+#  define BASICS_EXPORT __declspec(dllexport)
 # else
-#  define BASICS_EXPORT __declspec( dllimport )
+#  define BASICS_EXPORT __declspec(dllimport)
 # endif
 #else
 # define BASICS_EXPORT
 #endif
 
-#endif //_SALOME_BASICS_HXX_
+#endif // SALOME_BASICS_HXX

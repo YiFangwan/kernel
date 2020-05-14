@@ -19,31 +19,39 @@
 
 INCLUDE_DIRECTORIES(
   ${PTHREAD_INCLUDE_DIR}
-  ${CMAKE_CURRENT_SOURCE_DIR}/../Basics
-  ${PTHREAD_INCLUDE_DIR}
+  ${CMAKE_SOURCE_DIR}/src/Basics
 )
 
-SET(COMMON_HEADERS
-  utilities.h
-  LocalTraceBufferPool.hxx
+SET(_link_LIBRARIES
+  ${PLATFORM_LIBS}
+  ${PTHREAD_LIBRARIES}
+  SALOMEBasics
+)
+
+SET(SALOMELocalTrace_HEADERS
   BaseTraceCollector.hxx
+  LocalTraceBufferPool.hxx
   SALOME_LocalTrace.hxx
+  utilities.h
 )
 
 SET(SALOMELocalTrace_SOURCES
   BaseTraceCollector.cxx
-  BaseTraceCollector.hxx
-  LocalTraceCollector.cxx
-  LocalTraceCollector.hxx
   FileTraceCollector.cxx
-  FileTraceCollector.hxx
   LocalTraceBufferPool.cxx
-  LocalTraceBufferPool.hxx
-  SALOME_LocalTrace.hxx
+  LocalTraceCollector.cxx
 )
 
 ADD_LIBRARY(SALOMELocalTrace ${SALOMELocalTrace_SOURCES})
-TARGET_LINK_LIBRARIES(SALOMELocalTrace SALOMEBasics ${PLATFORM_LIBS} ${PTHREAD_LIBRARIES})
+TARGET_LINK_LIBRARIES(SALOMELocalTrace ${_link_LIBRARIES})
 INSTALL(TARGETS SALOMELocalTrace EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
 
-INSTALL(FILES ${COMMON_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+INSTALL(FILES ${SALOMELocalTrace_HEADERS} DESTINATION ${SALOME_INSTALL_HEADERS})
+
+UNSET(SALOMELocalTrace_SOURCES)
+UNSET(SALOMELocalTrace_HEADERS)
+UNSET(_link_LIBRARIES)
+
+IF(SALOME_BUILD_TESTS)
+  ADD_SUBDIRECTORY(Test)
+ENDIF()

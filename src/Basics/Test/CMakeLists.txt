@@ -17,5 +17,4 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-FILE(GLOB SALOMEBasics_HEADERS_HXX "${CMAKE_CURRENT_SOURCE_DIR}/*.hxx")
-INSTALL(FILES ${SALOMEBasics_HEADERS_HXX} DESTINATION ${SALOME_INSTALL_HEADERS})
+INSTALL(FILES BasicMainTest.hxx DESTINATION ${SALOME_INSTALL_HEADERS})
