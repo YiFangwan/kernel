@@ -57,6 +57,7 @@ SET(SCRIPTS
   server.py
   setenv.py
   showNS.py
+  test_helper.py
   virtual_salome.py
   waitContainers.py
   waitNS.py
