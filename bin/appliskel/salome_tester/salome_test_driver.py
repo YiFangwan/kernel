@@ -42,12 +42,12 @@ def runTest(command):
 # Display output and errors
 def processResult(res, out, err):
   if out:
-    print(out.decode('utf_8'))
+    print(out.decode('utf_8', errors='ignore'))
     pass
   if err:
     print("    ** Detected error **")
     print("Error code: ", res)
-    print(err.decode('utf_8'), end=' \n')
+    print(err.decode('utf_8', errors='ignore'), end=' \n')
     print("    ** end of message **")
     pass
   return res
