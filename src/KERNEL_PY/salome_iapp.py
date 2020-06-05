@@ -186,3 +186,13 @@ def salome_iapp_close():
     pass
 
 
+def load_module(name, syncCall=True):
+    import salome_kernel
+    orb, lcc, naming_service, cm, esm, dsm = salome_kernel.salome_kernel_init()
+    session_server = naming_service.Resolve("/Kernel/Session")
+    if session_server:
+        message = "load_module/"+name
+        if syncCall:
+            session_server.emitMessage(message)
+        else:
+            session_server.emitMessageOneWay(message)
