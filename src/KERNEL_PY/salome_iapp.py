@@ -192,7 +192,7 @@ def load_module(name, syncCall=True):
         salome.salome_init()
         session_server = salome.naming_service.Resolve("/Kernel/Session")
         if session_server:
-            message = "load_module/"+name
+            message = "register_module_in_study/"+name
             if syncCall:
                 session_server.emitMessage(message)
             else:
