@@ -186,7 +186,7 @@ def salome_iapp_close():
     pass
 
 
-def load_module(name, syncCall=True):
+def register_module_in_study(name, syncCall=True):
     try:
         import salome
         salome.salome_init()
