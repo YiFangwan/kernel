@@ -95,7 +95,7 @@ void DF_Document::Clear()
     if(node) vn.push_back(node);
   }
 
-  for(int i = 0, len = vn.size(); i<len; i++)
+  for(size_t i = 0, len = vn.size(); i<len; i++)
     delete vn[i];
 
   _root._node->Reset();

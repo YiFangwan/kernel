@@ -76,7 +76,8 @@ std::vector<int> DF_Application::GetDocumentIDs()
 //Returns a number of existent documents
 int DF_Application::NbDocuments()
 {
-  return _documents.size();
+	//TODO: return <size_t> ot <int>?
+  return static_cast<int>(_documents.size());
 }
 
 

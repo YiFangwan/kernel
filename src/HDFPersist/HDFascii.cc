@@ -175,7 +175,7 @@ char* HDFascii::ConvertFromHDFToASCII(const char* thePath,
       return NULL;
   }
 
-  int length = strlen(aPath.c_str());
+  size_t length = strlen(aPath.c_str());
   char *new_str = new char[ 1+length ];
   strcpy(new_str , aPath.c_str()) ;
 
@@ -258,7 +258,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   fprintf(fp, " %i\n", ndim);
 
   for(int i = 0;i < ndim;i++) {
-    fprintf(fp, " %i", dim[i]);
+    fprintf(fp, " %Ii", dim[i]);
   }
 
   fprintf(fp, "\n");
@@ -278,7 +278,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
     array->GetDim(arr_dim);
 
     for( int i = 0;i < arr_ndim; i++ ) {
-      fprintf(fp, " %i", arr_dim[i]);
+      fprintf(fp, " %Ii", arr_dim[i]);
     }
         
     //And write the data array
@@ -315,10 +315,10 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
   hdf_type type = hdf_attribute->GetType();
 
   char* name = makeName(hdf_attribute->GetName());
-  int size = hdf_attribute->GetSize();
+  size_t size = hdf_attribute->GetSize();
 
   fprintf(fp, "%s\n", ATTRIBUTE_ID);
-  fprintf(fp, "%s %i %i\n", name, type, size);
+  fprintf(fp, "%s %i %Ii\n", name, type, size);
 
   delete [] name;
 
@@ -428,7 +428,7 @@ char* HDFascii::ConvertFromASCIIToHDF(const char* thePath,
       return NULL;
   }
 
-  int length = strlen(aTmpDir.c_str());
+  size_t length = strlen(aTmpDir.c_str());
   char *new_str = new char[ 1+length ];
   strcpy(new_str , aTmpDir.c_str()) ;
 
@@ -592,7 +592,7 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
   } else if(type == HDF_CHAR) {
     hdf_char* val = new hdf_char[size];
     for(i=0; i<size; i++) {
-      fscanf(fp, " %i", &(val[i]));
+      fscanf(fp, " %hhi", &(val[i]));
     }
     hdf_dataset->WriteOnDisk(val);
     delete [] val;
@@ -756,7 +756,7 @@ std::string GetTmpDir()
 char* makeName(char* name)
 {
   std::string aName(name), aNewName;
-  int i, length = aName.size();
+  size_t i, length = aName.size();
   char replace = (char)19;
 
   for(i=0; i<length; i++) {
@@ -773,7 +773,7 @@ char* makeName(char* name)
 char* restoreName(char* name)
 {
   std::string aName(name), aNewName;
-  int i, length = aName.size();
+  size_t i, length = aName.size();
   char replace = (char)19;
 
   for(i=0; i<length; i++) {

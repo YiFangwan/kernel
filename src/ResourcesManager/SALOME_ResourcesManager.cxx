@@ -162,11 +162,11 @@ void SALOME_ResourcesManager::ListAllAvailableResources(Engines::ResourceList_ou
   machines=new Engines::ResourceList;
   nbProcsOfMachines=new Engines::IntegerList;
   std::size_t sz(ret0.size());
-  machines->length(sz); nbProcsOfMachines->length(sz);
+  machines->length(static_cast<unsigned long>(sz)); nbProcsOfMachines->length(static_cast<unsigned long>(sz));
   for(std::size_t j=0;j<sz;j++)
     {
-      (*machines)[j]=CORBA::string_dup(ret0[j].c_str());
-      (*nbProcsOfMachines)[j]=ret1[j];
+      (*machines)[static_cast<unsigned long>(j)]=CORBA::string_dup(ret0[j].c_str());
+      (*nbProcsOfMachines)[static_cast<unsigned long>(j)]=ret1[j];
     }
 }
 

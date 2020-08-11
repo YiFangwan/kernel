@@ -256,7 +256,7 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
   // --- The current directory is now the directory where the object should
   //     be recorded
 
-  int sizePath = splitPath.size();
+  size_t sizePath = splitPath.size();
   if (sizePath > dimension_resultat){
     ASSERT(sizePath == dimension_resultat+1);
     context_name.length(1);
@@ -1176,7 +1176,7 @@ throw(ServiceUnreachable)
   // --- The current directory is now the directory where the object should
   //     be destroyed
 
-  int sizePath = splitPath.size();
+  size_t sizePath = splitPath.size();
   if (sizePath > dimension_resultat)
     {
       ASSERT(sizePath == dimension_resultat+1);
@@ -1494,13 +1494,13 @@ SALOME_NamingService::_createContextNameDir(std::string path,
         endWithDelim = true;
       if (endIdx == std::string::npos)
         endIdx = path.length();
-      int lsub = endIdx - begIdx;
+	  size_t lsub = endIdx - begIdx;
       if (lsub >= 1)
         splitPath.push_back(path.substr(begIdx, lsub));
       begIdx = path.find_first_not_of(delims, endIdx);
     }
 
-  int dim;
+  size_t dim;
   if (onlyDir)                  // only directory part
     {
       dim = splitPath.size()-1; // omit final object
@@ -1511,7 +1511,7 @@ SALOME_NamingService::_createContextNameDir(std::string path,
   else
     dim = splitPath.size();     // directories and final object
 
-  context_name.length(dim);
+  context_name.length(static_cast<unsigned long>(dim));
   for (int i=0; i<dim; i++)
     {
 //       SCRUTE(splitPath[i]);
@@ -1527,7 +1527,7 @@ SALOME_NamingService::_createContextNameDir(std::string path,
 //        MESSAGE("--- " <<splitPath[i] <<".dir");
         }
     }
-  return dim;
+  return static_cast<int>(dim); //TODO: return <int> or <size_t>?
 }
 
 // ============================================================================

@@ -91,7 +91,7 @@ Salome_file_i::load(const char* hdf5_file) {
     HDFfile *hdf_file;
     HDFgroup *hdf_group;
     HDFdataset *hdf_dataset;
-    int size;
+    size_t size;
     int fd;
     char * value;
     char * buffer;
@@ -193,7 +193,7 @@ Salome_file_i::load(const char* hdf5_file) {
           throw SALOME::SALOME_Exception(es);
         };
         hdf_dataset->ReadFromDisk(buffer);
-        if ( write(fd,buffer,size) <0) { 
+        if ( write(fd,buffer, static_cast<unsigned int>(size)) <0) {
           SALOME::ExceptionStruct es;
           es.type = SALOME::INTERNAL_ERROR;
           std::string text = "write failed";
@@ -909,7 +909,7 @@ Engines::files*
 Salome_file_i::getFilesInfos() {
 
   Engines::files * infos = new Engines::files();
-  infos->length(_fileManaged.size());
+  infos->length(static_cast<unsigned long>(_fileManaged.size()));
 
   _t_fileManaged::iterator begin = _fileManaged.begin();
   _t_fileManaged::iterator end = _fileManaged.end();
@@ -1058,7 +1058,7 @@ Salome_file_i::getBlock(CORBA::Long fileId)
   // see Advanced CORBA Programming with C++ pp 187-194
   CORBA::Octet *buf;
   buf = Engines::fileBlock::allocbuf(FILEBLOCK_SIZE);
-  int nbRed = fread(buf, sizeof(CORBA::Octet), FILEBLOCK_SIZE, fp);
+  size_t nbRed = fread(buf, sizeof(CORBA::Octet), FILEBLOCK_SIZE, fp);
   aBlock->replace(nbRed, nbRed, buf, 1); // 1 means give ownership
   return aBlock;
 }

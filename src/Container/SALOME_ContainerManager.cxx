@@ -235,7 +235,7 @@ void SALOME_ContainerManager::ShutdownContainers()
             if(!CORBA::is_nil(cont) && pid != cont->getPID())
               lstCont.push_back((*iter));
           }
-        catch(const CORBA::Exception& e)
+        catch(const CORBA::Exception&)
           {
             // ignore this entry and continue
           }
@@ -684,7 +684,7 @@ SALOME_ContainerManager::FindContainer(const Engines::ContainerParameters& param
     else
       return Engines::Container::_narrow(obj);
   }
-  catch(const CORBA::Exception& e)
+  catch(const CORBA::Exception&)
   {
     return Engines::Container::_nil();
   }
@@ -702,7 +702,7 @@ bool isPythonContainer(const char* ContainerName)
 {
   return false; // VSR 02/08/2013: Python containers are no more supported
   bool ret = false;
-  int len = strlen(ContainerName);
+  size_t len = strlen(ContainerName);
 
   if (len >= 2)
     if (strcmp(ContainerName + len - 2, "Py") == 0)
@@ -908,7 +908,7 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
 
 void SALOME_ContainerManager::RmTmpFile(std::string& tmpFileName)
 {
-  int length = tmpFileName.size();
+  size_t length = tmpFileName.size();
   if ( length  > 0)
     {
 #ifdef WIN32
