@@ -39,7 +39,7 @@ namespace SALOMESDS
       {
           id=poa->activate_object(this);
       }
-      catch(PortableServer::POA::ServantAlreadyActive& e)
+      catch(PortableServer::POA::ServantAlreadyActive& /*e*/) //!< TODO: unused variables
       {
           id=poa->servant_to_id(this);
       }

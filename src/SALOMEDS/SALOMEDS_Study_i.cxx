@@ -200,7 +200,7 @@ namespace SALOMEDS
           gobj->Register();
         }
       }
-      catch(const CORBA::Exception& e)
+      catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
       {
       }
     }
@@ -216,7 +216,7 @@ namespace SALOMEDS
           gobj->UnRegister();
         }
       }
-      catch(const CORBA::Exception& e)
+      catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
       {
       }
     }

@@ -336,12 +336,12 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       hasModuleData = true;
 
       unsigned char* aStreamFile = NULL;
-      int aStreamSize = 0;
+      size_t aStreamSize = 0;
 
       if (hdf_sco_group->ExistInternalObject("FILE_STREAM")) {
         HDFdataset *hdf_dataset = new HDFdataset("FILE_STREAM", hdf_sco_group);
         hdf_dataset->OpenOnDisk();
-        aStreamSize = hdf_dataset->GetSize();
+        aStreamSize = (size_t)hdf_dataset->GetSize();
         aStreamFile  = new unsigned char[aStreamSize];
         if(aStreamFile == NULL) throw HDFexception("Unable to open dataset FILE_STREAM");
         hdf_dataset->ReadFromDisk(aStreamFile);

@@ -158,7 +158,7 @@ void SALOMEDSImpl_AttributeSequenceOfInteger::Remove(const int Index)
 
 int SALOMEDSImpl_AttributeSequenceOfInteger::Length() 
 {
-  return myValue.size();
+  return (int)myValue.size(); //!< TODO: conversion from size_t to int, possible loss of data
 }
 int SALOMEDSImpl_AttributeSequenceOfInteger::Value(const int Index) 
 {
@@ -174,7 +174,7 @@ std::string SALOMEDSImpl_AttributeSequenceOfInteger::Save()
   int aLength = Length();
   char* aResult = new char[aLength * 25];
   aResult[0] = 0;
-  int aPosition = 0;
+  size_t aPosition = 0;
   for (int i = 1; i <= aLength; i++) {
     sprintf(aResult + aPosition , "%d ", Value(i));
     aPosition += strlen(aResult + aPosition);

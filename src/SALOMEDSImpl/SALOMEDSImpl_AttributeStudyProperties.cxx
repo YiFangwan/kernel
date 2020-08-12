@@ -198,7 +198,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Restore(DF_Attribute* with)
   std::vector<std::string> aNames;
   std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
-  for (int i = 0, len = aNames.size(); i < len; i++) {
+  for (size_t i = 0, len = aNames.size(); i < len; i++) {
     myUserName.push_back(aNames[i]);
     myMinute.push_back(aMinutes[i]);
     myHour.push_back(aHours[i]);
@@ -243,14 +243,14 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
   std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
-  int aLength, anIndex, unitsSize = 0, commentSize = 0;;
+  size_t aLength, anIndex, unitsSize = 0, commentSize = 0;;
   for (aLength = 0, anIndex = aNames.size()-1; anIndex >= 0; anIndex--)
     aLength += aNames[anIndex].size() + 1;
 
   std::string units = GetUnits();
   std::string comment = GetComment();
 
-  int aLength1 = 0;
+  size_t aLength1 = 0;
   std::map<std::string, std::string> versions;
   versionMap::const_iterator it;
   for (aLength1 = 0, it = myComponentVersions.begin(); it != myComponentVersions.end(); ++it ) {

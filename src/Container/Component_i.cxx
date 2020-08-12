@@ -665,7 +665,7 @@ void Engines_Component_i::endService(const char *serviceName)
   if ( !_CanceledThread )
     _ThreadCpuUsed = CpuUsed_impl() ;
 
-  float cpus=_ThreadCpuUsed/1000.;
+  float cpus=_ThreadCpuUsed/1000.f;
   std::cerr << "endService for " << serviceName << " Component instance : " << _instanceName ;
   std::cerr << " Cpu Used: " << cpus << " (s) " << std::endl;
   MESSAGE("Send EndService notification for " << serviceName

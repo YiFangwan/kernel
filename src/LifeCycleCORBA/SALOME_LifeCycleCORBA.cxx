@@ -152,7 +152,7 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::ContainerParameters& params,
     {
       listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
     }
-  catch( const SALOME::SALOME_Exception& ex )
+  catch( const SALOME::SALOME_Exception& /*ex*/ ) //!< TODO: unused variable
     {
       return Engines::EngineComponent::_nil();
     }
@@ -192,7 +192,7 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::ContainerParameters& params,
     {
       listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
     }
-  catch( const SALOME::SALOME_Exception& ex )
+  catch( const SALOME::SALOME_Exception& /*ex*/ ) //!< TODO: unused variable
     {
       return Engines::EngineComponent::_nil();
     }
@@ -234,7 +234,7 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
     {
       listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
     }
-  catch( const SALOME::SALOME_Exception& ex )
+  catch( const SALOME::SALOME_Exception& /*ex*/ ) //!< TODO: unused variable
     {
       return Engines::EngineComponent::_nil();
     }
@@ -449,7 +449,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
       if ( !CORBA::is_nil(connMan) && ( pid != connMan->getPID() ) )
         connMan->ShutdownWithExit();
     }
-  catch(const CORBA::Exception& e)
+  catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
     {
        // ignore and continue
     }
@@ -472,7 +472,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
         study->Shutdown();
       _NS->Destroy_Name("/Study");
     }
-  catch(const CORBA::Exception& e)
+  catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
     {
        // ignore and continue
     }
@@ -491,7 +491,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
         catalog->shutdown();
       _NS->Destroy_Name("/Kernel/ModulCatalog");
     }
-  catch(const CORBA::Exception& e)
+  catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
     {
        // ignore and continue
     }
@@ -508,7 +508,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
       if ( !CORBA::is_nil(dsm) )
         dsm->shutdownScopes();
     }
-  catch(const CORBA::Exception& e)
+  catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
     {
        // ignore and continue
     }
@@ -520,7 +520,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
       if ( !CORBA::is_nil(dsm) )
         dsm->shutdownServers();
     }
-  catch(const CORBA::Exception& e)
+  catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
     {
        // ignore and continue
     }
@@ -534,7 +534,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
           launcher->Shutdown();
       }
     }
-  catch(const CORBA::Exception& e)
+  catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
     {
        // ignore and continue
     }
@@ -553,7 +553,7 @@ void SALOME_LifeCycleCORBA::shutdownServers(bool shutdownLauncher)
           registry->Shutdown();
       _NS->Destroy_Name("/Registry");
     }
-  catch(const CORBA::Exception& e)
+  catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
     {
        // ignore and continue
     }

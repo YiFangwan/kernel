@@ -88,16 +88,16 @@ void PickelizedPyObjServer::FromByteSeqToCpp(const SALOME::ByteVec& bsToBeConv, 
   ret.resize(sz,' ');
   char *buf(const_cast<char *>(ret.c_str()));
   for(std::size_t i=0;i<sz;i++)
-    buf[i]=bsToBeConv[i];
+    buf[i]=bsToBeConv[(_CORBA_ULong)i]; //!< TODO: size_t to _CORBA_ULong
 }
 
 void PickelizedPyObjServer::FromCppToByteSeq(const std::string& strToBeConv, SALOME::ByteVec& ret)
 {
   const char *buf(strToBeConv.c_str());
   std::size_t sz(strToBeConv.size());
-  ret.length(sz);
+  ret.length((_CORBA_ULong)sz); //!< TODO: size_t to _CORBA_ULong
   for(std::size_t i=0;i<sz;i++)
-    ret[i]=buf[i];
+    ret[(_CORBA_ULong)i]=buf[i]; //!< TODO: size_t to _CORBA_ULong
 }
 
 SALOME::ByteVec *PickelizedPyObjServer::FromCppToByteSeq(const std::string& strToBeConv)

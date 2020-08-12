@@ -160,7 +160,7 @@ void SALOMEDSImpl_AttributeSequenceOfReal::Remove(const int Index)
 
 int SALOMEDSImpl_AttributeSequenceOfReal::Length() 
 {
-  return myValue.size();
+  return (int)myValue.size(); //!< TODO: conversion from size_t to int, possible loss of data
 }
 
 double SALOMEDSImpl_AttributeSequenceOfReal::Value(const int Index) 
@@ -175,7 +175,7 @@ std::string SALOMEDSImpl_AttributeSequenceOfReal::Save()
   int aLength = Length();
   char* aResult = new char[aLength * 127];
   aResult[0] = 0;
-  int aPosition = 0;
+  size_t aPosition = 0;
   for (int i = 1; i <= aLength; i++) {
     sprintf(aResult + aPosition , "%.64e ", Value(i));
     aPosition += strlen(aResult + aPosition);
