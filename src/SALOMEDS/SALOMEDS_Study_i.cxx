@@ -730,7 +730,7 @@ SALOMEDS::Study::ListOfSObject* SALOMEDS_Study_i::FindObjectByName( const char* 
                                                                    std::string((char*)aComponentName));
 
   SALOMEDS::Study::ListOfSObject_var listSO = new SALOMEDS::Study::ListOfSObject;
-  int aLength = aSeq.size();
+  int aLength = (int)aSeq.size(); //!< TODO: conversion from size_t to int
   listSO->length(aLength);
   for (int i = 0; i < aLength; i++) {
     SALOMEDS::SObject_var so = SALOMEDS_SObject_i::New(aSeq[i], _orb);
@@ -1047,7 +1047,7 @@ SALOMEDS::ListOfDates* SALOMEDS_Study_i::GetModificationsDate()
 
   std::vector<std::string> aSeq = _impl->GetModificationsDate();
 
-  int aLength = aSeq.size();
+  int aLength = (int)aSeq.size(); //!< TODO: conversion from size_t to int
   aDates->length(aLength);
   for (int anIndex = 0; anIndex < aLength; anIndex++) {
     aDates[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
@@ -1265,7 +1265,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetLockerID()
 
   std::vector<std::string> aSeq = _impl->GetLockerID();
 
-  int aLength = aSeq.size();
+  int aLength = (int)aSeq.size(); //!< TODO: conversion from size_t to int
   aResult->length(aLength);
   for(int anIndex = 0; anIndex < aLength; anIndex++) {
     aResult[anIndex] = CORBA::string_dup(aSeq[anIndex].c_str());
@@ -1492,7 +1492,7 @@ SALOMEDS::ListOfStrings* SALOMEDS_Study_i::GetVariableNames()
 
   std::vector<std::string> aVarNames = _impl->GetVariableNames();
 
-  int aLen = aVarNames.size();
+  int aLen = (int)aVarNames.size(); //!< TODO: conversion from size_t to int
   aResult->length(aLen);
   for (int anInd = 0; anInd < aLen; anInd++)
     aResult[anInd] = CORBA::string_dup(aVarNames[anInd].c_str());
@@ -1562,7 +1562,7 @@ SALOMEDS::ListOfListOfStrings* SALOMEDS_Study_i::ParseVariables(const char* theV
 
   std::vector< std::vector<std::string> > aSections = _impl->ParseVariables(std::string(theVarName));
 
-  int aSectionsLen = aSections.size();
+  int aSectionsLen = (int)aSections.size(); //!< TODO: conversion from size_t to int
   aResult->length(aSectionsLen);
 
   for (int aSectionInd = 0; aSectionInd < aSectionsLen; aSectionInd++) {
@@ -1570,7 +1570,7 @@ SALOMEDS::ListOfListOfStrings* SALOMEDS_Study_i::ParseVariables(const char* theV
 
     SALOMEDS::ListOfStrings_var aList = new SALOMEDS::ListOfStrings;
 
-    int aLen = aVarNames.size();
+    int aLen = (int)aVarNames.size(); //!< TODO: conversion from size_t to int
     aList->length(aLen);
 
     for (int anInd = 0; anInd < aLen; anInd++)

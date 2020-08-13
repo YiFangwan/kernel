@@ -180,7 +180,7 @@ CORBA::ULong SALOME_CorbaDoubleCSender_i::getSize(){
 SALOME::vectorOfDouble* SALOME_CorbaDoubleCSender_i::sendPart(CORBA::ULong offset, CORBA::ULong length){
   SALOME::vectorOfDouble_var c1 = new SALOME::vectorOfDouble;
   c1->length(length);
-  for (long i=0; i<length; i++)
+  for (unsigned long i=0; i<length; i++)
     c1[i] = ((double *)_tabToSend)[i+offset];
   return c1._retn();
 }
@@ -222,7 +222,7 @@ CORBA::ULong SALOME_CorbaLongCSender_i::getSize(){
 SALOME::vectorOfLong* SALOME_CorbaLongCSender_i::sendPart(CORBA::ULong offset, CORBA::ULong length){
   SALOME::vectorOfLong_var c1 = new SALOME::vectorOfLong;
   c1->length(length);
-  for (long i=0; i<length; i++)
+  for (unsigned long i=0; i<length; i++)
     c1[i] = ((long *)_tabToSend)[i+offset];
   return c1._retn();
 }

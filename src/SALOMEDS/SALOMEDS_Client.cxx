@@ -279,7 +279,7 @@ int main(int argc, char** argv)
   catch(CORBA::Exception&) {
     MESSAGE( "Caught CORBA::Exception." )
   }
-  catch(omniORB::fatalException& fe) {
+  catch(omniORB::fatalException& /*fe*/) { //!< TODO: unused variable
     MESSAGE( "Caught omniORB::fatalException:" )
     MESSAGE( "  file: " << fe.file() )
     MESSAGE( "  line: " << fe.line() )

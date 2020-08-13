@@ -1059,7 +1059,7 @@ Salome_file_i::getBlock(CORBA::Long fileId)
   CORBA::Octet *buf;
   buf = Engines::fileBlock::allocbuf(FILEBLOCK_SIZE);
   size_t nbRed = fread(buf, sizeof(CORBA::Octet), FILEBLOCK_SIZE, fp);
-  aBlock->replace(nbRed, nbRed, buf, 1); // 1 means give ownership
+  aBlock->replace((_CORBA_ULong)nbRed, (_CORBA_ULong)nbRed, buf, 1); // 1 means give ownership //!< TODO: conversion from size_t to _CORBA_ULong
   return aBlock;
 }
 

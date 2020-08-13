@@ -278,7 +278,7 @@ SALOME_LifeCycleCORBA::FindOrLoad_Component(const char *containerName,
   // --- Check if containerName contains machine name (if yes: rg>0)
   char *stContainer=strdup(containerName);
   std::string st2Container(stContainer);
-  int rg=st2Container.find("/");
+  int rg=(int)st2Container.find("/"); //!< TODO: conversion from size_t to int
 
   Engines::ContainerParameters params;
   preSet(params);

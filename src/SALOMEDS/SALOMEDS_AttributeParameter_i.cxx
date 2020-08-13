@@ -175,7 +175,7 @@ SALOMEDS::DoubleSeq* SALOMEDS_AttributeParameter_i::GetRealArray(const char* the
   Unexpect aCatch (AP_InvalidIdentifier);
   SALOMEDS::DoubleSeq_var aSeq = new SALOMEDS::DoubleSeq;
   std::vector<double> v = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetRealArray(theID);
-  int length = v.size();
+  int length = (int)v.size(); //!< TODO: conversion from size_t to int
   if(length) {
     aSeq->length(length);
     for(int i = 0; i<length; i++) aSeq[i] = v[i];
@@ -215,7 +215,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeParameter_i::GetIntArray(const char* theID)
   Unexpect aCatch (AP_InvalidIdentifier);
   SALOMEDS::LongSeq_var aSeq = new SALOMEDS::LongSeq;
   std::vector<int> v = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetIntArray(theID);
-  int length = v.size();
+  int length = (int)v.size(); //!< TODO: conversion from size_t to int
   if(length) {
     aSeq->length(length);
     for(int i = 0; i<length; i++) aSeq[i] = v[i];
@@ -255,7 +255,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeParameter_i::GetStrArray(const char* theI
   Unexpect aCatch (AP_InvalidIdentifier);
   SALOMEDS::StringSeq_var aSeq = new SALOMEDS::StringSeq;
   std::vector<std::string> v = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetStrArray(theID);
-  int length = v.size();
+  int length = (int)v.size(); //!< TODO: conversion from size_t to int
   if(length) {
     aSeq->length(length);
     for(int i = 0; i<length; i++) aSeq[i] = CORBA::string_dup(v[i].c_str());
@@ -354,7 +354,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeParameter_i::GetIDs(CORBA::Long theType)
   std::vector<std::string> A = dynamic_cast<SALOMEDSImpl_AttributeParameter*>(_impl)->GetIDs((Parameter_Types)theType);
 
   if(A.size()) {
-    int length = A.size();
+    int length = (int)A.size(); //!< TODO: conversion from size_t to int
     CorbaSeq->length(length);
     for (int i = 0; i < length; i++) CorbaSeq[i] = CORBA::string_dup(A[i].c_str());;
   }

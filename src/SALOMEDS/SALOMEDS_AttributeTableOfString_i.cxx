@@ -85,7 +85,7 @@ void SALOMEDS_AttributeTableOfString_i::SetRowTitles(const SALOMEDS::StringSeq& 
   CheckLocked();
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   if (theTitles.length() != aTable->GetNbRows()) throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
-  for (int i = 0; i < theTitles.length(); i++) {
+  for (int i = 0; i < (int)theTitles.length(); i++) {
     aTable->SetRowTitle(i + 1, std::string((char*)theTitles[i].in()));
   }
 }
@@ -96,7 +96,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetRowTitles()
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   SALOMEDS::StringSeq_var aTitles = new SALOMEDS::StringSeq;
   aTitles->length(aTable->GetNbRows());
-  for(int i = 0; i < aTitles->length(); i++)
+  for(int i = 0; i < (int)aTitles->length(); i++)
     aTitles[i] =CORBA::string_dup(aTable->GetRowTitle(i + 1).c_str());
   return aTitles._retn();
 }
@@ -132,7 +132,7 @@ void SALOMEDS_AttributeTableOfString_i::SetColumnTitles(const SALOMEDS::StringSe
   CheckLocked();
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   if (theTitles.length() != aTable->GetNbColumns()) throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
-  for (int i = 0; i < theTitles.length(); i++) {
+  for (int i = 0; i < (int)theTitles.length(); i++) {
     aTable->SetColumnTitle(i + 1, std::string((char*)theTitles[i].in()));
   }
 }
@@ -143,7 +143,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetColumnTitles()
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   SALOMEDS::StringSeq_var aTitles = new SALOMEDS::StringSeq;
   aTitles->length(aTable->GetNbColumns());
-  for(int i = 0; i < aTitles->length(); i++)
+  for(int i = 0; i < (int)aTitles->length(); i++)
     aTitles[i] = CORBA::string_dup(aTable->GetColumnTitle(i + 1).c_str());
   return aTitles._retn();
 }
@@ -180,7 +180,7 @@ void SALOMEDS_AttributeTableOfString_i::SetRowUnits(const SALOMEDS::StringSeq& t
   CheckLocked();
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   if (theUnits.length() != aTable->GetNbRows()) throw SALOMEDS::AttributeTable::IncorrectArgumentLength();
-  for (int i = 0; i < theUnits.length(); i++) {
+  for (int i = 0; i < (int)theUnits.length(); i++) {
     aTable->SetRowUnit(i + 1, std::string((char*)theUnits[i].in()));
   }
 }
@@ -191,7 +191,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetRowUnits()
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   SALOMEDS::StringSeq_var aUnits = new SALOMEDS::StringSeq;
   aUnits->length(aTable->GetNbRows());
-  for(int i = 0; i < aUnits->length(); i++)
+  for(int i = 0; i < (int)aUnits->length(); i++)
     aUnits[i] = CORBA::string_dup(aTable->GetRowUnit(i + 1).c_str());
   return aUnits._retn();
 }
@@ -218,7 +218,7 @@ void SALOMEDS_AttributeTableOfString_i::AddRow(const SALOMEDS::StringSeq& theDat
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   
   std::vector<std::string> aRow;
-  for (int i = 0; i < theData.length(); i++) aRow.push_back(std::string(CORBA::string_dup(theData[i])));
+  for (size_t i = 0; i < theData.length(); i++) aRow.push_back(std::string(CORBA::string_dup(theData[(_CORBA_ULong)i]))); //!< TODO: conversion from size_t to _CORBA_ULong
   aTable->SetRowData(aTable->GetNbRows() + 1, aRow);
 }
 
@@ -231,7 +231,7 @@ void SALOMEDS_AttributeTableOfString_i::SetRow(CORBA::Long theRow, const SALOMED
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   
   std::vector<std::string> aRow;
-  for (int i = 0; i < theData.length(); i++) aRow.push_back(std::string(CORBA::string_dup(theData[i].in())));
+  for (size_t i = 0; i < theData.length(); i++) aRow.push_back(std::string(CORBA::string_dup(theData[(_CORBA_ULong)i].in()))); //!< TODO: conversion from size_t to _CORBA_ULong
   aTable->SetRowData(theRow, aRow);
 }
 
@@ -245,7 +245,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetRow(CORBA::Long theRo
 
   SALOMEDS::StringSeq_var CorbaSeq = new SALOMEDS::StringSeq;
   std::vector<std::string> aRow = aTable->GetRowData(theRow);
-  CorbaSeq->length(aRow.size());
+  CorbaSeq->length((_CORBA_ULong)aRow.size()); //!< TODO: conversion from size_t to _CORBA_ULong
   for (int i = 0; i < aRow.size(); i++) {
     CorbaSeq[i] = CORBA::string_dup(aRow[i].c_str());
   }
@@ -261,7 +261,7 @@ void SALOMEDS_AttributeTableOfString_i::AddColumn(const SALOMEDS::StringSeq& the
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   
   std::vector<std::string> aColumn;
-  for (int i = 0; i < theData.length(); i++) aColumn.push_back(std::string(CORBA::string_dup(theData[i])));
+  for (size_t i = 0; i < theData.length(); i++) aColumn.push_back(std::string(CORBA::string_dup(theData[(_CORBA_ULong)i]))); //!< TODO: conversion from size_t to _CORBA_ULong
   aTable->SetColumnData(aTable->GetNbColumns() + 1, aColumn);
 }
 
@@ -274,7 +274,7 @@ void SALOMEDS_AttributeTableOfString_i::SetColumn(CORBA::Long theColumn, const S
   SALOMEDSImpl_AttributeTableOfString* aTable = dynamic_cast<SALOMEDSImpl_AttributeTableOfString*>(_impl);
   
   std::vector<std::string> aColumn;
-  for (int i = 0; i < theData.length(); i++) aColumn.push_back(std::string(CORBA::string_dup(theData[i])));
+  for (size_t i = 0; i < theData.length(); i++) aColumn.push_back(std::string(CORBA::string_dup(theData[(_CORBA_ULong)i]))); //!< TODO: conversion from size_t to _CORBA_ULong
   aTable->SetColumnData(theColumn, aColumn);
 }
 
@@ -288,7 +288,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetColumn(CORBA::Long th
 
   SALOMEDS::StringSeq_var CorbaSeq = new SALOMEDS::StringSeq;
   std::vector<std::string> aColumn = aTable->GetColumnData(theColumn);
-  CorbaSeq->length(aColumn.size());
+  CorbaSeq->length((_CORBA_ULong)aColumn.size()); //!< TODO: conversion from size_t to _CORBA_ULong
   for (int i = 0; i < aColumn.size(); i++) {
     CorbaSeq[i] = CORBA::string_dup(aColumn[i].c_str());
   }
@@ -358,7 +358,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::GetRowSetIndices(CORBA::Lo
 
   SALOMEDS::LongSeq_var CorbaSeq = new SALOMEDS::LongSeq;
   std::vector<int> aSeq = aTable->GetSetRowIndices(theRow);
-  CorbaSeq->length(aSeq.size());
+  CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
   for (int i = 0; i < aSeq.size(); i++) {
     CorbaSeq[i] = aSeq[i];
   }
@@ -389,7 +389,7 @@ SALOMEDS::TMPFile*  SALOMEDS_AttributeTableOfString_i::SaveToFile()
 
   std::string aString = aTable->Save();
   char* aBuffer = (char*)CORBA::string_dup(aString.c_str());
-  int aBufferSize = strlen((char*)aBuffer);
+  int aBufferSize = (int)strlen((char*)aBuffer); //!< TODO: conversion from size_t to int
 
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
 
@@ -418,7 +418,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortRow(CORBA::Long theRow
   catch(...) {
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
-  CorbaSeq->length(aSeq.size());
+  CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
   for (int i = 0; i < aSeq.size(); i++) {
     CorbaSeq[i] = aSeq[i];
   }
@@ -445,7 +445,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortColumn(CORBA::Long the
   catch(...) {
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
-  CorbaSeq->length(aSeq.size());
+  CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
   for (int i = 0; i < aSeq.size(); i++) {
     CorbaSeq[i] = aSeq[i];
   }
@@ -472,7 +472,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortByRow(CORBA::Long theR
   catch(...) {
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
-  CorbaSeq->length(aSeq.size());
+  CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
   for (int i = 0; i < aSeq.size(); i++) {
     CorbaSeq[i] = aSeq[i];
   }
@@ -499,7 +499,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortByColumn(CORBA::Long t
   catch(...) {
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
-  CorbaSeq->length(aSeq.size());
+  CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
   for (int i = 0; i < aSeq.size(); i++) {
     CorbaSeq[i] = aSeq[i];
   }

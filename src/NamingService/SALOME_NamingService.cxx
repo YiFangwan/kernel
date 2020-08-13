@@ -877,7 +877,7 @@ char *SALOME_NamingService::Current_Directory() throw(ServiceUnreachable)
     }
 
   std::string path;
-  lengthPath = splitPath.size();
+  lengthPath = (int)splitPath.size(); //!< TODO: conversion from size_t to int
   for (int k = 0 ; k < lengthPath ;k++)
     {
       path += "/";

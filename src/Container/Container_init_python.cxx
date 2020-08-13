@@ -171,7 +171,7 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
   MESSAGE("=================================================================");
   // set stdout to line buffering (aka C++ std::cout)
   setvbuf(stdout, (char *)NULL, _IOLBF, BUFSIZ);
-  wchar_t* salome_python;
+  wchar_t* salome_python; //!< TODO: unused variable
   char* env_python=getenv("SALOME_PYTHON");
   if(env_python != 0)
     {

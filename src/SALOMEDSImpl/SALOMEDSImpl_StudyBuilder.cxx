@@ -371,8 +371,8 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       bool aResult = true;
       if(aStreamFile && aStreamSize > 0 ) {
         aResult = (ASCIIfileState[0]=='A')?
-        aDriver->LoadASCII(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M'):
-        aDriver->Load(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M');
+        aDriver->LoadASCII(anSCO, aStreamFile, (long)aStreamSize, aDir.c_str(), aMultifileState[0]=='M'): //!< TODO: conversion from size_t to const long
+        aDriver->Load(anSCO, aStreamFile, (long)aStreamSize, aDir.c_str(), aMultifileState[0]=='M'); //!< TODO: conversion from size_t to const long
       }
 
       if(aStreamFile != NULL) delete []aStreamFile; 

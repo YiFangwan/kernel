@@ -28,7 +28,7 @@
 #include "SALOME_Basics.hxx"
 #include <string>
 #include <iostream>
-
+#define SALOME_UNUSED(var) (void)var
 #ifndef WIN32
 #include <sys/time.h>
 #else

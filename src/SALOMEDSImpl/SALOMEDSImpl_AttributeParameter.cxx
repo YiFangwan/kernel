@@ -36,7 +36,7 @@
 //          of the character (2 characters)
 std::string convertString(const std::string& S)
 {
-  int length = S.size();
+  size_t length = S.size(); 
   if ( length == 0 )
     return "0";
   char c[3], *buffer = new char[length*3+1];
@@ -57,7 +57,7 @@ std::string convertString(const std::string& S)
 //Restors a string converted by the function convertString
 std::string restoreString(const std::string& S)
 {
-  int length = S.size();
+  size_t length = S.size();
   if ( length == 1 )
     return "";
   char c[3], *buffer = new char[length/3+1];

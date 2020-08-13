@@ -284,7 +284,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
             (int)(aMonths[anIndex]),
             (int)(aYears[anIndex]),
             (char*)(aNames[anIndex].c_str()));
-    a = strlen(aProperty);
+    a = (int)strlen(aProperty); //!< TODO: conversion from size_t to int
     aProperty[a++] = 1;
   }
 
@@ -294,7 +294,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
   //Write units if need
   if(units.size() > 0) {
     sprintf(&(aProperty[a]),"%s",units.c_str());
-    a = strlen(aProperty);
+    a = (int)strlen(aProperty); //!< TODO: conversion from size_t to int
   }
 
   aProperty[a++] = 1; //delimiter of the units and comments
@@ -302,7 +302,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
   //Write comments if need
   if(comment.size() > 0) {
     sprintf(&(aProperty[a]),"%s",comment.c_str());
-    a = strlen(aProperty);
+    a = (int)strlen(aProperty); //!< TODO: conversion from size_t to int
   }
   
   aProperty[a++] = 30; //delimiter of the component versions
@@ -312,7 +312,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
     sprintf(&(aProperty[a]),"%s=%s",
             (char*)(versionsIt->first.c_str()),
             (char*)(versionsIt->second.c_str()));
-    a = strlen(aProperty);
+    a = (int)strlen(aProperty); //!< TODO: conversion from size_t to int
     aProperty[a++] = 1;
   }
 
@@ -499,11 +499,11 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
         aVersions[verSize] = 0;
         
         std::string mVersions = aVersions;
-        int start = 0, idx = mVersions.find( ';', start );
+        int start = 0, idx = (int)mVersions.find( ';', start ); //!< TODO: conversion from size_t to int
         while ( idx != std::string::npos ) {
           SetComponentVersion( aModule, mVersions.substr( start, idx-start ) );
           start = idx + 1;
-          idx = mVersions.find( ';', start );
+          idx = (int)mVersions.find( ';', start ); //!< TODO: conversion from size_t to int
         }
         SetComponentVersion( aModule, mVersions.substr( start ) );
 

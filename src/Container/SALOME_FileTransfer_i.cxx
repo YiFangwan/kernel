@@ -134,7 +134,7 @@ Engines::fileBlock* fileTransfer_i::getBlock(CORBA::Long fileId)
   
   CORBA::Octet *buf;
   buf = Engines::fileBlock::allocbuf(FILEBLOCK_SIZE);
-  int nbRed = fread(buf, sizeof(CORBA::Octet), FILEBLOCK_SIZE, fp);
+  int nbRed = (int)fread(buf, sizeof(CORBA::Octet), FILEBLOCK_SIZE, fp); //!< TODO: conversion from size_t to int
   //SCRUTE(nbRed);
   aBlock->replace(nbRed, nbRed, buf, 1); // 1 means give ownership
   return aBlock;

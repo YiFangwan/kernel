@@ -307,7 +307,7 @@ void Engines_Component_i::setProperties(const Engines::FieldsDict& dico)
 Engines::FieldsDict* Engines_Component_i::getProperties()
 {
   Engines::FieldsDict_var copie = new Engines::FieldsDict;
-  copie->length(_fieldsDict.size());
+  copie->length((_CORBA_ULong)_fieldsDict.size()); //!< TODO: conversion from size_t to _CORBA_ULong
   std::map<std::string,CORBA::Any>::iterator it;
   CORBA::ULong i = 0;
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++, i++)
@@ -881,7 +881,7 @@ Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Boolean isPublished,
   char* aBuffer = new char[strlen(aScript)+1];
   strcpy(aBuffer, aScript);
   CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
-  int aBufferSize = strlen(aBuffer)+1;
+  int aBufferSize = (int)strlen(aBuffer)+1; //!< TODO: conversion from size_t to int
   Engines::TMPFile_var aStreamFile = new Engines::TMPFile(aBufferSize, aBufferSize, anOctetBuf, 1);
   isValidScript = true;
   return aStreamFile._retn();

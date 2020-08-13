@@ -374,7 +374,7 @@ bool SALOMEDSImpl_Study::Impl_SaveProperties(HDFgroup *hdf_group)
   int aLength = 0, aLength1 = 0, anIndex, i, unitsSize = 0, commentSize = 0;
 
   for(i=1; i<=aNames.size(); i++)
-    aLength += aNames[i-1].size() + 1;
+    aLength += (int)aNames[i-1].size() + 1; //!< TODO: conversion from size_t to int
 
   std::map< std::string, std::vector<std::string> >::const_iterator it;
   for (it = allVersions.begin(); it != allVersions.end(); ++it ) {
@@ -386,11 +386,11 @@ bool SALOMEDSImpl_Study::Impl_SaveProperties(HDFgroup *hdf_group)
       vlist += *vlit;
     }
     versions[ it->first ] = vlist;
-    aLength1 += it->first.size() + vlist.size() + 2;
+    aLength1 += int(it->first.size() + vlist.size() + 2); //!< TODO: conversion from size_t to int
   }
 
-  unitsSize = units.size();
-  commentSize = comment.size();
+  unitsSize = (int)units.size(); //!< TODO: conversion from size_t to int
+  commentSize = (int)comment.size(); //!< TODO: conversion from size_t to int
 
   //string format:
   //locked flag, modified flag,
@@ -413,7 +413,7 @@ bool SALOMEDSImpl_Study::Impl_SaveProperties(HDFgroup *hdf_group)
 
   sprintf(aProperty,"%c%c", (char)aProp->GetCreationMode(),  (aProp->IsLocked())?'l':'u');
 
-  aLength = aNames.size();
+  aLength = (int)aNames.size(); //!< TODO: conversion from size_t to int
   int a = 2;
   for(anIndex = 0; anIndex<aLength; anIndex++) {
     sprintf(&(aProperty[a]),"%2d%2d%2d%2d%4d%s",
@@ -423,7 +423,7 @@ bool SALOMEDSImpl_Study::Impl_SaveProperties(HDFgroup *hdf_group)
             (int)(aMonths[anIndex]),
             (int)(aYears[anIndex]),
             aNames[anIndex].c_str());
-    a = strlen(aProperty);
+    a = (int)strlen(aProperty); //!< TODO: conversion from size_t to int
     aProperty[a++] = 1;
   }
 
@@ -433,7 +433,7 @@ bool SALOMEDSImpl_Study::Impl_SaveProperties(HDFgroup *hdf_group)
   //Write units if need
   if(units.size() > 0) {
     sprintf(&(aProperty[a]),"%s",units.c_str());
-    a = strlen(aProperty);
+    a = (int)strlen(aProperty); //!< TODO: conversion from size_t to int
   }
 
   aProperty[a++] = 1;
@@ -441,7 +441,7 @@ bool SALOMEDSImpl_Study::Impl_SaveProperties(HDFgroup *hdf_group)
   //Write comments if need
   if(comment.size() > 0) {
     sprintf(&(aProperty[a]),"%s",comment.c_str());
-    a = strlen(aProperty);
+    a = (int)strlen(aProperty); //!< TODO: conversion from size_t to int
   }
 
   aProperty[a++] = 30; //delimiter of the component versions
@@ -451,7 +451,7 @@ bool SALOMEDSImpl_Study::Impl_SaveProperties(HDFgroup *hdf_group)
     sprintf(&(aProperty[a]),"%s=%s",
             (char*)(versionsIt->first.c_str()),
             (char*)(versionsIt->second.c_str()));
-    a = a + versionsIt->first.size() + versionsIt->second.size() + 1;
+    a = a + (int)versionsIt->first.size() + (int)versionsIt->second.size() + 1; //!< TODO: conversion from size_t to int
     aProperty[a++] = 1;
   }
 
@@ -957,7 +957,7 @@ bool SALOMEDSImpl_Study::CopyLabel(SALOMEDSImpl_Driver* theEngine,
   }
   // iterate attributes
   std::vector<DF_Attribute*> attrList = theSource.GetAttributes();
-  for(int i = 0, len = attrList.size(); i<len; i++) {
+  for(int i = 0, len = (int)attrList.size(); i<len; i++) { //!< TODO: conversion from size_t to int
     DF_Attribute* anAttr = attrList[i];
     std::string type = SALOMEDSImpl_GenericAttribute::Impl_GetType(anAttr);
     if (type.substr(0, 17) == std::string("AttributeTreeNode")) continue; // never copy tree node attribute
@@ -1122,7 +1122,7 @@ DF_Label SALOMEDSImpl_Study::PasteLabel(SALOMEDSImpl_Driver* theEngine,
 
     if (theEngine->CanPaste(aCompName, anObjID->Value())) {
       std::string aTMPStr = aNameAttribute->Value();
-      int aLen = aTMPStr.size();
+      int aLen = (int)aTMPStr.size(); //!< TODO: conversion from size_t to int
       unsigned char* aStream = NULL;
       if(aLen > 0) {
         aStream = new unsigned char[aLen+10];
@@ -1149,7 +1149,7 @@ DF_Label SALOMEDSImpl_Study::PasteLabel(SALOMEDSImpl_Driver* theEngine,
 
   // iterate attributes
   std::vector<DF_Attribute*> attrList = theSource.GetAttributes();
-  for(int i = 0, len = attrList.size(); i<len; i++) {
+  for(int i = 0, len = (int)attrList.size(); i<len; i++) { //!< TODO: conversion from size_t to int
     DF_Attribute* anAttr = attrList[i];
     if (aTargetLabel.FindAttribute(anAttr->ID())) {
       aTargetLabel.ForgetAttribute(anAttr->ID());
@@ -1476,7 +1476,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectByPath(const std::string& the
 
   std::string aPath(thePath), aToken;
   SALOMEDSImpl_SObject aSO;
-  int aLength = aPath.size();
+  int aLength = (int)aPath.size(); //!< TODO: conversion from size_t to int
   bool isRelative = false;
 
   if(aLength == 0) {  //Empty path - return the current context
@@ -1501,7 +1501,7 @@ SALOMEDSImpl_SObject SALOMEDSImpl_Study::FindObjectByPath(const std::string& the
   }
 
   std::vector<std::string> vs = SALOMEDSImpl_Tool::splitString(aPath, '/');
-  for(int i = 0, len = vs.size(); i<len; i++) {
+  for(int i = 0, len = (int)vs.size(); i<len; i++) { //!< TODO: conversion from size_t to int
 
     aToken = vs[i];
     if(aToken.size() == 0) break;
@@ -1924,7 +1924,7 @@ std::string SALOMEDSImpl_Study::GetLastModificationDate()
   std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
-  int aLastIndex = aNames.size()-1;
+  int aLastIndex = (int)aNames.size()-1; //!< TODO: conversion from size_t to int
   char aResult[20];
   sprintf(aResult, "%2.2d/%2.2d/%4.4d %2.2d:%2.2d",
           (int)(aDays[aLastIndex]),(int)(aMonths[aLastIndex]), (int)(aYears[aLastIndex]),
@@ -1942,7 +1942,7 @@ std::vector<std::string> SALOMEDSImpl_Study::GetModificationsDate()
   std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
-  int anIndex, aLength = aNames.size();
+  int anIndex, aLength = (int)aNames.size(); //!< TODO: conversion from size_t to int
   std::vector<std::string> aDates;
 
   for (anIndex = 1; anIndex < aLength; anIndex++) {
@@ -2193,7 +2193,7 @@ bool SALOMEDSImpl_Study::DumpStudy(const std::string& thePath,
 
   // dump all components and create the components specific scripts
   bool isOk = true;
-  int aLength = aSeq.size();
+  int aLength = (int)aSeq.size(); //!< TODO: conversion from size_t to int
   for(int i = 1; i <= aLength; i++) {
 
     std::string aCompType = aSeq[i-1];
@@ -2532,7 +2532,7 @@ bool SALOMEDSImpl_Study::IsStudyLocked()
 void SALOMEDSImpl_Study::UnLockStudy(const char* theLockerID)
 {
   std::vector<std::string>::iterator vsI = _lockers.begin();
-  int length = _lockers.size();
+  int length = (int)_lockers.size(); //!< TODO: conversion from size_t to int
   bool isFound = false;
   std::string id(theLockerID);
   for(int i = 0; i<length; i++, vsI++) {
@@ -2819,10 +2819,10 @@ bool SALOMEDSImpl_Study::FindVariableAttribute(SALOMEDSImpl_StudyBuilder* theStu
       std::string aString = aStringAttr->Value();
 
       std::vector< std::vector<std::string> > aSections = ParseVariables( aString );
-      for( int i = 0, n = aSections.size(); i < n; i++ )
+      for( int i = 0, n = (int)aSections.size(); i < n; i++ ) //!< TODO: conversion from size_t to int
       {
         std::vector<std::string> aVector = aSections[i];
-        for( int j = 0, m = aVector.size(); j < m; j++ )
+        for( int j = 0, m = (int)aVector.size(); j < m; j++ ) //!< TODO: conversion from size_t to int
         {
           std::string aStr = aVector[j];
           if( aStr.compare( theName ) == 0 )
@@ -2875,10 +2875,10 @@ void SALOMEDSImpl_Study::ReplaceVariableAttribute(SALOMEDSImpl_StudyBuilder* the
       std::string aNewString, aCurrentString = aStringAttr->Value();
 
       std::vector< std::vector<std::string> > aSections = ParseVariables( aCurrentString );
-      for( int i = 0, n = aSections.size(); i < n; i++ )
+      for( int i = 0, n = (int)aSections.size(); i < n; i++ ) //!< TODO: conversion from size_t to int
       {
         std::vector<std::string> aVector = aSections[i];
-        for( int j = 0, m = aVector.size(); j < m; j++ )
+        for( int j = 0, m = (int)aVector.size(); j < m; j++ ) //!< TODO: conversion from size_t to int
         {
           std::string aStr = aVector[j];
           if( aStr.compare( theSource ) == 0 )
@@ -3067,7 +3067,7 @@ static void SaveAttributes(const SALOMEDSImpl_SObject& aSO, HDFgroup *hdf_group_
   hdf_size size[1];
   std::vector<DF_Attribute*> attrList = aSO.GetLabel().GetAttributes();
   DF_Attribute* anAttr = NULL;
-  for(int i = 0, len = attrList.size(); i<len; i++) {
+  for(int i = 0, len = (int)attrList.size(); i<len; i++) { //!< TODO: conversion from size_t to int
     anAttr = attrList[i];
     //The following attributes are not supposed to be written to the file
     std::string type = SALOMEDSImpl_GenericAttribute::Impl_GetType(anAttr);

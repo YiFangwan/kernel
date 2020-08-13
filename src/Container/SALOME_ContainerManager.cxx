@@ -1417,7 +1417,7 @@ long SALOME_ContainerManager::SystemWithPIDThreadSafe(const std::vector<std::str
       for(std::size_t i=0;i<sz;i++)
         args[i] = strdup(command[i].c_str());
       args[sz] = nullptr;
-      execvp( command[0].c_str() , args );
+      execvp( command[0].c_str() , args ); 
       std::ostringstream oss;
       oss << "Error when launching " << command[0];
       throw SALOME_Exception(oss.str().c_str()); // execvp failed

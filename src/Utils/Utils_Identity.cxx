@@ -100,7 +100,7 @@ const char* get_uname( void )
 #else
 	    static std::string hostName(4096, 0);
 #endif
-        static DWORD nSize = hostName.length();
+        static DWORD nSize = (DWORD)hostName.length(); //!< TODO: conversion from size_t to DWORD
         static int res = ::GetComputerNameEx(ComputerNameDnsFullyQualified, &hostName[0], &nSize);
         ASSERT( res );
 #ifdef UNICODE
@@ -143,7 +143,7 @@ const char* const get_pwname( void )
 #else
 	static std::string retVal(4096, 0);
 #endif
-  static DWORD  dwSize = retVal.length() + 1;
+  static DWORD  dwSize = (DWORD)(retVal.length() + 1); //!< TODO: conversion from size_t to DWORD
   static int res = GetUserName( &retVal[0], &dwSize );
   ASSERT( res );
 #ifdef UNICODE

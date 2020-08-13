@@ -163,7 +163,7 @@ void SALOMEDS_AttributeStudyProperties_i::GetModificationsList(SALOMEDS::StringS
   std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   SALOMEDSImpl_AttributeStudyProperties* aProp = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl);
   aProp->GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
-  int aLength = aNames.size();
+  int aLength = (int)aNames.size(); //!< TODO: conversion from size_t to int
   int aRetLength = aLength - ((theWithCreator) ? 0 : 1);
   theNames = new SALOMEDS::StringSeq;
   theMinutes = new SALOMEDS::LongSeq;
@@ -223,7 +223,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeStudyProperties_i::GetStoredComponents()
   SALOMEDS::Locker lock;
   std::vector<std::string> components = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetStoredComponents();
   SALOMEDS::StringSeq_var c_components = new SALOMEDS::StringSeq();
-  c_components->length(components.size());
+  c_components->length((_CORBA_ULong)components.size()); //!< TODO: conversion from size_t to _CORBA_ULong
   for (int i = 0; i < components.size(); i++) {
     c_components[i] = CORBA::string_dup(components[i].c_str());
   }
@@ -243,7 +243,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeStudyProperties_i::GetComponentVersions(c
   SALOMEDS::Locker lock;
   std::vector<std::string> versions = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetComponentVersions(theComponent);
   SALOMEDS::StringSeq_var c_versions = new SALOMEDS::StringSeq();
-  c_versions->length(versions.size());
+  c_versions->length((_CORBA_ULong)versions.size()); //!< TODO: conversion from size_t to _CORBA_ULong
   for (int i = 0; i < versions.size(); i++) {
     c_versions[i] = CORBA::string_dup(versions[i].c_str());
   }

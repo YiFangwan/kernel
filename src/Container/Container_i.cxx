@@ -368,7 +368,7 @@ void Engines_Container_i::Shutdown()
     {
       itm->second->destroy();
     }
-    catch(const CORBA::Exception& e)
+    catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
     {
       // ignore this entry and continue
     }
@@ -1303,7 +1303,7 @@ Engines_Container_i::find_or_create_instance(std::string genericRegisterName,
 bool Engines_Container_i::isPythonContainer(const char* ContainerName)
 {
   bool ret=false;
-  int len=strlen(ContainerName);
+  size_t len=strlen(ContainerName);
   if(len>=2)
     if(strcmp(ContainerName+len-2,"Py")==0)
       ret=true;
@@ -1542,7 +1542,7 @@ Engines_Container_i::createSalome_file(const char* origFileName)
       aSalome_file->setLocalFile(origFileName);
       aSalome_file->recvFiles();
     }
-    catch (const SALOME::SALOME_Exception& e)
+    catch (const SALOME::SALOME_Exception& /*e*/) //!< TODO: unused variable
     {
       return Engines::Salome_file::_nil();
     }

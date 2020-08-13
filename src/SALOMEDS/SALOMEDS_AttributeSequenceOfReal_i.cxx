@@ -33,8 +33,8 @@ void SALOMEDS_AttributeSequenceOfReal_i::Assign(const SALOMEDS::DoubleSeq& other
   SALOMEDS::Locker lock; 
   CheckLocked();
   std::vector<double> CasCadeSeq;
-  for (int i = 0; i < other.length(); i++) {
-    CasCadeSeq.push_back(other[i]);
+  for (size_t i = 0; i < other.length(); i++) {
+    CasCadeSeq.push_back(other[(_CORBA_ULong)i]); //!< TODO: conversion from size_t to _CORBA_ULong
   }
   dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_impl)->Assign(CasCadeSeq);
 }
@@ -44,7 +44,7 @@ SALOMEDS::DoubleSeq* SALOMEDS_AttributeSequenceOfReal_i::CorbaSequence()
   SALOMEDS::Locker lock; 
   SALOMEDS::DoubleSeq_var CorbaSeq = new SALOMEDS::DoubleSeq;
   const std::vector<double>& CasCadeSeq = dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_impl)->Array();
-  int len = CasCadeSeq.size();
+  int len = (int)CasCadeSeq.size(); //!< TODO: conversion from size_t to int
   CorbaSeq->length(len);
   for (int i = 0; i < len; i++) {
     CorbaSeq[i] = CasCadeSeq[i];
