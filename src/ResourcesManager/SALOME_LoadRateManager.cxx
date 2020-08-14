@@ -27,6 +27,7 @@
 std::string LoadRateManagerFirst::Find(const std::vector<std::string>& hosts,
                                        const MapOfParserResourcesType& resList)
 {
+  SALOME_UNUSED(resList);
   if (hosts.size() == 0)
     return std::string("");
 
@@ -66,6 +67,7 @@ std::string LoadRateManagerCycl::Find(const std::vector<std::string>& hosts,
 std::string LoadRateManagerAltCycl::Find(const std::vector<std::string>& hosts,
                                          const MapOfParserResourcesType& resList)
 {
+  SALOME_UNUSED(resList);
   if (hosts.size() == 0)
     return std::string("");
 

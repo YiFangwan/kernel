@@ -19,6 +19,7 @@
 
 #include "DF_definitions.hxx"
 #include "DF_Application.hxx"
+#include "Basics_Utils.hxx"
 
 //Constructor
 DF_Application::DF_Application()
@@ -85,6 +86,7 @@ int DF_Application::NbDocuments()
 //pointer to opened document.
 DF_Document* DF_Application::Open(const std::string& theFileName)
 {
+  SALOME_UNUSED(theFileName);
   //Not implemented
   return NULL;
 }
@@ -93,5 +95,7 @@ DF_Document* DF_Application::Open(const std::string& theFileName)
 //Saves a Document in a given file with name theFileName
 void DF_Application::SaveAs(const DF_Document* theDocument, const std::string& theFileName)
 {
+  SALOME_UNUSED(theDocument);
+  SALOME_UNUSED(theFileName);
   //Not implemented
 }

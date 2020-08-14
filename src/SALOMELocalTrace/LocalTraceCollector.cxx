@@ -30,6 +30,7 @@
 #include <fstream>
 #include <cstdlib>
 
+#include "Basics_Utils.hxx"
 #include "LocalTraceCollector.hxx"
 
 // ============================================================================
@@ -78,6 +79,7 @@ BaseTraceCollector* LocalTraceCollector::instance()
 
 void* LocalTraceCollector::run(void *bid)
 {
+  SALOME_UNUSED(bid);
   _threadId = new pthread_t;
   *_threadId = pthread_self();
   sem_post(&_sem); // unlock instance

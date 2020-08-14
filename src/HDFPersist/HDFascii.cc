@@ -310,6 +310,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
 //============================================================================
 void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
 {
+  SALOME_UNUSED(ident);
   hdf_attribute->OpenOnDisk();
 
   hdf_type type = hdf_attribute->GetType();

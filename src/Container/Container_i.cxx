@@ -1219,6 +1219,7 @@ Engines::EngineComponent_ptr
 Engines_Container_i::load_impl( const char* genericRegisterName,
                                 const char* componentName )
 {
+  SALOME_UNUSED(componentName);
   char* reason;
   std::string impl_name = std::string(LIB) + genericRegisterName + ENGINESO;
   Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;

@@ -2013,6 +2013,7 @@ Engines::Container_ptr
 SALOME_ContainerManager::StartPaCOPPContainer(const Engines::ContainerParameters& params,
                                               std::string resource_selected)
 {
+  SALOME_UNUSED(params);
   Engines::Container_ptr ret = Engines::Container::_nil();
   INFOS("[StarPaCOPPContainer] is disabled !");
   INFOS("[StarPaCOPPContainer] recompile SALOME Kernel to enable PaCO++ parallel extension");
@@ -2024,6 +2025,8 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCOProxyContainer(const Engines::C
                                                                 std::string machine_file_name,
                                                                 std::string & proxy_hostname)
 {
+  SALOME_UNUSED(params);
+  SALOME_UNUSED(proxy_hostname);
   return "";
 }
 
@@ -2033,6 +2036,10 @@ SALOME_ContainerManager::BuildCommandToLaunchPaCONodeContainer(const Engines::Co
                                                                SALOME_ContainerManager::actual_launch_machine_t & vect_machine,
                                                                const std::string & proxy_hostname)
 {
+  SALOME_UNUSED(params);
+  SALOME_UNUSED(machine_file_name);
+  SALOME_UNUSED(vect_machine);
+  SALOME_UNUSED(proxy_hostname);
   return "";
 }
 void
@@ -2043,6 +2050,12 @@ SALOME_ContainerManager::LogConfiguration(const std::string & log_type,
                                           std::string & begin,
                                           std::string & end)
 {
+	SALOME_UNUSED(log_type);
+	SALOME_UNUSED(exe_type);
+	SALOME_UNUSED(container_name);
+	SALOME_UNUSED(hostname);
+	SALOME_UNUSED(begin);
+	SALOME_UNUSED(end);
 }
 
 CORBA::Object_ptr
@@ -2050,6 +2063,9 @@ SALOME_ContainerManager::LaunchPaCOProxyContainer(const std::string& command,
                                                   const Engines::ContainerParameters& params,
                                                   const std::string& hostname)
 {
+  SALOME_UNUSED(command);
+  SALOME_UNUSED(params);
+  SALOME_UNUSED(hostname);
   CORBA::Object_ptr ret = CORBA::Object::_nil();
   return ret;
 }
@@ -2060,6 +2076,10 @@ SALOME_ContainerManager::LaunchPaCONodeContainer(const std::string& command,
                         const std::string& name,
                         SALOME_ContainerManager::actual_launch_machine_t & vect_machine)
 {
+  SALOME_UNUSED(command);
+  SALOME_UNUSED(params);
+  SALOME_UNUSED(name);
+  SALOME_UNUSED(vect_machine);
   return false;
 }
 #endif

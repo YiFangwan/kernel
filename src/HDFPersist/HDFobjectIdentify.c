@@ -59,6 +59,7 @@ hdf_err HDFobjectIdentify(hdf_idt fid,const char *path,int i,char *name)
 
 hdf_err RankInfo(hdf_idt id, const char *name, void *data)
 {
+  (void)id;
   if ( data )
     strcpy( (char*)data, name );
   else 

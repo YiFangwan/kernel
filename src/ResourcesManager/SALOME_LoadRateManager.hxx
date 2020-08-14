@@ -27,6 +27,7 @@
 #include <string>
 #include <map>
 #include "SALOME_ResourcesCatalog_Parser.hxx"
+#include "Basics_Utils.hxx"
 
 class RESOURCESMANAGER_EXPORT LoadRateManager
 {

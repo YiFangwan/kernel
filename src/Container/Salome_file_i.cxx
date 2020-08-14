@@ -23,6 +23,7 @@
 //  $Header: 
 //
 #include "Salome_file_i.hxx"
+#include "Basics_Utils.hxx"
 #include "utilities.h"
 #include <stdlib.h>
 #include "HDFOI.hxx"
@@ -885,6 +886,7 @@ Salome_file_i::getDistributedFile(std::string file_name)
 void 
 Salome_file_i::removeFile(const char* file_name) 
 {
+  SALOME_UNUSED(file_name);
   MESSAGE("Salome_file_i::removeFile : NOT YET IMPLEMENTED");
 }
     

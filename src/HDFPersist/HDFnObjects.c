@@ -28,7 +28,6 @@ SALOME HDFPersist : implementation of HDF persitent ( save/ restore )
 
 #include "hdfi.h"
 #include <stdlib.h>
-
 /*
  * - Name : HDFnObjects
  * - Description : returns the number of HDF objects in an HDF group
@@ -59,7 +58,8 @@ HDFnObjects(hdf_idt fid,const char *path,int *n)
 hdf_err Num(hdf_idt id,const char *name, void *data)
 {
   int *count;
-
+  (void)name;
+  (void)id;
   count = (int *) data;
   (*count)++;
 

@@ -877,6 +877,7 @@ Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Boolean isPublished,
                                                   CORBA::Boolean isMultiFile,
                                                   CORBA::Boolean& isValidScript)
 {
+  SALOME_UNUSED(isPublished);
   const char* aScript = isMultiFile ? "def RebuildData(): pass" : "";
   char* aBuffer = new char[strlen(aScript)+1];
   strcpy(aBuffer, aScript);
@@ -1043,6 +1044,7 @@ Engines_Component_i::configureSalome_file(std::string service_name,
                                           std::string file_port_name,
                                           Salome_file_i * file)
 {
+	SALOME_UNUSED(file);
   // By default this method does nothing
 }
 

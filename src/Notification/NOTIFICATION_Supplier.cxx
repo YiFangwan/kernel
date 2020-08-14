@@ -26,6 +26,7 @@
 //  Module : SALOME
 //
 #include "NOTIFICATION.hxx"
+#include "Basics_Utils.hxx"
 
 long NOTIFICATION_Supplier::_stamp = 0;
 
@@ -124,4 +125,5 @@ void NOTIFICATION_Supplier::disconnect_structured_push_supplier() {
 }
 
 void NOTIFICATION_Supplier::subscription_change(const CosN_EventTypeSeq& added, const CosN_EventTypeSeq& deled) {
+	SALOME_UNUSED(added); SALOME_UNUSED(deled);
 }

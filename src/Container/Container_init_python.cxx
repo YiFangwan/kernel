@@ -29,6 +29,7 @@
 
 #include "utilities.h"
 #include "Container_init_python.hxx"
+#include "Basics_Utils.hxx"
 
 #if PY_VERSION_HEX < 0x03050000
 static char*
@@ -75,6 +76,7 @@ ContainerPyStdOut_write(ContainerPyStdOut *self, PyObject *args)
 static PyObject*
 ContainerPyStdOut_flush(ContainerPyStdOut *self)
 {
+  SALOME_UNUSED(self);
   Py_INCREF(Py_None);
   return Py_None;
 }

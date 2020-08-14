@@ -48,7 +48,7 @@
 #endif
 
 #ifdef WIN32
-#pragma warning(disable:4275) // Disable warning interface non dll
+//#pragma warning(disable:4275) // Disable warning interface non dll
 #endif
 
 class LOGGER_EXPORT Logger :

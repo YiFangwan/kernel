@@ -26,6 +26,7 @@
 //  Module : SALOME
 //
 #include "SALOME_Trace.hxx"
+#include "Basics_Utils.hxx"
 #include <memory.h>
 #include <string>
 //#include <stdio.h>
@@ -136,6 +137,7 @@ int SALOME_Trace::Initialize(CORBA::ORB_ptr theOrb) {
 
 void SALOME_Trace::putMessage(std::ostream& msg)
 {
+  SALOME_UNUSED(msg);
   //if (!isInitialized) std::cout<<"!!! SALOME_Trace is used without initialising !!!"<<std::endl;
   //write resulting string into Logger CORBA server
   //concatenate string from passing parameters for transferring into Logger CORBA server

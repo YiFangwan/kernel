@@ -119,9 +119,9 @@ void RegistryConnexion::add( const char *aName )
                 infos.pid        = lesInfos.pid() ;
                 infos.machine        = CORBA::string_dup( lesInfos.host_char() ) ;
                 infos.adip        = CORBA::string_dup( lesInfos.adip() ) ;
-                infos.uid        = (long)lesInfos.uid() ;
+                infos.uid        = /*(long)*/(CORBA::Long)((LONG_PTR)lesInfos.uid()) ; //!< TODO: pointer truncation from const PSID to long
                 infos.pwname        = CORBA::string_dup( lesInfos.pwname() ) ;
-                infos.tc_start        = lesInfos.start() ;
+                infos.tc_start        = (CORBA::Long)lesInfos.start() ; //!< TODO: conversation from const time_t to CORBA::Long
                 infos.tc_hello        = 0 ;
                 infos.tc_end        = 0 ;
                 infos.difftime        = 0 ;
