@@ -72,7 +72,7 @@ PortableServer::POA_ptr SALOMEDS_GenericAttribute_i::_default_POA()
   return PortableServer::POA::_duplicate(myPOA);
 }
 
-void SALOMEDS_GenericAttribute_i::CheckLocked() throw (SALOMEDS::GenericAttribute::LockProtection) 
+void SALOMEDS_GenericAttribute_i::CheckLocked() noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(GALockProtection);

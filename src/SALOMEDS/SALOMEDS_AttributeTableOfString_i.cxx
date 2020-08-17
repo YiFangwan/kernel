@@ -54,7 +54,7 @@ char* SALOMEDS_AttributeTableOfString_i::GetTitle()
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetRowTitle(CORBA::Long theIndex, const char* theTitle)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -66,7 +66,7 @@ void SALOMEDS_AttributeTableOfString_i::SetRowTitle(CORBA::Long theIndex, const 
 }
 
 char* SALOMEDS_AttributeTableOfString_i::GetRowTitle(CORBA::Long theIndex)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch (ATS_IncorrectIndex);
@@ -78,7 +78,7 @@ char* SALOMEDS_AttributeTableOfString_i::GetRowTitle(CORBA::Long theIndex)
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetRowTitles(const SALOMEDS::StringSeq& theTitles)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
@@ -102,7 +102,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetRowTitles()
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetColumnTitle(CORBA::Long theIndex, const char* theTitle)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -113,7 +113,7 @@ void SALOMEDS_AttributeTableOfString_i::SetColumnTitle(CORBA::Long theIndex, con
 }
 
 char* SALOMEDS_AttributeTableOfString_i::GetColumnTitle(CORBA::Long theIndex)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch (ATS_IncorrectIndex);
@@ -125,7 +125,7 @@ char* SALOMEDS_AttributeTableOfString_i::GetColumnTitle(CORBA::Long theIndex)
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetColumnTitles(const SALOMEDS::StringSeq& theTitles)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
@@ -150,7 +150,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetColumnTitles()
 
 //Units support
 void SALOMEDS_AttributeTableOfString_i::SetRowUnit(CORBA::Long theIndex, const char* theUnit)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -161,7 +161,7 @@ void SALOMEDS_AttributeTableOfString_i::SetRowUnit(CORBA::Long theIndex, const c
 }
 
 char* SALOMEDS_AttributeTableOfString_i::GetRowUnit(CORBA::Long theIndex)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch (ATS_IncorrectIndex);
@@ -173,7 +173,7 @@ char* SALOMEDS_AttributeTableOfString_i::GetRowUnit(CORBA::Long theIndex)
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetRowUnits(const SALOMEDS::StringSeq& theUnits)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
@@ -210,7 +210,7 @@ CORBA::Long SALOMEDS_AttributeTableOfString_i::GetNbColumns()
 }
 
 void SALOMEDS_AttributeTableOfString_i::AddRow(const SALOMEDS::StringSeq& theData)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
@@ -223,7 +223,7 @@ void SALOMEDS_AttributeTableOfString_i::AddRow(const SALOMEDS::StringSeq& theDat
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetRow(CORBA::Long theRow, const SALOMEDS::StringSeq& theData)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength, SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
@@ -236,7 +236,7 @@ void SALOMEDS_AttributeTableOfString_i::SetRow(CORBA::Long theRow, const SALOMED
 }
 
 SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetRow(CORBA::Long theRow)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -253,7 +253,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetRow(CORBA::Long theRo
 }
 
 void SALOMEDS_AttributeTableOfString_i::AddColumn(const SALOMEDS::StringSeq& theData)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
@@ -266,7 +266,7 @@ void SALOMEDS_AttributeTableOfString_i::AddColumn(const SALOMEDS::StringSeq& the
 }
 
 void SALOMEDS_AttributeTableOfString_i::SetColumn(CORBA::Long theColumn, const SALOMEDS::StringSeq& theData)
-     throw (SALOMEDS::AttributeTable::IncorrectArgumentLength, SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectArgumentLength);
@@ -279,7 +279,7 @@ void SALOMEDS_AttributeTableOfString_i::SetColumn(CORBA::Long theColumn, const S
 }
 
 SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetColumn(CORBA::Long theColumn)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -296,7 +296,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeTableOfString_i::GetColumn(CORBA::Long th
 }
 
 void SALOMEDS_AttributeTableOfString_i::PutValue(const char* theValue, CORBA::Long theRow, CORBA::Long theColumn)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -314,7 +314,7 @@ CORBA::Boolean SALOMEDS_AttributeTableOfString_i::HasValue(CORBA::Long theRow, C
 }
 
 char* SALOMEDS_AttributeTableOfString_i::GetValue(CORBA::Long theRow, CORBA::Long theColumn)
-     throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -333,7 +333,7 @@ char* SALOMEDS_AttributeTableOfString_i::GetValue(CORBA::Long theRow, CORBA::Lon
 }
 
 void SALOMEDS_AttributeTableOfString_i::RemoveValue(CORBA::Long theRow, CORBA::Long theColumn)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -401,7 +401,7 @@ SALOMEDS::TMPFile*  SALOMEDS_AttributeTableOfString_i::SaveToFile()
 SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortRow(CORBA::Long theRow,
                                                               SALOMEDS::AttributeTable::SortOrder sortOrder, 
                                                               SALOMEDS::AttributeTable::SortPolicy sortPolicy)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
+	noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -428,7 +428,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortRow(CORBA::Long theRow
 SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortColumn(CORBA::Long theColumn, 
                                                                  SALOMEDS::AttributeTable::SortOrder sortOrder,
                                                                  SALOMEDS::AttributeTable::SortPolicy sortPolicy)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
+	noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -455,7 +455,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortColumn(CORBA::Long the
 SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortByRow(CORBA::Long theRow,
                                                                 SALOMEDS::AttributeTable::SortOrder sortOrder, 
                                                                 SALOMEDS::AttributeTable::SortPolicy sortPolicy)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
+	noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -482,7 +482,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortByRow(CORBA::Long theR
 SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortByColumn(CORBA::Long theColumn,
                                                                    SALOMEDS::AttributeTable::SortOrder sortOrder, 
                                                                    SALOMEDS::AttributeTable::SortPolicy sortPolicy)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
+	noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -508,7 +508,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfString_i::SortByColumn(CORBA::Long t
 
 void SALOMEDS_AttributeTableOfString_i::SwapCells(CORBA::Long theRow1, CORBA::Long theColumn1,
 						  CORBA::Long theRow2, CORBA::Long theColumn2)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
+	noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -528,7 +528,7 @@ void SALOMEDS_AttributeTableOfString_i::SwapCells(CORBA::Long theRow1, CORBA::Lo
 }
 
 void SALOMEDS_AttributeTableOfString_i::SwapRows(CORBA::Long theRow1, CORBA::Long theRow2)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);
@@ -546,7 +546,7 @@ void SALOMEDS_AttributeTableOfString_i::SwapRows(CORBA::Long theRow1, CORBA::Lon
 }
 
 void SALOMEDS_AttributeTableOfString_i::SwapColumns(CORBA::Long theColumn1, CORBA::Long theColumn2)
-  throw (SALOMEDS::AttributeTable::IncorrectIndex)
+noexcept
 {
   SALOMEDS::Locker lock;
   Unexpect aCatch(ATS_IncorrectIndex);

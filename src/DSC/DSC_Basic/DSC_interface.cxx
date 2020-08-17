@@ -51,9 +51,7 @@ void
 Engines_DSC_interface::add_provides_port(Ports::Port_ptr ref, 
                                  const char* provides_port_name,
                                  Ports::PortProperties_ptr port_prop) 
-throw (Engines::DSC::PortAlreadyDefined,
-       Engines::DSC::NilPort,
-       Engines::DSC::BadProperty) 
+	noexcept
 {
   // Method args test
   assert(provides_port_name);
@@ -82,8 +80,7 @@ void
 Engines_DSC_interface::add_uses_port(const char* repository_id, 
                              const char* uses_port_name,
                              Ports::PortProperties_ptr port_prop) 
-throw (Engines::DSC::PortAlreadyDefined,
-       Engines::DSC::BadProperty) 
+	noexcept
 {
   // Method args test
   // Note : We can't be shure that repository id
@@ -113,9 +110,7 @@ throw (Engines::DSC::PortAlreadyDefined,
 Ports::Port_ptr
 Engines_DSC_interface::get_provides_port(const char* provides_port_name,
                                  const CORBA::Boolean connection_error) 
-  throw (Engines::DSC::PortNotDefined,
-         Engines::DSC::PortNotConnected, 
-         Engines::DSC::BadPortType) 
+	noexcept
 {
   // Method arg test
   assert(provides_port_name);
@@ -148,9 +143,7 @@ Engines_DSC_interface::get_provides_port(const char* provides_port_name,
 
 Engines::DSC::uses_port * 
 Engines_DSC_interface::get_uses_port(const char* uses_port_name) 
-  throw (Engines::DSC::PortNotDefined,
-         Engines::DSC::PortNotConnected,
-         Engines::DSC::BadPortType) 
+noexcept
 {
   // Method arg test
   assert(uses_port_name);
@@ -188,7 +181,7 @@ Engines_DSC_interface::get_uses_port(const char* uses_port_name)
 
 void
 Engines_DSC_interface::connect_provides_port(const char* provides_port_name)
-    throw (Engines::DSC::PortNotDefined)
+noexcept
 {
   // Method arg test
   assert(provides_port_name);
@@ -213,9 +206,7 @@ Engines_DSC_interface::connect_provides_port(const char* provides_port_name)
 void
 Engines_DSC_interface::connect_uses_port(const char* uses_port_name,
                                          Ports::Port_ptr provides_port_ref) 
-  throw (Engines::DSC::PortNotDefined,
-         Engines::DSC::BadPortType,
-         Engines::DSC::NilPort)
+	noexcept
 {
   // Method arg test
   assert(uses_port_name);
@@ -264,7 +255,7 @@ Engines_DSC_interface::connect_uses_port(const char* uses_port_name,
 
 CORBA::Boolean
 Engines_DSC_interface::is_connected(const char* port_name) 
-  throw (Engines::DSC::PortNotDefined) 
+noexcept
 {
   CORBA::Boolean rtn = false;
 
@@ -285,8 +276,7 @@ Engines_DSC_interface::is_connected(const char* port_name)
 void
 Engines_DSC_interface::disconnect_provides_port(const char* provides_port_name,
                                         const Engines::DSC::Message message)
-throw (Engines::DSC::PortNotDefined,
-       Engines::DSC::PortNotConnected)
+	noexcept
 {
   // Method args test
   assert(provides_port_name);
@@ -313,9 +303,7 @@ void
 Engines_DSC_interface::disconnect_uses_port(const char* uses_port_name,
                                     Ports::Port_ptr provides_port_ref,
                                     const Engines::DSC::Message message)
-throw (Engines::DSC::PortNotDefined,
-       Engines::DSC::PortNotConnected,
-       Engines::DSC::BadPortReference) 
+	noexcept
 {
   // Method args test
   assert(uses_port_name);
@@ -333,7 +321,7 @@ throw (Engines::DSC::PortNotDefined,
   if (my_ports[uses_port_name]->connection_nbr > 0) {
     CORBA::Long port_index = -1;
     CORBA::ULong seq_length = my_ports[uses_port_name]->uses_port_refs.length(); 
-    for(int i = 0; i < seq_length; i++)
+    for(int i = 0; i < (int)seq_length; i++)
     {
       if (my_ports[uses_port_name]->uses_port_refs[i]->_is_equivalent(provides_port_ref))
       {
@@ -351,7 +339,7 @@ throw (Engines::DSC::PortNotDefined,
 
     int index_ancien = 0;
     int index_nouveau = 0;
-    for(;index_ancien < seq_length;) {
+    for(;index_ancien < (int)seq_length;) {
       if (index_ancien == port_index) 
       {
         // Rien a faire !
@@ -380,7 +368,7 @@ throw (Engines::DSC::PortNotDefined,
 
 Ports::PortProperties_ptr
 Engines_DSC_interface::get_port_properties(const char* port_name) 
-  throw (Engines::DSC::PortNotDefined) 
+noexcept
 {
   Ports::PortProperties_ptr rtn_properties = Ports::PortProperties::_nil();
 

@@ -47,73 +47,73 @@ public:
   virtual void SetTitle(const char* theTitle);
   virtual char* GetTitle();
   virtual void SetRowTitle(CORBA::Long theIndex, const char* theTitle)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual char* GetRowTitle(CORBA::Long theIndex)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual void SetRowTitles(const SALOMEDS::StringSeq& theTitles)
-    throw (SALOMEDS::AttributeTable::IncorrectArgumentLength);
+	  noexcept;
   virtual SALOMEDS::StringSeq* GetRowTitles();
   virtual void SetColumnTitle(CORBA::Long theIndex, const char* theTitle)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual char* GetColumnTitle(CORBA::Long theIndex)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual void SetColumnTitles(const SALOMEDS::StringSeq& theTitles)
-    throw (SALOMEDS::AttributeTable::IncorrectArgumentLength);
+	  noexcept;
   virtual SALOMEDS::StringSeq* GetColumnTitles();
 
   virtual void SetRowUnit(CORBA::Long theIndex, const char* theUnit)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual char* GetRowUnit(CORBA::Long theIndex)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual void SetRowUnits(const SALOMEDS::StringSeq& theUnits)
-    throw (SALOMEDS::AttributeTable::IncorrectArgumentLength);
+	  noexcept;
   virtual SALOMEDS::StringSeq* GetRowUnits();
 
   virtual CORBA::Long GetNbRows();
   virtual CORBA::Long GetNbColumns();
   virtual void AddRow(const SALOMEDS::StringSeq& theData)
-    throw (SALOMEDS::AttributeTable::IncorrectArgumentLength);
+	  noexcept;
   virtual void SetRow(CORBA::Long theRow, const SALOMEDS::StringSeq& theData)
-    throw (SALOMEDS::AttributeTable::IncorrectArgumentLength, SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual SALOMEDS::StringSeq* GetRow(CORBA::Long theRow)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual void AddColumn(const SALOMEDS::StringSeq& theData)
-    throw (SALOMEDS::AttributeTable::IncorrectArgumentLength);
+	  noexcept;
   virtual void SetColumn(CORBA::Long theColumn, const SALOMEDS::StringSeq& theData)
-    throw (SALOMEDS::AttributeTable::IncorrectArgumentLength, SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual SALOMEDS::StringSeq* GetColumn(CORBA::Long theColumn)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual void PutValue(const char* theValue, CORBA::Long theRow, CORBA::Long theColumn)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual CORBA::Boolean HasValue(CORBA::Long theRow, CORBA::Long theColumn);
   virtual char* GetValue(CORBA::Long theRow, CORBA::Long theColumn)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual void RemoveValue(CORBA::Long theRow, CORBA::Long theColumn)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
 
   virtual SALOMEDS::LongSeq* GetRowSetIndices(CORBA::Long theRow);
   virtual void SetNbColumns(CORBA::Long theNbColumns);
 
   virtual SALOMEDS::LongSeq* SortRow(CORBA::Long theRow, SALOMEDS::AttributeTable::SortOrder sortOrder, 
                                      SALOMEDS::AttributeTable::SortPolicy sortPolicy)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual SALOMEDS::LongSeq* SortColumn(CORBA::Long theColumn, SALOMEDS::AttributeTable::SortOrder sortOrder, 
                                         SALOMEDS::AttributeTable::SortPolicy sortPolicy)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual SALOMEDS::LongSeq* SortByRow(CORBA::Long theRow, SALOMEDS::AttributeTable::SortOrder sortOrder, 
                                        SALOMEDS::AttributeTable::SortPolicy sortPolicy)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual SALOMEDS::LongSeq* SortByColumn(CORBA::Long theColumn, SALOMEDS::AttributeTable::SortOrder sortOrder, 
                                           SALOMEDS::AttributeTable::SortPolicy sortPolicy)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
 
   virtual void SwapCells(CORBA::Long theRow1, CORBA::Long theColumn1,
 			 CORBA::Long theRow2, CORBA::Long theColumn2)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual void SwapRows(CORBA::Long theRow1, CORBA::Long theRow2)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
   virtual void SwapColumns(CORBA::Long theColumn1, CORBA::Long theColumn2)
-    throw (SALOMEDS::AttributeTable::IncorrectIndex);
+	  noexcept;
 
   virtual bool ReadFromFile(const SALOMEDS::TMPFile& theStream);
   virtual SALOMEDS::TMPFile* SaveToFile();
