@@ -368,7 +368,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
             break;
           }
       }
-      catch(const SALOME_Exception & /*ex*/) //!< TODO: unused variable
+      catch(const SALOME_Exception & ex) //!< TODO: unused variable
       {
         MESSAGE("[GiveContainer] Exception in ResourceManager find !: " << ex.what());
         return ret;

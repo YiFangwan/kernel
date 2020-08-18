@@ -130,7 +130,7 @@ struct DSC_Exception : public SALOME_Exception {
     _what = oss;
   }
 
-  virtual const char* what( void ) const 
+  virtual const char* what( void ) const noexcept 
   {
     return _what.c_str()  ;
   }

@@ -363,7 +363,7 @@ Superv_Component_i::add_port(const char * port_fab_type,
 
 template <typename SpecificPortType > SpecificPortType * 
 Superv_Component_i::get_port( const char * port_name)
-  throw (PortNotDefined, PortNotConnected, BadCast, UnexpectedState)
+  
 {
   assert(port_name);
     

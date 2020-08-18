@@ -140,10 +140,10 @@
     }                                                                   \
                                                                         \
     virtual void set_property(const char * name, const CORBA::Any& value) \
-      throw (Ports::NotDefined, Ports::BadType, Ports::BadValue);       \
+      ;								        \
                                                                         \
     virtual CORBA::Any* get_property(const char* name)                  \
-      throw (Ports::NotDefined);                                        \
+      ;				                                        \
                                                                         \
     virtual void provides_port_changed(int connection_nbr,              \
                                        const Engines::DSC::Message message) { \
@@ -172,7 +172,7 @@
   specificPortName::~specificPortName(void) {};                         \
                                                                         \
   void specificPortName::set_property(const char * name,  const CORBA::Any& value) \
-    throw (Ports::NotDefined, Ports::BadType, Ports::BadValue) {        \
+     {								        \
                                                                         \
     const std::string key(name);                                        \
     CORBA::Long sl;                                                     \
@@ -215,7 +215,7 @@
                                                                         \
                                                                         \
   CORBA::Any* specificPortName::get_property(const char* name)          \
-    throw (Ports::NotDefined) {                                         \
+     {			                                                \
     const std::string key(name);                                        \
     CORBA::Any* value=new CORBA::Any;                                   \
     if (key == "StorageLevel"    )                                      \

@@ -36,19 +36,19 @@ public:
   A() {};
   virtual ~A() {};
   // La salome exception ne permet pas de passer une chaine ""
-  void lanceException1_1() throw(Exp1) { throw Exp1("_");}
-  void lanceException1_2() throw(Exp1) { throw Exp1("Ceci est l'exception 1_2");}
-  void lanceException1_3() throw(Exp1) { throw Exp1(LOC("Ceci est l'exception 1_3"));}
-  void lanceException1_4() throw(Exp1) { throw Exp1(LOC(OSS() << "Ceci est l'exeption 1_4" )); }
-  void lanceException1_5() throw(Exp1) { 
+  void lanceException1_1() { throw Exp1("_");}
+  void lanceException1_2() { throw Exp1("Ceci est l'exception 1_2");}
+  void lanceException1_3() { throw Exp1(LOC("Ceci est l'exception 1_3"));}
+  void lanceException1_4() { throw Exp1(LOC(OSS() << "Ceci est l'exeption 1_4" )); }
+  void lanceException1_5() { 
     int a=1;
     throw Exp1(LOC(OSS() << "Ceci est l'exeption 1_5 avec la valeur A : " << a )); }
-  void lanceException1_6() throw(Exp1) {
+  void lanceException1_6() {
     Exp1 exp1(LOC(OSS() << "Ceci est l'exeption 1_6"));
     std::cout << "Affichage de exp1.what() dans lanceException1_6() " << exp1.what() << std::endl;
     throw Exp1(exp1); 
   }
-  void lanceException1_7() throw(Exp1) {
+  void lanceException1_7() {
     throw Exp1(LOC(OSS() << "Ceci est l'exeption 1_7"));
    }
 };
