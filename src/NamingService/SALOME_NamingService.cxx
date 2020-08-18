@@ -134,7 +134,7 @@ void SALOME_NamingService::init_orb(CORBA::ORB_ptr orb)
 
 void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
                                     const char* Path)
-  throw(ServiceUnreachable)
+  
 {
   Utils_Locker lock (&_myMutex);
 
@@ -329,7 +329,7 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
 // ============================================================================
 
 CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
-  throw(ServiceUnreachable)
+  
 {
   Utils_Locker lock (&_myMutex);
 
@@ -413,7 +413,7 @@ CORBA::Object_ptr SALOME_NamingService::Resolve(const char* Path)
 // ============================================================================
 
 CORBA::Object_ptr SALOME_NamingService::ResolveFirst(const char* Path)
-  throw(ServiceUnreachable)
+  
 {
   Utils_Locker lock (&_myMutex);
 
@@ -481,7 +481,7 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
                                        const char* containerName,
                                        const char* componentName,
                                        const int nbproc)
-  throw(ServiceUnreachable)
+  
 {
   Utils_Locker lock (&_myMutex);
 
@@ -668,7 +668,7 @@ std::string SALOME_NamingService::BuildContainerNameForNS(const Engines::Contain
 // ============================================================================
 
 int SALOME_NamingService::Find(const char* name)
-throw(ServiceUnreachable)
+
 {
   Utils_Locker lock (&_myMutex);
 
@@ -710,7 +710,7 @@ throw(ServiceUnreachable)
  */
 // ============================================================================
 
-bool SALOME_NamingService::Create_Directory(const char* Path) throw(ServiceUnreachable)
+bool SALOME_NamingService::Create_Directory(const char* Path) 
 {
   Utils_Locker lock (&_myMutex);
 
@@ -751,7 +751,7 @@ bool SALOME_NamingService::Create_Directory(const char* Path) throw(ServiceUnrea
  */
 // ============================================================================
 
-bool SALOME_NamingService::Change_Directory(const char* Path) throw(ServiceUnreachable)
+bool SALOME_NamingService::Change_Directory(const char* Path) 
 {
   Utils_Locker lock (&_myMutex);
 
@@ -849,7 +849,7 @@ bool SALOME_NamingService::Change_Directory(const char* Path) throw(ServiceUnrea
  */
 // ============================================================================
 
-char *SALOME_NamingService::Current_Directory() throw(ServiceUnreachable)
+char *SALOME_NamingService::Current_Directory() 
 {
   Utils_Locker lock (&_myMutex);
 
@@ -899,7 +899,7 @@ char *SALOME_NamingService::Current_Directory() throw(ServiceUnreachable)
  */
 // ============================================================================
 
-void SALOME_NamingService::list() throw(ServiceUnreachable)
+void SALOME_NamingService::list() 
 {
   Utils_Locker lock (&_myMutex)
 
@@ -959,7 +959,7 @@ void SALOME_NamingService::list() throw(ServiceUnreachable)
  */
 // ============================================================================
 
-std::vector<std::string> SALOME_NamingService::list_directory() throw(ServiceUnreachable)
+std::vector<std::string> SALOME_NamingService::list_directory() 
 {
   Utils_Locker lock (&_myMutex);
   std::vector<std::string> dirList ;
@@ -1012,7 +1012,7 @@ std::vector<std::string> SALOME_NamingService::list_directory() throw(ServiceUnr
  */
 // ============================================================================
 
-std::vector<std::string> SALOME_NamingService::list_subdirs() throw(ServiceUnreachable)
+std::vector<std::string> SALOME_NamingService::list_subdirs() 
 {
   Utils_Locker lock (&_myMutex);
   std::vector<std::string> dirList ;
@@ -1062,7 +1062,7 @@ std::vector<std::string> SALOME_NamingService::list_subdirs() throw(ServiceUnrea
 // ============================================================================
 
 std::vector<std::string> SALOME_NamingService::list_directory_recurs()
-throw(ServiceUnreachable)
+
 {
   Utils_Locker lock (&_myMutex);
 
@@ -1087,7 +1087,7 @@ throw(ServiceUnreachable)
 // ============================================================================
 
 void SALOME_NamingService::Destroy_Name(const char* Path)
-throw(ServiceUnreachable)
+
 {
   Utils_Locker lock (&_myMutex);
 
@@ -1240,7 +1240,7 @@ throw(ServiceUnreachable)
  */
 // ============================================================================
 
-void SALOME_NamingService::Destroy_Directory(const char* Path) throw(ServiceUnreachable)
+void SALOME_NamingService::Destroy_Directory(const char* Path) 
 {
   Utils_Locker lock (&_myMutex);
 
@@ -1408,7 +1408,7 @@ void SALOME_NamingService::Destroy_Directory(const char* Path) throw(ServiceUnre
  */
 // ============================================================================
 
-void SALOME_NamingService::Destroy_FullDirectory(const char* Path) throw(ServiceUnreachable)
+void SALOME_NamingService::Destroy_FullDirectory(const char* Path) 
 {
   //no need to lock here because method calls are threadsafe.
   if( Change_Directory(Path) )

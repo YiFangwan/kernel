@@ -42,7 +42,7 @@ public:
   virtual ~BasicAttributeFactory() {};
 
   SALOMEDS_BasicAttribute_i* Create(const char* type)
-    throw (SALOME_Exception);
+    ;
 };
 
 #endif

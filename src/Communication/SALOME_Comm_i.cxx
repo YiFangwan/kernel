@@ -492,7 +492,7 @@ void* SALOME_SocketSender_i::myThread(void *args)
   return args;
 }
 
-void SALOME_SocketSender_i::initCom() throw(SALOME::SALOME_Exception)
+void SALOME_SocketSender_i::initCom() 
 {
   struct sockaddr_in serv_addr;
   socklen_t n;
@@ -537,7 +537,7 @@ void SALOME_SocketSender_i::initCom() throw(SALOME::SALOME_Exception)
   SCRUTE(_port);
 }
 
-void SALOME_SocketSender_i::acceptCom() throw(SALOME::SALOME_Exception)
+void SALOME_SocketSender_i::acceptCom() 
 {
   socklen_t sin_size;
   struct sockaddr_in client_addr;

@@ -104,7 +104,7 @@ Superv_Component_i::get_factory(const std::string & factory_name)
 
 provides_port *
 Superv_Component_i::create_provides_data_port(const std::string& port_fab_type)
-  throw (BadFabType)
+  
 { 
   provides_port * rtn_port = NULL;
   std::string factory_name;
@@ -129,7 +129,7 @@ Superv_Component_i::create_provides_data_port(const std::string& port_fab_type)
 
 uses_port *
 Superv_Component_i::create_uses_data_port(const std::string& port_fab_type) 
-throw (BadFabType)
+
 {
   uses_port * rtn_proxy = NULL;
   std::string factory_name;
@@ -156,7 +156,7 @@ void
 Superv_Component_i::add_port(const char * port_fab_type,
                              const char * port_type,
                              const char * port_name)
-  throw (PortAlreadyDefined, BadFabType, BadType, BadProperty)
+  
 {
   assert(port_fab_type);
   assert(port_type);
@@ -186,7 +186,7 @@ Superv_Component_i::add_port(const char * port_fab_type,
 void 
 Superv_Component_i::add_port(provides_port * port, 
                              const char* provides_port_name) 
-  throw (PortAlreadyDefined, NilPort, BadProperty)
+  
 {
   assert(port);
   assert(provides_port_name);
@@ -219,7 +219,7 @@ Superv_Component_i::add_port(provides_port * port,
 void
 Superv_Component_i::add_port(uses_port * port, 
                              const char* uses_port_name) 
-  throw (PortAlreadyDefined, NilPort, BadProperty)
+  
 {
   assert(port);
   assert(uses_port_name);
@@ -248,7 +248,7 @@ Superv_Component_i::add_port(uses_port * port,
 void
 Superv_Component_i::get_port(provides_port *& port,
                              const char * provides_port_name)
-  throw (PortNotDefined,PortNotConnected)
+  
 {
   assert(provides_port_name);
 
@@ -267,7 +267,7 @@ Superv_Component_i::get_port(provides_port *& port,
 void
 Superv_Component_i::get_port(uses_port *& port,
                              const char * uses_port_name)
-  throw (PortNotDefined, PortNotConnected)
+  
 {
   assert(uses_port_name);
 

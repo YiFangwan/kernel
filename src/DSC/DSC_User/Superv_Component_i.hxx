@@ -118,7 +118,7 @@ public:
    * \note It's user repsonsability to destroy the provides port.
    */
   virtual provides_port * create_provides_data_port(const std::string& port_fab_type)
-    throw (BadFabType);
+    ;
 
 
   /*!
@@ -132,7 +132,7 @@ public:
    * \note It's user repsonsability to destroy the uses port.
    */
   virtual uses_port * create_uses_data_port(const std::string& port_fab_type)
-    throw (BadFabType); 
+    ; 
 
   /*!
    * Adds a port to the component. With this method only Salomé's provided DSC ports
@@ -145,7 +145,7 @@ public:
   virtual void add_port(const char * port_fab_type,
                         const char * port_type,
                         const char * port_name)
-    throw (PortAlreadyDefined, BadFabType, BadType, BadProperty);
+    ;
 
   /*!
    * Adds a port to the component. With this method only Salomé's provided DSC ports
@@ -160,7 +160,7 @@ public:
   SpecificPortType * add_port(const char * port_fab_type,
                               const char * port_type,
                               const char * port_name)
-    throw (PortAlreadyDefined, BadFabType, BadType, BadCast, BadProperty);
+    ;
 
   /*!
    * Adds a created provides port to the component.
@@ -170,7 +170,7 @@ public:
    */
   virtual void add_port(provides_port * port, 
                         const char* provides_port_name)
-    throw (PortAlreadyDefined, NilPort, BadProperty);
+    ;
 
   /*!
    * Adds a created uses port to the component.
@@ -180,7 +180,7 @@ public:
    */
   virtual void add_port(uses_port * port, 
                         const char* uses_port_name)
-    throw (PortAlreadyDefined, NilPort, BadProperty);
+    ;
 
   /*!
    * Gets the provides port already added in the component.
@@ -190,7 +190,7 @@ public:
    */
   virtual void get_port(provides_port *& port, 
                         const char* provides_port_name)
-    throw (PortNotDefined, PortNotConnected);
+    ;
   
   /*!
    * Gets the uses port already added in the component.
@@ -200,7 +200,7 @@ public:
    */
   virtual void get_port(uses_port *& port, 
                         const char* uses_port_name)
-    throw (PortNotDefined, PortNotConnected);
+    ;
 
   /*!
    * Gets the list of the ports of a service.
@@ -221,7 +221,7 @@ public:
    */
   template <typename SpecificPortType > 
   SpecificPortType * get_port( const char * port_name)
-    throw (PortNotDefined, PortNotConnected, BadCast, UnexpectedState);
+    ;
  
   /*!
    * \see DSC_Callbacks::provides_port_changed
@@ -318,7 +318,7 @@ template < typename SpecificPortType >  SpecificPortType *
 Superv_Component_i::add_port(const char * port_fab_type,
                              const char * port_type,
                              const char * port_name)
-  throw (PortAlreadyDefined, BadFabType, BadType, BadCast, BadProperty)
+  
 {
   assert(port_fab_type);
   assert(port_type);

@@ -79,7 +79,7 @@ public:
     \param char* arguments, the study URL
     \return bool arguments
   */
-  virtual bool Open(const wchar_t* aStudyUrl) throw (SALOME::SALOME_Exception);
+  virtual bool Open(const wchar_t* aStudyUrl) ;
 
   //! method to check that a Study can be opened
   /*!
@@ -107,7 +107,7 @@ public:
   /*!
     \param theObject object to paste
   */
-  virtual SALOMEDS::SObject_ptr Paste(SALOMEDS::SObject_ptr theObject) throw(SALOMEDS::StudyBuilder::LockProtection);
+  virtual SALOMEDS::SObject_ptr Paste(SALOMEDS::SObject_ptr theObject) ;
   virtual CORBA::Boolean CanPaste(SALOMEDS::SObject_ptr theObject);
 
   //! method to Get persistent reference of study (idem URL())

@@ -392,7 +392,7 @@ PortableServer::POA_ptr SALOMEDS_Study_i::_default_POA()
  */
 //============================================================================
 bool SALOMEDS_Study_i::Open(const wchar_t* aWUrl)
-  throw(SALOME::SALOME_Exception)
+  
 {
   if (!_closed)
     Clear();
@@ -532,7 +532,7 @@ CORBA::Boolean SALOMEDS_Study_i::CanPaste(SALOMEDS::SObject_ptr theObject)
  */
 //============================================================================
 SALOMEDS::SObject_ptr SALOMEDS_Study_i::Paste(SALOMEDS::SObject_ptr theObject)
-     throw(SALOMEDS::StudyBuilder::LockProtection)
+     
 {
   SALOMEDS::Locker lock;
 
