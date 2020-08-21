@@ -92,7 +92,7 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetNbColumns(const int theNbColumns)
 
   myNbColumns = theNbColumns;
 
-  while (myCols.size() < myNbColumns) { // append empty columns titles
+  while ((int)myCols.size() < myNbColumns) { // append empty columns titles // TODO: mismatch signed/unsigned
     myCols.push_back(std::string(""));
   }
 
@@ -117,11 +117,11 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetRowData(const int theRow,
                                                       const std::vector<int>& theData) 
 {
   CheckLocked();  
-  if(theData.size() > myNbColumns) SetNbColumns((int)theData.size()); //!< TODO: conversion from size_t to const int, possible loss of data
+  if((int)theData.size() > myNbColumns) SetNbColumns((int)theData.size()); //!< TODO: conversion from size_t to const int, possible loss of data
 
   Backup();
 
-  while (myRows.size() < theRow) { // append new row titles
+  while ((int)myRows.size() < theRow) { // append new row titles  // TODO: mismatch signed/unsigned
     myRows.push_back(std::string(""));
   }
 
@@ -180,7 +180,7 @@ void SALOMEDSImpl_AttributeTableOfInteger::SetRowUnit(const int theRow,
 
 void SALOMEDSImpl_AttributeTableOfInteger::SetRowUnits(const std::vector<std::string>& theUnits)
 {
-  if (theUnits.size() != GetNbRows()) throw DFexception("Invalid number of rows");
+  if ((int)theUnits.size() != GetNbRows()) throw DFexception("Invalid number of rows"); // TODO: mismatch signed/unsigned
   size_t aLength = theUnits.size(), i;
   for(i = 1; i <= aLength; i++) SetRowUnit((int)i, theUnits[i-1]);  //!< TODO: conversion from size_t to int
   
@@ -197,7 +197,7 @@ std::vector<std::string> SALOMEDSImpl_AttributeTableOfInteger::GetRowUnits()
 
 void SALOMEDSImpl_AttributeTableOfInteger::SetRowTitles(const std::vector<std::string>& theTitles)
 {
-  if (theTitles.size() != GetNbRows()) throw DFexception("Invalid number of rows");
+  if ((int)theTitles.size() != GetNbRows()) throw DFexception("Invalid number of rows"); //TODO: mismatch signed/unsigned
   size_t aLength = theTitles.size(), i;
   for(i = 1; i <= aLength; i++) SetRowTitle((int)i, theTitles[i-1]); //!< TODO: conversion from size_t to int
   
@@ -449,7 +449,7 @@ std::string SALOMEDSImpl_AttributeTableOfInteger::Save()
 
   //Title
   l = myTitle.size();
-  sprintf(buffer, "%Iu\n", l);
+  sprintf(buffer, "%u\n", l);
   aString+=buffer;
   for(i=0; i<l; i++) {
     aString += myTitle[i];
@@ -463,7 +463,7 @@ std::string SALOMEDSImpl_AttributeTableOfInteger::Save()
   //Row titles
   for(i=0; i<myNbRows; i++) {
     l = myRows[i].size();
-    sprintf(buffer, "%Iu\n", l);
+    sprintf(buffer, "%u\n", l);
     aString+=buffer;
     for(j=0; j<l; j++) {
       aString += myRows[i][j];
@@ -478,7 +478,7 @@ std::string SALOMEDSImpl_AttributeTableOfInteger::Save()
   //Columns titles
   for(i=0; i<myNbColumns; i++) {
     l = myCols[i].size();
-    sprintf(buffer, "%Iu\n", l);
+    sprintf(buffer, "%u\n", l);
     aString+=buffer;
     for(j=0; j<l; j++) {
       aString += myCols[i][j];
@@ -488,7 +488,7 @@ std::string SALOMEDSImpl_AttributeTableOfInteger::Save()
 
   //Store the table values
   l = myTable.size();
-  sprintf(buffer, "%Iu\n", l);
+  sprintf(buffer, "%u\n", l);
   aString+=buffer;
   for(MI p = myTable.begin(); p != myTable.end(); p++) {
     sprintf(buffer, "%d\n%d\n", p->first, p->second);

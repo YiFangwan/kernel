@@ -1387,9 +1387,9 @@ void SetCpuUsed() ;
 void CallCancelThread() ;
 
 #ifndef WIN32
-void SigIntHandler(int what ,
+void SigIntHandler(int /*what*/ ,
                    siginfo_t * siginfo ,
-                   void * toto ) 
+                   void * /*toto*/ ) 
 {
   //PAL9042 JR : during the execution of a Signal Handler (and of methods called through Signal Handlers)
   //             use of streams (and so on) should never be used because :

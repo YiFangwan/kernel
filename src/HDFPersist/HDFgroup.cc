@@ -46,7 +46,7 @@ HDFgroup::HDFgroup(const char *name, HDFcontainerObject *father)
   _father->AddSon(this);
   _mid = -1;
   _attribute = NULL;
-};
+}
 
 void HDFgroup::CreateOnDisk()
 {

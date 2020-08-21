@@ -176,6 +176,6 @@ protected:
 //Sert à eviter le problème d'identification RTTI des exceptions
 //Crée un unique typeInfo pour tous les bibliothèques composants SALOME
 //dans un fichier cxx
-#define DSC_EXCEPTION_CXX(NameSpace,Derived) NameSpace::Derived::~Derived(void) {};
+#define DSC_EXCEPTION_CXX(NameSpace,Derived) NameSpace::Derived::~Derived(void) {}
 
 #endif /* DSC_EXCEPTION_HXX */

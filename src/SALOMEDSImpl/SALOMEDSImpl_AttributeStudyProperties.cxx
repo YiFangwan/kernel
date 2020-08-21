@@ -224,7 +224,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Paste(DF_Attribute* into)
   aProp->Init();
 
   int i;
-  for(i = 0; i < myUserName.size(); i++) {
+  for(i = 0; i < (int)myUserName.size(); i++) {  //TODO: mismatch signed/unsigned
     aProp->SetModification(myUserName[i],
                            myMinute[i], myHour[i],
                            myDay[i], myMonth[i], myYear[i]);
@@ -243,7 +243,7 @@ std::string SALOMEDSImpl_AttributeStudyProperties::Save()
   std::vector<int> aMinutes, aHours, aDays, aMonths, aYears;
   GetModifications(aNames, aMinutes, aHours, aDays, aMonths, aYears);
 
-  size_t aLength, anIndex, unitsSize = 0, commentSize = 0;;
+  int aLength, anIndex, unitsSize = 0, commentSize = 0;;
   for (aLength = 0, anIndex = aNames.size()-1; anIndex >= 0; anIndex--)
     aLength += aNames[anIndex].size() + 1;
 
@@ -416,7 +416,7 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
   // - yyyy: year   = 4 bytes
   // - name: user's name = arbitrary value, minimal length is 0 bytes
   // - 1   : records delimiter = 1 byte  
-  for (anIndex = 2; anIndex + 13 < value.size() ;) {
+  for (anIndex = 2; anIndex + 13 < (int)value.size() ;) {  //TODO: mismatch signed/unsigned
     char str[10];
     int aMinute, aHour, aDay, aMonth, aYear;
     str[0] = aCopy[anIndex++];
@@ -449,12 +449,12 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
     anIndex += aNameSize + 1;
     
     //Check end of the modifications section
-    if(anIndex < value.size() && aCopy[anIndex] == 30)
+    if(anIndex < (int)value.size() && aCopy[anIndex] == 30) //TODO: mismatch signed/unsigned
       break;
   }
   
   //Case when study contains units and comment properties
-  if( anIndex < value.size() ) {
+  if( anIndex < (int)value.size() ) {   //TODO: mismatch signed/unsigned
     anIndex++; //skip the delimiter of the sections: char(30)
     int unitsSize;
     for(unitsSize = 0; aCopy[anIndex+unitsSize] != 1; unitsSize++);
@@ -482,8 +482,8 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
   }
 
   //Case when study contains components versions
-  if( anIndex < value.size() ) {
-    while ( anIndex < value.size() && aCopy[anIndex] != 0 ) {
+  if( anIndex < (int)value.size() ) { //TODO: mismatch signed/unsigned
+    while ( anIndex < (int)value.size() && aCopy[anIndex] != 0 ) { //TODO: mismatch signed/unsigned
       int modSize;
       for(modSize = 0; aCopy[anIndex+modSize] != '='; modSize++);
       int verSize;

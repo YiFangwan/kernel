@@ -43,7 +43,7 @@ RefCountServ::RefCountServ():_cnt(1)
 {
 }
 
-RefCountServ::RefCountServ(const RefCountServ& other):_cnt(1)
+RefCountServ::RefCountServ(const RefCountServ& /*other*/):_cnt(1)
 {
 }
 

@@ -40,11 +40,11 @@ class KERNELHELPERS_EXPORT SALOMEDS_DriverDefaultImpl:
 
     SALOMEDS_DriverDefaultImpl();
   public:
-    SALOMEDS_DriverDefaultImpl(CORBA::ORB_ptr orb,
-             PortableServer::POA_ptr poa,
-             PortableServer::ObjectId * contId,
-             const char *instanceName,
-             const char *interfaceName);
+    SALOMEDS_DriverDefaultImpl(CORBA::ORB_ptr /*orb*/,
+             PortableServer::POA_ptr /*poa*/,
+             PortableServer::ObjectId * /*contId*/,
+             const char * /*instanceName*/,
+             const char * /*interfaceName*/);
 
 
     virtual ~SALOMEDS_DriverDefaultImpl();
@@ -54,13 +54,13 @@ class KERNELHELPERS_EXPORT SALOMEDS_DriverDefaultImpl:
     //---------------------------------------------
 
     //virtual SALOMEDS::TMPFile* Save(SALOMEDS::SComponent_ptr theComponent,
-     SALOMEDS::TMPFile* Save(SALOMEDS::SComponent_ptr theComponent,
-            const char* theURL,
-            bool isMultiFile);
+     SALOMEDS::TMPFile* Save(SALOMEDS::SComponent_ptr /*theComponent*/,
+            const char* /*theURL*/,
+            bool /*isMultiFile*/);
 
-    virtual SALOMEDS::TMPFile* SaveASCII(SALOMEDS::SComponent_ptr theComponent,
-           const char* theURL,
-           bool isMultiFile);
+    virtual SALOMEDS::TMPFile* SaveASCII(SALOMEDS::SComponent_ptr /*theComponent*/,
+           const char* /*theURL*/,
+           bool /*isMultiFile*/);
 
     virtual bool Load(SALOMEDS::SComponent_ptr,
           const SALOMEDS::TMPFile &,
@@ -72,36 +72,36 @@ class KERNELHELPERS_EXPORT SALOMEDS_DriverDefaultImpl:
          const char* theURL,
          bool isMultiFile);
 
-    virtual void Close(SALOMEDS::SComponent_ptr IORSComponent);
+    virtual void Close(SALOMEDS::SComponent_ptr /*IORSComponent*/);
 
     virtual char* ComponentDataType();
 
-    virtual char* IORToLocalPersistentID(SALOMEDS::SObject_ptr theSObject,
-           const char* IORString,
-           CORBA::Boolean isMultiFile,
-           CORBA::Boolean isASCII);
+    virtual char* IORToLocalPersistentID(SALOMEDS::SObject_ptr /*theSObject*/,
+           const char* /*IORString*/,
+           CORBA::Boolean /*isMultiFile*/,
+           CORBA::Boolean /*isASCII*/);
 
-    virtual char* LocalPersistentIDToIOR(SALOMEDS::SObject_ptr theSObject,
-           const char* aLocalPersistentID,
-           CORBA::Boolean isMultiFile,
-           CORBA::Boolean isASCII);
+    virtual char* LocalPersistentIDToIOR(SALOMEDS::SObject_ptr /*theSObject*/,
+           const char* /*aLocalPersistentID*/,
+           CORBA::Boolean /*isMultiFile*/,
+           CORBA::Boolean /*isASCII*/);
 
-    virtual bool CanPublishInStudy(CORBA::Object_ptr theIOR);
+    virtual bool CanPublishInStudy(CORBA::Object_ptr /*theIOR*/);
 
-    virtual SALOMEDS::SObject_ptr PublishInStudy(SALOMEDS::SObject_ptr theSObject,
-                                                 CORBA::Object_ptr     theObject,
-                                                 const char*           theName);
+    virtual SALOMEDS::SObject_ptr PublishInStudy(SALOMEDS::SObject_ptr /*theSObject*/,
+                                                 CORBA::Object_ptr     /*theObject*/,
+                                                 const char*           /*theName*/);
 
-    virtual CORBA::Boolean CanCopy(SALOMEDS::SObject_ptr theObject);
+    virtual CORBA::Boolean CanCopy(SALOMEDS::SObject_ptr /*theObject*/);
 
-    virtual SALOMEDS::TMPFile* CopyFrom(SALOMEDS::SObject_ptr theObject, 
-                                CORBA::Long& theObjectID);
+    virtual SALOMEDS::TMPFile* CopyFrom(SALOMEDS::SObject_ptr /*theObject*/, 
+                                CORBA::Long& /*theObjectID*/);
 
-    virtual CORBA::Boolean CanPaste(const char* theComponentName, 
-                            CORBA::Long theObjectID);
+    virtual CORBA::Boolean CanPaste(const char* /*theComponentName*/, 
+                            CORBA::Long /*theObjectID*/);
 
-    virtual SALOMEDS::SObject_ptr PasteInto(const SALOMEDS::TMPFile& theStream,
-            CORBA::Long theObjectID,
-            SALOMEDS::SObject_ptr theObject);
+    virtual SALOMEDS::SObject_ptr PasteInto(const SALOMEDS::TMPFile& /*theStream*/,
+            CORBA::Long /*theObjectID*/,
+            SALOMEDS::SObject_ptr /*theObject*/);
   };
 #endif

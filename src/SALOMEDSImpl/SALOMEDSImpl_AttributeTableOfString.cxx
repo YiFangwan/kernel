@@ -460,7 +460,7 @@ std::string SALOMEDSImpl_AttributeTableOfString::Save()
   //Row titles
   for(i=0; i<myNbRows; i++) {
     l = myRows[i].size();
-    sprintf(buffer, "%Iu\n", l);
+    sprintf(buffer, "%u\n", l);
     aString+=buffer;
     for(j=0; j<l; j++) {
       aString += myRows[i][j];
@@ -475,7 +475,7 @@ std::string SALOMEDSImpl_AttributeTableOfString::Save()
   //Columns titles
   for(i=0; i<myNbColumns; i++) {
     l = myCols[i].size();
-    sprintf(buffer, "%Iu\n", l);
+    sprintf(buffer, "%u\n", l);
     aString+=buffer;
     for(j=0; j<l; j++) {
       aString += myCols[i][j];
@@ -485,7 +485,7 @@ std::string SALOMEDSImpl_AttributeTableOfString::Save()
 
   //Store the table values
   l = myTable.size();
-  sprintf(buffer, "%Iu\n", l);
+  sprintf(buffer, "%u\n", l);
   aString+=buffer;
   for(MI p = myTable.begin(); p!=myTable.end(); p++) {
     if (p->second.size()) { // check empty string in the value table
@@ -601,12 +601,12 @@ std::vector<int> SALOMEDSImpl_AttributeTableOfString::SortRow(const int theRow, 
     }
     result = indices;
 
-    for ( int col = 0; col < indices.size(); col++ ) {
+    for ( int col = 0; col < (int)indices.size(); col++ ) {  //TODO: mismatch signed/unsigned
       int idx = indices[col];
       if ( col+1 == idx ) continue;
       SwapCells(theRow, col+1, theRow, idx);
       int idx1 = 0;
-      for ( int i = col+1; i < indices.size() && idx1 == 0; i++)
+      for ( int i = col+1; i < (int)indices.size() && idx1 == 0; i++) //TODO: mismatch signed/unsigned
 	if ( indices[i] == col+1 ) idx1 = i;
       indices[idx1] = idx;
     }
@@ -641,12 +641,12 @@ std::vector<int> SALOMEDSImpl_AttributeTableOfString::SortColumn(const int theCo
     }
     result = indices;
 
-    for ( int row = 0; row < indices.size(); row++ ) {
+    for ( int row = 0; row < (int)indices.size(); row++ ) {  //TODO: mismatch signed/unsigned
       int idx = indices[row];
       if ( row+1 == idx ) continue;
       SwapCells(row+1, theColumn, idx, theColumn);
       int idx1 = 0;
-      for ( int i = row+1; i < indices.size() && idx1 == 0; i++)
+      for ( int i = row+1; i < (int)indices.size() && idx1 == 0; i++) //TODO: mismathc signed/unsigned
 	if ( indices[i] == row+1 ) idx1 = i;
       indices[idx1] = idx;
     }
@@ -681,12 +681,12 @@ std::vector<int> SALOMEDSImpl_AttributeTableOfString::SortByRow(const int theRow
     }
     result = indices;
 
-    for ( int col = 0; col < indices.size(); col++ ) {
+    for ( int col = 0; col < (int)indices.size(); col++ ) { //TODO: mismatch signed/unsigned
       int idx = indices[col];
       if ( col+1 == idx ) continue;
       SwapColumns(col+1, idx);
       int idx1 = 0;
-      for ( int i = col+1; i < indices.size() && idx1 == 0; i++)
+      for ( int i = col+1; i < (int)indices.size() && idx1 == 0; i++) //TODO: mismatch signed/unsigned
 	if ( indices[i] == col+1 ) idx1 = i;
       indices[idx1] = idx;
     }
@@ -721,12 +721,12 @@ std::vector<int> SALOMEDSImpl_AttributeTableOfString::SortByColumn(const int the
     }
     result = indices;
 
-    for ( int row = 0; row < indices.size(); row++ ) {
+    for ( int row = 0; row < (int)indices.size(); row++ ) { //TODO: mismatch signed/unsigned
       int idx = indices[row];
       if ( row+1 == idx ) continue;
       SwapRows(row+1, idx);
       int idx1 = 0;
-      for ( int i = row+1; i < indices.size() && idx1 == 0; i++)
+      for ( int i = row+1; i < (int)indices.size() && idx1 == 0; i++) //TODO: mismatch signed/unsigned
 	if ( indices[i] == row+1 ) idx1 = i;
       indices[idx1] = idx;
     }

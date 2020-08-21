@@ -247,7 +247,7 @@ std::vector<DF_Attribute*> DF_Label::GetAttributes() const
     
   sort(sorted.begin(), sorted.end());
   size_t len = sorted.size();
-  for(int i = 0; i<len; i++)
+  for(size_t i = 0; i<len; i++)
     attributes.push_back(_node->_attributes[sorted[i]]);
 
   return attributes;

@@ -118,7 +118,7 @@ void SALOMEDSImpl_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
 //============================================================================
 std::string SALOMEDSImpl_Tool::GetNameFromPath(const std::string& thePath) {
   if (thePath.empty()) return "";
-  size_t pos = thePath.rfind('/');
+  int pos = (int)thePath.rfind('/'); //TODO: conversion from size_t to int
   if(pos >= 0) return thePath.substr(pos+1, thePath.size());
   pos = thePath.rfind('\\'); 
   if(pos >= 0) return thePath.substr(pos+1, thePath.size()); 
@@ -140,7 +140,7 @@ std::string SALOMEDSImpl_Tool::GetDirFromPath(const std::string& thePath) {
 
   std::string path;
   if (!thePath.empty()) {
-    size_t pos = thePath.rfind('/');
+    int pos = (int)thePath.rfind('/'); //TODO: conversion from size_t to int
     if (pos < 0) pos = thePath.rfind('\\');
     if (pos < 0) pos = thePath.rfind('|');
     
@@ -169,7 +169,7 @@ std::vector<std::string> SALOMEDSImpl_Tool::splitString(const std::string& theVa
 {
   std::vector<std::string> vs;
   if(theValue[0] == separator && theValue.size() == 1) return vs;
-  size_t pos = theValue.find(separator);
+  int pos = (int)theValue.find(separator); //TODO: conversion from size_t to int
   if(pos < 0) {
     vs.push_back(theValue);
     return vs;
@@ -197,7 +197,7 @@ std::vector<std::string> treatRepetation(const std::string& theValue);
 std::vector<std::string> treatRepetation(const std::string& theValue)
 {
   std::vector<std::string> aResult;
-  size_t pos = theValue.find(";*=");
+  int pos = (int)theValue.find(";*="); //TODO: conversion from size_t to int
   if(pos < 0 )
     {
       aResult.push_back(theValue);
@@ -217,7 +217,7 @@ std::vector<std::string> SALOMEDSImpl_Tool::splitStringWithEmpty(const std::stri
 {
   std::vector<std::string> aResult;
   if(theValue[0] == sep ) aResult.push_back(std::string());
-  size_t pos = theValue.find(sep);
+  int pos = (int)theValue.find(sep); //TODO: conversion from size_t to int
   if(pos < 0 ) {
     if(sep == '|')
       {

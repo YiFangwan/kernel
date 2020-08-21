@@ -70,13 +70,13 @@ void PickelizedPyObjServer::checkKeyPresent(PyObject *key)
   checkKeyPresence(key,true);
 }
 
-void PickelizedPyObjServer::addKeyValueHard(PyObject *key, PyObject *value)
+void PickelizedPyObjServer::addKeyValueHard(PyObject * /*key*/, PyObject * /*value*/)
 {
   std::ostringstream oss; oss << "PickelizedPyObjServer::addKeyValueHard : var \"" << getVarNameCpp() << "\" is not permitted to alter its value !";
   throw Exception(oss.str());
 }
 
-void PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting(PyObject *key)
+void PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting(PyObject * /*key*/)
 {
   std::ostringstream oss; oss << "PickelizedPyObjServer::removeKeyInVarErrorIfNotAlreadyExisting : var \"" << getVarNameCpp() << "\" is not permitted to alter its value !";
   throw Exception(oss.str());

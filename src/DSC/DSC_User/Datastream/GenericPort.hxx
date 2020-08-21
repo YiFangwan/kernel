@@ -686,6 +686,6 @@ GenericPort<DataManipulator, COUPLING_POLICY>::next(TimeType &t,
   // Du coup interaction potentielle entre le 0 copy et gestion des niveaux 
   return dataToTransmit; 
 
-};
+}
 
 #endif

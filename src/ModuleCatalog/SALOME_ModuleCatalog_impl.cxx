@@ -738,7 +738,7 @@ void SALOME_ModuleCatalogImpl::ShutdownWithExit()
 void SALOME_ModuleCatalogImpl::shutdown()
 {
   if (!CORBA::is_nil(_orb)) _orb->shutdown(0);
-};
+}
 
 
 

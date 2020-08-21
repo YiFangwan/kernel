@@ -257,8 +257,8 @@ void SALOME_NamingService::Register(CORBA::Object_ptr ObjRef,
   //     be recorded
 
   size_t sizePath = splitPath.size();
-  if (sizePath > dimension_resultat){
-    ASSERT(sizePath == dimension_resultat+1);
+  if (sizePath > (size_t)dimension_resultat){
+    ASSERT(sizePath == (size_t)dimension_resultat+1);
     context_name.length(1);
 
     try{
@@ -1177,9 +1177,9 @@ void SALOME_NamingService::Destroy_Name(const char* Path)
   //     be destroyed
 
   size_t sizePath = splitPath.size();
-  if (sizePath > dimension_resultat)
+  if (sizePath > (size_t)dimension_resultat)
     {
-      ASSERT(sizePath == dimension_resultat+1);
+      ASSERT(sizePath == (size_t)dimension_resultat+1);
       context_name.length(1);
 
       try
@@ -1512,11 +1512,11 @@ SALOME_NamingService::_createContextNameDir(std::string path,
     dim = splitPath.size();     // directories and final object
 
   context_name.length(static_cast<unsigned long>(dim));
-  for (int i=0; i<dim; i++)
+  for (int i=0; i<(int)dim; i++)
     {
 //       SCRUTE(splitPath[i]);
       context_name[i].id = CORBA::string_dup(splitPath[i].c_str());
-      if (!endWithDelim && (i == dim-1)) // here, the last string is an object
+      if (!endWithDelim && (i == (int)dim-1)) // here, the last string is an object
         {
           context_name[i].kind = CORBA::string_dup("object");
 //        MESSAGE("--- " <<splitPath[i] <<".object");

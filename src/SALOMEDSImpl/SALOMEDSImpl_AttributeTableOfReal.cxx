@@ -447,7 +447,7 @@ std::string SALOMEDSImpl_AttributeTableOfReal::Save()
 
   //Title
   l = myTitle.size();
-  sprintf(buffer, "%Iu\n", l);
+  sprintf(buffer, "%zu\n", l);
   aString+=buffer;
   for(i=0; i<l; i++) {
     aString += myTitle[i];
@@ -461,7 +461,7 @@ std::string SALOMEDSImpl_AttributeTableOfReal::Save()
   //Row titles
   for(i=0; i<myNbRows; i++) {
     l = myRows[i].size();
-    sprintf(buffer, "%Iu\n", l);
+    sprintf(buffer, "%u\n", l);
     aString+=buffer;
     for(j=0; j<l; j++) {
       aString += myRows[i][j];
@@ -476,7 +476,7 @@ std::string SALOMEDSImpl_AttributeTableOfReal::Save()
   //Columns titles
   for(i=0; i<myNbColumns; i++) {
     l = myCols[i].size();
-    sprintf(buffer, "%Iu\n", l);
+    sprintf(buffer, "%u\n", l);
     aString+=buffer;
     for(j=0; j<l; j++) {
       aString += myCols[i][j];
@@ -486,7 +486,7 @@ std::string SALOMEDSImpl_AttributeTableOfReal::Save()
 
   //Store the table values
   l = myTable.size();
-  sprintf(buffer, "%Iu\n", l);
+  sprintf(buffer, "%u\n", l);
   aString+=buffer;
   for(MI p = myTable.begin(); p != myTable.end(); p++) {
     sprintf(buffer, "%d\n%.64e\n", p->first, p->second);

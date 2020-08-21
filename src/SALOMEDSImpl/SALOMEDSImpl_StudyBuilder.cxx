@@ -439,7 +439,7 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
  *  Purpose  : 
  */
 //============================================================================
-bool SALOMEDSImpl_StudyBuilder::Load(const SALOMEDSImpl_SObject& sco)
+bool SALOMEDSImpl_StudyBuilder::Load(const SALOMEDSImpl_SObject& /*sco*/)
 {
   _errorCode = "Not implemented";
   return false;
@@ -802,7 +802,7 @@ int  SALOMEDSImpl_StudyBuilder::UndoLimit()
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDSImpl_StudyBuilder::UndoLimit(int n)
+void SALOMEDSImpl_StudyBuilder::UndoLimit(int /*n*/)
 {
   _errorCode = "";
   CheckLocked();

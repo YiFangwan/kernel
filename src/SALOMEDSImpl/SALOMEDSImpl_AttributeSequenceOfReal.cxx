@@ -123,7 +123,7 @@ void SALOMEDSImpl_AttributeSequenceOfReal::ChangeValue(const int Index,const dou
   CheckLocked();  
   Backup();
 
-  if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
+  if(Index <= 0 || Index > (int)myValue.size()) throw DFexception("Out of range"); // TODO: mismatch signed/unsigned
 
   myValue[Index-1] = Value;
   
@@ -144,7 +144,7 @@ void SALOMEDSImpl_AttributeSequenceOfReal::Remove(const int Index)
   CheckLocked();  
   Backup();
 
-  if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
+  if(Index <= 0 || Index > (int)myValue.size()) throw DFexception("Out of range"); // TODO: mismatch signed/unsigned
 
   typedef std::vector<double>::iterator VI;
   int i = 1;    
@@ -165,7 +165,7 @@ int SALOMEDSImpl_AttributeSequenceOfReal::Length()
 
 double SALOMEDSImpl_AttributeSequenceOfReal::Value(const int Index) 
 {
-  if(Index <= 0 || Index > myValue.size()) throw DFexception("Out of range");
+  if(Index <= 0 || Index > (int)myValue.size()) throw DFexception("Out of range"); // TODO: mismatch signed/unsigned
   return myValue[Index-1];
 }
 

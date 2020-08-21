@@ -29,7 +29,7 @@
 #include "SALOME_ModuleCatalog_Acomponent_impl.hxx"
 
 #include "Utils_ExceptHandlers.hxx"
-UNEXPECT_CATCH(MC_NotFound, SALOME_ModuleCatalog::NotFound);
+UNEXPECT_CATCH(MC_NotFound, SALOME_ModuleCatalog::NotFound)
 
 #include "utilities.h"
 

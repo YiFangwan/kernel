@@ -32,6 +32,7 @@
 #include "uses_port.hxx"
 #include "provides_port.hxx"
 #include "port_factory.hxx"
+#include "Basics_Utils.hxx"
 
 #include "DSC_Exception.hxx"
 #include <vector>
@@ -73,15 +74,15 @@ public:
   // Exceptions declarations.
   // There are defined on the Superv_Component_i.cxx to avoid problems
   // from dlopen.
-  DSC_EXCEPTION(BadFabType);
-  DSC_EXCEPTION(BadType);
-  DSC_EXCEPTION(BadCast);
-  DSC_EXCEPTION(UnexpectedState);
-  DSC_EXCEPTION(PortAlreadyDefined);
-  DSC_EXCEPTION(PortNotDefined);
-  DSC_EXCEPTION(PortNotConnected);
-  DSC_EXCEPTION(NilPort);
-  DSC_EXCEPTION(BadProperty);
+  DSC_EXCEPTION(BadFabType)
+  DSC_EXCEPTION(BadType)
+  DSC_EXCEPTION(BadCast)
+  DSC_EXCEPTION(UnexpectedState)
+  DSC_EXCEPTION(PortAlreadyDefined)
+  DSC_EXCEPTION(PortNotDefined)
+  DSC_EXCEPTION(PortNotConnected)
+  DSC_EXCEPTION(NilPort)
+  DSC_EXCEPTION(BadProperty)
   
   /*!
    * \warning currently disabled.
@@ -93,7 +94,7 @@ public:
    * \warning currently disabled.
    */
   virtual provides_port * create_provides_data_and_control_port(const char* port_type) 
-  {return NULL;}
+  {SALOME_UNUSED(port_type);return NULL;}
 
   /*!
    * \warning currently disabled.
@@ -105,7 +106,7 @@ public:
    * \warning currently disabled.
    */
   virtual uses_port * create_uses_data_and_control_port(const char* port_type)
-  {return NULL;}
+  {SALOME_UNUSED(port_type);return NULL;}
 
   /*!
    * This method permits to create a provides port provided by the platform.
@@ -269,6 +270,8 @@ public:
   virtual CORBA::Boolean init_service_with_multiple(const char* service_name,
                                                     const Engines::Superv_Component::seq_multiple_param & params)
   {
+    SALOME_UNUSED(service_name);
+    SALOME_UNUSED(params);
     return true;
   }
 
@@ -358,7 +361,7 @@ Superv_Component_i::add_port(const char * port_fab_type,
                       << port_type));
   
   return retPort;
-};
+}
 
 
 template <typename SpecificPortType > SpecificPortType * 
@@ -404,7 +407,7 @@ Superv_Component_i::get_port( const char * port_name)
   }
 
   return retPort;
-};
+}
 
 
 #endif

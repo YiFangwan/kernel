@@ -166,7 +166,7 @@ SALOME::StringVec *SALOME_ExternalServerLauncher::listServersInNS()
   std::vector<std::string> loes(ListOfExternalServersCpp(_NS));
   std::size_t sz(loes.size());
   ret->length((_CORBA_ULong)sz); //!< TODO: conversion from size_t to _CORBA_ULong
-  for(auto i = 0; i<sz ; i++)
+  for(auto i = 0; i<(int)sz ; i++) //TODO: mismatch signed/unsigned
     {
       (*ret)[i]=CORBA::string_dup(loes[i].c_str());
     }

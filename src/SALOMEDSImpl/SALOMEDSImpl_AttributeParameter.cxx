@@ -41,7 +41,7 @@ std::string convertString(const std::string& S)
     return "0";
   char c[3], *buffer = new char[length*3+1];
   buffer[length*3] = (char)0;
-  for(int i = 0, pos = 0; i<length; i++, pos+=3) {
+  for(int i = 0, pos = 0; i<(int)length; i++, pos+=3) { //TODO: mismatch signed/unsigned
     int val = (int)S[i];
     buffer[pos] = '%';
     sprintf(c, "%.2x", val);
@@ -62,7 +62,7 @@ std::string restoreString(const std::string& S)
     return "";
   char c[3], *buffer = new char[length/3+1];
   buffer[length/3] = (char)0;
-  for(int i = 0, pos = 0; i<length; i+=3, pos++) {
+  for(int i = 0, pos = 0; i<(int)length; i+=3, pos++) { //TODO: mismatch signed/unsigned
     c[0] = S[i+1];
     c[1] = S[i+2];
     c[2] = (char)0;

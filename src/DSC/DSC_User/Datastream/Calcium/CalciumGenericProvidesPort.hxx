@@ -145,7 +145,7 @@
     virtual CORBA::Any* get_property(const char* name)                  \
       ;				                                        \
                                                                         \
-    virtual void provides_port_changed(int connection_nbr,              \
+    virtual void provides_port_changed(int /*connection_nbr*/,          \
                                        const Engines::DSC::Message message) { \
       if ( message == Engines::DSC::AddingConnection)                   \
         {                                                               \
@@ -169,7 +169,7 @@
 
 #define CALCIUM_GENERIC_PROVIDES_PORT_CXX(specificPortName)             \
                                                                         \
-  specificPortName::~specificPortName(void) {};                         \
+  specificPortName::~specificPortName(void) {}                         \
                                                                         \
   void specificPortName::set_property(const char * name,  const CORBA::Any& value) \
      {								        \
@@ -237,7 +237,7 @@
       throw Ports::NotDefined();                                        \
     }                                                                   \
     return value;                                                       \
-  };                                            
+  }                                            
                                                                         
 
 #endif
