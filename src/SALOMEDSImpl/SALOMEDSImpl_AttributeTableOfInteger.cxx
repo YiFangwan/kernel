@@ -587,12 +587,12 @@ std::vector<int> SALOMEDSImpl_AttributeTableOfInteger::SortRow(const int theRow,
     }
     result = indices;
 
-    for ( int col = 0; col < indices.size(); col++ ) {
+    for ( int col = 0; col < (int)indices.size(); col++ ) {//TODO: mismatch signed/unsigned
       int idx = indices[col];
       if ( col+1 == idx ) continue;
       SwapCells(theRow, col+1, theRow, idx);
       int idx1 = 0;
-      for ( int i = col+1; i < indices.size() && idx1 == 0; i++)
+      for ( int i = col+1; i < (int)indices.size() && idx1 == 0; i++)//TODO: mismatch signed/unsigned
 	if ( indices[i] == col+1 ) idx1 = i;
       indices[idx1] = idx;
     }
@@ -627,12 +627,12 @@ std::vector<int> SALOMEDSImpl_AttributeTableOfInteger::SortColumn(const int theC
     }
     result = indices;
 
-    for ( int row = 0; row < indices.size(); row++ ) {
+    for ( int row = 0; row < (int)indices.size(); row++ ) {//TODO: mismatch signed/unsigned
       int idx = indices[row];
       if ( row+1 == idx ) continue;
       SwapCells(row+1, theColumn, idx, theColumn);
       int idx1 = 0;
-      for ( int i = row+1; i < indices.size() && idx1 == 0; i++)
+      for ( int i = row+1; i < (int)indices.size() && idx1 == 0; i++)//TODO: mismatch signed/unsigned
 	if ( indices[i] == row+1 ) idx1 = i;
       indices[idx1] = idx;
     }
@@ -667,12 +667,12 @@ std::vector<int> SALOMEDSImpl_AttributeTableOfInteger::SortByRow(const int theRo
     }
     result = indices;
 
-    for ( int col = 0; col < indices.size(); col++ ) {
+    for ( int col = 0; col < (int)indices.size(); col++ ) {//TODO: mismatch signed/unsigned
       int idx = indices[col];
       if ( col+1 == idx ) continue;
       SwapColumns(col+1, idx);
       int idx1 = 0;
-      for ( int i = col+1; i < indices.size() && idx1 == 0; i++)
+      for ( int i = col+1; i < (int)indices.size() && idx1 == 0; i++)//TODO: mismatch signed/unsigned
 	if ( indices[i] == col+1 ) idx1 = i;
       indices[idx1] = idx;
     }
@@ -707,12 +707,12 @@ std::vector<int> SALOMEDSImpl_AttributeTableOfInteger::SortByColumn(const int th
     }
     result = indices;
 
-    for ( int row = 0; row < indices.size(); row++ ) {
+    for ( int row = 0; row < (int)indices.size(); row++ ) { //TODO: mismatch signed/unsigned
       int idx = indices[row];
       if ( row+1 == idx ) continue;
       SwapRows(row+1, idx);
       int idx1 = 0;
-      for ( int i = row+1; i < indices.size() && idx1 == 0; i++)
+      for ( int i = row+1; i < (int)indices.size() && idx1 == 0; i++) //TODO: mismatch signed/unsigned
 	if ( indices[i] == row+1 ) idx1 = i;
       indices[idx1] = idx;
     }

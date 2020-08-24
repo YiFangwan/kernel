@@ -382,7 +382,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfInteger_i::GetRowSetIndices(CORBA::L
   SALOMEDS::LongSeq_var CorbaSeq = new SALOMEDS::LongSeq;
   std::vector<int> aSeq = aTable->GetSetRowIndices(theRow);
   CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
-  for (int i = 0; i < aSeq.size(); i++) {
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 
@@ -443,7 +443,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfInteger_i::SortRow(CORBA::Long theRo
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
   CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
-  for (int i = 0; i < aSeq.size(); i++) {
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 
@@ -470,7 +470,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfInteger_i::SortColumn(CORBA::Long th
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
   CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
-  for (int i = 0; i < aSeq.size(); i++) {
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 
@@ -497,7 +497,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfInteger_i::SortByRow(CORBA::Long the
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
   CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
-  for (int i = 0; i < aSeq.size(); i++) {
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 
@@ -524,7 +524,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfInteger_i::SortByColumn(CORBA::Long 
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
   CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
-  for (int i = 0; i < aSeq.size(); i++) {
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 

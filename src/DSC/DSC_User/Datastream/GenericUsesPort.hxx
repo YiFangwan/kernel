@@ -103,7 +103,7 @@ GenericUsesPort< DataManipulator,CorbaPortType, repositoryName, UsesPort  >::put
   // OLD : Pour l'instant on résoud PB2 en créant une copie de la donnée en cas
   // OLD : de connexions multiples. Il faudra tester la collocalisation.
   // OLD :  DataType copyOfData; // = data; PB1
-  for(int i = 0; i < _my_ports->length(); i++) {
+  for(int i = 0; i < (int)_my_ports->length(); i++) { //TODO: mismatch signed/unsigned
 
     CorbaPortTypeVar port = CorbaPortType::_narrow((*_my_ports)[i]);
     //if (i) { PB1

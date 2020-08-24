@@ -1169,7 +1169,7 @@ void NamingServiceTest::_destroyDirectoryRecurs(std::string path)
   if (_NS.Change_Directory(path.c_str()))
     {
       std::vector<std::string> subdirs = _NS.list_subdirs();
-      for (int i=0; i<subdirs.size(); i++)
+      for (int i=0; i<(int)subdirs.size(); i++) //TODO: mismatch signed/unsigned
         {
           std::string subpath=path + "/" +subdirs[i];
           _destroyDirectoryRecurs(subpath);

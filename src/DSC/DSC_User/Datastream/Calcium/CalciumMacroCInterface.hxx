@@ -111,7 +111,7 @@ Id          : $Id$
   extern "C" void ecp_lecture_##_name##_free ( _type _qual * data)                                               \
   {                                                                                                              \
     CalciumInterface::ecp_free< _type, _porttype >(data);                                                        \
-  };                                                                                                             \
+  }                                                                                                             \
                                                                                                                  \
                                                                                                                  \
   extern "C" CalciumTypes::InfoType ecp_ecriture_##_name (void * component, int dependencyType,           \
@@ -148,7 +148,7 @@ Id          : $Id$
       }                                                                                                   \
     DEBTRACE( "-------- CalciumInterface(ecriture Inter Part), Valeur de data :" << data )                \
     return CalciumTypes::CPOK;                                                                            \
-  };                                                                                                      \
+  }                                                                                                      \
 
 
 #endif

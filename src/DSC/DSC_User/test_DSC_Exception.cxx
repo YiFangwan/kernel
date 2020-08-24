@@ -30,8 +30,8 @@
 class A {
 
 public:
-  DSC_EXCEPTION(Exp1);
-  DSC_EXCEPTION(Exp2);
+  DSC_EXCEPTION(Exp1)
+  DSC_EXCEPTION(Exp2)
 
   A() {};
   virtual ~A() {};
@@ -53,8 +53,8 @@ public:
    }
 };
 
-DSC_EXCEPTION_CXX(A,Exp1);
-DSC_EXCEPTION_CXX(A,Exp2);
+DSC_EXCEPTION_CXX(A,Exp1)
+DSC_EXCEPTION_CXX(A,Exp2)
 
 
 int main() {
@@ -155,4 +155,4 @@ int main() {
     std::cout << "Exception ... reçue mais aurait dû recevoir Exception DSC" << std::endl;
   }
 
-};
+}

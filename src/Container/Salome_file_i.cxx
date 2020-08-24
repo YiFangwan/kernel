@@ -502,7 +502,7 @@ Salome_file_i::setLocalFile(const char* comp_file_name)
 
   std::string cp_file_name(comp_file_name);
   std::size_t index = cp_file_name.rfind("/");
-  if (index != -1)
+  if (index != -1) //TODO: std::string::npos
   {
     file_name = cp_file_name.substr(index+1);
     path =  cp_file_name.substr(0,index+1);
@@ -564,7 +564,7 @@ Salome_file_i::setDistributedFile(const char* comp_file_name)
 
   std::string cp_file_name(comp_file_name);
   std::size_t index = cp_file_name.rfind("/");
-  if (index != -1)
+  if (index != -1) //TODO: std::string::npos
   {
     file_name = cp_file_name.substr(index+1);
     path =  cp_file_name.substr(0,index+1);

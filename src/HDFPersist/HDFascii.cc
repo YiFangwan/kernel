@@ -255,16 +255,16 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   delete [] name;
 
   hdf_dataset->GetDim(dim);
-  fprintf(fp, " %i\n", ndim);
+  fprintf(fp, " %li\n", ndim);
 
   for(int i = 0;i < ndim;i++) {
-    fprintf(fp, " %Ii", dim[i]);
+    fprintf(fp, " %li", dim[i]);
   }
 
   fprintf(fp, "\n");
   delete [] dim;
 
-  fprintf(fp, "%li %i:", size, order);
+  fprintf(fp, "%i %i:", size, order);
   if( type == HDF_ARRAY ) {
     HDFarray *array = new HDFarray(hdf_dataset);
     hdf_type data_type = array->GetDataType();
@@ -278,7 +278,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
     array->GetDim(arr_dim);
 
     for( int i = 0;i < arr_ndim; i++ ) {
-      fprintf(fp, " %Ii", arr_dim[i]);
+      fprintf(fp, " %i", arr_dim[i]);
     }
         
     //And write the data array
@@ -319,7 +319,7 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
   size_t size = hdf_attribute->GetSize();
 
   fprintf(fp, "%s\n", ATTRIBUTE_ID);
-  fprintf(fp, "%s %i %Ii\n", name, type, size);
+  fprintf(fp, "%s %i %i\n", name, type, size);
 
   delete [] name;
 

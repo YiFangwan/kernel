@@ -46,15 +46,15 @@ class DSC_BASIC_EXPORT PortProperties_i:
      * CORBA method : set a value to a property
      * \see Ports::PortProperties::set_property
      */
-    virtual void set_property(const char * name,
-                              const CORBA::Any& value)
+    virtual void set_property(const char * /*name*/,
+                              const CORBA::Any& /*value*/)
 		noexcept;
 
     /*!
      * CORBA method : get the value of a property
      * \see Ports::PortProperties::get_property
      */
-    virtual CORBA::Any* get_property(const char* name)
+    virtual CORBA::Any* get_property(const char* /*name*/)
 		noexcept;
 };
 

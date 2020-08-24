@@ -44,8 +44,8 @@
 #include <DF_Document.hxx>
 #include <stdlib.h> 
 
-UNEXPECT_CATCH(SBSalomeException, SALOME::SALOME_Exception);
-UNEXPECT_CATCH(SBLockProtection, SALOMEDS::StudyBuilder::LockProtection);
+UNEXPECT_CATCH(SBSalomeException, SALOME::SALOME_Exception)
+UNEXPECT_CATCH(SBLockProtection, SALOMEDS::StudyBuilder::LockProtection)
 
 //============================================================================
 /*! Function : constructor

@@ -273,13 +273,13 @@ public:
   void EnableUseCaseAutoFilling(CORBA::Boolean isEnabled); 
 
   // postponed destroying of CORBA object functionality
-  virtual void AddPostponed(const char* theIOR);
+  virtual void AddPostponed(const char* /*theIOR*/);
 
-  virtual void AddCreatedPostponed(const char* theIOR);
+  virtual void AddCreatedPostponed(const char* /*theIOR*/);
 
   virtual void RemovePostponed(CORBA::Long theUndoLimit); // removes postponed IORs of old transaction
                                                         // if theUndoLimit==0, removes all
-  virtual void UndoPostponed(CORBA::Long theWay); // theWay = 1: resurrect objects,
+  virtual void UndoPostponed(CORBA::Long /*theWay*/); // theWay = 1: resurrect objects,
                                                 // theWay = -1: get back to the list of postponed
 
   virtual SALOMEDS::AttributeParameter_ptr GetCommonParameters(const char* theID, CORBA::Long theSavePoint);

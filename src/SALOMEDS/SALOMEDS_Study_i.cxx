@@ -59,8 +59,8 @@
 #include <unistd.h>
 #endif
 
-UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception);
-UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection);
+UNEXPECT_CATCH(SalomeException,SALOME::SALOME_Exception)
+UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection)
 
 static SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb);
 
@@ -1078,13 +1078,13 @@ SALOMEDS::UseCaseBuilder_ptr SALOMEDS_Study_i::GetUseCaseBuilder()
  *  Purpose  : 
  */
  //============================================================================
-void SALOMEDS_Study_i::AddPostponed(const char* theIOR) 
+void SALOMEDS_Study_i::AddPostponed(const char* /*theIOR*/) 
 {
   SALOMEDS::Locker lock; 
   //Not implemented
 }
 
-void SALOMEDS_Study_i::AddCreatedPostponed(const char* theIOR) 
+void SALOMEDS_Study_i::AddCreatedPostponed(const char* /*theIOR*/) 
 {
   SALOMEDS::Locker lock; 
   //Not implemented
@@ -1124,7 +1124,7 @@ void SALOMEDS_Study_i::RemovePostponed(CORBA::Long /*theUndoLimit*/)
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDS_Study_i::UndoPostponed(CORBA::Long theWay) 
+void SALOMEDS_Study_i::UndoPostponed(CORBA::Long /*theWay*/) 
 {
   SALOMEDS::Locker lock; 
   //Not implemented

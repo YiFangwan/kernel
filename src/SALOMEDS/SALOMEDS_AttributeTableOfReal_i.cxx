@@ -419,7 +419,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfReal_i::SortRow(CORBA::Long theRow,
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
   CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
-  for (int i = 0; i < aSeq.size(); i++) {
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 
@@ -446,7 +446,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfReal_i::SortColumn(CORBA::Long theCo
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
   CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
-  for (int i = 0; i < aSeq.size(); i++) {
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 
@@ -473,7 +473,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfReal_i::SortByRow(CORBA::Long theRow
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
   CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
-  for (int i = 0; i < aSeq.size(); i++) {
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 
@@ -500,7 +500,7 @@ SALOMEDS::LongSeq* SALOMEDS_AttributeTableOfReal_i::SortByColumn(CORBA::Long the
     throw SALOMEDS::AttributeTable::IncorrectIndex();
   }
   CorbaSeq->length((_CORBA_ULong)aSeq.size()); //!< TODO: conversion from size_t to _CORBA_ULong
-  for (int i = 0; i < aSeq.size(); i++) {
+  for (int i = 0; i < (int)aSeq.size(); i++) { //TODO: mismatch signed/unsigned
     CorbaSeq[i] = aSeq[i];
   }
   return CorbaSeq._retn(); 

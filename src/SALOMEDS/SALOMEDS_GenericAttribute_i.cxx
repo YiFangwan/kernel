@@ -42,7 +42,7 @@
 #include <unistd.h>
 #endif
 
-UNEXPECT_CATCH(GALockProtection, SALOMEDS::GenericAttribute::LockProtection);
+UNEXPECT_CATCH(GALockProtection, SALOMEDS::GenericAttribute::LockProtection)
 
 SALOMEDS_GenericAttribute_i::SALOMEDS_GenericAttribute_i(DF_Attribute* theImpl, CORBA::ORB_ptr theOrb) :
   GenericObj_i(SALOMEDS_Study_i::GetThePOA())

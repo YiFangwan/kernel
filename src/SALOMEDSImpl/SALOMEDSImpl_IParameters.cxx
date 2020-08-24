@@ -296,7 +296,7 @@ std::string SALOMEDSImpl_IParameters::getStudyScript(SALOMEDSImpl_Study* study, 
   std::vector<std::string> v = ip.getProperties();
   if(v.size() > 0) {
     dump += "#Set up visual properties:\n";
-    for(int i = 0; i<v.size(); i++) {
+    for(int i = 0; i<(int)v.size(); i++) {//TODO: mismatch signed/unsigned
       std::string prp = ip.getProperty(v[i]);
       dump += "ipar.setProperty(\""+v[i]+"\", \""+prp+"\")\n";
     }
@@ -305,11 +305,11 @@ std::string SALOMEDSImpl_IParameters::getStudyScript(SALOMEDSImpl_Study* study, 
   v = ip.getLists();
   if(v.size() > 0) {
     dump += "#Set up lists:\n";
-    for(int i = 0; i<v.size(); i++) {
+    for(int i = 0; i<(int)v.size(); i++) { //TODO: mismatch signed/unsigned
       std::vector<std::string> lst = ip.getValues(v[i]);
       dump += "# fill list "+v[i]+"\n";
-      for(int j = 0; j < lst.size(); j++) {
-        if (lst[j].find('\"') == -1)
+      for(int j = 0; j < (int)lst.size(); j++) { //TODO: mismatch signed/unsigned
+        if (lst[j].find('\"') == -1) //TODO: std::string::npos
           dump += "ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
         else
           dump += "ipar.append(\""+v[i]+"\", \"\"\""+lst[j]+"\"\"\")\n";
@@ -346,7 +346,7 @@ std::string SALOMEDSImpl_IParameters::getDefaultScript(SALOMEDSImpl_Study* study
   std::vector<std::string> v = ip.getProperties();
   if(v.size() > 0) {
     dump += shift +"#Set up visual properties:\n";
-    for(int i = 0; i<v.size(); i++) {
+    for(int i = 0; i<(int)v.size(); i++) { //TODO: mismtach signed/unsigned
       std::string prp = ip.getProperty(v[i]);
       dump += shift +"ipar.setProperty(\""+v[i]+"\", \""+prp+"\")\n";
     }
@@ -355,10 +355,10 @@ std::string SALOMEDSImpl_IParameters::getDefaultScript(SALOMEDSImpl_Study* study
   v = ip.getLists();
   if(v.size() > 0) {
     dump +=  shift +"#Set up lists:\n";
-    for(int i = 0; i<v.size(); i++) {
+    for(int i = 0; i<(int)v.size(); i++) { //TODO: mismatch signed/unsigned
       std::vector<std::string> lst = ip.getValues(v[i]);
       dump += shift +"# fill list "+v[i]+"\n";
-      for(int j = 0; j < lst.size(); j++)
+      for(int j = 0; j < (int)lst.size(); j++) //TODO: mismatch signed/unsigned
         dump += shift +"ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
     }
   }
@@ -366,7 +366,7 @@ std::string SALOMEDSImpl_IParameters::getDefaultScript(SALOMEDSImpl_Study* study
   v = ip.getEntries();
   if(v.size() > 0) {
     dump += shift + "#Set up entries:\n";
-    for(int i = 0; i<v.size(); i++) {
+    for(int i = 0; i<(int)v.size(); i++) { //TODO: mismatch signed/unsigned
       std::vector<std::string> names = ip.getAllParameterNames(v[i]);
       std::vector<std::string> values = ip.getAllParameterValues(v[i]);
       std::string decodedEntry = ip.decodeEntry(v[i]);
@@ -386,7 +386,7 @@ std::string SALOMEDSImpl_IParameters::getDefaultScript(SALOMEDSImpl_Study* study
 	  dump += shift + "objId = " + values[idIndex] + "\n";
 	}
 	   
-	for(int j = 0; j < names.size() && j < values.size(); j++) {
+	for(int j = 0; j < (int)names.size() && j < (int)values.size(); j++) { //TODO: mismtach siged/unsigned
 	  if(names[j] == _PT_ID_) continue;
 	  if(hasId)
 	    dump += shift + "ipar.setParameter(" + "objId" + ", \"" + names[j] + "\", \"" + values[j] + "\")\n";

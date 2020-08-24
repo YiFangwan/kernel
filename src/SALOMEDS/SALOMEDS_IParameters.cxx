@@ -95,7 +95,7 @@ std::string SALOMEDS_IParameters::getValue(const std::string& listName, int inde
   if(!_ap) return "";
   if(!_ap->IsSet(listName, PT_STRARRAY)) return "";
   std::vector<std::string> v = _ap->GetStrArray(listName);
-  if(index >= v.size()) return ""; 
+  if(index >= (int)v.size()) return "";  //TODO: mismatch signed/unsigned
   return v[index];
 }
 
@@ -259,7 +259,7 @@ std::string SALOMEDS_IParameters::encodeEntry(const std::string& entry, const st
 std::string SALOMEDS_IParameters::decodeEntry(const std::string& entry)
 {
   int pos = (int)entry.rfind("_"); //!< TODO: conversion from size_t to int
-  if(pos < 0 || pos >= entry.length()) return entry;
+  if(pos < 0 || pos >= (int)entry.length()) return entry; //TODO: mismatch signed/unsigned
 
   std::string compName(entry, 0, pos), compID, tail(entry, pos+1, entry.length()-1);
   
