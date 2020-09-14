@@ -19,7 +19,6 @@
 
 #include "DF_definitions.hxx"
 #include "DF_Application.hxx"
-#include "Basics_Utils.hxx"
 
 //Constructor
 DF_Application::DF_Application()
@@ -77,25 +76,21 @@ std::vector<int> DF_Application::GetDocumentIDs()
 //Returns a number of existent documents
 int DF_Application::NbDocuments()
 {
-	//TODO: return <size_t> ot <int>?
-  return static_cast<int>(_documents.size());
+  return (int)_documents.size() ;
 }
 
 
 //Restores a Document from the given file, returns a smart 
 //pointer to opened document.
-DF_Document* DF_Application::Open(const std::string& theFileName)
+DF_Document* DF_Application::Open(const std::string& /*theFileName*/)
 {
-  SALOME_UNUSED(theFileName);
   //Not implemented
   return NULL;
 }
 
 
 //Saves a Document in a given file with name theFileName
-void DF_Application::SaveAs(const DF_Document* theDocument, const std::string& theFileName)
+void DF_Application::SaveAs(const DF_Document* /*theDocument*/, const std::string& /*theFileName*/)
 {
-  SALOME_UNUSED(theDocument);
-  SALOME_UNUSED(theFileName);
   //Not implemented
 }

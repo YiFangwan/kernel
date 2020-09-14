@@ -57,7 +57,7 @@ public:
   virtual void add_provides_port(Ports::Port_ptr ref, 
                                  const char* provides_port_name,
                                  Ports::PortProperties_ptr port_prop) 
-     {
+    {
       Engines_DSC_interface::add_provides_port(ref, 
                                                provides_port_name,
                                                port_prop);
@@ -69,7 +69,7 @@ public:
   virtual void add_uses_port(const char* repository_id, 
                              const char* uses_port_name,
                              Ports::PortProperties_ptr port_prop)
-     {
+    {
       Engines_DSC_interface::add_uses_port(repository_id, 
                                            uses_port_name,
                                            port_prop);
@@ -80,7 +80,7 @@ public:
    */
   virtual Ports::Port_ptr get_provides_port(const char* provides_port_name,
                                             const CORBA::Boolean connection_error) 
-     {
+    {
       return Engines_DSC_interface::get_provides_port(provides_port_name,
                                                       connection_error);
     }
@@ -89,7 +89,7 @@ public:
    * \see Engines::DSC::get_uses_port
    */
   virtual Engines::DSC::uses_port * get_uses_port(const char* uses_port_name)
-     {
+    {
       return Engines_DSC_interface::get_uses_port(uses_port_name);
     }
 
@@ -97,7 +97,7 @@ public:
    * \see Engines::DSC::connect_provides_port
    */
   virtual void connect_provides_port(const char* provides_port_name)
-     {
+    {
       Engines_DSC_interface::connect_provides_port(provides_port_name);
     }
 
@@ -106,16 +106,16 @@ public:
    */
   virtual void connect_uses_port(const char* uses_port_name,
                                  Ports::Port_ptr provides_port_ref) 
-   {
-    Engines_DSC_interface::connect_uses_port(uses_port_name,
-                                             provides_port_ref);
-  }
+    {
+      Engines_DSC_interface::connect_uses_port(uses_port_name,
+                                               provides_port_ref);
+    }
 
   /*!
    * \see Engines::DSC::is_connected
    */
   virtual CORBA::Boolean is_connected(const char* port_name)
-     {
+    {
       return Engines_DSC_interface::is_connected(port_name);
     }
 
@@ -124,7 +124,7 @@ public:
    */
   virtual void disconnect_provides_port(const char* provides_port_name,
                                         const Engines::DSC::Message message)
-     {
+    {
       Engines_DSC_interface::disconnect_provides_port(provides_port_name,
                                                       message);
     }
@@ -135,14 +135,14 @@ public:
   virtual void disconnect_uses_port(const char* uses_port_name,
                                     Ports::Port_ptr provides_port_ref,
                                     const Engines::DSC::Message message)
-     {
+    {
       Engines_DSC_interface::disconnect_uses_port(uses_port_name,
                                                   provides_port_ref,
                                                   message);
     }
 
   virtual Ports::PortProperties_ptr get_port_properties(const char* port_name)
-     {
+    {
       return Engines_DSC_interface::get_port_properties(port_name);
     }
   

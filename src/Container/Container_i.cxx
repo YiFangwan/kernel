@@ -368,7 +368,7 @@ void Engines_Container_i::Shutdown()
     {
       itm->second->destroy();
     }
-    catch(const CORBA::Exception& /*e*/) //!< TODO: unused variable
+    catch(const CORBA::Exception&)
     {
       // ignore this entry and continue
     }
@@ -1217,9 +1217,8 @@ void Engines_Container_i::decInstanceCnt(std::string genericRegisterName)
 
 Engines::EngineComponent_ptr
 Engines_Container_i::load_impl( const char* genericRegisterName,
-                                const char* componentName )
+                                const char* /*componentName*/ )
 {
-  SALOME_UNUSED(componentName);
   char* reason;
   std::string impl_name = std::string(LIB) + genericRegisterName + ENGINESO;
   Engines::EngineComponent_var iobject = Engines::EngineComponent::_nil() ;

@@ -307,7 +307,7 @@ void Engines_Component_i::setProperties(const Engines::FieldsDict& dico)
 Engines::FieldsDict* Engines_Component_i::getProperties()
 {
   Engines::FieldsDict_var copie = new Engines::FieldsDict;
-  copie->length((_CORBA_ULong)_fieldsDict.size()); //!< TODO: conversion from size_t to _CORBA_ULong
+  copie->length((CORBA::ULong)_fieldsDict.size());
   std::map<std::string,CORBA::Any>::iterator it;
   CORBA::ULong i = 0;
   for (it = _fieldsDict.begin(); it != _fieldsDict.end(); it++, i++)
@@ -873,17 +873,15 @@ std::string Engines_Component_i::GetDynLibraryName(const char *componentName)
  */
 //=============================================================================
 
-Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Boolean isPublished,
+Engines::TMPFile* Engines_Component_i::DumpPython(CORBA::Boolean /*isPublished*/,
                                                   CORBA::Boolean isMultiFile,
                                                   CORBA::Boolean& isValidScript)
 {
-  SALOME_UNUSED(isPublished);
   const char* aScript = isMultiFile ? "def RebuildData(): pass" : "";
   char* aBuffer = new char[strlen(aScript)+1];
   strcpy(aBuffer, aScript);
-  CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
-  int aBufferSize = (int)strlen(aBuffer)+1; //!< TODO: conversion from size_t to int
-  Engines::TMPFile_var aStreamFile = new Engines::TMPFile(aBufferSize, aBufferSize, anOctetBuf, 1);
+  size_t aBufferSize = strlen(aBuffer)+1;
+  Engines::TMPFile_var aStreamFile = new Engines::TMPFile((CORBA::ULong)aBufferSize, (CORBA::ULong)aBufferSize, (CORBA::Octet*)aBuffer, 1);
   isValidScript = true;
   return aStreamFile._retn();
 }
@@ -1040,11 +1038,10 @@ Engines_Component_i::checkOutputFilesToService(const char* service_name)
  */
 //=============================================================================
 void
-Engines_Component_i::configureSalome_file(std::string service_name,
-                                          std::string file_port_name,
-                                          Salome_file_i * file)
+Engines_Component_i::configureSalome_file(std::string /*service_name*/,
+                                          std::string /*file_port_name*/,
+                                          Salome_file_i* /*file*/)
 {
-	SALOME_UNUSED(file);
   // By default this method does nothing
 }
 
@@ -1079,16 +1076,37 @@ void Engines_Component_i::setContainerName()
 
 //=============================================================================
 /*!
-  \brief Get version of the component
+ * \brief Return \c true if component can provide creation information.
+ */
+//=============================================================================
+bool Engines_Component_i::hasObjectInfo()
+{
+  return false;
+}
 
-  This method is supposed to be implemented in all derived classes; default implementation
-  returns empty string that means that no version information about the component is available.
+//=============================================================================
+/*!
+ * \brief Get creation information for object addressed by given entry.
+ */
+//=============================================================================
+char* Engines_Component_i::getObjectInfo(const char* /*entry*/)
+{
+  return CORBA::string_dup("");
+}
 
-  \note The version of the component is stored to the study, as a part of general persistence
-  mechanism; once stored, version information in the study cannot be changed.
-
-  \return string containing component's version, e.g. "1.0"
-*/
+//=============================================================================
+/*!
+ * \brief Get version of the component
+ *
+ * This method is supposed to be implemented in all derived classes; default implementation
+ * returns empty string that means that no version information about the component is available.
+ *
+ * \note The version of the component is stored to the study, as a part of general persistence
+ * mechanism; once stored, version information in the study cannot be changed.
+ *
+ * \return string containing component's version, e.g. "1.0"
+ */
+//=============================================================================
 char* Engines_Component_i::getVersion()
 {
   return CORBA::string_dup( "" );

@@ -26,7 +26,6 @@
 //  Module : SALOME
 //
 #include "NOTIFICATION.hxx"
-#include "Basics_Utils.hxx"
 
 NOTIFICATION_Consumer::NOTIFICATION_Consumer():
     proxy_supplier(0),
@@ -127,6 +126,5 @@ bool NOTIFICATION_Consumer::Receive(char** graph, char** node, char** type, char
 void NOTIFICATION_Consumer::disconnect_structured_pull_consumer() {
 }
 
-void NOTIFICATION_Consumer::offer_change(const CosN_EventTypeSeq& added, const CosN_EventTypeSeq& deled) {
-	SALOME_UNUSED(added); SALOME_UNUSED(deled);
+void NOTIFICATION_Consumer::offer_change(const CosN_EventTypeSeq& /*added*/, const CosN_EventTypeSeq& /*deled*/) {
 }

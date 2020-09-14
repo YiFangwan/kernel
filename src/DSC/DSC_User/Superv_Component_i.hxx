@@ -32,7 +32,6 @@
 #include "uses_port.hxx"
 #include "provides_port.hxx"
 #include "port_factory.hxx"
-#include "Basics_Utils.hxx"
 
 #include "DSC_Exception.hxx"
 #include <vector>
@@ -93,8 +92,8 @@ public:
   /*!
    * \warning currently disabled.
    */
-  virtual provides_port * create_provides_data_and_control_port(const char* port_type) 
-  {SALOME_UNUSED(port_type);return NULL;}
+  virtual provides_port * create_provides_data_and_control_port(const char* /*port_type*/) 
+  {return NULL;}
 
   /*!
    * \warning currently disabled.
@@ -105,8 +104,8 @@ public:
   /*!
    * \warning currently disabled.
    */
-  virtual uses_port * create_uses_data_and_control_port(const char* port_type)
-  {SALOME_UNUSED(port_type);return NULL;}
+  virtual uses_port * create_uses_data_and_control_port(const char* /*port_type*/)
+  {return NULL;}
 
   /*!
    * This method permits to create a provides port provided by the platform.
@@ -118,8 +117,7 @@ public:
    *
    * \note It's user repsonsability to destroy the provides port.
    */
-  virtual provides_port * create_provides_data_port(const std::string& port_fab_type)
-    ;
+  virtual provides_port * create_provides_data_port(const std::string& port_fab_type);
 
 
   /*!
@@ -132,8 +130,7 @@ public:
    *
    * \note It's user repsonsability to destroy the uses port.
    */
-  virtual uses_port * create_uses_data_port(const std::string& port_fab_type)
-    ; 
+  virtual uses_port * create_uses_data_port(const std::string& port_fab_type);
 
   /*!
    * Adds a port to the component. With this method only Salomé's provided DSC ports
@@ -145,8 +142,7 @@ public:
    */
   virtual void add_port(const char * port_fab_type,
                         const char * port_type,
-                        const char * port_name)
-    ;
+                        const char * port_name);
 
   /*!
    * Adds a port to the component. With this method only Salomé's provided DSC ports
@@ -160,8 +156,7 @@ public:
   template < typename SpecificPortType >  
   SpecificPortType * add_port(const char * port_fab_type,
                               const char * port_type,
-                              const char * port_name)
-    ;
+                              const char * port_name);
 
   /*!
    * Adds a created provides port to the component.
@@ -170,8 +165,7 @@ public:
    * \param provides_port_name the name of the port in the component.
    */
   virtual void add_port(provides_port * port, 
-                        const char* provides_port_name)
-    ;
+                        const char* provides_port_name);
 
   /*!
    * Adds a created uses port to the component.
@@ -180,8 +174,7 @@ public:
    * \param uses_port_name the name of the port in the component.
    */
   virtual void add_port(uses_port * port, 
-                        const char* uses_port_name)
-    ;
+                        const char* uses_port_name);
 
   /*!
    * Gets the provides port already added in the component.
@@ -190,8 +183,7 @@ public:
    * \param provides_port_name the name of the port.
    */
   virtual void get_port(provides_port *& port, 
-                        const char* provides_port_name)
-    ;
+                        const char* provides_port_name);
   
   /*!
    * Gets the uses port already added in the component.
@@ -200,8 +192,7 @@ public:
    * \param uses_port_name the name of the port.
    */
   virtual void get_port(uses_port *& port, 
-                        const char* uses_port_name)
-    ;
+                        const char* uses_port_name);
 
   /*!
    * Gets the list of the ports of a service.
@@ -221,8 +212,7 @@ public:
    * \return a port's pointer.
    */
   template <typename SpecificPortType > 
-  SpecificPortType * get_port( const char * port_name)
-    ;
+  SpecificPortType * get_port( const char * port_name);
  
   /*!
    * \see DSC_Callbacks::provides_port_changed
@@ -267,11 +257,9 @@ public:
 
   // This method is implemented by default since it is a very specific usage.
   // It also permits to not break compatibility with older components.
-  virtual CORBA::Boolean init_service_with_multiple(const char* service_name,
-                                                    const Engines::Superv_Component::seq_multiple_param & params)
+  virtual CORBA::Boolean init_service_with_multiple(const char* /*service_name*/,
+                                                    const Engines::Superv_Component::seq_multiple_param & /*params*/)
   {
-    SALOME_UNUSED(service_name);
-    SALOME_UNUSED(params);
     return true;
   }
 

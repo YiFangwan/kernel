@@ -28,7 +28,7 @@
 #include "SALOME_Basics.hxx"
 #include <string>
 #include <iostream>
-#define SALOME_UNUSED(var) (void)var
+
 #ifndef WIN32
 #include <sys/time.h>
 #else
@@ -37,6 +37,9 @@
 #pragma warning (disable : 4251)
 #endif
 
+#ifndef SALOME_UNUSED
+#define SALOME_UNUSED(var) (void)var
+#endif
 
 namespace Kernel_Utils
 {

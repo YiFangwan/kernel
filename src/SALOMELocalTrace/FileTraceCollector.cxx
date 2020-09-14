@@ -32,7 +32,6 @@
 
 //#define _DEVDEBUG_
 #include "FileTraceCollector.hxx"
-#include "Basics_Utils.hxx"
 
 // Class attributes initialisation, for class method FileTraceCollector::run
 
@@ -87,9 +86,8 @@ BaseTraceCollector* FileTraceCollector::instance(const char *fileName)
  */
 // ============================================================================
 
-void* FileTraceCollector::run(void *bid)
+void* FileTraceCollector::run(void* /*bid*/)
 {
-  SALOME_UNUSED(bid);
   //DEVTRACE("init run");
   _threadId = new pthread_t;
   *_threadId = pthread_self();

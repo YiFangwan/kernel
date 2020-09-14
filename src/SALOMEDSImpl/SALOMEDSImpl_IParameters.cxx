@@ -221,7 +221,7 @@ std::vector<std::string> SALOMEDSImpl_IParameters::getProperties()
 std::string SALOMEDSImpl_IParameters::decodeEntry(const std::string& entry)
 {
   size_t pos = entry.rfind("_");
-  if(pos < 0 || pos >= entry.size()) return entry;
+  if(pos >= entry.size()) return entry;
 
   std::string compName(entry, 0, pos), compID, tail(entry, pos+1, entry.length()-1);
   

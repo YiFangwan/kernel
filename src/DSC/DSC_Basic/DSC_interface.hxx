@@ -52,29 +52,25 @@ public:
    */
   virtual void add_provides_port(Ports::Port_ptr ref, 
                                  const char* provides_port_name,
-                                 Ports::PortProperties_ptr port_prop) 
-    noexcept;
+                                 Ports::PortProperties_ptr port_prop);
 
   /*!
    * \see Engines::DSC::add_uses_port
    */
   virtual void add_uses_port(const char* repository_id, 
                              const char* uses_port_name,
-                             Ports::PortProperties_ptr port_prop)
-	  noexcept;
+                             Ports::PortProperties_ptr port_prop);
 
   /*!
    * \see Engines::DSC::get_provides_port
    */
   virtual Ports::Port_ptr get_provides_port(const char* provides_port_name,
-                                            const CORBA::Boolean connection_error) 
-	  noexcept;
+                                            const CORBA::Boolean connection_error);
 
   /*!
    * \see Engines::DSC::get_uses_port
    */
-  virtual Engines::DSC::uses_port * get_uses_port(const char* uses_port_name)
-	  noexcept;
+  virtual Engines::DSC::uses_port * get_uses_port(const char* uses_port_name);
 
   /*!
    * \see Engines::DSC::connect_provides_port
@@ -84,8 +80,7 @@ public:
    * port doesn't know its uses ports references. It's framework or application role
    * to manage connections between ports.
    */
-  virtual void connect_provides_port(const char* provides_port_name)
-	  noexcept;
+  virtual void connect_provides_port(const char* provides_port_name);
 
   /*!
    * \see Engines::DSC::connect_uses_port
@@ -94,14 +89,12 @@ public:
    * port how much provides ports are connected with.
    */
   virtual void connect_uses_port(const char* uses_port_name,
-                                 Ports::Port_ptr provides_port_ref) 
-	  noexcept;
+                                 Ports::Port_ptr provides_port_ref);
 
   /*!
    * \see Engines::DSC::is_connected
    */
-  virtual CORBA::Boolean is_connected(const char* port_name)
-	  noexcept;
+  virtual CORBA::Boolean is_connected(const char* port_name);
 
    /*!
    * \see Engines::DSC::disconnect_provides_port
@@ -112,8 +105,7 @@ public:
    * to manage connections between ports.
    */
   virtual void disconnect_provides_port(const char* provides_port_name,
-                                        const Engines::DSC::Message message)
-	  noexcept;
+                                        const Engines::DSC::Message message);
 
    /*!
    * \see Engines::DSC::disconnect_uses_port
@@ -128,14 +120,12 @@ public:
    */
   virtual void disconnect_uses_port(const char* uses_port_name,
                                     Ports::Port_ptr provides_port_ref,
-                                    const Engines::DSC::Message message)
-	  noexcept;
+                                    const Engines::DSC::Message message);
 
   /*!
    * \see Engines::DSC::get_port_properties
    */
-  virtual Ports::PortProperties_ptr get_port_properties(const char* port_name)
-	  noexcept;
+  virtual Ports::PortProperties_ptr get_port_properties(const char* port_name);
 
   static void writeEvent(const char* request,const std::string& containerName, const char* instance_name,
                          const char* port_name, const char* error, const char* message);

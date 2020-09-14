@@ -61,8 +61,7 @@ public:
     \return the wanted interface
   */
   virtual SALOME_ModuleCatalog::DefinitionInterface* 
-             GetInterface(const char* interfacename)
-             ;
+             GetInterface(const char* interfacename);
 
   //! method to get a list of the services name of an interface of a component
  /*!If the specified interface doesn't exist, the Notfound exception is thrown
@@ -70,8 +69,7 @@ public:
    \return a list of the services of the wanted interface
  */
   virtual SALOME_ModuleCatalog::ListOfServices* 
-             GetServiceList(const char* interfacename)
-             ;
+             GetServiceList(const char* interfacename);
 
     
   //! method to get one service of an interface of a component
@@ -83,8 +81,7 @@ public:
  */
   virtual SALOME_ModuleCatalog::Service* 
              GetService(const char* interfacename, 
-                        const char* servicename) 
-             ;
+                        const char* servicename);
 
   //! method to get the default service of an interface of a component
   /*! If the specified interface doesn't exist, the Notfound exception is thrown
@@ -92,22 +89,20 @@ public:
     \return the default service of the interface
   */
   virtual SALOME_ModuleCatalog::Service* 
-             GetDefaultService(const char* interfacename) 
-             ;
+             GetDefaultService(const char* interfacename);
 
   //! method to get the PathPrefix of a computer
  /*! If the wanted computer doesn't exist, the Notfound exception is thrown
    \param machinename const char* arguments 
    \return the prefix path
  */
-  virtual char* GetPathPrefix(const char* machinename) 
-                ;
+  virtual char* GetPathPrefix(const char* machinename);
 
   //! method to obtain the constraint affected to a component
   /*! to be resolved by LifeCycle for the computer choice
     \return the constraint
   */
-  virtual char* constraint() ;
+  virtual char* constraint();
 
   //! method to obtain the componentname
   /*!

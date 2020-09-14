@@ -139,11 +139,9 @@
       return POA_Ports::PortProperties::_this();                        \
     }                                                                   \
                                                                         \
-    virtual void set_property(const char * name, const CORBA::Any& value) \
-      ;								        \
+    virtual void set_property(const char * name, const CORBA::Any& value); \
                                                                         \
-    virtual CORBA::Any* get_property(const char* name)                  \
-      ;				                                        \
+    virtual CORBA::Any* get_property(const char* name);			\
                                                                         \
     virtual void provides_port_changed(int /*connection_nbr*/,          \
                                        const Engines::DSC::Message message) { \
@@ -172,7 +170,7 @@
   specificPortName::~specificPortName(void) {}                         \
                                                                         \
   void specificPortName::set_property(const char * name,  const CORBA::Any& value) \
-     {								        \
+  {                                                                     \
                                                                         \
     const std::string key(name);                                        \
     CORBA::Long sl;                                                     \
@@ -215,7 +213,7 @@
                                                                         \
                                                                         \
   CORBA::Any* specificPortName::get_property(const char* name)          \
-     {			                                                \
+  {                                                                     \
     const std::string key(name);                                        \
     CORBA::Any* value=new CORBA::Any;                                   \
     if (key == "StorageLevel"    )                                      \

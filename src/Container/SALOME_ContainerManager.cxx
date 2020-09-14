@@ -368,7 +368,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
             break;
           }
       }
-      catch(const SALOME_Exception & ex) //!< TODO: unused variable
+      catch(const SALOME_Exception &ex) //!< TODO: unused variable
       {
         MESSAGE("[GiveContainer] Exception in ResourceManager find !: " << ex.what());
         return ret;
@@ -2059,7 +2059,7 @@ SALOME_ContainerManager::LaunchPaCONodeContainer(const std::string& /*command*/,
                         const Engines::ContainerParameters& /*params*/,
                         const std::string& /*name*/,
                         SALOME_ContainerManager::actual_launch_machine_t & /*vect_machine*/)
-{  
-   return false;
+{
+  return false;
 }
 #endif

@@ -19,7 +19,6 @@
 // Author : Anthony GEAY (EDF R&D)
 
 #include "SALOMESDS_RefCountServ.hxx"
-#include "Basics_Utils.hxx"
 
 using namespace SALOMESDS;
 

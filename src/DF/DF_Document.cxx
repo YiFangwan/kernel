@@ -21,7 +21,6 @@
 #include "DF_Document.hxx"
 #include "DF_Label.hxx"
 #include "DF_ChildIterator.hxx"
-#include "Basics_Utils.hxx"
 
 //Class DF_Document is container for user's data stored as a tree of Labels
 //with assigned Attributes
@@ -131,9 +130,8 @@ void DF_Document::SetModified(bool isModified)
 
 
 //Restores a content of the Document from the std::string theData
-void DF_Document::Load(const std::string& theData)
+void DF_Document::Load(const std::string& /*theData*/)
 {
-	SALOME_UNUSED(theData);
    //Not implemented
 }
 

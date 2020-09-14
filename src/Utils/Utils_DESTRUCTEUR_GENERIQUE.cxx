@@ -163,5 +163,5 @@ const int DESTRUCTEUR_GENERIQUE_::Ajout( DESTRUCTEUR_GENERIQUE_ &objet )
         //CCRT
         assert(Destructeurs) ;
         Destructeurs->push_back( &objet ) ;
-        return static_cast<const int>(Destructeurs->size()) ; //TODO: return <const int> or <size_t>?
+        return (int)Destructeurs->size() ; //TODO: return <const int> or <size_t>?
 }

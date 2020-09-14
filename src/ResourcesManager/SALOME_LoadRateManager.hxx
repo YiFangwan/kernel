@@ -27,12 +27,11 @@
 #include <string>
 #include <map>
 #include "SALOME_ResourcesCatalog_Parser.hxx"
-#include "Basics_Utils.hxx"
 
 class RESOURCESMANAGER_EXPORT LoadRateManager
 {
   public:
-	  virtual std::string Find(const std::vector<std::string>& hosts, const MapOfParserResourcesType& resList) { SALOME_UNUSED(hosts); SALOME_UNUSED(resList); return ""; }
+    virtual std::string Find(const std::vector<std::string>& /*hosts*/, const MapOfParserResourcesType& /*resList*/) { return ""; }
 };
 
 class RESOURCESMANAGER_EXPORT LoadRateManagerFirst : public LoadRateManager

@@ -34,7 +34,7 @@ void SALOMEDS_AttributeSequenceOfReal_i::Assign(const SALOMEDS::DoubleSeq& other
   CheckLocked();
   std::vector<double> CasCadeSeq;
   for (size_t i = 0; i < other.length(); i++) {
-    CasCadeSeq.push_back(other[(_CORBA_ULong)i]); //!< TODO: conversion from size_t to _CORBA_ULong
+    CasCadeSeq.push_back(other[(CORBA::ULong)i]); //!< TODO: conversion from size_t to CORBA::ULong
   }
   dynamic_cast<SALOMEDSImpl_AttributeSequenceOfReal*>(_impl)->Assign(CasCadeSeq);
 }

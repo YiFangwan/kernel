@@ -112,7 +112,7 @@ protected:
   // Used by SALOME_Launcher
   std::shared_ptr<ResourcesManager_cpp> _ResManager;
 
-  virtual void notifyObservers(const std::string & event_name, const std::string & event_data) { SALOME_UNUSED(event_name); SALOME_UNUSED(event_data);}
+  virtual void notifyObservers(const std::string & /*event_name*/, const std::string & /*event_data*/) {}
   int addJob(Launcher::Job * new_job);
 
   // Methods used by user interface methods

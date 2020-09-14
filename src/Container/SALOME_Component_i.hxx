@@ -31,7 +31,6 @@
 
 #include <SALOMEconfig.h>
 
-#include "Basics_Utils.hxx"
 #include "SALOME_Container.hxx"
 
 #include <iostream>
@@ -116,8 +115,8 @@ public:
                                                           const char* Salome_file_name);
 
   // Object information
-  virtual bool hasObjectInfo() { return false; }
-  virtual char* getObjectInfo(const char* entry) { SALOME_UNUSED(entry); return CORBA::string_dup(""); }
+  virtual bool hasObjectInfo();
+  virtual char* getObjectInfo(const char* entry);
 
   // Version information
   virtual char* getVersion();

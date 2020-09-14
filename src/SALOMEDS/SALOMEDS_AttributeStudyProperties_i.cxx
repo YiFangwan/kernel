@@ -223,7 +223,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeStudyProperties_i::GetStoredComponents()
   SALOMEDS::Locker lock;
   std::vector<std::string> components = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetStoredComponents();
   SALOMEDS::StringSeq_var c_components = new SALOMEDS::StringSeq();
-  c_components->length((_CORBA_ULong)components.size()); //!< TODO: conversion from size_t to _CORBA_ULong
+  c_components->length((CORBA::ULong)components.size()); //!< TODO: conversion from size_t to CORBA::ULong
   for (int i = 0; i < (int)components.size(); i++) { //TODO: mismatch signed/unsigned
     c_components[i] = CORBA::string_dup(components[i].c_str());
   }
@@ -243,7 +243,7 @@ SALOMEDS::StringSeq* SALOMEDS_AttributeStudyProperties_i::GetComponentVersions(c
   SALOMEDS::Locker lock;
   std::vector<std::string> versions = dynamic_cast<SALOMEDSImpl_AttributeStudyProperties*>(_impl)->GetComponentVersions(theComponent);
   SALOMEDS::StringSeq_var c_versions = new SALOMEDS::StringSeq();
-  c_versions->length((_CORBA_ULong)versions.size()); //!< TODO: conversion from size_t to _CORBA_ULong
+  c_versions->length((CORBA::ULong)versions.size()); //!< TODO: conversion from size_t to CORBA::ULong
   for (int i = 0; i < (int)versions.size(); i++) { //TODO: mismatch signed/unsigned
     c_versions[i] = CORBA::string_dup(versions[i].c_str());
   }

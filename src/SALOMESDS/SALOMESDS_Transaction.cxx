@@ -35,15 +35,15 @@ void Transaction::FromByteSeqToVB(const SALOME::ByteVec& bsToBeConv, std::vector
   ret.resize(sz);
   unsigned char *buf(const_cast<unsigned char *>(&ret[0]));
   for(std::size_t i=0;i<sz;i++)
-    buf[i]=bsToBeConv[(_CORBA_ULong)i]; //!< TODO: size_t to _CORBA_ULong
+    buf[i]=bsToBeConv[(CORBA::ULong)i]; //!< TODO: size_t to CORBA::ULong
 }
 
 void Transaction::FromVBToByteSeq(const std::vector<unsigned char>& bsToBeConv, SALOME::ByteVec& ret)
 {
   std::size_t sz(bsToBeConv.size());
-  ret.length((_CORBA_ULong)sz); //!< TODO: size_t to _CORBA_ULong
+  ret.length((CORBA::ULong)sz); //!< TODO: size_t to CORBA::ULong
   for(std::size_t i=0;i<sz;i++)
-    ret[(_CORBA_ULong)i]=bsToBeConv[i]; //!< TODO: size_t to _CORBA_ULong
+    ret[(CORBA::ULong)i]=bsToBeConv[i]; //!< TODO: size_t to CORBA::ULong
 }
 
 Transaction::~Transaction()

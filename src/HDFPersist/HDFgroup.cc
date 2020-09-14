@@ -28,11 +28,9 @@
 #include <string.h>
 #include "HDFgroup.hxx"
 #include "HDFexception.hxx"
-#include "Basics_Utils.hxx"
 
-herr_t group_attr(hid_t loc_id, const char *attr_name, void *operator_data)
+herr_t group_attr(hid_t /*loc_id*/, const char *attr_name, void *operator_data)
 {
-  SALOME_UNUSED(loc_id);
   *(char**)operator_data = new char[strlen(attr_name)+1];
   strcpy(*(char**)operator_data, attr_name);
   return 1;

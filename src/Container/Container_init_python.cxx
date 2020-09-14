@@ -29,7 +29,6 @@
 
 #include "utilities.h"
 #include "Container_init_python.hxx"
-#include "Basics_Utils.hxx"
 
 #if PY_VERSION_HEX < 0x03050000
 static char*
@@ -74,9 +73,8 @@ ContainerPyStdOut_write(ContainerPyStdOut *self, PyObject *args)
 }
 
 static PyObject*
-ContainerPyStdOut_flush(ContainerPyStdOut *self)
+ContainerPyStdOut_flush(ContainerPyStdOut* /*self*/)
 {
-  SALOME_UNUSED(self);
   Py_INCREF(Py_None);
   return Py_None;
 }
@@ -173,7 +171,6 @@ void KERNEL_PYTHON::init_python(int argc, char **argv)
   MESSAGE("=================================================================");
   // set stdout to line buffering (aka C++ std::cout)
   setvbuf(stdout, (char *)NULL, _IOLBF, BUFSIZ);
-  wchar_t* salome_python; //!< TODO: unused variable
   char* env_python=getenv("SALOME_PYTHON");
   if(env_python != 0)
     {

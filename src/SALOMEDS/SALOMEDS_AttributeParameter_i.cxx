@@ -52,7 +52,6 @@ void SALOMEDS_AttributeParameter_i::SetInt(const char* theID, CORBA::Long theVal
  */
 //=======================================================================
 CORBA::Long SALOMEDS_AttributeParameter_i::GetInt(const char* theID)
-noexcept
 {
   SALOMEDS::Locker lock; 
   Unexpect aCatch (AP_InvalidIdentifier);
@@ -79,7 +78,6 @@ void SALOMEDS_AttributeParameter_i::SetReal(const char* theID, CORBA::Double the
  */
 //=======================================================================
 CORBA::Double SALOMEDS_AttributeParameter_i::GetReal(const char* theID)
-noexcept
 {
   SALOMEDS::Locker lock; 
   Unexpect aCatch (AP_InvalidIdentifier);
@@ -107,7 +105,6 @@ void SALOMEDS_AttributeParameter_i::SetString(const char* theID, const char* the
  */
 //=======================================================================
 char* SALOMEDS_AttributeParameter_i::GetString(const char* theID)
-noexcept
 {
   SALOMEDS::Locker lock; 
   Unexpect aCatch (AP_InvalidIdentifier);
@@ -136,7 +133,6 @@ void SALOMEDS_AttributeParameter_i::SetBool(const char* theID, CORBA::Boolean th
  */
 //=======================================================================
 CORBA::Boolean SALOMEDS_AttributeParameter_i::GetBool(const char* theID)
-noexcept
 {
   SALOMEDS::Locker lock; 
   Unexpect aCatch (AP_InvalidIdentifier);
@@ -169,7 +165,6 @@ void SALOMEDS_AttributeParameter_i::SetRealArray(const char* theID, const SALOME
  */
 //=======================================================================
 SALOMEDS::DoubleSeq* SALOMEDS_AttributeParameter_i::GetRealArray(const char* theID)
-noexcept
 {
   SALOMEDS::Locker lock; 
   Unexpect aCatch (AP_InvalidIdentifier);
@@ -209,7 +204,6 @@ void SALOMEDS_AttributeParameter_i::SetIntArray(const char* theID, const SALOMED
  */
 //=======================================================================
 SALOMEDS::LongSeq* SALOMEDS_AttributeParameter_i::GetIntArray(const char* theID)
-noexcept
 {
   SALOMEDS::Locker lock; 
   Unexpect aCatch (AP_InvalidIdentifier);
@@ -249,7 +243,6 @@ void SALOMEDS_AttributeParameter_i::SetStrArray(const char* theID, const SALOMED
  */
 //=======================================================================
 SALOMEDS::StringSeq* SALOMEDS_AttributeParameter_i::GetStrArray(const char* theID)
-noexcept
 {
   SALOMEDS::Locker lock; 
   Unexpect aCatch (AP_InvalidIdentifier);

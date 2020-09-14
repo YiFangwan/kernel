@@ -45,10 +45,9 @@ Superv_Component_i::Superv_Component_i(CORBA::ORB_ptr orb,
                                        PortableServer::ObjectId * contId,
                                        const char *instanceName,
                                        const char *interfaceName,
-                                       bool notif) : 
+                                       bool /*notif*/) : 
   Engines_DSC_i(orb, poa, contId, instanceName, interfaceName) 
 {
-  SALOME_UNUSED(notif);
 #ifdef MYDEBUG
   std::cerr << "--Superv_Component_i : MARK 1 ----  " << instanceName << "----" << std::endl;
 #endif
@@ -315,8 +314,8 @@ Superv_Component_i::uses_port_changed(const char* uses_port_name,
 
 void
 Superv_Component_i::get_uses_port_names(std::vector<std::string> & port_names,
-                                        const std::string servicename) const {
-  SALOME_UNUSED(servicename);
+                                        const std::string /*servicename*/) const
+{
   port_names.reserve(my_superv_ports.size());
 
   superv_ports::const_iterator it;

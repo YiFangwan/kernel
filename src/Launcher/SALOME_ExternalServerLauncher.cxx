@@ -165,7 +165,7 @@ SALOME::StringVec *SALOME_ExternalServerLauncher::listServersInNS()
   SALOME::StringVec *ret(new SALOME::StringVec);
   std::vector<std::string> loes(ListOfExternalServersCpp(_NS));
   std::size_t sz(loes.size());
-  ret->length((_CORBA_ULong)sz); //!< TODO: conversion from size_t to _CORBA_ULong
+  ret->length((CORBA::ULong)sz);
   for(auto i = 0; i<(int)sz ; i++) //TODO: mismatch signed/unsigned
     {
       (*ret)[i]=CORBA::string_dup(loes[i].c_str());
@@ -200,9 +200,9 @@ SALOME::ByteVec *SALOME_ExternalServerLauncher::fetchContentOfFileAndRm(const ch
   t.read(buffer.get(),size);
   //
   std::unique_ptr<SALOME::ByteVec> ret(new SALOME::ByteVec);
-  ret->length((_CORBA_ULong)size); //!< TODO: conversion from size_t to _CORBA_ULong
+  ret->length((CORBA::ULong)size);
   for(std::size_t i=0;i<size;++i)
-    (*ret)[(_CORBA_ULong)i] = buffer.get()[i]; //!< TODO: conversion from size_t to _CORBA_ULong
+    (*ret)[(CORBA::ULong)i] = buffer.get()[i]; //!< TODO: conversion from size_t to CORBA::ULong
   //
   if( unlink(file_name)!=0 )
     {

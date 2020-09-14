@@ -26,7 +26,6 @@
 //  $Header$
 //
 #include <SALOMEconfig.h>
-#include "Basics_Utils.hxx"
 
 #include <iostream>
 #include <sstream>
@@ -91,9 +90,8 @@ BaseTraceCollector* SALOMETraceCollector::instance()
  */
 // ============================================================================
 
-void* SALOMETraceCollector::run(void *bid)
+void* SALOMETraceCollector::run(void* /*bid*/)
 {
-  SALOME_UNUSED(bid);
   _threadId = new pthread_t;
   *_threadId = pthread_self();
   sem_post(&_sem); // unlock instance

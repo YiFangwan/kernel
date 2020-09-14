@@ -336,12 +336,12 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       hasModuleData = true;
 
       unsigned char* aStreamFile = NULL;
-      size_t aStreamSize = 0;
+      long aStreamSize = 0;
 
       if (hdf_sco_group->ExistInternalObject("FILE_STREAM")) {
         HDFdataset *hdf_dataset = new HDFdataset("FILE_STREAM", hdf_sco_group);
         hdf_dataset->OpenOnDisk();
-        aStreamSize = (size_t)hdf_dataset->GetSize();
+        aStreamSize = hdf_dataset->GetSize();
         aStreamFile  = new unsigned char[aStreamSize];
         if(aStreamFile == NULL) throw HDFexception("Unable to open dataset FILE_STREAM");
         hdf_dataset->ReadFromDisk(aStreamFile);
@@ -371,8 +371,8 @@ bool SALOMEDSImpl_StudyBuilder::LoadWith(const SALOMEDSImpl_SComponent& anSCO,
       bool aResult = true;
       if(aStreamFile && aStreamSize > 0 ) {
         aResult = (ASCIIfileState[0]=='A')?
-        aDriver->LoadASCII(anSCO, aStreamFile, (long)aStreamSize, aDir.c_str(), aMultifileState[0]=='M'): //!< TODO: conversion from size_t to const long
-        aDriver->Load(anSCO, aStreamFile, (long)aStreamSize, aDir.c_str(), aMultifileState[0]=='M'); //!< TODO: conversion from size_t to const long
+        aDriver->LoadASCII(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M'): //!< TODO: conversion from size_t to const long
+        aDriver->Load(anSCO, aStreamFile, aStreamSize, aDir.c_str(), aMultifileState[0]=='M'); //!< TODO: conversion from size_t to const long
       }
 
       if(aStreamFile != NULL) delete []aStreamFile; 

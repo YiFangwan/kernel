@@ -122,6 +122,5 @@ int HDFConvert::FromAscii(const std::string& file, const HDFcontainerObject & hd
     return -1;
   };
     
-  // TODO: return <int> or <size_t>?
-  return static_cast<int>(length);    
+  return (int)length;
 }

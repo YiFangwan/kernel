@@ -51,7 +51,6 @@ void
 Engines_DSC_interface::add_provides_port(Ports::Port_ptr ref, 
                                  const char* provides_port_name,
                                  Ports::PortProperties_ptr port_prop) 
-	noexcept
 {
   // Method args test
   assert(provides_port_name);
@@ -80,7 +79,6 @@ void
 Engines_DSC_interface::add_uses_port(const char* repository_id, 
                              const char* uses_port_name,
                              Ports::PortProperties_ptr port_prop) 
-	noexcept
 {
   // Method args test
   // Note : We can't be shure that repository id
@@ -110,7 +108,6 @@ Engines_DSC_interface::add_uses_port(const char* repository_id,
 Ports::Port_ptr
 Engines_DSC_interface::get_provides_port(const char* provides_port_name,
                                  const CORBA::Boolean connection_error) 
-	noexcept
 {
   // Method arg test
   assert(provides_port_name);
@@ -143,7 +140,6 @@ Engines_DSC_interface::get_provides_port(const char* provides_port_name,
 
 Engines::DSC::uses_port * 
 Engines_DSC_interface::get_uses_port(const char* uses_port_name) 
-noexcept
 {
   // Method arg test
   assert(uses_port_name);
@@ -181,7 +177,6 @@ noexcept
 
 void
 Engines_DSC_interface::connect_provides_port(const char* provides_port_name)
-noexcept
 {
   // Method arg test
   assert(provides_port_name);
@@ -206,7 +201,6 @@ noexcept
 void
 Engines_DSC_interface::connect_uses_port(const char* uses_port_name,
                                          Ports::Port_ptr provides_port_ref) 
-	noexcept
 {
   // Method arg test
   assert(uses_port_name);
@@ -255,7 +249,6 @@ Engines_DSC_interface::connect_uses_port(const char* uses_port_name,
 
 CORBA::Boolean
 Engines_DSC_interface::is_connected(const char* port_name) 
-noexcept
 {
   CORBA::Boolean rtn = false;
 
@@ -276,7 +269,6 @@ noexcept
 void
 Engines_DSC_interface::disconnect_provides_port(const char* provides_port_name,
                                         const Engines::DSC::Message message)
-	noexcept
 {
   // Method args test
   assert(provides_port_name);
@@ -303,7 +295,6 @@ void
 Engines_DSC_interface::disconnect_uses_port(const char* uses_port_name,
                                     Ports::Port_ptr provides_port_ref,
                                     const Engines::DSC::Message message)
-	noexcept
 {
   // Method args test
   assert(uses_port_name);
@@ -368,7 +359,6 @@ Engines_DSC_interface::disconnect_uses_port(const char* uses_port_name,
 
 Ports::PortProperties_ptr
 Engines_DSC_interface::get_port_properties(const char* port_name) 
-noexcept
 {
   Ports::PortProperties_ptr rtn_properties = Ports::PortProperties::_nil();
 

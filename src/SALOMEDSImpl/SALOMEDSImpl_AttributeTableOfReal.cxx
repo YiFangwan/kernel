@@ -36,14 +36,14 @@ static std::string getUnit(const std::string& theString)
 {
   std::string aString(theString);
   size_t aPos = aString.find(SEPARATOR);
-  return aPos < 0 || aPos == aString.size()-1 ? std::string() : aString.substr(aPos+1, aString.size());
+  return aPos >= aString.size()-1 ? std::string() : aString.substr(aPos+1);
 }
 
 static std::string getTitle(const std::string& theString)
 {
   std::string aString(theString);
   size_t aPos = aString.find(SEPARATOR);
-  return aPos < 0 ? aString :aString.substr(0, aPos);
+  return aPos == std::string::npos ? aString : aString.substr(0, aPos);
 }
 
 const std::string& SALOMEDSImpl_AttributeTableOfReal::GetID() 

@@ -340,10 +340,10 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
     //Put a file name to aFileName
     memcpy(aFileName, (aBuffer + aCurrentPos), aFileNameSize); 
 #ifdef WIN32
-    for (i = 0; i < strlen(aFileName); i++)
+    for (int j = 0; j < strlen(aFileName); j++)
     {
-      if (aFileName[i] == ':')
-        aFileName[i] = '_';
+      if (aFileName[j] == ':')
+        aFileName[j] = '_';
     }
 #endif
     aCurrentPos += aFileNameSize;
@@ -383,24 +383,24 @@ std::string SALOMEDS_Tool::GetNameFromPath(const std::string& thePath) {
   std::string aPath = thePath;
   bool isFound = false;
   size_t pos = aPath.rfind('/');
-  if(pos > 0) {
+  if(pos != std::string::npos) {
     aPath = aPath.substr(pos+1, aPath.size());
     isFound = true;
   }    
   if(!isFound) {
     pos = aPath.rfind('\\'); 
-    if(pos > 0) {
+    if(pos != std::string::npos) {
       aPath = aPath.substr(pos+1, aPath.size()); 
       isFound = true;
     }  
   }  
   if(!isFound) {  
     pos = aPath.rfind('|');
-    if(pos > 0) aPath =  aPath.substr(pos+1, aPath.size()); 
+    if(pos != std::string::npos) aPath = aPath.substr(pos+1, aPath.size()); 
   }
 
   pos = aPath.rfind('.'); 
-  if(pos > 0)  aPath = aPath.substr(0, pos); //Remove extension
+  if(pos != std::string::npos)  aPath = aPath.substr(0, pos); //Remove extension
     
   return aPath;
 }
@@ -414,16 +414,16 @@ std::string SALOMEDS_Tool::GetDirFromPath(const std::string& thePath) {
 
   size_t pos = thePath.rfind('/');
   std::string path;
-  if(pos > 0) {
+  if(pos != std::string::npos) {
     path = thePath.substr(0, pos+1);
   }
   if(path.empty()) {
     pos = thePath.rfind('\\');
-    if(pos > 0) path = thePath.substr(0, pos+1); 
+    if(pos != std::string::npos) path = thePath.substr(0, pos+1); 
   }
   if(path.empty()) {
     pos = thePath.rfind('|');
-    if(pos > 0) path = thePath.substr(0, pos+1); 
+    if(pos != std::string::npos) path = thePath.substr(0, pos+1); 
   }
   if(path.empty()) {
     path = thePath+"/";

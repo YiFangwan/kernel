@@ -23,7 +23,6 @@
 //  $Header: 
 //
 #include "Salome_file_i.hxx"
-#include "Basics_Utils.hxx"
 #include "utilities.h"
 #include <stdlib.h>
 #include "HDFOI.hxx"
@@ -194,7 +193,7 @@ Salome_file_i::load(const char* hdf5_file) {
           throw SALOME::SALOME_Exception(es);
         };
         hdf_dataset->ReadFromDisk(buffer);
-        if ( write(fd,buffer, static_cast<unsigned int>(size)) <0) {
+        if ( write(fd,buffer,(unsigned int)size) <0) {
           SALOME::ExceptionStruct es;
           es.type = SALOME::INTERNAL_ERROR;
           std::string text = "write failed";
@@ -502,7 +501,7 @@ Salome_file_i::setLocalFile(const char* comp_file_name)
 
   std::string cp_file_name(comp_file_name);
   std::size_t index = cp_file_name.rfind("/");
-  if (index != -1) //TODO: std::string::npos
+  if (index != std::string::npos)
   {
     file_name = cp_file_name.substr(index+1);
     path =  cp_file_name.substr(0,index+1);
@@ -564,7 +563,7 @@ Salome_file_i::setDistributedFile(const char* comp_file_name)
 
   std::string cp_file_name(comp_file_name);
   std::size_t index = cp_file_name.rfind("/");
-  if (index != -1) //TODO: std::string::npos
+  if (index != std::string::npos)
   {
     file_name = cp_file_name.substr(index+1);
     path =  cp_file_name.substr(0,index+1);
@@ -884,9 +883,8 @@ Salome_file_i::getDistributedFile(std::string file_name)
  */
 //=============================================================================
 void 
-Salome_file_i::removeFile(const char* file_name) 
+Salome_file_i::removeFile(const char* /*file_name*/) 
 {
-  SALOME_UNUSED(file_name);
   MESSAGE("Salome_file_i::removeFile : NOT YET IMPLEMENTED");
 }
     
@@ -911,7 +909,7 @@ Engines::files*
 Salome_file_i::getFilesInfos() {
 
   Engines::files * infos = new Engines::files();
-  infos->length(static_cast<unsigned long>(_fileManaged.size()));
+  infos->length((CORBA::ULong)_fileManaged.size());
 
   _t_fileManaged::iterator begin = _fileManaged.begin();
   _t_fileManaged::iterator end = _fileManaged.end();
@@ -1061,7 +1059,7 @@ Salome_file_i::getBlock(CORBA::Long fileId)
   CORBA::Octet *buf;
   buf = Engines::fileBlock::allocbuf(FILEBLOCK_SIZE);
   size_t nbRed = fread(buf, sizeof(CORBA::Octet), FILEBLOCK_SIZE, fp);
-  aBlock->replace((_CORBA_ULong)nbRed, (_CORBA_ULong)nbRed, buf, 1); // 1 means give ownership //!< TODO: conversion from size_t to _CORBA_ULong
+  aBlock->replace((CORBA::ULong)nbRed, (CORBA::ULong)nbRed, buf, 1); // 1 means give ownership //!< TODO: conversion from size_t to CORBA::ULong
   return aBlock;
 }
 

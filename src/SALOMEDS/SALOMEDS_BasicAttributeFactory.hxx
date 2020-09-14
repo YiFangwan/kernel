@@ -41,8 +41,7 @@ public:
   BasicAttributeFactory() {};
   virtual ~BasicAttributeFactory() {};
 
-  SALOMEDS_BasicAttribute_i* Create(const char* type)
-    ;
+  SALOMEDS_BasicAttribute_i* Create(const char* type);
 };
 
 #endif

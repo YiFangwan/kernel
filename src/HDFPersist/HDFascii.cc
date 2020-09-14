@@ -258,13 +258,13 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
   fprintf(fp, " %li\n", ndim);
 
   for(int i = 0;i < ndim;i++) {
-    fprintf(fp, " %li", dim[i]);
+    fprintf(fp, " %lu", (unsigned long)dim[i]);
   }
 
   fprintf(fp, "\n");
   delete [] dim;
 
-  fprintf(fp, "%i %i:", size, order);
+  fprintf(fp, "%li %i:", size, order);
   if( type == HDF_ARRAY ) {
     HDFarray *array = new HDFarray(hdf_dataset);
     hdf_type data_type = array->GetDataType();
@@ -278,7 +278,7 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
     array->GetDim(arr_dim);
 
     for( int i = 0;i < arr_ndim; i++ ) {
-      fprintf(fp, " %i", arr_dim[i]);
+      fprintf(fp, " %lu", (unsigned long)arr_dim[i]);
     }
         
     //And write the data array
@@ -308,9 +308,8 @@ void SaveDatasetInASCIIfile(HDFdataset *hdf_dataset, FILE* fp, int ident)
 // function : SaveAttributeInASCIIfile
 // purpose  : 
 //============================================================================
-void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
+void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int /*ident*/)
 {
-  SALOME_UNUSED(ident);
   hdf_attribute->OpenOnDisk();
 
   hdf_type type = hdf_attribute->GetType();
@@ -319,7 +318,7 @@ void SaveAttributeInASCIIfile(HDFattribute *hdf_attribute, FILE* fp, int ident)
   size_t size = hdf_attribute->GetSize();
 
   fprintf(fp, "%s\n", ATTRIBUTE_ID);
-  fprintf(fp, "%s %i %i\n", name, type, size);
+  fprintf(fp, "%s %i %lu\n", name, type, size);
 
   delete [] name;
 
@@ -504,8 +503,8 @@ bool CreateGroupFromASCII(HDFcontainerObject *father, FILE *fp)
 bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
 {
   char name[HDF_NAME_MAX_LEN+1];
-  hdf_type type;
-  hdf_byte_order order;
+  int type;
+  int order;
   int nbDim, nbAttr;
   long i, size;
 
@@ -535,7 +534,7 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
   HDFarray* anArray = 0;
   if( type == HDF_ARRAY ){
     //Get array information
-    hdf_type arr_data_type;
+    int arr_data_type;
     int arr_ndim;
     fscanf(fp, "%c", &tmp);
     fscanf(fp, " %i\n", &arr_data_type ); //Get array data type
@@ -547,14 +546,14 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
       fscanf(fp, " %i", &tdim);
       arr_dim[i] = tdim;
     }
-    anArray = new HDFarray(0, arr_data_type, arr_ndim, arr_dim);
+    anArray = new HDFarray(0, (hdf_type)arr_data_type, arr_ndim, arr_dim);
     anArray->CreateOnDisk();
 
     type = arr_data_type;
     delete [] arr_dim;
   }
 
-  HDFdataset* hdf_dataset = new HDFdataset(new_name, father, anArray ? HDF_ARRAY : type, sizeArray, nbDim, order);
+  HDFdataset* hdf_dataset = new HDFdataset(new_name, father, anArray ? HDF_ARRAY : (hdf_type)type, sizeArray, nbDim, (hdf_byte_order)order);
   
   if(anArray)
     hdf_dataset->SetArrayId(anArray->GetId());
@@ -593,7 +592,7 @@ bool CreateDatasetFromASCII(HDFcontainerObject *father, FILE *fp)
   } else if(type == HDF_CHAR) {
     hdf_char* val = new hdf_char[size];
     for(i=0; i<size; i++) {
-      fscanf(fp, " %hhi", &(val[i]));
+      fscanf(fp, " %c", &(val[i]));
     }
     hdf_dataset->WriteOnDisk(val);
     delete [] val;
@@ -642,11 +641,11 @@ bool CreateAttributeFromASCII(HDFinternalObject *father, FILE* fp)
 {
   char name[HDF_NAME_MAX_LEN+1];
 
-  hdf_type type;
+  int type;
   int size;
   fscanf(fp, "%s %i %i\n", name, &type, &size);
   char* new_name = restoreName(name);
-  HDFattribute* hdf_attribute = new HDFattribute(new_name, father, type, size);
+  HDFattribute* hdf_attribute = new HDFattribute(new_name, father, (hdf_type)type, size);
 
   hdf_attribute->CreateOnDisk();
 
@@ -791,7 +790,7 @@ char* restoreName(char* name)
 void write_float64(FILE* fp, hdf_float64* value)
 {
   unsigned char* array = (unsigned char*)value;
-  for(int i = 0; i < sizeof(hdf_float64); i++) {
+  for(int i = 0; i < (int)sizeof(hdf_float64); i++) {
     unsigned tmp = (unsigned short)array[i];
     fprintf(fp, " %2x", tmp);
   }
@@ -800,7 +799,7 @@ void write_float64(FILE* fp, hdf_float64* value)
 void read_float64(FILE* fp, hdf_float64* value)
 {
   unsigned char* array = (unsigned char*)value;
-  for(int i = 0; i < sizeof(hdf_float64); i++) {
+  for(int i = 0; i < (int)sizeof(hdf_float64); i++) {
     unsigned tmp;
     fscanf(fp, " %x", &tmp); 
     array[i] = (unsigned char)tmp;

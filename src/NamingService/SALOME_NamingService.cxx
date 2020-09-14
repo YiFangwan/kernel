@@ -1494,29 +1494,29 @@ SALOME_NamingService::_createContextNameDir(std::string path,
         endWithDelim = true;
       if (endIdx == std::string::npos)
         endIdx = path.length();
-	  size_t lsub = endIdx - begIdx;
+      size_t lsub = endIdx - begIdx;
       if (lsub >= 1)
         splitPath.push_back(path.substr(begIdx, lsub));
       begIdx = path.find_first_not_of(delims, endIdx);
     }
 
-  size_t dim;
+  int dim;
   if (onlyDir)                  // only directory part
     {
-      dim = splitPath.size()-1; // omit final object
+      dim = (int)splitPath.size()-1; // omit final object
       if (endWithDelim)         // unless the path ends with a delimiter
         dim++;
       endWithDelim = true;
     }
   else
-    dim = splitPath.size();     // directories and final object
+    dim = (int)splitPath.size();     // directories and final object
 
-  context_name.length(static_cast<unsigned long>(dim));
-  for (int i=0; i<(int)dim; i++)
+  context_name.length((CORBA::ULong)dim);
+  for (int i=0; i<dim; i++)
     {
 //       SCRUTE(splitPath[i]);
       context_name[i].id = CORBA::string_dup(splitPath[i].c_str());
-      if (!endWithDelim && (i == (int)dim-1)) // here, the last string is an object
+      if (!endWithDelim && (i == dim-1)) // here, the last string is an object
         {
           context_name[i].kind = CORBA::string_dup("object");
 //        MESSAGE("--- " <<splitPath[i] <<".object");
@@ -1527,7 +1527,7 @@ SALOME_NamingService::_createContextNameDir(std::string path,
 //        MESSAGE("--- " <<splitPath[i] <<".dir");
         }
     }
-  return static_cast<int>(dim); //TODO: return <int> or <size_t>?
+  return dim; //TODO: return <int> or <size_t>?
 }
 
 // ============================================================================

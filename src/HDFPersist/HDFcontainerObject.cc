@@ -27,7 +27,6 @@
 #include "hdfi.h"
 #include "HDFcontainerObject.hxx"
 #include "HDFexception.hxx"
-#include "Basics_Utils.hxx"
 
 HDFcontainerObject::HDFcontainerObject(const char *name)
   : HDFinternalObject(name)
@@ -53,9 +52,8 @@ int HDFcontainerObject::nInternalObjects()
   return 0;
 }
 
-void HDFcontainerObject::InternalObjectIndentify(int rank, char *object_name)
+void HDFcontainerObject::InternalObjectIndentify(int /*rank*/, char *object_name)
 {
-  SALOME_UNUSED(rank);
   object_name = NULL;
 }
 

@@ -166,8 +166,8 @@ Registry::AllInfos* RegistryService::makeseq(std::map<int,client_infos *> &mymap
 
         Registry::AllInfos *all = new Registry::AllInfos ;
         ASSERT(all) ;
-        const size_t RegLength = mymap.size();
-        all->length((_CORBA_ULong)RegLength); //!< TODO: conversion from size_t to _CORBA_ULong
+        size_t RegLength = mymap.size();
+        all->length((CORBA::ULong)RegLength);
 
         std::map<int,client_infos *>::iterator im;
         for (im=mymap.begin();im!=mymap.end(); im++)
