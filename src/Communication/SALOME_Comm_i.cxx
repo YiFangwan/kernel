@@ -145,7 +145,7 @@ SALOME_SenderInt_i *SALOME_SenderInt_i::find(SALOME::SenderInt_ptr pCorba){
   return dynamic_cast<SALOME_SenderInt_i *>(ret);
 }
 
-SALOME_CorbaDoubleNCSender_i::SALOME_CorbaDoubleNCSender_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_SenderDouble_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend){
+SALOME_CorbaDoubleNCSender_i::SALOME_CorbaDoubleNCSender_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend),SALOME_SenderDouble_i(tabToSend,lgrTabToSend,ownTabToSend){
 }
 
 SALOME_CorbaDoubleNCSender_i::~SALOME_CorbaDoubleNCSender_i(){
@@ -166,7 +166,7 @@ SALOME::vectorOfDouble* SALOME_CorbaDoubleNCSender_i::send(){
   return c1._retn();
 }
 
-SALOME_CorbaDoubleCSender_i::SALOME_CorbaDoubleCSender_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_SenderDouble_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend){
+SALOME_CorbaDoubleCSender_i::SALOME_CorbaDoubleCSender_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend),SALOME_SenderDouble_i(tabToSend,lgrTabToSend,ownTabToSend){
 }
 
 SALOME_CorbaDoubleCSender_i::~SALOME_CorbaDoubleCSender_i(){
@@ -187,7 +187,7 @@ SALOME::vectorOfDouble* SALOME_CorbaDoubleCSender_i::sendPart(CORBA::ULong offse
 
 ////////////////////////
 
-SALOME_CorbaLongNCSender_i::SALOME_CorbaLongNCSender_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_SenderInt_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend){
+SALOME_CorbaLongNCSender_i::SALOME_CorbaLongNCSender_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend),SALOME_SenderInt_i(tabToSend,lgrTabToSend,ownTabToSend){
 }
 
 SALOME_CorbaLongNCSender_i::~SALOME_CorbaLongNCSender_i(){
@@ -208,7 +208,7 @@ SALOME::vectorOfLong* SALOME_CorbaLongNCSender_i::send(){
   return c1._retn();
 }
 
-SALOME_CorbaLongCSender_i::SALOME_CorbaLongCSender_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_SenderInt_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend){
+SALOME_CorbaLongCSender_i::SALOME_CorbaLongCSender_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend):SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend),SALOME_SenderInt_i(tabToSend,lgrTabToSend,ownTabToSend){
 }
 
 SALOME_CorbaLongCSender_i::~SALOME_CorbaLongCSender_i(){
@@ -254,25 +254,17 @@ SALOME::MPISender::param* SALOME_MPISender_i::getParam()
   p->tag2 =_tag2;
   _tag2Inst=_tag2;
   std::string service("toto_");
-  sprintf(stag,"%d_",_tag1);
+  sprintf(stag,"%ld_",_tag1);
   service += stag;
   sprintf(stag,"%d_",p->tag2);
   service += stag;
   p->service = CORBA::string_dup(service.c_str());
   MPI_Open_port(MPI_INFO_NULL, _portName);
-#if OMPI_MAJOR_VERSION >= 4
   MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
-#else
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
-#endif
   while ( i != TIMEOUT  && MPI_Publish_name((char*)service.c_str(),MPI_INFO_NULL,_portName) != MPI_SUCCESS) {
     i++;
   }
-#if OMPI_MAJOR_VERSION >= 4
   MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
-#else 
-  MPI_Errhandler_set(MPI_COMM_WORLD, MPI_ERRORS_ARE_FATAL);
-#endif
   if ( i == TIMEOUT  ) { 
     MPI_Close_port(_portName);
     MPI_Finalize();
@@ -336,14 +328,14 @@ void SALOME_MPISender_i::close(const SALOME::MPISender::param& p)
 }
 
 SALOME_MPISenderDouble_i::SALOME_MPISenderDouble_i(const double *tabToSend,long lgrTabToSend,bool ownTabToSend)
-  :SALOME_SenderDouble_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_MPISender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend)
-  ,SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend)
+  :SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend)
+  ,SALOME_SenderDouble_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_MPISender_i(tabToSend,lgrTabToSend,sizeof(double),ownTabToSend)
 {
 }
 
 SALOME_MPISenderInt_i::SALOME_MPISenderInt_i(const int *tabToSend,long lgrTabToSend,bool ownTabToSend)
-  :SALOME_SenderInt_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_MPISender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend)
-  ,SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend)
+  :SALOME_Sender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend)
+  ,SALOME_SenderInt_i(tabToSend,lgrTabToSend,ownTabToSend),SALOME_MPISender_i(tabToSend,lgrTabToSend,sizeof(int),ownTabToSend)
 {
 }
 

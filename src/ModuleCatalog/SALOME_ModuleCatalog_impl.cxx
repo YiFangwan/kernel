@@ -97,11 +97,11 @@ public:
     \param pathlist ParserPathPrefixes arguments
     \param typeMap ParserTypes arguments
   */
-  virtual void _parse_xml_file(const char* file, 
-			       ParserComponents & modulelist, 
-			       ParserPathPrefixes & pathlist,
-			       ParserTypes& typeMap,
-			       TypeList& typeList);
+  void _parse_xml_file(const char* file, 
+                       ParserComponents & modulelist, 
+                       ParserPathPrefixes & pathlist,
+                       ParserTypes& typeMap,
+                       TypeList& typeList);
 
   //! method to find component in the parser list
   /*!
@@ -162,7 +162,7 @@ public:
     \param pathlist ListOfParserPathPrefix arguments
     \return true if verification is OK
   */
-  virtual bool _verify_path_prefix(ParserPathPrefixes & pathlist);
+  bool _verify_path_prefix(ParserPathPrefixes & pathlist);
 
   // Theses variables will contain the path to the general and personal catalogs
   char* _general_path;
@@ -574,7 +574,7 @@ SALOME_ModuleCatalogImpl::GetTypedComponentList(SALOME_ModuleCatalog::ComponentT
 
   _list_typed_component->length(0);
   // Transform SALOME_ModuleCatalog::ComponentType in ParserComponentType
-  ParserComponentType _temp_component_type;
+  ParserComponentType _temp_component_type = OTHER;
   switch(component_type){
   case SALOME_ModuleCatalog::GEOM:
     _temp_component_type = GEOM ;

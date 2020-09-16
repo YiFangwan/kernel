@@ -30,7 +30,7 @@
 #include <vector>
 
 #include "Utils_ExceptHandlers.hxx"
-UNEXPECT_CATCH(AP_InvalidIdentifier, SALOMEDS::AttributeParameter::InvalidIdentifier);
+UNEXPECT_CATCH(AP_InvalidIdentifier, SALOMEDS::AttributeParameter::InvalidIdentifier)
 
 //=======================================================================
 /*!

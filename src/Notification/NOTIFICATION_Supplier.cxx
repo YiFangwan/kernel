@@ -30,10 +30,10 @@
 long NOTIFICATION_Supplier::_stamp = 0;
 
 NOTIFICATION_Supplier::NOTIFICATION_Supplier(const char* instanceName, bool notif):
+    _ok(false),
     _sender(instanceName),
     _counter(0),
-    proxy_consumer(0),
-    _ok(false)
+    proxy_consumer(0)
 {
     if (notif) {
         CosNA_EventChannel_ptr channel = NOTIFICATION_channel();

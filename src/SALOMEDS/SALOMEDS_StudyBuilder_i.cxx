@@ -229,7 +229,7 @@ void SALOMEDS_StudyBuilder_i::LoadWith(SALOMEDS::SComponent_ptr anSCO,
  *  Purpose  : 
  */
 //============================================================================
-void SALOMEDS_StudyBuilder_i::Load(SALOMEDS::SObject_ptr sco)
+void SALOMEDS_StudyBuilder_i::Load(SALOMEDS::SObject_ptr /*sco*/)
 {
   MESSAGE ( "This function is not yet implemented");
 }

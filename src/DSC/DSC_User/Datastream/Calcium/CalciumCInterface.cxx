@@ -91,7 +91,7 @@ ecp_fin_ (void * component, int code) {
     return ex.getInfo();                                                
   }                                                                     
   return CalciumTypes::CPOK;
-};
+}
 
 extern "C" CalciumTypes::InfoType 
 ecp_cd_ (void * component, char * instanceName) {

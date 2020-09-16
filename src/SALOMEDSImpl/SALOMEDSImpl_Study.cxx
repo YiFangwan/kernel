@@ -373,7 +373,7 @@ bool SALOMEDSImpl_Study::Impl_SaveProperties(HDFgroup *hdf_group)
 
   int aLength = 0, aLength1 = 0, anIndex, i, unitsSize = 0, commentSize = 0;
 
-  for(i=1; i<=aNames.size(); i++)
+  for(i=1; i<=(int)aNames.size(); i++)
     aLength += (int)aNames[i-1].size() + 1; //!< TODO: conversion from size_t to int
 
   std::map< std::string, std::vector<std::string> >::const_iterator it;
@@ -678,7 +678,7 @@ bool SALOMEDSImpl_Study::Impl_SaveAs(const std::string& aStudyUrl,
     std::string varType;
     std::string varIndex;
 
-    for (int i=0 ;i < myNoteBookVars.size(); i++ ) {
+    for (int i=0 ;i < (int)myNoteBookVars.size(); i++ ) {
       // For each variable create HDF group
       hdf_notebook_var = new HDFgroup((char*)myNoteBookVars[i]->Name().c_str(),hdf_notebook_vars);
       hdf_notebook_var->CreateOnDisk();
@@ -1819,7 +1819,7 @@ std::string SALOMEDSImpl_Study::_GetStudyVariablesScript()
   std::string set_method = _GetNoteBookAccessor()+".set(";
   std::string varName;
   std::string varValue;
-  for(int i = 0 ; i < myNoteBookVars.size();i++ ) {
+  for(int i = 0 ; i < (int)myNoteBookVars.size();i++ ) {
     varName = myNoteBookVars[i]->Name();
     varValue = myNoteBookVars[i]->SaveToScript();
     dump+=set_method+"\""+varName+"\", "+varValue+")\n";
@@ -2385,7 +2385,7 @@ void dumpSO(const SALOMEDSImpl_SObject& theSO,
   std::string aTab(Tab), anID(theSO.GetID());
   fp << aTab << anID << std::endl;
   std::vector<DF_Attribute*> attribs = theSO.GetLabel().GetAttributes();
-  for(int i = 0; i<attribs.size(); i++) {
+  for(int i = 0; i<(int)attribs.size(); i++) {
     SALOMEDSImpl_GenericAttribute* anAttr = dynamic_cast<SALOMEDSImpl_GenericAttribute*>(attribs[i]);
 
     if(!anAttr) {
@@ -2621,7 +2621,7 @@ void SALOMEDSImpl_Study::SetStringVariable(const std::string& theVarName,
 //============================================================================
 void SALOMEDSImpl_Study::SetStringVariableAsDouble(const std::string& theVarName,
                                                    const double theValue,
-                                                   const SALOMEDSImpl_GenericVariable::VariableTypes theType)
+                                                   const SALOMEDSImpl_GenericVariable::VariableTypes /*theType*/)
 {
   SALOMEDSImpl_GenericVariable* aGVar = GetVariable(theVarName);
   if(SALOMEDSImpl_ScalarVariable* aSVar = dynamic_cast<SALOMEDSImpl_ScalarVariable*>(aGVar))
@@ -2697,7 +2697,7 @@ std::vector<std::string> SALOMEDSImpl_Study::GetVariableNames() const
 {
   std::vector<std::string> aResult;
 
-  for(int i = 0; i < myNoteBookVars.size(); i++)
+  for(int i = 0; i < (int)myNoteBookVars.size(); i++)
     aResult.push_back(myNoteBookVars[i]->Name());
 
   return aResult;
@@ -2721,7 +2721,7 @@ void SALOMEDSImpl_Study::AddVariable(SALOMEDSImpl_GenericVariable* theVariable)
 SALOMEDSImpl_GenericVariable* SALOMEDSImpl_Study::GetVariable(const std::string& theName) const
 {
   SALOMEDSImpl_GenericVariable* aResult = NULL;
-  for(int i = 0; i < myNoteBookVars.size();i++) {
+  for(int i = 0; i < (int)myNoteBookVars.size();i++) {
     if(theName.compare(myNoteBookVars[i]->Name()) == 0) {
       aResult = myNoteBookVars[i];
       break;

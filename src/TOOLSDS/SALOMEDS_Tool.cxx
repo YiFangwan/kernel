@@ -443,7 +443,7 @@ std::string SALOMEDS_Tool::GetDirFromPath(const std::string& thePath) {
 // Purpose : Retrieve specified flaf from "AttributeFlags" attribute
 //=======================================================================
 bool SALOMEDS_Tool::GetFlag( const int             theFlag,
-                             SALOMEDS::Study_var   theStudy,
+                             SALOMEDS::Study_var   /*theStudy*/,
                              SALOMEDS::SObject_var theObj )
 {
   SALOMEDS::GenericAttribute_var anAttr;

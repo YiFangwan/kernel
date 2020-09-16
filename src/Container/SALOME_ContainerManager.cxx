@@ -380,11 +380,7 @@ Engines::Container_ptr SALOME_ContainerManager::GiveContainer(const Engines::Con
       std::string hostname(resource_definition.HostName);
       std::string containerNameInNS;
       if(params.isMPI){
-        int nbproc;
-        if ( params.nb_proc <= 0 )
-          nbproc = 1;
-        else
-          nbproc = params.nb_proc;
+        int nbproc = params.nb_proc <= 0 ? 1 : params.nb_proc;
         try
         {
           if( GetenvThreadSafe("LIBBATCH_NODEFILE") != NULL )
@@ -742,21 +738,12 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
     command = BuildTempFileToLaunchRemoteContainer(resource_name, params, tmpFileName);
   else
   {
-    int nbproc;
     const ParserResourcesType resInfo(_resManager->GetResourceDefinition(resource_name));
-
-    if (params.isMPI)
-    {
-      if ( params.nb_proc <= 0 )
-        nbproc = 1;
-      else
-        nbproc = params.nb_proc;
-    }
 
     std::string wdir = params.workingdir.in();
 
-    // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
-    //  SALOME_Container containerName -ORBInitRef NameService=IOR:01000..."
+    // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir
+    //      SALOME_Container containerName -ORBInitRef NameService=IOR:01000..."
     //  or 
     //  "ssh -l user machine distantLauncher remote -p hostNS -m portNS -d dir
     //      --  SALOME_Container contName -ORBInitRef NameService=IOR:01000..."
@@ -766,6 +753,7 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
 
     if(params.isMPI)
     {
+      int nbproc = params.nb_proc <= 0 ? 1 : params.nb_proc;
       command += " mpirun -np ";
       std::ostringstream o;
       o << nbproc << " ";
@@ -806,18 +794,14 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
 {
   tmpFileName = BuildTemporaryFileName();
   std::string command;
-  int nbproc = 0;
 
   std::ostringstream o;
 
   if (params.isMPI)
     {
-      o << "mpirun -np ";
+      int nbproc = params.nb_proc <= 0 ? 1 : params.nb_proc;
 
-      if ( params.nb_proc <= 0 )
-        nbproc = 1;
-      else
-        nbproc = params.nb_proc;
+      o << "mpirun -np ";
 
       o << nbproc << " ";
 
@@ -1060,15 +1044,9 @@ std::string SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer (const
 
   if (params.isMPI)
     {
+      int nbproc = params.nb_proc <= 0 ? 1 : params.nb_proc;
+
       tempOutputFile << "mpirun -np ";
-      int nbproc;
-
-      if ( params.nb_proc <= 0 )
-        nbproc = 1;
-      else
-        nbproc = params.nb_proc;
-
-      std::ostringstream o;
 
       tempOutputFile << nbproc << " ";
 #ifdef LAM_MPI

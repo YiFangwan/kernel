@@ -43,8 +43,8 @@ class KERNELHELPERS_EXPORT SALOMEDS_DriverDefaultImpl:
     SALOMEDS_DriverDefaultImpl(CORBA::ORB_ptr orb,
              PortableServer::POA_ptr poa,
              PortableServer::ObjectId * contId,
-             const char * instanceName,
-             const char * interfaceName);
+             const char *instanceName,
+             const char *interfaceName);
 
 
     virtual ~SALOMEDS_DriverDefaultImpl();

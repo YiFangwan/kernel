@@ -130,6 +130,7 @@ SALOMEDS::GenericAttribute_ptr SALOMEDS_GenericAttribute_i::CreateAttribute
   char* aTypeOfAttribute = (char*)aClassType.c_str();
   SALOMEDS::GenericAttribute_var anAttribute;
   SALOMEDS_GenericAttribute_i* attr_servant = NULL;
+  SALOME_UNUSED(attr_servant);
   __CreateGenericCORBAAttribute
 
   return anAttribute._retn(); 

@@ -87,7 +87,7 @@ std::string SALOMEDSImpl_IParameters::getValue(const std::string& listName, int 
   if(!_ap) return "";
   if(!_ap->IsSet(listName, PT_STRARRAY)) return "";
   std::vector<std::string> v = _ap->GetStrArray(listName);
-  if(index >= v.size()) return ""; 
+  if(index >= (int)v.size()) return ""; 
   return v[index];
 }
 
@@ -119,7 +119,7 @@ std::string SALOMEDSImpl_IParameters::getParameter(const std::string& entry, con
   if(!_ap->IsSet(entry, PT_STRARRAY)) return "";
   std::vector<std::string> v = _ap->GetStrArray(entry);
   size_t length = v.size();
-  for(int i = 0; i<length; i+=1) {
+  for(int i = 0; i<(int)length; i+=1) {
     if(v[i] == parameterName) return v[i+1];
   }
   return "";
@@ -147,7 +147,7 @@ std::string SALOMEDSImpl_IParameters::getIdParameter(const std::string& entry)
   if(!_ap->IsSet(entry, PT_STRARRAY)) return "";
   std::vector<std::string> v = _ap->GetStrArray(entry);
   size_t length = v.size();
-  for(int i = 0; i<length; i+=1) {
+  for(int i = 0; i<(int)length; i+=1) {
     if(v[i] == _PT_ID_) return v[i+1];
   }
   return "";
@@ -160,7 +160,7 @@ std::vector<std::string> SALOMEDSImpl_IParameters::getAllParameterNames(const st
   if(!_ap->IsSet(entry, PT_STRARRAY)) return v;
   v = _ap->GetStrArray(entry);
   size_t length = v.size();
-  for(int i = 0; i<length; i+=2) {
+  for(int i = 0; i<(int)length; i+=2) {
     names.push_back(v[i]);
   }
   return names;
@@ -173,7 +173,7 @@ std::vector<std::string> SALOMEDSImpl_IParameters::getAllParameterValues(const s
   if(!_ap->IsSet(entry, PT_STRARRAY)) return v;
   v = _ap->GetStrArray(entry);
   size_t length = v.size();
-  for(int i = 1; i<length; i+=2) {
+  for(int i = 1; i<(int)length; i+=2) {
     values.push_back(v[i]);
   }
   return values; 
@@ -309,7 +309,7 @@ std::string SALOMEDSImpl_IParameters::getStudyScript(SALOMEDSImpl_Study* study, 
       std::vector<std::string> lst = ip.getValues(v[i]);
       dump += "# fill list "+v[i]+"\n";
       for(int j = 0; j < (int)lst.size(); j++) { //TODO: mismatch signed/unsigned
-        if (lst[j].find('\"') == -1) //TODO: std::string::npos
+        if (lst[j].find('\"') == std::string::npos)
           dump += "ipar.append(\""+v[i]+"\", \""+lst[j]+"\")\n";
         else
           dump += "ipar.append(\""+v[i]+"\", \"\"\""+lst[j]+"\"\"\")\n";

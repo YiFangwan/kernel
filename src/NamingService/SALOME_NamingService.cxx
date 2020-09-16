@@ -525,7 +525,7 @@ SALOME_NamingService::ResolveComponent(const char* hostname,
 
               if ( nbproc >= 1 )
                 {
-                  char *str_nbproc = new char[8];
+                  char *str_nbproc = new char[16];
                   sprintf(str_nbproc, "_%d", nbproc);
                   if( strstr(name.c_str(),str_nbproc) == NULL)
                     continue; // check only containers with _%d in name

@@ -86,7 +86,7 @@ int HDFConvert::FromAscii(const std::string& file, const HDFcontainerObject & hd
 #else
 
   // Sort de la compilation
-#error Necessite l''utilisation de la primitive mmap
+#error "Necessite l'utilisation de la primitive mmap"
   
 #endif
   

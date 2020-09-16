@@ -87,7 +87,7 @@ void TransactionRdExtVarCreate::perform()
   _dsct->createRdExtVarInternal(_var_name,data2);
 }
 
-TransactionRdExtVarFreeStyleCreate::TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue, const char *compareFuncContent):_cmp_func_content(compareFuncContent),_cmp_func(nullptr),TransactionRdExtVarCreate(dsct,varName,constValue)
+TransactionRdExtVarFreeStyleCreate::TransactionRdExtVarFreeStyleCreate(DataScopeServerTransaction *dsct, const std::string& varName, const SALOME::ByteVec& constValue, const char *compareFuncContent):TransactionRdExtVarCreate(dsct,varName,constValue),_cmp_func_content(compareFuncContent),_cmp_func(nullptr)
 {
   constexpr char EXPECTED_COMPARE_FUNC_NAME[]="comptchev";
   SALOME::AutoPyRef context(PyDict_New());

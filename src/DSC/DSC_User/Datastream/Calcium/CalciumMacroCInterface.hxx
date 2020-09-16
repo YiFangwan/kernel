@@ -105,7 +105,7 @@ Id          : $Id$
       *ti=(CalTimeType< _type _qual >::TimeType)(_ti);                                                           \
     DEBTRACE( "-------- CalciumInterface(lecture Inter Part), Data Ptr :" << *data )                             \
     return CalciumTypes::CPOK;                                                                                   \
-  };                                                                                                             \
+  }                                                                                                              \
                                                                                                                  \
                                                                                                                  \
   extern "C" void ecp_lecture_##_name##_free ( _type _qual * data)                                               \

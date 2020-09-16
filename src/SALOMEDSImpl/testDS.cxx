@@ -44,7 +44,7 @@
 
 //#include "SALOMEDSImpl_.hxx"
 
-int main (int argc, char * argv[])
+int main ()
 {
   std::cout << "Test started " << std::endl;
 

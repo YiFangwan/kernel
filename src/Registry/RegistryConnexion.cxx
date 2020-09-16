@@ -40,11 +40,9 @@ extern "C"
 # include <stdio.h>
 }
 
-Registry::Components_var Connexion( int argc , char **argv , const char *ptrSessionName )
+Registry::Components_var Connexion( int argc , char **argv , const char */*ptrSessionName*/ )
 {
         Registry::Components_var varComponents = 0 ;
-        ASSERT(ptrSessionName) ;
-        ASSERT(strlen(ptrSessionName)>0) ;
         const char *registryName = "Registry" ;
 
         try

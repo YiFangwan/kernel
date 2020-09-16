@@ -119,7 +119,7 @@ int findpathof(const std::string& path, std::string&, const std::string&);
 //=============================================================================
 
 Engines_Container_i::Engines_Container_i () :
-_numInstance(0),_id(0),_NS(0)
+  _NS(0),_id(0),_numInstance(0)
 {
 }
 
@@ -136,7 +136,7 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
                                           bool activAndRegist,
                                           bool isServantAloneInProcess
                                           ) :
-  _numInstance(0),_isServantAloneInProcess(isServantAloneInProcess),_id(0),_NS(0)
+  _NS(0),_id(0),_numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 {
   _pid = (long)getpid();
 

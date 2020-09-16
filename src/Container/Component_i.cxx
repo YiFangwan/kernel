@@ -64,7 +64,7 @@ bool Engines_Component_i::_isMultiInstance = false;
  */
 //=============================================================================
 
-Engines_Component_i::Engines_Component_i():_myConnexionToRegistry(0), _notifSupplier(0), _id(0)
+Engines_Component_i::Engines_Component_i(): _id(0), _myConnexionToRegistry(0), _notifSupplier(0)
 {
   //ASSERT(0);
   MESSAGE("Default Constructor, not for normal use...");
@@ -93,15 +93,15 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
                                          bool regist ) :
   _instanceName(instanceName),
   _interfaceName(interfaceName),
+  _id(0),
+  _contId(0),
   _myConnexionToRegistry(0),
   _notifSupplier(0),
+  _graphName("") ,
+  _nodeName(""),
   _ThreadId(0) ,
   _ThreadCpuUsed(0) ,
   _Executed(false) ,
-  _graphName("") ,
-  _nodeName(""),
-  _id(0),
-  _contId(0),
   _CanceledThread(false)
 {
   MESSAGE("Component constructor with instanceName "<< _instanceName);
@@ -146,15 +146,15 @@ Engines_Component_i::Engines_Component_i(CORBA::ORB_ptr orb,
                                          bool regist) :
   _instanceName(instanceName),
   _interfaceName(interfaceName),
+  _id(0),
+  _contId(0),
   _myConnexionToRegistry(0),
   _notifSupplier(0),
+  _graphName("") ,
+  _nodeName(""),
   _ThreadId(0) ,
   _ThreadCpuUsed(0) ,
   _Executed(false) ,
-  _graphName("") ,
-  _nodeName(""),
-  _id(0),
-  _contId(0),
   _CanceledThread(false)
 {
   MESSAGE("Component constructor with instanceName "<< _instanceName);

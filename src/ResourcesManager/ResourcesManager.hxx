@@ -72,12 +72,12 @@ class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
   public:
 
     ResourcesManager_cpp(const char *xmlFilePath);
-    ResourcesManager_cpp() ;
+    ResourcesManager_cpp();
 
     ~ResourcesManager_cpp();
 
     std::vector<std::string> 
-    GetFittingResources(const resourceParams& params) ;
+    GetFittingResources(const resourceParams& params);
 
     std::string Find(const std::string& policy, const std::vector<std::string>& listOfResources) const;
 

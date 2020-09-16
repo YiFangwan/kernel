@@ -150,7 +150,7 @@ void Nettoyage( void )
  * Adds a destruction object to the list of actions to be performed at the end
  * of the process
  */
-const int DESTRUCTEUR_GENERIQUE_::Ajout( DESTRUCTEUR_GENERIQUE_ &objet )
+int DESTRUCTEUR_GENERIQUE_::Ajout( DESTRUCTEUR_GENERIQUE_ &objet )
 {
         // N.B. : l'ordre de creation des SINGLETON etant important
         //        on n'utilise pas deux fois la meme position pour

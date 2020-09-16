@@ -97,6 +97,7 @@ InfoType ecp_lch(void * component, int mode, float * ti,        float * tf, int 
 
   size_t _nRead;
   long   _i=*i;
+  (void)strSize; // unused parameter
   fflush(stdout);fflush(stderr);
 
   InfoType info =  ecp_lecture_str (component, mode, ti, tf, &_i,

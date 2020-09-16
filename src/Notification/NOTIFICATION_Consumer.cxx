@@ -28,8 +28,8 @@
 #include "NOTIFICATION.hxx"
 
 NOTIFICATION_Consumer::NOTIFICATION_Consumer():
-    proxy_supplier(0),
-    _ok(false)
+    _ok(false),
+    proxy_supplier(0)
 {
     CosNA_EventChannel_ptr channel = NOTIFICATION_channel();
     if (CORBA::is_nil(channel)) {

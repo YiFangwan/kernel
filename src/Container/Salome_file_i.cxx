@@ -191,7 +191,7 @@ Salome_file_i::load(const char* hdf5_file) {
           std::string text = "open failed";
           es.text = CORBA::string_dup(text.c_str());
           throw SALOME::SALOME_Exception(es);
-        };
+        }
         hdf_dataset->ReadFromDisk(buffer);
         if ( write(fd,buffer,(unsigned int)size) <0) {
           SALOME::ExceptionStruct es;
@@ -199,7 +199,7 @@ Salome_file_i::load(const char* hdf5_file) {
           std::string text = "write failed";
           es.text = CORBA::string_dup(text.c_str());
           throw SALOME::SALOME_Exception(es);
-        };
+        }
         // Close the target file
         ::close(fd);
 

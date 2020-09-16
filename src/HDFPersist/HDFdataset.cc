@@ -169,9 +169,9 @@ hdf_size HDFdataset::GetSize()
 {
   int size_type;
 
-  if (_size == -1)
+  if ((long)_size == -1)
     {
-      if ((_size = HDFdatasetGetSize(_id)) < 0)
+      if ((long)(_size = HDFdatasetGetSize(_id)) < 0)
 	throw HDFexception("Can't determine the size of the dataset");
       
       if (_type == HDF_NONE)

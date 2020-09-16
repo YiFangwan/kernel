@@ -78,7 +78,7 @@ int main() {
     a.lanceException1_2();
   }
   // Essai par valeur (ne pas faire çà !)
-  catch (  A::Exp1  ex ) {
+  catch (  A::Exp1&  ex ) {
     std::cout << "Exception 1 bien reçue" << std::endl;
     std::cout << ex.what() << std::endl;
   } catch ( const DSC_Exception & dscE ) {
@@ -126,7 +126,7 @@ int main() {
   try {
     a.lanceException1_6();
   }
-  catch ( SALOME_Exception ex ) {
+  catch ( SALOME_Exception& ex ) {
     std::cout << "Exception SALOME bien reçue" << std::endl;
     std::cout << ex.what() << std::endl;
   } catch ( ...) {

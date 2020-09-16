@@ -499,11 +499,11 @@ void SALOMEDSImpl_AttributeStudyProperties::Load(const std::string& value)
         aVersions[verSize] = 0;
         
         std::string mVersions = aVersions;
-        int start = 0, idx = (int)mVersions.find( ';', start ); //!< TODO: conversion from size_t to int
+        size_t start = 0, idx = mVersions.find( ';', start );
         while ( idx != std::string::npos ) {
           SetComponentVersion( aModule, mVersions.substr( start, idx-start ) );
           start = idx + 1;
-          idx = (int)mVersions.find( ';', start ); //!< TODO: conversion from size_t to int
+          idx = mVersions.find( ';', start );
         }
         SetComponentVersion( aModule, mVersions.substr( start ) );
 
