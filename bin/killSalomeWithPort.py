@@ -405,7 +405,7 @@ def checkUnkillProcess():
     user = getUserName()
     if sys.platform != 'win32':
         import subprocess
-        cmd = "ps -fea | grep 'vsr' | grep -e 'SALOME_' -e 'omniNames' | awk '{print $2}'" % user
+        cmd = "ps -fea | grep '%s' | grep -e 'SALOME_' -e 'omniNames' | awk '{print $2}'" % user
         prc = subprocess.getoutput(cmd)
         if prc:
             print("Salome process aren't killed\nCheck this PID: ", prc)
