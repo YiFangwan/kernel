@@ -243,6 +243,11 @@ def __killMyPort(port, filedict):
                         killpid(int(pid))
                     except:
                         if verbose(): print("  ------------------ process %s : %s not found"% (pid, cmd[0]))
+                        if int(pid) in checkUnkillProcess():
+                            try:
+                                killpid(int(pid))
+                            except:
+                                pass
                         pass
                     pass # for pid ...
                 pass # for process_id ...
@@ -394,6 +399,34 @@ def killMyPortSpy(pid, port):
     killMyPort(port)
     return
 
+def checkUnkillProcess():
+    #check process in system after kill
+    from salome_utils import getUserName
+    user = getUserName()
+    if sys.platform != 'win32':
+        import subprocess
+        cmd = "ps -fea | grep 'vsr' | grep -e 'SALOME_' -e 'omniNames' | awk '{print $2}'" % user
+        prc = subprocess.getoutput(cmd)
+        if prc:
+            print("Salome process aren't killed\nCheck this PID: ", prc)
+            pass
+        return prc
+    else:
+        import subprocess
+        cmd = 'tasklist /fo csv | findstr /i "SALOME_ omniNames"'
+        prc = subprocess.getoutput(cmd)
+        # get only PID
+        try:
+            prc = prc.split()
+            prc = [prc[i].split(',') for i in range(0, len(prc)) if i % 2 == 0]
+            prc = [int(prc[j][1].replace('"', '')) for j in range(0, len(prc))]
+        except:
+            pass
+        if prc:
+            print("Salome process aren't killed\nCheck this PID: ", prc)
+            pass
+        return prc
+
 if __name__ == "__main__":
     if len(sys.argv) < 2:
         print("Usage: ")
@@ -410,6 +443,9 @@ if __name__ == "__main__":
             pass
         sys.exit(0)
         pass
+    elif sys.argv[1] == "--find":
+        checkUnkillProcess()
+        sys.exit(0)
     try:
         from salomeContextUtils import setOmniOrbUserPath #@UnresolvedImport
         setOmniOrbUserPath()

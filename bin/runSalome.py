@@ -474,6 +474,7 @@ def startSalome(args, modules_list, modules_root_dir):
     #
 
     clt=orbmodule.client(args)
+    addToPidict(args)
 
     #
     # Wake up session option
@@ -513,6 +514,7 @@ def startSalome(args, modules_list, modules_root_dir):
         myServer=LoggerServer(args)
         myServer.run()
         clt.waitLogger("Logger")
+        addToPidict(args)
 
     # Launch  Session Server (to show splash ASAP)
     #
@@ -521,6 +523,7 @@ def startSalome(args, modules_list, modules_root_dir):
         mySessionServ = SessionServer(args,args['modules'],modules_root_dir)
         mySessionServ.setpath(modules_list,modules_root_dir)
         mySessionServ.run()
+        addToPidict(args)
 
     #
     # Launch Registry Server,
@@ -534,6 +537,7 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNS("/Registry")
         else:
           clt.waitNSPID("/Registry",myServer.PID)
+        addToPidict(args)
 
     #
     # Launch Catalog Server,
@@ -549,6 +553,7 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNS("/Kernel/ModulCatalog",SALOME_ModuleCatalog.ModuleCatalog)
         else:
           clt.waitNSPID("/Kernel/ModulCatalog",cataServer.PID,SALOME_ModuleCatalog.ModuleCatalog)
+        addToPidict(args)
 
     #
     # Launch SalomeDS Server,
@@ -564,6 +569,7 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNS("/Study")
         else:
           clt.waitNSPID("/Study",myServer.PID)
+        addToPidict(args)
 
     #
     # Launch LauncherServer
@@ -573,6 +579,7 @@ def startSalome(args, modules_list, modules_root_dir):
       myCmServer = LauncherServer(args)
       myCmServer.setpath(modules_list,modules_root_dir)
       myCmServer.run()
+      addToPidict(args)
 
     #
     # Launch ConnectionManagerServer
@@ -604,6 +611,7 @@ def startSalome(args, modules_list, modules_root_dir):
           clt.waitNS("/Containers/" + theComputer + "/FactoryServer")
         else:
           clt.waitNSPID("/Containers/" + theComputer + "/FactoryServer",myServer.PID)
+        addToPidict(args)
 
     if 'pyContainer' in args['standalone']:
         raise Exception('Python containers no longer supported')
@@ -796,6 +804,14 @@ def no_main():
     searchFreePort(args, 0)
     clt = useSalome(args, modules_list, modules_root_dir)
     return clt
+
+# -----------------------------------------------------------------------------
+
+def addToPidict(args):
+    global process_id
+    from addToKillList import addToKillList
+    for pid, cmd in list(process_id.items()):
+        addToKillList(pid, cmd, args['port'])
 
 # -----------------------------------------------------------------------------
 
