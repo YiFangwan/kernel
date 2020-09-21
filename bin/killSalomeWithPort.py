@@ -399,31 +399,30 @@ def killMyPortSpy(pid, port):
     killMyPort(port)
     return
 
+def getDictfromOutput(outputList):
+    return dict(zip(list(map(int, outputList[::2])), outputList[1::2]))
+
 def checkUnkilledProcess():
-    #check process in system after kill
+    #check processes in system after kill
     from salome_utils import getUserName
     user = getUserName()
     if sys.platform != 'win32':
-        import subprocess
-        cmd = 'ps --noheading -U "%s" -o pid,cmd | awk \'{printf("%s %s\\n", $1, $2)}\'' % (user, "%s", "%s")
+        cmd = 'ps --noheading -U {user} -o pid,cmd | awk \'{{printf("%s %s\\n", $1, $2)}}\''.format(user=user)
         prc = subprocess.getoutput(cmd)
         prc = prc.split()
-        prc = dict(zip(list(map(int, prc[::2])), prc[1::2]))
-        prc = dict(filter(lambda elem: any(subs in elem[1] for subs in ['SALOME_', 'omniNames']), prc.items()))
+        prc = getDictfromOutput(prc)
+        prc = {pid:cmd for pid,cmd in prc.items() if re.match('^(SALOME_|omniNames)',cmd)}
         print(prc)
-        cmd = 'ps -fea | grep \'%s\' | grep \'ghs3d\' | grep \'f /tmp/GHS3D_\' | grep -v \'grep\' | awk \'{print("%s %s\\n", $2, $8)}\'' % (user, "%s", "%s")
+        cmd = 'ps -fea | grep \'{user}\' | grep \'ghs3d\' | grep \'f /tmp/GHS3D_\' | grep -v \'grep\' | awk \'{{print("%s %s\\n", $2, $8)}}\''.format(user=user)
         ghs = subprocess.getoutput(cmd)
         ghs = ghs.split()
-        ghs = dict(zip(list(map(int, ghs[::2])), ghs[1::2]))
-        prc.update(ghs)
-        cmd = 'ps -fea | grep \'%s\' | grep \'ompi-server\' | grep -v \'grep\' | awk \'{print("%s %s\\n", $2, $8)}\'' % (user, "%s", "%s")
+        prc.update(getDictfromOutput(ghs))
+        cmd = 'ps -fea | grep \'{user}\' | grep \'ompi-server\' | grep -v \'grep\' | awk \'{{print("%s %s\\n", $2, $8)}}\''.format(user=user)
         ompi = subprocess.getoutput(cmd)
         ompi = ompi.split()
-        ompi = dict(zip(list(map(int, ompi[::2])), ompi[1::2]))
-        prc.update(ompi)
+        prc.update(getDictfromOutput(ompi))
         return prc
     else:
-        import subprocess
         cmd = 'tasklist /fo csv | findstr /i "SALOME_ omniNames"'
         prc = subprocess.getoutput(cmd)
         try:
@@ -454,8 +453,9 @@ if __name__ == "__main__":
         pidcmd = checkUnkilledProcess()
         if pidcmd:
             print("Unkilled processes: ")
-            print()
-            print(pidcmd)
+            print("PID, ProcessName")
+            for pair in pidcmd.items():
+                print(pair)
         sys.exit(0)
     try:
         from salomeContextUtils import setOmniOrbUserPath #@UnresolvedImport
