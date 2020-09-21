@@ -28,7 +28,7 @@
 
 import os, sys, re, signal
 
-from killSalomeWithPort import killMyPort, getPiDict
+from killSalomeWithPort import killMyPort, getPiDict, checkUnkilledProcess
 #from salome_utils import getHostName, getShortHostName
 from salome_utils import getUserName
 
@@ -83,21 +83,10 @@ def killAllPorts():
     # kill other processes
     if sys.platform != 'win32':
         import subprocess
-        cmd = "ps -fea | grep '%s' | grep 'ghs3d' | grep 'f /tmp/GHS3D_' | grep -v 'grep' | awk '{print $2}'" % user
-        prc = subprocess.getoutput(cmd)
-        for field in prc.split():
+        prc = checkUnkilledProcess()
+        for field in prc.keys():
             try:
-                os.kill(int(field), signal.SIGKILL)
-            except:
-                pass
-            pass
-        pass
-        # kill ompi-server needed for MPI containers coupling
-        cmd = "ps -fea | grep '%s' | grep 'ompi-server' | grep -v 'grep' | awk '{print $2}'" % user
-        prc = subprocess.getoutput(cmd)
-        for field in prc.split():
-            try:
-                os.kill(int(field), signal.SIGKILL)
+                os.kill(field, signal.SIGKILL)
             except:
                 pass
             pass
