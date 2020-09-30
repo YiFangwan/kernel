@@ -31,11 +31,11 @@
 #  \endcode
 #
 
-import re, os, sys, pickle, signal, glob
+import argparse, re, os, sys, pickle, signal, glob, psutil
 import subprocess
 import shlex
 from salome_utils import verbose
-
+from contextlib import suppress
 
 def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
     """
@@ -227,7 +227,26 @@ def shutdownMyPort(port, cleanup=True):
 # a RuntimeError is raised; we explicitly exit this function with code 0 to
 # prevent parent thread from crashing.
 
+def killProcesses(_procs):
+    '''
+    Terminate and kill all psutil.Process()
+    :param _procs: list psutil.Process()
+    '''
+    for _p in _procs:
+        _p.terminate()
+    _, alive = psutil.wait_procs(_procs, timeout=5)
+    for _p in alive:
+        _p.kill()
+
 def __killMyPort(port, filedict):
+    def _killPiDictProcesses(_process_id):
+        procs = []
+        for _p in _process_id:
+            try:
+                procs.append(psutil.Process(_p))
+            except psutil.NoSuchProcess:
+                if verbose(): print("  ------------------ process {} : not found".format(_p))
+        killProcesses(procs)
     # bug fix: ensure port is an integer
     if port:
         port = int(port)
@@ -236,22 +255,7 @@ def __killMyPort(port, filedict):
         with open(filedict, 'rb') as fpid:
             process_ids=pickle.load(fpid)
             for process_id in process_ids:
-                for pid, cmd in list(process_id.items()):
-                    if verbose(): print("stop process %s : %s"% (pid, cmd[0]))
-                    try:
-                        from salome_utils import killpid
-                        killpid(int(pid))
-                    except:
-                        if verbose(): print("  ------------------ process %s : %s not found"% (pid, cmd[0]))
-                        if int(pid) in checkUnkilledProcess().keys():
-                            try:
-                                killpid(int(pid))
-                            except:
-                                pass
-                        pass
-                    pass # for pid ...
-                pass # for process_id ...
-            # end with
+                _killPiDictProcesses(process_id)
     except:
         print("Cannot find or open SALOME PIDs file for port", port)
         pass
@@ -399,66 +403,58 @@ def killMyPortSpy(pid, port):
     killMyPort(port)
     return
 
-def checkUnkilledProcess():
-    #check processes in system after kill
+def checkUnkilledProcesses():
+    '''
+    Check all unkilled SALOME processes
+    :return: list unkilled processes
+    '''
     from salome_utils import getUserName
-    user = getUserName()
-    processes = dict()
+    processes = list()
+    def compareNames(_process):
+        # On OS Windows: psutil.Process().username() get 'usergroup' + 'username'
+        return getUserName() == _process.username()
 
-    if sys.platform != 'win32':
+    def _getDictfromOutput(_prlist, _cond=None):
+        for _p in psutil.process_iter(['name', 'username']):
+            with suppress(psutil.AccessDenied):
+                if (compareNames(_p) and re.match(_cond, _p.info['name'])):
+                    _prlist.append(_p)
 
-        def _getDictfromOutput(_output, _dic, _cond = None):
-            _pids = dict(zip(list(map(int, _output[::2])), _output[1::2]))
-            if _cond:
-                _pids = {pid:cmd for pid,cmd in _pids.items() if re.match(_cond, cmd)}
-            _dic.update(_pids)
+    _getDictfromOutput(processes, '(SALOME_*)')
+    _getDictfromOutput(processes, '(omniNames)')
+    _getDictfromOutput(processes, '(ghs3d)')
+    _getDictfromOutput(processes, '(ompi-server)')
 
-        # 1. SALOME servers plus omniNames
-        cmd = 'ps --noheading -U {user} -o pid,cmd | awk \'{{printf("%s %s\\n", $1, $2)}}\''.format(user=user)
-        _getDictfromOutput(subprocess.getoutput(cmd).split(), processes, '^(SALOME_|omniNames)')
-        # 2. ghs3d
-        cmd = 'ps -fea | grep \'{user}\' | grep \'ghs3d\' | grep \'f /tmp/GHS3D_\' | grep -v \'grep\' | awk \'{{print("%s %s\\n", $2, $8)}}\''.format(user=user)
-        _getDictfromOutput(subprocess.getoutput(cmd).split(), processes)
-        # 3. ompi-server
-        cmd = 'ps -fea | grep \'{user}\' | grep \'ompi-server\' | grep -v \'grep\' | awk \'{{print("%s %s\\n", $2, $8)}}\''.format(user=user)
-        _getDictfromOutput(subprocess.getoutput(cmd).split(), processes)
-    else:
-        cmd = 'tasklist /fo csv | findstr /i "SALOME_ omniNames"'
-        prc = subprocess.getoutput(cmd)
-        try:
-            prc = prc.split()
-            prc = [prc[i].split(',') for i in range(0, len(prc)) if i % 2 == 0]
-            prc = dict([(int(prc[j][1].replace('"', '')), prc[j][0].replace('"', '')) for j in range(0, len(prc))])
-            processes.update(prc)
-        except:
-            pass
     return processes
 
-if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: ")
-        print("  %s <port>" % os.path.basename(sys.argv[0]))
-        print()
-        print("Kills SALOME session running on specified <port>.")
-        sys.exit(1)
-        pass
-    if sys.argv[1] == "--spy":
-        if len(sys.argv) > 3:
-            pid = sys.argv[2]
-            port = sys.argv[3]
-            killMyPortSpy(pid, port)
-            pass
+def main():
+    '''
+    Main function
+    '''
+    parser = argparse.ArgumentParser(description="killSalomeWithPort utility")
+    parser.add_argument("ports",
+                        help="ports of Salome services to kill",
+                        nargs="*", type=int)
+    parser.add_argument("--spy",
+                        help="kill spy port by pair PID, PORT", nargs=2,
+                        type=int, metavar=("PID", "PORT"))
+    parser.add_argument("--find",
+                        help="Get unkilled processes for SALOME",
+                        action='store_true')
+    args = parser.parse_args()
+
+    if args.spy:
+        killMyPortSpy(args.spy[0], args.spy[1])
         sys.exit(0)
-        pass
-    elif sys.argv[1] == "--find":
-        pidcmd = checkUnkilledProcess()
+    if args.find:
+        pidcmd = checkUnkilledProcesses()
         if pidcmd:
             print("Unkilled processes: ")
             print(" --------------------")
             print(" PID   : Process name")
             print(" --------------------")
-            for pair in pidcmd.items():
-                print('%6d : %s' % pair)
+            for p in pidcmd:
+                print("{0:6} : {1}".format(p.pid, p.name()))
         sys.exit(0)
     try:
         from salomeContextUtils import setOmniOrbUserPath #@UnresolvedImport
@@ -466,7 +462,8 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
         sys.exit(1)
-    for port in sys.argv[1:]:
+    for port in args.ports:
         killMyPort(port)
-        pass
-    pass
+
+if __name__ == "__main__":
+    main()
