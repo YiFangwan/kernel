@@ -107,15 +107,8 @@ def __isPortUsed(port, config):
 
 def __isNetworkConnectionActiveOnPort(port):
   # psutil realization
-  ports =[]
-  template = (AF_INET, SOCK_STREAM, "LISTEN")
-  for c in psutil.net_connections(kind='inet'):
-    if (c.family, c.type, c.status) == template:
-      ports.append(c.laddr.port)
-  if port in ports:
-    return True
-  else:
-    return False
+  return port in [c.laddr.port for c in psutil.net_connections(kind='inet') if \
+      (c.family, c.type, c.status) == (AF_INET, SOCK_STREAM, "LISTEN")]
   #
 
 def getPort(preferredPort=None):
