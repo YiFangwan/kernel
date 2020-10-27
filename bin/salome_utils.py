@@ -549,34 +549,15 @@ def getOmniNamesPid(port):
     """
     Return OmniNames pid by port number.
     """
-    import sys,subprocess,re
-    if sys.platform == "win32":
-        # Get process list by WMI Command Line Utility(WMIC)
-        # Output is formatted with each value listed on a separate line and with the name of the property:
-        #   ...
-        #   Caption=<caption0>
-        #   CommandLine=<commandline0>
-        #   ProcessId=<processid0>
-        #
-        #
-        #
-        #   Caption=<caption1>
-        #   CommandLine=<commandline1>
-        #   ProcessId=<processid1>
-        #   ...
-        cmd = 'WMIC PROCESS get Caption,Commandline,Processid /VALUE'
-        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        # Get stdout
-        allProc = proc.communicate()[0].decode()
-        # find Pid of omniNames
-        pid = re.findall(r'Caption=.*omniNames.*\n?CommandLine=.*omniNames.*\D%s\D.*\n?ProcessId=(\d*)'%(port),allProc)[0]
-    else:        
-        cmd = "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*%s\" | awk '{print $1}'"%(port)
-        proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
-        pid = proc.communicate()[0]
-        pass
-
-    return pid
+    import psutil
+    
+    proc_names = {}
+    template = (port, "omniNames")
+    for p in psutil.process_iter(['pid', 'name']):
+        proc_names[p.info['pid']] = p.info['name']
+    for c in psutil.net_connections(kind='inet'):
+        if (c.laddr.port, proc_names[c.pid]) == template:
+            return c.pid
 # --
 
 def killOmniNames(port):

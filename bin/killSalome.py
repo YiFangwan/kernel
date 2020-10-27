@@ -28,7 +28,8 @@
 
 import os, sys, re, signal
 
-from killSalomeWithPort import killMyPort, getPiDict, checkUnkilledProcess
+from contextlib import  suppress
+from killSalomeWithPort import killMyPort, getPiDict, checkUnkilledProcesses, killProcesses
 #from salome_utils import getHostName, getShortHostName
 from salome_utils import getUserName
 
@@ -37,61 +38,27 @@ def killAllPorts():
     Kill all SALOME sessions belonging to the user.
     """
     user = getUserName()
-    #hostname  = getHostName()
-    #shostname = getShortHostName()
-    # new-style dot-prefixed pidict file
-    #fpidict   = getPiDict('(\d*)',hidden=True)
-    #problem with WIN32 path slashes
-    fpidict   = getPiDict('#####',hidden=True)
-    dirpidict = os.path.dirname(fpidict)
-    fpidict   = os.path.basename(fpidict)
-    #if hostname in fpidict:
-    #    fpidict = fpidict.replace(hostname, shostname+".*")
-    fpidict   = fpidict.replace('#####', '(\d*)')
-    fnamere   = re.compile("^%s" % fpidict)
-    try:
-        for f in os.listdir(dirpidict):
-            mo = fnamere.match(f)
-            try:
-                killMyPort(mo.group(1))
-            except:
-                pass
-            pass
-        pass
-    except:
-        pass
-    # provide compatibility with old-style pidict file (not dot-prefixed)
-    #fpidict   = getPiDict('(\d*)',hidden=False)
-    fpidict   = getPiDict('#####',hidden=False)
-    dirpidict = os.path.dirname(fpidict)
-    fpidict   = os.path.basename(fpidict)
-    #if hostname in fpidict:
-    #    fpidict = fpidict.replace(hostname, shostname+".*")
-    fpidict = fpidict.replace('#####', '(\d*)')
-    fnamere   = re.compile("^%s$" % fpidict)
-    try:
-        for f in os.listdir(dirpidict):
-            mo = fnamere.match(f)
-            try:
-                killMyPort(mo.group(1))
-            except:
-                pass
-            pass
-        pass
-    except:
-        pass
+
+    def _getPortsFromPiDict(hidden, pattern):
+        fpidict = getPiDict('#####', hidden=hidden)
+        dirpidict = os.path.dirname(fpidict)
+        fpidict = os.path.basename(fpidict)
+        fpidict = fpidict.replace('#####', r'(\d*)')
+        fnamere = re.compile(pattern.format(fpidict))
+        with suppress(IOError):
+            for _f in os.listdir(dirpidict):
+                _mo = fnamere.match(_f)
+                if _mo:
+                    killMyPort(_mo.group(1))
+
+    _getPortsFromPiDict(True, "^{}")
+    _getPortsFromPiDict(False, "^{}$")
     # kill other processes
-    for pid in checkUnkilledProcess():
-        try:
-            os.kill(pid, signal.SIGKILL)
-        except:
-            pass
-        pass
+    killProcesses(checkUnkilledProcesses())
     if sys.platform != 'win32':
         # delete uri files needed by ompi-server
         cmd = "rm -f " + os.path.expanduser("~") + "/.urifile_*"
         os.system(cmd)
-    pass
 
 if __name__ == "__main__":
     try:
