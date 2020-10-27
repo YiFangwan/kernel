@@ -227,23 +227,23 @@ def shutdownMyPort(port, cleanup=True):
 # a RuntimeError is raised; we explicitly exit this function with code 0 to
 # prevent parent thread from crashing.
 
-def killProcesses(_procs):
+def killProcesses(procs):
     '''
     Terminate and kill all psutil.Process()
     :param _procs: list psutil.Process()
     '''
-    for _p in _procs:
-        _p.terminate()
-    _, alive = psutil.wait_procs(_procs, timeout=5)
-    for _p in alive:
-        _p.kill()
+    for p in procs:
+        p.terminate()
+    _, alive = psutil.wait_procs(procs, timeout=5)
+    for p in alive:
+        p.kill()
 
 def __killMyPort(port, filedict):
-    def _killPiDictProcesses(_process_id):
+    def _killProcesses(_process_id):
         procs = []
-        for _p in _process_id:
+        for p in _process_id:
             try:
-                procs.append(psutil.Process(_p))
+                procs.append(psutil.Process(p))
             except psutil.NoSuchProcess:
                 if verbose(): print("  ------------------ process {} : not found".format(_p))
         killProcesses(procs)
@@ -255,7 +255,7 @@ def __killMyPort(port, filedict):
         with open(filedict, 'rb') as fpid:
             process_ids=pickle.load(fpid)
             for process_id in process_ids:
-                _killPiDictProcesses(process_id)
+                _killProcesses(process_id)
     except:
         print("Cannot find or open SALOME PIDs file for port", port)
         pass
@@ -410,15 +410,15 @@ def checkUnkilledProcesses():
     '''
     from salome_utils import getUserName
     processes = list()
-    def compareNames(_process):
+    def compareNames(process):
         # On OS Windows: psutil.Process().username() get 'usergroup' + 'username'
-        return getUserName() == _process.username()
+        return getUserName() == process.username()
 
-    def _getDictfromOutput(_prlist, _cond=None):
-        for _p in psutil.process_iter(['name', 'username']):
+    def _getDictfromOutput(prlist, cond=None):
+        for p in psutil.process_iter(['name', 'username']):
             with suppress(psutil.AccessDenied):
-                if (compareNames(_p) and re.match(_cond, _p.info['name'])):
-                    _prlist.append(_p)
+                if (compareNames(p) and re.match(cond, p.info['name'])):
+                    prlist.append(p)
 
     _getDictfromOutput(processes, '(SALOME_*)')
     _getDictfromOutput(processes, '(omniNames)')

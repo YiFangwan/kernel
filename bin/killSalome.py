@@ -39,20 +39,18 @@ def killAllPorts():
     """
     user = getUserName()
 
-    def _getPortsFromPiDict(hidden, pattern):
+    for hidden in (True, False):
         fpidict = getPiDict('#####', hidden=hidden)
         dirpidict = os.path.dirname(fpidict)
         fpidict = os.path.basename(fpidict)
         fpidict = fpidict.replace('#####', r'(\d*)')
-        fnamere = re.compile(pattern.format(fpidict))
+        fnamere = re.compile("^{}".format(fpidict))
         with suppress(IOError):
-            for _f in os.listdir(dirpidict):
-                _mo = fnamere.match(_f)
-                if _mo:
-                    killMyPort(_mo.group(1))
+            for f in os.listdir(dirpidict):
+                mo = fnamere.match(f)
+                if mo:
+                    killMyPort(mo.group(1))
 
-    _getPortsFromPiDict(True, "^{}")
-    _getPortsFromPiDict(False, "^{}$")
     # kill other processes
     killProcesses(checkUnkilledProcesses())
     if sys.platform != 'win32':

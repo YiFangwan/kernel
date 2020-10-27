@@ -30,6 +30,8 @@
 # Exported functions
 #
 
+import psutil
+
 __all__ = [
     'getORBcfgInfo',
     'getHostFromORBcfg',
@@ -549,15 +551,15 @@ def getOmniNamesPid(port):
     """
     Return OmniNames pid by port number.
     """
-    import psutil
-    
     proc_names = {}
     template = (port, "omniNames")
+    pid = None
     for p in psutil.process_iter(['pid', 'name']):
         proc_names[p.info['pid']] = p.info['name']
     for c in psutil.net_connections(kind='inet'):
         if (c.laddr.port, proc_names[c.pid]) == template:
-            return c.pid
+            pid = c.pid
+    return pid
 # --
 
 def killOmniNames(port):
