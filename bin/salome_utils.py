@@ -508,42 +508,24 @@ def killpid(pid, sig = 9):
     -1 Fail, another reason
 
     """
-    if not pid: return
-    import os, sys
-    if sig != 0:
+    if not pid:
+        return
+
+    if sig == 0:
+        ret = 1 if psutil.pid_exists(int(pid)) else 0
+    else:
         if verbose(): print("######## killpid pid = ", pid)
-    try:
-        if sys.platform == "win32":
-            import ctypes
-            if sig == 0:
-                # PROCESS_QUERY_INFORMATION (0x0400)    Required to retrieve certain information about a process
-                handle = ctypes.windll.kernel32.OpenProcess(0x0400, False, int(pid))
-                if handle: 
-                    ret = 1
-                    ctypes.windll.kernel32.CloseHandle(handle)
-                else:
-                    ret = 0
-            if sig == 9:
-                # PROCESS_TERMINATE (0x0001)    Required to terminate a process using TerminateProcess.
-                handle = ctypes.windll.kernel32.OpenProcess(0x0001, False, int(pid))
-                ret = ctypes.windll.kernel32.TerminateProcess(handle, -1)
-                ctypes.windll.kernel32.CloseHandle(handle)
-                pass
-            pass
-        else:
-            # Default: signal.SIGKILL = 9
-            os.kill(int(pid),sig)
+        try:
+            proc = psutil.Process(int(pid))
+            proc.terminate()
+            _, alive = psutil.wait_procs([proc], timeout=5)
+            for p in alive:
+                p.kill()
             ret = 1
-            pass
-        pass
-    except OSError as e:
-        # errno.ESRCH == 3 is 'No such process'
-        if e.errno == 3:
+        except psutil.NoSuchProcess:
             ret = 0
-        else:
+        except OSError:
             ret = -1
-            pass
-        pass
     return ret
 # --
 
