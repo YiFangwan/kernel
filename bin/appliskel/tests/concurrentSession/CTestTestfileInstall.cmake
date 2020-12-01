@@ -19,7 +19,10 @@
 
 SET(TEST_NAMES
   TestMinimalExample
-  TestConcurrentSession
+#  TestLauncherSessionArgs
+  TestLauncherSessionArgs_1
+  TestLauncherSessionArgs_2
+  TestLauncherSessionArgs_3
   )
 
 IF (WIN32)

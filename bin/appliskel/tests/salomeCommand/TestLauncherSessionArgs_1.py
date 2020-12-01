@@ -121,34 +121,6 @@ class TestSessionArgs(unittest.TestCase):
     self.session(self.helloToAdd)
     self.assertLogFileContentsEqual(self.helloToAddMsg)
   #
-  def testHelloToList(self):
-    self.session(self.helloToList)
-    self.assertLogFileContentsEqual(self.helloToListMsg)
-  #
-  def testLines0(self):
-    self.session(self.lines0)
-    self.assertLogFileContentsEqual(self.lines0Msg)
-  #
-  def testLines2(self):
-    self.session(self.lines2)
-    self.assertLogFileContentsEqual(self.lines2Msg)
-  #
-  def testLines2Add3(self):
-    self.session(self.lines2+self.add3)
-    self.assertLogFileContentsEqual(self.lines2Msg+self.add3Msg)
-  #
-  def testLinesUnreadable(self):
-    self.session(self.linesUnreadable)
-    self.assertLogFileContentsEqual(self.linesUnreadableMsg)
-  #
-  def testAddAddHello(self):
-    self.session(self.add3+self.add3+self.hello1)
-    self.assertLogFileContentsEqual(self.add3Msg+self.add3Msg+self.hello1Msg)
-  #
-  def testHello0Add3Hello0Add3Hello0(self):
-    self.session(self.hello1+self.add3+self.hello0+self.add3+self.hello0)
-    self.assertLogFileContentsEqual(self.hello1Msg+self.add3Msg+self.hello0Msg+self.add3Msg+self.hello0Msg)
-  #
 #
 
 if __name__ == "__main__":

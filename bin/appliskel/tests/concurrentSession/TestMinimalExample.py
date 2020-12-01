@@ -138,6 +138,8 @@ class TestMinimalExample(unittest.TestCase):
 #
 
 if __name__ == "__main__":
+  from salomeContextUtils import setOmniOrbUserPath
+  setOmniOrbUserPath()
   omniorb_user_path = os.getenv("OMNIORB_USER_PATH")
   if not omniorb_user_path:
     msg = "\n"
