@@ -89,54 +89,6 @@ class TestSessionArgs(unittest.TestCase):
 
     self.assertTrue(contents==message, "Contents differ!\n\tGenerated contents: %s\n\tExpected contents: %s"%(contents, message))
   #
-  def testHello0(self):
-    self.session(self.hello0)
-    self.assertLogFileContentsEqual(self.hello0Msg)
-  #
-  def testPythonHello0(self):
-    self.session(["python"]+self.hello0)
-    self.assertLogFileContentsEqual(self.hello0Msg)
-  #
-  def testHello1(self):
-    self.session(self.hello1)
-    self.assertLogFileContentsEqual(self.hello1Msg)
-  #
-  def testAdd0(self):
-    self.session(self.add0)
-    self.assertLogFileContentsEqual(self.add0Msg)
-  #
-  def testAdd3(self):
-    self.session(self.add3)
-    self.assertLogFileContentsEqual(self.add3Msg)
-  #
-  def testHello0Add3(self):
-    self.session(self.hello0+self.add3)
-    self.assertLogFileContentsEqual(self.hello0Msg+self.add3Msg)
-  #
-  def testHello1Add3(self):
-    self.session(self.hello1+self.add3)
-    self.assertLogFileContentsEqual(self.hello1Msg+self.add3Msg)
-  #
-  def testHelloToAdd(self):
-    self.session(self.helloToAdd)
-    self.assertLogFileContentsEqual(self.helloToAddMsg)
-  #
-  def testHelloToList(self):
-    self.session(self.helloToList)
-    self.assertLogFileContentsEqual(self.helloToListMsg)
-  #
-  def testLines0(self):
-    self.session(self.lines0)
-    self.assertLogFileContentsEqual(self.lines0Msg)
-  #
-  def testLines2(self):
-    self.session(self.lines2)
-    self.assertLogFileContentsEqual(self.lines2Msg)
-  #
-  def testLines2Add3(self):
-    self.session(self.lines2+self.add3)
-    self.assertLogFileContentsEqual(self.lines2Msg+self.add3Msg)
-  #
   def testLinesUnreadable(self):
     self.session(self.linesUnreadable)
     self.assertLogFileContentsEqual(self.linesUnreadableMsg)

@@ -19,7 +19,10 @@
 
 SET(TEST_NAMES
   TestLauncherSimple
-  TestLauncherSessionArgs
+#  TestLauncherSessionArgs
+  TestLauncherSessionArgs_1
+  TestLauncherSessionArgs_2
+  TestLauncherSessionArgs_3
   )
 
 IF(WIN32)
