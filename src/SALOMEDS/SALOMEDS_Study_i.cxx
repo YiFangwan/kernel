@@ -72,7 +72,7 @@ static  PortableServer::POA_ptr _poa;
  */
 SALOMEDS::Study_ptr KERNEL::getStudyServantSA()
 {
-  static SALOMEDS::Study_var aStudy;
+  static SALOMEDS::Study_ptr aStudy;
   if(CORBA::is_nil(aStudy))
   {
     CORBA::ORB_ptr orb = KERNEL::getORB();
