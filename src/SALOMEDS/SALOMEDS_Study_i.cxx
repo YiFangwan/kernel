@@ -297,7 +297,7 @@ SALOMEDS_Study_i::SALOMEDS_Study_i(CORBA::ORB_ptr orb, SALOME::Session_ptr sessi
 {
   _orb     = CORBA::ORB::_duplicate(orb);
   _impl    = new SALOMEDSImpl_Study();
-  _factory = new SALOMEDS_DriverFactory_i(_orb);
+  _factory = new SALOMEDS_DriverFactory_i(_orb,!CORBA::is_nil(session));
   _closed  = true;
 
   Init(session);
