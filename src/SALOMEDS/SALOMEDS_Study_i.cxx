@@ -227,6 +227,8 @@ namespace SALOMEDS
     {
       try
       {
+        if(theIOR.empty())
+          return ;
         CORBA::Object_var obj = _orb->string_to_object(theIOR.c_str());
         if ( obj->_non_existent() ) return;
         SALOME::GenericObj_var gobj = SALOME::GenericObj::_narrow(obj);
