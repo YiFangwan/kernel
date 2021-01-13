@@ -24,8 +24,7 @@
 //  Author : Sergey RUIN
 //  Module : SALOME
 //
-#ifndef __SALOMEDS_STUDY_I_H__
-#define __SALOMEDS_STUDY_I_H__
+#pragma once
 
 // std C++ headers
 #include <iostream>
@@ -46,6 +45,11 @@
 
 #include "SALOMEDSImpl_Study.hxx"
 #include "SALOMEDSImpl_AttributeIOR.hxx"
+
+namespace KERNEL
+{
+  Standard_EXPORT SALOMEDS::Study_ptr getStudyServantSA();
+}
 
 class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
@@ -358,4 +362,3 @@ public:
   virtual void attach(SALOMEDS::Observer_ptr theObs, CORBA::Boolean modify);
   virtual void detach(SALOMEDS::Observer_ptr theObs);
 };
-#endif

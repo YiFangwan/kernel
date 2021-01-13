@@ -165,6 +165,9 @@ INSTALL(TARGETS SALOMEDS_Server SALOMEDS_Client
 SALOME_INSTALL_SCRIPTS(SALOME_DriverPy.py ${SALOME_INSTALL_SCRIPT_PYTHON})
 
 SET(COMMON_HEADERS_HXX
+  SALOMEDS_SComponentIterator_i.hxx
+  SALOMEDS_StudyBuilder_i.hxx
+  SALOMEDS_UseCaseBuilder_i.hxx
   SALOMEDS_Driver_i.hxx
   SALOMEDS_Study_i.hxx
   SALOMEDS_Study.hxx

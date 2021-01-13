@@ -66,6 +66,22 @@ static SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA
 
 static  PortableServer::POA_ptr _poa;
 
+/**
+ * Return a unique study obj but servant is embeded here.
+ * 
+ */
+SALOMEDS::Study_ptr KERNEL::getStudyServantSA()
+{
+  static SALOMEDS::Study_var aStudy;
+  if(CORBA::is_nil(aStudy))
+  {
+    CORBA::ORB_ptr orb = KERNEL::getORB();
+    SALOMEDS_Study_i *servant = new SALOMEDS_Study_i(orb);
+    aStudy = servant->_this();
+  }
+  return SALOMEDS::Study::_duplicate(aStudy);
+}
+
 namespace SALOMEDS
 {
   class Notifier: public SALOMEDSImpl_AbstractCallback
