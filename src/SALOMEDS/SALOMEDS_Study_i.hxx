@@ -33,7 +33,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOME_GenericObj)
 #include CORBA_SERVER_HEADER(SALOMEDS)
-
+#include CORBA_CLIENT_HEADER(SALOME_Session)
 #include <stdio.h>
 
 //SALOMEDS headers
@@ -55,7 +55,7 @@ class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
 {
 private:
 
-  void                            NameChanged();
+  void                            NameChanged(SALOME::Session_ptr session);
   CORBA::ORB_var                 _orb;
   SALOMEDSImpl_Study*            _impl;  
   SALOMEDS_StudyBuilder_i*       _builder;    
@@ -65,9 +65,10 @@ private:
   bool                           _closed;
 
 public:
-
   //! standard constructor
   SALOMEDS_Study_i(CORBA::ORB_ptr);
+  //! standard constructor
+  SALOMEDS_Study_i(CORBA::ORB_ptr, SALOME::Session_ptr session);
   
   //! standard destructor
 
@@ -75,7 +76,8 @@ public:
 
   virtual PortableServer::POA_ptr _default_POA();
 
-  virtual void Init();
+  virtual void Init() override;
+  virtual void Init(SALOME::Session_ptr session);
   virtual void Clear();
 
   //! method to open a Study
