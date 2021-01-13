@@ -64,7 +64,7 @@ UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection)
 
 static SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb);
 
-static  PortableServer::POA_ptr _poa;
+static PortableServer::POA_ptr _poa;
 
 /**
  * Return a unique study obj but servant is embeded here.
@@ -76,6 +76,9 @@ SALOMEDS::Study_ptr KERNEL::getStudyServantSA()
   if(CORBA::is_nil(aStudy))
   {
     CORBA::ORB_ptr orb = KERNEL::getORB();
+    CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
+    PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
+    _poa = PortableServer::POA::_duplicate(poa);
     SALOMEDS_Study_i *servant = new SALOMEDS_Study_i(orb,SALOME::Session::_nil());
     aStudy = servant->_this();
   }
