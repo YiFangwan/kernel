@@ -60,6 +60,18 @@ static int MYDEBUG = 0;
 static const char* SEPARATOR     = "::";
 static const char* OLD_SEPARATOR = ":";
 
+SALOME_ModuleCatalog::ModuleCatalog_ptr KERNEL::getModuleComponentServantSA()
+{
+  static SALOME_ModuleCatalog::ModuleCatalog_var moduleCata;
+  if(CORBA::is_nil(moduleCata))
+  {
+    CORBA::ORB_ptr orb = KERNEL::getORB();
+    char *argv[4] = {"SALOME_ModuleCatalog_Server","-common","\"/home/H87074/salomeDEV/DEV2/share/salome/resources/geom/GEOMCatalog.xml\"::\"/home/H87074/salomeDEV/DEV2/share/salome/resources/smesh/SMESHCatalog.xml\"",nullptr};
+    SALOME_ModuleCatalogImpl *servant = new SALOME_ModuleCatalogImpl(3,argv,orb);
+    moduleCata = servant->_this();
+  }
+  return SALOME_ModuleCatalog::ModuleCatalog::_duplicate(moduleCata);
+}
 
 std::list<std::string> splitStringToList(const std::string& theString, const std::string& theSeparator)
 {
