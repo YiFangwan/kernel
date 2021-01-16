@@ -203,8 +203,8 @@ class StandAloneLifecyle:
 def salome_init_without_session():
     global lcc,myStudy,orb
     lcc = StandAloneLifecyle()
-    import GeomHelper
-    myStudy = GeomHelper.myStudy()
+    import KernelDS
+    myStudy = KernelDS.myStudy()
     import CORBA
     orb=CORBA.ORB_init([''])
 
