@@ -165,7 +165,50 @@ orb, lcc, naming_service, cm, sg, esm, dsm = None,None,None,None,None,None,None
 myStudy, myStudyName = None,None
 
 salome_initial=True
+
+__EMB_SERVANT_ENV_VAR_NAME = "SALOME_EMB_SERVANT"
+
+def standalone():
+    import os
+    os.environ[__EMB_SERVANT_ENV_VAR_NAME] = "1"
+
 def salome_init(path=None, embedded=False):
+    import os
+    if __EMB_SERVANT_ENV_VAR_NAME in os.environ:
+        salome_init_without_session()
+    else:
+        salome_init_with_session(path, embedded)
+
+class StandAloneLifecyle:
+    def FindOrLoadComponent(self,contName,moduleName):
+        if contName == "FactoryServer" and moduleName == "GEOM":
+            import GeomHelper
+            geom_ior = GeomHelper.BuildGEOMInstance()
+            import GEOM
+            import CORBA
+            orb=CORBA.ORB_init([''])
+            geom = orb.string_to_object(geom_ior)
+            return geom
+        if contName == "FactoryServer" and moduleName == "SMESH":
+            import SMeshHelper
+            checkNS = False
+            smesh_ior = SMeshHelper.BuildSMESHInstance(checkNS)
+            import SMESH
+            import CORBA
+            orb=CORBA.ORB_init([''])
+            smeshInst = orb.string_to_object(smesh_ior)
+            return smeshInst
+        raise RuntimeError("Undealed situation cont = {} module = {}".format(contName,moduleName))
+
+def salome_init_without_session():
+    global lcc,myStudy,orb
+    lcc = StandAloneLifecyle()
+    import GeomHelper
+    myStudy = GeomHelper.myStudy()
+    import CORBA
+    orb=CORBA.ORB_init([''])
+
+def salome_init_with_session(path=None, embedded=False):
     """
     Performs only once SALOME general purpose initialisation for scripts.
     Provides:
