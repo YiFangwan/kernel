@@ -66,8 +66,8 @@ SALOME_ModuleCatalog::ModuleCatalog_ptr KERNEL::getModuleComponentServantSA()
   if(CORBA::is_nil(moduleCata))
   {
     CORBA::ORB_ptr orb = KERNEL::getORB();
-    char *argv[4] = {"SALOME_ModuleCatalog_Server","-common","\"/home/H87074/salomeDEV/DEV2/share/salome/resources/geom/GEOMCatalog.xml\"::\"/home/H87074/salomeDEV/DEV2/share/salome/resources/smesh/SMESHCatalog.xml\"",nullptr};
-    SALOME_ModuleCatalogImpl *servant = new SALOME_ModuleCatalogImpl(3,argv,orb);
+    char *argv[3] = {"SALOME_ModuleCatalog_Server",nullptr};
+    SALOME_ModuleCatalogImpl *servant = new SALOME_ModuleCatalogImpl(1,argv,orb);
     moduleCata = servant->_this();
   }
   return SALOME_ModuleCatalog::ModuleCatalog::_duplicate(moduleCata);
