@@ -124,7 +124,6 @@ public:
   // --- local C++ methods
 
   PortableServer::ObjectId * getId();
-  void setId(PortableServer::ObjectId *id) { _id = id; }
   Engines_Container_i *GetContainerPtr();
   std::string getContainerName();
   void setContainerName();
