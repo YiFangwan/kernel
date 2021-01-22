@@ -181,6 +181,7 @@ def salome_init(path=None, embedded=False):
 
 class StandAloneLifecyle:
     def FindOrLoadComponent(self,contName,moduleName):
+        global orb
         if contName == "FactoryServer" and moduleName == "GEOM":
             import GeomHelper
             geom_ior = GeomHelper.BuildGEOMInstance()
@@ -197,6 +198,22 @@ class StandAloneLifecyle:
             orb=CORBA.ORB_init([''])
             smeshInst = orb.string_to_object(smesh_ior)
             return smeshInst
+        if contName == "FactoryServer" and moduleName == "SHAPERSTUDY":
+            from SHAPERSTUDY import SHAPERSTUDY_No_Session
+            from SALOME_ContainerPy import SALOME_ContainerPy_Gen_i
+            import PortableServer
+            obj = orb.resolve_initial_references("RootPOA")
+            poa = obj._narrow(PortableServer.POA)
+            pman = poa._get_the_POAManager()
+            #
+            cont = SALOME_ContainerPy_Gen_i(orb,poa,"FactoryServer")
+            conId = poa.activate_object(cont)
+            #
+            pman.activate()
+            #
+            servant = SHAPERSTUDY_No_Session(orb,poa,conId,"FactoryServer","SHAPERSTUDY_inst_1","SHAPERSTUDY")
+            ret = servant.getCorbaRef()
+            return ret
         raise RuntimeError("Undealed situation cont = {} module = {}".format(contName,moduleName))
 
 def salome_init_without_session():
