@@ -191,8 +191,7 @@ class StandAloneLifecyle:
             return geom
         if contName == "FactoryServer" and moduleName == "SMESH":
             import SMeshHelper
-            checkNS = False
-            smesh_ior = SMeshHelper.BuildSMESHInstance(checkNS)
+            smesh_ior = SMeshHelper.BuildSMESHInstance()
             import SMESH
             import CORBA
             orb=CORBA.ORB_init([''])
