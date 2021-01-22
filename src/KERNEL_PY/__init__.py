@@ -206,6 +206,10 @@ def salome_init_without_session():
     myStudy = KernelDS.myStudy()
     import CORBA
     orb=CORBA.ORB_init([''])
+    # activate poaManager to accept co-localized CORBA calls.
+    poa = orb.resolve_initial_references("RootPOA")
+    poaManager = poa._get_the_POAManager()
+    poaManager.activate()
 
 def salome_init_with_session(path=None, embedded=False):
     """
