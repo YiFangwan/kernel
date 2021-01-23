@@ -27,13 +27,14 @@
 
 %inline
 {
-    std::string GetModuleCatalogInstance();
+    std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped);
 }
 
 %pythoncode %{
-def myModuleCatalog():
+def myModuleCatalog(listOfCatalogs):
   import SALOMEDS
   import CORBA
   orb=CORBA.ORB_init([''])
-  return orb.string_to_object(GetModuleCatalogInstance())
+  param = "::".join(["\"{}\"".format(elt) for elt in listOfCatalogs])
+  return orb.string_to_object(GetModuleCatalogInstance(param))
 %}

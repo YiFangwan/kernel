@@ -225,7 +225,8 @@ def salome_init_without_session():
     orb=CORBA.ORB_init([''])
     import KernelModuleCatalog
     import SALOME_ModuleCatalog
-    modulcat = KernelModuleCatalog.myModuleCatalog()
+    from salome_kernel import list_of_catalogs_regarding_environement
+    modulcat = KernelModuleCatalog.myModuleCatalog( list_of_catalogs_regarding_environement() )
     # activate poaManager to accept co-localized CORBA calls.
     poa = orb.resolve_initial_references("RootPOA")
     poaManager = poa._get_the_POAManager()

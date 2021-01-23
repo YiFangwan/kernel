@@ -44,7 +44,7 @@
 
 namespace KERNEL
 {
-  MODULECATALOG_EXPORT SALOME_ModuleCatalog::ModuleCatalog_ptr getModuleComponentServantSA();
+  MODULECATALOG_EXPORT SALOME_ModuleCatalog::ModuleCatalog_ptr getModuleComponentServantSA(const char *listOfCatalogs = nullptr);
 }
 
 class MODULECATALOG_EXPORT SALOME_ModuleCatalogImpl: public POA_SALOME_ModuleCatalog::ModuleCatalog

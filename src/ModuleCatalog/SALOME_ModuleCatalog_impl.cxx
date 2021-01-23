@@ -60,14 +60,17 @@ static int MYDEBUG = 0;
 static const char* SEPARATOR     = "::";
 static const char* OLD_SEPARATOR = ":";
 
-SALOME_ModuleCatalog::ModuleCatalog_ptr KERNEL::getModuleComponentServantSA()
+SALOME_ModuleCatalog::ModuleCatalog_ptr KERNEL::getModuleComponentServantSA(const char *listOfCatalogs)
 {
   static SALOME_ModuleCatalog::ModuleCatalog_var moduleCata;
   if(CORBA::is_nil(moduleCata))
   {
     CORBA::ORB_ptr orb = KERNEL::getORB();
-    char *argv[3] = {"SALOME_ModuleCatalog_Server",nullptr};
-    SALOME_ModuleCatalogImpl *servant = new SALOME_ModuleCatalogImpl(1,argv,orb);
+    constexpr int NB_OF_ELT_IN_CMD = 3;
+    char *argv[NB_OF_ELT_IN_CMD] = {"SALOME_ModuleCatalog_Server","-common",nullptr};
+    if(listOfCatalogs)
+      argv[2] = const_cast<char*>(listOfCatalogs);
+    SALOME_ModuleCatalogImpl *servant = new SALOME_ModuleCatalogImpl(NB_OF_ELT_IN_CMD,argv,orb);
     moduleCata = servant->_this();
   }
   return SALOME_ModuleCatalog::ModuleCatalog::_duplicate(moduleCata);

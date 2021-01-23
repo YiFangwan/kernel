@@ -20,9 +20,9 @@
 #include "SALOME_ModuleCatalog_impl.hxx"
 #include "SALOME_KernelServices.hxx"
 
-std::string GetModuleCatalogInstance()
+std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped)
 {
-    SALOME_ModuleCatalog::ModuleCatalog_var study = KERNEL::getModuleComponentServantSA();
+    SALOME_ModuleCatalog::ModuleCatalog_var study = KERNEL::getModuleComponentServantSA(listOfCatalogsGrouped.c_str());
     CORBA::ORB_ptr orb = KERNEL::getORB();
     CORBA::String_var ior = orb->object_to_string(study);
     return std::string(ior.in());

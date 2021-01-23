@@ -19,4 +19,4 @@
 
 #include <string>
 
-std::string GetModuleCatalogInstance();
+std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped);
