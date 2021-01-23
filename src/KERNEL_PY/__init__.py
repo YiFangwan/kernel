@@ -209,11 +209,12 @@ class StandAloneLifecyle:
             #
             cont = SALOME_ContainerPy_Gen_i(orb,poa,"FactoryServer")
             conId = poa.activate_object(cont)
+            conObj = poa.id_to_reference(conId)
             #
             pman.activate()
             #
             compoName = "SHAPERSTUDY"
-            servant = SHAPERSTUDY_No_Session(orb,poa,conId,"FactoryServer","SHAPERSTUDY_inst_1",compoName)
+            servant = SHAPERSTUDY_No_Session(orb,poa,conObj,"FactoryServer","SHAPERSTUDY_inst_1",compoName)
             ret = servant.getCorbaRef()
             KernelServices.RegisterCompo(compoName,ret)
             return ret
