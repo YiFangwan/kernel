@@ -202,6 +202,7 @@ class StandAloneLifecyle:
             from SHAPERSTUDY import SHAPERSTUDY_No_Session
             from SALOME_ContainerPy import SALOME_ContainerPy_Gen_i
             import PortableServer
+            import KernelServices
             obj = orb.resolve_initial_references("RootPOA")
             poa = obj._narrow(PortableServer.POA)
             pman = poa._get_the_POAManager()
@@ -211,8 +212,10 @@ class StandAloneLifecyle:
             #
             pman.activate()
             #
-            servant = SHAPERSTUDY_No_Session(orb,poa,conId,"FactoryServer","SHAPERSTUDY_inst_1","SHAPERSTUDY")
+            compoName = "SHAPERSTUDY"
+            servant = SHAPERSTUDY_No_Session(orb,poa,conId,"FactoryServer","SHAPERSTUDY_inst_1",compoName)
             ret = servant.getCorbaRef()
+            KernelServices.RegisterCompo(compoName,ret)
             return ret
         raise RuntimeError("Undealed situation cont = {} module = {}".format(contName,moduleName))
 
