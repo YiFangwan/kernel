@@ -17,23 +17,23 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-%module KernelDS
+%module KernelModuleCatalog
 
 %include "std_string.i"
 
 %{
-#include "KernelDS.hxx"
+#include "KernelModuleCatalog.hxx"
 %}
 
 %inline
 {
-    std::string GetSessionInstance();
+    std::string GetModuleCatalogInstance();
 }
 
 %pythoncode %{
-def myStudy():
+def myModuleCatalog():
   import SALOMEDS
   import CORBA
   orb=CORBA.ORB_init([''])
-  return orb.string_to_object(GetSessionInstance())
+  return orb.string_to_object(GetModuleCatalogInstance())
 %}

@@ -32,6 +32,7 @@ from SALOME_NamingServicePy import *
 from SALOME_utilities import *
 import Engines
 import SALOME
+import SALOME_ModuleCatalog
 
 orb = None
 lcc = None
@@ -39,9 +40,10 @@ naming_service = None
 cm = None
 esm = None
 dsm = None
+modulcat = None
 
 def salome_kernel_init():
-    global orb, lcc, naming_service, cm, esm, dsm
+    global orb, lcc, naming_service, cm, esm, dsm, modulcat
     
     if not orb:
         # initialise the ORB
@@ -62,5 +64,8 @@ def salome_kernel_init():
         #
         obj = naming_service.Resolve('/DataServerManager')
         dsm = obj._narrow(SALOME.DataServerManager)
+        #
+        obj = naming_service.Resolve('Kernel/ModulCatalog')
+        modulcat = obj._narrow(SALOME_ModuleCatalog.ModuleCatalog)
         
-    return orb, lcc, naming_service, cm, esm, dsm
+    return orb, lcc, naming_service, cm, esm, dsm, modulcat

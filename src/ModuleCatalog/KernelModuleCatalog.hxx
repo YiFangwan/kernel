@@ -17,23 +17,6 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-%module KernelDS
+#include <string>
 
-%include "std_string.i"
-
-%{
-#include "KernelDS.hxx"
-%}
-
-%inline
-{
-    std::string GetSessionInstance();
-}
-
-%pythoncode %{
-def myStudy():
-  import SALOMEDS
-  import CORBA
-  orb=CORBA.ORB_init([''])
-  return orb.string_to_object(GetSessionInstance())
-%}
+std::string GetModuleCatalogInstance();
