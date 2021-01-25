@@ -29,6 +29,7 @@ SET(SALOMEBasics_SOURCES
   BasicsGenericDestructor.hxx
   Basics_Utils.hxx
   Basics_DirUtils.hxx
+  smIdType.hxx
 )
 
 ADD_LIBRARY(SALOMEBasics ${SALOMEBasics_SOURCES})
