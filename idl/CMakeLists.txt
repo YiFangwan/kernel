@@ -25,6 +25,7 @@ INCLUDE_DIRECTORIES(
 )
 
 SALOME_CONFIGURE_FILE(Calcium_Ports.idl.in Calcium_Ports.idl)
+SALOME_CONFIGURE_FILE(SALOME_Types_IDS.idl.in SALOME_Types_IDS.idl)
 
 SET(SalomeIDLKernel_IDLSOURCES
   SALOME_Exception.idl
@@ -56,6 +57,7 @@ SET(SalomeIDLKernel_IDLSOURCES
   SALOME_CommonTypes.idl
   SALOME_ExternalServerLauncher.idl
   ${CMAKE_CURRENT_BINARY_DIR}/Calcium_Ports.idl
+  ${CMAKE_CURRENT_BINARY_DIR}/SALOME_Types_IDS.idl
 )
 
 IF(SALOME_USE_MPI)
