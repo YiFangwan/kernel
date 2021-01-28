@@ -23,6 +23,8 @@
 #ifndef _SMIDTYPE_HXX_
 #define _SMIDTYPE_HXX_
 
+#cmakedefine SALOME_USE_64BIT_IDS
+
 #include <cinttypes>
 
 #ifndef SALOME_USE_64BIT_IDS
