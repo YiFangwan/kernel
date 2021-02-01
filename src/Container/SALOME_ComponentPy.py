@@ -86,8 +86,6 @@ class SALOME_ComponentPy_Gen_i (Engines__POA.EngineComponent):
         self._contId = contID
 
         myMachine=getShortHostName()
-        Component_path = self._containerName + "/" + self._instanceName
-        MESSAGE(  'SALOME_ComponentPy_i Register' + str( Component_path ) )
         id_o = poa.activate_object(self)
         self._compo_o = poa.id_to_reference(id_o)
         self._notifSupplier = NOTIFICATION_Supplier_Swig(instanceName, self._notif)
@@ -299,6 +297,8 @@ class SALOME_ComponentPy_i(SALOME_ComponentPy_Gen_i):
     def __init__ (self, orb, poa, contID, containerName, instanceName, interfaceName, notif=False):
         SALOME_ComponentPy_Gen_i.__init__(self, orb, poa, contID, containerName, instanceName, interfaceName, notif)
         naming_service = SALOME_NamingServicePy_i(self._orb)
+        Component_path = self._containerName + "/" + self._instanceName
+        MESSAGE(  'SALOME_ComponentPy_i Register' + str( Component_path ) )
         naming_service.Register(self._compo_o, Component_path)
         # Add componentinstance to registry
         obj = naming_service.Resolve('/Registry')
