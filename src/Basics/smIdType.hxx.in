@@ -33,4 +33,13 @@ typedef std::int32_t smIdType;
 typedef std::int64_t smIdType;
 #endif
 
+template <class T> inline smIdType ToIdType(T val)
+{
+  return static_cast<smIdType>(val);
+}
+template <class T> inline T FromIdType(smIdType val)
+{
+  return static_cast<T>(val);
+}
+
 #endif //_SMIDTYPE_HXX_
