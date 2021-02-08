@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2020  CEA/DEN, EDF R&D, OPEN CASCADE, CSGROUP
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -30,14 +30,17 @@
 #define __SALOMEDS_Tool_H__
 
 #include <string>
-#include <list> 
+#include <list>
 #include <vector>
 #include <stdlib.h>
 
 
 // IDL headers
+#include "SALOMEDSImpl_TMPFile.hxx"
+#ifndef DISABLE_ORB
 #include "SALOMEconfig.h"
 #include CORBA_SERVER_HEADER(SALOMEDS)
+#endif
 
 #ifdef WIN32
 # if defined TOOLSDS_EXPORTS
@@ -49,36 +52,55 @@
 # define TOOLSDS_EXPORT
 #endif
 
-class TOOLSDS_EXPORT SALOMEDS_Tool                                
+#ifdef DISABLE_ORB
+namespace SALOMEDSImpl_Tool {
+
+ TOOLSDS_EXPORT class TMPFile: public SALOMEDSImpl_TMPFile
+  {
+  public:
+    explicit TMPFile(long buffSize, unsigned char* streamBuff, bool isRelative):
+      _myStreamBuff(streamBuff), _myBuffSize(buffSize), _myIsRelative(isRelative)
+    {}
+    inline long  length() const
+    {return _myBuffSize;}
+
+    inline unsigned char* NP_data() const
+    {return _myStreamBuff;}
+
+    inline bool IsRelative() const
+    {return _myIsRelative;}
+    TMPFile() = default;
+    ~TMPFile() = default;
+
+  private:
+    unsigned char* _myStreamBuff;
+    unsigned _myBuffSize;
+    bool _myIsRelative;
+
+    virtual size_t Size() override
+    {return 0;}
+    virtual TOctet& Get(size_t) override
+    {return _myStreamBuff[0];}
+  };
+}
+#endif
+
+class TOOLSDS_EXPORT SALOMEDS_Tool
 {
 public:
 
   typedef std::vector<std::string> ListOfFiles;
- 
+
   // Returns the unique temporary directory, that is defined in SALOME_TMP_DIR if this variable is set
   // otherwise return /tmp/something/ for Unix or c:\something\ for WIN32
   static std::string GetTmpDir();
 
- 
+
   // Removes files which are in <theDirectory>, the files for deletion are listed in <theFiles>
   // if <IsDirDeleted> is true <theDirectory> is also deleted if it is empty
   static void RemoveTemporaryFiles(const std::string& theDirectory,
                                    const ListOfFiles& theFiles,
                                    const bool IsDirDeleted);
-
-  // Converts files listed in <theFiles> which are in <theFromDirectory> into a byte sequence TMPFile
-  static SALOMEDS::TMPFile* PutFilesToStream(const std::string& theFromDirectory, 
-                                             const ListOfFiles& theFiles,
-                                             const int theNamesOnly = 0);
-
-  // Converts files listed in <theFiles> which will be named as pointed in the <theFileNames> into a byte sequence TMPFile
-  static SALOMEDS::TMPFile* PutFilesToStream(const ListOfFiles& theFiles,
-                                             const ListOfFiles& theFileNames);
-
-  // Converts a byte sequence <theStream> to files and places them in <theToDirectory>
-  static ListOfFiles PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
-                                                 const std::string& theToDirectory,
-                                                 const int theNamesOnly = 0);
 
   // Returns the name by the path
   // for an example: if thePath = "/tmp/aaa/doc1.hdf" the function returns "doc1"
@@ -87,6 +109,20 @@ public:
   // Returns the directory by the path
   // for an example: if thePath = "/tmp/aaa/doc1.hdf" the function returns "/tmp/aaa"
   static std::string GetDirFromPath(const std::string& thePath);
+
+  #ifndef DISABLE_ORB
+  // Converts files listed in <theFiles> which are in <theFromDirectory> into a byte sequence TMPFile
+  static SALOMEDS::TMPFile* PutFilesToStream(const std::string& theFromDirectory,
+                                             const ListOfFiles& theFiles,
+                                             const int theNamesOnly = 0);
+
+  // Converts files listed in <theFiles> which will be named as pointed in the <theFileNames> into a byte sequence TMPFile
+  static SALOMEDS::TMPFile* PutFilesToStream(const ListOfFiles& theFiles,
+                                             const ListOfFiles& theFileNames);
+  // Converts a byte sequence <theStream> to files and places them in <theToDirectory>
+  static ListOfFiles PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
+                                                 const std::string& theToDirectory,
+                                                 const int theNamesOnly = 0);
 
   // Retrieves specified flaf from "AttributeFlags" attribute
   static bool GetFlag( const int             theFlag,
@@ -103,7 +139,18 @@ public:
   static void GetAllChildren( SALOMEDS::Study_var               theStudy,
                               SALOMEDS::SObject_var             theObj,
                               std::list<SALOMEDS::SObject_var>& theList );
+#else
+  static SALOMEDSImpl_Tool::TMPFile* PutFilesToStreamImpl(const std::string& theFromDirectory,
+                                             const ListOfFiles& theFiles,
+                                             const int theNamesOnly = 0);
 
+  static SALOMEDSImpl_Tool::TMPFile* PutFilesToStreamImpl(const ListOfFiles& theFiles,
+                                             const ListOfFiles& theFileNames);
+
+  static ListOfFiles PutStreamToFilesImpl(const SALOMEDSImpl_Tool::TMPFile& theStream,
+                                                 const std::string& theToDirectory,
+                                                 const int theNamesOnly = 0);
+#endif
 };
 #endif
 

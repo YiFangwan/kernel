@@ -95,6 +95,15 @@ SALOMEDSImpl_UseCaseBuilder::SALOMEDSImpl_UseCaseBuilder(DF_Document* theDocumen
 }
 
 //============================================================================
+/*! Function : copy constructor
+ *  Purpose  :
+ */
+//============================================================================
+SALOMEDSImpl_UseCaseBuilder::SALOMEDSImpl_UseCaseBuilder(SALOMEDSImpl_UseCaseBuilder* aCopy):
+  _root(aCopy->_root), _doc(aCopy->_doc), _lastChild(aCopy->_lastChild), _childIndex(aCopy->_childIndex)
+{}
+
+//============================================================================
 /*! Function : destructor
  *  Purpose  :
  */

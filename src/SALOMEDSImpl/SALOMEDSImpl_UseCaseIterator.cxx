@@ -54,6 +54,17 @@ SALOMEDSImpl_UseCaseIterator::SALOMEDSImpl_UseCaseIterator(const DF_Label& theLa
   }
 }
 
+SALOMEDSImpl_UseCaseIterator::SALOMEDSImpl_UseCaseIterator(const SALOMEDSImpl_UseCaseIterator *itr)
+  :SALOMEDSImpl_UseCaseIterator()
+{
+  if(!itr)
+    return;
+  _it = itr->_it;
+   _node = itr->_node;
+   _guid = itr->_guid;
+  _levels =  itr->_levels;
+}
+
 //============================================================================
 /*! Function : destructor
  *  Purpose  :

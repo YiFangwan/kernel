@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2007-2020  CEA/DEN, EDF R&D, OPEN CASCADE, CSGROUP
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -45,10 +45,12 @@
 
 #include <iostream> 
 #include <fstream>
+#include <cstring>
 
+#ifndef DISABLE_ORB
 #include <SALOMEconfig.h>
 #include CORBA_SERVER_HEADER(SALOMEDS_Attributes)
-
+#endif
 bool Exists(const std::string thePath) 
 {
 	return Kernel_Utils::IsExists(thePath);
@@ -168,38 +170,37 @@ void SALOMEDS_Tool::RemoveTemporaryFiles(const std::string& theDirectory,
 //============================================================================
 namespace
 {
-  SALOMEDS::TMPFile* 
-  PutFilesToStream(const std::string& theFromDirectory,
-                   const std::vector<std::string>& theFiles,
-                   const std::vector<std::string>& theFileNames,
-                   const int theNamesOnly)
+  long filesToStream(const std::string& theFromDirectory,
+                     const std::vector<std::string>& theFiles,
+                     const std::vector<std::string>& theFileNames,
+                     const int theNamesOnly, unsigned char*& aBuffer)
   {
     int i, aLength = (int)theFiles.size(); //!< TODO: conversion from size_t to int
     if(aLength == 0)
-      return (new SALOMEDS::TMPFile);
-    
+      return 0;
+
     //Get a temporary directory for saved a file
     std::string aTmpDir = theFromDirectory;
-    
+
     long aBufferSize = 0;
     long aCurrentPos;
-    
+
     int aNbFiles = 0;
     int* aFileNameSize= new int[aLength];
     long* aFileSize= new long[aLength];
-    
+
     //Determine the required size of the buffer
-    
+
     for(i=0; i<aLength; i++) {
-      
+
       //Check if the file exists
-      
+
       if (!theNamesOnly) { // mpv 15.01.2003: if only file names must be stroed, then size of files is zero
         std::string aFullPath = aTmpDir + theFiles[i];
         if(!Exists(aFullPath)) continue;
 #ifdef WIN32
 #ifdef UNICODE
-		std::ifstream aFile(Kernel_Utils::utf8_decode_s(aFullPath).c_str(), std::ios::binary);
+        std::ifstream aFile(Kernel_Utils::utf8_decode_s(aFullPath).c_str(), std::ios::binary);
 #else
         std::ifstream aFile(aFullPath.c_str(), std::ios::binary);
 #endif
@@ -215,75 +216,107 @@ namespace
       aBufferSize += (theNamesOnly)?4:12;       //Add 4 bytes: a length of the file name,
       //    8 bytes: length of the file itself
       aNbFiles++;
-    } 
-    
-    if ( aNbFiles == 0 ) return (new SALOMEDS::TMPFile);
+    }
+
+    if ( aNbFiles == 0 ) return 0;
     aBufferSize += 4;      //4 bytes for a number of the files that will be written to the stream;
-	unsigned char* aBuffer = new unsigned char[aBufferSize];
+    aBuffer = new unsigned char[aBufferSize];
 
     if(aBuffer == NULL)
-      return (new SALOMEDS::TMPFile);
-    
+      return 0;
+
     //Initialize 4 bytes of the buffer by 0
-    memset(aBuffer, 0, 4); 
+    memset(aBuffer, 0, 4);
     //Copy the number of files that will be written to the stream
-    memcpy(aBuffer, &aNbFiles, ((sizeof(int) > 4) ? 4 : sizeof(int))); 
-    
-    
+    memcpy(aBuffer, &aNbFiles, ((sizeof(int) > 4) ? 4 : sizeof(int)));
+
+
     aCurrentPos = 4;
-    
+
     for(i=0; i<aLength; i++) {
- 	  std::ifstream *aFile;
+      std::ifstream *aFile;
       if (!theNamesOnly) { // mpv 15.01.2003: we don't open any file if theNamesOnly = true
         std::string aFullPath = aTmpDir + theFiles[i];
         if(!Exists(aFullPath)) continue;
 #ifdef WIN32
 #ifdef UNICODE
-		aFile = new std::ifstream (Kernel_Utils::utf8_decode_s(aFullPath).c_str(), std::ios::binary);
+        aFile = new std::ifstream (Kernel_Utils::utf8_decode_s(aFullPath).c_str(), std::ios::binary);
 #else
         aFile = new std::ifstream(aFullPath.c_str(), std::ios::binary);
 #endif
 #else
         aFile = new std::ifstream(aFullPath.c_str());
-#endif  
+#endif
       }
       //Initialize 4 bytes of the buffer by 0
-      memset((aBuffer + aCurrentPos), 0, 4); 
+      memset((aBuffer + aCurrentPos), 0, 4);
       //Copy the length of the file name to the buffer
-      memcpy((aBuffer + aCurrentPos), (aFileNameSize + i), ((sizeof(int) > 4) ? 4 : sizeof(int))); 
+      memcpy((aBuffer + aCurrentPos), (aFileNameSize + i), ((sizeof(int) > 4) ? 4 : sizeof(int)));
       aCurrentPos += 4;
-      
+
       //Copy the file name to the buffer
       memcpy((aBuffer + aCurrentPos), theFileNames[i].c_str(), aFileNameSize[i]);
       aCurrentPos += aFileNameSize[i];
-      
+
       if (!theNamesOnly) { // mpv 15.01.2003: we don't copy file content to the buffer if !theNamesOnly
         //Initialize 8 bytes of the buffer by 0
-        memset((aBuffer + aCurrentPos), 0, 8); 
+        memset((aBuffer + aCurrentPos), 0, 8);
         //Copy the length of the file to the buffer
         memcpy((aBuffer + aCurrentPos), (aFileSize + i), ((sizeof(long) > 8) ? 8 : sizeof(long)));
         aCurrentPos += 8;
-        
+
         aFile->seekg(0, std::ios::beg);
-		aFile->read((char *)(aBuffer + aCurrentPos), aFileSize[i]);
+        aFile->read((char *)(aBuffer + aCurrentPos), aFileSize[i]);
         aFile->close();
         delete(aFile);
         aCurrentPos += aFileSize[i];
       }
     }
-    
+
     delete[] aFileNameSize;
     delete[] aFileSize;
-    
+    return aBufferSize;
+  }
+#ifndef DISABLE_ORB
+  SALOMEDS::TMPFile*
+  PutFilesToStream(const std::string& theFromDirectory,
+                   const std::vector<std::string>& theFiles,
+                   const std::vector<std::string>& theFileNames,
+                   const int theNamesOnly)
+  {
+
+
+    unsigned char* aBuffer;
+    long aBufferSize = filesToStream(theFromDirectory, theFiles, theFileNames, theNamesOnly, aBuffer);
+
+    if(!aBufferSize)
+      return (new SALOMEDS::TMPFile);
     
     CORBA::Octet* anOctetBuf =  (CORBA::Octet*)aBuffer;
     
     return (new SALOMEDS::TMPFile(aBufferSize, aBufferSize, anOctetBuf, 1));
   }
-  
+#else
+
+SALOMEDSImpl_Tool::TMPFile*
+PutFilesToStreamImp(const std::string& theFromDirectory,
+                 const std::vector<std::string>& theFiles,
+                 const std::vector<std::string>& theFileNames,
+                 const int theNamesOnly)
+{
+
+
+  unsigned char* aBuffer;
+  long aBufferSize = filesToStream(theFromDirectory, theFiles, theFileNames, theNamesOnly, aBuffer);
+  if(!aBufferSize)
+    return nullptr;
+
+  return (new SALOMEDSImpl_Tool::TMPFile(aBufferSize, aBuffer, 1));
+}
+#endif
 }
 
-
+#ifndef DISABLE_ORB
 SALOMEDS::TMPFile* 
 SALOMEDS_Tool::PutFilesToStream(const std::string& theFromDirectory,
                                 const ListOfFiles& theFiles,
@@ -300,7 +333,98 @@ SALOMEDS_Tool::PutFilesToStream(const ListOfFiles& theFiles,
 {
   return ::PutFilesToStream("",theFiles,theFileNames,0);
 }
+#else
 
+SALOMEDSImpl_Tool::TMPFile*
+SALOMEDS_Tool::PutFilesToStreamImpl(const std::string& theFromDirectory,
+                                const ListOfFiles& theFiles,
+                                const int theNamesOnly)
+{
+  ListOfFiles aFileNames(theFiles);
+  return ::PutFilesToStreamImp(theFromDirectory,theFiles,aFileNames,theNamesOnly);
+}
+
+SALOMEDSImpl_Tool::TMPFile*
+SALOMEDS_Tool::PutFilesToStreamImpl(const ListOfFiles& theFiles,
+                                const ListOfFiles& theFileNames)
+{
+  return ::PutFilesToStreamImp("",theFiles,theFileNames,0);
+}
+#endif
+
+namespace  {
+  template <typename TMPFile>
+
+  SALOMEDS_Tool::ListOfFiles  PutStreamToFiles(const TMPFile& theStream,
+                                               const std::string& theToDirectory,
+                                               const int theNamesOnly)
+  {
+    SALOMEDS_Tool::ListOfFiles aFiles;
+
+    if(theStream.length() == 0)
+      return aFiles;
+
+    //Get a temporary directory for saving a file
+    std::string aTmpDir = theToDirectory;
+    unsigned char *aBuffer = (unsigned char*)theStream.NP_data();
+
+    if(aBuffer == NULL)
+      return aFiles;
+
+    long aFileSize, aCurrentPos = 4;
+    int i, aFileNameSize, aNbFiles = 0;
+
+    //Copy the number of files in the stream
+    memcpy(&aNbFiles, aBuffer, sizeof(int));
+
+    aFiles.reserve(aNbFiles);
+
+    for(i=0; i<aNbFiles; i++) {
+
+      //Put a length of the file name to aFileNameSize
+      memcpy(&aFileNameSize, (aBuffer + aCurrentPos), ((sizeof(int) > 4) ? 4 : sizeof(int)));
+      aCurrentPos += 4;
+
+      char *aFileName = new char[aFileNameSize];
+      //Put a file name to aFileName
+      memcpy(aFileName, (aBuffer + aCurrentPos), aFileNameSize);
+#ifdef WIN32
+      for (int j = 0; j < strlen(aFileName); j++)
+      {
+        if (aFileName[j] == ':')
+          aFileName[j] = '_';
+      }
+#endif
+      aCurrentPos += aFileNameSize;
+
+      //Put a length of the file to aFileSize
+      if (!theNamesOnly) {
+        memcpy(&aFileSize, (aBuffer + aCurrentPos), ((sizeof(long) > 8) ? 8 : sizeof(long)));
+        aCurrentPos += 8;
+
+        std::string aFullPath = aTmpDir + aFileName;
+#ifdef WIN32
+#ifdef UNICODE
+        std::ofstream aFile(Kernel_Utils::utf8_decode_s(aFullPath).c_str(), std::ios::binary);
+#else
+        std::ofstream aFile(aFullPath.c_str(), std::ios::binary);
+#endif
+#else
+        std::ofstream aFile(aFullPath.c_str());
+#endif
+        aFile.write((char *)(aBuffer + aCurrentPos), aFileSize);
+        aFile.close();
+        aCurrentPos += aFileSize;
+      }
+      aFiles.push_back(aFileName);
+      delete[] aFileName;
+    }
+
+    return aFiles;
+  }
+}
+
+#ifndef DISABLE_ORB
 //============================================================================
 // function : PutStreamToFile
 // purpose  : converts the stream "theStream" to the files
@@ -310,69 +434,26 @@ SALOMEDS_Tool::PutStreamToFiles(const SALOMEDS::TMPFile& theStream,
                                 const std::string& theToDirectory,
                                 const int theNamesOnly)
 {
+  ListOfFiles aFiles0 = ::PutStreamToFiles(theStream, theToDirectory, theNamesOnly);
+
   ListOfFiles aFiles;
 
-  if(theStream.length() == 0)
-    return aFiles;
-
-  //Get a temporary directory for saving a file
-  std::string aTmpDir = theToDirectory;
-  unsigned char *aBuffer = (unsigned char*)theStream.NP_data();
-
-  if(aBuffer == NULL)
-    return aFiles;
-
-  long aFileSize, aCurrentPos = 4;
-  int i, aFileNameSize, aNbFiles = 0;
-
-  //Copy the number of files in the stream
-  memcpy(&aNbFiles, aBuffer, sizeof(int)); 
-
-  aFiles.reserve(aNbFiles);
-
-  for(i=0; i<aNbFiles; i++) {
-
-    //Put a length of the file name to aFileNameSize
-    memcpy(&aFileNameSize, (aBuffer + aCurrentPos), ((sizeof(int) > 4) ? 4 : sizeof(int))); 
-    aCurrentPos += 4;
-
-    char *aFileName = new char[aFileNameSize];
-    //Put a file name to aFileName
-    memcpy(aFileName, (aBuffer + aCurrentPos), aFileNameSize); 
-#ifdef WIN32
-    for (int j = 0; j < strlen(aFileName); j++)
-    {
-      if (aFileName[j] == ':')
-        aFileName[j] = '_';
-    }
-#endif
-    aCurrentPos += aFileNameSize;
- 
-    //Put a length of the file to aFileSize
-    if (!theNamesOnly) {
-      memcpy(&aFileSize, (aBuffer + aCurrentPos), ((sizeof(long) > 8) ? 8 : sizeof(long)));
-      aCurrentPos += 8;    
-      
-      std::string aFullPath = aTmpDir + aFileName;
-#ifdef WIN32
-#ifdef UNICODE
-	  std::ofstream aFile(Kernel_Utils::utf8_decode_s(aFullPath).c_str(), std::ios::binary);
-#else
-      std::ofstream aFile(aFullPath.c_str(), std::ios::binary);
-#endif
-#else
-      std::ofstream aFile(aFullPath.c_str());
-#endif
-	  aFile.write((char *)(aBuffer + aCurrentPos), aFileSize);
-      aFile.close();  
-      aCurrentPos += aFileSize;
-    }
-    aFiles.push_back(CORBA::string_dup(aFileName));
-    delete[] aFileName;
+  for(unsigned i=0; i< aFiles0.size(); i++) {
+    aFiles.push_back(CORBA::string_dup(aFiles0[i].c_str()));
   }
 
   return aFiles;
 }
+#else
+
+SALOMEDS_Tool::ListOfFiles
+SALOMEDS_Tool::PutStreamToFilesImpl(const SALOMEDSImpl_Tool::TMPFile& theStream,
+                                const std::string& theToDirectory,
+                                const int theNamesOnly)
+{
+  return ::PutStreamToFiles(theStream, theToDirectory, theNamesOnly);
+}
+#endif
 
 //============================================================================
 // function : GetNameFromPath
@@ -438,6 +519,7 @@ std::string SALOMEDS_Tool::GetDirFromPath(const std::string& thePath) {
   return path;
 }
 
+#ifndef DISABLE_ORB
 //=======================================================================
 // name    : GetFlag
 // Purpose : Retrieve specified flaf from "AttributeFlags" attribute
@@ -525,5 +607,5 @@ void SALOMEDS_Tool::GetAllChildren( SALOMEDS::Study_var               theStudy,
     }
   }
 }
-
+#endif
 

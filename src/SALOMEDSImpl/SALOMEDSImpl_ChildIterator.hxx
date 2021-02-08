@@ -34,7 +34,7 @@
 
 class SALOMEDSIMPL_EXPORT SALOMEDSImpl_ChildIterator
 {
-private:
+protected:
   DF_ChildIterator _it;
   SALOMEDSImpl_SObject _so;
 

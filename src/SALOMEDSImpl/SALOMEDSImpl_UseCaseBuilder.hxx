@@ -52,6 +52,8 @@ public:
   //! standard constructor  
   SALOMEDSImpl_UseCaseBuilder(DF_Document* theDocument);
 
+  SALOMEDSImpl_UseCaseBuilder(SALOMEDSImpl_UseCaseBuilder* aCopy);
+
   //! standard destructor
   virtual ~SALOMEDSImpl_UseCaseBuilder();
 

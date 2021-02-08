@@ -39,7 +39,7 @@
 
 class SALOMEDSIMPL_EXPORT SALOMEDSImpl_SComponentIterator
 {
-private:
+protected:
 
   DF_ChildIterator        _it;
   DF_Label                _lab;

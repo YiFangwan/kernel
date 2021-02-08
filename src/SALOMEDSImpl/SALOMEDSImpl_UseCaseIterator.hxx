@@ -38,7 +38,7 @@
 class  SALOMEDSIMPL_EXPORT SALOMEDSImpl_UseCaseIterator
 {
 
-private:
+protected:
   std::string                                _guid;
   bool                                       _levels;
   SALOMEDSImpl_AttributeTreeNode*            _node;
@@ -47,6 +47,8 @@ private:
 public:
 
   SALOMEDSImpl_UseCaseIterator();
+
+  SALOMEDSImpl_UseCaseIterator(const SALOMEDSImpl_UseCaseIterator *itr);
 
   //! standard constructor  
   SALOMEDSImpl_UseCaseIterator(const DF_Label& theLabel, 
