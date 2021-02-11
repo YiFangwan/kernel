@@ -27,7 +27,6 @@
 
 #include <cinttypes>
 #include <limits>
-#include <NCollection_DataMap.hxx>
 
 #ifndef SALOME_USE_64BIT_IDS
 typedef std::int32_t smIdType;
@@ -37,12 +36,12 @@ typedef std::int64_t smIdType;
 
 struct smIdHasher
 {
-  static Standard_Integer HashCode(const smIdType theValue,  const Standard_Integer theUpperBound)
+  static int HashCode(const smIdType theValue,  const int theUpperBound)
   {
-    return IntegerHashCode(static_cast<Standard_Integer> (theValue), std::numeric_limits<smIdType>::max(), theUpperBound);
+    return static_cast<int> ((theValue & std::numeric_limits<smIdType>::max()) % theUpperBound + 1);
   }
 
-  static Standard_Boolean IsEqual( const smIdType& id1, const smIdType& id2 )
+  static bool IsEqual( const smIdType& id1, const smIdType& id2 )
   {
     return id1 == id2;
   }
