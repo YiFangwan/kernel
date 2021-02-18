@@ -1,7 +1,4 @@
-// Copyright (C) 2007-2020  CEA/DEN, EDF R&D, OPEN CASCADE
-//
-// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
-// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+// Copyright (C) 2021  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -20,24 +17,16 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-//  File   : NamingService_WaitForServerReadiness.hxx
-//  Author : Paul RASCLE (EDF)
-//  Module : KERNEL
-//  $Header$
-//
-#ifndef _NAMINGSERVICE_WAITFORSERVERREADINESS_HXX_
-#define _NAMINGSERVICE_WAITFORSERVERREADINESS_HXX_
+#include "SALOME_Fake_NamingService.hxx"
 
-#include "SALOME_NamingService_defs.hxx"
+SALOME_Fake_NamingService::SALOME_Fake_NamingService(CORBA::ORB_ptr orb)
+{
+}
 
-#include <string>
+void SALOME_Fake_NamingService::Register(CORBA::Object_ptr ObjRef, const char* Path)
+{
+}
 
-class SALOME_NamingService;
-
-void NAMINGSERVICE_EXPORT NamingService_WaitForServerReadiness(SALOME_NamingService* NS, std::string serverName);
-
-class SALOME_Fake_NamingService;
-
-void NAMINGSERVICE_EXPORT NamingService_WaitForServerReadiness(SALOME_Fake_NamingService* NS, std::string serverName);
-
-#endif
+CORBA::Object_ptr SALOME_Fake_NamingService::Resolve(const char* Path)
+{
+}
