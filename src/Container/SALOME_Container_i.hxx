@@ -178,7 +178,7 @@ protected:
  */
 namespace KERNEL
 {
-  CONTAINER_EXPORT Engines_Container_i *getContainerIdSA();
+  CONTAINER_EXPORT Engines_Container_i *getContainerSA();
   CONTAINER_EXPORT PortableServer::ObjectId_var getContainerIdSA();
   CONTAINER_EXPORT Engines::Container_var getContainerRefSA();
 }

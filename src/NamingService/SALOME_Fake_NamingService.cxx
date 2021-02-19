@@ -18,6 +18,7 @@
 //
 
 #include "SALOME_Fake_NamingService.hxx"
+#include "Utils_SALOME_Exception.hxx"
 
 SALOME_Fake_NamingService::SALOME_Fake_NamingService(CORBA::ORB_ptr orb):_orb(CORBA::ORB::_duplicate(orb))
 {
@@ -33,5 +34,8 @@ void SALOME_Fake_NamingService::Register(CORBA::Object_ptr ObjRef, const char* P
 CORBA::Object_ptr SALOME_Fake_NamingService::Resolve(const char* Path)
 {
   std::string pathCpp(Path);
-  if(pathCpp == )
+  auto it = _map.find(pathCpp);
+  if( it != _map.end() )
+    return (*it).second;
+  THROW_SALOME_EXCEPTION("SALOME_Fake_NamingService::Resolve : no such entry \"" << Path << "\" !");
 }

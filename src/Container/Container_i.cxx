@@ -1900,54 +1900,18 @@ void Engines_Container_i::clearTemporaryFiles()
   _tmp_files.clear();
 }
 
-/*
-std::string Engines_Container_i::AnotherMethodeToReplace_PyString_AsString(PyObject * result)
-{
-    std::string my_result = "";
-    if (PyUnicode_Check(result)) {
-        // Convert string to bytes.
-        // strdup() bytes into my_result.
-        PyObject * temp_bytes = PyUnicode_AsEncodedString(result, "ASCII", "strict"); // Owned reference
-        if (temp_bytes != NULL) {
-            my_result = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
-            my_result = strdup(my_result);
-            Py_DECREF(temp_bytes);
-        } else {
-            // TODO PY3: Handle encoding error.
-            Py_DECREF(temp_bytes);
-        }
-
-    } else if (PyBytes_Check(result)) {
-        // strdup() bytes into my_result.
-        my_result = PyBytes_AS_STRING(result); // Borrowed pointer
-        my_result = strdup(my_result);
-    } else {
-        // Convert into your favorite string representation.
-        // Convert string to bytes if it is not already.
-        // strdup() bytes into my_result.
-        // TODO PY3: Check if only bytes is ok. 
-        PyObject * temp_bytes = PyObject_Bytes(result); // Owned reference
-        if (temp_bytes != NULL) {
-            my_result = PyBytes_AS_STRING(temp_bytes); // Borrowed pointer
-            my_result = strdup(my_result);
-            Py_DECREF(temp_bytes);
-        } else {
-            // TODO PY3: Handle error.
-            Py_DECREF(temp_bytes);
-        }
-    }
-    return my_result;
-}
-*/
-
 static Engines_Container_i *_container_singleton_ssl = nullptr;
 
-Engines_Container_i *KERNEL::getContainerIdSA()
-{
+static PortableServer::ObjectId_var _container_id_singleton_ssl;
 
+static Engines::Container_var _container_ref_singleton_ssl;
+
+Engines_Container_i *KERNEL::getContainerSA()
+{
   if(!_container_singleton_ssl)
   {
-    int argc(0); orb = CORBA::ORB_init(argc,nullptr); }
+    int argc(0);
+    CORBA::ORB_var orb = CORBA::ORB_init(argc,nullptr);
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
     PortableServer::POAManager_var pman = poa->the_POAManager();
@@ -1955,13 +1919,29 @@ Engines_Container_i *KERNEL::getContainerIdSA()
     policies.length(0);
     PortableServer::ObjectId_var conId;
     //
-    {
-        char *argv[4] = {"Container","FactoryServer","toto",nullptr};
-        _container_singleton_ssl = new Engines_Container_i(orb,poa,"FactoryServer",2,argv,false,false);
-        conId = poa->activate_object(_container_singleton_ssl);
-    }
+    char *argv[4] = {"Container","FactoryServer","toto",nullptr};
+    _container_singleton_ssl = new Engines_Container_i(orb,poa,"FactoryServer",2,argv,false,false);
+    _container_id_singleton_ssl = poa->activate_object(_container_singleton_ssl);
+    //
+    CORBA::Object_var zeRef = poa->id_to_reference(_container_id_singleton_ssl);
+    _container_ref_singleton_ssl = Engines::Container::_narrow(zeRef);
   }
-CORBA::ORB_var orb;
+  return _container_singleton_ssl;
+}
+
+PortableServer::ObjectId_var KERNEL::getContainerIdSA()
+{
+  getContainerSA();
+  return _container_id_singleton_ssl;
+}
+
+Engines::Container_var KERNEL::getContainerRefSA()
+{
+  getContainerSA();
+  return _container_ref_singleton_ssl;
+}
+
+/*CORBA::ORB_var orb;
     { int argc(0); orb = CORBA::ORB_init(argc,nullptr); }
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
@@ -1997,4 +1977,4 @@ PortableServer::ObjectId_var KERNEL::getContainerIdSA()
 Engines::Container_var KERNEL::getContainerRefSA()
 {
 
-}
+}*/
