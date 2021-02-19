@@ -62,6 +62,6 @@ CORBA::Object_ptr SALOME_Fake_NamingService::Resolve(const char* Path)
   std::string pathCpp(Path);
   auto it = _map.find(pathCpp);
   if( it != _map.end() )
-    return (*it).second;
+    return CORBA::Object::_duplicate((*it).second);
   return CORBA::Object::_nil();
 }
