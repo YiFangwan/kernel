@@ -61,7 +61,7 @@ public:
   CORBA::Object_ptr ResolveComponent(const char* hostname,
                                      const char* containerName,
                                      const char* componentName,
-                                     const int nbproc=0) ;
+                                     const int nbproc=0) override;
   std::string ContainerName(const char *ContainerName);
   std::string ContainerName(const Engines::ContainerParameters& params);
   std::string BuildContainerNameForNS(const char *ContainerName, const char *hostname);
@@ -80,6 +80,7 @@ public:
   virtual void Destroy_FullDirectory(const char* Path) ;
   char *getIORaddr();
   CORBA::ORB_ptr orb();
+  SALOME_NamingService_Abstract *clone() override;
 
 protected:
   Utils_Mutex _myMutex;

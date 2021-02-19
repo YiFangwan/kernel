@@ -39,6 +39,8 @@ public:
     bool Change_Directory(const char* Path) override;
     std::vector<std::string> list_subdirs() override;
     std::vector<std::string> list_directory() override;
+    SALOME_NamingService_Abstract *clone() override;
+    CORBA::Object_ptr ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc=0) override;
 private:
     static std::mutex _mutex;
     static std::map<std::string,CORBA::Object_var> _map;

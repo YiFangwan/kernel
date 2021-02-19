@@ -82,7 +82,7 @@ IncompatibleComponent::IncompatibleComponent(const IncompatibleComponent &ex):
  */
 //=============================================================================
 
-SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService *ns)
+SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService_Abstract *ns)
 {
   // be sure to have an instance of traceCollector, when used via SWIG
   // in a Python module
@@ -824,7 +824,7 @@ void SALOME_LifeCycleCORBA::copyFile(const char* hostSrc, const char* fileSrc, c
  *
  *  \return the naming service
  */
-SALOME_NamingService * SALOME_LifeCycleCORBA::namingService()
+SALOME_NamingService_Abstract * SALOME_LifeCycleCORBA::namingService()
 {
   return _NS;
 }
@@ -835,5 +835,8 @@ SALOME_NamingService * SALOME_LifeCycleCORBA::namingService()
  */
 CORBA::ORB_ptr SALOME_LifeCycleCORBA::orb()
 {
-  return _NS->orb();
+  SALOME_NamingService *NSC = dynamic_cast<SALOME_NamingService *>(_NS);
+  if(!_NS)
+    THROW_SALOME_EXCEPTION("SALOME_LifeCycleCORBA::orb : not a CORBA SALOME_NamingService ");
+  return NSC->orb();
 }

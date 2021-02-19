@@ -65,3 +65,13 @@ CORBA::Object_ptr SALOME_Fake_NamingService::Resolve(const char* Path)
     return CORBA::Object::_duplicate((*it).second);
   return CORBA::Object::_nil();
 }
+
+SALOME_NamingService_Abstract *SALOME_Fake_NamingService::clone()
+{
+  return new SALOME_Fake_NamingService;
+}
+
+CORBA::Object_ptr SALOME_Fake_NamingService::ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc)
+{
+  THROW_SALOME_EXCEPTION("SALOME_Fake_NamingService::ResolveComponent : " << hostname << " " << containerName << " " << componentName << " " << nbproc);
+}

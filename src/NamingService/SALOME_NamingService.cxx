@@ -73,6 +73,11 @@ SALOME_NamingService::SALOME_NamingService(CORBA::ORB_ptr orb)
   _initialize_root_context();
 }
 
+SALOME_NamingService_Abstract *SALOME_NamingService::clone()
+{
+  return new SALOME_NamingService(_orb);
+}
+
 // ============================================================================
 /*! \brief Standard destructor.
  *

@@ -124,7 +124,7 @@ extern "C"
       threadPol->destroy();
 
       SALOMEDS_Study_i::SetThePOA(poa);
-      SALOMEDS_Study_i* aStudy_i = new SALOMEDS_Study_i(orb);
+      SALOMEDS_Study_i* aStudy_i = new SALOMEDS_Study_i(orb,&namingService);
 
       // Activate the objects.  This tells the POA that the objects are ready to accept requests.
       PortableServer::ObjectId_var aStudy_iid =  root_poa->activate_object(aStudy_i);
