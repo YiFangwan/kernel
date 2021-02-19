@@ -173,4 +173,14 @@ protected:
   bool   _isServantAloneInProcess;
 };
 
+/*!
+ * Methods to be used in SSL mode to skip NS.
+ */
+namespace KERNEL
+{
+  CONTAINER_EXPORT Engines_Container_i *getContainerIdSA();
+  CONTAINER_EXPORT PortableServer::ObjectId_var getContainerIdSA();
+  CONTAINER_EXPORT Engines::Container_var getContainerRefSA();
+}
+
 #endif

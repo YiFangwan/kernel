@@ -21,10 +21,18 @@
 
 #include "omniORB4/CORBA.h"
 
+#include <mutex>
+#include <string>
+#include <map>
+
 class SALOME_Fake_NamingService
 {
 public:
     SALOME_Fake_NamingService(CORBA::ORB_ptr orb);
     void Register(CORBA::Object_ptr ObjRef, const char* Path);
     CORBA::Object_ptr Resolve(const char* Path);
+private:    
+    CORBA::ORB_var _orb;
+    std::mutex _mutex;
+    std::map<std::string,CORBA::Object_var> _map;
 };
