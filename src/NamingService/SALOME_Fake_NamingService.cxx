@@ -63,5 +63,5 @@ CORBA::Object_ptr SALOME_Fake_NamingService::Resolve(const char* Path)
   auto it = _map.find(pathCpp);
   if( it != _map.end() )
     return (*it).second;
-  THROW_SALOME_EXCEPTION("SALOME_Fake_NamingService::Resolve : no such entry \"" << Path << "\" !");
+  return CORBA::Object::_nil();
 }
