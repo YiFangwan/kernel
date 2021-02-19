@@ -1902,8 +1902,6 @@ void Engines_Container_i::clearTemporaryFiles()
 
 static Engines_Container_i *_container_singleton_ssl = nullptr;
 
-static PortableServer::ObjectId_var _container_id_singleton_ssl;
-
 static Engines::Container_var _container_ref_singleton_ssl;
 
 Engines_Container_i *KERNEL::getContainerSA()
@@ -1922,18 +1920,12 @@ Engines_Container_i *KERNEL::getContainerSA()
     char *argv[4] = {"Container","FactoryServer","toto",nullptr};
     SALOME_Fake_NamingService ns;
     _container_singleton_ssl = new Engines_Container_i(orb,poa,"FactoryServer",2,argv,&ns,false);
-    _container_id_singleton_ssl = poa->activate_object(_container_singleton_ssl);
+    PortableServer::ObjectId * cont_id = _container_singleton_ssl->getCORBAId();
     //
-    CORBA::Object_var zeRef = poa->id_to_reference(_container_id_singleton_ssl);
+    CORBA::Object_var zeRef = poa->id_to_reference(*cont_id);
     _container_ref_singleton_ssl = Engines::Container::_narrow(zeRef);
   }
   return _container_singleton_ssl;
-}
-
-PortableServer::ObjectId_var KERNEL::getContainerIdSA()
-{
-  getContainerSA();
-  return _container_id_singleton_ssl;
 }
 
 Engines::Container_var KERNEL::getContainerRefSA()

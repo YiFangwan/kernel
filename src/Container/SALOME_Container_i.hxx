@@ -140,6 +140,7 @@ public:
   void registerTemporaryFile( const std::string& fileName );
   void unregisterTemporaryFile( const std::string& fileName );
   void clearTemporaryFiles();
+  PortableServer::ObjectId *getCORBAId() const { return _id; }
 
 protected:
 
@@ -179,7 +180,6 @@ protected:
 namespace KERNEL
 {
   CONTAINER_EXPORT Engines_Container_i *getContainerSA();
-  CONTAINER_EXPORT PortableServer::ObjectId_var getContainerIdSA();
   CONTAINER_EXPORT Engines::Container_var getContainerRefSA();
 }
 
