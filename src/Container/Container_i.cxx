@@ -54,6 +54,7 @@ int SIGUSR1 = 1000;
 #include "SALOME_FileTransfer_i.hxx"
 #include "Salome_file_i.hxx"
 #include "SALOME_NamingService.hxx"
+#include "SALOME_Fake_NamingService.hxx"
 #include "Basics_Utils.hxx"
 
 #ifdef _XOPEN_SOURCE
@@ -133,14 +134,14 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
                                           PortableServer::POA_ptr poa,
                                           char *containerName ,
                                           int argc , char* argv[],
-                                          bool activAndRegist,
+                                          SALOME_NamingService_Abstract *ns,
                                           bool isServantAloneInProcess
                                           ) :
   _NS(0),_id(0),_numInstance(0),_isServantAloneInProcess(isServantAloneInProcess)
 {
   _pid = (long)getpid();
 
-  if(activAndRegist)
+  if(ns)
     ActSigIntHandler() ;
 
   _argc = argc ;
@@ -177,10 +178,9 @@ Engines_Container_i::Engines_Container_i (CORBA::ORB_ptr orb,
   // Pour les containers paralleles: il ne faut pas enregistrer et activer
   // le container generique, mais le container specialise
 
-  if(activAndRegist)
   {
     _id = _poa->activate_object(this);
-    _NS = new SALOME_NamingService();
+    _NS = ns==nullptr ? new SALOME_NamingService : ns->clone();
     _NS->init_orb( _orb ) ;
     CORBA::Object_var obj=_poa->id_to_reference(*_id);
     Engines::Container_var pCont 
@@ -1920,7 +1920,8 @@ Engines_Container_i *KERNEL::getContainerSA()
     PortableServer::ObjectId_var conId;
     //
     char *argv[4] = {"Container","FactoryServer","toto",nullptr};
-    _container_singleton_ssl = new Engines_Container_i(orb,poa,"FactoryServer",2,argv,false,false);
+    SALOME_Fake_NamingService ns;
+    _container_singleton_ssl = new Engines_Container_i(orb,poa,"FactoryServer",2,argv,&ns,false);
     _container_id_singleton_ssl = poa->activate_object(_container_singleton_ssl);
     //
     CORBA::Object_var zeRef = poa->id_to_reference(_container_id_singleton_ssl);
