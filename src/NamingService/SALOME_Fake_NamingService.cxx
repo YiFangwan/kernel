@@ -20,7 +20,10 @@
 #include "SALOME_Fake_NamingService.hxx"
 #include "Utils_SALOME_Exception.hxx"
 
-SALOME_Fake_NamingService::SALOME_Fake_NamingService(CORBA::ORB_ptr orb):_orb(CORBA::ORB::_duplicate(orb))
+std::mutex SALOME_Fake_NamingService::_mutex;
+std::map<std::string,CORBA::Object_var> SALOME_Fake_NamingService::_map;
+
+SALOME_Fake_NamingService::SALOME_Fake_NamingService(CORBA::ORB_ptr orb)
 {
 }
 
@@ -29,6 +32,10 @@ void SALOME_Fake_NamingService::Register(CORBA::Object_ptr ObjRef, const char* P
   std::lock_guard<std::mutex> g(_mutex);
   CORBA::Object_var ObjRefAuto = CORBA::Object::_duplicate(ObjRef);
   _map[Path] = ObjRefAuto;
+}
+
+void SALOME_Fake_NamingService::Destroy_Name(const char* Path)
+{
 }
 
 CORBA::Object_ptr SALOME_Fake_NamingService::Resolve(const char* Path)

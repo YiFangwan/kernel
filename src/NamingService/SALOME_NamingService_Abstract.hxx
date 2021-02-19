@@ -19,22 +19,15 @@
 
 #pragma once
 
+#include "SALOME_NamingService_defs.hxx"
+
 #include "omniORB4/CORBA.h"
 
-#include "SALOME_NamingService_Abstract.hxx"
-
-#include <mutex>
-#include <string>
-#include <map>
-
-class NAMINGSERVICE_EXPORT SALOME_Fake_NamingService : public SALOME_NamingService_Abstract
+class NAMINGSERVICE_EXPORT SALOME_NamingService_Abstract
 {
 public:
-    SALOME_Fake_NamingService(CORBA::ORB_ptr orb);
-    void Register(CORBA::Object_ptr ObjRef, const char* Path) override;
-    CORBA::Object_ptr Resolve(const char* Path) override;
-    void Destroy_Name(const char* Path) override;
-private:
-    static std::mutex _mutex;
-    static std::map<std::string,CORBA::Object_var> _map;
+  virtual void Register(CORBA::Object_ptr ObjRef, const char* Path) = 0;
+  virtual CORBA::Object_ptr Resolve(const char* Path) = 0;
+  virtual void Destroy_Name(const char* Path) = 0;
+  virtual ~SALOME_NamingService_Abstract() { }
 };

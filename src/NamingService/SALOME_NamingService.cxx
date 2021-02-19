@@ -87,6 +87,12 @@ SALOME_NamingService::~SALOME_NamingService()
   //MESSAGE("SALOME_NamingService destruction");
 }
 
+SALOME_NamingService *SALOME_NamingService::GetTraditionalNS(SALOME_NamingService_Abstract *ns)
+{
+  SALOME_NamingService *nsc(dynamic_cast<SALOME_NamingService *>(ns));
+  return nsc;
+}
+
 // ============================================================================
 /*! \brief initializes ORB reference and naming service root context.
  *
