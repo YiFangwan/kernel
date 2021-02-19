@@ -38,6 +38,25 @@ void SALOME_Fake_NamingService::Destroy_Name(const char* Path)
 {
 }
 
+void SALOME_Fake_NamingService::Destroy_Directory(const char* Path)
+{
+}
+
+bool SALOME_Fake_NamingService::Change_Directory(const char* Path)
+{
+  return true;
+}
+
+std::vector<std::string> SALOME_Fake_NamingService::list_subdirs()
+{
+  return std::vector<std::string>();
+}
+
+std::vector<std::string> SALOME_Fake_NamingService::list_directory()
+{
+  return std::vector<std::string>();
+}
+
 CORBA::Object_ptr SALOME_Fake_NamingService::Resolve(const char* Path)
 {
   std::string pathCpp(Path);

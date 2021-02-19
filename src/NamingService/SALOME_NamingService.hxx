@@ -69,14 +69,14 @@ public:
 
   int Find(const char* name) ;
   bool Create_Directory(const char* Path) ;
-  bool Change_Directory(const char* Path) ;
+  bool Change_Directory(const char* Path) override;
   char* Current_Directory() ;
   void list() ;
-  std::vector<std::string> list_directory() ;
-  std::vector<std::string> list_subdirs() ;
+  std::vector<std::string> list_directory() override;
+  std::vector<std::string> list_subdirs() override;
   std::vector<std::string> list_directory_recurs() ;
   void Destroy_Name(const char* Path) override;
-  virtual void Destroy_Directory(const char* Path) ;
+  virtual void Destroy_Directory(const char* Path) override;
   virtual void Destroy_FullDirectory(const char* Path) ;
   char *getIORaddr();
   CORBA::ORB_ptr orb();

@@ -31,9 +31,14 @@ class NAMINGSERVICE_EXPORT SALOME_Fake_NamingService : public SALOME_NamingServi
 {
 public:
     SALOME_Fake_NamingService(CORBA::ORB_ptr orb);
+    SALOME_Fake_NamingService() = default;
     void Register(CORBA::Object_ptr ObjRef, const char* Path) override;
     CORBA::Object_ptr Resolve(const char* Path) override;
     void Destroy_Name(const char* Path) override;
+    void Destroy_Directory(const char* Path) override;
+    bool Change_Directory(const char* Path) override;
+    std::vector<std::string> list_subdirs() override;
+    std::vector<std::string> list_directory() override;
 private:
     static std::mutex _mutex;
     static std::map<std::string,CORBA::Object_var> _map;
