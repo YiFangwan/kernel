@@ -268,7 +268,7 @@ namespace SALOMEDS
 
   void sendMessageToGUI(const char* msg )
   {
-    SALOME_NamingService *aNamingService = KERNEL::getNamingService();
+    SALOME_NamingService_Abstract *aNamingService = KERNEL::getNamingService();
     CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
     SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
     sendMessageToGUIGivenSession(aSession,msg);
@@ -317,7 +317,7 @@ SALOMEDS_Study_i::~SALOMEDS_Study_i()
 
 void SALOMEDS_Study_i::Init()
 {
-  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
+  SALOME_NamingService_Abstract *aNamingService = KERNEL::getNamingService();
   CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
   SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
   Init(aSession);
@@ -1027,7 +1027,7 @@ void SALOMEDS_Study_i::URL(const wchar_t* wurl)
   _impl->URL(Kernel_Utils::encode_s(wurl));
 
   // update desktop title with new study name
-  SALOME_NamingService *aNamingService = KERNEL::getNamingService();
+  SALOME_NamingService_Abstract *aNamingService = KERNEL::getNamingService();
   CORBA::Object_var obj = aNamingService->Resolve("/Kernel/Session");
   SALOME::Session_var aSession = SALOME::Session::_narrow(obj);
   NameChanged(aSession);
