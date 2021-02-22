@@ -1915,7 +1915,6 @@ Engines_Container_i *KERNEL::getContainerSA()
     PortableServer::POAManager_var pman = poa->the_POAManager();
     CORBA::PolicyList policies;
     policies.length(0);
-    PortableServer::ObjectId_var conId;
     //
     char *argv[4] = {"Container","FactoryServer","toto",nullptr};
     SALOME_Fake_NamingService ns;
