@@ -104,17 +104,19 @@ SALOME_LifeCycleCORBA::SALOME_LifeCycleCORBA(SALOME_NamingService_Abstract *ns)
   // not enough: set a current directory in naming service is not thread safe
   // if naming service instance is shared among several threads...
   // ==> always use absolute path and don't rely on current directory!
+  if( dynamic_cast<SALOME_NamingService *>(_NS) )
+  {
+    CORBA::Object_var obj =
+      _NS->Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);
+    if (CORBA::is_nil(obj))
+      throw SALOME_Exception("Error: Cannot resolve ContainerManager in Naming Service");
+    _ContManager=Engines::ContainerManager::_narrow(obj);
 
-  CORBA::Object_var obj =
-    _NS->Resolve(SALOME_ContainerManager::_ContainerManagerNameInNS);
-  if (CORBA::is_nil(obj))
-    throw SALOME_Exception("Error: Cannot resolve ContainerManager in Naming Service");
-  _ContManager=Engines::ContainerManager::_narrow(obj);
-
-  obj = _NS->Resolve(SALOME_ResourcesManager::_ResourcesManagerNameInNS);
-  if (CORBA::is_nil(obj))
-    throw SALOME_Exception("Error: Cannot resolve ResourceManager in Naming Service");
-  _ResManager=Engines::ResourcesManager::_narrow(obj);
+    obj = _NS->Resolve(SALOME_ResourcesManager::_ResourcesManagerNameInNS);
+    if (CORBA::is_nil(obj))
+      throw SALOME_Exception("Error: Cannot resolve ResourceManager in Naming Service");
+    _ResManager=Engines::ResourcesManager::_narrow(obj);
+  }
 }
 
 //=============================================================================
