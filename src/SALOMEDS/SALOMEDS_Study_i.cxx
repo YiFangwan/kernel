@@ -64,7 +64,8 @@ UNEXPECT_CATCH(LockProtection, SALOMEDS::StudyBuilder::LockProtection)
 
 static SALOMEDS_Driver_i* GetDriver(const SALOMEDSImpl_SObject& theObject, CORBA::ORB_ptr orb);
 
-static PortableServer::POA_ptr _poa;
+static PortableServer::POA_var _poa;
+static SALOMEDS::Study_var _study;
 
 /**
  * Return a unique study obj but servant is embeded here.
@@ -72,17 +73,36 @@ static PortableServer::POA_ptr _poa;
  */
 SALOMEDS::Study_ptr KERNEL::getStudyServantSA()
 {
-  static SALOMEDS::Study_ptr aStudy;
-  if(CORBA::is_nil(aStudy))
+
+  if(CORBA::is_nil(_study))
   {
     CORBA::ORB_ptr orb = KERNEL::getORB();
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     PortableServer::POA_var poa = PortableServer::POA::_narrow(obj);
     _poa = PortableServer::POA::_duplicate(poa);
     SALOMEDS_Study_i *servant = new SALOMEDS_Study_i(orb,SALOME::Session::_nil());
-    aStudy = servant->_this();
+    _study = servant->_this();
   }
-  return SALOMEDS::Study::_duplicate(aStudy);
+  return SALOMEDS::Study::_duplicate(_study);
+}
+
+/**
+ * If a study is already built and activated elsewhere (for example in GUI context)
+ */
+void KERNEL::setStudyServantSA(SALOMEDS::Study_var study, PortableServer::POA_var poa)
+{
+  if( ! CORBA::is_nil(_study) )
+  {
+    PortableServer::ServantBase *serv = nullptr;
+    try
+    {
+      serv = _poa->reference_to_servant(_study);
+    }
+    catch(...) { }
+    if(serv)
+      serv->_remove_ref();
+  }
+  _study = study; _poa = poa;
 }
 
 namespace SALOMEDS

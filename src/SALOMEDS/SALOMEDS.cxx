@@ -129,6 +129,7 @@ extern "C"
       // Activate the objects.  This tells the POA that the objects are ready to accept requests.
       PortableServer::ObjectId_var aStudy_iid =  root_poa->activate_object(aStudy_i);
       aStudy = aStudy_i->_this();
+      KERNEL::setStudyServantSA(aStudy,poa);
       namingService.Register(aStudy, "/Study");
       aStudy_i->GetImpl()->GetDocument()->SetModified(false);
       aStudy_i->_remove_ref();

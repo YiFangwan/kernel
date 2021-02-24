@@ -51,6 +51,7 @@ class SALOME_NamingService_Abstract;
 namespace KERNEL
 {
   Standard_EXPORT SALOMEDS::Study_ptr getStudyServantSA();
+  Standard_EXPORT void setStudyServantSA(SALOMEDS::Study_var study, PortableServer::POA_var poa);
 }
 
 class Standard_EXPORT SALOMEDS_Study_i: public POA_SALOMEDS::Study
