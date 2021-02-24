@@ -38,7 +38,7 @@ struct smIdHasher
 {
   static int HashCode(const smIdType theValue,  const int theUpperBound)
   {
-    return static_cast<int> ((theValue & std::numeric_limits<smIdType>::max()) % theUpperBound + 1);
+    return static_cast<int> ((theValue & (std::numeric_limits<smIdType>::max)()) % theUpperBound + 1);
   }
 
   static bool IsEqual( const smIdType& id1, const smIdType& id2 )
