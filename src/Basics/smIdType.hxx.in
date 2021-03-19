@@ -47,11 +47,11 @@ struct smIdHasher
   }
 };
 
-template <class T> inline smIdType ToIdType(T val)
+template <class T> inline smIdType ToSmIdType(T val)
 {
   return static_cast<smIdType>(val);
 }
-template <class T> inline T FromIdType(smIdType val)
+template <class T> inline T FromSmIdType(smIdType val)
 {
   return static_cast<T>(val);
 }
