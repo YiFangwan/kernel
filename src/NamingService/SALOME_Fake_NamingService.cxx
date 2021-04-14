@@ -65,6 +65,11 @@ std::vector<std::string> SALOME_Fake_NamingService::list_directory()
   return std::vector<std::string>();
 }
 
+std::vector<std::string> SALOME_Fake_NamingService::list_directory_recurs()
+{
+  return std::vector<std::string>();
+}
+
 CORBA::Object_ptr SALOME_Fake_NamingService::Resolve(const char* Path)
 {
   std::string pathCpp(Path);

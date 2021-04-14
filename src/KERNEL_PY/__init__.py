@@ -190,7 +190,7 @@ class StandAloneLifecyle:
         #raise RuntimeError("Undealed situation cont = {} module = {}".format(contName,moduleName))
 
 def salome_init_without_session():
-    global lcc,myStudy,orb,modulcat,sg
+    global lcc,myStudy,orb,modulcat,sg,cm
     lcc = StandAloneLifecyle()
     import KernelDS
     myStudy = KernelDS.myStudy()
@@ -200,6 +200,8 @@ def salome_init_without_session():
     import SALOME_ModuleCatalog
     from salome_kernel import list_of_catalogs_regarding_environement
     modulcat = KernelModuleCatalog.myModuleCatalog( list_of_catalogs_regarding_environement() )
+    import KernelLauncher
+    cm = KernelLauncher.myContainerManager()
     # activate poaManager to accept co-localized CORBA calls.
     poa = orb.resolve_initial_references("RootPOA")
     poaManager = poa._get_the_POAManager()

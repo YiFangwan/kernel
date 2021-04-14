@@ -86,8 +86,6 @@ public:
   static Engines::JobParameters_var
     JobParameters_CPP2CORBA(const JobParameters_cpp& job_parameters);
 
-  SALOME_NamingService *tradNS() { return SALOME_NamingService::GetTraditionalNS(_NS); }
-
 protected:
   // Internal methods
   virtual void notifyObservers(const std::string & event_name, const std::string & event_data);

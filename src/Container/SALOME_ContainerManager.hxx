@@ -35,14 +35,14 @@
 #include <string>
 #include <set>
 
-class SALOME_NamingService;
+class SALOME_NamingService_Abstract;
 class SALOME_ResourcesManager_Client;
 
 class CONTAINER_EXPORT SALOME_ContainerManager : public POA_Engines::ContainerManager
 {
 
 public:
-  SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService *ns);
+  SALOME_ContainerManager(CORBA::ORB_ptr orb, PortableServer::POA_var poa, SALOME_NamingService_Abstract *ns);
   ~SALOME_ContainerManager();
 
   // Corba Methods
@@ -106,7 +106,7 @@ protected:
   PortableServer::POA_var _poa;
 
   SALOME_ResourcesManager_Client *_resManager;
-  SALOME_NamingService *_NS;
+  SALOME_NamingService_Abstract *_NS;
 
   //! different behaviour if $APPLI exists (SALOME Application)
   bool _isAppliSalomeDefined;
@@ -163,7 +163,7 @@ public:
   static std::string GetenvThreadSafeAsString(const char *name);
   static int SystemThreadSafe(const char *command);
   static long SystemWithPIDThreadSafe(const std::vector<std::string>& command);
-  static void AddOmninamesParams(std::ostream& fileStream, SALOME_NamingService *ns);
+  static void AddOmninamesParams(std::ostream& fileStream, SALOME_NamingService_Abstract *ns);
   static void MakeTheCommandToBeLaunchedASync(std::string& command);
   static int GetTimeOutToLoaunchServer();
   static void SleepInSecond(int ellapseTimeInSecond);

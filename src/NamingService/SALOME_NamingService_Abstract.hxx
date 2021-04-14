@@ -21,7 +21,9 @@
 
 #include "SALOME_NamingService_defs.hxx"
 
-#include "omniORB4/CORBA.h"
+#include <SALOMEconfig.h>
+#include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
+#include CORBA_CLIENT_HEADER(SALOME_Component)
 
 #include <vector>
 #include <string>
@@ -39,9 +41,12 @@ public:
   virtual bool Change_Directory(const char* Path) = 0;
   virtual std::vector<std::string> list_subdirs() = 0;
   virtual std::vector<std::string> list_directory() = 0;
+  virtual std::vector<std::string> list_directory_recurs() = 0;
   virtual SALOME_NamingService_Abstract *clone() = 0;
   virtual CORBA::Object_ptr ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc=0) = 0;
   virtual ~SALOME_NamingService_Abstract() { }
+  static std::string ContainerName(const Engines::ContainerParameters& params);
   static std::string ContainerName(const char *ContainerName);
   static std::string BuildContainerNameForNS(const char *ContainerName, const char *hostname);
+  static std::string BuildContainerNameForNS(const Engines::ContainerParameters& params, const char *hostname);
 };

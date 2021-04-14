@@ -73,9 +73,9 @@ SALOME_Launcher::SALOME_Launcher(CORBA::ORB_ptr orb, PortableServer::POA_var poa
 
 void SALOME_Launcher::init(CORBA::ORB_ptr orb, PortableServer::POA_var poa)
 {
-  _ResManager = new SALOME_ResourcesManager(orb,poa,tradNS());
+  _ResManager = new SALOME_ResourcesManager(orb,poa,_NS);
   _l.SetResourcesManager(_ResManager->GetImpl());
-  _ContManager = new SALOME_ContainerManager(orb,poa,tradNS());
+  _ContManager = new SALOME_ContainerManager(orb,poa,_NS);
   _ResManager->_remove_ref();
   _ContManager->_remove_ref();
 
