@@ -17,19 +17,32 @@
 // See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
-#pragma once
+#include "SALOME_Embedded_NamingService_Common.hxx"
+#include "SALOME_KernelORB.hxx"
 
-#include "SALOME_NamingService_defs.hxx"
+#include <memory>
+#include <cstring>
 
-#include <SALOMEconfig.h>
-#include CORBA_CLIENT_HEADER(SALOME_Embedded_NamingService)
-
-class NAMINGSERVICE_EXPORT SALOME_Embedded_NamingService : public virtual POA_Engines::EmbeddedNamingService
+CORBA::Object_var IORToObject(const Engines::IORType& ObjRef)
 {
-public:
-  void Register(const Engines::IORType& ObjRef, const char *Path) override;
-  void Destroy_FullDirectory(const char *Path) override;
-  void Destroy_Name(const char *Path) override;
-  Engines::IORType *Resolve(const char *Path) override;
-  Engines::IORType *ResolveFirst(const char *Path) override;
-};
+  CORBA::ORB_ptr orb(KERNEL::getORB());
+  CORBA::ULong size(ObjRef.length());
+  std::unique_ptr<char[]> pt(new char[size+1]);
+  pt[size] = '\0';
+  for(CORBA::ULong i = 0 ; i < size ; ++i)
+    pt[i] = ObjRef[i];
+  CORBA::Object_var obj = orb->string_to_object(pt.get());
+  return obj;
+}
+
+Engines::IORType *ObjectToIOR(CORBA::Object_ptr obj)
+{
+  std::unique_ptr<Engines::IORType> ret(new Engines::IORType);
+  CORBA::ORB_ptr orb(KERNEL::getORB());
+  CORBA::String_var ior = orb->object_to_string(obj);
+  auto len( strlen(ior) );
+  ret->length( len );
+  for(std::size_t i = 0 ; i < len ; ++i)
+    (*ret)[i] = ior[i];
+  return ret.release();
+}

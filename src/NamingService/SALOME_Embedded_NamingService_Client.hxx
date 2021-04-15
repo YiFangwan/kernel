@@ -20,16 +20,24 @@
 #pragma once
 
 #include "SALOME_NamingService_defs.hxx"
+#include "SALOME_NamingService_Abstract.hxx"
 
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Embedded_NamingService)
 
-class NAMINGSERVICE_EXPORT SALOME_Embedded_NamingService : public virtual POA_Engines::EmbeddedNamingService
+class NAMINGSERVICE_EXPORT SALOME_Embedded_NamingService_Client : public SALOME_NamingService_Container_Abstract
 {
 public:
-  void Register(const Engines::IORType& ObjRef, const char *Path) override;
-  void Destroy_FullDirectory(const char *Path) override;
-  void Destroy_Name(const char *Path) override;
-  Engines::IORType *Resolve(const char *Path) override;
-  Engines::IORType *ResolveFirst(const char *Path) override;
+  SALOME_Embedded_NamingService_Client(Engines::EmbeddedNamingService_var remoteNSServ):_remote_ns_serv(remoteNSServ) { }
+  void init_orb(CORBA::ORB_ptr orb=0) override;
+  SALOME_NamingService_Container_Abstract *clone() override;
+  void Register(CORBA::Object_ptr ObjRef, const char* Path) override;
+  void Destroy_FullDirectory(const char* Path) override;
+  void Destroy_Name(const char* Path)  override;
+  CORBA::Object_ptr Resolve(const char* Path) override;
+  CORBA::Object_ptr ResolveFirst(const char* Path) override;
+private:
+  SALOME_Embedded_NamingService_Client(const SALOME_Embedded_NamingService_Client& other) = default;
+private:
+  Engines::EmbeddedNamingService_var _remote_ns_serv;
 };

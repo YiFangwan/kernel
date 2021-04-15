@@ -37,6 +37,8 @@ SET(SalomeNS_SOURCES
   SALOME_Fake_NamingService.cxx
   SALOME_NamingService_Abstract.cxx
   SALOME_Embedded_NamingService.cxx
+  SALOME_Embedded_NamingService_Common.cxx
+  SALOME_Embedded_NamingService_Client.cxx
 )
 
 ADD_DEFINITIONS(${OMNIORB_DEFINITIONS})

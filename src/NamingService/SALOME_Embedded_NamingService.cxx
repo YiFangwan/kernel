@@ -1,4 +1,4 @@
-// Copyright (C) 2021  CEA/DEN, EDF R&D, OPEN CASCADE
+// Copyright (C) 2021  CEA/DEN, EDF R&D
 //
 // This library is free software; you can redistribute it and/or
 // modify it under the terms of the GNU Lesser General Public
@@ -18,35 +18,11 @@
 //
 
 #include "SALOME_Embedded_NamingService.hxx"
+#include "SALOME_Embedded_NamingService_Common.hxx"
 #include "SALOME_Fake_NamingService.hxx"
-#include "SALOME_KernelORB.hxx"
 
 #include <memory>
 #include <cstring>
-
-CORBA::Object_var IORToObject(const Engines::IORType& ObjRef)
-{
-  CORBA::ORB_ptr orb(KERNEL::getORB());
-  CORBA::ULong size(ObjRef.length());
-  std::unique_ptr<char[]> pt(new char[size+1]);
-  pt[size] = '\0';
-  for(CORBA::ULong i = 0 ; i < size ; ++i)
-    pt[i] = ObjRef[i];
-  CORBA::Object_var obj = orb->string_to_object(pt.get());
-  return obj;
-}
-
-Engines::IORType *ObjectToIOR(CORBA::Object_ptr obj)
-{
-  std::unique_ptr<Engines::IORType> ret(new Engines::IORType);
-  CORBA::ORB_ptr orb(KERNEL::getORB());
-  CORBA::String_var ior = orb->object_to_string(obj);
-  auto len( strlen(ior) );
-  ret->length( len );
-  for(std::size_t i = 0 ; i < len ; ++i)
-    (*ret)[i] = ior[i];
-  return ret.release();
-}
 
 void SALOME_Embedded_NamingService::Register(const Engines::IORType& ObjRef, const char *Path)
 {

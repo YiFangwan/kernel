@@ -22,14 +22,9 @@
 #include "SALOME_NamingService_defs.hxx"
 
 #include <SALOMEconfig.h>
+
 #include CORBA_CLIENT_HEADER(SALOME_Embedded_NamingService)
 
-class NAMINGSERVICE_EXPORT SALOME_Embedded_NamingService : public virtual POA_Engines::EmbeddedNamingService
-{
-public:
-  void Register(const Engines::IORType& ObjRef, const char *Path) override;
-  void Destroy_FullDirectory(const char *Path) override;
-  void Destroy_Name(const char *Path) override;
-  Engines::IORType *Resolve(const char *Path) override;
-  Engines::IORType *ResolveFirst(const char *Path) override;
-};
+CORBA::Object_var IORToObject(const Engines::IORType& ObjRef);
+
+Engines::IORType *ObjectToIOR(CORBA::Object_ptr obj);

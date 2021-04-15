@@ -60,7 +60,7 @@ public:
                       PortableServer::POA_ptr poa,
                       char * containerName ,
                       int argc, char* argv[],
-                       SALOME_NamingService_Container_Abstract *ns = nullptr,
+                      SALOME_NamingService_Container_Abstract *ns = nullptr,
                       bool isServantAloneInProcess = true);
   virtual ~Engines_Container_i();
 
