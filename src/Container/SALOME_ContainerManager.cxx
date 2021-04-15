@@ -25,6 +25,7 @@
 #include "SALOME_LoadRateManager.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_ResourcesManager_Client.hxx"
+#include "SALOME_Embedded_NamingService.hxx"
 #include "SALOME_ModuleCatalog.hh"
 #include "Basics_Utils.hxx"
 #include "Basics_DirUtils.hxx"
@@ -469,7 +470,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
     // Mpi already tested in step 5, specific code on BuildCommandToLaunch Local/Remote Container methods
     // TODO -> separates Mpi from Classic/Exe
     // Classic or Exe ?
-    std::string container_exe = "SALOME_Container"; // Classic container
+    std::string container_exe = this->_isSSL ? "SALOME_Container_No_NS_Serv" : "SALOME_Container"; // Classic container
     Engines::ContainerParameters local_params(params);
     int found=0;
     try
@@ -864,11 +865,21 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
         o << container_exe + " ";
 
     }
+  
+  o << _NS->ContainerName(params) << " ";
 
-  o << _NS->ContainerName(params);
-  o << " -";
-  AddOmninamesParams(o);
-
+  if( this->_isSSL )
+  {
+    Engines::EmbeddedNamingService_var ns = GetEmbeddedNamingService();
+    CORBA::String_var iorNS = _orb->object_to_string(ns);
+    o << iorNS;
+  }
+  else
+  {
+    o << "-";
+    AddOmninamesParams(o);
+  }
+  
   std::ofstream command_file( tmpFileName.c_str() );
   command_file << o.str();
   command_file.close();

@@ -24,6 +24,8 @@
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Embedded_NamingService)
 
+Engines::EmbeddedNamingService_var NAMINGSERVICE_EXPORT GetEmbeddedNamingService();
+
 class NAMINGSERVICE_EXPORT SALOME_Embedded_NamingService : public virtual POA_Engines::EmbeddedNamingService
 {
 public:

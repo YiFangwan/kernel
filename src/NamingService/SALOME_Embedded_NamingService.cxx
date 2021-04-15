@@ -24,6 +24,19 @@
 #include <memory>
 #include <cstring>
 
+static Engines::EmbeddedNamingService_var _embedded_ns_singleton;
+
+Engines::EmbeddedNamingService_var GetEmbeddedNamingService()
+{
+  if( CORBA::is_nil(_embedded_ns_singleton) )
+  {
+    std::unique_ptr<SALOME_Embedded_NamingService> servant(new SALOME_Embedded_NamingService);
+    _embedded_ns_singleton = servant->_this();
+    servant->_remove_ref();
+  }
+  return _embedded_ns_singleton;
+}
+
 void SALOME_Embedded_NamingService::Register(const Engines::IORType& ObjRef, const char *Path)
 {
   SALOME_Fake_NamingService ns;
