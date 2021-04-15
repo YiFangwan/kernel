@@ -53,6 +53,8 @@ public:
   // C++ Methods
   void Shutdown();
 
+  void DeclareUsingSalomeSession() { _isSSL = false; }
+
   static const char *_ContainerManagerNameInNS;
 
 protected:
@@ -113,6 +115,9 @@ protected:
 
   //! attribute that contains the number of processes used in batch mode by MPI containers
   int _nbprocUsed;
+
+  //! attribute that specifies the launch mode.
+  bool _isSSL = true;
 
   static omni_mutex _numInstanceMutex ; // lib and instance protection
 

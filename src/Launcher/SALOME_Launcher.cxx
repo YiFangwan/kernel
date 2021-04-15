@@ -241,6 +241,11 @@ SALOME_Launcher::getJobWorkFile(CORBA::Long job_id, const char * work_file, cons
   return rtn;
 }
 
+void SALOME_Launcher::DeclareUsingSalomeSession()
+{
+  this->_ContManager->DeclareUsingSalomeSession();
+}
+
 void
 SALOME_Launcher::removeJob(CORBA::Long job_id)
 {

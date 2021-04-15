@@ -77,6 +77,8 @@ public:
   // Save and load methods
   virtual void loadJobs(const char* jobs_file);
   virtual void saveJobs(const char* jobs_file);
+  
+  void DeclareUsingSalomeSession();
 
   static const char *_LauncherNameInNS;
 
