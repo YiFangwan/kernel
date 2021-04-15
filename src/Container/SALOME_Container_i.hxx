@@ -48,7 +48,7 @@
 #include <list>
 #include <string>
 
-class SALOME_NamingService_Abstract;
+class  SALOME_NamingService_Container_Abstract;
 
 class CONTAINER_EXPORT Engines_Container_i:
   public virtual POA_Engines::Container,
@@ -60,7 +60,7 @@ public:
                       PortableServer::POA_ptr poa,
                       char * containerName ,
                       int argc, char* argv[],
-                      SALOME_NamingService_Abstract *ns = nullptr,
+                       SALOME_NamingService_Container_Abstract *ns = nullptr,
                       bool isServantAloneInProcess = true);
   virtual ~Engines_Container_i();
 
@@ -151,7 +151,7 @@ protected:
 
   bool _isSupervContainer;
 
-  SALOME_NamingService_Abstract *_NS ;
+   SALOME_NamingService_Container_Abstract *_NS ;
   std::string _library_path;
   std::string _containerName;
   std::string _logfilename;

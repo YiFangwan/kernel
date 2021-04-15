@@ -20,11 +20,24 @@
 #include "SALOME_Fake_NamingService.hxx"
 #include "Utils_SALOME_Exception.hxx"
 
+#include <sstream>
+
 std::mutex SALOME_Fake_NamingService::_mutex;
 std::map<std::string,CORBA::Object_var> SALOME_Fake_NamingService::_map;
 
 SALOME_Fake_NamingService::SALOME_Fake_NamingService(CORBA::ORB_ptr orb)
 {
+}
+
+std::string SALOME_Fake_NamingService::repr()
+{
+  std::lock_guard<std::mutex> g(_mutex);
+  std::ostringstream oss;
+  for(auto it : _map)
+  {
+    oss << it.first << std::endl;
+  }
+  return oss.str();
 }
 
 void SALOME_Fake_NamingService::init_orb(CORBA::ORB_ptr orb)

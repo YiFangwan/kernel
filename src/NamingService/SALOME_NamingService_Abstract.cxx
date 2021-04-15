@@ -18,8 +18,20 @@
 //
 
 #include "SALOME_NamingService_Abstract.hxx"
+#include "Utils_SALOME_Exception.hxx"
 
 #include <sstream>
+#include <memory>
+
+SALOME_NamingService_Abstract *SALOME_NamingService_Abstract::cloneCoVar()
+{
+  std::unique_ptr<SALOME_NamingService_Container_Abstract> ret(this->clone());
+  SALOME_NamingService_Abstract *ret2(dynamic_cast<SALOME_NamingService_Abstract *>(ret.get()));
+  if(!ret2)
+    throw SALOME_Exception(std::string("SALOME_NamingService_Abstract::cloneCoVar : clone is expected to return a SALOME_NamingService_Abstract type !"));
+  ret.release();
+  return ret2;
+}
 
 // ============================================================================
 /*! \brief provide a default container name if empty.

@@ -22,8 +22,8 @@
 
 std::string GetModuleCatalogInstance(const std::string& listOfCatalogsGrouped)
 {
-    SALOME_ModuleCatalog::ModuleCatalog_var study = KERNEL::getModuleComponentServantSA(listOfCatalogsGrouped.c_str());
+    SALOME_ModuleCatalog::ModuleCatalog_var cata = KERNEL::getModuleComponentServantSA(listOfCatalogsGrouped.c_str());
     CORBA::ORB_ptr orb = KERNEL::getORB();
-    CORBA::String_var ior = orb->object_to_string(study);
+    CORBA::String_var ior = orb->object_to_string(cata);
     return std::string(ior.in());
 }

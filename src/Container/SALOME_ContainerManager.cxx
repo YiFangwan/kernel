@@ -954,7 +954,7 @@ void SALOME_ContainerManager::AddOmninamesParams(std::ostream& fileStream) const
 void SALOME_ContainerManager::AddOmninamesParams(std::ostream& fileStream, SALOME_NamingService_Abstract *ns)
 {
   SALOME_NamingService *nsTrad(dynamic_cast<SALOME_NamingService *>(ns));
-  if(ns)
+  if(nsTrad)
   {
     CORBA::String_var iorstr(nsTrad->getIORaddr());
     fileStream << "ORBInitRef NameService=";

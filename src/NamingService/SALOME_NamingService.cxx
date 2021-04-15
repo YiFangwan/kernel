@@ -92,6 +92,11 @@ SALOME_NamingService::~SALOME_NamingService()
   //MESSAGE("SALOME_NamingService destruction");
 }
 
+std::string SALOME_NamingService::repr()
+{
+  return std::string();
+}
+
 // ============================================================================
 /*! \brief initializes ORB reference and naming service root context.
  *
