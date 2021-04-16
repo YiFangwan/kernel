@@ -33,6 +33,7 @@ Engines::EmbeddedNamingService_var GetEmbeddedNamingService()
     std::unique_ptr<SALOME_Embedded_NamingService> servant(new SALOME_Embedded_NamingService);
     _embedded_ns_singleton = servant->_this();
     servant->_remove_ref();
+    servant.release();
   }
   return _embedded_ns_singleton;
 }
