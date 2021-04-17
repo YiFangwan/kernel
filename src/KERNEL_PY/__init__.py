@@ -192,6 +192,8 @@ class StandAloneLifecyle:
 def salome_init_without_session():
     global lcc,myStudy,orb,modulcat,sg,cm
     lcc = StandAloneLifecyle()
+    import KernelBasis
+    KernelBasis.setSSLMode(True)
     import KernelDS
     myStudy = KernelDS.myStudy()
     import CORBA
@@ -228,7 +230,8 @@ def salome_init_with_session(path=None, embedded=False):
     global orb, lcc, naming_service, cm, esm, dsm, modulcat
     global sg
     global myStudy, myStudyName
-
+    import KernelBasis
+    KernelBasis.setSSLMode(False)
     try:
         if salome_initial:
             salome_initial=False
