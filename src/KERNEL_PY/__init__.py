@@ -177,7 +177,11 @@ def salome_init(path=None, embedded=False):
     if __EMB_SERVANT_ENV_VAR_NAME in os.environ:
         salome_init_without_session()
     else:
-        salome_init_with_session(path, embedded)
+        import KernelBasis
+        if KernelBasis.getSSLMode():
+            salome_init_without_session()
+        else:
+            salome_init_with_session(path, embedded)
 
 class StandAloneLifecyle:
     def FindOrLoadComponent(self,contName,moduleName):
