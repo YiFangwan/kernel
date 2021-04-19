@@ -37,7 +37,8 @@ public:
   virtual void Destroy_FullDirectory(const char* Path) = 0;
   virtual void Destroy_Name(const char* Path) = 0;
   virtual CORBA::Object_ptr Resolve(const char* Path) = 0;
-  virtual CORBA::Object_ptr ResolveFirst(const char* Path) = 0; 
+  virtual CORBA::Object_ptr ResolveFirst(const char* Path) = 0;
+  static constexpr char SEP = '/';
 };
 
 class NAMINGSERVICE_EXPORT SALOME_NamingService_Abstract : public SALOME_NamingService_Container_Abstract

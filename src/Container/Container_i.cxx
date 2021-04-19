@@ -55,6 +55,7 @@ int SIGUSR1 = 1000;
 #include "Salome_file_i.hxx"
 #include "SALOME_NamingService.hxx"
 #include "SALOME_Fake_NamingService.hxx"
+#include "SALOME_Embedded_NamingService_Client.hxx"
 #include "Basics_Utils.hxx"
 
 #ifdef _XOPEN_SOURCE
@@ -1225,6 +1226,20 @@ Engines_Container_i::load_impl( const char* genericRegisterName,
     iobject = find_or_create_instance(genericRegisterName, impl_name);
   CORBA::string_free(reason);
   return iobject._retn();
+}
+
+Engines::EmbeddedNamingService_ptr Engines_Container_i::get_embedded_NS_if_ssl()
+{
+  SALOME_Embedded_NamingService_Client *nsc(dynamic_cast<SALOME_Embedded_NamingService_Client *>(this->_NS));
+  if(nsc)
+  {
+    Engines::EmbeddedNamingService_var obj = nsc->GetObject();
+    return Engines::EmbeddedNamingService::_duplicate(obj);
+  }
+  else
+  {
+    return Engines::EmbeddedNamingService::_nil();
+  } 
 }
 
 //=============================================================================

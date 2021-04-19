@@ -36,6 +36,8 @@ public:
   void Destroy_Name(const char* Path)  override;
   CORBA::Object_ptr Resolve(const char* Path) override;
   CORBA::Object_ptr ResolveFirst(const char* Path) override;
+public:
+  Engines::EmbeddedNamingService_var GetObject() const { return _remote_ns_serv; }
 private:
   SALOME_Embedded_NamingService_Client(const SALOME_Embedded_NamingService_Client& other) = default;
 private:

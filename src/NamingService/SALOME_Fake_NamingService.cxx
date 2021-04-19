@@ -85,6 +85,7 @@ std::vector<std::string> SALOME_Fake_NamingService::list_directory_recurs()
 
 CORBA::Object_ptr SALOME_Fake_NamingService::Resolve(const char* Path)
 {
+  std::lock_guard<std::mutex> g(_mutex);
   std::string pathCpp(Path);
   auto it = _map.find(pathCpp);
   if( it != _map.end() )
@@ -104,5 +105,8 @@ SALOME_NamingService_Abstract *SALOME_Fake_NamingService::clone()
 
 CORBA::Object_ptr SALOME_Fake_NamingService::ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc)
 {
-  THROW_SALOME_EXCEPTION("SALOME_Fake_NamingService::ResolveComponent : " << hostname << " " << containerName << " " << componentName << " " << nbproc);
+  std::ostringstream oss;
+  oss << SEP << "Containers" << SEP << hostname << SEP << containerName << SEP << componentName;
+  std::string entryToFind(oss.str());
+  return Resolve(entryToFind.c_str());
 }
