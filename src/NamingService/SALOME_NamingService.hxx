@@ -51,7 +51,7 @@ public:
   SALOME_NamingService(CORBA::ORB_ptr orb);
 
   virtual ~SALOME_NamingService();
-  std::string repr() override;
+  std::vector< std::string > repr() override;
   void init_orb(CORBA::ORB_ptr orb=0) override;
   void Register(CORBA::Object_ptr ObjRef, const char* Path) override;
   CORBA::Object_ptr Resolve(const char* Path) override; 

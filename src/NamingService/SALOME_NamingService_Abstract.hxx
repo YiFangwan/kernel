@@ -45,7 +45,7 @@ class NAMINGSERVICE_EXPORT SALOME_NamingService_Abstract : public SALOME_NamingS
 {
 public:
   SALOME_NamingService_Abstract *cloneCoVar();
-  virtual std::string repr() = 0;
+  virtual std::vector< std::string > repr() = 0;
   virtual void Destroy_Directory(const char* Path) = 0;
   virtual bool Change_Directory(const char* Path) = 0;
   virtual std::vector<std::string> list_subdirs() = 0;

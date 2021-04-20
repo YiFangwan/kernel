@@ -29,15 +29,15 @@ SALOME_Fake_NamingService::SALOME_Fake_NamingService(CORBA::ORB_ptr orb)
 {
 }
 
-std::string SALOME_Fake_NamingService::repr()
+std::vector< std::string > SALOME_Fake_NamingService::repr()
 {
   std::lock_guard<std::mutex> g(_mutex);
-  std::ostringstream oss;
+  std::vector< std::string > ret;
   for(auto it : _map)
   {
-    oss << it.first << std::endl;
+    ret.push_back( it.first );
   }
-  return oss.str();
+  return ret;
 }
 
 void SALOME_Fake_NamingService::init_orb(CORBA::ORB_ptr orb)
