@@ -30,23 +30,30 @@
 class NAMINGSERVICE_EXPORT SALOME_Fake_NamingService : public SALOME_NamingService_Abstract
 {
 public:
-    SALOME_Fake_NamingService(CORBA::ORB_ptr orb);
-    SALOME_Fake_NamingService() = default;
-    std::vector< std::string > repr() override;
-    void init_orb(CORBA::ORB_ptr orb=0) override;
-    void Register(CORBA::Object_ptr ObjRef, const char* Path) override;
-    CORBA::Object_ptr Resolve(const char* Path) override;
-    CORBA::Object_ptr ResolveFirst(const char* Path) override;
-    void Destroy_Name(const char* Path) override;
-    void Destroy_Directory(const char* Path) override;
-    void Destroy_FullDirectory(const char* Path) override;
-    bool Change_Directory(const char* Path) override;
-    std::vector<std::string> list_subdirs() override;
-    std::vector<std::string> list_directory() override;
-    std::vector<std::string> list_directory_recurs() override;
-    SALOME_NamingService_Abstract *clone() override;
-    CORBA::Object_ptr ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc=0) override;
+  SALOME_Fake_NamingService(CORBA::ORB_ptr orb);
+  SALOME_Fake_NamingService() = default;
+  static void LaunchLogContainersFile(const std::string& logFileName);
+  static std::string GetLogContainersFile();
+  std::vector< std::string > repr() override;
+  void init_orb(CORBA::ORB_ptr orb=0) override;
+  void Register(CORBA::Object_ptr ObjRef, const char* Path) override;
+  CORBA::Object_ptr Resolve(const char* Path) override;
+  CORBA::Object_ptr ResolveFirst(const char* Path) override;
+  void Destroy_Name(const char* Path) override;
+  void Destroy_Directory(const char* Path) override;
+  void Destroy_FullDirectory(const char* Path) override;
+  bool Change_Directory(const char* Path) override;
+  std::vector<std::string> list_subdirs() override;
+  std::vector<std::string> list_directory() override;
+  std::vector<std::string> list_directory_recurs() override;
+  SALOME_NamingService_Abstract *clone() override;
+  CORBA::Object_ptr ResolveComponent(const char* hostname, const char* containerName, const char* componentName, const int nbproc=0) override;
+  static std::string DumpInFileIORS();
 private:
-    static std::mutex _mutex;
-    static std::map<std::string,CORBA::Object_var> _map;
+  static std::vector<Engines::Container_var> ListOfContainersInNS();
+private:
+  static std::mutex _mutex;
+  static std::map<std::string,CORBA::Object_var> _map;
+  static bool _log_container_file_thread_launched;
+  static std::string _log_container_file_name;
 };

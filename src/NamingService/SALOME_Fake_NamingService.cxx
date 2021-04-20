@@ -19,11 +19,19 @@
 
 #include "SALOME_Fake_NamingService.hxx"
 #include "Utils_SALOME_Exception.hxx"
+#include "SALOME_KernelORB.hxx"
+
+#include CORBA_CLIENT_HEADER(SALOME_Component)
 
 #include <sstream>
+#include <fstream>
+#include <thread>
+#include <chrono>
 
 std::mutex SALOME_Fake_NamingService::_mutex;
 std::map<std::string,CORBA::Object_var> SALOME_Fake_NamingService::_map;
+bool SALOME_Fake_NamingService::_log_container_file_thread_launched = false;
+std::string SALOME_Fake_NamingService::_log_container_file_name;
 
 SALOME_Fake_NamingService::SALOME_Fake_NamingService(CORBA::ORB_ptr orb)
 {
@@ -109,4 +117,60 @@ CORBA::Object_ptr SALOME_Fake_NamingService::ResolveComponent(const char* hostna
   oss << SEP << "Containers" << SEP << hostname << SEP << containerName << SEP << componentName;
   std::string entryToFind(oss.str());
   return Resolve(entryToFind.c_str());
+}
+
+std::vector<Engines::Container_var> SALOME_Fake_NamingService::ListOfContainersInNS()
+{
+  std::lock_guard<std::mutex> g(_mutex);
+  std::vector<Engines::Container_var> ret;
+  for(auto it : _map)
+  {
+    Engines::Container_var elt = Engines::Container::_narrow(it.second);
+    if(!CORBA::is_nil(elt))
+      ret.push_back(elt);
+  }
+  return ret;
+}
+
+std::string SALOME_Fake_NamingService::DumpInFileIORS()
+{
+  std::vector<Engines::Container_var> conts( ListOfContainersInNS() );
+  std::ostringstream oss;
+  CORBA::ORB_ptr orb = KERNEL::getORB();
+  char SEP[2] = { '\0', '\0'};
+  for(auto it : conts)
+  {
+    CORBA::String_var ior(orb->object_to_string(it));
+    oss << SEP << ior;
+    SEP[0] = '\n';
+  }
+  return oss.str();
+}
+
+void WriteContinuously(const std::string& logFileName)
+{
+  while(true)
+  {
+    std::chrono::milliseconds delta( 2000 );
+    std::this_thread::sleep_for( delta );
+    std::string content(SALOME_Fake_NamingService::DumpInFileIORS());
+    { 
+      std::ofstream ofs(logFileName);
+      ofs.write(content.c_str(),content.length());
+    }
+  }
+}
+
+void SALOME_Fake_NamingService::LaunchLogContainersFile(const std::string& logFileName)
+{
+  if(_log_container_file_thread_launched)
+    THROW_SALOME_EXCEPTION("SALOME_Fake_NamingService::LaunchLogContainersFile : Thread lready launched !");
+  _log_container_file_name = logFileName;
+  std::thread t(WriteContinuously,logFileName);
+  t.detach();
+}
+
+std::string SALOME_Fake_NamingService::GetLogContainersFile()
+{
+  return _log_container_file_name;
 }

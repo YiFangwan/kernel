@@ -36,6 +36,8 @@ class SALOME_Fake_NamingService
 public:
   SALOME_Fake_NamingService();
   std::vector< std::string > repr();
+  static void LaunchLogContainersFile(const std::string& logFileName);
+  static std::string GetLogContainersFile();
   %extend {
     std::string _ResolveInternal(const char *Path)
     {
