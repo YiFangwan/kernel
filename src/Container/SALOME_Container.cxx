@@ -22,6 +22,6 @@
 
 int main(int argc, char* argv[])
 {
-  std::unique_ptr<SALOME_NamingService_Container_Abstract> ns(new SALOME_NamingService);
+  std::unique_ptr<SALOME_NamingService_Container_Abstract> ns;
   return container_common_main(argc,argv,std::move(ns));
 }
