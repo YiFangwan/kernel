@@ -25,8 +25,6 @@
 
 #include <sstream>
 #include <fstream>
-#include <thread>
-#include <chrono>
 
 std::mutex SALOME_Fake_NamingService::_mutex;
 std::map<std::string,CORBA::Object_var> SALOME_Fake_NamingService::_map;
@@ -57,6 +55,7 @@ void SALOME_Fake_NamingService::Register(CORBA::Object_ptr ObjRef, const char* P
   std::lock_guard<std::mutex> g(_mutex);
   CORBA::Object_var ObjRefAuto = CORBA::Object::_duplicate(ObjRef);
   _map[Path] = ObjRefAuto;
+  FlushLogContainersFile_NoThreadSafe();
 }
 
 void SALOME_Fake_NamingService::Destroy_Name(const char* Path)
@@ -119,58 +118,70 @@ CORBA::Object_ptr SALOME_Fake_NamingService::ResolveComponent(const char* hostna
   return Resolve(entryToFind.c_str());
 }
 
-std::vector<Engines::Container_var> SALOME_Fake_NamingService::ListOfContainersInNS()
+std::vector< std::pair< std::string, Engines::Container_var> > SALOME_Fake_NamingService::ListOfContainersInNS_NoThreadSafe()
 {
-  std::lock_guard<std::mutex> g(_mutex);
-  std::vector<Engines::Container_var> ret;
+  std::vector< std::pair< std::string, Engines::Container_var> > ret;
   for(auto it : _map)
   {
     Engines::Container_var elt = Engines::Container::_narrow(it.second);
     if(!CORBA::is_nil(elt))
-      ret.push_back(elt);
+      ret.push_back({it.first,elt});
   }
   return ret;
 }
 
-std::string SALOME_Fake_NamingService::DumpInFileIORS()
+std::string SALOME_Fake_NamingService::ReprOfContainersIORS_NoThreadSafe()
 {
-  std::vector<Engines::Container_var> conts( ListOfContainersInNS() );
+  std::vector< std::pair< std::string, Engines::Container_var> > conts( ListOfContainersInNS_NoThreadSafe() );
   std::ostringstream oss;
   CORBA::ORB_ptr orb = KERNEL::getORB();
-  char SEP[2] = { '\0', '\0'};
+  char SEP[2] = { '\0', '\0' };
+  constexpr char SEP2[] = " : ";
   for(auto it : conts)
   {
-    CORBA::String_var ior(orb->object_to_string(it));
-    oss << SEP << ior;
+    CORBA::String_var ior(orb->object_to_string(it.second));
+    oss << SEP << it.first << SEP2 << ior;
     SEP[0] = '\n';
   }
   return oss.str();
 }
 
-void WriteContinuously(const std::string& logFileName)
+std::string SALOME_Fake_NamingService::ReprOfContainersIORS()
 {
-  while(true)
-  {
-    std::chrono::milliseconds delta( 2000 );
-    std::this_thread::sleep_for( delta );
-    std::string content(SALOME_Fake_NamingService::DumpInFileIORS());
-    { 
-      std::ofstream ofs(logFileName);
-      ofs.write(content.c_str(),content.length());
-    }
-  }
-}
-
-void SALOME_Fake_NamingService::LaunchLogContainersFile(const std::string& logFileName)
-{
-  if(_log_container_file_thread_launched)
-    THROW_SALOME_EXCEPTION("SALOME_Fake_NamingService::LaunchLogContainersFile : Thread lready launched !");
-  _log_container_file_name = logFileName;
-  std::thread t(WriteContinuously,logFileName);
-  t.detach();
+  std::lock_guard<std::mutex> g(_mutex);
+  return ReprOfContainersIORS_NoThreadSafe();
 }
 
 std::string SALOME_Fake_NamingService::GetLogContainersFile()
 {
   return _log_container_file_name;
+}
+
+void SALOME_Fake_NamingService::FlushLogContainersFile()
+{
+  std::lock_guard<std::mutex> g(_mutex);
+  FlushLogContainersFile_NoThreadSafe();
+}
+
+void SALOME_Fake_NamingService::FlushLogContainersFile_NoThreadSafe()
+{
+  if(!_log_container_file_name.empty())
+  {
+    std::string content( ReprOfContainersIORS_NoThreadSafe() );
+    std::ofstream ofs(_log_container_file_name);
+    ofs.write(content.c_str(),content.length());
+  }
+}
+
+void SALOME_Fake_NamingService::SetLogContainersFile(const std::string& logFileName)
+{
+  if(logFileName.empty())
+    THROW_SALOME_EXCEPTION("SALOME_Fake_NamingService::SetLogContainersFile : empty log name !");
+  constexpr char EXPT_CONTENT[] = "SALOME_Fake_NamingService::SetLogContainersFile : input logFileName write access failed ! no log file set !";
+  {
+    std::ofstream ofs(logFileName);
+    if(!ofs)
+      THROW_SALOME_EXCEPTION(EXPT_CONTENT);
+  }
+  _log_container_file_name = logFileName;
 }

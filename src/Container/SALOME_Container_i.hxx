@@ -152,7 +152,7 @@ protected:
 
   bool _isSupervContainer;
 
-   SALOME_NamingService_Container_Abstract *_NS ;
+  SALOME_NamingService_Container_Abstract *_NS ;
   std::string _library_path;
   std::string _containerName;
   std::string _logfilename;

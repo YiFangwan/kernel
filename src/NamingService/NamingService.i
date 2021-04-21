@@ -21,7 +21,9 @@
 
 %{
 #include "SALOME_Fake_NamingService.hxx"
+#include "SALOME_Embedded_NamingService.hxx"
 #include "SALOME_KernelORB.hxx"
+#include "Utils_SALOME_Exception.hxx"
 %}
 
 %include "std_string.i"
@@ -31,14 +33,46 @@
 
 %template(svec) std::vector<std::string>;
 
+%exceptionclass SALOME_Exception;
+
+class SALOME_Exception
+{
+public:
+  SALOME_Exception(const std::string& text);
+  ~SALOME_Exception() noexcept;
+  const char *what() const noexcept;
+  %extend
+  {
+    std::string __str__() const
+    {
+      return std::string(self->what());
+    }
+  }
+};
+
+%exception {
+  try {
+    $action
+  }
+  catch (SALOME_Exception& _e) {
+    // Reraise with SWIG_Python_Raise
+    SWIG_Python_Raise(SWIG_NewPointerObj((new SALOME_Exception(static_cast< const SALOME_Exception& >(_e))),SWIGTYPE_p_SALOME_Exception,SWIG_POINTER_OWN), "SALOME_Exception", SWIGTYPE_p_SALOME_Exception);
+    SWIG_fail;
+  }
+}
+
 class SALOME_Fake_NamingService
 {
 public:
   SALOME_Fake_NamingService();
   std::vector< std::string > repr();
-  static void LaunchLogContainersFile(const std::string& logFileName);
   static std::string GetLogContainersFile();
+  static void FlushLogContainersFile();
   %extend {
+    static void SetLogContainersFileInternal(const std::string& logFileName)
+    {
+      SALOME_Fake_NamingService::SetLogContainersFile(logFileName);
+    }
     std::string _ResolveInternal(const char *Path)
     {
       CORBA::Object_var obj = self->Resolve(Path);
@@ -51,6 +85,13 @@ public:
       CORBA::ORB_ptr orb = KERNEL::getORB();
       CORBA::Object_var obj = orb->string_to_object(ior);
       self->Register(obj,Path);
+    }
+    static std::string IOROfNS()
+    {
+      CORBA::ORB_ptr orb = KERNEL::getORB();
+      Engines::EmbeddedNamingService_var ns = GetEmbeddedNamingService();
+      CORBA::String_var ior = orb->object_to_string(ns);
+      return std::string(ior);
     }
   }
 };
@@ -67,4 +108,31 @@ def NamingService_Register(self,obj,Path):
   self._RegisterInternal( orb.object_to_string(obj) , Path)
 NamingService.Resolve = NamingService_Resolve
 NamingService.Register = NamingService_Register
+def NamingService_SetLogContainersFile(cls,logFileName = None):
+  if logFileName is None:
+    import tempfile
+    with tempfile.NamedTemporaryFile() as f:
+      logFileName = f.name
+  cls.SetLogContainersFileInternal(logFileName)
+NamingService.SetLogContainersFile = classmethod(NamingService_SetLogContainersFile)
+def NamingService_RefOfNS(cls):
+  ret = cls.IOROfNS()
+  import Engines
+  import CORBA
+  orb=CORBA.ORB_init([''])
+  return orb.string_to_object(ret)
+NamingService.RefOfNS = classmethod(NamingService_RefOfNS)
+def NamingService_KillContainersInFile(cls,logFileName):
+  import Engines
+  import CORBA
+  orb=CORBA.ORB_init([''])
+  with open(logFileName) as f:
+    cont_to_kill = [elt.split(" : ") for elt in f]
+    for name,ior in cont_to_kill:
+      try:
+        ref = orb.string_to_object(ior)
+        ref.Shutdown()
+      except Exception as e:
+        print("Failed to kill container remotely \"{}\"".format(name))
+NamingService.KillContainersInFile = classmethod(NamingService_KillContainersInFile)
 %}

@@ -379,8 +379,17 @@ void Engines_Container_i::Shutdown()
   }
   _listInstances_map.clear();
 
-  _NS->Destroy_FullDirectory(_containerName.c_str());
-  _NS->Destroy_Name(_containerName.c_str());
+  // NS unregistering may throw in SSL mode if master process hosting SALOME_Embedded_NamingService servant has vanished
+  // In this case it's skip it and still continue.
+  try
+  {
+    _NS->Destroy_FullDirectory(_containerName.c_str());
+    _NS->Destroy_Name(_containerName.c_str());
+  }
+  catch(...)
+  {
+  }
+  //
   if(_isServantAloneInProcess)
   {
     MESSAGE("Effective Shutdown of container Begins...");
