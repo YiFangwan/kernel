@@ -526,7 +526,7 @@ SALOME_ContainerManager::LaunchContainer(const Engines::ContainerParameters& par
       {
 
         const ParserResourcesType resInfo(_resManager->GetResourceDefinition(resource_selected));
-        std::string command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, 
+        std::string command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName,
                                                            resInfo.UserName, resInfo.AppliPath);
 
         // Launch remote command
@@ -757,10 +757,10 @@ SALOME_ContainerManager::BuildCommandToLaunchRemoteContainer(const std::string& 
 
     // "ssh -l user machine distantPath/runRemote.sh hostNS portNS WORKINGDIR workingdir \
     //  SALOME_Container containerName -ORBInitRef NameService=IOR:01000..."
-    //  or 
+    //  or
     //  "ssh -l user machine distantLauncher remote -p hostNS -m portNS -d dir
     //      --  SALOME_Container contName -ORBInitRef NameService=IOR:01000..."
-    command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, 
+    command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName,
                                            resInfo.UserName, resInfo.AppliPath,
                                            wdir);
 
@@ -1142,7 +1142,7 @@ std::string SALOME_ContainerManager::BuildTempFileToLaunchRemoteContainer (const
 
   else if (resInfo.Protocol == srun)
     {
-      command = "srun -n 1 -N 1 -s --mem-per-cpu=0 --nodelist=";
+      command = "srun -n 1 -N 1 -s --mem-per-cpu=0 --cpu-bind=none --nodelist=";
       std::string commandRcp = "rcp ";
       commandRcp += tmpFileName;
       commandRcp += " ";
@@ -1184,7 +1184,7 @@ std::string SALOME_ContainerManager::GetMPIZeroNode(const std::string machine, c
     {
       if (_isAppliSalomeDefined)
         {
-          command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName, 
+          command = getCommandToRunRemoteProcess(resInfo.Protocol, resInfo.HostName,
                                                  resInfo.UserName, resInfo.AppliPath);
           command += " mpirun -np 1 hostname -s > " + tmpFile;
         }
@@ -1262,7 +1262,7 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
   case srun:
     // no need to redefine the user with srun, the job user is taken by default
     // (note: for srun, user id can be specified with " --uid=<user>")
-    command << "srun -n 1 -N 1 -s --mem-per-cpu=0 --nodelist=" << hostname << " ";
+    command << "srun -n 1 -N 1 -s --mem-per-cpu=0 --cpu-bind=none --nodelist=" << hostname << " ";
     break;
   case pbsdsh:
     command << "pbsdsh -o -h " << hostname << " ";
@@ -1290,7 +1290,7 @@ std::string SALOME_ContainerManager::getCommandToRunRemoteProcess(AccessProtocol
   {
     // if $APPLI is a regular file, we asume it's a salome Launcher
     // generate a command with a salome launcher
-    command << remoteapplipath 
+    command << remoteapplipath
             << " remote"
             << " -m "
             <<  GetenvThreadSafeAsString("NSHOST") // hostname of CORBA name server
@@ -1407,7 +1407,7 @@ long SALOME_ContainerManager::SystemWithPIDThreadSafe(const std::vector<std::str
     throw SALOME_Exception("SystemWithPIDThreadSafe : command is expected to have a length of size 1 at least !");
 #ifndef WIN32
   pid_t pid ( fork() ) ; // spawn a child process, following code is executed in both processes
-#else 
+#else
   pid_t pid = -1; //Throw SALOME_Exception on Windows
 #endif
   if ( pid == 0 ) // I'm a child, replace myself with a new ompi-server
