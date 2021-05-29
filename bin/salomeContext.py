@@ -136,19 +136,7 @@ class SalomeContext:
     env_copy = os.environ.copy()
     selfBytes= pickle.dumps(self, protocol=0)
     argsBytes= pickle.dumps(args, protocol=0)
-    py_executable = sys.executable
-    salome_venv_directory = os.getenv('SALOME_VENV_DIRECTORY')
-    if salome_venv_directory and os.path.isdir(salome_venv_directory):
-        salome_venv_path = os.path.join(salome_venv_directory, 'bin')
-        venv_py_executable = os.path.join(salome_venv_path, 'python')
-        if os.path.exists(venv_py_executable):
-            py_executable = venv_py_executable
-            import sysconfig
-            python_site_packages = sysconfig.get_path('purelib').replace(os.path.join(sys.prefix, ''), '').lstrip(os.sep)
-            salome_venv_pythonpath = os.path.join(salome_venv_directory, python_site_packages)
-            env_copy['PATH'] = '%s:%s' % (salome_venv_path, env_copy['PATH'])
-            env_copy['PYTHONPATH'] = '%s:%s' % (salome_venv_pythonpath, env_copy['PYTHONPATH'])
-    proc = subprocess.Popen([py_executable, os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), selfBytes.decode('latin1'), argsBytes.decode('latin1')], shell=False, close_fds=True, env=env_copy)
+    proc = subprocess.Popen([sys.executable, os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), selfBytes.decode('latin1'), argsBytes.decode('latin1')], shell=False, close_fds=True, env=env_copy)
     out, err = proc.communicate()
     return out, err, proc.returncode
   #

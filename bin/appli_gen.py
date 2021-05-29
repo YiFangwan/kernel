@@ -43,6 +43,7 @@ import subprocess
 appli_tag   = "application"
 prereq_tag  = "prerequisites"
 context_tag = "context"
+venv_directory_tag = "venv_directory"
 sha1_collect_tag = "sha1_collections"
 system_conf_tag  = "system_conf"
 modules_tag = "modules"
@@ -98,6 +99,10 @@ class xml_parser:
         # --- if we are analyzing "context" element then store its "path" attribute
         if self.space == [appli_tag, context_tag] and path_att in attrs.getNames():
             self.config["context_path"] = attrs.getValue( path_att )
+            pass
+        # --- if we are analyzing "venv_directory" element then store its "path" attribute
+        if self.space == [appli_tag, venv_directory_tag] and path_att in attrs.getNames():
+            self.config["venv_directory_path"] = attrs.getValue( path_att )
             pass
         # --- if we are analyzing "sha1_collection" element then store its "path" attribute
         if self.space == [appli_tag, sha1_collect_tag] and path_att in attrs.getNames():
@@ -288,6 +293,12 @@ def install(prefix, config_file, verbose=0):
     # Creation of env.d directory
     virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
 
+    venv_directory_path = None
+    if "venv_directory_path" in _config:
+        venv_directory_path = _config["venv_directory_path"]
+        if os.path.isdir(venv_directory_path):
+            virtual_salome.symlink(venv_directory_path, os.path.join(home_dir, "venv"))
+
     # Get the env modules which will be loaded
     # In the same way as: module load [MODULE_LIST]
     env_modules = _config.get('env_modules', [])
@@ -385,6 +396,15 @@ export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
         # Create environment for Meshers
         command = "export SMESH_MeshersList=StdMeshers:HYBRIDPlugin:HexoticPLUGIN:GMSHPlugin:GHS3DPlugin:NETGENPlugin:HEXABLOCKPlugin:BLSURFPlugin:GHS3DPRLPlugin\nexport SALOME_StdMeshersResources=${HOME}/${APPLI}/share/salome/resources/smesh\n"
         f.write(command)
+        # Create environment for virtual env
+        if venv_directory_path:
+            command = """# SALOME venv Configuration
+export SALOME_USE_VENV=1
+export PATH=${HOME}/${APPLI}/venv/bin:$PATH
+export PYTHONPATH=${HOME}/${APPLI}/venv/lib/python%s/site-packages
+""" % versionPython
+            f.write(command)
+            pass
 
     # Create configuration file: configSalome.cfg
     with open(os.path.join(home_dir, 'env.d', 'configSalome.cfg'),'w') as f:
@@ -420,7 +440,15 @@ ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/lib/salome
         # Create environment for Meshers
         command = "SMESH_MeshersList=StdMeshers:HYBRIDPlugin:HexoticPLUGIN:GMSHPlugin:GHS3DPlugin:NETGENPlugin:HEXABLOCKPlugin:BLSURFPlugin:GHS3DPRLPlugin\nSALOME_StdMeshersResources=${HOME}/${APPLI}/share/salome/resources/smesh\n"
         f.write(command)
-
+        # Create environment for virtual env
+        if venv_directory_path:
+            command = """[SALOME venv Configuration]
+SALOME_USE_VENV: 1
+ADD_TO_PATH: ${HOME}/${APPLI}/venv/bin
+ADD_TO_PYTHONPATH: ${HOME}/${APPLI}/venv/lib/python%s/site-packages
+""" % versionPython
+            f.write(command)
+            pass
 
     # Create environment file: configGUI.sh
     dirs_ress_icon = []
