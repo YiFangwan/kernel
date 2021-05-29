@@ -293,12 +293,6 @@ def install(prefix, config_file, verbose=0):
     # Creation of env.d directory
     virtual_salome.mkdir(os.path.join(home_dir,'env.d'))
 
-    venv_directory_path = None
-    if "venv_directory_path" in _config:
-        venv_directory_path = _config["venv_directory_path"]
-        if os.path.isdir(venv_directory_path):
-            virtual_salome.symlink(venv_directory_path, os.path.join(home_dir, "venv"))
-
     # Get the env modules which will be loaded
     # In the same way as: module load [MODULE_LIST]
     env_modules = _config.get('env_modules', [])
@@ -362,6 +356,22 @@ def install(prefix, config_file, verbose=0):
        cmd='source %s && python3 -c "import sys ; sys.stdout.write(\\"{}.{}\\".format(sys.version_info.major,sys.version_info.minor))"' %(_config["prereq_path"])
        versionPython=subprocess.check_output(['/bin/bash', '-l' ,'-c',cmd]).decode("utf-8")
 
+    venv_directory_path = None
+    if "venv_directory_path" in _config:
+        venv_directory_path = _config["venv_directory_path"]
+        if os.path.isdir(venv_directory_path):
+            venv_directory_path_target_link = os.path.join(home_dir, "venv")
+            virtual_salome.symlink(venv_directory_path, venv_directory_path_target_link)
+            requirement_file = os.path.join(home_dir, 'requirements.txt')
+            sys.path.insert(0, os.path.join(venv_directory_path_target_link, "lib/python%s/site-packages" % versionPython))
+            with open(requirement_file, 'w') as fd:
+                try:
+                    from pip._internal.operations import freeze
+                except ImportError:
+                    from pip.operations import freeze
+                fd.write('\n'.join(freeze.freeze()))
+            del sys.path[0]
+
     with open(os.path.join(home_dir, 'env.d', 'configSalome.sh'),'w') as f:
         for module in _config.get("modules", []):
             command = 'export '+ module + '_ROOT_DIR=${HOME}/${APPLI}\n'
@@ -399,10 +409,10 @@ export LD_LIBRARY_PATH=${HOME}/${APPLI}/lib/salome:$LD_LIBRARY_PATH
         # Create environment for virtual env
         if venv_directory_path:
             command = """# SALOME venv Configuration
-export SALOME_USE_VENV=1
+export SALOME_VENV_DIRECTORY=%s
 export PATH=${HOME}/${APPLI}/venv/bin:$PATH
 export PYTHONPATH=${HOME}/${APPLI}/venv/lib/python%s/site-packages
-""" % versionPython
+""" % (venv_directory_path, versionPython)
             f.write(command)
             pass
 
@@ -443,10 +453,10 @@ ADD_TO_LD_LIBRARY_PATH: ${HOME}/${APPLI}/lib/salome
         # Create environment for virtual env
         if venv_directory_path:
             command = """[SALOME venv Configuration]
-SALOME_USE_VENV: 1
+SALOME_VENV_DIRECTORY: %s
 ADD_TO_PATH: ${HOME}/${APPLI}/venv/bin
 ADD_TO_PYTHONPATH: ${HOME}/${APPLI}/venv/lib/python%s/site-packages
-""" % versionPython
+""" % (venv_directory_path, versionPython)
             f.write(command)
             pass
 
