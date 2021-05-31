@@ -136,7 +136,7 @@ class SalomeContext:
     env_copy = os.environ.copy()
     selfBytes= pickle.dumps(self, protocol=0)
     argsBytes= pickle.dumps(args, protocol=0)
-    proc = subprocess.Popen([sys.executable, os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), selfBytes.decode('latin1'), argsBytes.decode('latin1')], shell=False, close_fds=True, env=env_copy)
+    proc = subprocess.Popen(["python3", os.path.join(absoluteAppliPath,"bin","salome","salomeContext.py"), selfBytes.decode('latin1'), argsBytes.decode('latin1')], shell=False, close_fds=True, env=env_copy)
     out, err = proc.communicate()
     return out, err, proc.returncode
   #
