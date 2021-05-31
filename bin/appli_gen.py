@@ -373,6 +373,8 @@ def install(prefix, config_file, verbose=0):
                     from pip.operations import freeze
                 fd.write('\n'.join(freeze.freeze()))
             del sys.path[0]
+        else:
+            venv_directory_path = None
 
     with open(os.path.join(home_dir, 'env.d', 'configSalome.sh'),'w') as f:
         for module in _config.get("modules", []):
