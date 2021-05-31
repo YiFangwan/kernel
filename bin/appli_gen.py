@@ -359,7 +359,9 @@ def install(prefix, config_file, verbose=0):
     venv_directory_path = None
     if "venv_directory_path" in _config:
         venv_directory_path = _config["venv_directory_path"]
-        if os.path.isdir(venv_directory_path):
+        venv_bin_directory_path = os.path.join(venv_directory_path, 'bin')
+        venv_pip_executable = os.path.join(venv_bin_directory_path, 'pip')
+        if os.path.isdir(venv_directory_path) and os.path.isfile(venv_pip_executable):
             venv_directory_path_target_link = os.path.join(home_dir, "venv")
             virtual_salome.symlink(venv_directory_path, venv_directory_path_target_link)
             requirement_file = os.path.join(home_dir, 'requirements.txt')
