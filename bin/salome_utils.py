@@ -45,7 +45,7 @@ __all__ = [
     'generateFileName',
     'makeTmpDir',
     'uniteFiles',
-    ]
+]
 
 # ---
 
@@ -77,16 +77,17 @@ def getORBcfgInfo():
     If omniORB configuration file can not be accessed, a list of three empty
     strings is returned.
     """
-    import os, re
-    ret = [ "", "", "" ]
+    import os
+    import re
+    ret = ["", "", ""]
     try:
-        f = open( os.getenv( "OMNIORB_CONFIG" ) )
-        lines = f.readlines()
-        f.close()
-        regvar = re.compile( "(ORB)?InitRef.*corbaname::(.*):(\d+)\s*$" )
-        for l in lines:
+        lines = []
+        with open(os.getenv("OMNIORB_CONFIG")) as f:
+            lines = f.readlines()
+        regvar = re.compile(r"(ORB)?InitRef.*corbaname::(.*):(\d+)\s*$")
+        for line in lines:
             try:
-                m = regvar.match( l )
+                m = regvar.match(line)
                 if m:
                     if m.group(1) is None:
                         ret[0] = "4"
@@ -97,11 +98,11 @@ def getORBcfgInfo():
                     ret[2] = m.group(3)
                     break
                 pass
-            except:
+            except Exception:
                 pass
             pass
         pass
-    except:
+    except Exception:
         pass
     return ret
 
@@ -153,7 +154,7 @@ def getHostName():
     try:
         import socket
         host = socket.gethostname()
-    except:
+    except Exception:
         host = None
         pass
     if not host: host = os.getenv("HOSTNAME")
@@ -161,7 +162,7 @@ def getHostName():
     if not host: host = "unknown"           # 'unknown' is default host name
     try:
         socket.gethostbyname(host)
-    except:
+    except Exception:
         host = "localhost"
     pass
     return host
@@ -178,7 +179,7 @@ def getShortHostName():
     """
     try:
         return getHostName().split('.')[0]
-    except:
+    except Exception:
         pass
     return "unknown"           # 'unknown' is default host name
 
@@ -205,12 +206,12 @@ def getPortNumber(use_default=True):
     import os
     try:
         return int( os.getenv( "NSPORT" ) )
-    except:
+    except Exception:
         pass
     try:
         port = int( getPortFromORBcfg() )
         if port is not None: return port
-    except:
+    except Exception:
         pass
     if use_default: return 2809 # '2809' is default port number
     return None
@@ -308,7 +309,7 @@ def generateFileName( dir, prefix = None, suffix = None, extension = None,
                 # auto user name ?
                 if _try_bool( kwargs[kw] ): filename.append( getUserName() )
                 pass
-            except:
+            except Exception:
                 # user name given as parameter
                 filename.append( kwargs[kw] )
                 pass
@@ -319,7 +320,7 @@ def generateFileName( dir, prefix = None, suffix = None, extension = None,
                 # auto host name ?
                 if _try_bool( kwargs[kw] ): filename.append( getShortHostName() )
                 pass
-            except:
+            except Exception:
                 # host name given as parameter
                 filename.append( kwargs[kw] )
                 pass
@@ -330,7 +331,7 @@ def generateFileName( dir, prefix = None, suffix = None, extension = None,
                 # auto port number ?
                 if _try_bool( kwargs[kw] ): filename.append( str( getPortNumber() ) )
                 pass
-            except:
+            except Exception:
                 # port number given as parameter
                 filename.append( str( kwargs[kw] ) )
                 pass
@@ -341,7 +342,7 @@ def generateFileName( dir, prefix = None, suffix = None, extension = None,
                 # auto application name ?
                 if _try_bool( kwargs[kw] ): filename.append( getAppName() )
                 pass
-            except:
+            except Exception:
                 # application name given as parameter
                 filename.append( kwargs[kw] )
                 pass
@@ -404,7 +405,7 @@ def makeTmpDir( path, mode=0o777 ):
             try:
                 os.mkdir(p, mode)
                 os.chmod(p, mode)
-            except:
+            except Exception:
                 pass
 
 # ---
@@ -475,7 +476,7 @@ def verbose():
     try:
         from os import getenv
         _verbose = int(getenv('SALOME_VERBOSE'))
-    except:
+    except Exception:
         _verbose = 0
         pass
     #
@@ -499,7 +500,7 @@ def killpid(pid, sig = 9):
     Parameters:
     - pid : PID of process
     - sig : signal for sending
-            Possible values of signals: 
+            Possible values of signals:
             9 means kill the process
             0 only check existing of the process
             NOTE: Other values are not processed on Windows
@@ -575,7 +576,7 @@ def getOmniNamesPid(port):
         allProc = proc.communicate()[0].decode()
         # find Pid of omniNames
         pid = re.findall(r'Caption=.*omniNames.*\n?CommandLine=.*omniNames.*\D%s\D.*\n?ProcessId=(\d*)'%(port),allProc)[0]
-    else:        
+    else:
         cmd = "ps -eo pid,command | grep -v grep | grep -E \"omniNames.*%s\" | awk '{print $1}'"%(port)
         proc = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
         pid = proc.communicate()[0]
@@ -591,7 +592,7 @@ def killOmniNames(port):
     try:
         pid = getOmniNamesPid(port)
         if pid: killpid(pid)
-    except:
+    except Exception:
         pass
     pass
 # --

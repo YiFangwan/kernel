@@ -58,7 +58,7 @@ def getPiDict(port,appname='salome',full=True,hidden=True,hostname=None):
     # Note: this function is also called with port='#####' !!!
     try:
         port = int(port)
-    except:
+    except Exception:
         pass
 
     from salome_utils import generateFileName, getLogDir
@@ -217,7 +217,7 @@ def shutdownMyPort(port, cleanup=True):
           time.sleep(1)
           pass
         pass
-    except:
+    except Exception:
         pass
     sys.exit(0) # see (1)
     pass
@@ -242,18 +242,18 @@ def __killMyPort(port, filedict):
                     try:
                         from salome_utils import killpid
                         killpid(pid)
-                    except:
+                    except Exception:
                         if verbose(): print("  ------------------ process %s : %s not found"% (pid, cmd[0]))
                         if pid in checkUnkilledProcess():
                             try:
                                 killpid(pid)
-                            except:
+                            except Exception:
                                 pass
                         pass
                     pass # for pid ...
                 pass # for process_id ...
             # end with
-    except:
+    except Exception:
         print("Cannot find or open SALOME PIDs file for port", port)
         pass
     os.remove(filedict)
@@ -317,7 +317,7 @@ def killMyPort(port):
             except ImportError:
                 pass
             return
-    except:
+    except Exception:
         pass
 
     # try to shutdown session normally
@@ -354,7 +354,7 @@ def cleanApplication(port):
     try:
         filedict=getPiDict(port)
         os.remove(filedict)
-    except:
+    except Exception:
       #import traceback
       #traceback.print_exc()
       pass
@@ -385,12 +385,12 @@ def killMyPortSpy(pid, port):
         import SALOME #@UnresolvedImport @UnusedImport
         session = ns.Resolve("/Kernel/Session")
         assert session
-    except:
+    except Exception:
         killMyPort(port)
         return
     try:
         status = session.GetStatSession()
-    except:
+    except Exception:
         # -- session is in naming service but has crash
         status = None
         pass
@@ -432,7 +432,7 @@ def checkUnkilledProcess():
             prc = [prc[i].split(',') for i in range(0, len(prc)) if i % 2 == 0]
             prc = dict([(int(prc[j][1].replace('"', '')), prc[j][0].replace('"', '')) for j in range(0, len(prc))])
             processes.update(prc)
-        except:
+        except Exception:
             pass
     return processes
 

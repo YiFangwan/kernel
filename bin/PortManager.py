@@ -26,7 +26,7 @@ import sys
 
 try:
   import cPickle as pickle #@UnusedImport
-except:
+except ImportError:
   import pickle #@Reimport
 
 __PORT_MIN_NUMBER = 2810
@@ -117,7 +117,7 @@ def __isNetworkConnectionActiveOnPort(port):
     from subprocess import Popen, PIPE, STDOUT
     p = Popen(cmd, stdout=PIPE, stderr=STDOUT)
     out, err = p.communicate()
-  except:
+  except Exception:
     print("Error when trying to access active network connections.")
     if err: print(err)
     print("... Presumably this package is not installed...Please install netstat if available for your distribution.")
@@ -133,7 +133,7 @@ def __isNetworkConnectionActiveOnPort(port):
       else:
         sock.close()
         return False
-    except:
+    except Exception:
       import traceback
       traceback.print_exc()
       return False
@@ -148,7 +148,7 @@ def __isNetworkConnectionActiveOnPort(port):
     try:
       p = int(regObj.match(item).group(1))
       if p == port: return True
-    except:
+    except Exception:
       pass
   return False
 #
@@ -168,7 +168,7 @@ def getPort(preferredPort=None):
     try:
       with open(config_file, 'rb') as f:
         config = pickle.load(f)
-    except:
+    except Exception:
       logger.debug("Problem loading PortManager file: %s"%config_file)
       # In this case config dictionary is reset
 

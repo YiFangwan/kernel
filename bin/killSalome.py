@@ -54,11 +54,11 @@ def killAllPorts():
             mo = fnamere.match(f)
             try:
                 killMyPort(mo.group(1))
-            except:
+            except Exception:
                 pass
             pass
         pass
-    except:
+    except Exception:
         pass
     # provide compatibility with old-style pidict file (not dot-prefixed)
     #fpidict   = getPiDict('(\d*)',hidden=False)
@@ -74,17 +74,17 @@ def killAllPorts():
             mo = fnamere.match(f)
             try:
                 killMyPort(mo.group(1))
-            except:
+            except Exception:
                 pass
             pass
         pass
-    except:
+    except Exception:
         pass
     # kill other processes
     for pid in checkUnkilledProcess():
         try:
             os.kill(pid, signal.SIGKILL)
-        except:
+        except Exception:
             pass
         pass
     if sys.platform != 'win32':
