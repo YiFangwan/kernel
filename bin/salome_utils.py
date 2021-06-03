@@ -125,18 +125,21 @@ def getPortFromORBcfg():
 def getUserName():
     """
     Get user name:
-    1. try USER environment variable (USERNAME on windows)
-    2. if fails, try LOGNAME (un*x)
-    3. if fails return 'unknown' as default user name
+    Uses the getpass standard module which test the
+    following variables (in that order):
+    1. LOGNAME
+    2. USER
+    3. LNAME
+    4. USERNAME
+    If none of these variable is set, try with the pwd module
+    if supported.
+    Finally raises an exception if nothing is found.
     """
-    import os, sys
-    if sys.platform == "win32":
-        return os.getenv("USERNAME", "unknown")
-    else:
-        user = os.getenv("USER")
-        if user:
-            return user
-        return os.getenv("LOGNAME", "unknown")
+    import getpass
+    try:
+        return getpass.getuser()
+    except Exception:
+        return 'unknown'
 # ---
 
 def getHostName():
