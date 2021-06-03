@@ -29,7 +29,7 @@ from socket import AF_INET, SOCK_STREAM
 
 try:
   import cPickle as pickle #@UnusedImport
-except:
+except ImportError:
   import pickle #@Reimport
 
 __PORT_MIN_NUMBER = 2810
@@ -126,7 +126,7 @@ def getPort(preferredPort=None):
     try:
       with open(config_file, 'rb') as f:
         config = pickle.load(f)
-    except:
+    except Exception:
       logger.debug("Problem loading PortManager file: %s"%config_file)
       # In this case config dictionary is reset
 

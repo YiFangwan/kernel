@@ -210,7 +210,7 @@ def install(prefix, config_file, verbose=0):
         print(inst.args)
         print("Configure parser: error in configuration file %s" % filename)
         pass
-    except:
+    except Exception:
         print("Configure parser: Error : can not read configuration file %s, check existence and rights" % filename)
         pass
 
@@ -223,7 +223,7 @@ def install(prefix, config_file, verbose=0):
     try:
       ctest_file = os.path.join(home_dir, 'bin', 'salome', 'test', "CTestTestfile.cmake")
       os.remove(ctest_file)
-    except:
+    except Exception:
       pass
 
     for module in _config.get("modules", []):
