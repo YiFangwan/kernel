@@ -227,7 +227,8 @@ def salome_init_without_session():
     salome_study_init_without_session()
     naming_service = NamingService()
     from KernelSDS import GetDSMInstance
-    dsm = GetDSMInstance()
+    import sys
+    dsm = GetDSMInstance(sys.argv)
 
 def salome_init_with_session(path=None, embedded=False):
     """

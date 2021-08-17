@@ -43,7 +43,7 @@ def generateKey(varName,scopeName):
   time.sleep(3)
   dss.atomicApply([t])
 def work(t):
-  i,varName,scopeName=t
+  IORNS,i,varName,scopeName=t
   if i==0:
     generateKey(varName,scopeName)
     return 0
@@ -51,7 +51,7 @@ def work(t):
     import TestSalomeSDSHelper0
     import os,subprocess
     fname=os.path.splitext(TestSalomeSDSHelper0.__file__)[0]+".py"
-    proc = subprocess.Popen(["python3", fname], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(["python3", fname, IORNS], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     out,err=proc.communicate()
     if proc.returncode!=0:
       print("-------------- work -----------")
@@ -95,7 +95,7 @@ def func_test7(scopeName,cv,cv2,cv3,sharedNum):
   
 class SalomeSDSTest(unittest.TestCase):
   
-  def testList1(self):
+  def tessList1(self):
     a=SalomeSDSClt.CreateRdExtGlobalVar([],"a","Scope0")
     self.assertEqual(a.local_copy(),[])
     a.append(5)
@@ -114,7 +114,7 @@ class SalomeSDSTest(unittest.TestCase):
     a.ptr().getMyDataScopeServer().deleteVar("a")
     pass
   
-  def testDict1(self):
+  def tessDict1(self):
     a=SalomeSDSClt.CreateRdExtGlobalVar({},"a","Scope0")
     a["ab"]=4
     self.assertEqual(a.local_copy(),{"ab":4})
@@ -135,7 +135,7 @@ class SalomeSDSTest(unittest.TestCase):
     a.ptr().getMyDataScopeServer().deleteVar("a")
     pass
 
-  def testReadOnly1(self):
+  def tessReadOnly1(self):
     a=SalomeSDSClt.CreateRdOnlyGlobalVar({"ab":4,"cd":[5,77]},"a","Scope0")
     self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77]})
     self.assertRaises(Exception,a.__getitem__,"ab")
@@ -166,12 +166,13 @@ class SalomeSDSTest(unittest.TestCase):
     #
     nbProc=8
     pool=mp.Pool(processes=nbProc)
-    asyncResult=pool.map_async(work,[(i,varName,scopeName) for i in range(nbProc)])
+    from  NamingService import NamingService
+    asyncResult=pool.map_async(work,[(NamingService.IOROfNS(),i,varName,scopeName) for i in range(nbProc)])
     print("asyncResult=", asyncResult)
     self.assertEqual(asyncResult.get(),nbProc*[0]) # <- the big test is here !
     dsm.removeDataScope(scopeName)
 
-  def testTransaction2(self):
+  def tessTransaction2(self):
     scopeName="Scope1"
     varName="a"
     dsm=salome.naming_service.Resolve("/DataServerManager")
@@ -195,7 +196,7 @@ class SalomeSDSTest(unittest.TestCase):
     wk.waitFor()
     self.assertEqual(str2Obj(dss.waitForMonoThrRev(wk)),[7,8,9,10])
 
-  def testTransaction3(self):
+  def tessTransaction3(self):
     scopeName="Scope1"
     varName="a"
     dsm=salome.naming_service.Resolve("/DataServerManager")
@@ -217,7 +218,7 @@ class SalomeSDSTest(unittest.TestCase):
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'cd':[7,8,9,10]})
 
-  def testTransaction4(self):
+  def tessTransaction4(self):
     scopeName="Scope1"
     varName="a"
     dsm=salome.naming_service.Resolve("/DataServerManager")
@@ -241,7 +242,7 @@ class SalomeSDSTest(unittest.TestCase):
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6]})
 
-  def testTransaction5(self):
+  def tessTransaction5(self):
     """ Like testTransaction2 but without transactions. """
     scopeName="Scope1"
     varName="a"
@@ -275,7 +276,7 @@ class SalomeSDSTest(unittest.TestCase):
     keys=[str2Obj(elt) for elt in dss.getAllKeysOfVarWithTypeDict(varName)]
     self.assertEqual(set(keys),set(['ab','cd']))
 
-  def testTransaction6(self):
+  def tessTransaction6(self):
     """ Test to test RdWr global vars with transaction"""
     scopeName="Scope1"
     varName="a"
@@ -324,7 +325,7 @@ class SalomeSDSTest(unittest.TestCase):
       dsm.removeDataScope(scopeName)
     pass
 
-  def testTransaction7(self):
+  def tessTransaction7(self):
     """Like testTransaction5 but after a recovery."""
     scopeName="Scope1"
     varName="a"
@@ -348,7 +349,7 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
     pass
 
-  def testTransaction8(self):
+  def tessTransaction8(self):
     """ EDF 16833 and EDF17719 """
     funcContent="""def comptchev(a,b):
     return "d" not in a
@@ -385,7 +386,7 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value3)
     pass
   
-  def testTransaction9(self):
+  def tessTransaction9(self):
     """ EDF 16833 and EDF17719 : use case 2. Trying to createRdExt during add key session"""
     funcContent="""def comptchev(a,b):
     return a==b
@@ -415,7 +416,7 @@ class SalomeSDSTest(unittest.TestCase):
     pass
 
     
-  def testLockToDump(self):
+  def tessLockToDump(self):
     """ Test to check that holdRequests method. This method wait for clean server status and hold it until activeRequests is called.
     Warning this method expects a not overloaded machine to be run because test is based on ellapse time.
     """
@@ -469,7 +470,8 @@ class SalomeSDSTest(unittest.TestCase):
     pass
 
   def setUp(self):
-    salome.salome_init()
+    #salome.salome_init()
+    salome.salome_init_without_session()
     pass
   
   pass

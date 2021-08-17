@@ -24,7 +24,7 @@
 
 static SALOME::DataServerManager_var _dsm_singleton;
 
-std::string GetDSMInstanceInternal()
+std::string GetDSMInstanceInternal(const std::vector<std::string>& argv)
 {
   CORBA::ORB_ptr orb = KERNEL::getORB();
   if( CORBA::is_nil(_dsm_singleton) )
