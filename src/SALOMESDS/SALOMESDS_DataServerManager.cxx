@@ -23,6 +23,8 @@
 
 #include "SALOME_ContainerManager.hxx"
 #include "SALOME_NamingService.hxx"
+#include "SALOME_Embedded_NamingService.hxx"
+#include "KernelBasis.hxx"
 
 #include <sstream>
 #include <algorithm>
@@ -131,8 +133,19 @@ typename T::PtrType CreateDataScope(const std::string& scopeName, const std::vec
     }
   //
   std::string fullScopeName(DataServerManager::CreateAbsNameInNSFromScopeName(scopeName));
-  std::ostringstream oss; oss << "SALOME_DataScopeServer" << " " << scopeName << " " << isTransactionInt << " ";
-  SALOME_ContainerManager::AddOmninamesParams(oss,&ns);
+  std::ostringstream oss; 
+  if(!getSSLMode())
+  {
+    oss << "SALOME_DataScopeServer" << " " << scopeName << " " << isTransactionInt << " ";
+    SALOME_ContainerManager::AddOmninamesParams(oss,&ns);
+  }
+  else
+  {
+     oss << "SALOME_DataScopeServer_SSL" << " " << scopeName << " " << isTransactionInt << " ";
+     Engines::EmbeddedNamingService_var emb = GetEmbeddedNamingService();
+     CORBA::String_var ior = orb->object_to_string(emb);
+     oss << ior.in();
+  }
   std::string command(oss.str());
   SALOME_ContainerManager::MakeTheCommandToBeLaunchedASync(command);
   int status(SALOME_ContainerManager::SystemThreadSafe(command.c_str()));
