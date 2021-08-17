@@ -123,7 +123,7 @@ CORBA::Boolean DataServerManager::isAliveAndKicking(const char *scopeName)
 }
 
 template<class T>
-typename T::PtrType CreateDataScope(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService_Abstract& ns)
+typename T::PtrType CreateDataScope(CORBA::ORB_ptr orb, const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService_Abstract& ns)
 {
   int isTransactionInt(T::IsTransaction);
   if(std::find(scopes.begin(),scopes.end(),scopeName)!=scopes.end())
@@ -167,12 +167,12 @@ typename T::PtrType CreateDataScope(const std::string& scopeName, const std::vec
 }
 
 template<class T>
-typename T::PtrType GiveADataScopeCalled(const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService_Abstract& ns, CORBA::Boolean& isCreated)
+typename T::PtrType GiveADataScopeCalled(CORBA::ORB_ptr orb, const std::string& scopeName, const std::vector<std::string>& scopes, SALOME_NamingService_Abstract& ns, CORBA::Boolean& isCreated)
 {
   if(std::find(scopes.begin(),scopes.end(),scopeName)==scopes.end())
     {
       isCreated=true;
-      return CreateDataScope<T>(scopeName,scopes,ns);
+      return CreateDataScope<T>(orb,scopeName,scopes,ns);
     }
   else
     {
@@ -195,7 +195,7 @@ typename T::PtrType GiveADataScopeCalled(const std::string& scopeName, const std
           std::string fullScopeName(SALOMESDS::DataServerManager::CreateAbsNameInNSFromScopeName(scopeName));
           ns.Destroy_Name(fullScopeName.c_str());
           isCreated=true;
-          return CreateDataScope<T>(scopeName,scopes,ns);
+          return CreateDataScope<T>(orb,scopeName,scopes,ns);
         }
     }
 }
@@ -226,22 +226,22 @@ public:
 
 SALOME::DataScopeServer_ptr DataServerManager::createDataScope(const char *scopeName)
 {
-  return CreateDataScope<NormalFunctor>(scopeName,listOfScopesCpp(),*_ns);
+  return CreateDataScope<NormalFunctor>(_orb,scopeName,listOfScopesCpp(),*_ns);
 }
 
 SALOME::DataScopeServer_ptr DataServerManager::giveADataScopeCalled(const char *scopeName, CORBA::Boolean& isCreated)
 {
-  return GiveADataScopeCalled<NormalFunctor>(scopeName,listOfScopesCpp(),*_ns,isCreated);
+  return GiveADataScopeCalled<NormalFunctor>(_orb,scopeName,listOfScopesCpp(),*_ns,isCreated);
 }
 
 SALOME::DataScopeServerTransaction_ptr DataServerManager::createDataScopeTransaction(const char *scopeName)
 {
-  return CreateDataScope<TransactionFunctor>(scopeName,listOfScopesCpp(),*_ns);
+  return CreateDataScope<TransactionFunctor>(_orb,scopeName,listOfScopesCpp(),*_ns);
 }
 
 SALOME::DataScopeServerTransaction_ptr DataServerManager::giveADataScopeTransactionCalled(const char *scopeName, CORBA::Boolean& isCreated)
 {
-  return GiveADataScopeCalled<TransactionFunctor>(scopeName,listOfScopesCpp(),*_ns,isCreated);
+  return GiveADataScopeCalled<TransactionFunctor>(_orb,scopeName,listOfScopesCpp(),*_ns,isCreated);
 }
 
 SALOME::DataScopeServerBase_ptr DataServerManager::retriveDataScope(const char *scopeName)
