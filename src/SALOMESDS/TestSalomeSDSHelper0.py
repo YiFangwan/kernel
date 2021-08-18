@@ -39,9 +39,6 @@ def waitKey(IORNS):
     ns = orb.string_to_object(IORNS)
     import SALOME
     dsm = orb.string_to_object(ns.Resolve("/DataServerManager").decode())
-    print(400*"$")
-    print(dsm)
-    print(type(dsm))
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
     assert(not isCreated)
     wk=dss.waitForKeyInVar(varName,obj2Str("ef"))
@@ -50,6 +47,4 @@ def waitKey(IORNS):
 
 if __name__=="__main__":
     IORNS = sys.argv[-1]
-    print(50*"#")
-    print(sys.argv)
     sys.exit(not waitKey(IORNS))

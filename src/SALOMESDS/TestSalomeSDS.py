@@ -95,7 +95,7 @@ def func_test7(scopeName,cv,cv2,cv3,sharedNum):
   
 class SalomeSDSTest(unittest.TestCase):
   
-  def tessList1(self):
+  def testList1(self):
     a=SalomeSDSClt.CreateRdExtGlobalVar([],"a","Scope0")
     self.assertEqual(a.local_copy(),[])
     a.append(5)
@@ -114,7 +114,7 @@ class SalomeSDSTest(unittest.TestCase):
     a.ptr().getMyDataScopeServer().deleteVar("a")
     pass
   
-  def tessDict1(self):
+  def testDict1(self):
     a=SalomeSDSClt.CreateRdExtGlobalVar({},"a","Scope0")
     a["ab"]=4
     self.assertEqual(a.local_copy(),{"ab":4})
@@ -135,7 +135,7 @@ class SalomeSDSTest(unittest.TestCase):
     a.ptr().getMyDataScopeServer().deleteVar("a")
     pass
 
-  def tessReadOnly1(self):
+  def testReadOnly1(self):
     a=SalomeSDSClt.CreateRdOnlyGlobalVar({"ab":4,"cd":[5,77]},"a","Scope0")
     self.assertEqual(a.local_copy(),{"ab":4,"cd":[5,77]})
     self.assertRaises(Exception,a.__getitem__,"ab")
@@ -166,13 +166,13 @@ class SalomeSDSTest(unittest.TestCase):
     #
     nbProc=8
     pool=mp.Pool(processes=nbProc)
-    from  NamingService import NamingService
+    from NamingService import NamingService
     asyncResult=pool.map_async(work,[(NamingService.IOROfNS(),i,varName,scopeName) for i in range(nbProc)])
     print("asyncResult=", asyncResult)
     self.assertEqual(asyncResult.get(),nbProc*[0]) # <- the big test is here !
     dsm.removeDataScope(scopeName)
 
-  def tessTransaction2(self):
+  def testTransaction2(self):
     scopeName="Scope1"
     varName="a"
     dsm=salome.naming_service.Resolve("/DataServerManager")
@@ -196,7 +196,7 @@ class SalomeSDSTest(unittest.TestCase):
     wk.waitFor()
     self.assertEqual(str2Obj(dss.waitForMonoThrRev(wk)),[7,8,9,10])
 
-  def tessTransaction3(self):
+  def testTransaction3(self):
     scopeName="Scope1"
     varName="a"
     dsm=salome.naming_service.Resolve("/DataServerManager")
@@ -218,7 +218,7 @@ class SalomeSDSTest(unittest.TestCase):
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'cd':[7,8,9,10]})
 
-  def tessTransaction4(self):
+  def testTransaction4(self):
     scopeName="Scope1"
     varName="a"
     dsm=salome.naming_service.Resolve("/DataServerManager")
@@ -242,7 +242,7 @@ class SalomeSDSTest(unittest.TestCase):
     dss.atomicApply([t2])
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6]})
 
-  def tessTransaction5(self):
+  def testTransaction5(self):
     """ Like testTransaction2 but without transactions. """
     scopeName="Scope1"
     varName="a"
@@ -276,7 +276,7 @@ class SalomeSDSTest(unittest.TestCase):
     keys=[str2Obj(elt) for elt in dss.getAllKeysOfVarWithTypeDict(varName)]
     self.assertEqual(set(keys),set(['ab','cd']))
 
-  def tessTransaction6(self):
+  def testTransaction6(self):
     """ Test to test RdWr global vars with transaction"""
     scopeName="Scope1"
     varName="a"
@@ -325,7 +325,7 @@ class SalomeSDSTest(unittest.TestCase):
       dsm.removeDataScope(scopeName)
     pass
 
-  def tessTransaction7(self):
+  def testTransaction7(self):
     """Like testTransaction5 but after a recovery."""
     scopeName="Scope1"
     varName="a"
@@ -349,7 +349,7 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),{'ab':[4,5,6],'cd':[7,8,9,10]})
     pass
 
-  def tessTransaction8(self):
+  def testTransaction8(self):
     """ EDF 16833 and EDF17719 """
     funcContent="""def comptchev(a,b):
     return "d" not in a
@@ -386,7 +386,7 @@ class SalomeSDSTest(unittest.TestCase):
     self.assertEqual(str2Obj(dss.fetchSerializedContent(varName)),value3)
     pass
   
-  def tessTransaction9(self):
+  def testTransaction9(self):
     """ EDF 16833 and EDF17719 : use case 2. Trying to createRdExt during add key session"""
     funcContent="""def comptchev(a,b):
     return a==b
@@ -416,7 +416,7 @@ class SalomeSDSTest(unittest.TestCase):
     pass
 
     
-  def tessLockToDump(self):
+  def testLockToDump(self):
     """ Test to check that holdRequests method. This method wait for clean server status and hold it until activeRequests is called.
     Warning this method expects a not overloaded machine to be run because test is based on ellapse time.
     """
