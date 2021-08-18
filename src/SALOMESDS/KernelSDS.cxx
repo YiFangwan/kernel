@@ -22,6 +22,8 @@
 #include "SALOME_Fake_NamingService.hxx"
 #include "SALOME_KernelORB.hxx"
 
+#include <cstring>
+
 static SALOME::DataServerManager_var _dsm_singleton;
 
 std::string GetDSMInstanceInternal(const std::vector<std::string>& argv)
@@ -35,9 +37,15 @@ std::string GetDSMInstanceInternal(const std::vector<std::string>& argv)
       root_poa = PortableServer::POA::_narrow(obj);
     SALOME_CPythonHelper cPyh;
     {
-      int argc(1);
-      char *argv[2] = {"oops",nullptr};
-      cPyh.initializePython(argc,argv);
+      int argcInit((int)argv.size());
+      char **argvInit = new char *[argcInit+1];
+      argvInit[argcInit] = nullptr;
+      for(int i = 0 ; i < argcInit ; ++i)
+        argvInit[i] = strdup(argv[i].c_str());
+      cPyh.initializePython(argcInit,argvInit);
+      for(int i = 0 ; i < argcInit ; ++i)
+        free(argvInit[i]);
+      delete [] argvInit;
     }
     SALOME_Fake_NamingService *ns(new SALOME_Fake_NamingService);
     SALOMESDS::DataServerManager *dsm(new SALOMESDS::DataServerManager(&cPyh,orb,root_poa,ns));

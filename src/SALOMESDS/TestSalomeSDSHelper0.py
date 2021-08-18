@@ -37,7 +37,11 @@ def waitKey(IORNS):
     import CORBA
     orb = CORBA.ORB_init([''])
     ns = orb.string_to_object(IORNS)
-    dsm=ns.Resolve("/DataServerManager")
+    import SALOME
+    dsm = orb.string_to_object(ns.Resolve("/DataServerManager").decode())
+    print(400*"$")
+    print(dsm)
+    print(type(dsm))
     dss,isCreated=dsm.giveADataScopeTransactionCalled(scopeName)
     assert(not isCreated)
     wk=dss.waitForKeyInVar(varName,obj2Str("ef"))
