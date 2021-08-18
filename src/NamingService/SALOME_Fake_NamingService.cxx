@@ -60,6 +60,11 @@ void SALOME_Fake_NamingService::Register(CORBA::Object_ptr ObjRef, const char* P
 
 void SALOME_Fake_NamingService::Destroy_Name(const char* Path)
 {
+  std::lock_guard<std::mutex> g(_mutex);
+  std::string pathCpp(Path);
+  auto it = _map.find(pathCpp);
+  if(it!=_map.end())
+    _map.erase(it);
 }
 
 void SALOME_Fake_NamingService::Destroy_Directory(const char* Path)
@@ -72,6 +77,7 @@ void SALOME_Fake_NamingService::Destroy_FullDirectory(const char* Path)
 
 bool SALOME_Fake_NamingService::Change_Directory(const char* Path)
 {
+  std::lock_guard<std::mutex> g(_mutex);
   _current_dir = Path;
   return true;
 }
@@ -105,6 +111,7 @@ std::vector<std::string> SALOME_Fake_NamingService::list_subdirs()
 
 std::vector<std::string> SALOME_Fake_NamingService::list_directory()
 {
+  std::lock_guard<std::mutex> g(_mutex);
   std::vector<std::string> ret;
   std::vector<std::string> splitCWD(SplitDir(_current_dir));
   auto len = _current_dir.length();
