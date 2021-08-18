@@ -495,7 +495,6 @@ class SalomeSDSTest(unittest.TestCase):
     pass
 
   def setUp(self):
-    #salome.salome_init()
     salome.salome_init_without_session()
     pass
   
