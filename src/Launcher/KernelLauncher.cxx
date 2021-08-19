@@ -57,7 +57,7 @@ std::string GetExternalServerInstance()
   //
   PortableServer::POA_var safePOA = root_poa->find_POA("SingleThreadPOA",true);
   //
-  SALOME_CPythonHelper *cPyh(&SALOME_CPythonHelper::Singleton());
+  SALOME_CPythonHelper *cPyh(SALOME_CPythonHelper::Singleton());
   SALOME_Fake_NamingService *ns = new SALOME_Fake_NamingService;
   SALOME_ExternalServerLauncher *esm(new SALOME_ExternalServerLauncher(cPyh,orb,safePOA,ns));
   esm->_remove_ref();

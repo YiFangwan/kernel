@@ -35,7 +35,7 @@ std::string GetDSMInstanceInternal(const std::vector<std::string>& argv)
     CORBA::Object_var obj = orb->resolve_initial_references("RootPOA");
     if(!CORBA::is_nil(obj))
       root_poa = PortableServer::POA::_narrow(obj);
-    SALOME_CPythonHelper* cPyh(&SALOME_CPythonHelper::Singleton());
+    SALOME_CPythonHelper* cPyh(SALOME_CPythonHelper::Singleton());
     {
       int argcInit((int)argv.size());
       char **argvInit = new char *[argcInit+1];
