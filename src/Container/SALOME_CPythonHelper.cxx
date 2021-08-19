@@ -120,13 +120,13 @@ std::string SALOME_CPythonHelper::evalS(const std::string& pyCode) const
   return ret;
 }
 
+
 SALOME_CPythonHelper::~SALOME_CPythonHelper()
 {
   // _globals is borrowed ref -> do nothing
-  /*if(_locals)
-  {
-    auto refcount_locals = Py_REFCNT(_locals);
-  }*/
+
+  /*if(_locals){ auto refcount_locals = Py_REFCNT(_locals); }*/
+  
   Py_XDECREF(_locals);
   Py_XDECREF(_pickler);
 }
