@@ -204,7 +204,7 @@ class StandAloneLifecyle:
       return self._rm
 
 def salome_init_without_session():
-    global lcc,naming_service,myStudy,orb,modulcat,sg,cm,dsm
+    global lcc,naming_service,myStudy,orb,modulcat,sg,cm,dsm,esm
     import KernelBasis
     KernelBasis.setSSLMode(True)
     import KernelDS
@@ -229,6 +229,9 @@ def salome_init_without_session():
     from KernelSDS import GetDSMInstance
     import sys
     dsm = GetDSMInstance(sys.argv)
+    # esm inherits from SALOME_CPythonHelper singleton already initialized by GetDSMInstance
+    # esm inherits also from SALOME_ResourcesManager creation/initialization (concerning SingleThreadPOA POA) when KernelLauncher.GetContainerManager() has been called
+    esm = KernelLauncher.GetExternalServer()
 
 def salome_init_with_session(path=None, embedded=False):
     """

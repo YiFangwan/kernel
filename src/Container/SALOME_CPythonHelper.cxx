@@ -20,6 +20,8 @@
 
 #include "SALOME_CPythonHelper.hxx"
 
+SALOME_CPythonHelper SALOME_CPythonHelper::_CPYTHONHELPER_INSTANCE;
+
 #if PY_VERSION_HEX < 0x03050000
 static char*
 Py_EncodeLocale(const wchar_t *arg, size_t *size)
