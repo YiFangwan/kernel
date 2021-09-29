@@ -27,10 +27,7 @@ import psutil
 
 from socket import AF_INET, SOCK_STREAM
 
-try:
-  import cPickle as pickle #@UnusedImport
-except ImportError:
-  import pickle #@Reimport
+import pickle
 
 __PORT_MIN_NUMBER = 2810
 __PORT_MAX_NUMBER = 2910
