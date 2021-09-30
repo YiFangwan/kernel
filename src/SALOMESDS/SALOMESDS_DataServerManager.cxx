@@ -66,7 +66,7 @@ DataServerManager::DataServerManager(const SALOME_CPythonHelper *pyHelper, CORBA
   PortableServer::ThreadPolicy_var threadPol(poa->create_thread_policy(PortableServer::SINGLE_THREAD_MODEL));
   policies[0]=PortableServer::ThreadPolicy::_duplicate(threadPol);
   PortableServer::POA_var safePoa = poa->create_POA("SingleThPOA4SDS",pman,policies);
-  _poa= poa;
+  _poa = poa;
   threadPol->destroy();
   // activate this to be ready to be usable from NS.
   PortableServer::ObjectId_var id(_poa->activate_object(this));
@@ -75,7 +75,7 @@ DataServerManager::DataServerManager(const SALOME_CPythonHelper *pyHelper, CORBA
   // publish Data server manager in NS
   _ns->Register(obj2,NAME_IN_NS);
   // the default DataScopeServer object is the only one hosted by the current process
-  dftScope->setPOA(safePoa);
+  dftScope->setPOA(_poa);
   obj=dftScope->activate();
   SALOME::DataScopeServer_var dftScopePtr(SALOME::DataScopeServer::_narrow(obj));
   dftScope->registerInNS(dftScopePtr);// agy : Very important ! invoke this method BEFORE activation ! Because this method initializes Python !
