@@ -96,7 +96,20 @@ class TestResourceManager(unittest.TestCase):
         self.assertGreater(memory_total, memory_in_use)
         self.assertGreater(memory_in_use, memory_by_me)
         cont.Shutdown()
-
+    
+    def test5(self):
+        """
+        Test checking memory consumption of container
+        """
+        cont = self.getContainer("test_container_5")
+        memory_by_me_start = cont.getTotalPhysicalMemoryInUseByMe()
+        import pickle
+        psn = cont.createPyScriptNode("n","""b = bytearray(10485760)""")# create 10MB byte array abroad
+        psn.execute([],pickle.dumps(((),{})))
+        memory_by_me_end = cont.getTotalPhysicalMemoryInUseByMe()
+        self.assertGreater(memory_by_me_end,memory_by_me_start)
+        self.assertIn(memory_by_me_end-memory_by_me_start,[10,11,12])# test elevation of memory
+        cont.Shutdown()
 
 if __name__ == '__main__':
     salome.standalone()
