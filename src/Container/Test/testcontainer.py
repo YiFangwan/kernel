@@ -65,22 +65,27 @@ class TestResourceManager(unittest.TestCase):
         loads2 = cont.loadOfCPUCores()
         self.checkLoads(cont, loads2)
         self.assertNotEqual(loads1, loads2)
+        cont.Shutdown()
 
     def test2(self):
         # Check custom script
         cont = self.getContainer("test_container_2")
-        cont.setPyScriptForCPULoad('cpu_loads = [0.1, 0.2, 0.3, 0.4]')
+        import multiprocessing as mp
+        ref_load = [max(0.1*(i+1),1.0) for i in range(mp.cpu_count())]
+        cont.setPyScriptForCPULoad('cpu_loads = {}'.format(ref_load))
         loads1 = cont.loadOfCPUCores()
-        self.assertEqual(loads1, [0.1, 0.2, 0.3, 0.4])
+        self.assertEqual(loads1, ref_load)
         cont.resetScriptForCPULoad()
         loads2 = cont.loadOfCPUCores()
         self.checkLoads(cont, loads2)
+        cont.Shutdown()
 
     def test3(self):
         # Check bad script
         cont = self.getContainer("test_container_3")
         cont.setPyScriptForCPULoad("bla-bla-bla")
         self.assertRaises(Exception, cont.loadOfCPUCores)
+        cont.Shutdown()
 
     def test4(self):
         # check memory sizes
@@ -90,6 +95,7 @@ class TestResourceManager(unittest.TestCase):
         memory_by_me = cont.getTotalPhysicalMemoryInUseByMe()
         self.assertGreater(memory_total, memory_in_use)
         self.assertGreater(memory_in_use, memory_by_me)
+        cont.Shutdown()
 
 
 if __name__ == '__main__':
