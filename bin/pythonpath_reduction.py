@@ -27,12 +27,10 @@ def copy(src,dst):
 if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
 
-# The single input of this script is install path of all salome prerequisites
-# Create the new python module folder on the same directory of prerequisites folder (salome install path ) 
-prerequis_install_dir = sys.argv[1]
-while(prerequis_install_dir[-1] == '/'):
-    prerequis_install_dir = prerequis_install_dir[:-1]
-salome_install_dir = os.path.dirname(prerequis_install_dir)
+# The single input of this script is install path of salome.
+# The salome install folder must contain the salome_context.cfg file and salome_prerequisites.sh file
+# Create the new python module folder in the salome install folder
+salome_install_dir = sys.argv[1]
 
 #new pythonpath initiation; creation a directory containing all python module for salome
 pythonpath_common = os.path.join(salome_install_dir,'python_modules')
