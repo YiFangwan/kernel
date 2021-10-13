@@ -24,55 +24,18 @@
 //  File   : OpUtil.cxx
 //  Module : SALOME
 //
-#include "utilities.h" 
 #include "OpUtil.hxx"
-#include <errno.h>
-#include <string.h>
 
-#ifndef WIN32
-#include <unistd.h>
-#else
-#include <winsock2.h>
-#endif
+#if !defined(SALOME_LIGHT)
 
-//int gethostname(char *name, size_t len);
+#include "Utils_SINGLETON.hxx"
+#include "Utils_ORB_INIT.hxx"
 
-std::string GetHostname()
+UTILS_EXPORT CORBA::ORB_var KERNEL::GetRefToORB()
 {
-  int ls = 100, r = 1;
-  char *s;
-
-  while (ls < 10000 && r) {
-    ls *= 2;
-    s = new char[ls];
-    r = gethostname(s, ls-1);
-    switch (r) 
-      {
-      case 0:
-          break;
-      default:
-#ifdef EINVAL
-      case EINVAL:
-#endif
-#ifdef ENAMETOOLONG
-      case ENAMETOOLONG:
-#endif
-        delete [] s;
-        continue;
-      }
-  }
-
-  if (r != 0) {
-    s = new char[50];
-    strcpy(s, "localhost");
-  }
-
-  // remove all after '.'
-  char *aDot = (strchr(s,'.'));
-  if (aDot) aDot[0] = '\0';
-
-  std::string p = s;
-  delete [] s;
-  return p;
+  ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();
+  CORBA::ORB_var &orb = init();
+  return orb;
 }
 
+#endif
