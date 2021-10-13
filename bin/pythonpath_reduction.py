@@ -19,12 +19,15 @@ logging.basicConfig()
 logger = logging.getLogger(os.path.basename(__file__))
 logger.setLevel(logging.INFO)
 
+IGNORE = ['__pycache__', '__init__.py', '.yamm', 'NEWS', 'README']
+
 
 def remove(path):
-    if os.path.isdir(path):
+    logger.debug('Removing %r' % (path))
+    if os.path.islink(path):
+        os.unlink(path)
+    elif os.path.isdir(path):
         shutil.rmtree(path)
-    elif os.path.islink(path):
-        os.remove(path)
     else:
         os.remove(path)
 
@@ -33,15 +36,18 @@ def copy(src, dst):
     logger.debug('Copy %r to %r' % (src, dst))
     if os.path.exists(dst):
         remove(dst)
-    if os.path.isdir(src):
-        shutil.copytree(src, dst)
-    else:
+    if not os.path.isdir(src):
         shutil.copyfile(src, dst)
+    else:
+        shutil.copytree(src, dst)
 
 
 def copy_or_link(src, dst):
     if sys.platform in ('linux', 'linux2'):
         if os.path.exists(dst):
+            current_dst = os.readlink(dst)
+            logger.warning('Destination link %r already exists and links to %r.' % (dst, current_dst))
+            logger.warning('It is overwritten to %r' % (src))
             remove(dst)
         os.symlink(src, dst)
     else:
@@ -51,7 +57,11 @@ def copy_or_link(src, dst):
 if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
 
-def main(salome_install_dir, context_file_name, env_file_name):
+def main(salome_install_dir, context_file_name, env_file_name, ignore=None):
+    if ignore:
+        ignore = IGNORE + ignore
+    else:
+        ignore = IGNORE[::]
     # new pythonpath initiation; creation a directory containing all python module for salome
     pythonpath_common = os.path.join(salome_install_dir, 'python_modules')
     if os.path.exists(pythonpath_common):
@@ -102,6 +112,8 @@ def main(salome_install_dir, context_file_name, env_file_name):
                             easy_install.write("./%s\n" % egg_file)
                     else:
                         for f in os.listdir(d):
+                            if f in ignore:
+                                continue
                             full_file_srcpath = os.path.join(d, f)
                             full_file_dstpath = os.path.join(pythonpath_common, f)
                             copy_or_link(full_file_srcpath, full_file_dstpath)
@@ -155,8 +167,10 @@ if __name__ == '__main__':
                         help='Context file name (default: %(default)s)')
     parser.add_argument('-e', '--env-file', default='salome_prerequisites.sh',
                         help='Env file name (default: %(default)s)')
+    parser.add_argument('-i', '--ignore', nargs='*',
+                        help='List of comma separated files to ignore')
     parser.add_argument(dest='salome_install_dir', help='Directory of context and env files')
     args = parser.parse_args()
     if args.verbose:
         logger.setLevel(logging.DEBUG)
-    main(args.salome_install_dir, args.context_file, args.env_file)
+    main(args.salome_install_dir, args.context_file, args.env_file, args.ignore)
