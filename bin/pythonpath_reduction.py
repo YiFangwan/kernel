@@ -132,6 +132,16 @@ def main(salome_install_dir, context_file_name, env_file_name, ignore=None):
         logger.debug("Matplotlib isn't compiled with salome or maybe it is in the system package ")
         logger.debug("If matplotlib is compiled with salome, we need define its install path with variable MATPLOTLIB_HOME")
 
+    # Fix for correct imports
+    import setuptools
+    try:
+        setup_tools_path = os.path.dirname(setuptools.__file__)
+    except AttributeError:
+        setup_tools_path = os.path.dirname(setuptools.__path__._path[0])
+    del setuptools
+    site_patch = os.path.join(setup_tools_path, 'site-patch.py')
+    shutil.copyfile(site_patch, os.path.join(pythonpath_common, "site.py"))
+
     # Overwrite salome_context.cfg
     # Backup context and env files
     copy(context_file, backup_context_file)
