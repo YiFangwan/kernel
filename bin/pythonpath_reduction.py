@@ -57,18 +57,18 @@ def copy_or_link(src, dst):
 if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
 
+
 def main(salome_install_dir, context_file_name, env_file_name, ignore=None):
     if ignore:
         ignore = IGNORE + ignore
     else:
         ignore = IGNORE[::]
+
     # new pythonpath initiation; creation a directory containing all python module for salome
     pythonpath_common = os.path.join(salome_install_dir, 'python_modules')
     if os.path.exists(pythonpath_common):
         remove(pythonpath_common)
     os.mkdir(pythonpath_common)
-    # refDir = os.path.abspath(os.path.dirname(__file__))
-    # shutil.copy(os.path.join(sys.path[-1], "setuptools/site-patch.py"), os.path.join(pythonpath_common, "site.py"))
     new_pythonpath_list = []
     new_pythonpath_list.append(pythonpath_common)
 
