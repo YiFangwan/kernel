@@ -59,25 +59,19 @@ if sys.version_info[0] < 3:
     raise Exception("Must be using Python 3")
 
 
-def main(prerequis_install_dir, salome_install_dir, context_file_name, env_file_name, ignore=None):
+def main(salome_install_dir, context_file_name, env_file_name, ignore=None):
     # Create the new python module folder on the same directory of prerequisites folder (salome install path )
     if ignore:
         ignore = IGNORE + ignore
     else:
         ignore = IGNORE[::]
 
-    while(prerequis_install_dir[-1] == '/'):
-        prerequis_install_dir = prerequis_install_dir[:-1]
-    if salome_install_dir.strip() == '':
-        salome_install_dir = os.path.dirname(prerequis_install_dir)
-
     # new pythonpath initiation; creation a directory containing all python module for salome
     pythonpath_common = os.path.join(salome_install_dir, 'python_modules')
     if os.path.exists(pythonpath_common):
         remove(pythonpath_common)
     os.mkdir(pythonpath_common)
-    # refDir = os.path.abspath(os.path.dirname(__file__))
-    # shutil.copy(os.path.join(sys.path[-1], "setuptools/site-patch.py"), os.path.join(pythonpath_common, "site.py"))
+
     new_pythonpath_list = []
     new_pythonpath_list.append(pythonpath_common)
 
@@ -172,16 +166,14 @@ def main(prerequis_install_dir, salome_install_dir, context_file_name, env_file_
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--verbose', action='store_true', help='Verbose mode')
-    parser.add_argument('-d', '--salome-install-dir', default='',
-                        help='Directory of context and env files')
     parser.add_argument('-c', '--context-file', default='salome_context.cfg',
                         help='Context file name (default: %(default)s)')
     parser.add_argument('-e', '--env-file', default='salome_prerequisites.sh',
                         help='Env file name (default: %(default)s)')
     parser.add_argument('-i', '--ignore', nargs='*',
                         help='List of comma separated files to ignore')
-    parser.add_argument(dest='prerequis_install_dir', help='Prerequisites install directory')
+    parser.add_argument(dest='salome_install_dir', help='Directory of context and env files')
     args = parser.parse_args()
     if args.verbose:
         logger.setLevel(logging.DEBUG)
-    main(args.prerequis_install_dir, args.salome_install_dir, args.context_file, args.env_file, args.ignore)
+    main(args.salome_install_dir, args.context_file, args.env_file, args.ignore)
