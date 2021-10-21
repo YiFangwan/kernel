@@ -28,11 +28,14 @@
 #include "TraceCollector_WaitForServerReadiness.hxx"
 #include <iostream>
 #include <ctime>
+#include <mutex>
 
 
 #if defined(WIN32) && defined(_MSC_VER) && _MSC_VER < 1900
 #include <omnithread/pthread_nt.h>
 #endif
+
+std::mutex mutex;
 
 // ============================================================================
 /*!
@@ -60,6 +63,7 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
   ts_rem.tv_nsec=0;
   ts_rem.tv_sec=0;
 
+  const std::lock_guard<std::mutex> lock(mutex);
   CORBA::Object_var obj;
 
   try
@@ -78,8 +82,10 @@ CORBA::Object_ptr TraceCollector_WaitForServerReadiness(CORBA::ORB_ptr orb,
         {
           try
             { 
-              if(!CORBA::is_nil(orb)) 
+              if(!CORBA::is_nil(orb))
+              {
                 theObj = orb->resolve_initial_references("NameService");
+              }
               if (!CORBA::is_nil(theObj))
                 inc = CosNaming::NamingContext::_narrow(theObj);
             }  

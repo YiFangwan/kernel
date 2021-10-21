@@ -42,7 +42,7 @@
 
 // Class attributes initialisation, for class method SALOMETraceCollector::run
 
-CORBA::ORB_ptr SALOMETraceCollector::_orb = 0;
+CORBA::ORB_var SALOMETraceCollector::_orb;
 
 // ============================================================================
 /*!
@@ -62,6 +62,10 @@ BaseTraceCollector* SALOMETraceCollector::instance()
       if (_singleton == 0)                     // another thread may have got
         {                                      // the lock after the first test
           BaseTraceCollector* myInstance = new SALOMETraceCollector();
+          int argc=0;
+          char *_argv=0;
+          char ** argv = &_argv;
+          //_orb = CORBA::ORB_init (argc, argv);
           _orb = KERNEL::GetRefToORB();
 
           sem_init(&_sem,0,0); // to wait until run thread is initialized
@@ -99,7 +103,7 @@ void* SALOMETraceCollector::run(void* /*bid*/)
 
   SALOME_Logger::Logger_var m_pInterfaceLogger;
   CORBA::Object_var obj;
-
+  CORBA::ORB_var _orb = KERNEL::GetRefToORB();
   obj = TraceCollector_WaitForServerReadiness(_orb,"Logger");
   if (!CORBA::is_nil(obj))
     m_pInterfaceLogger = SALOME_Logger::Logger::_narrow(obj);

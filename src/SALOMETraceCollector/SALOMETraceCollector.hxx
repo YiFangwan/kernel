@@ -58,7 +58,7 @@ class SALOMETRACECOLLECTOR_EXPORT SALOMETraceCollector:
   SALOMETraceCollector();
 
  private:
-  static CORBA::ORB_ptr _orb;
+  static CORBA::ORB_var _orb;
 };
 
 #endif

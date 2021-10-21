@@ -86,13 +86,22 @@ CORBA::ORB_var &ORB_INIT::operator() ()
             }
             std::vector<std::string> args = GetArgcArgv();
             int argc = args.size();
-            char** argv = new char*[argc];
+            char** argv = nullptr;
+            char *dummy = nullptr;
+            if(argc>0)
+              { argv = new char*[argc]; }
+            else
+              { argv = &dummy; }
             for (int i = 0; i < argc; ++i)
               argv[i] = strdup(args.at(i).c_str());
-            _orb = CORBA::ORB_init( argc, argv, "omniORB4" ) ;
+            if(argc>0)
+              { _orb = CORBA::ORB_init( argc, argv, "omniORB4" ) ; }
+            else
+              { _orb = CORBA::ORB_init( argc, argv); }
             for (int i = 0; i < argc; ++i)
               delete[] argv[i];
-            delete[] argv;
+            if(argc>0)
+              delete[] argv;
           }
         catch( const CORBA::Exception & )
           {
