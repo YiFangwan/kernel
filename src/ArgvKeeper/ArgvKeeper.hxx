@@ -18,10 +18,21 @@
 //
 
 #pragma once
+
+#ifdef WIN32
+# if defined ARGVKEEPER_EXPORTS || defined ArgvKeeper_EXPORTS
+#  define ARGVKEEPER_EXPORT __declspec( dllexport )
+# else
+#  define ARGVKEEPER_EXPORT __declspec( dllimport )
+# endif
+#else
+# define UTILS_EXPORT
+#endif
+
 #include <string>
 #include <vector>
 
-void SetArgcArgv(int argc, char* argv[]);
-void SetArgcArgv(const std::vector<std::string>& argv);
-std::vector<std::string> GetArgcArgv();
-bool ArgcArgvInitialized();
+ARGVKEEPER_EXPORT void SetArgcArgv(int argc, char* argv[]);
+ARGVKEEPER_EXPORT void SetArgcArgv(const std::vector<std::string>& argv);
+ARGVKEEPER_EXPORT std::vector<std::string> GetArgcArgv();
+ARGVKEEPER_EXPORT bool ArgcArgvInitialized();
