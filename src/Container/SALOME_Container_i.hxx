@@ -103,6 +103,7 @@ public:
   CORBA::Long getTotalPhysicalMemory();
   CORBA::Long getTotalPhysicalMemoryInUse();
   CORBA::Long getTotalPhysicalMemoryInUseByMe();
+  Engines::TMPFile* sendData(CORBA::ULong size);
   char *name();
   char *workingdir();
   char *logfilename();

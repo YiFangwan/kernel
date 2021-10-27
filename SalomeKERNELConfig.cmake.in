@@ -93,6 +93,7 @@ SET_AND_CHECK(HDF5_ROOT_DIR_EXP     "@PACKAGE_HDF5_ROOT_DIR@")
 SET_AND_CHECK(LIBXML2_ROOT_DIR_EXP  "@PACKAGE_LIBXML2_ROOT_DIR@")
 SET_AND_CHECK(PYTHON_ROOT_DIR_EXP   "@PACKAGE_PYTHON_ROOT_DIR@")
 SET_AND_CHECK(SWIG_ROOT_DIR_EXP     "@PACKAGE_SWIG_ROOT_DIR@")
+SET_AND_CHECK(ZEROMQ_ROOT_DIR_EXP   "@PACKAGE_ZEROMQ_ROOT_DIR@")
 
 # For all prerequisites, load the corresponding targets if the package was used
 # in CONFIG mode. This ensures dependent projects link correctly

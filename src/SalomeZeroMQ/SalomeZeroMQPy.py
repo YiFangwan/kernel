@@ -1,4 +1,6 @@
-# Copyright (C) 2015-2021  CEA/DEN, EDF R&D
+#! /usr/bin/env python3
+#  -*- coding: iso-8859-1 -*-
+# Copyright (C) 2007-2021  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,33 +19,18 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(SALOME_TEST_DRIVER "$ENV{KERNEL_ROOT_DIR}/bin/salome/appliskel/salome_test_driver.py")
-SET(PYTHON_TEST_DRIVER "$ENV{KERNEL_ROOT_DIR}/bin/salome/appliskel/python_test_driver.py")
+import zmq
 
-SET(COMPONENT_NAME KERNEL)
-SET(TIMEOUT        200)
+class SalomeZeroMQ():
+    def __init__(self, addr) -> None:
+        self.addr = addr
+        self.context = zmq.Context()
+        self.socket = self.context.socket(zmq.PAIR)
+        self.socket.connect(self.addr)
 
-SET(KERNEL_TEST_LIB "$ENV{KERNEL_ROOT_DIR}/@KERNEL_TEST_LIB@")
+    def send_data_zmq(self, msg):
+        self.socket.send(msg)
 
-# Add all test subdirs
-SUBDIRS( Launcher
-         Launcher_SWIG
-         LifeCycleCORBA_SWIG
-         NamingService
-         SALOMELocalTrace
-         LifeCycleCORBA
-         Container
-         Logger
-         SALOMETraceCollector
-         KernelHelpers
-         SALOMEDS
-         SALOMEDSImpl
-         SALOMESDS
-         SalomeZeroMQ
-         Utils
-         UnitTests
-         salomeInstance
-         salomeCommand
-         concurrentSession
-         salomeTest
-    )
+    def receive_data_zmq(self):
+        msg = self.socket.recv()
+        return msg

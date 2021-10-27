@@ -655,6 +655,21 @@ CORBA::Long Abstract_Engines_Container_i::getTotalPhysicalMemoryInUseByMe()
 }
 
 //=============================================================================
+//!
+/*!
+*/
+//=============================================================================
+Engines::TMPFile* Abstract_Engines_Container_i::sendData(CORBA::ULong size)
+{
+  char* aBuffer= new char[size+1];
+  for (unsigned long i = 0; i < size; ++i)
+    aBuffer[i] = 'D';
+  unsigned long aBufferSize = strlen(aBuffer);
+  Engines::TMPFile_var aStreamFile = new Engines::TMPFile((CORBA::ULong)aBufferSize, (CORBA::ULong)aBufferSize, (CORBA::Octet*)aBuffer, 1);
+  return aStreamFile._retn();
+}
+
+//=============================================================================
 //! Shutdown the container
 /*! 
 *  CORBA method, oneway: Server shutdown. 

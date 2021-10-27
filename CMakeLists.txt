@@ -88,6 +88,8 @@ FIND_PACKAGE(SalomeSWIG REQUIRED)
 FIND_PACKAGE(SalomeLibXml2 REQUIRED)
 FIND_PACKAGE(SalomeHDF5 REQUIRED COMPONENTS C)
 FIND_PACKAGE(SalomeBoost REQUIRED)
+FIND_PACKAGE(SalomeZeroMQ REQUIRED)
+FIND_PACKAGE(SalomeCppZmq REQUIRED)
 
 # Optional prerequisites
 # ======================
@@ -207,7 +209,7 @@ INCLUDE(CMakePackageConfigHelpers)
 # They all have to be INSTALL'd with the option "EXPORT ${PROJECT_NAME}TargetGroup"
 
 SET(_${PROJECT_NAME}_exposed_targets
-  SALOMEBasics SALOMELocalTrace SalomeHDFPersist OpUtil)
+  SALOMEBasics SALOMELocalTrace SalomeHDFPersist SalomeZeroMQ OpUtil)
 
 # CORBA specific targets:
 IF(NOT SALOME_LIGHT_ONLY)
@@ -277,7 +279,7 @@ SET(CONF_INCLUDE_DIRS "${PROJECT_SOURCE_DIR}/include" "${PROJECT_BINARY_DIR}/inc
 
 # Build variables that will be expanded when configuring Salome<MODULE>Config.cmake:
 SALOME_CONFIGURE_PREPARE(CppUnit Graphviz Doxygen Sphinx MPI omniORB LibBatch
-                         PThread Boost HDF5 libXml2 Python)
+                         PThread Boost HDF5 libXml2 Python ZeroMQ cppzmq)
 
 CONFIGURE_PACKAGE_CONFIG_FILE(${PROJECT_NAME}Config.cmake.in
     ${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake
@@ -286,7 +288,7 @@ CONFIGURE_PACKAGE_CONFIG_FILE(${PROJECT_NAME}Config.cmake.in
        CPPUNIT_ROOT_DIR GRAPHVIZ_ROOT_DIR DOXYGEN_ROOT_DIR
        SPHINX_ROOT_DIR MPI_ROOT_DIR OMNIORB_ROOT_DIR OMNIORBPY_ROOT_DIR LIBBATCH_ROOT_DIR
        PTHREAD_ROOT_DIR BOOST_ROOT_DIR HDF5_ROOT_DIR LIBXML2_ROOT_DIR
-       PYTHON_ROOT_DIR SWIG_ROOT_DIR)
+       PYTHON_ROOT_DIR SWIG_ROOT_DIR ZEROMQ_ROOT_DIR CPPZMQ_ROOT_DIR)
 
 #   - in the install tree (VSR 16/08/2013: TEMPORARILY COMMENT THIS - TO REMOVE?):
 #       Get the relative path of the include directory so

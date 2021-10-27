@@ -69,6 +69,14 @@ module Engines
       \return output argument values (tuple) as a python pickle
     */
     pickledArgs execute(in string functionName, in pickledArgs inargs) raises (SALOME::SALOME_Exception);
+    
+    /*! \brief execute a python function defined in the node using ZeroMQ library
+
+      \param functionName the python function defined in the node to execute
+    */
+    void executeZMQ(in string functionName) raises (SALOME::SALOME_Exception);
+    
+    void setZmqSocketOpt(in string opt);
 
   } ;
 

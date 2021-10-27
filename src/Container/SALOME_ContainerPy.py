@@ -243,6 +243,13 @@ class SALOME_ContainerPy_Gen_i(Engines__POA.Container):
 
     #-------------------------------------------------------------------------
 
+    def sendData(self, size):
+        aBuffer = size * "D"
+        aBuffer += "\0"
+        return (aBuffer.encode(), 1)
+
+    #-------------------------------------------------------------------------
+
     def _get_name(self):
         MESSAGE( "SALOME_ContainerPy_i::_get_name" )
         return self._containerName

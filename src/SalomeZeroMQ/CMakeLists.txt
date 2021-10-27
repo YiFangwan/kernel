@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2021  CEA/DEN, EDF R&D
+# Copyright (C) 2012-2021  CEA/DEN, EDF R&D, OPEN CASCADE
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,33 +17,30 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 
-SET(SALOME_TEST_DRIVER "$ENV{KERNEL_ROOT_DIR}/bin/salome/appliskel/salome_test_driver.py")
-SET(PYTHON_TEST_DRIVER "$ENV{KERNEL_ROOT_DIR}/bin/salome/appliskel/python_test_driver.py")
+INCLUDE_DIRECTORIES(
+  ${cppzmq_INCLUDE_DIR}
+  ${ZeroMQ_INCLUDE_DIR}
+  ${PYTHON_INCLUDE_DIRS}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+)
 
-SET(COMPONENT_NAME KERNEL)
-SET(TIMEOUT        200)
+# libraries to link to
+SET(SalomeZeroQM_LIBRARIES
+  ${cppzmq_LIBRARY}
+  ${ZeroMQ_LIBRARY}
+  )
 
-SET(KERNEL_TEST_LIB "$ENV{KERNEL_ROOT_DIR}/@KERNEL_TEST_LIB@")
+SET(SCRIPTS SalomeZeroMQPy.py)
 
-# Add all test subdirs
-SUBDIRS( Launcher
-         Launcher_SWIG
-         LifeCycleCORBA_SWIG
-         NamingService
-         SALOMELocalTrace
-         LifeCycleCORBA
-         Container
-         Logger
-         SALOMETraceCollector
-         KernelHelpers
-         SALOMEDS
-         SALOMEDSImpl
-         SALOMESDS
-         SalomeZeroMQ
-         Utils
-         UnitTests
-         salomeInstance
-         salomeCommand
-         concurrentSession
-         salomeTest
-    )
+# Library
+ADD_LIBRARY(SalomeZeroMQ SalomeZeroMQ.cxx)
+TARGET_LINK_LIBRARIES(SalomeZeroMQ ${SalomeZeroQM_LIBRARIES})
+INSTALL(TARGETS SalomeZeroMQ EXPORT ${PROJECT_NAME}TargetGroup DESTINATION ${SALOME_INSTALL_LIBS})
+INSTALL(FILES SalomeZeroMQ.hxx SALOME_ZeroMQ.hxx DESTINATION ${SALOME_INSTALL_HEADERS})
+
+# Executable scripts to be installed
+SALOME_INSTALL_SCRIPTS("${SCRIPTS}" ${SALOME_INSTALL_PYTHON})
+
+IF(SALOME_BUILD_TESTS)
+  ADD_SUBDIRECTORY(Test)
+ENDIF(SALOME_BUILD_TESTS)

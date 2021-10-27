@@ -24,4 +24,10 @@ IF(NOT WIN32)
                                     LABELS "${COMPONENT_NAME}"
                                     ENVIRONMENT "LD_LIBRARY_PATH=${KERNEL_TEST_LIB}:$ENV{LD_LIBRARY_PATH}"
                       )
+  SET(TEST_NAME ${COMPONENT_NAME}_testDataLimitation)
+  ADD_TEST(${TEST_NAME} ${PYTHON_TEST_DRIVER} ${TIMEOUT} testDataLimitation.py)
+  SET_TESTS_PROPERTIES(${TEST_NAME} PROPERTIES
+                                    LABELS "${COMPONENT_NAME}"
+                                    ENVIRONMENT "LD_LIBRARY_PATH=${KERNEL_TEST_LIB}:$ENV{LD_LIBRARY_PATH}"
+                      )
 ENDIF()

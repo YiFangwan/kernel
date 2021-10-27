@@ -23,6 +23,7 @@ SET(SUBDIR_BASE
   SALOMELocalTrace
   HDFPersist
   KERNEL_PY
+  SalomeZeroMQ
   Utils
 )
 

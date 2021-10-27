@@ -272,6 +272,9 @@ module Engines
 
     //! Obtain physical memory, used by the current process, in megabytes.
     long getTotalPhysicalMemoryInUseByMe();
+
+    //! Generate sequence of bytes and return it.
+    TMPFile sendData(in unsigned long size);
   };
 
   /*! \brief Interface of the %component.

@@ -40,7 +40,7 @@ def readORBConfigFile(filename):
 #
 
 def fillOrbConfigFileNoNS(prefix,orbdata):
-  GIOP_MaxMsgSize = 2097152000  # 2 GBytes
+  GIOP_MaxMsgSize = 4294967290 # 4 Gb
   orbdata.append("%sgiopMaxMsgSize = %s # 2 GBytes"%(prefix,GIOP_MaxMsgSize))
   orbdata.append("%straceLevel = 0 # critical errors only"%(prefix))
   orbdata.append("%smaxGIOPConnectionPerServer = 500 # to allow containers parallel launch"%(prefix))

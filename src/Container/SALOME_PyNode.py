@@ -29,6 +29,7 @@ import pickle
 import Engines__POA
 import SALOME__POA
 import SALOME
+from SalomeZeroMQPy import SalomeZeroMQ
 
 class Generic(SALOME__POA.GenericObj):
   """A Python implementation of the GenericObj CORBA IDL"""
@@ -102,6 +103,24 @@ class PyNode_i (Engines__POA.PyNode,Generic):
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyNode: %s, function: %s" % (self.nodeName,funcName),0))
+
+  def executeZMQ(self, funcName):
+    """Execute the function funcName found in local context using ZeroMQ"""
+    try:
+      input_data = self._zeroMQ.receive_data_zmq()
+      args,kwargs=pickle.loads(input_data)
+      func=self.context[funcName]
+      result_data=func(*args, **kwargs)
+      output_data=pickle.dumps(result_data, -1)
+      self._zeroMQ.send_data_zmq(output_data)
+    except:
+      exc_typ,exc_val,exc_fr=sys.exc_info()
+      l=traceback.format_exception(exc_typ,exc_val,exc_fr)
+      raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyNode: %s, function: %s" % (self.nodeName,funcName),0))
+
+  def setZmqSocketOpt(self, opt):
+    self._workingAddr = opt
+    self._zeroMQ = SalomeZeroMQ(self._workingAddr)
 
 class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
   """The implementation of the PyScriptNode CORBA IDL that executes a script"""
