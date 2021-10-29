@@ -35,11 +35,16 @@
 
 # include <string>
 # include <vector>
+#include <mutex>
 
 ORB_INIT::ORB_INIT( void ): _orb( CORBA::ORB::_nil() )
 {
 }
 
+namespace
+{
+  std::recursive_mutex mutex; //!< mutex to protect access to static data
+}
 
 ORB_INIT::~ORB_INIT()
 {
@@ -76,6 +81,7 @@ void ORB_INIT::explicit_destroy()
 CORBA::ORB_var &ORB_INIT::operator() ()
 {
   try {
+    std::lock_guard<std::recursive_mutex> g(mutex);  
     if ( CORBA::is_nil( _orb ) )
       {
         try
@@ -86,13 +92,16 @@ CORBA::ORB_var &ORB_INIT::operator() ()
             }
             std::vector<std::string> args = GetArgcArgv();
             int argc = args.size();
-            char** argv = new char*[argc];
-            for (int i = 0; i < argc; ++i)
-              argv[i] = strdup(args.at(i).c_str());
+            char** argv = argc > 0 ? new char*[argc] : nullptr;
+            for (int i = 0; i < argc; ++i) {
+              argv[i] = new char[args.at(i).size()+1];
+              strcpy(argv[i], args.at(i).c_str());
+            }
             _orb = CORBA::ORB_init( argc, argv, "omniORB4" ) ;
             for (int i = 0; i < argc; ++i)
               delete[] argv[i];
-            delete[] argv;
+            if (argc>0)
+              delete[] argv;
           }
         catch( const CORBA::Exception & )
           {

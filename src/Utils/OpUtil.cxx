@@ -25,16 +25,23 @@
 //  Module : SALOME
 //
 #include "OpUtil.hxx"
+#include <mutex>
 
 #if !defined(SALOME_LIGHT)
 
 #include "Utils_SINGLETON.hxx"
 #include "Utils_ORB_INIT.hxx"
 
+namespace
+{
+  std::recursive_mutex mutex; //!< mutex to protect access to static data
+}
+
 UTILS_EXPORT CORBA::ORB_var KERNEL::GetRefToORB()
 {
+  std::lock_guard<std::recursive_mutex> g(mutex);  
   ORB_INIT &init = *SINGLETON_<ORB_INIT>::Instance();
-  CORBA::ORB_var &orb = init();
+  CORBA::ORB_var orb = init();
   return orb;
 }
 
