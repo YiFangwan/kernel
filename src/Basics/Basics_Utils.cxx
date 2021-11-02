@@ -32,6 +32,8 @@
 #include <execinfo.h>
 #endif
 
+#include <netdb.h>
+#include <arpa/inet.h>
 #include <memory>
 #include <functional>
 
@@ -81,6 +83,14 @@ namespace Kernel_Utils
     std::string p = s;
     delete [] s;
     return p;
+  }
+
+  std::string GetIpByHostname() {
+    std::string host = GetHostname();
+    hostent* hostname = gethostbyname(host.c_str());
+    if(hostname)
+        return std::string(inet_ntoa(**(in_addr**)hostname->h_addr_list));
+    return {};
   }
 
   Localizer::Localizer()

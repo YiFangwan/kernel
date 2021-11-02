@@ -21,11 +21,12 @@
 #include <iostream>
 
 #include "SalomeZeroMQ.hxx"
+#include "Basics_Utils.hxx"
 
 DataZMQ::DataZMQ()
 {
   this->cont = zmq::context_t(1);
-  this->addr = "inproc://hello";
+  this->addr = "tcp://" + Kernel_Utils::GetIpByHostname() + ":*";
   this->sock = zmq::socket_t(this->cont, zmq::socket_type::pair);
 }
 
@@ -34,14 +35,14 @@ void DataZMQ::connectDataZMQ()
   char port[1024];
   size_t size = sizeof(port);
   try{
-    this->sock.bind("tcp://*:*");
+    this->sock.bind(this->addr);
+    sock.getsockopt( ZMQ_LAST_ENDPOINT, &port, &size );
+    std::cout << "socket is bound at port " << port << std::endl;
+    this->addr = std::string(port);
   }
   catch (zmq::error_t&e ){
     std::cerr << "couldn't bind to socket: " << e.what();
   }
-  sock.getsockopt( ZMQ_LAST_ENDPOINT, &port, &size );
-  std::cout << "socket is bound at port " << port << std::endl;
-  this->addr = std::string(port);
 }
 
 void DataZMQ::sendDataZMQ(const char* data, int len)

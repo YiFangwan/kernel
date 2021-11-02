@@ -44,6 +44,7 @@
 namespace Kernel_Utils
 {
   BASICS_EXPORT std::string GetHostname();
+  BASICS_EXPORT std::string GetIpByHostname();
 
   class BASICS_EXPORT Localizer
   {
