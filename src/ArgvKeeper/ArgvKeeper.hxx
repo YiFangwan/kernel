@@ -26,7 +26,7 @@
 #  define ARGVKEEPER_EXPORT __declspec( dllimport )
 # endif
 #else
-# define UTILS_EXPORT
+# define ARGVKEEPER_EXPORT
 #endif
 
 #include <string>
