@@ -65,6 +65,7 @@ def main(salome_install_dir, context_file_name, env_file_name, ignore=None):
         ignore = IGNORE[::]
 
     # new pythonpath initiation; creation a directory containing all python module for salome
+    salome_install_dir=os.path.abspath(salome_install_dir)
     pythonpath_common = os.path.join(salome_install_dir, 'python_modules')
     if os.path.exists(pythonpath_common):
         remove(pythonpath_common)
@@ -102,23 +103,20 @@ def main(salome_install_dir, context_file_name, env_file_name, ignore=None):
     with open(os.path.join(pythonpath_common, 'easy-install.pth'), 'w') as easy_install:
         for dirs in reservedDict[reserved_key[0]]:
             for d in dirs.split(':'):
-                if "paraview" not in d.lower():
-                    egg_dir_list = glob.glob(os.path.join(d, pattern))
-                    if egg_dir_list:
-                        for egg_dir in egg_dir_list:
-                            egg_file = egg_dir.split('/')[-1]
-                            new_dir = os.path.join(pythonpath_common, egg_file)
-                            copy_or_link(egg_dir, new_dir)
-                            easy_install.write("./%s\n" % egg_file)
-                    else:
-                        for f in os.listdir(d):
-                            if f in ignore:
-                                continue
-                            full_file_srcpath = os.path.join(d, f)
-                            full_file_dstpath = os.path.join(pythonpath_common, f)
-                            copy_or_link(full_file_srcpath, full_file_dstpath)
+                egg_dir_list = glob.glob(os.path.join(d, pattern))
+                if egg_dir_list:
+                    for egg_dir in egg_dir_list:
+                        egg_file = egg_dir.split('/')[-1]
+                        new_dir = os.path.join(pythonpath_common, egg_file)
+                        copy_or_link(egg_dir, new_dir)
+                        easy_install.write("./%s\n" % egg_file)
                 else:
-                    new_pythonpath_list.append(d)
+                    for f in os.listdir(d):
+                        if f in ignore:
+                            continue
+                        full_file_srcpath = os.path.join(d, f)
+                        full_file_dstpath = os.path.join(pythonpath_common, f)
+                        copy_or_link(full_file_srcpath, full_file_dstpath)
     # In the case of matplotlib, some prerequis are found matplotlib_root. They also need to be put in new directory of module python
     try:
         with open(os.path.join(pythonpath_common, 'easy-install.pth'), 'a') as easy_install:
