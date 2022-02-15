@@ -263,15 +263,15 @@ class LoggerServer(Server):
     pass # end of LoggerServer class
 
 # ---
-
-class SessionServer(Server):
+import abc
+class CommonSessionServer(Server):
     def __init__(self,args,modules_list,modules_root_dir):
         self.args = args.copy()
         # Bug 11512 (Problems with runSalome --xterm on Mandrake and Debian Sarge)
         #self.args['xterm']=0
         #
         self.initArgs()
-        self.SCMD1=['SALOME_Session_Server']
+        self.SCMD1=[self.getSessionServerExe()]
         if "SQUISH_PREFIX" in os.environ:
             if platform.system() == "Windows" :
                 self.SCMD1 = [os.path.join(os.getenv("SQUISH_PREFIX"), "bin", "dllpreload.exe"),os.path.join(os.getenv("SQUISH_SALOME_PATH"), "W64", "GUI", "bin", "salome", self.SCMD1[0])]
@@ -345,6 +345,10 @@ class SessionServer(Server):
             self.SCMD2+=['--language=%s' % self.args['language']]
         pass
 
+    @abc.abstractmethod
+    def getSessionServerExe(self):
+        pass
+    
     def setpath(self,modules_list,modules_root_dir):
         list_modules = modules_list[:]
         list_modules.reverse()
@@ -390,6 +394,14 @@ class SessionServer(Server):
             self.CMD = l + self.CMD
             pass
 
+class SessionServer(CommonSessionServer):
+    def __init__(self,args,modules_list,modules_root_dir):
+        super().__init__(args,modules_list,modules_root_dir)
+        import KernelBasis
+        KernelBasis.setSSLMode(False)
+    
+    def getSessionServerExe(self):
+        return "SALOME_Session_Server"
 # ---
 
 class LauncherServer(Server):

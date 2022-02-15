@@ -39,23 +39,25 @@ Usage: salome [command] [options] [--config=<file,folder,...>]
 
 Commands:
 =========
-    start           Start a new SALOME instance.
+    start           Start a new SALOME instance. Start a single SALOME_Session_Server_No_Server
+                    process with environment relevant to the application and hosting all servants in it.
     context         Initialize SALOME context. Current environment is extended.
     shell           Initialize SALOME context, attached to the last created SALOME
                     instance if any, and executes scripts passed as command arguments.
                     User works in a Shell terminal. SALOME environment is set but
                     application is not started.
-    connect         Connect a Python console to the active SALOME instance.
-    remote          run command in SALOME environment from remote call, ssh or rsh.
-    kill <port(s)>  Terminate SALOME instances running on given ports for current user.
-                    Port numbers must be separated by blank characters.
-    killall         Terminate *all* SALOME running instances for current user.
-                    Do not start a new one.
     test            Run SALOME tests.
     info            Display some information about SALOME.
     doc <module(s)> Show online module documentation (if available).
                     Module names must be separated by blank characters.
     help            Show this message.
+    remote          run command in SALOME environment from remote call, ssh or rsh.
+    withsession     Start a new SWS SALOME instance with multiple servers hosting all servants.
+    connect         In SWS context, Connect a Python console to the active SALOME instance.
+    kill <port(s)>  In SWS context, Terminate SALOME instances running on given ports for current user.
+                    Port numbers must be separated by blank characters.
+    killall         Terminate *all* SALOME running SWS instances for current user.
+                    Do not start a new one.
 
 If no command is given, default is start.
 
@@ -223,8 +225,8 @@ class SalomeContext:
     options = args[1:]
 
     availableCommands = {
-      'start'   : '_runAppli',
-      'sessionless' : '_sessionless',
+      'start'   : '_sessionless',
+      'withsession' : '_runAppli',
       'context' : '_setContext',
       'shell'   : '_runSession',
       'remote'  : '_runRemote',
@@ -273,7 +275,7 @@ class SalomeContext:
         usage()
         return 0
       # try to default to "start" command
-      command = "_runAppli"
+      command = "_sessionless"
 
     try:
       res = getattr(self, command)(options) # run appropriate method
@@ -570,7 +572,7 @@ Available options are:
 
     if "-v" in args or "--version" in args:
       print("Running with python", platform.python_version())
-      return self._runAppli(["--version"])
+      return self._sessionless(["--version"])
 
     return 0
   #

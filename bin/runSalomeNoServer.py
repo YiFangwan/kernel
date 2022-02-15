@@ -21,15 +21,16 @@ import setenv
 import runSalome
 import os
 
-class NoSessionServer(runSalome.SessionServer):
+class NoSessionServer(runSalome.CommonSessionServer):
     def __init__(self,args,modules_list,modules_root_dir):
         super().__init__(args,modules_list,modules_root_dir)
         for i in range (len(self.SCMD1)):
             if self.SCMD1[i] == "SALOME_Session_Server" :
                 self.SCMD1[i] = "SALOME_Session_Server_No_Server"
-        os.putenv("SALOME_EMB_SERVANT", "1")
         SalomeAppSLConfig=os.getenv("SalomeAppConfig","")
         os.putenv("SalomeAppSLConfig", SalomeAppSLConfig)
+    def getSessionServerExe(self):
+        return "SALOME_Session_Server_No_Server"
 
 def main():
     args, modules_list, modules_root_dir = setenv.get_config()
