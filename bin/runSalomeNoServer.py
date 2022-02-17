@@ -18,10 +18,10 @@
 # See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 #
 import setenv
-import runSalome
+import runSalomeCommon
 import os
 
-class NoSessionServer(runSalome.CommonSessionServer):
+class NoSessionServer(runSalomeCommon.CommonSessionServer):
     def __init__(self,args,modules_list,modules_root_dir):
         super().__init__(args,modules_list,modules_root_dir)
         for i in range (len(self.SCMD1)):
