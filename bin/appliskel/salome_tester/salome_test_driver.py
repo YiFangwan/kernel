@@ -127,6 +127,8 @@ if __name__ == "__main__":
   from salome_instance import SalomeInstance
   res = 1
   try:
+    import KernelBasis
+    KernelBasis.setSSLMode(False)
     salome_instance = SalomeInstance.start(shutdown_servers=True)
     port = salome_instance.get_port()
     res, out, err = runTest(test_and_args)
