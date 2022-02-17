@@ -32,6 +32,7 @@ import sys
 import platform
 
 from salomeContextUtils import SalomeContextException
+from addToKillList import killList
 
 def usage():
   msg = '''\
@@ -451,7 +452,6 @@ class SalomeContext:
       else:
         proc = subprocess.Popen(["killSalomeWithPort.py", str(port)])
       proc.communicate()
-
     return 0
   #
 
@@ -478,6 +478,7 @@ class SalomeContext:
       from killSalome import killAllPorts
       killAllPorts()
       pass
+    killList()
     return 0
   #
 

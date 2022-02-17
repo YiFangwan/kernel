@@ -35,7 +35,7 @@ import json
 import subprocess
 from salomeContextUtils import ScriptAndArgsObjectEncoder
 import platform
-from runSalomeCommon import InterpServer, CatalogServer, SalomeDSServer, ConnectionManagerServer, RegistryServer, ContainerCPPServer, LoggerServer, CommonSessionServer, SessionServer, LauncherServer
+from runSalomeCommon import setVerbose, InterpServer, CatalogServer, SalomeDSServer, ConnectionManagerServer, RegistryServer, ContainerCPPServer, LoggerServer, CommonSessionServer, SessionServer, LauncherServer
 # -----------------------------------------------------------------------------
 
 from killSalome import killAllPorts
