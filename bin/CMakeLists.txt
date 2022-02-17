@@ -48,7 +48,6 @@ SET(SCRIPTS
   runSalomeCommon.py
   runSalome.py
   runSalomeOld.py
-  runSalomeSL.py
   runSalomeNoServer.py
   runSession.py
   runConsole.py

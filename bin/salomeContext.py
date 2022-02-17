@@ -353,12 +353,12 @@ class SalomeContext:
     if args is None:
       args = []
     # Initialize SALOME environment
-    sys.argv = ['runSalome'] + args
+    sys.argv = ['runSalomeOld'] + args
     import setenv
-    setenv.main(True, exeName="salome start")
+    setenv.main(True, exeName="salome withsession")
 
-    import runSalome
-    runSalome.runSalome()
+    import runSalomeOld
+    runSalomeOld.runSalome()
     return 0
   #
 

@@ -65,7 +65,7 @@ class SalomeInstance:
     if args is None:
       args = []
 
-    sys.argv = ['runSalome'] + args
+    sys.argv = ['runSalomeOld'] + args
 
     if with_gui:
       # :WARNING: NOT TESTED YET
@@ -82,8 +82,8 @@ class SalomeInstance:
 
     import setenv
     setenv.main(True)
-    import runSalome
-    runSalome.runSalome()
+    import runSalomeOld
+    runSalomeOld.runSalome()
 
     if not with_gui:
       import salome
