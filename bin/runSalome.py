@@ -70,6 +70,8 @@ def startSalome(args, modules_list, modules_root_dir):
 
     logger.debug("startSalome : {} ".format(args))
 
+    ior_fakens_filename = None
+
     # Launch  Session Server (to show splash ASAP)
     #
 
@@ -77,6 +79,7 @@ def startSalome(args, modules_list, modules_root_dir):
         mySessionServ = runSalomeNoServer.NoSessionServer(args,args['modules'],modules_root_dir)
         mySessionServ.setpath(modules_list,modules_root_dir)
         mySessionServ.run()
+        ior_fakens_filename = mySessionServ.iorfakens
     
     end_time = os.times()
 
@@ -96,14 +99,13 @@ def startSalome(args, modules_list, modules_root_dir):
     except Exception:
         import traceback
         traceback.print_exc()
-        print("-------------------------------------------------------------")
-        print("-- to get an external python interpreter:runSalome --interp=1")
-        print("-------------------------------------------------------------")
+        logger.error("-------------------------------------------------------------")
+        logger.error("-- to get an external python interpreter:runSalome --interp=1")
+        logger.error("-------------------------------------------------------------")
 
     logger.debug("additional external python interpreters: {}".format(nbaddi))
     if nbaddi:
         for i in range(nbaddi):
-            print("i=",i)
             anInterp=InterpServer(args)
             anInterp.run()
 
@@ -115,7 +117,7 @@ def startSalome(args, modules_list, modules_root_dir):
         except ImportError:
             pass
 
-    return
+    return ior_fakens_filename
 
 # -----------------------------------------------------------------------------
 
@@ -126,15 +128,13 @@ def useSalome(args, modules_list, modules_root_dir):
     show registered objects in Naming Service.
     """
     global process_id
-
+    ior_fakens_filename = None
     try:
-        startSalome(args, modules_list, modules_root_dir)
+        ior_fakens_filename = startSalome(args, modules_list, modules_root_dir)
     except Exception:
         import traceback
         traceback.print_exc()
-        print()
-        print()
-        print("--- Error during Salome launch ---")
+        logger.error("--- Error during Salome launch ---")
 
     # print(process_id)
 
@@ -160,7 +160,7 @@ def useSalome(args, modules_list, modules_root_dir):
     the processes resulting from the previous execution.
     """%filedict)
 
-    return
+    return ior_fakens_filename
 
 def execScript(script_path):
     print('executing', script_path)
@@ -186,16 +186,26 @@ def main(exeName=None):
     kill_salome(args)
     # --
     setenv.set_env(args, modules_list, modules_root_dir, keepEnvironment=keep_env)
-    useSalome(args, modules_list, modules_root_dir)
-    return args
+    ior_fakens_filename = useSalome(args, modules_list, modules_root_dir)
+    return args, ior_fakens_filename
 
 # -----------------------------------------------------------------------------
 
-def foreGround(args):
+def foreGround(args, ior_fakens_filename):
     # --
-    if "session_object" not in args:
+    if ior_fakens_filename is None:
         return
-    session = args["session_object"]
+    if not os.path.exists(ior_fakens_filename):
+        return
+    import CORBA
+    import Engines
+    orb = CORBA.ORB_init([''], CORBA.ORB_ID)
+    ior_fakens = None
+    try:
+        ior_fakens = orb.string_to_object(open(ior_fakens_filename).read())
+    except Exception:
+        pass
+    session = orb.string_to_object(ior_fakens.Resolve("/Kernel/Session").decode())
     # --
     # Wait until gui is arrived
     # tmax = nbtot * dt
@@ -255,7 +265,7 @@ def foreGround(args):
 #
 
 def runSalome():
-    args = main()
+    args, ior_fakens_filename = main()
     # --
     test = args['gui'] and args['session_gui']
     test = test or args['wake_up_session']
@@ -279,7 +289,7 @@ def runSalome():
     if test:
         from time import sleep
         sleep(3.0)
-        foreGround(args)
+        foreGround(args, ior_fakens_filename)
         pass
     pass
 #
