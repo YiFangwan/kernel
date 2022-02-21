@@ -193,6 +193,7 @@ def main(exeName=None):
 
 def foreGround(args, ior_fakens_filename):
     # --
+    import os
     gui_detected = False
     dt = 0.1
     nbtot = 100
@@ -273,8 +274,8 @@ def foreGround(args, ior_fakens_filename):
             pass
         pass
     except KeyboardInterrupt:
-        from killSalomeWithPort import killMyPort
-        killMyPort(port)
+        from killSalomeWithPort import killMyPortSSL
+        killMyPortSSL(port)
         pass
     return
 #
