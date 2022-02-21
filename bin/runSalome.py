@@ -193,38 +193,53 @@ def main(exeName=None):
 
 def foreGround(args, ior_fakens_filename):
     # --
-    if ior_fakens_filename is None:
-        return
-    if not os.path.exists(ior_fakens_filename):
-        return
-    import CORBA
-    import Engines
-    orb = CORBA.ORB_init([''], CORBA.ORB_ID)
-    ior_fakens = None
-    try:
-        ior_fakens = orb.string_to_object(open(ior_fakens_filename).read())
-    except Exception:
-        pass
-    session = orb.string_to_object(ior_fakens.Resolve("/Kernel/Session").decode())
-    # --
-    # Wait until gui is arrived
-    # tmax = nbtot * dt
-    # --
     gui_detected = False
     dt = 0.1
     nbtot = 100
     nb = 0
+    if ior_fakens_filename is None:
+        logger.warn("No file set to host IOR of the fake naming server")
+        return
+    if not os.path.exists(ior_fakens_filename):
+        logger.warn("No file {} set to host IOR of the fake naming server does not exit !")
+        return
+    import CORBA
+    import Engines
+    import SALOME
+    from time import sleep
+    orb = CORBA.ORB_init([''], CORBA.ORB_ID)
+    ior_fakens = None
+    session = None
+    while True:
+        try:
+            ior_fakens = orb.string_to_object(open(ior_fakens_filename).read())
+            session = orb.string_to_object(ior_fakens.Resolve("/Kernel/Session").decode())
+        except Exception:
+            pass
+        if ( session is not None ) and (not CORBA.is_nil(session)):
+            logger.debug("Session in child process has been found ! yeah ! {}".format(str(session)))
+            break
+        sleep(dt)
+        nb += 1
+        logger.debug("Unfortunately Session not found into {} : Sleep and retry. {}/{}".format(ior_fakens_filename,nb,nbtot))
+        if nb == nbtot:
+            break
+    nb = 0
+    # --
+    # Wait until gui is arrived
+    # tmax = nbtot * dt
+    # --
     session_pid = None
     while 1:
         try:
             status = session.GetStatSession()
             gui_detected = status.activeGUI
             session_pid = session.getPID()
+            logger.debug("Process of the session under monitoring {}".format(session_pid))
         except Exception:
             pass
         if gui_detected:
             break
-        from time import sleep
         sleep(dt)
         nb += 1
         if nb == nbtot:
