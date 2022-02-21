@@ -218,6 +218,11 @@ def foreGround(args, ior_fakens_filename):
         except Exception:
             pass
         if ( session is not None ) and (not CORBA.is_nil(session)):
+            try:
+                os.remove(ior_fakens_filename)
+                logger.debug("File {} has been removed".format(ior_fakens_filename))
+            except:
+                pass
             logger.debug("Session in child process has been found ! yeah ! {}".format(str(session)))
             break
         sleep(dt)
