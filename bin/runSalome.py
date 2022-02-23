@@ -107,7 +107,7 @@ def startSalome(args, modules_list, modules_root_dir):
     logger.debug("additional external python interpreters: {}".format(nbaddi))
     if nbaddi:
         for i in range(nbaddi):
-            anInterp=InterpServer(args)
+            anInterp=runSalomeCommon.InterpServer(args)
             anInterp.run()
 
     # set PYTHONINSPECT variable (python interpreter in interactive mode)
