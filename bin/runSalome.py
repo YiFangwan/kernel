@@ -188,7 +188,7 @@ def main(exeName=None):
     # --
     setenv.set_env(args, modules_list, modules_root_dir, keepEnvironment=keep_env)
     ior_fakens_filename = useSalome(args, modules_list, modules_root_dir)
-    ###
+    # Management of -t <script.py>
     toimport = []
     if 'gui' in args and 'session_gui' in args:
         if not args['gui'] or not args['session_gui']:
