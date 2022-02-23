@@ -353,6 +353,7 @@ class SalomeContext:
       args = []
     # Initialize SALOME environment
     sys.argv = ['runSalomeOld'] + args
+    print(477*"!"+str(sys.argv))
     import setenv
     setenv.main(True, exeName="salome withsession")
 
@@ -365,9 +366,10 @@ class SalomeContext:
     if args is None:
       args = []
     sys.argv = ['runSalome'] + args
+    print(477*"@"+str(sys.argv))
     import setenv
     setenv.main(True, exeName="salome withsession")
-    
+
     import runSalome
     runSalome.runSalome()
     return 0
