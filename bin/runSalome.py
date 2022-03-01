@@ -171,14 +171,6 @@ def execScript(script_path):
 
 # -----------------------------------------------------------------------------
 
-def addToPidict(args):
-    global process_id
-    from addToKillList import addToKillList
-    for pid, cmd in list(process_id.items()):
-        addToKillList(pid, cmd)
-
-# -----------------------------------------------------------------------------
-
 def main(exeName=None):
     """Salome launch as a main application"""
     keep_env = not os.getenv('SALOME_PLEASE_SETUP_ENVIRONMENT_AS_BEFORE')
@@ -279,14 +271,6 @@ def foreGround(args, ior_fakens_filename):
     from salome_utils import getPortNumber
     port = getPortNumber()
     # --
-    server = Server({})
-    if sys.platform == "win32":
-      server.CMD = [os.getenv("PYTHONBIN"), "-m", "killSalomeWithPort", "--spy", "%s"%(session_pid or os.getpid()), "%s"%(port)]
-    else:
-      server.CMD = ["killSalomeWithPort.py", "--spy", "%s"%(session_pid or os.getpid()), "%s"%(port)]
-    server.run(True)
-    # os.system("killSalomeWithPort.py --spy %s %s &"%(os.getpid(), port))
-    # --
     dt = 1.0
     try:
         while 1:
@@ -302,9 +286,9 @@ def foreGround(args, ior_fakens_filename):
         pass
     except KeyboardInterrupt:
         logger.debug("Keyboard requested : killing all process attached to port {}".format(port))
-        from killSalomeWithPort import killMyPortSSL
-        killMyPortSSL(port)
-        pass
+    finally:
+        from killSalomeWithPort import killProcessSSL
+        killProcessSSL(port,[session_pid])
     return
 #
 
