@@ -20,14 +20,18 @@
 #pragma once
 
 #include <Python.h>
+#include <mutex>
 
 class AutoGIL
 {
 public:
-  AutoGIL():_gstate(PyGILState_Ensure()) { }
+  AutoGIL():_lock(global_mutex), _gstate()
+  { _gstate = PyGILState_Ensure(); }
   ~AutoGIL() { PyGILState_Release(_gstate); }
 private:
+  std::unique_lock<std::mutex> _lock;
   PyGILState_STATE _gstate;
+  static std::mutex global_mutex;
 };
 
 class AutoPyRef

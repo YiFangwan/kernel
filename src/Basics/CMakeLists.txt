@@ -34,6 +34,7 @@ SET(SALOMEBasics_SOURCES
   Basics_Utils.hxx
   Basics_DirUtils.hxx
   KernelBasis.cxx
+  PythonCppUtils.cxx
 )
 
 ADD_LIBRARY(SALOMEBasics ${SALOMEBasics_SOURCES})
