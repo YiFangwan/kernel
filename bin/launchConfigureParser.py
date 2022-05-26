@@ -584,6 +584,13 @@ Python file arguments, if any, must be comma-separated (without blank characters
                       dest="log_file",
                       help=help_str)
 
+    # Use gui-log-file for specific user actions in GUI. Default: nothing.
+    help_str = "Log specific user actions in GUI to <gui_log_file>"
+    pars.add_argument("--gui-log-file",
+                      metavar="<gui_log_file>",
+                      dest="gui_log_file",
+                      help=help_str)
+
     # Configuration XML file. Default: see defaultUserFile() function
     help_str = "Parse application settings from the <file> "
     help_str += "instead of default %s" % defaultUserFile()
@@ -997,6 +1004,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
     args["session_gui"] = False
     args[batch_nam] = False
     args["study_hdf"] = None
+    args["gui_log_file"] = None
     if cmd_opts.gui is not None:
         args[gui_nam] = cmd_opts.gui
     if cmd_opts.batch is not None:
@@ -1023,6 +1031,10 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
             args[logger_nam] = True
         else:
             args[file_nam] = [cmd_opts.log_file]
+
+    # GUI Log file
+    if cmd_opts.gui_log_file is not None:
+        args["gui_log_file"] = cmd_opts.gui_log_file
 
     # Naming Service port log file
     if cmd_opts.ns_port_log_file is not None:
