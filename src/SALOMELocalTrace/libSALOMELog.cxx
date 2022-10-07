@@ -23,9 +23,9 @@
 //  Author : Konstantin Leontev (OpenCascade)
 //  Module : KERNEL
 //  $Header$
-// Cf. C++ Users Journal, June 2004, Tracing Application Execution, Tomer Abramson
 //
 
+#include "libSALOMELog.hxx"
 #include <cstdlib>
 
 namespace SALOME
