@@ -26,7 +26,9 @@
 //
 
 #include "libSALOMELog.hxx"
-#include <cstdlib>
+
+#include <string>
+#include <iostream>
 
 namespace SALOME
 {
