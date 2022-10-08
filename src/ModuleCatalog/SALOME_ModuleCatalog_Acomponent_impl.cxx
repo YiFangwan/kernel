@@ -177,8 +177,8 @@ SALOME_ModuleCatalog_AcomponentImpl::GetServiceList(const char* interfacename)
           for (unsigned int ind1 = 0; ind1 < _length_services ; ind1++)
             {
               _list[ind1] = CORBA::string_dup(I.interfaceservicelist[ind1].ServiceName);
-              if(MYDEBUG) MESSAGE("The interface " << interfacename << " of the component " 
-                                  << _Component.name << " contains " << _list[ind1] << " as a service") 
+              MESSAGE("The interface " << interfacename << " of the component " 
+                                  << _Component.name << " contains " << _list[ind1] << " as a service");
             }
         }
     }

@@ -117,8 +117,8 @@ SALOME_ModuleCatalog_Handler::SALOME_ModuleCatalog_Handler(ParserPathPrefixes& p
 //----------------------------------------------------------------------
 SALOME_ModuleCatalog_Handler::~SALOME_ModuleCatalog_Handler()
 {
-  if(MYDEBUG) BEGIN_OF("~SALOME_ModuleCatalog_Handler()")
-  if(MYDEBUG) END_OF("~SALOME_ModuleCatalog_Handler()")
+  BEGIN_OF("~SALOME_ModuleCatalog_Handler()");
+  END_OF("~SALOME_ModuleCatalog_Handler()");
 }
 
 
