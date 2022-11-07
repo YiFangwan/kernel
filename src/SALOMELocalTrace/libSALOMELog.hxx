@@ -28,10 +28,11 @@
 #ifndef _LIBSALOMELOG_HXX_
 #define _LIBSALOMELOG_HXX_
 
+#include "SALOME_LocalTrace.hxx"
 
 namespace SALOME
 {
-  bool VerbosityActivated();
+  bool SALOMELOCALTRACE_EXPORT VerbosityActivated();
 }
 
 #endif
