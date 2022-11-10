@@ -105,23 +105,23 @@
 // --- the following MACROS can be enabled in debug and release versions
 // --- by SALOME_VERBOSE environment variable
 
-#define INFOS_COMPILATION if (SALOME::VerbosityActivated()) { MESS_BEGIN("COMPILED with ") << COMPILER \
+#define INFOS_COMPILATION { if (SALOME::VerbosityActivated()) { MESS_BEGIN("COMPILED with ") << COMPILER \
                                        << ", " << __DATE__ \
-                                       << " at " << __TIME__ << MESS_END } else (void)0
+                                       << " at " << __TIME__ << MESS_END }}
                                                                                 
 
-#define MESSAGE(msg) if (SALOME::VerbosityActivated()) {MESS_BEGIN("- Trace ") << msg << MESS_END} else (void)0
-#define SCRUTE(var)  if (SALOME::VerbosityActivated()) {MESS_BEGIN("- Trace ") << #var << "=" << var <<MESS_END} else (void)0
+#define MESSAGE(msg) { if (SALOME::VerbosityActivated()) {MESS_BEGIN("- Trace ") << msg << MESS_END}}
+#define SCRUTE(var)  { if (SALOME::VerbosityActivated()) {MESS_BEGIN("- Trace ") << #var << "=" << var <<MESS_END}}
 
 #define REPERE ("------- ")
-#define BEGIN_OF(msg) if (SALOME::VerbosityActivated()) {MESS_BEGIN(REPERE) << "Begin of: " << msg << MESS_END} else (void)0
-#define END_OF(msg)   if (SALOME::VerbosityActivated()) {MESS_BEGIN(REPERE) << "Normal end of: " << msg << MESS_END} else (void)0
+#define BEGIN_OF(msg) { if (SALOME::VerbosityActivated()) {MESS_BEGIN(REPERE) << "Begin of: " << msg << MESS_END}}
+#define END_OF(msg)   { if (SALOME::VerbosityActivated()) {MESS_BEGIN(REPERE) << "Normal end of: " << msg << MESS_END}}
 
 #ifndef ASSERT
 #define ASSERT(condition) \
-        if (SALOME::VerbosityActivated()) { \
+        { if (SALOME::VerbosityActivated()) { \
         if (!(condition)){INTERRUPTION("CONDITION "<<#condition<<" NOT VERIFIED")} \
-        }  else (void)0
+        }}
 #endif /* ASSERT */
 
 #endif /* ifndef UTILITIES_H */
