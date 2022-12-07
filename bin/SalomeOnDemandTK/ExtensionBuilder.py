@@ -224,6 +224,8 @@ def list_files_filter(dir_path, filter_patterns):
         files_rel - a list of relative paths to selected files.
     """
 
+    logger.debug('Get list of files to add into archive...')
+
     files_abs = []
     files_rel = []
 
@@ -266,7 +268,7 @@ def isvalid_filename(filename, extension):
         True if the given filename is valid for given extension.
     """
 
-    logger.debug('Check if the filename %s exists and have an extension %s', filename, extension)
+    logger.debug('Check if the filename %s exists and has an extension %s', filename, extension)
 
     # First do we even have something to check here
     if filename == '' or extension == '':
@@ -276,7 +278,6 @@ def isvalid_filename(filename, extension):
 
     # Check if the filename matchs the provided extension
     _, ext = os.path.splitext(filename)
-    #ext.replace('.', '')
     ext = ext.lstrip('.')
     if ext != extension:
         logger.error('The filename %s doesnt have a valid extension! \
@@ -295,7 +296,7 @@ def isvalid_filename(filename, extension):
         logger.error('The filename %s is not an existing regular file!', filename)
         return False
 
-    logger.debug('Filename %s exists and has, extension %s', filename, extension)
+    logger.debug('Filename %s exists and has an extension %s', filename, extension)
     return True
 
 
@@ -382,20 +383,39 @@ def create_salomex(salomexb, salomexd, env_py, top_repository):
             # List of the files those actually written to the archive.
             # It goes to the salomexc file then.
             files_abs, files_rel = list_files_filter(top_repository, included_files_patterns)
+            logger.debug('Add selected files into archive %s directory...', SALOME_EXTDIR)
+            # Set progress bar, because it can get some time for large archives
+            progress_count = 0
+            total_count = len(files_abs)
+            default_terminator = logger.handlers[0].terminator
+            logger.handlers[0].terminator = ''
             for (file_abs, file_rel) in zip(files_abs, files_rel):
-                ext.add(file_abs, SALOME_EXTDIR + '/' + file_rel)
+                ext.add(file_abs, os.path.normpath(SALOME_EXTDIR + '/' + file_rel))
+
+                # Progress bar's length is 100 symbols.
+                progress_count += 1
+                logger.debug('\r|%-100s|', '=' * int(100 * progress_count/(total_count - 1)))
+
+            # Reset terminator to default value, otherwise all the followed logs will be in one line
+            logger.debug('\n')
+            logger.handlers[0].terminator = default_terminator
 
             # Write the control file - list of the files inside extension's dir
+            logger.debug('Write the %s control file into archive root...', CFILE_EXT)
             included_files_data = list_tonewline_str(files_rel).encode('utf8')
             info = tarfile.TarInfo(salome_ext_name + '.' + CFILE_EXT)
             info.size = len(included_files_data)
             ext.addfile(info, io.BytesIO(included_files_data))
 
             # Write the description file as is
+            logger.debug('Copy the %s file into archive root...', salomexd)
             ext.add(salomexd, os.path.basename(salomexd))
 
             # Write the env_py file as is
+            logger.debug('Copy the %s file into archive root...', env_py)
             ext.add(env_py, os.path.basename(env_py))
+
+            logger.debug('SALOME extension %s was created.', salome_ext_name)
 
     except OSError:
         logger.error(traceback.format_exc())
