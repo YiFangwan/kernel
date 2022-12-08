@@ -1,0 +1,6 @@
+KERNEL/bin
+KERNEL/lib
+KERNEL/share
+GUI/bin
+GUI/lib
+GUI/share

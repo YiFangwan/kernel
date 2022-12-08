@@ -1,0 +1,7 @@
+{
+    "name": "GEOM",
+    "descr": "SALOME extension",
+    "depends_on": ["Base"],
+    "author": "SALOME Team",
+    "components": ["GEOM"]
+}

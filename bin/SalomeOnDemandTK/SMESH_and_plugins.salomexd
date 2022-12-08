@@ -1,0 +1,7 @@
+{
+    "name": "SMESH_and_plugins",
+    "descr": "SALOME extension",
+    "depends_on": ["Base", "GEOM"],
+    "author": "SALOME Team",
+    "components": ["SMESH", "gmsh", "NETGENPLUGIN"]
+}

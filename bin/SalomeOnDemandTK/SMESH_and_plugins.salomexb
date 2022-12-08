@@ -1,0 +1,9 @@
+SMESH/bin
+SMESH/lib
+SMESH/share
+gmsh/bin
+gmsh/lib
+gmsh/share
+NETGENPLUGIN/bin
+NETGENPLUGIN/lib
+NETGENPLUGIN/share

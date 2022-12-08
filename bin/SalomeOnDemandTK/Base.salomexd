@@ -1,0 +1,7 @@
+{
+    "name": "Base",
+    "descr": "SALOME extension",
+    "depends_on": [],
+    "author": "SALOME Team",
+    "components": ["KERNEL", "GUI"]
+}
