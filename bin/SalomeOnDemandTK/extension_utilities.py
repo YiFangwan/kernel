@@ -51,7 +51,7 @@ PYFILE_EXT = 'py'
 
 EXTNAME_KEY = 'name'
 EXTDESCR_KEY = 'descr'
-EXTDEPENDSON_KEY = 'dependsOn'
+EXTDEPENDSON_KEY = 'depends_on'
 EXTAUTHOR_KEY = 'author'
 EXTCOMPONENT_KEY = 'components'
 
