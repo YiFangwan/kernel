@@ -48,6 +48,7 @@ BFILE_EXT = 'salomexb'
 CFILE_EXT = 'salomexc'
 DFILE_EXT = 'salomexd'
 PYFILE_EXT = 'py'
+ENVPYFILE_SUF = '_env.py'
 
 EXTNAME_KEY = 'name'
 EXTDESCR_KEY = 'descr'
@@ -241,6 +242,25 @@ def list_files_filter(dir_path, filter_patterns):
     return files_abs, files_rel
 
 
+def list_files_ext(dir_path, ext):
+    """
+    Returns a list of abs paths to files with a given extension
+    in the dir_path directory.
+
+    Args:
+        dir_path - the path to the directory where you search for files.
+        ext - a given extension.
+
+    Returns:
+        A list of absolute paths to selected files.
+    """
+
+    logger.debug('Get list of files with extension %s...', ext)
+
+    dot_ext = '.' + ext
+    return [os.path.join(dir_path, f) for f in os.listdir(dir_path) if f.endswith(dot_ext)]
+
+
 def list_tonewline_str(str_list):
     """
     Converts the given list of strings to a newline separated string.
@@ -323,3 +343,60 @@ def isvalid_dirname(dirname):
 
     logger.debug('Directory %s exists', dirname)
     return True
+
+
+def list_dependants(install_dir, salomex_name):
+    """
+    Checks if we have installed extensions those depend on a given extension.
+
+    Args:
+        install_dir - path to SALOME install root directory.
+        salomex_name - a name of salome extension to check.
+
+    Returns:
+        True if the given extension has dependants.
+    """
+
+    logger.debug('Check if there are other extensions that depends on %s...', salomex_name)
+    dependants = []
+    salomexd_files = list_files_ext(install_dir, DFILE_EXT)
+
+    for salomexd_file in salomexd_files:
+        logger.debug('Check dependencies for %s...', salomexd_file)
+        salomexd_content = read_salomexd(salomexd_file)
+
+        if EXTDEPENDSON_KEY in salomexd_content and salomexd_content[EXTDEPENDSON_KEY]:
+            depends_on = salomexd_content[EXTDEPENDSON_KEY]
+            logger.debug('List of dependencies: %s', depends_on)
+
+            if salomex_name in depends_on:
+                dependant_name = None
+                if EXTNAME_KEY in salomexd_content and salomexd_content[EXTNAME_KEY]:
+                    dependant_name = salomexd_content[EXTNAME_KEY]
+                else:
+                    logger.warning('%s file doesn\'t have %s key! '
+                        'Get an extension name from the filename.',
+                        salomexd_file, EXTNAME_KEY)
+                    dependant_name, _ = os.path.splitext(os.path.basename(salomexd_file))
+
+                dependants.append(dependant_name)
+
+    if len(dependants) > 0:
+        logger.debug('An extension %s has followed extensions those depend on it: %s',
+            salomex_name, dependants)
+
+    return dependants
+
+
+def is_empty_dir(directory):
+    """
+    Checks if the given directory is empty.
+
+    Args:
+        directory - path to directory to check.
+
+    Returns:
+        True if the given directory is empty.
+    """
+
+    return not next(os.scandir(directory), None)
