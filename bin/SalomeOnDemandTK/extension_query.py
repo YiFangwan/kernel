@@ -39,8 +39,8 @@ import sys
 from traceback import format_exc
 
 from .extension_utilities import logger, \
-    SALOME_EXTDIR, \
-    isvalid_dirname, find_salomexc
+    SALOME_EXTDIR, DFILE_EXT, EXTDEPENDSON_KEY, \
+    isvalid_dirname, find_salomexc, list_files_ext, read_salomexd
 
 
 def size_to_str(size, format_in_bytes=False):
@@ -219,9 +219,51 @@ def ext_size_str(install_dir, salomex_name, format_in_bytes=False):
     return size_str
 
 
+def dependency_tree(directory):
+    r"""
+    Create a dependency tree for all salome extensions
+    installed in the given directory.
+
+    Args:
+        directory - the given directory
+
+    Returns:
+        A dictionary like that for extensions A, B, C, D and E:
+          A
+         /|\
+        / B D
+        \/ \/
+        C   E
+
+        { 'A': ['B', 'C', 'D'], 'B': ['C', 'E'], 'C': [], 'D': ['E'], 'E': [] }.
+    """
+
+    logger.debug('Build dependency tree for extensions in %s', directory)
+
+    tree = {}
+    salomexd_files = list_files_ext(directory, DFILE_EXT)
+    logger.debug('There are %s extensions in %s', len(salomexd_files), directory)
+
+    for salomexd_file in salomexd_files:
+        ext_name, _ = os.path.splitext(os.path.basename(salomexd_file))
+
+        logger.debug('Check dependencies for %s...', salomexd_file)
+        salomexd_content = read_salomexd(salomexd_file)
+
+        if EXTDEPENDSON_KEY in salomexd_content:
+            depends_on = salomexd_content[EXTDEPENDSON_KEY]
+            logger.debug('List of dependencies: %s', depends_on)
+
+            tree[ext_name] = depends_on
+
+    logger.debug('Dependency tree: %s', tree)
+    return tree
+
+
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         dir_size_str(sys.argv[1])
+        dependency_tree(sys.argv[1])
     elif len(sys.argv) == 3:
         arg_1, arg_2 = sys.argv[1:] # pylint: disable=unbalanced-tuple-unpacking
         ext_size_str(arg_1, arg_2)
