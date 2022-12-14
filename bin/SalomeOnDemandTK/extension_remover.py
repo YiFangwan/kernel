@@ -26,7 +26,7 @@
 #  Author : Konstantin Leontev, Open Cascade
 #
 #  @package SalomeOnDemandTK
-#  @brief Set of utility to unpack SALOME python extensions.
+#  @brief Set of utility to remove SALOME python extensions.
 
 """Set of utility to remove SALOME python extensions.
 """
@@ -37,8 +37,8 @@ import shutil
 from traceback import format_exc
 
 from .extension_utilities import logger, \
-    DFILE_EXT, CFILE_EXT, SALOME_EXTDIR, ENVPYFILE_SUF, \
-    isvalid_dirname, list_dependants, is_empty_dir
+    DFILE_EXT, CFILE_EXT, SALOME_EXTDIR, \
+    isvalid_dirname, list_dependants, is_empty_dir, find_salomexd, find_salomexc, find_envpy
 
 
 def remove_if_empty(top_dir, directory):
@@ -143,18 +143,15 @@ def remove_salomex(install_dir, salomex_name):
     # Check if the given extension is installed
     logger.debug('Check if an extension %s is installed:', salomex_name)
 
-    logger.debug('Try to find %s file...', DFILE_EXT)
-    salomexd = os.path.join(install_dir, salomex_name + '.' + DFILE_EXT)
-    has_salomexd = os.path.isfile(salomexd)
-    if not has_salomexd:
-        logger.debug('Cannot find a description file %s for extension %s! '
+    salomexd = find_salomexd(install_dir, salomex_name)
+    if not salomexd:
+        logger.debug('Cannot find a description file for extension %s! '
             'Extension has been already removed or %s file was deleted by mistake. '
             'In the former case we can use %s file to clean up.',
-            salomexd, salomex_name, DFILE_EXT, CFILE_EXT)
+            salomex_name, DFILE_EXT, CFILE_EXT)
 
-    logger.debug('Try to find %s file...', CFILE_EXT)
-    salomexc = os.path.join(install_dir, salomex_name + '.' + CFILE_EXT)
-    if not os.path.isfile(salomexc):
+    salomexc = find_salomexc(install_dir, salomex_name)
+    if not salomexc:
         logger.debug('Cannot find %s for extension %s! '
             'Going to exit from extension removing process.',
             salomexc, salomex_name)
@@ -176,14 +173,14 @@ def remove_salomex(install_dir, salomex_name):
     os.remove(salomexc)
 
     # Remove env file
-    env_py = os.path.join(install_dir, salomex_name + ENVPYFILE_SUF)
-    if os.path.isfile(env_py):
+    env_py = find_envpy(install_dir, salomex_name)
+    if env_py:
         os.remove(env_py)
     else:
         logger.error('Cannot find and remove %s file! ', env_py)
 
     # Remove description file
-    if has_salomexd:
+    if salomexd:
         os.remove(salomexd)
 
     logger.debug('An extension %s was removed from %s',

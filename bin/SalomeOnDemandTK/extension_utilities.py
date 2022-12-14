@@ -26,10 +26,10 @@
 #  Author : Konstantin Leontev, Open Cascade
 #
 #  @package SalomeOnDemandTK
-#  @brief Set of utility functions those help to build SALOME python extensions.
+#  @brief Utilities and constants those help to deal with salome extension files.
 
 """
-Utilities and constants those help deal with salome extension files.
+Utilities and constants those help to deal with salome extension files.
 """
 
 import os
@@ -67,9 +67,6 @@ def create_salomexd(name, descr='', depends_on=None, author='', components=None)
         depends_on - list of the modules that current extension depends on.
         author - an author of the extension.
         components - the names of the modules those current extension was built from.
-
-    Raises:
-        Raises OSError exception.
 
     Returns:
         None
@@ -111,9 +108,6 @@ def read_salomexd(file_path):
     Args:
         file_path - the path to the salomexd file.
 
-    Raises:
-        Raises OSError exception.
-
     Returns:
         A dictionary that represents the content of the salomexd file.
     """
@@ -141,9 +135,6 @@ def create_salomexb(name, included):
         name - the name of the corresponding salome extension.
         included - list of the directories those must be included inside a salomex.
 
-    Raises:
-        Raises OSError exception.
-
     Returns:
         None
     """
@@ -166,9 +157,6 @@ def read_salomexb(file_path):
 
     Args:
         file_path - the path to the salomexb file.
-
-    Raises:
-        Raises OSError exception.
 
     Returns:
         List of strings - paths to the directories those must be included in
@@ -362,6 +350,12 @@ def list_dependants(install_dir, salomex_name):
     salomexd_files = list_files_ext(install_dir, DFILE_EXT)
 
     for salomexd_file in salomexd_files:
+        dependant_name, _ = os.path.splitext(os.path.basename(salomexd_file))
+
+        # Don't process <salomex_name> extension itself
+        if dependant_name == salomex_name:
+            continue
+
         logger.debug('Check dependencies for %s...', salomexd_file)
         salomexd_content = read_salomexd(salomexd_file)
 
@@ -370,20 +364,11 @@ def list_dependants(install_dir, salomex_name):
             logger.debug('List of dependencies: %s', depends_on)
 
             if salomex_name in depends_on:
-                dependant_name = None
-                if EXTNAME_KEY in salomexd_content and salomexd_content[EXTNAME_KEY]:
-                    dependant_name = salomexd_content[EXTNAME_KEY]
-                else:
-                    logger.warning('%s file doesn\'t have %s key! '
-                        'Get an extension name from the filename.',
-                        salomexd_file, EXTNAME_KEY)
-                    dependant_name, _ = os.path.splitext(os.path.basename(salomexd_file))
-
                 dependants.append(dependant_name)
 
     if len(dependants) > 0:
-        logger.debug('An extension %s has followed extensions those depend on it: %s',
-            salomex_name, dependants)
+        logger.debug('Followed extensions %s depend on %s',
+            dependants, salomex_name)
 
     return dependants
 
@@ -400,3 +385,70 @@ def is_empty_dir(directory):
     """
 
     return not next(os.scandir(directory), None)
+
+
+def find_file(directory, file_name):
+    """
+    Finds a file in the given directory.
+
+    Args:
+        directory - path to directory to check.
+        file_name - given base filename with extension
+
+    Returns:
+        Abs path if the file exist, otherwise None.
+    """
+
+    logger.debug('Try to find %s file in %s...', file_name, directory)
+    file = os.path.join(directory, file_name)
+    if os.path.isfile(file):
+        logger.debug('File %s exists.', file)
+        return file
+
+    logger.debug('File %s doesnt\'t exist. Return None.', file)
+    return None
+
+
+def find_salomexd(install_dir, salomex_name):
+    """
+    Finds a salomexd file for the given extension.
+
+    Args:
+        install_dir - path to directory to check.
+        salomex_name - extension's name.
+
+    Returns:
+        Abs path if the file exist, otherwise None.
+    """
+
+    return find_file(install_dir, salomex_name + '.' + DFILE_EXT)
+
+
+def find_salomexc(install_dir, salomex_name):
+    """
+    Finds a salomexc file for the given extension.
+
+    Args:
+        install_dir - path to directory to check.
+        salomex_name - extension's name.
+
+    Returns:
+        Abs path if the file exist, otherwise None.
+    """
+
+    return find_file(install_dir, salomex_name + '.' + CFILE_EXT)
+
+
+def find_envpy(install_dir, salomex_name):
+    """
+    Finds a _env.py file for the given extension.
+
+    Args:
+        install_dir - path to directory to check.
+        salomex_name - extension's name.
+
+    Returns:
+        Abs path if the file exist, otherwise None.
+    """
+
+    return find_file(install_dir, salomex_name + ENVPYFILE_SUF)
