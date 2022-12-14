@@ -112,7 +112,7 @@ def remove_bylist(root_dir, salomexc):
                     shutil.rmtree(path_to_remove)
 
                 else:
-                    logger.error('Unexpected path %s!'
+                    logger.warning('Unexpected path %s!'
                         'It is not a file or directory. Skip.',
                         path_to_remove)
 
@@ -177,7 +177,7 @@ def remove_salomex(install_dir, salomex_name):
     if env_py:
         os.remove(env_py)
     else:
-        logger.error('Cannot find and remove %s file! ', env_py)
+        logger.warning('Cannot find and remove %s file! ', env_py)
 
     # Remove description file
     if salomexd:

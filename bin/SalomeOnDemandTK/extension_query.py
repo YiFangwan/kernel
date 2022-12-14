@@ -156,7 +156,7 @@ def size_bylist(root_dir, salomexc):
                     continue
 
                 else:
-                    logger.error('Unexpected path %s '
+                    logger.warning('Unexpected path %s '
                         'is not a file, link or directory. Skip.',
                         path_to_file)
 
@@ -269,4 +269,6 @@ if __name__ == '__main__':
         ext_size_str(arg_1, arg_2)
     else:
         logger.error('You must provide all the arguments!')
-        logger.info(dir_size.__doc__)
+        logger.info(dir_size_str.__doc__)
+        logger.info(dependency_tree.__doc__)
+        logger.info(ext_size_str.__doc__)

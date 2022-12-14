@@ -85,9 +85,6 @@ def create_salomex(salomexb, salomexd, env_py, top_repository):
         env_py - a path to the <ext>_env.py file.
         top_repository - a root directory for all the paths listed inside salomexb file.
 
-    Raises:
-        Raises OSError exception.
-
     Returns:
         None.
     """

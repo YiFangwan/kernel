@@ -49,10 +49,6 @@ def unpack_salomex(salome_root, salomex):
         salome_root - path to SALOME install root directory.
         salomex - a given salomex file to unpack.
 
-    Raises:
-        OSError exception.
-        KeyError exception if a file can not be found in the archive.
-
     Returns:
         None.
     """
