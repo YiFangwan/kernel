@@ -4,3 +4,34 @@
 """
 Add a custom environment to the SALOME extension.
 """
+
+import os
+
+
+def init(context, root_dir):
+    """
+    Set an environment for an extension on start of SALOME app.
+
+    Args:
+        context - an SalomeContext object.
+        root_dir - a path to __SALOME_EXT__ directory.
+
+    Returns:
+        None.
+    """
+
+    python_version = '3.10'
+    python_libdir = os.path.join('lib', 'python' + python_version, 'site-packages')
+
+    #[PYHELLO]
+    pyhello_root_dir = os.path.join(root_dir, 'PYHELLO')
+    context.setVariable('PYHELLO_ROOT_DIR', pyhello_root_dir, overwrite=True)
+    context.addToPath(os.path.join(pyhello_root_dir, 'bin', 'salome'))
+    context.addToLdLibraryPath(os.path.join(pyhello_root_dir, 'lib', 'salome'))
+    context.addToPythonPath(os.path.join(pyhello_root_dir, 'bin', 'salome'))
+    context.addToPythonPath(os.path.join(pyhello_root_dir, 'lib', 'salome'))
+    context.addToPythonPath(os.path.join(pyhello_root_dir, python_libdir, 'salome'))
+    context.addToPath('SALOME_MODULES', 'PYHELLO', separator=',')
+
+    pyhello_res_dir = os.path.join(pyhello_root_dir, 'share', 'salome', 'resources', 'pyhello')
+    context.addToPath('SalomeAppConfig', pyhello_res_dir, separator=':')
