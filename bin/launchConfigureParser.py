@@ -85,6 +85,7 @@ salomecfgname  = "salome"
 salomeappname  = "SalomeApp"
 script_nam     = "pyscript"
 verbosity_nam  = "verbosity"
+on_demand_nam  = "on_demand"
 
 # possible choices for the "embedded" and "standalone" parameters
 embedded_choices   = [ "registry", "study", "moduleCatalog", "cppContainer", "SalomeAppEngine" ]
@@ -92,7 +93,7 @@ standalone_choices = [ "registry", "study", "moduleCatalog", "cppContainer"]
 
 # values of boolean type (must be '0' or '1').
 # xml_parser.boolValue() is used for correct setting
-boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam, pinter_nam, shutdown_servers_nam, launcher_only_nam )
+boolKeys = ( gui_nam, splash_nam, logger_nam, file_nam, xterm_nam, portkill_nam, killall_nam, except_nam, pinter_nam, shutdown_servers_nam, launcher_only_nam, on_demand_nam )
 intKeys = ( interp_nam, )
 strKeys = ( launcher_nam )
 
@@ -827,6 +828,17 @@ Python file arguments, if any, must be comma-separated (without blank characters
                       default="0",
                       help=help_str)
 
+    # On demand
+    help_str  = "Use installed salome on-demand extensions."
+    help_str += "0 to run without salome extensions [default], "
+    help_str += "1 to run only installed salome extensions. "
+    pars.add_argument("--on-demand",
+                      dest="on_demand",
+                      metavar="<0/1>",
+                      action=StoreBooleanAction,
+                      default=False,
+                      help=help_str)
+
 
     # Positional arguments (hdf file, python file)
     pars.add_argument("arguments", nargs=argparse.REMAINDER)
@@ -1046,6 +1058,7 @@ def get_env(appname=salomeappname, cfgname=salomecfgname, exeName=None, keepEnvi
         args[script_nam] = new_args
 
     args[verbosity_nam] = cmd_opts.verbosity
+    args[on_demand_nam] = cmd_opts.on_demand
 
     # xterm
     if cmd_opts.xterm is not None:

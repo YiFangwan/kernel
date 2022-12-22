@@ -35,7 +35,7 @@ def init(context, root_dir):
     context.setVariable('PARALLEL_VISU', '1', overwrite=True)
 
     geom_res_dir = os.path.join(geom_root_dir, 'share', 'salome', 'resources', 'geom')
-    context.addToPath('SalomeAppConfig', geom_res_dir, separator=':')
+    context.addToVariable('SalomeAppConfig', geom_res_dir, separator=':')
     context.setVariable('GEOM_PluginsList',
         'BREPPlugin:STEPPlugin:IGESPlugin:STLPlugin:XAOPlugin:VTKPlugin:AdvancedGEOM',
         overwrite=True)

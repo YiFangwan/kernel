@@ -37,9 +37,6 @@ import logging
 import json
 from traceback import format_exc
 
-# Setup logger's output
-FORMAT = '%(funcName)s():%(lineno)s: %(message)s'
-logging.basicConfig(format=FORMAT, level=logging.DEBUG)
 logger = logging.getLogger()
 
 SALOME_EXTDIR = '__SALOME_EXT__'

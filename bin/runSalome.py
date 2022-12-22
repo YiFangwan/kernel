@@ -33,6 +33,8 @@ from salomeContextUtils import ScriptAndArgsObjectEncoder
 import runSalomeNoServer
 import runSalomeCommon
 import platform
+import runSalomeOnDemand
+from launchConfigureParser import verbosity_nam, on_demand_nam
 import logging
 logger = logging.getLogger()
 
@@ -81,7 +83,7 @@ def startSalome(args, modules_list, modules_root_dir):
         mySessionServ.run()
         ior_fakens_filename = mySessionServ.iorfakens
         logger.debug("Rendez-vous file for to retrieve IOR of session is \"{}\"".format(ior_fakens_filename))
-    
+
     end_time = os.times()
 
     #
@@ -175,9 +177,15 @@ def main(exeName=None):
     """Salome launch as a main application"""
     keep_env = not os.getenv('SALOME_PLEASE_SETUP_ENVIRONMENT_AS_BEFORE')
     args, modules_list, modules_root_dir = setenv.get_config(exeName=exeName, keepEnvironment=keep_env)
-    runSalomeCommon.setVerbose(args["verbosity"])
+    runSalomeCommon.setVerbose(args[verbosity_nam])
+
     kill_salome(args)
     # --
+
+    # Setup extension's env in salome on demand case
+    if args[on_demand_nam]:
+        runSalomeOnDemand.set_ext_env()
+
     setenv.set_env(args, modules_list, modules_root_dir, keepEnvironment=keep_env)
     ior_fakens_filename = useSalome(args, modules_list, modules_root_dir)
     # Management of -t <script.py>
@@ -200,7 +208,7 @@ def main(exeName=None):
         proc = subprocess.Popen(command, shell=True, env = env)
         addToKillList(proc.pid, command)
         res = proc.wait()
-        if res: sys.exit(1) 
+        if res: sys.exit(1)
     return args, ior_fakens_filename
 
 # -----------------------------------------------------------------------------

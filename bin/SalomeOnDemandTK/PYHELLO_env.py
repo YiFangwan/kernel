@@ -31,7 +31,7 @@ def init(context, root_dir):
     context.addToPythonPath(os.path.join(pyhello_root_dir, 'bin', 'salome'))
     context.addToPythonPath(os.path.join(pyhello_root_dir, 'lib', 'salome'))
     context.addToPythonPath(os.path.join(pyhello_root_dir, python_libdir, 'salome'))
-    context.addToPath('SALOME_MODULES', 'PYHELLO', separator=',')
+    context.addToVariable('SALOME_MODULES', 'PYHELLO', separator=',')
 
     pyhello_res_dir = os.path.join(pyhello_root_dir, 'share', 'salome', 'resources', 'pyhello')
-    context.addToPath('SalomeAppConfig', pyhello_res_dir, separator=':')
+    context.addToVariable('SalomeAppConfig', pyhello_res_dir, separator=':')

@@ -33,7 +33,6 @@ import os
 import sys
 import importlib.util
 from pathlib import Path
-import runSalome
 import salomeContext
 from SalomeOnDemandTK.extension_utilities import logger, \
     DFILE_EXT, SALOME_EXTDIR, \
@@ -73,7 +72,7 @@ def module_from_filename(filename):
     return module
 
 
-def set_ext_env(app_name, version):
+def set_ext_env(app_name='', version=''):
     """
     Set an environment to start SALOME as a set of extensions.
 
@@ -88,7 +87,7 @@ def set_ext_env(app_name, version):
     logger.debug('Set an env for app: %s, version: %s...', app_name, version)
 
     # Get the root directory
-    levels_up = 2
+    levels_up = 4
     app_root = str(Path(__file__).resolve().parents[levels_up - 1])
     logger.debug('App root: %s', app_root)
 
@@ -123,10 +122,8 @@ def set_ext_env(app_name, version):
 
 if __name__ == "__main__":
     if len(sys.argv) == 3:
-        arg_1, arg_2 = sys.argv[1:] # pylint: disable=unbalanced-tuple-unpacking
+        arg_1, arg_2 = sys.argv[1:]
         set_ext_env(arg_1, arg_2)
-
-        runSalome.runSalome()
     else:
         logger.error('You must provide all the arguments!')
         logger.info(set_ext_env.__doc__)
