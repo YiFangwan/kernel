@@ -37,6 +37,10 @@ import logging
 import json
 from traceback import format_exc
 
+# Usually logging verbosity is set inside bin/runSalomeCommon.py when salome is starting.
+# Here we do just the same for a case if we call this package stand alone.
+FORMAT = '%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s'
+logging.basicConfig(format=FORMAT, level=logging.DEBUG, force=False)
 logger = logging.getLogger()
 
 SALOME_EXTDIR = '__SALOME_EXT__'

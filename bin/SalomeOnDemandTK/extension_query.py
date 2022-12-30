@@ -260,6 +260,33 @@ def dependency_tree(directory):
     return tree
 
 
+def ext_info_dict(directory):
+    r"""
+    Get installed salome extensions info.
+
+    Args:
+        directory - the given ext install directory.
+
+    Returns:
+        A dictionary {name: size}.
+    """
+
+    logger.debug('Build info dictionary for extensions in %s', directory)
+
+    ext_info = {}
+    salomexd_files = list_files_ext(directory, DFILE_EXT)
+    logger.debug('There are %s extensions in %s', len(salomexd_files), directory)
+
+    for salomexd_file in salomexd_files:
+        ext_name, _ = os.path.splitext(os.path.basename(salomexd_file))
+        size = ext_size_str(directory, ext_name)
+
+        ext_info[ext_name] = size
+
+    logger.debug('Installed extensions info: %s', ext_info)
+    return ext_info
+
+
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         dir_size_str(sys.argv[1])

@@ -98,8 +98,11 @@ def set_ext_env(app_name='', version=''):
         logger.debug('There are not any extensions in %s!', app_root)
         return
 
-    # Execute env file as a module
+    # Set the root dir as env variable
     context = salomeContext.SalomeContext(None)
+    context.setVariable('SALOME_APPLICATION_DIR', app_root, overwrite=True)
+
+    # Execute env file as a module
     ext_root = os.path.join(app_root, SALOME_EXTDIR)
     for salomexd in installed_ext:
         salomexd_name = os.path.basename(salomexd)
