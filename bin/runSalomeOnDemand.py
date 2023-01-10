@@ -31,45 +31,10 @@
 
 import os
 import sys
-import importlib.util
-from pathlib import Path
 import salomeContext
 from SalomeOnDemandTK.extension_utilities import logger, \
-    DFILE_EXT, SALOME_EXTDIR, \
-    list_files_ext, find_envpy
-
-
-def module_from_filename(filename):
-    """
-    Create and execute a module by filename.
-
-    Args:
-        filename - a given python filename.
-
-    Returns:
-        Module.
-    """
-
-    # Get the module from the filename
-    basename = os.path.basename(filename)
-    module_name, _ = os.path.splitext(basename)
-
-    spec = importlib.util.spec_from_file_location(module_name, filename)
-    if not spec:
-        logger.error('Could not get a spec for %s file!')
-        return None
-
-    module = importlib.util.module_from_spec(spec)
-    if not module:
-        logger.error('Could not get a module for %s file!')
-        return None
-
-    sys.modules[module_name] = module
-
-    logger.debug('Execute %s module', module_name)
-    spec.loader.exec_module(module)
-
-    return module
+    DFILE_EXT, \
+    list_files_ext, set_selext_env, get_app_root
 
 
 def set_ext_env(app_name='', version=''):
@@ -87,9 +52,7 @@ def set_ext_env(app_name='', version=''):
     logger.debug('Set an env for app: %s, version: %s...', app_name, version)
 
     # Get the root directory
-    levels_up = 4
-    app_root = str(Path(__file__).resolve().parents[levels_up - 1])
-    logger.debug('App root: %s', app_root)
+    app_root = get_app_root()
 
     # Find and source all _env.py files for installed extensions
     installed_ext = list_files_ext(app_root, DFILE_EXT)
@@ -103,24 +66,11 @@ def set_ext_env(app_name='', version=''):
     context.setVariable('SALOME_APPLICATION_DIR', app_root, overwrite=True)
 
     # Execute env file as a module
-    ext_root = os.path.join(app_root, SALOME_EXTDIR)
     for salomexd in installed_ext:
         salomexd_name = os.path.basename(salomexd)
         ext_name, _ = os.path.splitext(salomexd_name)
 
-        # Find env file
-        ext_envpy = find_envpy(app_root, ext_name)
-        if not ext_envpy:
-            continue
-
-        # Get a module
-        envpy_module = module_from_filename(ext_envpy)
-        if not envpy_module:
-            continue
-
-        # Set env if we have something to set
-        if hasattr(envpy_module, 'init'):
-            envpy_module.init(context, ext_root)
+        set_selext_env(app_root, ext_name, context)
 
 
 if __name__ == "__main__":

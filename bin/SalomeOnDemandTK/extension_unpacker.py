@@ -38,8 +38,9 @@ import json
 from traceback import format_exc
 
 from .extension_utilities import logger, \
-    DFILE_EXT, ARCFILE_EXT, EXTDEPENDSON_KEY, \
-    isvalid_filename, isvalid_dirname
+    DFILE_EXT, ARCFILE_EXT, EXTDEPENDSON_KEY, EXTCOMPONENT_KEY, \
+    isvalid_filename, isvalid_dirname, ext_info_bykey, set_selext_env, get_app_root
+
 
 def unpack_salomex(salome_root, salomex):
     """
@@ -50,7 +51,7 @@ def unpack_salomex(salome_root, salomex):
         salomex - a given salomex file to unpack.
 
     Returns:
-        None.
+        True if an ext was successfully unpacked.
     """
 
     logger.debug('Starting unpack a salome extension file')
@@ -58,7 +59,7 @@ def unpack_salomex(salome_root, salomex):
     # Check if provided filenames are valid
     if  not isvalid_dirname(salome_root) or \
         not isvalid_filename(salomex, ARCFILE_EXT):
-        return
+        return False
 
     try:
         with tarfile.open(salomex) as ext:
@@ -80,7 +81,7 @@ def unpack_salomex(salome_root, salomex):
                     if not os.path.isfile(depends_filename):
                         logger.error('Cannot find %s for a module that extension depends on!',
                             depends_filename)
-                        return
+                        return False
 
             # Unpack archive in the salome_root
             logger.debug('Extract all the files into %s...', salome_root)
@@ -90,12 +91,53 @@ def unpack_salomex(salome_root, salomex):
 
     except (OSError, KeyError):
         logger.error(format_exc())
+        return False
+
+    return True
+
+
+def install_salomex(salomex):
+    """
+    Install a given salome extension into SALOME_APPLICATION_DIR.
+
+    Args:
+        salomex - a given salomex file to unpack.
+
+    Returns:
+        A list of components to be activated later.
+    """
+
+    logger.debug('Starting install a salome extension from %s', salomex)
+
+    # Check if we have the salome root path
+    app_root = os.environ.get('SALOME_APPLICATION_DIR', '')
+    if not app_root:
+        # It should be set on the app start, but leave it here to run as a standalone script
+        logger.warning(
+            'Env var SALOME_APPLICATION_DIR is not set! Try to set it going up from cur location.')
+        app_root = get_app_root()
+
+    # Unpack an archive
+    if not unpack_salomex(app_root, salomex):
+        return []
+
+    # Set up an environment
+    # It's not clear at the moment what to do if it fails
+    ext_name, _ = os.path.splitext(os.path.basename(salomex))
+    set_selext_env(app_root, ext_name)
+
+    # Get components to activate later
+    components = ext_info_bykey(app_root, ext_name, EXTCOMPONENT_KEY)
+
+    return components if components else []
 
 
 if __name__ == '__main__':
     if len(sys.argv) == 3:
         arg_1, arg_2 = sys.argv[1:] # pylint: disable=unbalanced-tuple-unpacking
         unpack_salomex(arg_1, arg_2)
+    elif len(sys.argv) == 2:
+        install_salomex(sys.argv[1])
     else:
         logger.error('You must provide all the arguments!')
         logger.info(unpack_salomex.__doc__)

@@ -33,15 +33,24 @@ Utilities and constants those help to deal with salome extension files.
 """
 
 import os
+import sys
 import logging
 import json
 from traceback import format_exc
+from pathlib import Path
+import importlib.util
 
 # Usually logging verbosity is set inside bin/runSalomeCommon.py when salome is starting.
 # Here we do just the same for a case if we call this package stand alone.
 FORMAT = '%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s'
 logging.basicConfig(format=FORMAT, level=logging.DEBUG, force=False)
 logger = logging.getLogger()
+
+# SalomeContext sets the logging verbosity level on its own,
+# and we put it here, so it doesn't override the local format above.
+#pylint: disable=wrong-import-position
+import salomeContext
+#pylint: enable=wrong-import-position
 
 SALOME_EXTDIR = '__SALOME_EXT__'
 ARCFILE_EXT = 'salomex'
@@ -122,6 +131,47 @@ def read_salomexd(file_path):
     except OSError:
         logger.error(format_exc())
         return {}
+
+
+def value_from_salomexd(file_path, key):
+    """
+    Reads a content of a salomexd file and return a value for the given key.
+
+    Args:
+        file_path - the path to the salomexd file.
+        key - the key to search an assigned value.
+
+    Returns:
+        A value assigned to the given key if exist, otherwise None.
+    """
+
+    file_content = read_salomexd(file_path)
+    if key in file_content and file_content[key]:
+        logger.debug('Key: %s, value: %s', key, file_content[key])
+        return file_content[key]
+
+    logger.warning('Cannot get a value for key %s in salomexd file %s', key, file_path)
+    return None
+
+
+def ext_info_bykey(salome_root, salomex_name, key):
+    """
+    Search a salomexd file by ext name and return a value for the given key.
+
+    Args:
+        install_dir - directory where the given extension is installed.
+        salomex_name - the given extension's name.
+        key - the key to search an assigned value.
+
+    Returns:
+        A value for key in the given ext salomexd file.
+    """
+
+    salomexd = find_salomexd(salome_root, salomex_name)
+    if salomexd:
+        return value_from_salomexd(salomexd, key)
+
+    return None
 
 
 def create_salomexb(name, included):
@@ -453,3 +503,95 @@ def find_envpy(install_dir, salomex_name):
     """
 
     return find_file(install_dir, salomex_name + ENVPYFILE_SUF)
+
+
+def module_from_filename(filename):
+    """
+    Create and execute a module by filename.
+
+    Args:
+        filename - a given python filename.
+
+    Returns:
+        Module.
+    """
+
+    # Get the module from the filename
+    basename = os.path.basename(filename)
+    module_name, _ = os.path.splitext(basename)
+
+    spec = importlib.util.spec_from_file_location(module_name, filename)
+    if not spec:
+        logger.error('Could not get a spec for %s file!')
+        return None
+
+    module = importlib.util.module_from_spec(spec)
+    if not module:
+        logger.error('Could not get a module for %s file!')
+        return None
+
+    sys.modules[module_name] = module
+
+    logger.debug('Execute %s module', module_name)
+    spec.loader.exec_module(module)
+
+    return module
+
+
+def set_selext_env(install_dir, salomex_name, context=None):
+    """
+    Finds and run _env.py file for the given extension.
+
+    Args:
+        install_dir - path to directory to check.
+        salomex_name - extension's name.
+        context - SalomeContext object.
+
+    Returns:
+        True if an envpy file was found and run its init func.
+    """
+
+    logger.debug('Set an env for salome extension: %s...', salomex_name)
+
+    # Set the root dir as env variable
+    if not context:
+        context = salomeContext.SalomeContext(None)
+        context.setVariable('SALOME_APPLICATION_DIR', install_dir, overwrite=False)
+
+    # Find env file
+    ext_envpy = find_envpy(install_dir, salomex_name)
+    if not ext_envpy:
+        return False
+
+    # Get a module
+    envpy_module = module_from_filename(ext_envpy)
+    if not envpy_module:
+        return False
+
+    # Set env if we have something to set
+    ext_root = os.path.join(install_dir, SALOME_EXTDIR)
+    if hasattr(envpy_module, 'init'):
+        envpy_module.init(context, ext_root)
+        return True
+    else:
+        logger.warning('Env file %s doesnt have init func:!', ext_envpy)
+
+    logger.warning('Setting an env for salome extension %s failed!', salomex_name)
+    return False
+
+
+def get_app_root(levels_up=5):
+    """
+    Finds an app root by going up on the given steps.
+
+    Args:
+        levels_up - steps up in dir hierarchy relative to the current file.
+
+    Returns:
+        Path to the app root.
+    """
+
+    app_root = str(Path(__file__).resolve().parents[levels_up - 1])
+    logger.debug('App root: %s', app_root)
+
+    return app_root
