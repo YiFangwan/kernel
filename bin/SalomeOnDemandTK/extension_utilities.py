@@ -569,9 +569,9 @@ def set_selext_env(install_dir, salomex_name, context=None):
         return False
 
     # Set env if we have something to set
-    ext_root = os.path.join(install_dir, SALOME_EXTDIR)
+    ext_dir = os.path.join(install_dir, SALOME_EXTDIR)
     if hasattr(envpy_module, 'init'):
-        envpy_module.init(context, ext_root)
+        envpy_module.init(context, ext_dir)
         return True
     else:
         logger.warning('Env file %s doesnt have init func:!', ext_envpy)

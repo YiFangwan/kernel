@@ -37,8 +37,8 @@ import shutil
 from traceback import format_exc
 
 from .extension_utilities import logger, \
-    DFILE_EXT, CFILE_EXT, SALOME_EXTDIR, \
-    isvalid_dirname, list_dependants, is_empty_dir, find_salomexd, find_salomexc, find_envpy
+    DFILE_EXT, CFILE_EXT, SALOME_EXTDIR, EXTCOMPONENT_KEY, \
+    isvalid_dirname, list_dependants, is_empty_dir, find_salomexd, find_salomexc, find_envpy, value_from_salomexd
 
 
 def remove_if_empty(top_dir, directory):
@@ -131,14 +131,17 @@ def remove_salomex(install_dir, salomex_name):
         salomex_name - a name of salome extension to remove.
 
     Returns:
-        None.
+        List of deleted components or None if the functions fails.
     """
 
     logger.debug('Starting remove a salome extension %s', salomex_name)
 
+    # Return value
+    components = None
+
     # Check if provided dirname is valid
     if not isvalid_dirname(install_dir):
-        return
+        return components
 
     # Check if the given extension is installed
     logger.debug('Check if an extension %s is installed:', salomex_name)
@@ -155,7 +158,7 @@ def remove_salomex(install_dir, salomex_name):
         logger.debug('Cannot find %s for extension %s! '
             'Going to exit from extension removing process.',
             salomexc, salomex_name)
-        return
+        return components
 
     # Check if we cannot remove an extension because of dependencies
     dependants = list_dependants(install_dir, salomex_name)
@@ -163,11 +166,11 @@ def remove_salomex(install_dir, salomex_name):
         logger.error('Cannot remove an extension %s because followed extensions depend on it: %s! '
             'Going to exit from extension removing process.',
             salomex_name, dependants)
-        return
+        return components
 
     # Try to remove all the files listed in the control file
     if not remove_bylist(os.path.join(install_dir, SALOME_EXTDIR), salomexc):
-        return
+        return components
 
     # Remove control file
     os.remove(salomexc)
@@ -181,10 +184,14 @@ def remove_salomex(install_dir, salomex_name):
 
     # Remove description file
     if salomexd:
+        # Get components to deactivate in UI if the case
+        components = value_from_salomexd(salomexd, EXTCOMPONENT_KEY)
         os.remove(salomexd)
 
     logger.debug('An extension %s was removed from %s',
         salomex_name, install_dir)
+
+    return components if components else []
 
 
 if __name__ == '__main__':

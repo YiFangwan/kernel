@@ -104,7 +104,7 @@ def install_salomex(salomex):
         salomex - a given salomex file to unpack.
 
     Returns:
-        A list of components to be activated later.
+        A list of components to be activated later or None if the function failed.
     """
 
     logger.debug('Starting install a salome extension from %s', salomex)
@@ -119,7 +119,7 @@ def install_salomex(salomex):
 
     # Unpack an archive
     if not unpack_salomex(app_root, salomex):
-        return []
+        return None
 
     # Set up an environment
     # It's not clear at the moment what to do if it fails
