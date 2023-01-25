@@ -287,10 +287,75 @@ def ext_info_dict(directory):
     return ext_info
 
 
+def ext_by_dependants(dependency_tree, depends_on=set()):
+    """
+    Calcualate a list of extensions names sorted by dependencies.
+
+    Args:
+        dependency_tree - a dependecy tree of all considered extensions.
+        depends_on - a set of extensions names to check if the current one depends on them.
+
+    Returns:
+        A list of of extensions from dependency_tree sorted by dependencies.
+        For example, dictionary like that for extensions A, B, C, D and E:
+          A
+         /|\
+        / B D
+        \/ \/
+        C   E
+
+        represented { 'A': ['B', 'C', 'D'], 'B': ['C', 'E'], 'C': [], 'D': ['E'], 'E': [] }
+        returns ['A', 'B', 'D', 'C', 'E'].
+    """
+
+    logger.debug('dependency_tree: %s, depends_on: %s', dependency_tree, depends_on)
+
+    if not dependency_tree:
+        logger.debug('Dependency tree is empty! Return')
+        return []
+
+    # Collect all dependencies for the given dependency level in the tree
+    cur_depends_on = set()
+    for ext, dependendants in dependency_tree.items():
+        # Select all components with empty dependendants
+        is_selected = not dependendants
+
+        # Check dependendants intersection if the case
+        if not is_selected:
+            dep_set = set(dependendants)
+            intersection = dep_set & depends_on
+            logger.debug('ext: %s, dep_set: %s, intersection: %s', ext, dep_set, intersection)
+            is_selected = intersection == dep_set
+        
+        if is_selected:
+            cur_depends_on.add(ext)
+
+    # Check collected dependencies
+    logger.debug('cur_depends_on: %s', cur_depends_on)
+    if not cur_depends_on:
+        logger.warning(
+            'Extensions in the tree doesnt rely on any other extensions! Return all of them')
+        return [ext for ext, _ in dependency_tree.items()]
+ 
+    # Collect all extension for this level
+    res_extensions = []
+    for ext in cur_depends_on:
+        res_extensions.append(ext)
+        del dependency_tree[ext]
+
+    logger.debug('res_extensions: %s', res_extensions)
+
+    # Get extensions from the next dependency level of the tree 
+    cur_depends_on |= depends_on
+    return res_extensions + ext_by_dependants(dependency_tree, cur_depends_on)
+
+
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         dir_size_str(sys.argv[1])
-        dependency_tree(sys.argv[1])
+        ext_tree = dependency_tree(sys.argv[1])
+        ext_list = ext_by_dependants(ext_tree)
+        logger.info('ext_list: %s', ext_list)
     elif len(sys.argv) == 3:
         arg_1, arg_2 = sys.argv[1:] # pylint: disable=unbalanced-tuple-unpacking
         ext_size_str(arg_1, arg_2)
