@@ -29,12 +29,11 @@
 """Run SALOME app in the context of adding modules as extensions.
 """
 
-import os
 import sys
 import salomeContext
 from SalomeOnDemandTK.extension_utilities import logger, \
-    DFILE_EXT, \
-    list_files_ext, set_selext_env, get_app_root
+    set_selext_env, get_app_root
+from SalomeOnDemandTK.extension_query import ext_by_dependants, dependency_tree
 
 
 def set_ext_env(app_name='', version=''):
@@ -55,7 +54,8 @@ def set_ext_env(app_name='', version=''):
     app_root = get_app_root()
 
     # Find and source all _env.py files for installed extensions
-    installed_ext = list_files_ext(app_root, DFILE_EXT)
+    tree = dependency_tree(app_root)
+    installed_ext = ext_by_dependants(tree)
     logger.debug('Installed extensions: %s', installed_ext)
     if not installed_ext:
         logger.debug('There are not any extensions in %s!', app_root)
@@ -66,10 +66,7 @@ def set_ext_env(app_name='', version=''):
     context.setVariable('SALOME_APPLICATION_DIR', app_root, overwrite=True)
 
     # Execute env file as a module
-    for salomexd in installed_ext:
-        salomexd_name = os.path.basename(salomexd)
-        ext_name, _ = os.path.splitext(salomexd_name)
-
+    for ext_name in installed_ext:
         set_selext_env(app_root, ext_name, context)
 
 

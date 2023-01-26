@@ -287,16 +287,16 @@ def ext_info_dict(directory):
     return ext_info
 
 
-def ext_by_dependants(dependency_tree, depends_on=set()):
-    """
+def ext_by_dependants(dep_tree, depends_on=None):
+    r"""
     Calcualate a list of extensions names sorted by dependencies.
 
     Args:
-        dependency_tree - a dependecy tree of all considered extensions.
+        dep_tree - a dependecy tree of all considered extensions.
         depends_on - a set of extensions names to check if the current one depends on them.
 
     Returns:
-        A list of of extensions from dependency_tree sorted by dependencies.
+        A list of of extensions from dep_tree sorted by dependencies.
         For example, dictionary like that for extensions A, B, C, D and E:
           A
          /|\
@@ -308,15 +308,19 @@ def ext_by_dependants(dependency_tree, depends_on=set()):
         returns ['A', 'B', 'D', 'C', 'E'].
     """
 
-    logger.debug('dependency_tree: %s, depends_on: %s', dependency_tree, depends_on)
+    logger.debug('dep_tree: %s, depends_on: %s', dep_tree, depends_on)
 
-    if not dependency_tree:
+    if not dep_tree:
         logger.debug('Dependency tree is empty! Return')
         return []
 
+    # Check if we've got a default value
+    if not depends_on:
+        depends_on = set()
+
     # Collect all dependencies for the given dependency level in the tree
     cur_depends_on = set()
-    for ext, dependendants in dependency_tree.items():
+    for ext, dependendants in dep_tree.items():
         # Select all components with empty dependendants
         is_selected = not dependendants
 
@@ -326,7 +330,7 @@ def ext_by_dependants(dependency_tree, depends_on=set()):
             intersection = dep_set & depends_on
             logger.debug('ext: %s, dep_set: %s, intersection: %s', ext, dep_set, intersection)
             is_selected = intersection == dep_set
-        
+
         if is_selected:
             cur_depends_on.add(ext)
 
@@ -335,19 +339,19 @@ def ext_by_dependants(dependency_tree, depends_on=set()):
     if not cur_depends_on:
         logger.warning(
             'Extensions in the tree doesnt rely on any other extensions! Return all of them')
-        return [ext for ext, _ in dependency_tree.items()]
- 
+        return [ext for ext, _ in dep_tree.items()]
+
     # Collect all extension for this level
     res_extensions = []
     for ext in cur_depends_on:
         res_extensions.append(ext)
-        del dependency_tree[ext]
+        del dep_tree[ext]
 
     logger.debug('res_extensions: %s', res_extensions)
 
-    # Get extensions from the next dependency level of the tree 
+    # Get extensions from the next dependency level of the tree
     cur_depends_on |= depends_on
-    return res_extensions + ext_by_dependants(dependency_tree, cur_depends_on)
+    return res_extensions + ext_by_dependants(dep_tree, cur_depends_on)
 
 
 if __name__ == '__main__':
