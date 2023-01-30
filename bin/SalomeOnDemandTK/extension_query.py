@@ -354,12 +354,43 @@ def ext_by_dependants(dep_tree, depends_on=None):
     return res_extensions + ext_by_dependants(dep_tree, cur_depends_on)
 
 
+def ext_by_name(directory):
+    """
+    Calcualate a list of extensions installed in the given directory.
+
+    Args:
+        directory - a directory where extensions are installed.
+
+    Returns:
+        A list of extensions names sorted by name.
+    """
+
+    logger.debug('directory: %s', directory)
+
+    # Get ext files
+    salomexd_files = list_files_ext(directory, DFILE_EXT)
+    logger.debug('There are %s extensions in %s', len(salomexd_files), directory)
+
+    # Get ext names
+    res_names = []
+    for salomexd_file in salomexd_files:
+        ext_name, _ = os.path.splitext(os.path.basename(salomexd_file))
+        res_names.append(ext_name)
+
+    # Sort
+    res_names.sort()
+    logger.debug('Installed extensions: %s', res_names)
+
+    return res_names
+
+
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         dir_size_str(sys.argv[1])
         ext_tree = dependency_tree(sys.argv[1])
         ext_list = ext_by_dependants(ext_tree)
         logger.info('ext_list: %s', ext_list)
+        ext_by_name(sys.argv[1])
     elif len(sys.argv) == 3:
         arg_1, arg_2 = sys.argv[1:] # pylint: disable=unbalanced-tuple-unpacking
         ext_size_str(arg_1, arg_2)
