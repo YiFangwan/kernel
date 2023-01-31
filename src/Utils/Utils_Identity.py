@@ -77,11 +77,10 @@ def getapplipath():
     return os.environ.get("APPLI",".salome_"+versnb)
 
 try:
-  file = open(os.path.join(os.environ["KERNEL_ROOT_DIR"],"bin","salome","VERSION"), "r")
-  s = file.readline()
+  with open(os.path.join(os.environ["KERNEL_ROOT_DIR"],"bin","salome","VERSION"), "r") as file:
+    s = file.readline()
   versnb = string.strip(string.split(s, ":")[1])
   dirname=".salome_"+versnb
-  file.close()
 except Exception:
   versnb = ""
   dirname=".salome"
