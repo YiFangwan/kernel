@@ -39,7 +39,7 @@ import sys
 from traceback import format_exc
 
 from .extension_utilities import logger, \
-    SALOME_EXTDIR, DFILE_EXT, EXTDEPENDSON_KEY, \
+    SALOME_EXTDIR, DFILE_EXT, EXTDEPENDSON_KEY, EXTDESCR_KEY, EXTAUTHOR_KEY, EXTCOMPONENT_KEY, \
     isvalid_dirname, find_salomexc, list_files_ext, read_salomexd
 
 
@@ -268,7 +268,7 @@ def ext_info_dict(directory):
         directory - the given ext install directory.
 
     Returns:
-        A dictionary {name: size}.
+        A dictionary {name: [descr, author, components, size]}.
     """
 
     logger.debug('Build info dictionary for extensions in %s', directory)
@@ -278,10 +278,29 @@ def ext_info_dict(directory):
     logger.debug('There are %s extensions in %s', len(salomexd_files), directory)
 
     for salomexd_file in salomexd_files:
+        # Collect size info
         ext_name, _ = os.path.splitext(os.path.basename(salomexd_file))
         size = ext_size_str(directory, ext_name)
 
-        ext_info[ext_name] = size
+        # Collect salomexd info
+        salomexd_content = read_salomexd(salomexd_file)
+
+        descr = ''
+        if EXTDESCR_KEY in salomexd_content:
+            descr = salomexd_content[EXTDESCR_KEY]
+            logger.debug('descr: %s', descr)
+
+        author = ''
+        if EXTAUTHOR_KEY in salomexd_content:
+            author = salomexd_content[EXTAUTHOR_KEY]
+            logger.debug('author: %s', author)
+
+        components = []
+        if EXTCOMPONENT_KEY in salomexd_content:
+            components = salomexd_content[EXTCOMPONENT_KEY]
+            logger.debug('components: %s', components)
+
+        ext_info[ext_name] = [descr, author, components, size]
 
     logger.debug('Installed extensions info: %s', ext_info)
     return ext_info
@@ -391,6 +410,7 @@ if __name__ == '__main__':
         ext_list = ext_by_dependants(ext_tree)
         logger.info('ext_list: %s', ext_list)
         ext_by_name(sys.argv[1])
+        ext_info_dict(sys.argv[1])
     elif len(sys.argv) == 3:
         arg_1, arg_2 = sys.argv[1:] # pylint: disable=unbalanced-tuple-unpacking
         ext_size_str(arg_1, arg_2)
