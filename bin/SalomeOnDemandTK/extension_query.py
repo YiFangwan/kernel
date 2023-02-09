@@ -295,9 +295,9 @@ def ext_info_dict(directory):
             author = salomexd_content[EXTAUTHOR_KEY]
             logger.debug('author: %s', author)
 
-        components = []
+        components = ''
         if EXTCOMPONENT_KEY in salomexd_content:
-            components = salomexd_content[EXTCOMPONENT_KEY]
+            components = ', '.join(salomexd_content[EXTCOMPONENT_KEY])
             logger.debug('components: %s', components)
 
         ext_info[ext_name] = [descr, author, components, size]
