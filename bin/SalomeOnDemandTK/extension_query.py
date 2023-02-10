@@ -438,6 +438,10 @@ def ext_canremove_flags(directory):
 
         res_dict[ext] = can_remove
 
+    # We shouldn't remove Base in any case
+    if 'Base' in dep_tree:
+        res_dict['Base'] = False
+
     logger.debug('res_dict: %s', res_dict)
 
     return res_dict
