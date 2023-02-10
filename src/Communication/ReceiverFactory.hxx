@@ -50,6 +50,7 @@ class COMMUNICATION_EXPORT SeqByteReceiver
 public:
   SeqByteReceiver(SALOME::SenderByte_ptr sender);
   char *data(unsigned long& size);
+  ~SeqByteReceiver();
 private:
   void fetchOneShot(unsigned long size);
   void fetchByChunks(unsigned long size);

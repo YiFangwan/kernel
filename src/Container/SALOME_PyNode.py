@@ -103,8 +103,9 @@ class PyNode_i (Engines__POA.PyNode,Generic):
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyNode: %s, function: %s" % (self.nodeName,funcName),0))
 
-class SenderByte_i(SALOME__POA.SenderByte):
-  def __init__(self,bytesToSend):
+class SenderByte_i(SALOME__POA.SenderByte,Generic):
+  def __init__(self,poa,bytesToSend):
+    Generic.__init__(self,poa)
     self.bytesToSend = bytesToSend
 
   def getSize(self):
@@ -193,7 +194,7 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
           raise KeyError("There is no variable %s in context" % arg)
         argsout.append(self.context[arg])
       argsout=pickle.dumps(tuple(argsout),-1)
-      ret = SenderByte_i( argsout )
+      ret = SenderByte_i( self.poa,argsout )
       id_o = self.poa.activate_object(ret)
       retObj = self.poa.id_to_reference(id_o)
       return retObj._narrow( SALOME.SenderByte )

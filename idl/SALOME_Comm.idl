@@ -23,6 +23,7 @@
 #ifndef _SALOME_COMM_IDL_
 #define _SALOME_COMM_IDL_
 
+#include "SALOME_GenericObj.idl"
 #include "SALOME_Exception.idl"
 
 /*!
@@ -135,10 +136,10 @@ module SALOME {
     void release();
   };
 
-  interface SenderByte
+  interface SenderByte : GenericObj
   {
-    unsigned long getSize();
-    vectorOfByte sendPart(in unsigned long n1,in unsigned long n2);
+    unsigned long long getSize();
+    vectorOfByte sendPart(in unsigned long long n1,in unsigned long long n2);
   };
 };
 

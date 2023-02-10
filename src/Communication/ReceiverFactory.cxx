@@ -226,3 +226,7 @@ void SeqByteReceiver::fetchByChunks(unsigned long size)
   }
 }
 
+SeqByteReceiver::~SeqByteReceiver()
+{
+  _obj->UnRegister();
+}
