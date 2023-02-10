@@ -403,6 +403,46 @@ def ext_by_name(directory):
     return res_names
 
 
+def ext_canremove_flags(directory):
+    r"""
+    Calcualate a dict of extensions names paired with bool flag if able to be removed.
+
+    Args:
+        directory - the given ext install directory.
+
+    Returns:
+        For dependency tree for extensions A, B, C, D and E:
+          A
+         /|\
+        / B D
+        \/ \/
+        C   E
+
+        represented { 'A': ['B', 'C', 'D'], 'B': ['C', 'E'], 'C': [], 'D': ['E'], 'E': [] }
+        returns ['A': True, 'B': False, 'D': False, 'C': False, 'E': False].
+        We can remove only A here, because we don't have any other modules depend on it.
+    """
+
+    logger.debug('directory: %s', directory)
+
+    dep_tree = dependency_tree(directory)
+
+    res_dict = {}
+    for ext in dep_tree:
+        can_remove = True
+        for dep in dep_tree.values():
+            if ext in dep:
+                # At least one ext depends on it, so can't remove
+                can_remove = False
+                break
+
+        res_dict[ext] = can_remove
+
+    logger.debug('res_dict: %s', res_dict)
+
+    return res_dict
+
+
 if __name__ == '__main__':
     if len(sys.argv) == 2:
         dir_size_str(sys.argv[1])
@@ -411,6 +451,7 @@ if __name__ == '__main__':
         logger.info('ext_list: %s', ext_list)
         ext_by_name(sys.argv[1])
         ext_info_dict(sys.argv[1])
+        ext_canremove_flags(sys.argv[1])
     elif len(sys.argv) == 3:
         arg_1, arg_2 = sys.argv[1:] # pylint: disable=unbalanced-tuple-unpacking
         ext_size_str(arg_1, arg_2)
