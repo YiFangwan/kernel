@@ -26,6 +26,7 @@
 
 #include "SALOME_GenericObj.idl"
 #include "SALOME_Exception.idl"
+#include "SALOME_Comm.idl"
 
 /*! \file SALOME_PyNode.idl \brief interface for remote python execution
 */
@@ -95,7 +96,7 @@ module Engines
 
     /*! \brief second and last part of execute method. This split is to reduce the memory peak.
     */
-    pickledArgs executeSecond(in listofstring outargsname) raises (SALOME::SALOME_Exception);
+    SALOME::SenderByte executeSecond(in listofstring outargsname) raises (SALOME::SALOME_Exception);
 
     pickledArgs getValueOfVarInContext(in string varName) raises (SALOME::SALOME_Exception);
 

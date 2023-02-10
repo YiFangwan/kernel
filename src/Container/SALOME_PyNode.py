@@ -103,6 +103,16 @@ class PyNode_i (Engines__POA.PyNode,Generic):
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)
       raise SALOME.SALOME_Exception(SALOME.ExceptionStruct(SALOME.BAD_PARAM,"".join(l),"PyNode: %s, function: %s" % (self.nodeName,funcName),0))
 
+class SenderByte_i(SALOME__POA.SenderByte):
+  def __init__(self,bytesToSend):
+    self.bytesToSend = bytesToSend
+
+  def getSize(self):
+    return len(self.bytesToSend)
+
+  def sendPart(self,n1,n2):
+    return self.bytesToSend[n1:n2]
+
 class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
   """The implementation of the PyScriptNode CORBA IDL that executes a script"""
   def __init__(self, nodeName,code,poa,my_container):
@@ -183,7 +193,10 @@ class PyScriptNode_i (Engines__POA.PyScriptNode,Generic):
           raise KeyError("There is no variable %s in context" % arg)
         argsout.append(self.context[arg])
       argsout=pickle.dumps(tuple(argsout),-1)
-      return argsout
+      ret = SenderByte_i( argsout )
+      id_o = self.poa.activate_object(ret)
+      retObj = self.poa.id_to_reference(id_o)
+      return retObj._narrow( SALOME.SenderByte )
     except Exception:
       exc_typ,exc_val,exc_fr=sys.exc_info()
       l=traceback.format_exception(exc_typ,exc_val,exc_fr)

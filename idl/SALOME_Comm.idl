@@ -40,6 +40,8 @@ module SALOME {
   
   typedef sequence<long> vectorOfLong;
   
+  typedef sequence<octet> vectorOfByte;
+  
   interface MultiCommClass {
     void setProtocol(in TypeOfCommunication typ);
   };
@@ -131,6 +133,12 @@ module SALOME {
     SenderDouble getData();
     long getSizeOfColumn();
     void release();
+  };
+
+  interface SenderByte
+  {
+    unsigned long getSize();
+    vectorOfByte sendPart(in unsigned long n1,in unsigned long n2);
   };
 };
 
