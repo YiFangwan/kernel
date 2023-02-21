@@ -39,6 +39,8 @@ import json
 from traceback import format_exc
 from pathlib import Path
 import importlib.util
+import fnmatch
+import re
 
 # Usually logging verbosity is set inside bin/runSalomeCommon.py when salome is starting.
 # Here we do just the same for a case if we call this package stand alone.
@@ -248,6 +250,40 @@ def list_files(dir_path):
     return files_list
 
 
+def filter_to_regex(dir_path, filter_patterns):
+    r"""
+    Makes a regex pattern from a given filter.
+
+    Args:
+        dir_path - the path to the directory where you search for files.
+        filter_patterns - list of expressions for matching file names.
+
+    Returns:
+        A regex string translated from the filter.
+        For example:
+        Filter:  ['SMESH/**.cmake', 'SMESH/share/s*.med']
+        Regex:   (?s:SMESH/.*\.cmake)\Z|(?s:SMESH/share/s.*\.med)\Z
+        Matches: SMESH/adm_local/cmake_files/SalomeSMESHConfig.cmake
+                 SMESH/share/salome/resources/smesh/padderdata/ferraill.med
+    """
+
+    logger.debug('Convert given filter to regex...')
+
+    # On Windows, it converts forward slashes to backward slashes.
+    norm_filter = [os.path.normpath(pat) for pat in filter_patterns]
+
+    # Make a regex pattern
+    # Adding '*' at the end of the folders names to match all the files inside.
+    regex_pattern = r'|'.join(
+        [fnmatch.translate(pat + '*' if os.path.isdir(os.path.join(dir_path, pat)) else pat)
+        for pat
+        in norm_filter])
+
+    logger.debug('Regex pattern: %s', regex_pattern)
+
+    return regex_pattern
+
+
 def list_files_filter(dir_path, filter_patterns):
     """
     Returns the recursive list of relative paths to files as strings
@@ -264,19 +300,20 @@ def list_files_filter(dir_path, filter_patterns):
 
     logger.debug('Get list of files to add into archive...')
 
+    regex_pattern = filter_to_regex(dir_path, filter_patterns)
+
     files_abs = []
     files_rel = []
 
     for root, _, files in os.walk(dir_path):
         for file in files:
-            for pattern in filter_patterns:
-                filename_abs = os.path.join(root, file)
-                filename_rel = os.path.relpath(filename_abs, dir_path)
+            filename_abs = os.path.join(root, file)
+            filename_rel = os.path.relpath(filename_abs, dir_path)
 
-                if filename_rel.startswith(pattern):
-                    logger.debug('File name %s matches pattern %s', filename_rel, pattern)
-                    files_abs.append(filename_abs)
-                    files_rel.append(filename_rel)
+            if re.match(regex_pattern, filename_rel):
+                logger.debug('File name %s matches pattern', filename_rel)
+                files_abs.append(filename_abs)
+                files_rel.append(filename_rel)
 
     return files_abs, files_rel
 

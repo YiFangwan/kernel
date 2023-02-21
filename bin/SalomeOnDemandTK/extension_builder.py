@@ -153,7 +153,7 @@ def create_salomex(salomexb, salomexd, env_py, top_repository):
 
 if __name__ == '__main__':
     if len(sys.argv) == 5:
-        arg_1, arg_2, arg_3, arg_4 = sys.argv[1:]
+        arg_1, arg_2, arg_3, arg_4 = sys.argv[1:5]
         create_salomex(arg_1, arg_2, arg_3, arg_4)
     else:
         logger.error('You must provide all the arguments!')
