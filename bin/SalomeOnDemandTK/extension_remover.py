@@ -37,8 +37,9 @@ import shutil
 from traceback import format_exc
 
 from .extension_utilities import logger, \
-    DFILE_EXT, CFILE_EXT, SALOME_EXTDIR, EXTCOMPONENT_KEY, \
-    isvalid_dirname, list_dependants, is_empty_dir, find_salomexd, find_salomexc, find_envpy, value_from_salomexd
+    SALOME_EXTDIR, EXTCOMPONENT_KEY, \
+    isvalid_dirname, list_dependants, is_empty_dir, \
+    find_envpy, value_from_salomexd, check_if_installed
 
 
 def remove_if_empty(top_dir, directory):
@@ -144,20 +145,9 @@ def remove_salomex(install_dir, salomex_name):
         return components
 
     # Check if the given extension is installed
-    logger.debug('Check if an extension %s is installed:', salomex_name)
-
-    salomexd = find_salomexd(install_dir, salomex_name)
-    if not salomexd:
-        logger.debug('Cannot find a description file for extension %s! '
-            'Extension has been already removed or %s file was deleted by mistake. '
-            'In the former case we can use %s file to clean up.',
-            salomex_name, DFILE_EXT, CFILE_EXT)
-
-    salomexc = find_salomexc(install_dir, salomex_name)
+    salomexd, salomexc = check_if_installed(install_dir, salomex_name)
     if not salomexc:
-        logger.debug('Cannot find %s for extension %s! '
-            'Going to exit from extension removing process.',
-            salomexc, salomex_name)
+        logger.debug('Going to exit from extension removing process.')
         return components
 
     # Check if we cannot remove an extension because of dependencies

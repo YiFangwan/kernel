@@ -632,3 +632,34 @@ def get_app_root(levels_up=5):
     logger.debug('App root: %s', app_root)
 
     return app_root
+
+
+def check_if_installed(install_dir, salomex_name):
+    """
+    Check if a given salome extension is installed in install_dir.
+    Now for install|remove process we consider an ext is installed
+    if we have at least salomexc file with list of files to remove
+    if we need to clean up.
+
+    Args:
+        install_dir - path to SALOME install root directory.
+        salomex_name - a given ext name.
+
+    Returns:
+        salomexd, salomexc file names.
+    """
+
+    logger.debug('Check if %s extension is installed in %s...', salomex_name, install_dir)
+
+    salomexd = find_salomexd(install_dir, salomex_name)
+    if not salomexd:
+        logger.debug('Extension has been already removed or %s file was deleted by mistake. '
+            'In the former case we can use %s file to clean up.', DFILE_EXT, CFILE_EXT)
+
+    salomexc = find_salomexc(install_dir, salomex_name)
+    if salomexd:
+        logger.debug('An extension %s IS installed.', salomex_name)
+    else:
+        logger.debug('An extension %s IS NOT installed.', salomex_name)
+
+    return salomexd, salomexc

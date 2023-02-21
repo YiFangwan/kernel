@@ -39,7 +39,8 @@ from traceback import format_exc
 
 from .extension_utilities import logger, \
     DFILE_EXT, ARCFILE_EXT, EXTDEPENDSON_KEY, EXTCOMPONENT_KEY, \
-    isvalid_filename, isvalid_dirname, ext_info_bykey, set_selext_env, get_app_root
+    isvalid_filename, isvalid_dirname, ext_info_bykey, set_selext_env, get_app_root, \
+    check_if_installed
 
 
 def unpack_salomex(salome_root, salomex):
@@ -61,9 +62,15 @@ def unpack_salomex(salome_root, salomex):
         not isvalid_filename(salomex, ARCFILE_EXT):
         return False
 
+    # Check if the given extension is already installed
+    salome_ext_name, _ = os.path.splitext(os.path.basename(salomex))
+    _, salomexc = check_if_installed(salome_root, salome_ext_name)
+    if salomexc:
+        logger.debug('To reinstall an extension you need to remove it first!')
+        return False
+
     try:
         with tarfile.open(salomex) as ext:
-            salome_ext_name, _ = os.path.splitext(os.path.basename(salomex))
 
             # Read a list of dependencies, so let's check if they are present in salome_root
             logger.debug('Try to read %s.%s file...', salome_ext_name, DFILE_EXT)
