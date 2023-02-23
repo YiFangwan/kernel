@@ -76,6 +76,10 @@ def unpack_salomex(salome_root, salomex):
             logger.debug('Try to read %s.%s file...', salome_ext_name, DFILE_EXT)
             salomexd_mem = ext.getmember(salome_ext_name + '.' + DFILE_EXT)
             salomexd_file = ext.extractfile(salomexd_mem)
+            if not salomexd_file:
+                logger.error('Cannot extract %s.%s file!', salome_ext_name, DFILE_EXT)
+                return False
+
             salomexd_content = json.load(salomexd_file)
 
             logger.debug('Check dependencies...')

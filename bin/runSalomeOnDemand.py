@@ -62,7 +62,7 @@ def set_ext_env(app_name='', version=''):
         return
 
     # Set the root dir as env variable
-    context = salomeContext.SalomeContext(None)
+    context = salomeContext.SalomeContext(0)
     context.setVariable('SALOME_APPLICATION_DIR', app_root, overwrite=True)
 
     # Execute env file as a module

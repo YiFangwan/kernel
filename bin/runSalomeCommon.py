@@ -38,7 +38,7 @@ import logging
 # Setting formatter in setVerbose() was commented because adding of handler
 # breaks using of root logger in other modules and cause many double lines in logs.
 FORMAT = '%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s'
-logging.basicConfig(format=FORMAT, force=True)
+logging.basicConfig(format=FORMAT)
 logger = logging.getLogger()
 
 class ColoredFormatter(logging.Formatter):

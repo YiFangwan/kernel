@@ -45,7 +45,7 @@ import re
 # Usually logging verbosity is set inside bin/runSalomeCommon.py when salome is starting.
 # Here we do just the same for a case if we call this package stand alone.
 FORMAT = '%(levelname)s : %(asctime)s : [%(filename)s:%(funcName)s:%(lineno)s] : %(message)s'
-logging.basicConfig(format=FORMAT, level=logging.DEBUG, force=False)
+logging.basicConfig(format=FORMAT, level=logging.DEBUG)
 logger = logging.getLogger()
 
 # SalomeContext sets the logging verbosity level on its own,
@@ -570,6 +570,10 @@ def module_from_filename(filename):
     sys.modules[module_name] = module
 
     logger.debug('Execute %s module', module_name)
+    if not spec.loader:
+        logger.error('spec.loader is None for %s file!')
+        return None
+
     spec.loader.exec_module(module)
 
     return module
@@ -592,7 +596,7 @@ def set_selext_env(install_dir, salomex_name, context=None):
 
     # Set the root dir as env variable
     if not context:
-        context = salomeContext.SalomeContext(None)
+        context = salomeContext.SalomeContext(0)
         context.setVariable('SALOME_APPLICATION_DIR', install_dir, overwrite=False)
 
     # Find env file
