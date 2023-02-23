@@ -596,7 +596,7 @@ def set_selext_env(install_dir, salomex_name, context=None):
 
     # Set the root dir as env variable
     if not context:
-        context = salomeContext.SalomeContext(0)
+        context = salomeContext.SalomeContext(None)
         context.setVariable('SALOME_APPLICATION_DIR', install_dir, overwrite=False)
 
     # Find env file
