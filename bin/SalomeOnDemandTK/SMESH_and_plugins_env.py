@@ -6,6 +6,7 @@ Add a custom environment to the SALOME extension.
 """
 
 import os
+import sys
 
 
 def init(context, root_dir):
@@ -20,7 +21,7 @@ def init(context, root_dir):
         None.
     """
 
-    python_version = '3.10'
+    python_version = '{}.{}'.format(sys.version_info[0], sys.version_info[1])
     python_libdir = os.path.join('lib', 'python' + python_version, 'site-packages')
 
     reinitialise_paths = True
