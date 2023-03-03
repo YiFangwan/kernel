@@ -661,7 +661,7 @@ def check_if_installed(install_dir, salomex_name):
             'In the former case we can use %s file to clean up.', DFILE_EXT, CFILE_EXT)
 
     salomexc = find_salomexc(install_dir, salomex_name)
-    if salomexd:
+    if salomexc:
         logger.debug('An extension %s IS installed.', salomex_name)
     else:
         logger.debug('An extension %s IS NOT installed.', salomex_name)
