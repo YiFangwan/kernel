@@ -37,10 +37,10 @@ def init(context, root_dir):
     if reinitialise_paths:
         context.setVariable('SMESH_MeshersList', 'StdMeshers', overwrite=True)
     else:
-        context.addToVariable('SMESH_MeshersList', 'StdMeshers', separator=':')
+        context.addToVariable('SMESH_MeshersList', 'StdMeshers', separator=os.pathsep)
 
     smesh_res_dir = os.path.join(smesh_root_dir, 'share', 'salome', 'resources', 'smesh')
-    context.addToVariable('SalomeAppConfig', smesh_res_dir, separator=':')
+    context.addToVariable('SalomeAppConfig', smesh_res_dir, separator=os.pathsep)
 
     #[gmsh]
     gmsh_root_dir = os.path.join(root_dir, 'gmsh')
@@ -56,8 +56,8 @@ def init(context, root_dir):
     context.addToPythonPath(os.path.join(netgenplugin_root_dir, 'bin', 'salome'))
     context.addToPythonPath(os.path.join(netgenplugin_root_dir, 'lib', 'salome'))
     context.addToPythonPath(os.path.join(netgenplugin_root_dir, python_libdir, 'salome'))
-    context.addToVariable('SMESH_MeshersList', 'NETGENPlugin', separator=':')
+    context.addToVariable('SMESH_MeshersList', 'NETGENPlugin', separator=os.pathsep)
 
     netgenplugin_res_dir = os.path.join(netgenplugin_root_dir,
         'share', 'salome', 'resources', 'netgenplugin')
-    context.addToVariable('SalomeAppConfig', netgenplugin_res_dir, separator=':')
+    context.addToVariable('SalomeAppConfig', netgenplugin_res_dir, separator=os.pathsep)

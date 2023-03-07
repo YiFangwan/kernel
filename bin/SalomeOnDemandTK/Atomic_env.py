@@ -28,4 +28,4 @@ def init(context, root_dir):
     context.addToVariable('SALOME_MODULES', 'ATOMIC', separator=',')
 
     atomic_res_dir = os.path.join(atomic_root_dir, 'share', 'salome', 'resources', 'atomic')
-    context.addToVariable('SalomeAppConfig', atomic_res_dir, separator=':')
+    context.addToVariable('SalomeAppConfig', atomic_res_dir, separator=os.pathsep)
