@@ -48,4 +48,4 @@ def init(context, root_dir):
     if reinitialise_paths:
         context.setVariable('SalomeAppConfig', gui_res_dir, overwrite=True)
     else:
-        context.addToVariable('SalomeAppConfig', gui_res_dir, separator=':')
+        context.addToVariable('SalomeAppConfig', gui_res_dir, separator=os.pathsep)
