@@ -35,7 +35,7 @@ from salomeContextUtils import SalomeContextException
 
 def usage():
   msg = '''\
-Usage: salome [command] [options] [--config=<file,folder,...>]
+Usage: salome [command] [options] [--config=<file,folder,...>] [--with-env-modules=<env_module1,env_module2,...>]
 
 Commands:
 =========
@@ -71,6 +71,11 @@ Command options:
     Initialize SALOME context from a list of context files and/or a list
     of folders containing context files. The list is comma-separated, without
     any blank characters.
+
+--with-env-modules=<env_module1,env_module2,...>
+================================================
+    Initialize SALOME context with the provided additional environment modules.
+    The list is comma-separated, without any blank characters.
 '''
 
   print(msg)
@@ -111,7 +116,7 @@ class SalomeContext:
       raise SalomeContextException("Module environment not present")
       return
     try:
-      out, err = subprocess.Popen([modulecmd, "python", "load"] + env_modules, stdout=subprocess.PIPE).communicate()
+      out, err = subprocess.Popen([modulecmd, "python", "try-load"] + env_modules, stdout=subprocess.PIPE).communicate()
       exec(out)  # define specific environment variables
     except Exception:
       raise SalomeContextException("Failed to load env modules: %s ..." % ' '.join(env_modules))
