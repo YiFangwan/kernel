@@ -128,6 +128,12 @@ def create_salomex(salomexb, salomexd, env_py, top_repository):
             # List of the files those actually written to the archive.
             # It goes to the salomexc file then.
             files_abs, files_rel = list_files_filter(top_repository, included_files_patterns)
+            id = 0
+            for f in files_rel:
+                fsplit = f.split('/')
+                del fsplit[0]
+                files_rel[id] = '/'.join(fsplit)
+                id +=1
             add_files(ext, files_abs, files_rel)
 
             # Write the control file - list of the files inside extension's dir

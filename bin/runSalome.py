@@ -24,7 +24,6 @@
 #
 
 import sys, os, string, glob, time, pickle, re
-import orbmodule
 import setenv
 from server import process_id, Server
 import json
@@ -185,6 +184,9 @@ def main(exeName=None):
     # Setup extension's env in salome on demand case
     if args[on_demand_nam]:
         runSalomeOnDemand.set_ext_env()
+        # Reset up module_list and modules_root_dir, if we dont want to define SalomeAppConfig on salome.py.
+        # We must remove the "else" on "if os.sys.platform == 'win32':" in launcheConfigureParser.py too.
+        args, _, __ = setenv.get_config(exeName=exeName, keepEnvironment=keep_env)
 
     setenv.set_env(args, modules_list, modules_root_dir, keepEnvironment=keep_env)
     ior_fakens_filename = useSalome(args, modules_list, modules_root_dir)
@@ -227,8 +229,8 @@ def foreGround(args, ior_fakens_filename):
         logger.warn("No file {} set to host IOR of the fake naming server does not exit !")
         return
     import CORBA
-    import Engines
-    import SALOME
+    #import Engines
+    #import SALOME
     from time import sleep
     orb = CORBA.ORB_init([''], CORBA.ORB_ID)
     ior_fakens = None
@@ -305,6 +307,7 @@ def runSalome():
     args, ior_fakens_filename = main()
     # --
     test = args['gui'] and args['session_gui']
+    test = test and not args[on_demand_nam]
     test = test or args['wake_up_session']
     # --
     # The next test covers the --pinter option or if var PYTHONINSPECT is set

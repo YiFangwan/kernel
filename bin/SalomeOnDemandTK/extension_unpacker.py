@@ -42,7 +42,6 @@ from .extension_utilities import logger, \
     isvalid_filename, isvalid_dirname, ext_info_bykey, set_selext_env, get_app_root, \
     check_if_installed
 
-
 def unpack_salomex(salome_root, salomex):
     """
     Unpack a given salome extension archive into SALOME install root.
