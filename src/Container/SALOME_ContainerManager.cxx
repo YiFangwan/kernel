@@ -29,10 +29,7 @@
 #include "SALOME_ModuleCatalog.hh"
 #include "Basics_Utils.hxx"
 #include "Basics_DirUtils.hxx"
-
-#include <pthread.h>  // must be before Python.h !
 #include "PythonCppUtils.hxx"
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <signal.h>
@@ -850,14 +847,8 @@ std::string GetCommandFromTemplate(const std::string& theScriptName,
                                    std::queue<std::string>& theScriptParameters)
 {
   std::string command;
-
+  AutoGIL agil;
   // manage GIL
-  PyThreadState *_save = NULL;
-  PyThreadState *pts = PyGILState_GetThisThreadState(); 
-  if (!pts) {
-    _save = PyEval_SaveThread();
-  }
-  PyGILState_STATE gstate = PyGILState_Ensure();
 
   PyObject* mod(PyImport_ImportModule(theScriptName.c_str()));
   if (!mod)
@@ -915,11 +906,6 @@ std::string GetCommandFromTemplate(const std::string& theScriptName,
       Py_XDECREF(meth);
       Py_XDECREF(mod);
     }
-  }
-
-  PyGILState_Release(gstate);
-  if (_save) {
-    PyEval_RestoreThread(_save);
   }
 
   MESSAGE("Command from template is ... " << command << std::endl);
