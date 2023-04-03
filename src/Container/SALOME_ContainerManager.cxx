@@ -988,76 +988,7 @@ std::string SALOME_ContainerManager::BuildCommandToLaunchLocalContainer(const En
 
   std::ostringstream o;
   o << command_from_template << " ";
-
-  /* //============================================================================
-  if (params.isMPI)
-    {
-      int nbproc = params.nb_proc <= 0 ? 1 : params.nb_proc;
-
-      o << "mpirun -np ";
-
-      o << nbproc << " ";
-
-      if( GetenvThreadSafe("LIBBATCH_NODEFILE") != NULL )
-        o << "-machinefile " << machinesFile << " ";
-
-#ifdef LAM_MPI
-      o << "-x PATH,LD_LIBRARY_PATH,OMNIORB_CONFIG,SALOME_trace ";
-#elif defined(OPEN_MPI)
-      if( GetenvThreadSafe("OMPI_URI_FILE") == NULL )
-        o << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace";
-      else
-        {
-          o << "-x PATH -x LD_LIBRARY_PATH -x OMNIORB_CONFIG -x SALOME_trace -ompi-server file:";
-          o << GetenvThreadSafeAsString("OMPI_URI_FILE");
-        }
-#elif defined(MPICH)
-      o << "-nameserver " + Kernel_Utils::GetHostname();
-#endif
-
-      if (isPythonContainer(params.container_name))
-        o << " pyMPI SALOME_ContainerPy.py ";
-      else
-        o << " SALOME_MPIContainer ";
-    }
-
-  else
-    {
-      std::string wdir=params.workingdir.in();
-      if(wdir != "")
-        {
-          // a working directory is requested
-          if(wdir == "$TEMPDIR")
-            {
-              // a new temporary directory is requested
-              std::string dir = Kernel_Utils::GetTmpDir();
-#ifdef WIN32
-              o << "cd /d " << dir << std::endl;
-#else
-              o << "cd " << dir << ";";
-#endif
-
-            }
-          else
-            {
-              // a permanent directory is requested use it or create it
-#ifdef WIN32
-              o << "mkdir " + wdir << std::endl;
-              o << "cd /D " + wdir << std::endl;
-#else
-              o << "mkdir -p " << wdir << " && cd " << wdir + ";";
-#endif
-            }
-        }
-
-      if (isPythonContainer(params.container_name))
-        o << "SALOME_ContainerPy.py ";
-      else
-        o << container_exe + " ";
-
-    }
   
-  o << _NS->ContainerName(params) << " ";
   //==================================================================================== */
 
   if( this->_isSSL )
