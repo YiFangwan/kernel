@@ -1,8 +1,0 @@
-{
-    "name": "3dparty",
-    "descr": "SALOME extension",
-    "depends_on": [],
-    "author": "SALOME Team",
-    "components": [ "Python", "gcc", "lapack", "openmpi", "hdf5", "cgns", "tbb", "nlopt", "libxml2", "netcdf", "gdal", "boost", "omniORB", "cppunit", "LIBBATCH", "freetype", "qt", "sip", "PyQt", "freeimage", "CAS", "qwt", "matplotlib", "embree", "rkCommon", "openVKL", "ospray", "cminpack", "FMILibrary", "PyFMI", "openturns", "catalyst", "ParaView", "graphviz", "pmml", "opencv", "tcl", "planegcs", "medfile", "metis", "petsc", "TTK", "C3PO", "root", "zeromq" ]
-}
-
