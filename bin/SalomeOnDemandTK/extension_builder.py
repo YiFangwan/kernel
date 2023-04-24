@@ -38,9 +38,9 @@ import io
 from traceback import format_exc
 
 from .extension_utilities import logger, \
-    BFILE_EXT, DFILE_EXT, PYFILE_EXT, EXTNAME_KEY, ARCFILE_EXT, SALOME_EXTDIR, CFILE_EXT, \
+    BFILE_EXT, DFILE_EXT, PYFILE_EXT, EXTNAME_KEY, ARCFILE_EXT, SALOME_EXTDIR, CFILE_EXT, EXTCOMPONENT_KEY, ITERACTIVE_EXTCOMPONENT_KEY, \
     isvalid_filename, isvalid_dirname, read_salomexd, read_salomexb, list_files_filter, \
-    list_tonewline_str
+    list_tonewline_str, comp_interaction_treat, value_from_salomexd, override_salomexd
 
 
 def add_files(ext, files_abs, files_rel):
@@ -75,7 +75,7 @@ def add_files(ext, files_abs, files_rel):
     logger.handlers[0].terminator = default_terminator
 
 
-def create_salomex(salomexb, salomexd, env_py, top_repository):
+def create_salomex(salomexb, salomexd, env_py, top_repository, auto = True):
     """
     Makes salome extension archive from provided in salomexb file directories.
 
@@ -111,6 +111,49 @@ def create_salomex(salomexb, salomexd, env_py, top_repository):
             Use salomexd file name as an extension name.')
 
     logger.debug('Set an extension name as: %s', salome_ext_name)
+
+    # Check components information
+    components = value_from_salomexd(salomexd, EXTCOMPONENT_KEY)
+    if components:
+        components_treated = comp_interaction_treat(components)
+    else:
+        logger.error('Cannot read components information')
+        return
+    comps_list = list(components_treated.keys())
+    logger.info('Components list: %s', comps_list)
+    logger.info('Salome GUI components: %s',[k for k, v in components_treated.items() if v == True])
+
+    # Override the interactive components list
+    if not auto:
+        user_input = input('Do you want to override the components info (yes/y/no/n): ')
+    else:
+        user_input = 'n'
+    if user_input == 'yes' or user_input == 'y' :
+        interactive_comps_input = input('Give the interactive list. The syntax is MODULE_1,MODULE_2, etc: ')
+        interactive_comps_list = list(set(interactive_comps_input.split(',')))
+        for comp in interactive_comps_list:
+            if comp not in comps_list:
+                _input = input('The component %s was not defined in salomexd file. Do you want to continue (yes/y/no/n): '%comp)
+                if _input == 'yes' or _input == 'y':
+                    pass
+                elif _input == 'no' or _input == 'n':
+                    return
+                else:
+                    logger.error('Unknown request. The correct request are yes/y/no/n')
+                    return
+            else:
+                comps_list.remove(comp)
+        if len(comps_list) == 0:
+            comp_value = interactive_comps_list
+        else:
+            comp_value = {ITERACTIVE_EXTCOMPONENT_KEY : interactive_comps_list, 'other' : comps_list}
+        # Override components item of salomexd file
+        override_salomexd(salomexd, {EXTCOMPONENT_KEY:comp_value})
+    elif user_input == 'no' or user_input == 'n' :
+        pass
+    else:
+        logger.error('Unknown request. The correct request are yes/y/no/n')
+        return
 
     try:
         with tarfile.open(salome_ext_name + '.' + ARCFILE_EXT, "w:gz") as ext:
@@ -160,7 +203,10 @@ def create_salomex(salomexb, salomexd, env_py, top_repository):
 if __name__ == '__main__':
     if len(sys.argv) == 5:
         arg_1, arg_2, arg_3, arg_4 = sys.argv[1:5]
-        create_salomex(arg_1, arg_2, arg_3, arg_4)
+        create_salomex(arg_1, arg_2, arg_3, arg_4, True)
+    elif len(sys.argv) == 6:
+        arg_1, arg_2, arg_3, arg_4, arg_5 = sys.argv[1:5]
+        create_salomex(arg_1, arg_2, arg_3, arg_4, arg_5)
     else:
         logger.error('You must provide all the arguments!')
         logger.info(create_salomex.__doc__)

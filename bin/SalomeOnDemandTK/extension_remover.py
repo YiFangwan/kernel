@@ -175,12 +175,19 @@ def remove_salomex(install_dir, salomex_name):
     # Remove description file
     if salomexd:
         # Get components to deactivate in UI if the case
-        components = value_from_salomexd(salomexd, EXTCOMPONENT_KEY)
+        comp_values = value_from_salomexd(salomexd, EXTCOMPONENT_KEY)
+        if type(comp_values) == dict:
+            components = []
+            for grp in comp_values:
+                for component in comp_values[grp]:
+                    if component not in components:
+                        components.append(component)
+        else:
+            components = comp_values
         os.remove(salomexd)
 
     logger.debug('An extension %s was removed from %s',
         salomex_name, install_dir)
-
     return components if components else []
 
 
