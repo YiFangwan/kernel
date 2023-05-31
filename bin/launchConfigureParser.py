@@ -830,13 +830,12 @@ Python file arguments, if any, must be comma-separated (without blank characters
 
     # On demand
     help_str  = "Use installed salome on-demand extensions."
-    help_str += "0 to run without salome extensions [default], "
-    help_str += "1 to run only installed salome extensions. "
+    help_str += "gui to run salome with gui [default], "
+    help_str += "shell to launch salome environment. "
     pars.add_argument("--on-demand",
                       dest="on_demand",
-                      metavar="<0/1>",
-                      action=StoreBooleanAction,
-                      default=False,
+                      nargs='?', const='gui',
+                      choices=['gui', 'shell'],
                       help=help_str)
 
 

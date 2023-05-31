@@ -76,7 +76,11 @@ def startSalome(args, modules_list, modules_root_dir):
     # Launch  Session Server (to show splash ASAP)
     #
 
-    if args["gui"] and not args['launcher_only']:
+    if args[on_demand_nam] and args[on_demand_nam] == 'shell':
+        import runSession
+        runSession.configureSession()
+        runSession.__runLocalSession("")
+    elif args["gui"] and not args['launcher_only']:
         mySessionServ = runSalomeNoServer.NoSessionServer(args,args['modules'],modules_root_dir)
         mySessionServ.setpath(modules_list,modules_root_dir)
         mySessionServ.run()
