@@ -51,7 +51,11 @@ def set_ext_env(app_name='', version=''):
     logger.debug('Set an env for app: %s, version: %s...', app_name, version)
 
     # Get the root directory
-    app_root = get_app_root()
+    app_root = os.environ.get('SALOME_APPLICATION_DIR', '')
+    if not app_root:
+        app_root = get_app_root()
+        logger.warning(
+            'Env var SALOME_APPLICATION_DIR is not set! It will be setted by default in %s.'%app_root)
 
     # Set the root dir as env variable
     context = salomeContext.SalomeContext(None)
