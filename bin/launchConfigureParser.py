@@ -115,6 +115,10 @@ def version():
         version_file = os.path.join(root_dir, 'bin', 'salome', 'VERSION')
         if root_dir and os.path.exists( version_file ):
             filename = version_file
+        root_dir = os.environ.get( 'ABSOLUTE_APPLI_PATH', '' )    # ABSOLUTE_APPLI_PATH "" if not found
+        version_file = os.path.join(root_dir, 'bin', 'salome', 'VERSION')
+        if root_dir and os.path.exists( version_file ):
+            filename = version_file
         if filename:
             with open(filename, "r") as f:
                 v = f.readline() # v = "THIS IS SALOME - SALOMEGUI VERSION: 3.0.0"
