@@ -90,7 +90,7 @@ public:
 
   int NbProc(const Engines::ContainerParameters& params);
 
-  static void preSet(Engines::ResourceParameters& outparams);
+  static void preSet(Engines::ResourceParametersContainer& outparams);
   static void preSet(Engines::ContainerParameters& outparams);
 
   Engines::ContainerManager_ptr getContainerManager();

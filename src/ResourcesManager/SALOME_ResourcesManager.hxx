@@ -28,9 +28,7 @@
 #include <SALOMEconfig.h>
 #include "SALOME_NamingService_Abstract.hxx"
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
-#include <string>
 #include <fstream>
-#include <vector>
 #include <memory>
 #include "ResourcesManager.hxx"
 
@@ -59,31 +57,40 @@ class SALOMERESOURCESMANAGER_EXPORT SALOME_ResourcesManager:
     ~SALOME_ResourcesManager();
 
     // CORBA Methods
-    Engines::ResourceList * GetFittingResources(const Engines::ResourceParameters& params);
-    char* FindFirst(const Engines::ResourceList& listOfResources);
-    char* Find(const char *policy, const Engines::ResourceList& listOfResources);
-    Engines::ResourceDefinition * GetResourceDefinition(const char * name);
-    void AddResource(const Engines::ResourceDefinition& new_resource,
-                     CORBA::Boolean write,
-                     const char * xml_file);
+    // ======================================================================================
 
-    void RemoveResource(const char * resource_name,
-                        CORBA::Boolean write,
-                        const char * xml_file);
-    char* getMachineFile(const char * resource_name,
-                         CORBA::Long nb_procs,
-                         const char * parallelLib);
-    void ListAllAvailableResources(Engines::ResourceList_out machines, Engines::IntegerList_out nbProcsOfMachines);
+    char* FindFirst(const Engines::ResourceList& possibleContainerResources);
+    char* Find(const char *policy, const Engines::ResourceList& possibleContainerResources);
+
+    Engines::ResourceList* GetFittingResourcesJob(const Engines::ResourceParametersJob& params);
+    Engines::ResourceList* GetFittingResourcesContainer(const Engines::ResourceParametersContainer& params);
     
-    Engines::ResourceList *ListAllResourcesInCatalog();
+    Engines::ResourceDefinitionJob* GetResourceDefinitionJob(const char* name);
+    Engines::ResourceDefinitionContainer* GetResourceDefinitionContainer(const char* name);
+
+    void AddResourceJob(const Engines::ResourceDefinitionJob& new_resource, CORBA::Boolean write, const char* xml_file);
+    void AddResourceContainer(const Engines::ResourceDefinitionContainer& new_resource, CORBA::Boolean write, const char* xml_file);
+
+    void RemoveResourceJob(const char* resource_name, CORBA::Boolean write, const char* xml_file);
+    void RemoveResourceContainer(const char* resource_name, CORBA::Boolean write, const char* xml_file);
+
+    char* getMachineFile(const char* resource_name, CORBA::Long nb_procs, const char* parallelLib);
+
+    void ListAllAvailableResourcesContainer(Engines::ResourceList_out machines, Engines::IntegerList_out nbProcsOfMachines);
+    
+    Engines::ResourceList* ListAllResourcesInCatalogJob();
+    Engines::ResourceList* ListAllResourcesInCatalogContainer();
+
     // Cpp Methods
+    // ======================================================================================
+
     void Shutdown();
     std::shared_ptr<ResourcesManager_cpp>& GetImpl() { return _rm; }
 
-
+  public:
     static const char *_ResourcesManagerNameInNS;
-  protected:
 
+  protected:
     SALOME_NamingService_Abstract *_NS;
     CORBA::ORB_var _orb;
     PortableServer::POA_var _poa;

@@ -22,60 +22,175 @@
 
 //  SALOME ResourcesCatalog : implementation of catalog resources parsing (SALOME_ModuleCatalog.idl)
 //  File   : SALOME_ResourcesCatalog_Handler.cxx
-//  Author : Estelle Deville
+//  Author : Estelle Deville, Konstantin Leontev
 //  Module : SALOME
 //$Header$
 //
 #include "SALOME_ResourcesCatalog_Handler.hxx"
+
 #include "Basics_Utils.hxx"
 #include "utilities.h"
-#include <iostream>
-#include <sstream>
-#include <map>
 
-using namespace std;
+namespace
+{
+  // XML tags
+  // ----------------------------------------------------
+
+  // Doc's root
+  const xmlChar* tag_root = BAD_CAST "resources";
+
+  // Resources types roots
+  const xmlChar* tag_resources_job = BAD_CAST "resources_job";
+  const xmlChar* tag_resources_container = BAD_CAST "resources_container";
+
+  // Tags for each resource
+  const xmlChar* tag_machine = BAD_CAST "machine";
+  const xmlChar* tag_cluster = BAD_CAST "cluster";
+  const xmlChar* tag_members = BAD_CAST "members";
+
+  // Tags for container resources
+  const xmlChar* tag_component = BAD_CAST "component";
+  const xmlChar* tag_modules = BAD_CAST "modules"; // module == component
+
+  // Attributes
+  // ----------------------------------------------------
+
+  // Common attributes for each type of resource
+  const xmlChar* attr_name = BAD_CAST "name";
+  const xmlChar* attr_hostname = BAD_CAST "hostname";
+  const xmlChar* attr_protocol = BAD_CAST "protocol";
+  const xmlChar* attr_username = BAD_CAST "username";
+  const xmlChar* attr_applipath = BAD_CAST "applipath";
+  const xmlChar* attr_batch = BAD_CAST "batch";
+
+  // Job's attributes
+  const xmlChar* attr_mpiImpl = BAD_CAST "mpi";
+  const xmlChar* attr_iprotocol = BAD_CAST "iprotocol";
+  const xmlChar* attr_working_directory = BAD_CAST "workingDirectory";
+
+  // Container's attributes
+  const xmlChar* attr_component_name = BAD_CAST "name";
+  const xmlChar* attr_os = BAD_CAST "OS";
+  const xmlChar* attr_mem_mb = BAD_CAST "memInMB";
+  const xmlChar* attr_cpu_clock = BAD_CAST "CPUFreqMHz";
+  const xmlChar* attr_nb_node = BAD_CAST "nbOfNodes";
+  const xmlChar* attr_nb_proc_per_node = BAD_CAST "nbOfProcPerNode";
+  const xmlChar* attr_nb_of_proc = BAD_CAST "nbOfProc";
+  const xmlChar* attr_module_name = BAD_CAST "moduleName";
+
+  // for compatibility
+  const xmlChar* tag_batch_queue = BAD_CAST "batchQueue";
+  const xmlChar* tag_user_commands = BAD_CAST "userCommands";
+  const xmlChar* tag_use = BAD_CAST "use";
+
+
+  // Generic functions for common processing of all resources' types
+  // ----------------------------------------------------
+
+  // Reads common attributes from machine tag
+  template <class T> bool readMachineCommon(xmlNodePtr node, T& resource)
+  {
+    MESSAGE("Read machine...");
+
+    // This alias is only to use short name for readAttr() method
+    auto readAttr = &SALOME_ResourcesCatalog_Handler::readAttr;
+
+    resource.name = readAttr(node, attr_name);
+
+    resource.hostname = readAttr(node, attr_hostname);
+    if (resource.hostname.empty())
+    {
+      MESSAGE("Warning! Hostname is empty. This machine will not be added.");
+      return false;
+    }
+
+    // Use the hostname as a name if the name wasn't provided
+    if (resource.name.empty())
+    {
+      MESSAGE("Resourece name is empty. Using hostname as a name: " << resource.hostname);
+      resource.name = resource.hostname;
+    }
+
+    resource.username = readAttr(node, attr_username);
+    resource.applipath = readAttr(node, attr_applipath);
+
+    try
+    {
+      resource.setAccessProtocolTypeStr(readAttr(node, attr_protocol));
+    }
+    catch(const ResourcesException& e)
+    {
+      MESSAGE("Warning! " << e.msg << " Using default value.");
+    }
+
+    try
+    {
+      resource.setBatchTypeStr(readAttr(node, attr_batch));
+    }
+    catch(const ResourcesException& e)
+    {
+      MESSAGE("Warning! " << e.msg << " Using default value.");
+    }
+
+    // Check if those below are from a common part
+    resource.batchQueue = readAttr(node, tag_batch_queue);
+    resource.userCommands = readAttr(node, tag_user_commands);
+    resource.use = readAttr(node, tag_use);
+
+    return true;
+  }
+
+  // Add resource to a given map.
+  template <class T, typename U> void addResourceToMap(T& resource, U& resourceMap)
+  {
+    if(resource.hostname == "localhost")
+    {
+      resource.hostname = Kernel_Utils::GetHostname();
+    }
+
+    const auto iter = resourceMap.find(resource.name);
+    if (iter != resourceMap.end())
+    {
+      MESSAGE("Warning! Resource " << resource.name << " already added, keep last resource found!");
+    }
+
+    resourceMap[resource.name] = resource;
+    MESSAGE("Added resource: " << resource.name);
+  }
+
+  // Writes common attributes to machine tag
+  template <class T> void writeMachineCommon(xmlNodePtr node, const T& resource)
+  {
+    MESSAGE("Write machine...");
+
+    xmlNewProp(node, attr_name, BAD_CAST resource.name.c_str());
+    xmlNewProp(node, attr_hostname, BAD_CAST resource.hostname.c_str());
+    xmlNewProp(node, attr_protocol, BAD_CAST resource.getAccessProtocolTypeStr().c_str());
+    xmlNewProp(node, attr_username, BAD_CAST resource.username.c_str());
+    xmlNewProp(node, attr_applipath, BAD_CAST resource.applipath.c_str());
+    xmlNewProp(node, attr_batch, BAD_CAST resource.getBatchTypeStr().c_str());
+
+    // Check if those below are from a common part
+    xmlNewProp(node, tag_batch_queue, BAD_CAST resource.batchQueue.c_str());
+    xmlNewProp(node, tag_user_commands, BAD_CAST resource.userCommands.c_str());
+    xmlNewProp(node, tag_use, BAD_CAST resource.use.c_str());
+  }
+}
 
 //=============================================================================
 /*!
  *  Constructor
- *  \param listOfResources: map of ParserResourcesType to fill when parsing
+ *  \param resourcesJob: map of ParserResourcesTypeJob to fill when parsing
+ *  \param resourcesContainer: map of ParserResourcesTypeContainer to fill when parsing
  */ 
 //=============================================================================
 
-SALOME_ResourcesCatalog_Handler::
-SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list): _resources_list(resources_list)
+SALOME_ResourcesCatalog_Handler::SALOME_ResourcesCatalog_Handler(
+  ParserResourcesTypeJob::TypeMap& resourcesJob,
+  ParserResourcesTypeContainer::TypeMap& resourcesContainer) :
+  resourcesJob(resourcesJob),
+  resourcesContainer(resourcesContainer)
 {
-  //XML tags initialisation
-  test_machine = "machine";
-  test_cluster = "cluster";
-  test_name = "name";
-  test_hostname = "hostname";
-  test_type = "type";
-  test_protocol = "protocol";
-  test_cluster_internal_protocol = "iprotocol";
-  test_mode = "mode";
-  test_batch = "batch";
-  test_mpi = "mpi";
-  test_user_name = "userName";
-  test_appli_path = "appliPath";
-  test_modules = "modules";
-  test_module_name = "moduleName";
-  test_components = "component";
-  test_component_name = "name";
-  test_os = "OS";
-  test_mem_in_mb = "memInMB";
-  test_cpu_freq_mhz = "CPUFreqMHz";
-  test_nb_of_nodes = "nbOfNodes";
-  test_nb_of_proc = "nbOfProc";
-  test_nb_of_proc_per_node = "nbOfProcPerNode";
-  test_batch_queue = "batchQueue";
-  test_user_commands = "userCommands";
-  test_use = "use";
-  test_members = "members";
-  test_is_cluster_head = "isClusterHead";
-  test_working_directory = "workingDirectory";
-  test_can_launch_batch_jobs = "canLaunchBatchJobs";
-  test_can_run_containers = "canRunContainers";
 }
 
 //=============================================================================
@@ -91,603 +206,131 @@ SALOME_ResourcesCatalog_Handler::~SALOME_ResourcesCatalog_Handler()
 
 //=============================================================================
 /*!
- *  Retrieves DS after the file parse.
+ *  Retrieves job resources map after the file parse.
  */ 
 //=============================================================================
 
-const MapOfParserResourcesType&
-SALOME_ResourcesCatalog_Handler::GetResourcesAfterParsing() const
+const ParserResourcesTypeJob::TypeMap&
+SALOME_ResourcesCatalog_Handler::getResourcesJob() const
 {
-  return _resources_list;
+  return resourcesJob;
+}
+
+//=============================================================================
+/*!
+ *  Retrieves container resources map after the file parse.
+ */ 
+//=============================================================================
+
+const ParserResourcesTypeContainer::TypeMap&
+SALOME_ResourcesCatalog_Handler::getResourcesContainer() const
+{
+  return resourcesContainer;
 }
 
 //=============================================================================
 /*!
  *  Processes XML document and fills the list of resources
+ *  \param theDoc: a pointer to XML doc to read from
  */ 
 //=============================================================================
 
-void SALOME_ResourcesCatalog_Handler::ProcessXmlDocument(xmlDocPtr theDoc)
+void SALOME_ResourcesCatalog_Handler::readXmlDoc(xmlDocPtr theDoc)
 {
   // Empty private elements
-  _resources_list.clear();
+  resourcesJob.clear();
+  resourcesContainer.clear();
 
   // Get the document root node
-  xmlNodePtr aCurNode = xmlDocGetRootElement(theDoc);
+  xmlNodePtr node = xmlDocGetRootElement(theDoc);
+  if (!node)
+  {
+    MESSAGE("Warning! Couldn't find a root element in XML doc. Reading of resources was stopped.");
+    return;
+  }
 
-  aCurNode = aCurNode->xmlChildrenNode;
+  if (xmlStrcmp(node->name, tag_root))
+  {
+    MESSAGE("Warning! Wrong name of the root element in XML doc. Expected: " << tag_root << ", but given: " << node->name);
+  }
+
+  node = node->xmlChildrenNode;
  
   // Processing the document nodes
-  while(aCurNode != NULL)
+  while(node)
   {
-    // Declaration of a single machine or a frontal node for a cluster managed by a batch manager
-    if (!xmlStrcmp(aCurNode->name,(const xmlChar*)test_machine))
+    // Check if we have different type of resources here
+    if (!xmlStrcmp(node->name, tag_resources_job))
     {
-      ParserResourcesType resource;
-      bool Ok = ProcessMachine(aCurNode, resource);
-      if (Ok)
-      {
-        // Adding a resource
-        if(resource.HostName == "localhost")
-        {
-          resource.HostName = Kernel_Utils::GetHostname();
-        }
-        std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.find(resource.Name);
-        if (iter != _resources_list.end())
-          RES_INFOS("Warning resource " << resource.Name << " already added, keep last resource found !");
-        _resources_list[resource.Name] = resource;
-      }
+      readNodeResourcesJob(node);
     }
-    // Declaration of a cluster
-    // Here, a cluster is NOT the frontal node of a cluster managed by a batch manager (classical
-    // usage of a cluster). It is a group of machines intended to be used for a parallel container.
-    // The methods ProcessCluster and ProcessMember are only used in the context of parallel
-    // containers. They are not used in classical Salome usage scenarios.
-    if (!xmlStrcmp(aCurNode->name,(const xmlChar*)test_cluster))
+    else if(!xmlStrcmp(node->name, tag_resources_container))
     {
-      ParserResourcesType resource;
-      if(ProcessCluster(aCurNode, resource))
-      {
-        std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.find(resource.Name);
-        if (iter != _resources_list.end())
-          RES_INFOS("Warning resource " << resource.Name << " already added, keep last resource found !");
-        _resources_list[resource.Name] = resource;
-      }
+      readNodeResourcesContainer(node);
     }
-    aCurNode = aCurNode->next;
-  }
-
-#ifdef _DEBUG_
-  for (std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.begin();
-       iter != _resources_list.end();
-       iter++)
-  {
-    MESSAGE( "************************************************" );
-    MESSAGE( "Resource " << (*iter).first << " found:" );
-    MESSAGE( (*iter).second );
-    MESSAGE( "************************************************" );
-  }
-#endif
-}
-
-bool
-SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, ParserResourcesType & resource)
-{
-  // Ajout d'un cluster
-  // hostname, use et nbOfProc sont obligatoires
-  if (xmlHasProp(cluster_descr, (const xmlChar*)test_hostname))
-  {
-    xmlChar* hostname = xmlGetProp(cluster_descr, (const xmlChar*)test_hostname);
-    resource.HostName = (const char*)hostname;
-    xmlFree(hostname);
-  }
-  else
-  {
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! found a cluster without a hostname" );
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! this cluster will not be added" );
-    return false;
-  }
-
-  if (xmlHasProp(cluster_descr, (const xmlChar*)test_name))
-  {
-    xmlChar* name = xmlGetProp(cluster_descr, (const xmlChar*)test_name);
-    resource.Name = (const char*)name;
-    resource.DataForSort._Name = (const char*)name;
-    xmlFree(name);
-  }
-  else
-  {
-    resource.Name = resource.HostName;
-    resource.DataForSort._Name = resource.HostName;
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! No Name found use Hostname for resource: " << resource.Name );
-  }
-
-  if (xmlHasProp(cluster_descr, (const xmlChar*)test_use))
-  {
-    xmlChar* use = xmlGetProp(cluster_descr, (const xmlChar*)test_use);
-    resource.use = (const char*)use;
-    xmlFree(use);
-  }
-  else
-  {
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! found a cluster without a use" );
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! this cluster will not be added" );
-    return false;
-  }
-
-  if (xmlHasProp(cluster_descr, (const xmlChar*)test_nb_of_proc))
-  {
-    xmlChar* nb_of_proc = xmlGetProp(cluster_descr, (const xmlChar*)test_nb_of_proc);
-    resource.nbOfProc = atoi((const char*)nb_of_proc);
-    xmlFree(nb_of_proc);
-  }
-  else
-  {
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! found a cluster without a nbOfProc" );
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! this cluster will not be added" );
-    return false;
-  }
-
-  if (xmlHasProp(cluster_descr, (const xmlChar*)test_mpi))
-  {
-    xmlChar* mpi = xmlGetProp(cluster_descr, (const xmlChar*)test_mpi);
-    std::string anMpi = (const char*)mpi;
-    xmlFree(mpi);
-    resource.setMpiImplTypeStr(anMpi);
-  }
-
-  // Parsing des membres du cluster 
-  xmlNodePtr aCurSubNode = cluster_descr->xmlChildrenNode;
-  while(aCurSubNode != NULL)
-  {
-    if (!xmlStrcmp(aCurSubNode->name, (const xmlChar*)test_members))
-    {
-       xmlNodePtr members = aCurSubNode->xmlChildrenNode;
-       while (members != NULL)
-       {
-         // Process members
-         if (!xmlStrcmp(members->name, (const xmlChar*)test_machine))
-         {
-           ParserResourcesType new_member;
-           if (ProcessMember(members, new_member))
-             resource.ClusterMembersList.push_back(new_member);
-         }
-         members = members->next;
-       }
-    }
-    aCurSubNode = aCurSubNode->next;
-  }
-
-  // Test: Il faut au moins un membre pour que le cluster soit correct !
-  if (resource.ClusterMembersList.empty())
-  {
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! found a cluster without a member" );
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessCluster : !!! Warning !!! this cluster will not be added" );
-    return false;
-  }
-  return true;
-}
-
-bool
-SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserResourcesType & resource)
-{
-  if (xmlHasProp(member_descr, (const xmlChar*)test_hostname))
-  {
-    xmlChar* hostname = xmlGetProp(member_descr, (const xmlChar*)test_hostname);
-    resource.HostName = (const char*)hostname;
-    xmlFree(hostname);
-  }
-  else
-  {
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a hostname" );
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
-    return false;
-  }
-
-  if (xmlHasProp(member_descr, (const xmlChar*)test_protocol))
-  {
-    xmlChar* protocol= xmlGetProp(member_descr, (const xmlChar*)test_protocol);
-    try
-    {
-      resource.setAccessProtocolTypeStr((const char *)protocol);
-    }
-    catch (const ResourcesException & )
-    {
-      MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" );
-      MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
-      return false;
-    }
-    xmlFree(protocol);
-  }
-  else
-  {
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a protocol" );
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
-    return false;
-  }
-
-  if (xmlHasProp(member_descr, (const xmlChar*)test_cluster_internal_protocol))
-  {
-    xmlChar* iprotocol= xmlGetProp(member_descr, (const xmlChar*)test_cluster_internal_protocol);
-    try
-    {
-      resource.setClusterInternalProtocolStr((const char *)iprotocol);
-    }
-    catch (const ResourcesException &)
-    {
-      MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine with a bad protocol" );
-      MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
-      return false;
-    }
-    xmlFree(iprotocol);
-  }
-  else
-  {
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a protocol" );
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
-    return false;
-  }
-
-  if (xmlHasProp(member_descr, (const xmlChar*)test_user_name))
-  {
-    xmlChar* user_name= xmlGetProp(member_descr, (const xmlChar*)test_user_name);
-    resource.UserName = (const char*)user_name;
-    xmlFree(user_name);
-  }
-  else
-  {
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a user name" );
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
-    return false;
-  }
-
-  if (xmlHasProp(member_descr, (const xmlChar*)test_nb_of_nodes))
-  {
-    xmlChar* nb_of_nodes = xmlGetProp(member_descr, (const xmlChar*)test_nb_of_nodes);
-    resource.DataForSort._nbOfNodes = atoi((const char*)nb_of_nodes);
-    xmlFree(nb_of_nodes);
-  }
-  else
-  {
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a nbOfNodes" );
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
-    return false;
-  }
-
-  if (xmlHasProp(member_descr, (const xmlChar*)test_nb_of_proc_per_node))
-  {
-    xmlChar* nb_of_proc_per_node = xmlGetProp(member_descr, (const xmlChar*)test_nb_of_proc_per_node);
-    resource.DataForSort._nbOfProcPerNode = atoi((const char*)nb_of_proc_per_node);
-    xmlFree(nb_of_proc_per_node);
-  }
-  else
-  {
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a nbOfProcPerNode" );
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
-    return false;
-  }
-
-  if (xmlHasProp(member_descr, (const xmlChar*)test_appli_path))
-  {
-    xmlChar* appli_path = xmlGetProp(member_descr, (const xmlChar*)test_appli_path);
-    resource.AppliPath = (const char*)appli_path;
-    xmlFree(appli_path);
-  }
-  else
-  {
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning found a machine without a AppliPath" );
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMember : Warning this machine will not be added" );
-    return false;
-  }
-  return true;
-}
-
-bool
-SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, ParserResourcesType & resource)
-{
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_hostname))
-  {
-    xmlChar* hostname = xmlGetProp(machine_descr, (const xmlChar*)test_hostname);
-    resource.HostName = (const char*)hostname;
-    xmlFree(hostname);
-  }
-  else
-  {
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMachine : Warning found a machine without a hostname" );
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMachine : Warning this machine will not be added" );
-    return false;
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_name))
-  {
-    xmlChar* name = xmlGetProp(machine_descr, (const xmlChar*)test_name);
-    resource.Name = (const char*)name;
-    resource.DataForSort._Name = (const char*)name;
-    xmlFree(name);
-  }
-  else
-  {
-    resource.Name = resource.HostName;
-    resource.DataForSort._Name = resource.HostName;
-    MESSAGE( "SALOME_ResourcesCatalog_Handler::ProcessMachine : !!! Warning !!! No Name found use Hostname for resource: " << resource.Name );
-  }
-
-  // This block is for compatibility with files created in Salome 6.
-  // It can safely be removed in Salome 8.
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_mode))
-  {
-    MESSAGE( "Warning: parameter \"" << test_mode << "\" defined for resource \"" <<
-            resource.Name << "\" is deprecated. It will be replaced when your resource " <<
-            "file is saved." );
-    xmlChar* mode=xmlGetProp(machine_descr, (const xmlChar*)test_mode);
-    switch ( mode[0] )
-    {
-      case 'i':
-        resource.can_run_containers = true;
-        break;
-      case 'b':
-        resource.can_launch_batch_jobs = true;
-        break;
-      default:
-        break;
-    }
-    xmlFree(mode);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_is_cluster_head))
-  {
-    MESSAGE( "Warning: parameter \"" << test_is_cluster_head << "\" defined for resource \"" <<
-            resource.Name << "\" is deprecated. It will be replaced when your resource " <<
-            "file is saved." );
-    xmlChar* is_cluster_head = xmlGetProp(machine_descr, (const xmlChar*)test_is_cluster_head);
-    std::string str_ich = (const char*)is_cluster_head;
-    if (str_ich == "true")
-    {
-      resource.type = cluster;
-      resource.can_launch_batch_jobs = true;
-      resource.can_run_containers = false;
-    }
+    // else if(!xmlStrcmp(node->name, tag_cluster))
+    // {
+    //   readNodeCluster(node);
+    // }
     else
     {
-      resource.type = single_machine;
-      resource.can_run_containers = true;
+      // We don't expect other types of elements on this level
+      MESSAGE("Warning! Unexpected name of the element under root level. Skip element: " << node->name);
     }
-    xmlFree(is_cluster_head);
-  }
-  // End of compatibility block
 
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_type))
-  {
-    xmlChar* type = xmlGetProp(machine_descr, (const xmlChar*)test_type);
-    try
-    {
-      resource.setResourceTypeStr((const char*)type);
-    }
-    catch (const ResourcesException &)
-    {
-      MESSAGE( "Warning, invalid type \"" << (const char*)type << "\" for resource \"" <<
-              resource.Name << "\", using default value \"" << resource.getResourceTypeStr() <<
-              "\"" ) ;
-    }
-    xmlFree(type);
-  }
-  else
-  {
-      MESSAGE( "Warning, no type found for resource \"" << resource.Name <<
-            "\", using default value \"" << resource.getResourceTypeStr() << "\"");
+    node = node->next;
   }
 
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_batch_queue))
-  {
-    xmlChar* batch_queue = xmlGetProp(machine_descr, (const xmlChar*)test_batch_queue);
-    resource.batchQueue = (const char*)batch_queue;
-    xmlFree(batch_queue);
-  }
+// Commented code below leaved temprarly for previouse implementation reference.
 
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_user_commands))
-  {
-    xmlChar* user_commands= xmlGetProp(machine_descr, (const xmlChar*)test_user_commands);
-    resource.userCommands = (const char*)user_commands;
-    xmlFree(user_commands);
-  }
+//     // Declaration of a single machine or a frontal node for a cluster managed by a batch manager
+//     if (!xmlStrcmp(node->name, tag_machine))
+//     {
+//       ParserResourcesType resource;
+//       bool Ok = ProcessMachine(aCurNode, resource);
+//       if (Ok)
+//       {
+//         // Adding a resource
+//         if(resource.HostName == "localhost")
+//         {
+//           resource.HostName = Kernel_Utils::GetHostname();
+//         }
+//         std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.find(resource.Name);
+//         if (iter != _resources_list.end())
+//           MESSAGE("Warning! Resource " << resource.Name << " already added, keep last resource found!");
+//         _resources_list[resource.Name] = resource;
+//       }
+//     }
+//     // Declaration of a cluster
+//     // Here, a cluster is NOT the frontal node of a cluster managed by a batch manager (classical
+//     // usage of a cluster). It is a group of machines intended to be used for a parallel container.
+//     // The methods ProcessCluster and ProcessMember are only used in the context of parallel
+//     // containers. They are not used in classical Salome usage scenarios.
+//     if (!xmlStrcmp(aCurNode->name, tag_cluster))
+//     {
+//       ParserResourcesType resource;
+//       if(ProcessCluster(aCurNode, resource))
+//       {
+//         std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.find(resource.Name);
+//         if (iter != _resources_list.end())
+//           MESSAGE("Warning! Resource " << resource.Name << " already added, keep last resource found!");
+//         _resources_list[resource.Name] = resource;
+//       }
+//     }
+//     aCurNode = aCurNode->next;
+//   }
 
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_protocol))
-  {
-    xmlChar* protocol= xmlGetProp(machine_descr, (const xmlChar*)test_protocol);
-    try
-    {
-      resource.setAccessProtocolTypeStr((const char *)protocol);
-    }
-    catch (const ResourcesException &)
-    {
-      MESSAGE( "Warning, invalid protocol \"" << (const char*)protocol << "\" for resource \"" <<
-              resource.Name << "\", using default value \"" <<
-              resource.getAccessProtocolTypeStr() << "\"" );
-    }
-    xmlFree(protocol);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_cluster_internal_protocol))
-  {
-    xmlChar* iprotocol= xmlGetProp(machine_descr, (const xmlChar*)test_cluster_internal_protocol);
-    try
-    {
-      resource.setClusterInternalProtocolStr((const char *)iprotocol);
-    }
-    catch (const ResourcesException &)
-    {
-      MESSAGE( "Warning, invalid internal protocol \"" << (const char*)iprotocol <<
-              "\" for resource \"" << resource.Name << "\", using default value \"" <<
-              resource.getClusterInternalProtocolStr() << "\"" );
-    }
-    xmlFree(iprotocol);
-  }
-  else
-    resource.ClusterInternalProtocol = resource.Protocol;
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_batch))
-  {
-    xmlChar* batch = xmlGetProp(machine_descr, (const xmlChar*)test_batch);
-    try
-    {
-      resource.setBatchTypeStr((const char *)batch);
-    }
-    catch (const ResourcesException &)
-    {
-      MESSAGE( "Warning, invalid batch manager \"" << (const char*)batch <<
-              "\" for resource \"" << resource.Name << "\", using default value \"" <<
-              resource.getBatchTypeStr() << "\"" );
-    }
-    xmlFree(batch);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_mpi))
-  {
-    xmlChar* mpi = xmlGetProp(machine_descr, (const xmlChar*)test_mpi);
-    try
-    {
-      resource.setMpiImplTypeStr((const char *)mpi);
-    }
-    catch (const ResourcesException &)
-    {
-      MESSAGE( "Warning, invalid MPI implementation \"" << (const char*)mpi <<
-              "\" for resource \"" << resource.Name << "\", using default value \"" <<
-              resource.getMpiImplTypeStr() << "\"" );
-    }
-    xmlFree(mpi);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_user_name))
-  {
-    xmlChar* user_name= xmlGetProp(machine_descr, (const xmlChar*)test_user_name);
-    resource.UserName = (const char*)user_name;
-    xmlFree(user_name);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_appli_path))
-  {
-    xmlChar* appli_path = xmlGetProp(machine_descr, (const xmlChar*)test_appli_path);
-    resource.AppliPath = (const char*)appli_path;
-    xmlFree(appli_path);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_os))
-  {
-    xmlChar* os = xmlGetProp(machine_descr, (const xmlChar*)test_os);
-    resource.OS = (const char*)os;
-    xmlFree(os);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_mem_in_mb))
-  {
-    xmlChar* mem_in_mb = xmlGetProp(machine_descr, (const xmlChar*)test_mem_in_mb);
-    resource.DataForSort._memInMB = atoi((const char*)mem_in_mb);
-    xmlFree(mem_in_mb);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_cpu_freq_mhz))
-  {
-    xmlChar* cpu_freq_mhz = xmlGetProp(machine_descr, (const xmlChar*)test_cpu_freq_mhz);
-    resource.DataForSort._CPUFreqMHz = atoi((const char*)cpu_freq_mhz);
-    xmlFree(cpu_freq_mhz);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_nb_of_nodes))
-  {
-    xmlChar* nb_of_nodes = xmlGetProp(machine_descr, (const xmlChar*)test_nb_of_nodes);
-    resource.DataForSort._nbOfNodes = atoi((const char*)nb_of_nodes);
-    xmlFree(nb_of_nodes);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_nb_of_proc_per_node))
-  {
-    xmlChar* nb_of_proc_per_node = xmlGetProp(machine_descr, (const xmlChar*)test_nb_of_proc_per_node);
-    resource.DataForSort._nbOfProcPerNode = atoi((const char*)nb_of_proc_per_node);
-    xmlFree(nb_of_proc_per_node);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_can_launch_batch_jobs))
-  {
-    xmlChar* can_launch_batch_jobs = xmlGetProp(machine_descr, (const xmlChar*)test_can_launch_batch_jobs);
-    try
-    {
-      resource.setCanLaunchBatchJobsStr((const char *)can_launch_batch_jobs);
-    }
-    catch (const ResourcesException &)
-    {
-      MESSAGE( "Warning, invalid can_launch_batch_jobs parameter value \"" <<
-              (const char*)can_launch_batch_jobs << "\" for resource \"" << resource.Name <<
-              "\", using default value \"" << resource.getCanLaunchBatchJobsStr() << "\"" );
-    }
-    xmlFree(can_launch_batch_jobs);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_can_run_containers))
-  {
-    xmlChar* can_run_containers = xmlGetProp(machine_descr, (const xmlChar*)test_can_run_containers);
-    try
-    {
-      resource.setCanRunContainersStr((const char *)can_run_containers);
-    }
-    catch (const ResourcesException &)
-    {
-      MESSAGE( "Warning, invalid can_run_containers parameter value \"" <<
-              (const char*)can_run_containers << "\" for resource \"" << resource.Name <<
-              "\", using default value \"" << resource.getCanRunContainersStr() << "\"" );
-    }
-    xmlFree(can_run_containers);
-  }
-
-  if (xmlHasProp(machine_descr, (const xmlChar*)test_working_directory))
-  {
-    xmlChar* working_directory = xmlGetProp(machine_descr, (const xmlChar*)test_working_directory);
-    resource.working_directory = (const char*)working_directory;
-    xmlFree(working_directory);
-  }
-
-  // Process children nodes
-  xmlNodePtr aCurSubNode = machine_descr->xmlChildrenNode;
-  while(aCurSubNode != NULL)
-  {
-    // Process components
-    if ( !xmlStrcmp(aCurSubNode->name, (const xmlChar*)test_components) )
-    {
-      //If a component is given, it is in a module with the same name
-      //except if the module name is given
-      if (xmlHasProp(aCurSubNode, (const xmlChar*)test_component_name)) 
-      {
-        xmlChar* component_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_component_name);
-        std::string aComponentName = (const char*)component_name;
-        resource.ComponentsList.push_back(aComponentName);
-        if (xmlHasProp(aCurSubNode, (const xmlChar*)test_module_name)) 
-        {
-          xmlChar* module_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
-          std::string aModuleName = (const char*)module_name;
-          resource.ModulesList.push_back(aModuleName);
-          xmlFree(module_name);
-        }
-        else
-          resource.ModulesList.push_back(aComponentName);
-        xmlFree(component_name);
-      }
-    }
-    // Process modules
-    else if ( !xmlStrcmp(aCurSubNode->name, (const xmlChar*)test_modules) )
-    {
-      // If a module is given, we create an entry in componentsList and modulesList
-      // with the same name (module == component)
-      if (xmlHasProp(aCurSubNode, (const xmlChar*)test_module_name)) 
-      {
-        xmlChar* component_name = xmlGetProp(aCurSubNode, (const xmlChar*)test_module_name);
-        std::string aComponentName = (const char*)component_name;
-        resource.ComponentsList.push_back(aComponentName);
-        resource.ModulesList.push_back(aComponentName);
-        xmlFree(component_name);
-      }
-    }
-    aCurSubNode = aCurSubNode->next;
-  }
-  return true;
+// #ifdef _DEBUG_
+//   for (std::map<std::string, ParserResourcesType>::const_iterator iter = _resources_list.begin();
+//        iter != _resources_list.end();
+//        iter++)
+//   {
+//     MESSAGE("************************************************");
+//     MESSAGE("Resource " << (*iter).first << " found:");
+//     MESSAGE( (*iter).second );
+//     MESSAGE("************************************************");
+//   }
+// #endif
 }
 
 //=============================================================================
@@ -697,56 +340,572 @@ SALOME_ResourcesCatalog_Handler::ProcessMachine(xmlNodePtr machine_descr, Parser
  */ 
 //=============================================================================
 
-void SALOME_ResourcesCatalog_Handler::PrepareDocToXmlFile(xmlDocPtr theDoc)
+void SALOME_ResourcesCatalog_Handler::writeXmlDoc(xmlDocPtr theDoc) const
 {
-  // Node pointers
-  xmlNodePtr root_node = NULL, node = NULL, node1 = NULL;
-
-  root_node = xmlNewNode(NULL, BAD_CAST "resources");
+  // Set root
+  xmlNodePtr root_node = xmlNewNode(NULL, tag_root);
   xmlDocSetRootElement(theDoc, root_node);
-    
-  std::map<std::string, ParserResourcesType>::iterator iter = _resources_list.begin();
-  for (; iter != _resources_list.end(); iter++)
-  {
-    node = xmlNewChild(root_node, NULL, BAD_CAST test_machine, NULL);
-    RES_MESSAGE("Add resource name = " << (*iter).second.Name.c_str());
-    xmlNewProp(node, BAD_CAST test_name, BAD_CAST (*iter).second.Name.c_str());
-    xmlNewProp(node, BAD_CAST test_hostname, BAD_CAST (*iter).second.HostName.c_str());
-    xmlNewProp(node, BAD_CAST test_type, BAD_CAST (*iter).second.getResourceTypeStr().c_str());
-    xmlNewProp(node, BAD_CAST test_appli_path, BAD_CAST (*iter).second.AppliPath.c_str());
-    xmlNewProp(node, BAD_CAST test_batch_queue, BAD_CAST (*iter).second.batchQueue.c_str());
-    xmlNewProp(node, BAD_CAST test_user_commands, BAD_CAST (*iter).second.userCommands.c_str());
-    xmlNewProp(node, BAD_CAST test_protocol, BAD_CAST (*iter).second.getAccessProtocolTypeStr().c_str());
-    xmlNewProp(node, BAD_CAST test_cluster_internal_protocol,
-               BAD_CAST (*iter).second.getClusterInternalProtocolStr().c_str());
-    xmlNewProp(node, BAD_CAST test_working_directory, BAD_CAST (*iter).second.working_directory.c_str());
-    xmlNewProp(node, BAD_CAST test_can_launch_batch_jobs,
-               BAD_CAST (*iter).second.getCanLaunchBatchJobsStr().c_str());
-    xmlNewProp(node, BAD_CAST test_can_run_containers,
-               BAD_CAST (*iter).second.getCanRunContainersStr().c_str());
-    xmlNewProp(node, BAD_CAST test_batch, BAD_CAST (*iter).second.getBatchTypeStr().c_str());
-    xmlNewProp(node, BAD_CAST test_mpi, BAD_CAST (*iter).second.getMpiImplTypeStr().c_str());
-    xmlNewProp(node, BAD_CAST test_user_name, BAD_CAST (*iter).second.UserName.c_str());
 
-    std::vector<std::string>::const_iterator iter2 = (*iter).second.ComponentsList.begin();
-    for(;iter2 != (*iter).second.ComponentsList.end(); iter2++)
+  // Write resources
+  writeNodeResourcesJob(root_node);
+  writeNodeResourcesContainer(root_node);
+}
+
+//=============================================================================
+/*!
+ *  Reads all machines inside job resources tag.
+ *  \param node: a pointer to node to read from
+ */ 
+//=============================================================================
+void SALOME_ResourcesCatalog_Handler::readNodeResourcesJob(xmlNodePtr node)
+{
+  MESSAGE("Read job resources...");
+
+  node = node->xmlChildrenNode;
+  while(node)
+  {
+    if (!xmlStrcmp(node->name, tag_machine))
     {
-      node1 = xmlNewChild(node, NULL, BAD_CAST test_components, NULL);
-      xmlNewProp(node1, BAD_CAST test_component_name, BAD_CAST (*iter2).c_str());
+      ParserResourcesTypeJob resource;
+      if (readMachineJob(node, resource))
+      {
+        addResourceToMap(resource, resourcesJob);
+      }
+    }
+    else
+    {
+      MESSAGE("Warning! Unexpected name of the child element: " << node->name);
     }
 
-    xmlNewProp(node, BAD_CAST test_os, BAD_CAST (*iter).second.OS.c_str());
-    std::ostringstream mem_stream;
-    mem_stream << (*iter).second.DataForSort._memInMB;
-    xmlNewProp(node, BAD_CAST test_mem_in_mb, BAD_CAST mem_stream.str().c_str());
-    std::ostringstream cpu_stream;
-    cpu_stream << (*iter).second.DataForSort._CPUFreqMHz;
-    xmlNewProp(node, BAD_CAST test_cpu_freq_mhz, BAD_CAST cpu_stream.str().c_str());
-    std::ostringstream nb_nodes_stream;
-    nb_nodes_stream << (*iter).second.DataForSort._nbOfNodes;
-    xmlNewProp(node, BAD_CAST test_nb_of_nodes, BAD_CAST nb_nodes_stream.str().c_str());
-    std::ostringstream nb_proc_per_nodes_stream;
-    nb_proc_per_nodes_stream << (*iter).second.DataForSort._nbOfProcPerNode;
-    xmlNewProp(node, BAD_CAST test_nb_of_proc_per_node, BAD_CAST nb_proc_per_nodes_stream.str().c_str());
+    node = node->next;
   }
 }
+
+//=============================================================================
+/*!
+ *  Reads all machines inside container resources tag.
+ *  \param node: a pointer to node to read from
+ */ 
+//=============================================================================
+void SALOME_ResourcesCatalog_Handler::readNodeResourcesContainer(xmlNodePtr node)
+{
+  MESSAGE("Read container resources...");
+
+  node = node->xmlChildrenNode;
+  while(node)
+  {
+    if (!xmlStrcmp(node->name, tag_machine))
+    {
+      ParserResourcesTypeContainer resource;
+      if (readMachineContainer(node, resource))
+      {
+        addResourceToMap(resource, resourcesContainer);
+      }
+    }
+    else
+    {
+      MESSAGE("Warning! Unexpected name of the child element: " << node->name);
+    }
+
+    node = node->next;
+  }
+}
+
+//=============================================================================
+/*!
+ *  Reads all attributes of job resource machine.
+ *  \param node: a pointer to node to read modules from
+ *  \param resource: a reference to job resource type object
+ */ 
+//=============================================================================
+bool SALOME_ResourcesCatalog_Handler::readMachineJob(xmlNodePtr node, ParserResourcesTypeJob& resource) const
+{
+  // Read common attributes
+  if (!readMachineCommon(node, resource))
+  {
+    return false;
+  }
+
+  // Read specific job attributes
+  try
+  {
+    resource.setMpiImplTypeStr(readAttr(node, attr_mpiImpl));
+  }
+  catch (const ResourcesException& e)
+  {
+    MESSAGE(e.msg << " Using default value.");
+  }
+
+  try
+  {
+    resource.setClusterInternalProtocolStr(readAttr(node, attr_iprotocol));
+  }
+  catch (const ResourcesException& e)
+  {
+    MESSAGE(e.msg << " Using default value.");
+  }
+
+
+  resource.working_directory = readAttr(node, attr_working_directory);
+
+  return true;
+}
+
+//=============================================================================
+/*!
+ *  Reads all attributes of container resource machine.
+ *  It's a single machine or a frontal node for a cluster managed by a batch manager
+ *  \param node: a pointer to node to read modules from
+ *  \param resource: a reference to container resource type object
+ */ 
+//=============================================================================
+bool SALOME_ResourcesCatalog_Handler::readMachineContainer(xmlNodePtr node, ParserResourcesTypeContainer& resource) const
+{
+  // Read common attributes
+  if (!readMachineCommon(node, resource))
+  {
+    return false;
+  }
+
+  // Read specific job attributes
+  // TODO: decide if we accept empty values here
+  resource.OS = readAttr(node, attr_os);
+
+  // Overrides a given default value only if we can get a valid conversion to int
+  auto readAttrInt = [&](const xmlChar* attrStr, unsigned int& attrValueOut) -> void
+  {
+    const std::string attrValueStr = readAttr(node, attrStr);
+    if (attrValueStr.empty())
+    {
+      return;
+    }
+
+    try
+    {
+      attrValueOut = std::stoi(attrValueStr);
+    }
+    catch(const std::exception& e)
+    {
+      MESSAGE(e.what());
+    }
+  };
+
+  resource.dataForSort.name = resource.name;
+  readAttrInt(attr_mem_mb, resource.dataForSort.mem_mb);
+  readAttrInt(attr_cpu_clock, resource.dataForSort.cpu_clock);
+  readAttrInt(attr_nb_node, resource.dataForSort.nb_node);
+  readAttrInt(attr_nb_proc_per_node, resource.dataForSort.nb_proc_per_node);
+  readAttrInt(attr_nb_of_proc, resource.nbOfProc);
+
+  // Read child nodes to get components and modules if we have any
+  node = node->xmlChildrenNode;
+  while(node)
+  {
+    readComponent(node, resource);
+    readModule(node, resource);
+
+    node = node->next;
+  }
+
+  return true;
+}
+
+//=============================================================================
+/*!
+ *  Reads all components of container resource machine.
+ *  \param node: a pointer to node to read modules from
+ *  \param resource: a reference to container resource type object
+ */ 
+//=============================================================================
+void SALOME_ResourcesCatalog_Handler::readComponent(xmlNodePtr node, ParserResourcesTypeContainer& resource) const
+{
+  if (!xmlStrcmp(node->name, tag_component))
+  {
+    // If a component is given, it is in a module with the same name
+    // except if the module name is given
+    const std::string componentName = readAttr(node, attr_component_name);
+    if (!componentName.empty())
+    {
+      resource.componentList.push_back(componentName);
+
+      const std::string moduleName = readAttr(node, attr_module_name);
+      if (!moduleName.empty())
+      {
+        resource.ModulesList.push_back(moduleName);
+      }
+      else
+      {
+        resource.ModulesList.push_back(componentName);
+      }            
+    }
+  }
+}
+
+//=============================================================================
+/*!
+ *  Reads all modules of container resource machine.
+ *  \param node: a pointer to node to read modules from
+ *  \param resource: a reference to container resource type object
+ */ 
+//=============================================================================
+void SALOME_ResourcesCatalog_Handler::readModule(xmlNodePtr node, ParserResourcesTypeContainer& resource) const
+{
+  if ( !xmlStrcmp(node->name, tag_modules) )
+  {
+    // If a module is given, we create an entry in componentsList and modulesList
+    // with the same name (module == component)
+    const std::string moduleName = readAttr(node, attr_module_name);
+
+    if (!moduleName.empty())
+    {
+      resource.componentList.push_back(moduleName);
+      resource.ModulesList.push_back(moduleName);
+    }
+  }
+}
+
+// //=============================================================================
+// /*!
+//  * Here, a cluster is NOT the frontal node of a cluster managed by a batch manager (classical
+//  * usage of a cluster). It is a group of machines intended to be used for a parallel container.
+//  * The methods readNodeClaster and readNodeClasterMember are only used in the context of parallel
+//  * containers. They are not used in classical Salome usage scenarios.
+//  *  \param node: a pointer to node to read from
+//  */ 
+// //=============================================================================
+// void SALOME_ResourcesCatalog_Handler::readNodeCluster(xmlNodePtr node)
+// {
+//   // TODO: change implementation after we know if we need to process clusters as job or containers or both
+// }
+
+// //=============================================================================
+// /*!
+//  * Reads a member of a cluster
+//  *  \param node: a pointer to node to read from
+//  *  \param resource: a reference to container resource type object
+//  */ 
+// //=============================================================================
+// bool SALOME_ResourcesCatalog_Handler::readNodeClusterMember(xmlNodePtr node, ParserResourcesTypeContainer& resource)
+// {
+//   // TODO: add implementation
+//   return true;
+// }
+
+//=============================================================================
+/*!
+ *  Reads an attribute from XML node. Rases a warning if there's not any.
+ *  It's on the caller side to decide if an attribute is mandatory or not.
+ *  \param node: a pointer to node to read attribute from
+ *  \param attr: an attribute's name
+ */ 
+//=============================================================================
+std::string SALOME_ResourcesCatalog_Handler::readAttr(xmlNodePtr node, const xmlChar* attr)
+{
+  if (xmlHasProp(node, attr))
+  {
+    xmlChar* attrValue = xmlGetProp(node, attr);
+    const std::string attrValueStr((const char*)attrValue);
+    xmlFree(attrValue);
+
+    return attrValueStr;
+  }
+
+  MESSAGE("Couldn't find an attribute: " << attr);
+  return {};
+}
+
+//=============================================================================
+/*!
+ *  Write job resources as a child of a given node.
+ *  \param node: a pointer to the parent node
+ */ 
+//=============================================================================
+void SALOME_ResourcesCatalog_Handler::writeNodeResourcesJob(xmlNodePtr node) const
+{
+  node = xmlNewChild(node, NULL, tag_resources_job, NULL);
+  for (const auto& res : resourcesJob)
+  {
+    writeMachineJob(node, res.second);
+  }
+}
+
+//=============================================================================
+/*!
+ *  Write container resources as a child of a given node.
+ *  \param node: a pointer to the parent node
+ */ 
+//=============================================================================
+void SALOME_ResourcesCatalog_Handler::writeNodeResourcesContainer(xmlNodePtr node) const
+{
+  node = xmlNewChild(node, NULL, tag_resources_container, NULL);
+  for (const auto& res : resourcesContainer)
+  {
+    writeMachineContainer(node, res.second);
+  }  
+}
+
+//=============================================================================
+/*!
+ *  Write a given job resource as a child of a given node.
+ *  \param node: a pointer to the parent node
+ *  \param resource: a reference to the job resource type object
+ */ 
+//=============================================================================
+void SALOME_ResourcesCatalog_Handler::writeMachineJob(xmlNodePtr node, const ParserResourcesTypeJob& resource) const
+{
+  // Common part
+  MESSAGE("Add resource name = " << resource.name);
+
+  node = xmlNewChild(node, NULL, tag_machine, NULL);
+  writeMachineCommon(node, resource);
+
+  // Specific job's attributes
+  xmlNewProp(node, attr_mpiImpl, BAD_CAST resource.getMpiImplTypeStr().c_str());
+  xmlNewProp(node, attr_iprotocol, BAD_CAST resource.getClusterInternalProtocolStr().c_str());
+  xmlNewProp(node, attr_working_directory, BAD_CAST resource.working_directory.c_str());
+}
+
+//=============================================================================
+/*!
+ *  Write a given container resource as a child of a given node.
+ *  \param node: a pointer to the parent node
+ *  \param resource: a reference to the container resource type object
+ */ 
+//=============================================================================
+void SALOME_ResourcesCatalog_Handler::writeMachineContainer(xmlNodePtr node, const ParserResourcesTypeContainer& resource) const
+{
+  // Common part
+  MESSAGE("Add resource name = " << resource.name);
+
+  node = xmlNewChild(node, NULL, tag_machine, NULL);
+  writeMachineCommon(node, resource);
+
+  // Specific container's attributes
+  xmlNewProp(node, attr_os, BAD_CAST resource.OS.c_str());
+  xmlNewProp(node, attr_mem_mb, BAD_CAST std::to_string(resource.dataForSort.mem_mb).c_str());
+  xmlNewProp(node, attr_cpu_clock, BAD_CAST std::to_string(resource.dataForSort.cpu_clock).c_str());
+  xmlNewProp(node, attr_nb_node, BAD_CAST std::to_string(resource.dataForSort.nb_node).c_str());
+  xmlNewProp(node, attr_nb_proc_per_node, BAD_CAST std::to_string(resource.dataForSort.nb_proc_per_node).c_str());
+  xmlNewProp(node, attr_nb_of_proc, BAD_CAST std::to_string(resource.nbOfProc).c_str());
+
+  writeComponents(node, resource);
+}
+
+//=============================================================================
+/*!
+ *  Write all the components of a given container resource as children of a given node.
+ *  \param node: a pointer to the parent node
+ *  \param resource: a reference to the container resource type object
+ */ 
+//=============================================================================
+void SALOME_ResourcesCatalog_Handler::writeComponents(xmlNodePtr node, const ParserResourcesTypeContainer& resource) const
+{
+  for (const auto& component : resource.componentList)
+  {
+    xmlNodePtr nodeComp = xmlNewChild(node, NULL, tag_component, NULL);
+    xmlNewProp(nodeComp, attr_component_name, BAD_CAST component.c_str());
+  }
+}
+
+
+// All the commented code below should be deleted after decision on cluster reading.
+// Leaved here for implementation reference. 
+
+// bool
+// SALOME_ResourcesCatalog_Handler::ProcessCluster(xmlNodePtr cluster_descr, ParserResourcesType & resource)
+// {
+//   // Ajout d'un cluster
+//   // hostname, use et nbOfProc sont obligatoires
+//   if (xmlHasProp(cluster_descr, attr_hostname))
+//   {
+//     xmlChar* hostname = xmlGetProp(cluster_descr, attr_hostname);
+//     resource.HostName = (const char*)hostname;
+//     xmlFree(hostname);
+//   }
+//   else
+//   {
+//     MESSAGE("Warning! Found a cluster without a hostname. This cluster will not be added.");
+//     return false;
+//   }
+
+//   if (xmlHasProp(cluster_descr, attr_name))
+//   {
+//     xmlChar* name = xmlGetProp(cluster_descr, attr_name);
+//     resource.Name = (const char*)name;
+//     resource.DataForSort._Name = (const char*)name;
+//     xmlFree(name);
+//   }
+//   else
+//   {
+//     resource.Name = resource.HostName;
+//     resource.DataForSort._Name = resource.HostName;
+//     MESSAGE("Warning! No Name found use Hostname for resource: " << resource.Name );
+//   }
+
+//   if (xmlHasProp(cluster_descr, tag_use))
+//   {
+//     xmlChar* use = xmlGetProp(cluster_descr, tag_use);
+//     resource.use = (const char*)use;
+//     xmlFree(use);
+//   }
+//   else
+//   {
+//     MESSAGE("Warning! Found a cluster without a use. This cluster will not be added.");
+//     return false;
+//   }
+
+//   if (xmlHasProp(cluster_descr, attr_nb_of_proc))
+//   {
+//     xmlChar* nb_of_proc = xmlGetProp(cluster_descr, attr_nb_of_proc);
+//     resource.nbOfProc = atoi((const char*)nb_of_proc);
+//     xmlFree(nb_of_proc);
+//   }
+//   else
+//   {
+//     MESSAGE("Warning! Found a cluster without a nbOfProc. This cluster will not be added.");
+//     return false;
+//   }
+
+//   if (xmlHasProp(cluster_descr, attr_mpiImpl))
+//   {
+//     xmlChar* mpi = xmlGetProp(cluster_descr, attr_mpiImpl);
+//     std::string anMpi = (const char*)mpi;
+//     xmlFree(mpi);
+//     resource.setMpiImplTypeStr(anMpi);
+//   }
+
+//   // Parsing des membres du cluster 
+//   xmlNodePtr aCurSubNode = cluster_descr->xmlChildrenNode;
+//   while(aCurSubNode != NULL)
+//   {
+//     if (!xmlStrcmp(aCurSubNode->name, tag_members))
+//     {
+//        xmlNodePtr members = aCurSubNode->xmlChildrenNode;
+//        while (members != NULL)
+//        {
+//          // Process members
+//          if (!xmlStrcmp(members->name, tag_machine))
+//          {
+//            ParserResourcesType new_member;
+//            if (ProcessMember(members, new_member))
+//              resource.ClusterMembersList.push_back(new_member);
+//          }
+//          members = members->next;
+//        }
+//     }
+//     aCurSubNode = aCurSubNode->next;
+//   }
+
+//   // Test: Il faut au moins un membre pour que le cluster soit correct !
+//   if (resource.ClusterMembersList.empty())
+//   {
+//     MESSAGE("Warning! Found a cluster without a member. This cluster will not be added.");
+//     return false;
+//   }
+//   return true;
+// }
+
+// bool
+// SALOME_ResourcesCatalog_Handler::ProcessMember(xmlNodePtr member_descr, ParserResourcesType & resource)
+// {
+//   if (xmlHasProp(member_descr, attr_hostname))
+//   {
+//     xmlChar* hostname = xmlGetProp(member_descr, attr_hostname);
+//     resource.HostName = (const char*)hostname;
+//     xmlFree(hostname);
+//   }
+//   else
+//   {
+//     MESSAGE("Warning! Found a machine without a hostname. This machine will not be added.");
+//     return false;
+//   }
+
+//   if (xmlHasProp(member_descr, attr_protocol))
+//   {
+//     xmlChar* protocol= xmlGetProp(member_descr, attr_protocol);
+//     try
+//     {
+//       resource.setAccessProtocolTypeStr((const char *)protocol);
+//     }
+//     catch (const ResourcesException & )
+//     {
+//       MESSAGE("Warning! Found a machine with a bad protocol. This machine will not be added.");
+//       return false;
+//     }
+//     xmlFree(protocol);
+//   }
+//   else
+//   {
+//     MESSAGE("Warning! Found a machine without a protocol. This machine will not be added.");
+//     return false;
+//   }
+
+//   if (xmlHasProp(member_descr, attr_iprotocol))
+//   {
+//     xmlChar* iprotocol= xmlGetProp(member_descr, attr_iprotocol);
+//     try
+//     {
+//       resource.setClusterInternalProtocolStr((const char *)iprotocol);
+//     }
+//     catch (const ResourcesException &)
+//     {
+//       MESSAGE("Warning! Found a machine with a bad protocol. This machine will not be added.");
+//       return false;
+//     }
+//     xmlFree(iprotocol);
+//   }
+//   else
+//   {
+//     MESSAGE("Warning! Found a machine without a protocol. This machine will not be added.");
+//     return false;
+//   }
+
+//   if (xmlHasProp(member_descr, attr_username))
+//   {
+//     xmlChar* user_name= xmlGetProp(member_descr, attr_username);
+//     resource.UserName = (const char*)user_name;
+//     xmlFree(user_name);
+//   }
+//   else
+//   {
+//     MESSAGE("Warning! Found a machine without a user name. This machine will not be added.");
+//     return false;
+//   }
+
+//   if (xmlHasProp(member_descr, attr_nb_node))
+//   {
+//     xmlChar* nb_of_nodes = xmlGetProp(member_descr, attr_nb_node);
+//     resource.DataForSort._nbOfNodes = atoi((const char*)nb_of_nodes);
+//     xmlFree(nb_of_nodes);
+//   }
+//   else
+//   {
+//     MESSAGE("Warning! Found a machine without a nbOfNodes. This machine will not be added.");
+//     return false;
+//   }
+
+//   if (xmlHasProp(member_descr, attr_nb_proc_per_node))
+//   {
+//     xmlChar* nb_of_proc_per_node = xmlGetProp(member_descr, attr_nb_proc_per_node);
+//     resource.DataForSort._nbOfProcPerNode = atoi((const char*)nb_of_proc_per_node);
+//     xmlFree(nb_of_proc_per_node);
+//   }
+//   else
+//   {
+//     MESSAGE("Warning! Found a machine without a nbOfProcPerNode. This machine will not be added.");
+//     return false;
+//   }
+
+//   if (xmlHasProp(member_descr, attr_applipath))
+//   {
+//     xmlChar* appli_path = xmlGetProp(member_descr, attr_applipath);
+//     resource.AppliPath = (const char*)appli_path;
+//     xmlFree(appli_path);
+//   }
+//   else
+//   {
+//     MESSAGE("Warning! Found a machine without a AppliPath. This machine will not be added.");
+//     return false;
+//   }
+//   return true;
+// }

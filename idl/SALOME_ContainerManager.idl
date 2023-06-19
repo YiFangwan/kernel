@@ -64,7 +64,7 @@ struct ContainerParameters
   string parallelLib;
 
   //! Parameters to choose a resource
-  ResourceParameters resource_params;
+  ResourceParametersContainer resource_params;
 };
 
 /*! \brief Interface of the %containerManager

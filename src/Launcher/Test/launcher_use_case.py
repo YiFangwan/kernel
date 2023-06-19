@@ -31,7 +31,7 @@ if __name__ == '__main__':
   salome.salome_init()
   launcher = salome.naming_service.Resolve('/SalomeLauncher')
   job_params = salome.JobParameters()
-  job_params.resource_required = salome.ResourceParameters()
+  job_params.resource_required = salome.ResourceParametersContainer()
   job_params.resource_required.name = "localhost"
   job_params.resource_required.nb_proc = 1 # slurm: --ntasks
 

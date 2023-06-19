@@ -347,22 +347,21 @@ SALOME_Launcher::createJobWithFile(const char * xmlExecuteFile,
  */
 //=============================================================================
 CORBA::Boolean
-SALOME_Launcher::testBatch(const Engines::ResourceParameters& params)
+SALOME_Launcher::testBatch(const Engines::ResourceParametersJob& params)
 {
   MESSAGE("BEGIN OF SALOME_Launcher::testBatch");
   CORBA::Boolean rtn = false;
   try
   {
     // Consider only resources that can run batch jobs
-    Engines::ResourceParameters new_params(params);
-    new_params.can_launch_batch_jobs = true;
+    Engines::ResourceParametersJob new_params(params);
 
     // find a resource matching the required parameters
-    Engines::ResourceList *aMachineList = _ResManager->GetFittingResources(new_params);
+    Engines::ResourceList *aMachineList = _ResManager->GetFittingResourcesJob(new_params);
     if (aMachineList->length() == 0)
       throw SALOME_Exception("No resources have been found with your parameters");
 
-    const Engines::ResourceDefinition* p = _ResManager->GetResourceDefinition((*aMachineList)[0]);
+    const Engines::ResourceDefinitionJob* p = _ResManager->GetResourceDefinitionJob((*aMachineList)[0]);
         std::string resource_name(p->name);
     INFOS("Choose resource for test: " <<  resource_name);
 
@@ -629,7 +628,7 @@ SALOME_Launcher::JobParameters_CORBA2CPP(
   result.result_directory = job_parameters.result_directory.in();
   result.maximum_duration = job_parameters.maximum_duration.in();
 
-  result.resource_required = resourceParameters_CORBAtoCPP(job_parameters.resource_required);
+  result.resource_required = resourceParametersContainer_CORBAtoCPP(job_parameters.resource_required);
 
   result.queue = job_parameters.queue.in();
   result.partition = job_parameters.partition.in();
@@ -678,7 +677,7 @@ SALOME_Launcher::JobParameters_CPP2CORBA(const JobParameters_cpp& job_parameters
   result->result_directory = CORBA::string_dup(job_parameters.result_directory.c_str());
   result->maximum_duration = CORBA::string_dup(job_parameters.maximum_duration.c_str());
 
-  result->resource_required = resourceParameters_CPPtoCORBA(job_parameters.resource_required);
+  result->resource_required = resourceParametersContainer_CPPtoCORBA(job_parameters.resource_required);
 
   result->queue = CORBA::string_dup(job_parameters.queue.c_str());
   result->partition = CORBA::string_dup(job_parameters.partition.c_str());

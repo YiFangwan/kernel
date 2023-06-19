@@ -37,7 +37,7 @@
 #ifdef WIN32
 # include <io.h>
 #endif
-BatchTest::BatchTest(const Engines::ResourceDefinition& batch_descr)
+BatchTest::BatchTest(const Engines::ResourceDefinitionJob& batch_descr)
 {
 #ifdef WITH_LIBBATCH
   _batch_descr = batch_descr;

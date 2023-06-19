@@ -46,12 +46,12 @@ std::string Launcher::Job_CommandSALOME::runCommandString()
   struct stat statbuf;
   if(stat(getenv("APPLI"), &statbuf) ==0 &&  S_ISREG(statbuf.st_mode))
       // case of a salome launcher file
-      result << _resource_definition.AppliPath
+      result << _resource_definition.applipath
              << " shell ./"
              << _job_file_name_complete;
   else
       // case of a salome appli dir
-      result << _resource_definition.AppliPath
+      result << _resource_definition.applipath
              << "/salome shell ./"
              << _job_file_name_complete;
   return result.str();

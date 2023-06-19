@@ -44,7 +44,7 @@ Test with catalog :
 
   def test0(self):
     """"""
-    rp=LifeCycleCORBA.ResourceParameters(policy="best",componentList=["PYHELLO"])
+    rp=LifeCycleCORBA.ResourceParametersContainer(policy="best",componentList=["PYHELLO"])
     p=LifeCycleCORBA.ContainerParameters(container_name=self.container_name,mode="start",resource_params=rp)
     co=cm.GiveContainer( p )
     host1=co.getHostName()
@@ -57,7 +57,7 @@ Test with catalog :
 
   def test1(self):
     """"""
-    rp=LifeCycleCORBA.ResourceParameters(policy="best",componentList=["PYHELLO"])
+    rp=LifeCycleCORBA.ResourceParametersContainer(policy="best",componentList=["PYHELLO"])
     p=LifeCycleCORBA.ContainerParameters(container_name=self.container_name,mode="get",resource_params=rp)
     co=cm.GiveContainer( p )
     host1=co.getHostName()
@@ -70,7 +70,7 @@ Test with catalog :
 
   def test2(self):
     """"""
-    rp=LifeCycleCORBA.ResourceParameters(policy="best",componentList=["PYHELLO"])
+    rp=LifeCycleCORBA.ResourceParametersContainer(policy="best",componentList=["PYHELLO"])
     p=LifeCycleCORBA.ContainerParameters(container_name=self.container_name,mode="getorstart",resource_params=rp)
     co=cm.GiveContainer( p )
     host1=co.getHostName()

@@ -17,14 +17,13 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See https://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "SALOME_ResourcesManager_Client.hxx"
 #include "SALOME_ResourcesManager.hxx"
 #include "SALOME_NamingService_Abstract.hxx"
 
-using namespace std;
 
 SALOME_ResourcesManager_Client::SALOME_ResourcesManager_Client(SALOME_NamingService_Abstract *ns)
   : _rm(Engines::ResourcesManager::_nil())
@@ -41,36 +40,48 @@ SALOME_ResourcesManager_Client::~SALOME_ResourcesManager_Client()
   
 }
 
-vector<string> SALOME_ResourcesManager_Client::GetFittingResources(const resourceParams& params)
+std::string SALOME_ResourcesManager_Client::Find(const std::string& policy, const ResourceList& possibleContainerResources) const
 {
-  Engines::ResourceParameters_var corba_params = resourceParameters_CPPtoCORBA(params);
-  Engines::ResourceList_var corba_rl = _rm->GetFittingResources(corba_params);
-  vector<string> res = resourceList_CORBAtoCPP(corba_rl);
-  return res;
-}
-
-string SALOME_ResourcesManager_Client::Find(const string & policy, const vector<string> & listOfResources)
-{
-  Engines::ResourceList_var corba_rl = resourceList_CPPtoCORBA(listOfResources);
+  Engines::ResourceList_var corba_rl = resourceList_CPPtoCORBA(possibleContainerResources);
   CORBA::String_var corba_res = _rm->Find(policy.c_str(), corba_rl);
-  string res = corba_res.in();
-  return res;
+
+  return corba_res.in();
 }
 
-ParserResourcesType SALOME_ResourcesManager_Client::GetResourceDefinition(const std::string & name)
+ResourceList SALOME_ResourcesManager_Client::GetFittingResourcesJob(const resourceParamsJob& params) const
 {
-  Engines::ResourceDefinition_var corba_res = _rm->GetResourceDefinition(name.c_str());
-  ParserResourcesType res = resourceDefinition_CORBAtoCPP(corba_res);
-  return res;
+  Engines::ResourceParametersJob_var corba_params = resourceParametersJob_CPPtoCORBA(params);
+  Engines::ResourceList_var corba_rl = _rm->GetFittingResourcesJob(corba_params);
+
+  return resourceList_CORBAtoCPP(corba_rl);
 }
 
-string SALOME_ResourcesManager_Client::getMachineFile(const string & resource_name,
+ResourceList SALOME_ResourcesManager_Client::GetFittingResourcesContainer(const resourceParamsContainer& params) const
+{
+  Engines::ResourceParametersContainer_var corba_params = resourceParametersContainer_CPPtoCORBA(params);
+  Engines::ResourceList_var corba_rl = _rm->GetFittingResourcesContainer(corba_params);
+
+  return resourceList_CORBAtoCPP(corba_rl);
+}
+
+ParserResourcesTypeJob SALOME_ResourcesManager_Client::GetResourceDefinitionJob(const std::string& name) const
+{
+  const auto corba_res = _rm->GetResourceDefinitionJob(name.c_str());
+  return resourceDefinitionJob_CORBAtoCPP(*corba_res);
+}
+
+ParserResourcesTypeContainer SALOME_ResourcesManager_Client::GetResourceDefinitionContainer(const std::string & name) const
+{
+  const auto corba_res = _rm->GetResourceDefinitionContainer(name.c_str());
+  return resourceDefinitionContainer_CORBAtoCPP(*corba_res);
+}
+
+std::string SALOME_ResourcesManager_Client::getMachineFile(const std::string& resource_name,
                                                       long nb_procs,
-                                                      const string & parallelLib)
+                                                      const std::string& parallelLib)
 {
   CORBA::String_var corba_res = _rm->getMachineFile(resource_name.c_str(),
                                                     nb_procs,
                                                     parallelLib.c_str());
-  string res = corba_res.in();
-  return res;
+  return corba_res.in();
 }

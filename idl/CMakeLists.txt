@@ -30,6 +30,9 @@ SET(SalomeIDLKernel_IDLSOURCES
   SALOME_Exception.idl
   SALOME_Comm.idl
   SALOME_ModuleCatalog.idl
+  SALOME_Resource.idl
+  SALOME_ResourceJob.idl
+  SALOME_ResourceContainer.idl
   SALOME_ResourcesManager.idl
   SALOME_Launcher.idl
   SALOMEDS.idl

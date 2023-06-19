@@ -2261,9 +2261,9 @@ Engines_Container_SSL_i *KERNEL::getContainerSA()
     CORBA::PolicyList policies;
     policies.length(0);
     //
-    char *argv[4] = {"Container","FactoryServer","toto",nullptr};
+    char *argv[4] = { (char*)"Container", (char*)"FactoryServer", (char*)"toto",nullptr};
     SALOME_Fake_NamingService ns;
-    _container_singleton_ssl = new Engines_Container_SSL_i(orb,poa,"FactoryServer",2,argv,&ns,false);
+    _container_singleton_ssl = new Engines_Container_SSL_i(orb,poa,(char*)"FactoryServer",2,argv,&ns,false);
     PortableServer::ObjectId * cont_id = _container_singleton_ssl->getCORBAId();
     //
     CORBA::Object_var zeRef = poa->id_to_reference(*cont_id);

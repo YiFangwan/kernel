@@ -17,15 +17,14 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See https://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "SALOME_LoadRateManager.hxx"
-#include <iostream>
-#include <map>
+
 
 std::string LoadRateManagerFirst::Find(const std::vector<std::string>& hosts,
-                                       const MapOfParserResourcesType& /*resList*/)
+                                       const ParserResourcesTypeContainer::TypeMap& /*resList*/)
 {
   if (hosts.size() == 0)
     return std::string("");
@@ -34,7 +33,7 @@ std::string LoadRateManagerFirst::Find(const std::vector<std::string>& hosts,
 }
 
 std::string LoadRateManagerCycl::Find(const std::vector<std::string>& hosts,
-                                      const MapOfParserResourcesType& resList)
+                                      const ParserResourcesTypeContainer::TypeMap& resList)
 {
   static int imachine = 0;
   static int iproc = 0;
@@ -42,29 +41,32 @@ std::string LoadRateManagerCycl::Find(const std::vector<std::string>& hosts,
   // if empty list return empty string
   if (hosts.size() == 0)
     return std::string("");
-  else{
-    MapOfParserResourcesType::const_iterator it(resList.find(hosts[imachine]));
-    ParserResourcesType resource;
-    if(it!=resList.end())
-      resource = (*it).second;
-    int nbproc = resource.DataForSort._nbOfProcPerNode * resource.DataForSort._nbOfNodes;
-    if( nbproc <= 0) nbproc = 1;
-    if( iproc < nbproc ){
-      iproc++;
-      return std::string(hosts[imachine]);
-    }
-    else{
-      iproc = 1;
-      imachine++;
-      if(imachine >= (int)hosts.size())
-        imachine = 0;
-      return std::string(hosts[imachine]);
-    }
+
+  const auto it = resList.find(hosts[imachine]);
+  ParserResourcesTypeContainer resource;
+  if (it != resList.end())
+    resource = (*it).second;
+
+  int nbproc = resource.dataForSort.nb_proc_per_node * resource.dataForSort.nb_node;
+  if( nbproc <= 0)
+    nbproc = 1;
+
+  if( iproc < nbproc )
+  {
+    iproc++;
+    return hosts[imachine];
   }
+
+  iproc = 1;
+  imachine++;
+  if(imachine >= (int)hosts.size())
+    imachine = 0;
+
+  return hosts[imachine];
 }
 
 std::string LoadRateManagerAltCycl::Find(const std::vector<std::string>& hosts,
-                                         const MapOfParserResourcesType& /*resList*/)
+                                         const ParserResourcesTypeContainer::TypeMap& /*resList*/)
 {
   if (hosts.size() == 0)
     return std::string("");
@@ -77,16 +79,16 @@ std::string LoadRateManagerAltCycl::Find(const std::vector<std::string>& hosts,
     uses=0;
 
   for (std::vector<std::string>::const_iterator iter = hosts.begin(); iter != hosts.end(); iter++)
-    {
-      std::string machine=*iter;
-      if(_numberOfUses.count(machine) == 0)
-        _numberOfUses[machine]=0;
-      if(_numberOfUses[machine] < uses)
-        {
-          selected=machine;
-          uses=_numberOfUses[machine];
-        }
-    }
+  {
+    std::string machine=*iter;
+    if(_numberOfUses.count(machine) == 0)
+      _numberOfUses[machine]=0;
+    if(_numberOfUses[machine] < uses)
+      {
+        selected=machine;
+        uses=_numberOfUses[machine];
+      }
+  }
 
   _numberOfUses[selected]=_numberOfUses[selected]+1;
   //std::cerr << "selected: " << selected << " " << _numberOfUses[selected] << std::endl;

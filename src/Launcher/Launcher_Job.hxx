@@ -29,9 +29,6 @@
 #include <time.h>
 #include <sys/stat.h>
 
-#include <string>
-#include <list>
-#include <map>
 #include <iostream>
 #include <sstream>
 #include <algorithm>
@@ -61,8 +58,8 @@ namespace Launcher
       void setNumber(const int & number);
       int getNumber();
 
-      virtual void setResourceDefinition(const ParserResourcesType & resource_definition);
-      ParserResourcesType getResourceDefinition() const;
+      virtual void setResourceDefinition(const ParserResourcesTypeJob& resource_definition);
+      ParserResourcesTypeJob getResourceDefinition() const;
 
       // Common parameters
       void setJobName(const std::string & job_name);
@@ -74,7 +71,7 @@ namespace Launcher
       void add_in_file(const std::string & file);
       void add_out_file(const std::string & file);
       void setMaximumDuration(const std::string & maximum_duration);
-      void setResourceRequiredParams(const resourceParams & resource_required_params);
+      void setResourceRequiredParams(const resourceParamsContainer & resource_required_params);
       void setQueue(const std::string & queue);
       void setPartition(const std::string & partition);
       void setEnvFile(const std::string & env_file);
@@ -97,7 +94,7 @@ namespace Launcher
       const std::list<std::string> & get_in_files() const;
       const std::list<std::string> & get_out_files() const;
       std::string getMaximumDuration() const;
-      resourceParams getResourceRequiredParams() const;
+      resourceParamsContainer getResourceRequiredParams() const;
       std::string getQueue() const;
       std::string getPartition() const;
       std::string getEnvFile() const;
@@ -122,7 +119,7 @@ namespace Launcher
 
       // Checks
       void checkMaximumDuration(const std::string & maximum_duration);
-      void checkResourceRequiredParams(const resourceParams & resource_required_params);
+      void checkResourceRequiredParams(const resourceParamsContainer & resource_required_params);
 
       // Helps
       long convertMaximumDuration(const std::string & maximum_duration);
@@ -144,7 +141,7 @@ namespace Launcher
       std::string _launch_date;
       std::string _env_file;
 
-      ParserResourcesType _resource_definition;
+      ParserResourcesTypeJob _resource_definition;
 
       std::string _job_name;
       std::string _job_file;
@@ -160,7 +157,7 @@ namespace Launcher
       std::map<std::string, std::string> _specific_parameters;
       std::string _maximum_duration;
       long _maximum_duration_in_second;
-      resourceParams _resource_required_params;
+      resourceParamsContainer _resource_required_params;
       std::string _queue;
       std::string _partition;
       bool _exclusive;

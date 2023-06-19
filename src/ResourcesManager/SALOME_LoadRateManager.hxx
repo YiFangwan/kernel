@@ -17,42 +17,40 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See https://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #ifndef __SALOME_LOADRATEMANAGER_HXX__
 #define __SALOME_LOADRATEMANAGER_HXX__
 
 #include "ResourcesManager_Defs.hxx"
-#include <string>
-#include <map>
-#include "SALOME_ResourcesCatalog_Parser.hxx"
+#include "SALOME_ParserResourcesTypeContainer.hxx"
 
 class RESOURCESMANAGER_EXPORT LoadRateManager
 {
   public:
-    virtual std::string Find(const std::vector<std::string>& /*hosts*/, const MapOfParserResourcesType& /*resList*/) { return ""; }
+    virtual std::string Find(const std::vector<std::string>& /*hosts*/, const ParserResourcesTypeContainer::TypeMap& /*resList*/) { return ""; }
 };
 
 class RESOURCESMANAGER_EXPORT LoadRateManagerFirst : public LoadRateManager
 {
   public:
     virtual std::string Find(const std::vector<std::string>& hosts,
-                             const MapOfParserResourcesType& resList);
+                             const ParserResourcesTypeContainer::TypeMap& resList);
 };
 
 class RESOURCESMANAGER_EXPORT LoadRateManagerCycl : public LoadRateManager
 {
   public:
     virtual std::string Find(const std::vector<std::string>& hosts,
-                             const MapOfParserResourcesType& resList);
+                             const ParserResourcesTypeContainer::TypeMap& resList);
 };
 
 class RESOURCESMANAGER_EXPORT LoadRateManagerAltCycl : public LoadRateManager
 {
   public:
     virtual std::string Find(const std::vector<std::string>& hosts,
-                             const MapOfParserResourcesType& resList);
+                             const ParserResourcesTypeContainer::TypeMap& resList);
   protected:
     std::map<std::string,int> _numberOfUses;
 };

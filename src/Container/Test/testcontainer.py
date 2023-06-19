@@ -20,7 +20,7 @@
 
 import unittest
 from os import getcwd
-from Engines import ContainerParameters, ResourceParameters
+from Engines import ContainerParameters, ResourceParametersContainer
 import SALOME
 import salome
 
@@ -28,10 +28,9 @@ from time import sleep
 
 class TestResourceManager(unittest.TestCase):
     def getContainer(self, name):
-        rp = ResourceParameters(name="localhost",
+        rp = ResourceParametersContainer(
+                                name="localhost",
                                 hostname="localhost",
-                                can_launch_batch_jobs=False,
-                                can_run_containers=True,
                                 OS="Linux",
                                 componentList=[],
                                 nb_proc=1,

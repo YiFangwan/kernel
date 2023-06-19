@@ -52,7 +52,7 @@ def createJobParameters():
   return jp
 
 def createResourceParameters():
-  return pylauncher.resourceParams()
+  return pylauncher.resourceParamsContainer()
 
 # Test of SalomeLauncher.
 # This test should be run in the salome environment, using "salome shell".
@@ -76,9 +76,8 @@ class TestCompo(unittest.TestCase):
 
     # Get the list of possible ressources
     ressource_param = createResourceParameters()
-    ressource_param.can_launch_batch_jobs = True
     rm = createResourcesManager()
-    cls.ressources = rm.GetFittingResources(ressource_param)
+    cls.ressources = rm.GetFittingResourcesContainer(ressource_param)
 
   def verifyFile(self, path, content):
     try:
@@ -245,7 +244,7 @@ f.close()
       job_params.resource_required.name = resource
 
       # use the working directory of the resource
-      resParams = resManager.GetResourceDefinition(resource)
+      resParams = resManager.GetResourceDefinitionJob(resource)
       wd = os.path.join(resParams.working_directory,
                         "CommandJob" + self.suffix)
       job_params.work_directory = wd
@@ -349,7 +348,7 @@ f.close()
       job_params.resource_required.name = resource
 
       # use the working directory of the resource
-      resParams = resManager.GetResourceDefinition(resource)
+      resParams = resManager.GetResourceDefinitionJob(resource)
       wd = os.path.join(resParams.working_directory,
                         "YacsJob" + self.suffix)
       job_params.work_directory = wd
@@ -464,7 +463,7 @@ f.close()
       job_params.resource_required.name = resource
 
       # use the working directory of the resource
-      resParams = resManager.GetResourceDefinition(resource)
+      resParams = resManager.GetResourceDefinitionJob(resource)
       wd = os.path.join(resParams.working_directory,
                         "YacsJobOpt" + self.suffix)
       job_params.work_directory = wd
@@ -544,7 +543,7 @@ f.close()
       job_params.resource_required.name = resource
 
       # use the working directory of the resource
-      resParams = resManager.GetResourceDefinition(resource)
+      resParams = resManager.GetResourceDefinitionJob(resource)
       wd = os.path.join(resParams.working_directory,
                         "CommandPreJob" + self.suffix)
       job_params.work_directory = wd
@@ -638,7 +637,7 @@ f.close()
       job_params.resource_required.name = resource
 
       # use the working directory of the resource
-      resParams = resManager.GetResourceDefinition(resource)
+      resParams = resManager.GetResourceDefinitionJob(resource)
       wd = os.path.join(resParams.working_directory,
                         "CommandSalomeJob" + self.suffix)
       job_params.work_directory = wd

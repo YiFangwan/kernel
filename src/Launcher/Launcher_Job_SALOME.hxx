@@ -38,7 +38,7 @@ namespace Launcher
       Job_SALOME(bool activateSession=true);
       virtual ~Job_SALOME();
 
-      virtual void setResourceDefinition(const ParserResourcesType & resource_definition);
+      virtual void setResourceDefinition(const ParserResourcesTypeJob& resource_definition);
       virtual void update_job();
 
 #ifdef WITH_LIBBATCH

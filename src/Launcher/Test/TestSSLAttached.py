@@ -25,10 +25,9 @@ import salome
 import Engines
 
 salome.salome_init_without_session()
-rp=Engines.ResourceParameters(name="localhost",
+rp=Engines.ResourceParametersContainer(
+                                name="localhost",
                                 hostname="localhost",
-                                can_launch_batch_jobs=False,
-                                can_run_containers=True,
                                 OS="Linux",
                                 componentList=[],
                                 nb_proc=1,

@@ -1,0 +1,112 @@
+// Copyright (C) 2007-2022  CEA/DEN, EDF R&D, OPEN CASCADE
+//
+// Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
+// CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
+//
+// This library is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 2.1 of the License, or (at your option) any later version.
+//
+// This library is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public
+// License along with this library; if not, write to the Free Software
+// Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+//
+// See https://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+//
+
+#ifndef _SALOME_RESOURCEJOB_IDL_
+#define _SALOME_RESOURCEJOB_IDL_
+
+#include "SALOME_Resource.idl"
+
+/*! \file SALOME_ResourceJob.idl \brief interfaces for %SALOME Resource job parameters and definition
+*/
+
+module Engines
+{
+  
+//! Type to describe required properties of a job resource
+struct ResourceParametersJob
+{
+  // Common for all resources structs
+  //========================================================================================
+
+  //! resource name - manual selection
+  /*! If a name is provided, the resource will be imposed.
+      If the name is an empty string, the resource will be chosen to match
+      the other parameters.
+  */
+  string name;
+
+  //! host name
+  string hostname;
+
+  // Common for all resources parameters
+  //========================================================================================
+
+  // Permits to configure SALOME resource management
+  //! resource management policy : first, cycl, altcycl or best (can be extended)
+  string policy;
+
+  //! restricted list of resources to search in
+  ResourceList resList;
+};
+
+//!  Type to describe a job resource
+struct ResourceDefinitionJob
+{
+  // Common for all resources structs
+  //========================================================================================
+
+  //! resource name - manual selection
+  /*! If a name is provided, the resource will be imposed.
+      If the name is an empty string, the resource will be chosen to match
+      the other parameters.
+  */
+  string name;
+
+  //! host name
+  string hostname;
+
+  // Common for all resources definitions
+  //========================================================================================
+
+  //! protocol to connect to the resource and to start a remote container
+  //! Possible values:
+  //!   "rsh"   : uses rsh and rcp
+  //!   "ssh"   : uses ssh and scp
+  //!   "rsync" : uses ssh and rsync
+  string protocol;
+
+  //! login name to use to start a remote container
+  string username;
+  
+  //! salome application to use to start a remote container
+  string applipath;
+
+  //! batch system
+  string batch;
+
+  // Specific for job resources definitions
+  //========================================================================================
+
+  //! MPI implementation
+  string mpiImpl;
+
+  //! if the resource is a cluster:
+  //! internal protocol to use to start a remote container (ssh or rsh) on the cluster
+  string iprotocol;
+
+  //! Predefined working directory on the resource
+  string working_directory;
+};
+
+};
+  
+#endif

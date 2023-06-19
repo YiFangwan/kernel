@@ -28,7 +28,7 @@
 #include <SALOMEconfig.h>
 #include CORBA_CLIENT_HEADER(SALOME_Component)
 #include CORBA_CLIENT_HEADER(SALOME_ContainerManager)
-#include "SALOME_ResourcesCatalog_Parser.hxx"
+#include "SALOME_ParserResourcesTypeContainer.hxx"
 
 #include "Utils_Mutex.hxx"
 

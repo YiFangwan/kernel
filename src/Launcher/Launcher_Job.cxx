@@ -185,11 +185,11 @@ Launcher::Job::getNumber()
 }
 
 void
-Launcher::Job::setResourceDefinition(const ParserResourcesType & resource_definition)
+Launcher::Job::setResourceDefinition(const ParserResourcesTypeJob& resource_definition)
 {
   // Check machine_definition
   std::string user_name = "";
-  if (resource_definition.UserName == "")
+  if (resource_definition.username == "")
   {
 #ifndef WIN32
     struct passwd *pwd = getpwuid(getuid());
@@ -210,13 +210,13 @@ Launcher::Job::setResourceDefinition(const ParserResourcesType & resource_defini
     }
   }
   else
-    user_name = resource_definition.UserName;
+    user_name = resource_definition.username;
 
   _resource_definition = resource_definition;
-  _resource_definition.UserName = user_name;
+  _resource_definition.username = user_name;
 }
 
-ParserResourcesType
+ParserResourcesTypeJob
 Launcher::Job::getResourceDefinition() const
 {
   return _resource_definition;
@@ -315,7 +315,7 @@ Launcher::Job::setLauncherArgs(const std::string & launcher_args)
 }
 
 void
-Launcher::Job::setResourceRequiredParams(const resourceParams & resource_required_params)
+Launcher::Job::setResourceRequiredParams(const resourceParamsContainer& resource_required_params)
 {
   checkResourceRequiredParams(resource_required_params);
   _resource_required_params = resource_required_params;
@@ -422,7 +422,7 @@ Launcher::Job::getLauncherArgs() const
         return _launcher_args;
 }
 
-resourceParams
+resourceParamsContainer
 Launcher::Job::getResourceRequiredParams() const
 {
   return _resource_required_params;
@@ -527,14 +527,15 @@ Launcher::Job::checkMaximumDuration(const std::string & maximum_duration)
 }
 
 void
-Launcher::Job::checkResourceRequiredParams(const resourceParams & resource_required_params)
+Launcher::Job::checkResourceRequiredParams(const resourceParamsContainer& resource_required_params)
 {
+  // TODO: check if we need this check for a job:
   // nb_proc has be to > 0
-  if (resource_required_params.nb_proc <= 0)
-  {
-    std::string message("[Launcher::Job::checkResourceRequiredParams] proc number is not > 0 ! ");
-    throw LauncherException(message);
-  }
+  // if (resource_required_params.nb_proc <= 0)
+  // {
+  //   std::string message("[Launcher::Job::checkResourceRequiredParams] proc number is not > 0 ! ");
+  //   throw LauncherException(message);
+  // }
 }
 
 long
@@ -614,22 +615,23 @@ Launcher::Job::common_job_params()
   Batch::Parametre params;
 
   params[Batch::NAME] = getJobName();
-  params[Batch::NBPROC] = _resource_required_params.nb_proc;
-  if(_resource_required_params.nb_proc_per_node > 0)
-    params[Batch::NBPROCPERNODE] = _resource_required_params.nb_proc_per_node;
+  // TODO: check if we use this params for jobs:
+  // params[Batch::NBPROC] = _resource_required_params.nb_proc;
+  // if(_resource_required_params.nb_proc_per_node > 0)
+  //   params[Batch::NBPROCPERNODE] = _resource_required_params.nb_proc_per_node;
 
-  if(_resource_required_params.nb_node > 0)
-    params[Batch::NBNODE] = _resource_required_params.nb_node;
+  // if(_resource_required_params.nb_node > 0)
+  //   params[Batch::NBNODE] = _resource_required_params.nb_node;
 
-  // Memory in megabytes
-  if (_resource_required_params.mem_mb > 0)
-  {
-    params[Batch::MAXRAMSIZE] = _resource_required_params.mem_mb;
-  }
-  else if (_mem_per_cpu > 0)
-  {
-    params[Batch::MEMPERCPU] = (long)_mem_per_cpu;
-  }
+  // // Memory in megabytes
+  // if (_resource_required_params.mem_mb > 0)
+  // {
+  //   params[Batch::MAXRAMSIZE] = _resource_required_params.mem_mb;
+  // }
+  // else if (_mem_per_cpu > 0)
+  // {
+  //   params[Batch::MEMPERCPU] = (long)_mem_per_cpu;
+  // }
 
   // We define a default directory
   if (_work_directory == "")

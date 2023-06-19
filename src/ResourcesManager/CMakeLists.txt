@@ -40,7 +40,10 @@ SET(COMMON_LIBS
 )
 
 SET(ResourcesManager_SOURCES
-    SALOME_ResourcesCatalog_Parser.cxx
+    SALOME_ParserResourceDataToSort.cxx
+    SALOME_ParserResourcesType.cxx
+    SALOME_ParserResourcesTypeContainer.cxx
+    SALOME_ParserResourcesTypeJob.cxx
     SALOME_ResourcesCatalog_Handler.cxx
     SALOME_LoadRateManager.cxx
     ResourcesManager.cxx
@@ -67,7 +70,11 @@ SET(COMMON_HEADERS_HXX
   ResourcesManager.hxx
   ResourcesManager_Defs.hxx
   SALOME_LoadRateManager.hxx
-  SALOME_ResourcesCatalog_Parser.hxx
+  SALOME_ParserResourceDataToSort.hxx
+  SALOME_ParserResourcesType.hxx
+  SALOME_ParserResourcesTypeCommon.hxx
+  SALOME_ParserResourcesTypeContainer.hxx
+  SALOME_ParserResourcesTypeJob.hxx
   SALOME_ResourcesManager.hxx
   SALOME_ResourcesManager_Client.hxx
   SALOME_ResourcesManager_Common.hxx

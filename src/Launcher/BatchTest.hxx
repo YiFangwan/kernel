@@ -33,7 +33,7 @@
 class SALOMELAUNCHER_EXPORT BatchTest 
 {
   public:
-    BatchTest(const Engines::ResourceDefinition& batch_descr);
+    BatchTest(const Engines::ResourceDefinitionJob& batch_descr);
     virtual ~BatchTest();
 
     bool test();
@@ -49,7 +49,7 @@ class SALOMELAUNCHER_EXPORT BatchTest
     std::string get_home(std::string * home);
   
   private:
-    Engines::ResourceDefinition _batch_descr;
+    Engines::ResourceDefinitionJob _batch_descr;
     std::string _test_filename;
     std::string _base_filename;
     std::string _date;

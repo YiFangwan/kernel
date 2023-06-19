@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2023  CEA, EDF, OPEN CASCADE
+// Copyright (C) 2007-2023  CEA/DEN, EDF R&D, OPEN CASCADE
 //
 // Copyright (C) 2003-2007  OPEN CASCADE, EADS/CCR, LIP6, CEA/DEN,
 // CEDRAT, EDF R&D, LEG, PRINCIPIA R&D, BUREAU VERITAS
@@ -29,72 +29,61 @@
 #ifndef SALOME_RESOURCES_CATALOG_HANDLER
 #define SALOME_RESOURCES_CATALOG_HANDLER
 
-
 #include "ResourcesManager_Defs.hxx"
 
-#include "SALOME_ResourcesCatalog_Parser.hxx"
-
-#include <string>
-#include <vector>
+#include "SALOME_ParserResourcesTypeJob.hxx"
+#include "SALOME_ParserResourcesTypeContainer.hxx"
 
 #include <libxml/parser.h>
 
 class RESOURCESMANAGER_EXPORT SALOME_ResourcesCatalog_Handler
 {
-  
-  public :
-    SALOME_ResourcesCatalog_Handler(MapOfParserResourcesType& resources_list);
+public :
+  SALOME_ResourcesCatalog_Handler() = delete;
+  SALOME_ResourcesCatalog_Handler(
+    ParserResourcesTypeJob::TypeMap& resourcesJob,
+    ParserResourcesTypeContainer::TypeMap& resourcesContainer
+    );
 
-    const MapOfParserResourcesType& GetResourcesAfterParsing() const;
+  virtual ~SALOME_ResourcesCatalog_Handler();
 
-    virtual ~SALOME_ResourcesCatalog_Handler();
+  const ParserResourcesTypeJob::TypeMap& getResourcesJob() const;
+  const ParserResourcesTypeContainer::TypeMap& getResourcesContainer() const;
 
-    void ProcessXmlDocument(xmlDocPtr theDoc);
+  void readXmlDoc(xmlDocPtr theDoc);
+  void writeXmlDoc(xmlDocPtr theDoc) const;
 
-    bool ProcessMachine(xmlNodePtr machine_descr, ParserResourcesType & resource);
-    bool ProcessCluster(xmlNodePtr cluster_descr, ParserResourcesType & resource);
-    bool ProcessMember(xmlNodePtr member_descr, ParserResourcesType & resource);
-  
-    void PrepareDocToXmlFile(xmlDocPtr theDoc);
+protected:
+  void readNodeResourcesJob(xmlNodePtr node);
+  void readNodeResourcesContainer(xmlNodePtr node);
 
-  private :
-    std::string previous_component_name;
+  bool readMachineJob(xmlNodePtr node, ParserResourcesTypeJob& resource) const;
+  bool readMachineContainer(xmlNodePtr node, ParserResourcesTypeContainer& resource) const;
 
-    MapOfParserResourcesType& _resources_list;
+  void readComponent(xmlNodePtr node, ParserResourcesTypeContainer& resource) const;
+  void readModule(xmlNodePtr node, ParserResourcesTypeContainer& resource) const;
 
-    const char *test_machine;
-    const char *test_cluster;
-    const char *test_name;
-    const char *test_hostname;
-    const char *test_type;
-    const char *test_protocol;
-    const char *test_cluster_internal_protocol;
-    const char *test_batch;
-    const char *test_mpi;
-    const char *test_user_name;
-    const char *test_appli_path;
-    const char *test_can_launch_batch_jobs;
-    const char *test_can_run_containers;
-    // for compatibility
-    const char *test_modules;
-    const char *test_module_name;
-    const char *test_components;
-    const char *test_component_name;
-    const char *test_os;
-    const char *test_mem_in_mb;
-    const char *test_cpu_freq_mhz;
-    const char *test_nb_of_nodes;
-    const char *test_nb_of_proc;
-    const char *test_nb_of_proc_per_node;
-    const char *test_batch_queue;
-    const char *test_user_commands;
-    const char *test_use;
-    const char *test_members;
-    const char *test_working_directory;
+  // void readNodeCluster(xmlNodePtr node);
+  // bool readNodeClusterMember(xmlNodePtr node, ParserResourcesTypeContainer& resource);
 
-    const char *test_mode; // To be removed in SALOME 8
-    const char *test_is_cluster_head; // To be removed in SALOME 8
+  static std::string readAttr(xmlNodePtr node, const xmlChar* attr);
 
-  };
+  void writeNodeResourcesJob(xmlNodePtr node) const;
+  void writeNodeResourcesContainer(xmlNodePtr node) const;
+
+  void writeMachineJob(xmlNodePtr node, const ParserResourcesTypeJob& resource) const;
+  void writeMachineContainer(xmlNodePtr node, const ParserResourcesTypeContainer& resource) const;
+
+  void writeComponents(xmlNodePtr node, const ParserResourcesTypeContainer& resource) const;
+
+  // bool ProcessCluster(xmlNodePtr cluster_descr, ParserResourcesType& resource);
+  // bool ProcessMember(xmlNodePtr member_descr, ParserResourcesType& resource);
+
+private :
+  std::string previous_component_name;
+
+  ParserResourcesTypeJob::TypeMap& resourcesJob;
+  ParserResourcesTypeContainer::TypeMap& resourcesContainer;
+};
 
 #endif // SALOME_RESOURCES_CATALOG_HANDLER

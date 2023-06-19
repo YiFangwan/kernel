@@ -17,39 +17,62 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See https://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #include "SALOME_ResourcesManager_Common.hxx"
 
-using namespace std;
-
 template <class T>
-vector<string> strvec_CORBAtoCPP(const T & strvecCorba)
+ResourceList strvec_CORBAtoCPP(const T& strvecCorba)
 {
-  vector<string> strvecCpp;
-  for(unsigned int i=0; i<strvecCorba.length(); i++)
-    strvecCpp.push_back(string(strvecCorba[i]));
+  ResourceList strvecCpp;
+  for (unsigned int i = 0; i < strvecCorba.length(); i++)
+    strvecCpp.push_back(std::string(strvecCorba[i]));
+
   return strvecCpp;
 }
 
 template <class T>
-typename T::_var_type strvec_CPPtoCORBA(const vector<string> & strvecCpp)
+typename T::_var_type strvec_CPPtoCORBA(const ResourceList& strvecCpp)
 {
   typename T::_var_type strvecCorba = new T;
+
   strvecCorba->length((CORBA::ULong)strvecCpp.size());
-  for(unsigned int i=0;i<strvecCpp.size();i++)
+  for (unsigned int i = 0; i < strvecCpp.size(); i++)
     strvecCorba[i] = strvecCpp[i].c_str();
+
   return strvecCorba;
 }
 
-resourceParams resourceParameters_CORBAtoCPP(const Engines::ResourceParameters & params)
+template <class T, class U>
+U resourceParameters_CORBAtoCPP(const T& params)
 {
-  resourceParams p;
+  U p;
+
   p.name = params.name;
   p.hostname = params.hostname;
-  p.can_launch_batch_jobs = params.can_launch_batch_jobs;
-  p.can_run_containers = params.can_run_containers;
+  p.resourceList = resourceList_CORBAtoCPP(params.resList);
+
+  return p;
+
+  // return
+  // {{ // resourceParams base class members:
+  //     params.name,
+  //     params.hostname,
+  //     resourceList_CORBAtoCPP(params.resList)
+  // }};
+}
+
+resourceParamsJob resourceParametersJob_CORBAtoCPP(const Engines::ResourceParametersJob& params)
+{
+  return resourceParameters_CORBAtoCPP<Engines::ResourceParametersJob, resourceParamsJob>(params);
+}
+
+resourceParamsContainer resourceParametersContainer_CORBAtoCPP(const Engines::ResourceParametersContainer& params)
+{
+  resourceParamsContainer p = resourceParameters_CORBAtoCPP<Engines::ResourceParametersContainer, resourceParamsContainer>(params);
+
+  // Specific containers' params
   p.OS = params.OS;
   p.nb_proc = params.nb_proc;
   p.nb_node = params.nb_node;
@@ -57,17 +80,35 @@ resourceParams resourceParameters_CORBAtoCPP(const Engines::ResourceParameters &
   p.cpu_clock = params.cpu_clock;
   p.mem_mb = params.mem_mb;
   p.componentList = strvec_CORBAtoCPP<Engines::CompoList>(params.componentList);
-  p.resourceList = resourceList_CORBAtoCPP(params.resList);
+
   return p;
 }
 
-Engines::ResourceParameters_var resourceParameters_CPPtoCORBA(const resourceParams & params)
+template <class T, class U>
+void resourceParameters_CPPtoCORBA(const T& params, U& p)
 {
-  Engines::ResourceParameters_var p = new Engines::ResourceParameters;
   p->name = params.name.c_str();
   p->hostname = params.hostname.c_str();
-  p->can_launch_batch_jobs = params.can_launch_batch_jobs;
-  p->can_run_containers = params.can_run_containers;
+  p->resList = resourceList_CPPtoCORBA(params.resourceList);
+}
+
+Engines::ResourceParametersJob_var resourceParametersJob_CPPtoCORBA(const resourceParamsJob& params)
+{
+  Engines::ResourceParametersJob_var p = new Engines::ResourceParametersJob;
+
+  resourceParameters_CPPtoCORBA<resourceParamsJob, Engines::ResourceParametersJob_var>(params, p);
+
+  return p;
+}
+
+Engines::ResourceParametersContainer_var resourceParametersContainer_CPPtoCORBA(const resourceParamsContainer& params)
+{
+  Engines::ResourceParametersContainer_var p = new Engines::ResourceParametersContainer;
+
+  // Common params
+  resourceParameters_CPPtoCORBA<resourceParamsContainer, Engines::ResourceParametersContainer_var>(params, p);
+
+  // Specific containers' params
   p->OS = params.OS.c_str();
   p->nb_proc = params.nb_proc;
   p->nb_node = params.nb_node;
@@ -75,65 +116,106 @@ Engines::ResourceParameters_var resourceParameters_CPPtoCORBA(const resourcePara
   p->cpu_clock = params.cpu_clock;
   p->mem_mb = params.mem_mb;
   p->componentList = strvec_CPPtoCORBA<Engines::CompoList>(params.componentList);
-  p->resList = resourceList_CPPtoCORBA(params.resourceList);
+
   return p;
 }
 
-vector<string> resourceList_CORBAtoCPP(const Engines::ResourceList & resList)
+ResourceList resourceList_CORBAtoCPP(const Engines::ResourceList& resList)
 {
   return strvec_CORBAtoCPP<Engines::ResourceList>(resList);
 }
 
-Engines::ResourceList_var resourceList_CPPtoCORBA(const vector<string> & resList)
+Engines::ResourceList_var resourceList_CPPtoCORBA(const ResourceList& resList)
 {
   return strvec_CPPtoCORBA<Engines::ResourceList>(resList);
 }
 
-ParserResourcesType resourceDefinition_CORBAtoCPP(const Engines::ResourceDefinition & resDef)
+template <class T, class U>
+U resourceDefinition_CORBAtoCPP(const T& resDef)
 {
-  ParserResourcesType resource;
-  resource.Name = resDef.name;
-  resource.HostName = resDef.hostname;
-  resource.setResourceTypeStr(resDef.type.in());
-  resource.OS = resDef.OS;
-  resource.AppliPath = resDef.applipath;
-  resource.DataForSort._Name = resDef.name;
-  resource.DataForSort._memInMB = resDef.mem_mb;
-  resource.DataForSort._CPUFreqMHz = resDef.cpu_clock;
-  resource.DataForSort._nbOfNodes = resDef.nb_node;
-  resource.DataForSort._nbOfProcPerNode = resDef.nb_proc_per_node;
-  resource.UserName = resDef.username;
-  resource.can_launch_batch_jobs = resDef.can_launch_batch_jobs;
-  resource.can_run_containers = resDef.can_run_containers;
-  resource.working_directory = resDef.working_directory;
-  resource.setBatchTypeStr(resDef.batch.in());
-  resource.setMpiImplTypeStr(resDef.mpiImpl.in());
+  U resource;
+
+  resource.name = resDef.name;
+  resource.hostname = resDef.hostname;
   resource.setAccessProtocolTypeStr(resDef.protocol.in());
-  resource.setClusterInternalProtocolStr(resDef.iprotocol.in());
-  resource.ComponentsList = strvec_CORBAtoCPP<Engines::CompoList>(resDef.componentList);
+  resource.username = resDef.username;
+  resource.applipath = resDef.applipath;
+  resource.setBatchTypeStr(resDef.batch.in());
+
   return resource;
 }
 
-Engines::ResourceDefinition_var resourceDefinition_CPPtoCORBA(const ParserResourcesType & resource)
+ParserResourcesTypeJob resourceDefinitionJob_CORBAtoCPP(const Engines::ResourceDefinitionJob& resDef)
 {
-  Engines::ResourceDefinition_var resCorba = new Engines::ResourceDefinition;
-  resCorba->name = resource.Name.c_str();
-  resCorba->hostname = resource.HostName.c_str();
-  resCorba->type = resource.getResourceTypeStr().c_str();
+  ParserResourcesTypeJob resource =
+      resourceDefinition_CORBAtoCPP<Engines::ResourceDefinitionJob, ParserResourcesTypeJob>(resDef);
+
+  // Specific job's params
+  resource.setMpiImplTypeStr(resDef.mpiImpl.in());
+  resource.setClusterInternalProtocolStr(resDef.iprotocol.in());
+  resource.working_directory = resDef.working_directory;
+
+  return resource;
+}
+
+ParserResourcesTypeContainer resourceDefinitionContainer_CORBAtoCPP(const Engines::ResourceDefinitionContainer& resDef)
+{
+  ParserResourcesTypeContainer resource =
+      resourceDefinition_CORBAtoCPP<Engines::ResourceDefinitionContainer, ParserResourcesTypeContainer>(resDef);
+
+  // Specific container's params
+  resource.OS = resDef.OS;
+  resource.dataForSort.name = resDef.name;
+  resource.dataForSort.mem_mb = resDef.mem_mb;
+  resource.dataForSort.cpu_clock = resDef.cpu_clock;
+  resource.dataForSort.nb_node = resDef.nb_node;
+  resource.dataForSort.nb_proc_per_node = resDef.nb_proc_per_node;
+  resource.componentList = strvec_CORBAtoCPP<Engines::CompoList>(resDef.componentList);
+
+  return resource;
+}
+
+template <class T, class U>
+void resourceDefinition_CPPtoCORBA(const T& resource, U& resCorba)
+{
+  // Common params
+  resCorba->name = resource.name.c_str();
+  resCorba->hostname = resource.hostname.c_str();
   resCorba->protocol = resource.getAccessProtocolTypeStr().c_str();
-  resCorba->iprotocol = resource.getClusterInternalProtocolStr().c_str();
-  resCorba->username = resource.UserName.c_str();
-  resCorba->applipath = resource.AppliPath.c_str();
-  resCorba->componentList = strvec_CPPtoCORBA<Engines::CompoList>(resource.ComponentsList);
-  resCorba->OS = resource.OS.c_str();
-  resCorba->mem_mb = resource.DataForSort._memInMB;
-  resCorba->cpu_clock = resource.DataForSort._CPUFreqMHz;
-  resCorba->nb_proc_per_node = resource.DataForSort._nbOfProcPerNode;
-  resCorba->nb_node = resource.DataForSort._nbOfNodes;
-  resCorba->can_launch_batch_jobs = resource.can_launch_batch_jobs;
-  resCorba->can_run_containers = resource.can_run_containers;
-  resCorba->working_directory = resource.working_directory.c_str();
-  resCorba->mpiImpl = resource.getMpiImplTypeStr().c_str();
+  resCorba->username = resource.username.c_str();
+  resCorba->applipath = resource.applipath.c_str();
   resCorba->batch = resource.getBatchTypeStr().c_str();
+}
+
+Engines::ResourceDefinitionJob_var resourceDefinitionJob_CPPtoCORBA(const ParserResourcesTypeJob& resource)
+{
+  Engines::ResourceDefinitionJob_var resCorba = new Engines::ResourceDefinitionJob;
+
+  // Common params
+  resourceDefinition_CPPtoCORBA(resource, resCorba);
+
+  // Specific job's params
+  resCorba->mpiImpl = resource.getMpiImplTypeStr().c_str();
+  resCorba->iprotocol = resource.getClusterInternalProtocolStr().c_str();
+  resCorba->working_directory = resource.working_directory.c_str();
+
+  return resCorba;
+}
+
+Engines::ResourceDefinitionContainer_var resourceDefinitionContainer_CPPtoCORBA(const ParserResourcesTypeContainer& resource)
+{
+  Engines::ResourceDefinitionContainer_var resCorba = new Engines::ResourceDefinitionContainer;
+
+  // Common params
+  resourceDefinition_CPPtoCORBA(resource, resCorba);
+
+  // Specific container's params
+  resCorba->componentList = strvec_CPPtoCORBA<Engines::CompoList>(resource.componentList);
+  resCorba->OS = resource.OS.c_str();
+  resCorba->mem_mb = resource.dataForSort.mem_mb;
+  resCorba->cpu_clock = resource.dataForSort.cpu_clock;
+  resCorba->nb_proc_per_node = resource.dataForSort.nb_proc_per_node;
+  resCorba->nb_node = resource.dataForSort.nb_node;
+
   return resCorba;
 }

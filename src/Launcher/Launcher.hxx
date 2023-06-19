@@ -27,13 +27,8 @@
 #include "Launcher_Job.hxx"
 
 #include "ResourcesManager.hxx"
-#include <SALOME_ResourcesCatalog_Parser.hxx>
-
 #include "SALOME_Launcher_Parser.hxx"
 
-#include <string>
-#include <vector>
-#include <list>
 #include <memory>
 
 class MpiImpl;
@@ -56,7 +51,7 @@ struct LAUNCHER_EXPORT JobParameters_cpp
   std::string local_directory;
   std::string result_directory;
   std::string maximum_duration;
-  resourceParams resource_required;
+  resourceParamsContainer resource_required;
   std::string queue;
   std::string partition;
   bool exclusive;
@@ -118,7 +113,7 @@ protected:
 
   // Methods used by user interface methods
 #ifdef WITH_LIBBATCH
-  Batch::BatchManager *FactoryBatchManager(ParserResourcesType& params);
+  Batch::BatchManager *FactoryBatchManager(ParserResourcesTypeJob& params);
   std::map <int, Batch::BatchManager*> _batchmap;
   Batch::BatchManager* getBatchManager(Launcher::Job * job);
 #endif

@@ -23,6 +23,7 @@
 #include <list>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <sys/stat.h>
 #include <time.h>
 #include <memory>
@@ -293,7 +294,7 @@ Launcher_cpp::getJobResults(int job_id, std::string directory)
   LAUNCHER_MESSAGE("Get Job results");
 
   Launcher::Job * job = findJob(job_id);
-  std::string resource_name = job->getResourceDefinition().Name;
+  std::string resource_name = job->getResourceDefinition().name;
   try
   {
     if (directory != "")
@@ -344,7 +345,7 @@ Launcher_cpp::getJobDumpState(int job_id, std::string directory)
   LAUNCHER_MESSAGE("Get Job dump state");
 
   Launcher::Job * job = findJob(job_id);
-  std::string resource_name = job->getResourceDefinition().Name;
+  std::string resource_name = job->getResourceDefinition().name;
   try
   {
     if (directory != "")
@@ -375,7 +376,7 @@ Launcher_cpp::getJobWorkFile(int job_id,
   LAUNCHER_MESSAGE("Get working file " << work_file);
 
   Launcher::Job * job = findJob(job_id);
-  std::string resource_name = job->getResourceDefinition().Name;
+  std::string resource_name = job->getResourceDefinition().name;
   try
   {
     if (directory != "")
@@ -492,7 +493,7 @@ Launcher_cpp::getJobParameters(int job_id)
   job_parameters.wckey            = job->getWCKey();
   job_parameters.extra_params     = job->getExtraParams();
 
-  resourceParams resource_params = job->getResourceRequiredParams();
+  resourceParamsContainer resource_params = job->getResourceRequiredParams();
   job_parameters.resource_required.name             = resource_params.name;
   job_parameters.resource_required.hostname         = resource_params.hostname;
   job_parameters.resource_required.OS               = resource_params.OS;
@@ -547,7 +548,7 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
   for(size_t i=0; i < job_params.OutputFile.size();i++)
     new_job->add_out_file(job_params.OutputFile[i]);
 
-  resourceParams p;
+  resourceParamsContainer p;
   p.hostname = clusterName;
   p.name = "";
   p.OS = "";
@@ -568,15 +569,15 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
  */
 //=============================================================================
 Batch::BatchManager *
-Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
+Launcher_cpp::FactoryBatchManager(ParserResourcesTypeJob& params)
 {
   std::string mpi;
   Batch::CommunicationProtocolType protocol;
   Batch::FactBatchManager * fact;
 
-  std::string hostname = params.HostName;
+  std::string hostname = params.hostname;
 
-  switch(params.Protocol)
+  switch(params.protocol)
   {
     case sh:
       protocol = Batch::SH;
@@ -595,7 +596,7 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
       break;
   }
 
-  switch(params.mpi)
+  switch(params.mpiImpl)
   {
     case lam:
       mpi = "lam";
@@ -623,7 +624,7 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
   }
 
   const char * bmType;
-  switch( params.Batch )
+  switch( params.batch )
   {
     case pbs:
       bmType = "PBS";
@@ -656,7 +657,7 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
       bmType = "COORM";
       break;
     default:
-      LAUNCHER_MESSAGE("Bad batch description of the resource: Batch = " << params.Batch);
+      LAUNCHER_MESSAGE("Bad batch description of the resource: Batch = " << params.batch);
       throw LauncherException("No batchmanager for that cluster - Bad batch description of the resource");
   }
   Batch::BatchManagerCatalog & cata = Batch::BatchManagerCatalog::getInstance();
@@ -666,7 +667,7 @@ Launcher_cpp::FactoryBatchManager(ParserResourcesType& params)
     throw LauncherException("Cannot find batch manager factory");
   }
   LAUNCHER_MESSAGE("Instantiation of batch manager of type: " << bmType);
-  Batch::BatchManager * batch_client = (*fact)(hostname.c_str(), params.UserName.c_str(),
+  Batch::BatchManager * batch_client = (*fact)(hostname.c_str(), params.username.c_str(),
                                                protocol, mpi.c_str());
   return batch_client;
 }
@@ -861,12 +862,12 @@ Launcher_cpp::getBatchManager(Launcher::Job * job)
 
   // Select a resource for the job
   std::vector<std::string> ResourceList;
-  resourceParams params = job->getResourceRequiredParams();
+  resourceParamsContainer params = job->getResourceRequiredParams();
   // Consider only resources that can launch batch jobs
-  params.can_launch_batch_jobs = true;
+
   try
   {
-    ResourceList = _ResManager->GetFittingResources(params);
+    ResourceList = _ResManager->GetFittingResourcesContainer(params);
   }
   catch(const ResourcesException &ex)
   {
@@ -880,7 +881,7 @@ Launcher_cpp::getBatchManager(Launcher::Job * job)
   }
 
   // Configure the job with the resource selected - the first of the list
-  ParserResourcesType resource_definition = _ResManager->GetResourcesDescr(ResourceList[0]);
+  ParserResourcesTypeJob resource_definition = _ResManager->GetResourceDefinitionJob(ResourceList[0]);
 
   // Set resource definition to the job
   // The job will check if the definitions needed

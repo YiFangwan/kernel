@@ -33,6 +33,7 @@
 #endif
 
 #include <sstream>
+#include <fstream>
 
 const char Launcher::Job_Command::TYPE_NAME[] = "command";
 

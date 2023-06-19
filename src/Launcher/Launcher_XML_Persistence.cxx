@@ -175,23 +175,24 @@ XML_Persistence::addJobToXmlDocument(xmlNodePtr root_node, const Job & job)
   }
 
   // Resource part
-  resourceParams resource_params = job.getResourceRequiredParams();
+  resourceParamsContainer resource_params = job.getResourceRequiredParams();
   xmlNodePtr res_node = addNode(node, "resource_params", "");
   addNode(res_node, "name", resource_params.name);
   if (!resource_params.hostname.empty())
     addNode(res_node, "hostname", resource_params.hostname);
-  if (!resource_params.OS.empty())
-    addNode(res_node, "OS", resource_params.OS);
-  if (resource_params.nb_proc > 0)
-    addNumericalNode(res_node, "nb_proc", resource_params.nb_proc);
-  if (resource_params.nb_node > 0)
-    addNumericalNode(res_node, "nb_node", resource_params.nb_node);
-  if (resource_params.nb_proc_per_node > 0)
-    addNumericalNode(res_node, "nb_proc_per_node", resource_params.nb_proc_per_node);
-  if (resource_params.cpu_clock > 0)
-    addNumericalNode(res_node, "cpu_clock", resource_params.cpu_clock);
-  if (resource_params.mem_mb > 0)
-    addNumericalNode(res_node, "mem_mb", resource_params.mem_mb);
+  // TODO: check if we don't need these params for a job:
+  // if (!resource_params.OS.empty())
+  //   addNode(res_node, "OS", resource_params.OS);
+  // if (resource_params.nb_proc > 0)
+  //   addNumericalNode(res_node, "nb_proc", resource_params.nb_proc);
+  // if (resource_params.nb_node > 0)
+  //   addNumericalNode(res_node, "nb_node", resource_params.nb_node);
+  // if (resource_params.nb_proc_per_node > 0)
+  //   addNumericalNode(res_node, "nb_proc_per_node", resource_params.nb_proc_per_node);
+  // if (resource_params.cpu_clock > 0)
+  //   addNumericalNode(res_node, "cpu_clock", resource_params.cpu_clock);
+  // if (resource_params.mem_mb > 0)
+  //   addNumericalNode(res_node, "mem_mb", resource_params.mem_mb);
 
   if (!job.getMaximumDuration().empty())
     addNode(node, "maximum_duration", job.getMaximumDuration());
@@ -393,7 +394,7 @@ XML_Persistence::parseUserNode(Job * new_job, xmlNodePtr user_node)
 void
 XML_Persistence::parseResourceNode(Job * new_job, xmlNodePtr res_node)
 {
-  resourceParams p;
+  resourceParamsContainer p;
   xmlNodePtr current_node = xmlFirstElementChild(res_node);
   while (current_node != NULL)
   {

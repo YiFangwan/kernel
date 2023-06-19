@@ -137,7 +137,7 @@ struct JobParameters
       - mem_mb -> Memory expressed in megabytes.
       - nb_proc -> Number of Processors.
   */
-  ResourceParameters resource_required;
+  ResourceParametersContainer resource_required;
 
   //!  Name of the batch queue chosen - optional
   string queue;
@@ -298,7 +298,7 @@ interface SalomeLauncher
 
   // Useful methods
   long    createJobWithFile(in string xmlJobFile, in string clusterName) raises (SALOME::SALOME_Exception);
-  boolean testBatch        (in ResourceParameters params)                raises (SALOME::SALOME_Exception);
+  boolean testBatch        (in ResourceParametersJob params)                raises (SALOME::SALOME_Exception);
 
   // SALOME kernel service methods
   //! Shutdow SalomeLauncher server.

@@ -146,11 +146,11 @@ SALOME_LifeCycleCORBA::FindComponent(const Engines::ContainerParameters& params,
   Engines::ContainerParameters new_params(params);
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
-  new_params.resource_params.can_run_containers = true;
+
   Engines::ResourceList_var listOfResources;
   try
     {
-      listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+      listOfResources = _ResManager->GetFittingResourcesContainer(new_params.resource_params);
     }
   catch( const SALOME::SALOME_Exception& /*ex*/ ) //!< TODO: unused variable
     {
@@ -185,12 +185,11 @@ SALOME_LifeCycleCORBA::LoadComponent(const Engines::ContainerParameters& params,
   Engines::ContainerParameters new_params(params);
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
-  new_params.resource_params.can_run_containers = true;
 
   Engines::ResourceList_var listOfResources;
   try
     {
-      listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+      listOfResources = _ResManager->GetFittingResourcesContainer(new_params.resource_params);
     }
   catch( const SALOME::SALOME_Exception& /*ex*/ ) //!< TODO: unused variable
     {
@@ -227,12 +226,11 @@ FindOrLoad_Component(const Engines::ContainerParameters& params,
   Engines::ContainerParameters new_params(params);
   new_params.resource_params.componentList.length(1);
   new_params.resource_params.componentList[0] = componentName;
-  new_params.resource_params.can_run_containers = true;
 
   Engines::ResourceList_var listOfResources;
   try
     {
-      listOfResources = _ResManager->GetFittingResources(new_params.resource_params);
+      listOfResources = _ResManager->GetFittingResourcesContainer(new_params.resource_params);
     }
   catch( const SALOME::SALOME_Exception& /*ex*/ ) //!< TODO: unused variable
     {
@@ -342,7 +340,7 @@ bool SALOME_LifeCycleCORBA::isKnownComponentClass(const char *componentName)
 //=============================================================================
 
 void
-SALOME_LifeCycleCORBA::preSet(Engines::ResourceParameters& params)
+SALOME_LifeCycleCORBA::preSet(Engines::ResourceParametersContainer& params)
 {
   params.name = "";
   params.hostname = "";
@@ -353,8 +351,6 @@ SALOME_LifeCycleCORBA::preSet(Engines::ResourceParameters& params)
   params.nb_node = 0;
   params.nb_proc_per_node = 0;
   params.policy = "";
-  params.can_launch_batch_jobs = false;
-  params.can_run_containers = false;
 }
 
 //=============================================================================
@@ -667,8 +663,8 @@ _FindComponent(const Engines::ContainerParameters& params,
   for(unsigned int i=0; i < listOfResources.length(); i++)
   {
     const char * currentResource = listOfResources[i];
-    Engines::ResourceDefinition_var resource_definition =
-        _ResManager->GetResourceDefinition(currentResource);
+    Engines::ResourceDefinitionContainer_var resource_definition =
+        _ResManager->GetResourceDefinitionContainer(currentResource);
     CORBA::Object_var obj = _NS->ResolveComponent(resource_definition->hostname.in(),
                                                   containerName,
                                                   componentName,
@@ -682,8 +678,8 @@ _FindComponent(const Engines::ContainerParameters& params,
   {
     resourcesOK->length(lghtOfresourcesOK);
     CORBA::String_var bestResource = _ResManager->FindFirst(resourcesOK);
-    Engines::ResourceDefinition_var resource_definition =
-        _ResManager->GetResourceDefinition(bestResource);
+    Engines::ResourceDefinitionContainer_var resource_definition =
+        _ResManager->GetResourceDefinitionContainer(bestResource);
     CORBA::Object_var obj = _NS->ResolveComponent(resource_definition->hostname.in(),
                                                   containerName,
                                                   componentName,

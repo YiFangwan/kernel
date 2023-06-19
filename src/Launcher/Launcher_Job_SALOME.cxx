@@ -34,6 +34,7 @@
 #include <sys/stat.h>
 
 #include <sstream>
+#include <fstream>
 
 Launcher::Job_SALOME::Job_SALOME(bool activateSession)
 : _activateSession(activateSession){}
@@ -41,12 +42,12 @@ Launcher::Job_SALOME::Job_SALOME(bool activateSession)
 Launcher::Job_SALOME::~Job_SALOME() {}
 
 void
-Launcher::Job_SALOME::setResourceDefinition(const ParserResourcesType & resource_definition)
+Launcher::Job_SALOME::setResourceDefinition(const ParserResourcesTypeJob& resource_definition)
 {
   // Check resource_definition
-  if (resource_definition.AppliPath == "")
+  if (resource_definition.applipath == "")
   {
-    std::string mess = "Resource definition must define an application path !, resource name is: " + resource_definition.Name;
+    std::string mess = "Resource definition must define an application path !, resource name is: " + resource_definition.name;
     throw LauncherException(mess);
   }
   Launcher::Job::setResourceDefinition(resource_definition);
@@ -121,8 +122,8 @@ Launcher::Job_SALOME::buildSalomeScript(Batch::Parametre params)
     launch_script_stream << "echo '         hostname='\\\"\"$host_basename\"\\\"" << std::endl;
     launch_script_stream << "echo '         type=\"single_machine\"'" << std::endl;
     launch_script_stream << "echo '         protocol=\"" << resource_protocol               << "\"'" << std::endl;
-    launch_script_stream << "echo '         userName=\"" << _resource_definition.UserName   << "\"'" << std::endl;
-    launch_script_stream << "echo '         appliPath=\"" << _resource_definition.AppliPath << "\"'" << std::endl;
+    launch_script_stream << "echo '         userName=\"" << _resource_definition.username   << "\"'" << std::endl;
+    launch_script_stream << "echo '         appliPath=\"" << _resource_definition.applipath << "\"'" << std::endl;
     launch_script_stream << "echo '         mpi=\"" << _resource_definition.getMpiImplTypeStr() << "\"'" << std::endl;
     launch_script_stream << "echo '         nbOfNodes='\\\"\"$nbproc\"\\\"" << std::endl;
     launch_script_stream << "echo '         nbOfProcPerNode=\"1\"'" << std::endl;

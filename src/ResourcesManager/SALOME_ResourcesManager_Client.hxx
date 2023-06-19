@@ -17,7 +17,7 @@
 // License along with this library; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
 //
-// See http://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
+// See https://www.salome-platform.org/ or email : webmaster.salome@opencascade.com
 //
 
 #ifndef __SALOME_RESOURCESMANAGER_CLIENT_HXX__
@@ -36,12 +36,14 @@ public:
   SALOME_ResourcesManager_Client(SALOME_NamingService_Abstract *ns);
   ~SALOME_ResourcesManager_Client();
 
-  std::vector<std::string> GetFittingResources(const resourceParams& params);
-  //std::string FindFirst(const std::vector<std::string>& listOfResources) const;
-  std::string Find(const std::string & policy, const std::vector<std::string> & listOfResources);
-  ParserResourcesType GetResourceDefinition(const std::string & name);
-  //void AddResource(const ParserResourcesType & new_resource, bool write, const std::string & xml_file);
-  //void RemoveResource(const std::string & name, bool write, const std::string & xml_file);
+  std::string Find(const std::string& policy, const ResourceList& possibleContainerResources) const;
+
+  ResourceList GetFittingResourcesJob(const resourceParamsJob& params) const;
+  ResourceList GetFittingResourcesContainer(const resourceParamsContainer& params) const;
+
+  ParserResourcesTypeJob GetResourceDefinitionJob(const std::string& name) const;
+  ParserResourcesTypeContainer GetResourceDefinitionContainer(const std::string& name) const;
+
   std::string getMachineFile(const std::string & resource_name,
                              long nb_procs,
                              const std::string & parallelLib);

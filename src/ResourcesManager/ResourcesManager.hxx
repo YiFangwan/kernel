@@ -24,13 +24,11 @@
 #define __RESOURCESMANAGER_HXX__
 
 #include "ResourcesManager_Defs.hxx"
-
-#include <string>
-#include <fstream>
-#include <vector>
-#include <list>
-#include "SALOME_ResourcesCatalog_Parser.hxx"
+#include "SALOME_ParserResourcesTypeJob.hxx"
+#include "SALOME_ParserResourcesTypeContainer.hxx"
 #include "SALOME_LoadRateManager.hxx"
+
+#include <list>
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifdef WIN32
@@ -43,6 +41,8 @@
 //#pragma warning(disable:4290) // Warning Exception ...
 #endif
 
+using ResourceList = std::vector<std::string>;
+
 // --- WARNING ---
 // The call of BuildTempFileToLaunchRemoteContainer and RmTmpFile must be done
 // in a critical section to be sure to be clean.
@@ -50,77 +50,85 @@
 // session.
 struct RESOURCESMANAGER_EXPORT resourceParams
 {
-  resourceParams();
-
   std::string name;
   std::string hostname;
-  bool can_launch_batch_jobs;
-  bool can_run_containers;
+
+  ResourceList resourceList;
+};
+
+struct RESOURCESMANAGER_EXPORT resourceParamsJob : resourceParams
+{
+};
+
+struct RESOURCESMANAGER_EXPORT resourceParamsContainer : resourceParams
+{
   std::string OS;
-  long nb_proc;
-  long nb_node;
-  long nb_proc_per_node;
-  long cpu_clock;
-  long mem_mb;
-  std::vector<std::string> componentList;
-  std::vector<std::string> resourceList;
+
+  long nb_proc = -1;
+  long nb_node = 0;
+  long nb_proc_per_node = -1;
+  long cpu_clock = -1;
+  long mem_mb = -1;
+
+  ResourceList componentList;
 };
 
 class RESOURCESMANAGER_EXPORT ResourcesManager_cpp
-  {
+{
+public:
+  ResourcesManager_cpp(const char* xmlFilePath);
+  ResourcesManager_cpp();
 
-  public:
+  virtual ~ResourcesManager_cpp();
 
-    ResourcesManager_cpp(const char *xmlFilePath);
-    ResourcesManager_cpp();
+  std::string Find(const std::string& policy, const ResourceList& possibleContainerResources) const;
 
-    ~ResourcesManager_cpp();
+  ResourceList GetFittingResourcesJob(const resourceParamsJob& params);
+  ResourceList GetFittingResourcesContainer(const resourceParamsContainer& params);
 
-    std::vector<std::string> 
-    GetFittingResources(const resourceParams& params);
+  ParserResourcesTypeJob GetResourceDefinitionJob(const std::string& name) const;
+  ParserResourcesTypeContainer GetResourceDefinitionContainer(const std::string& name) const;
 
-    std::string Find(const std::string& policy, const std::vector<std::string>& listOfResources) const;
+  void AddResourceJob(const ParserResourcesTypeJob& resource);
+  void AddResourceContainer(const ParserResourcesTypeContainer& resource);
 
-    void AddResourceInCatalog (const ParserResourcesType & new_resource);
+  void RemoveResourceJob(const char* name);
+  void RemoveResourceContainer(const char* name);
 
-    void DeleteResourceInCatalog(const char * name);
+  const ParserResourcesTypeJob::TypeMap& ListAllResourcesInCatalogJob() const;
+  const ParserResourcesTypeContainer::TypeMap& ListAllResourcesInCatalogContainer() const;
+  
+  void WriteInXmlFile(std::string xml_file);
+  void ParseXmlFiles();
 
-    void WriteInXmlFile(std::string xml_file);
+protected:
+  bool IsNeedToParse();
+  void ClearResourcesCatalog();
+  void ParseResourceFile(const std::string& resFile);
+  void SortResourcesTypeContainerByData(const resourceParamsContainer& params, ResourceList& resourcesOut);
 
-    const MapOfParserResourcesType& ParseXmlFiles();
+  void SelectOnlyResourcesWithOS(const std::string& OS, ResourceList& resourcesOut) const;
+  void KeepOnlyResourcesWithComponent(const ResourceList& componentList, ResourceList& resourcesOut) const;
 
-    const MapOfParserResourcesType& GetList() const;
+  /**
+   * Add the default local resource in the catalog
+   */
+  void AddDefaultResourceInCatalogJob();
+  void AddDefaultResourceInCatalogContainer();
+  void AddDefaultResourceInCatalog();
 
-    //! thread safe
-    ParserResourcesType GetResourcesDescr(const std::string & name) const;
+  //! will contain the path to the resources catalog
+  ResourceList _path_resources;
 
-  protected:
-    
-    void SelectOnlyResourcesWithOS(std::vector<std::string>& resources, std::string OS);
+  //! will contain the information on the data type catalog(after parsing)
+  ParserResourcesTypeJob::TypeMap _resourcesListJob;
+  ParserResourcesTypeContainer::TypeMap _resourcesListContainer;
 
-    void KeepOnlyResourcesWithComponent(std::vector<std::string>& resources, 
-                                        const std::vector<std::string>& componentList);
+  //! a map that contains all the available load rate managers (the key is the name)
+  std::map<std::string, LoadRateManager*> _resourceManagerMap;
 
-    /**
-     * Add the default local resource in the catalog
-     */
-    void AddDefaultResourceInCatalog();
-
-    //! will contain the path to the resources catalog
-    std::list<std::string> _path_resources;
-    std::list<std::string>::iterator _path_resources_it;
-
-    //! will contain the information on the data type catalog(after parsing)
-    MapOfParserResourcesType _resourcesList;
-
-    //! a map that contains all the available load rate managers (the key is the name)
-    std::map<std::string , LoadRateManager*> _resourceManagerMap;
-
-    //! contain the time where resourcesList was created
-    time_t _lasttime = 0;
-
-    //! the name of the default local resource
-    static const std::string DEFAULT_RESOURCE_NAME;
-  };
+  //! contain the time where resourcesList was created
+  time_t _lasttime = 0;
+};
 
 #endif // __RESOURCESMANAGER_HXX__

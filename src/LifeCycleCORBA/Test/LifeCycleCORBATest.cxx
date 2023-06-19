@@ -696,9 +696,8 @@ std::string LifeCycleCORBATest::GetRemoteHost()
   _LCC.preSet(params);               // empty params to get all the machines
   params.resource_params.componentList.length(1);
   params.resource_params.componentList[0]="SalomeTestComponent";
-  params.resource_params.can_run_containers = true;
 
-  Engines::ResourceList_var hostList = resourcesManager->GetFittingResources(params.resource_params);
+  Engines::ResourceList_var hostList = resourcesManager->GetFittingResourcesContainer(params.resource_params);
   CPPUNIT_ASSERT(hostList->length() > 1);
 
   std::string localHost = Kernel_Utils::GetHostname();
@@ -706,7 +705,7 @@ std::string LifeCycleCORBATest::GetRemoteHost()
   for (unsigned int i=0; i < hostList->length(); i++)
     {
       const char* aMachine = hostList[i];
-      Engines::ResourceDefinition_var resource_definition = resourcesManager->GetResourceDefinition(aMachine);
+      Engines::ResourceDefinitionContainer_var resource_definition = resourcesManager->GetResourceDefinitionContainer(aMachine);
       std::string machine(resource_definition->hostname.in());
       if (machine != localHost)
         {

@@ -34,18 +34,25 @@
 #endif
 
 #include <SALOMEconfig.h>
+// #include CORBA_CLIENT_HEADER(SALOME_Resource)
+// #include CORBA_CLIENT_HEADER(SALOME_ResourceJob)
+// #include CORBA_CLIENT_HEADER(SALOME_ResourceContainer)
 #include CORBA_CLIENT_HEADER(SALOME_ResourcesManager)
 
 #include "ResourcesManager.hxx"
 
 // Functions for CPP <-> CORBA conversions
 // All those functions are thread-safe
-SALOMERESOURCESMANAGER_EXPORT resourceParams resourceParameters_CORBAtoCPP(const Engines::ResourceParameters & params);
-SALOMERESOURCESMANAGER_EXPORT Engines::ResourceParameters_var resourceParameters_CPPtoCORBA(const resourceParams & params);
+SALOMERESOURCESMANAGER_EXPORT resourceParamsJob resourceParametersJob_CORBAtoCPP(const Engines::ResourceParametersJob& params);
+SALOMERESOURCESMANAGER_EXPORT resourceParamsContainer resourceParametersContainer_CORBAtoCPP(const Engines::ResourceParametersContainer& params);
+SALOMERESOURCESMANAGER_EXPORT Engines::ResourceParametersJob_var resourceParametersJob_CPPtoCORBA(const resourceParamsJob& params);
+SALOMERESOURCESMANAGER_EXPORT Engines::ResourceParametersContainer_var resourceParametersContainer_CPPtoCORBA(const resourceParamsContainer& params);
 
-SALOMERESOURCESMANAGER_EXPORT std::vector<std::string> resourceList_CORBAtoCPP(const Engines::ResourceList & resList);
-SALOMERESOURCESMANAGER_EXPORT Engines::ResourceList_var resourceList_CPPtoCORBA(const std::vector<std::string> & resList);
+SALOMERESOURCESMANAGER_EXPORT ResourceList resourceList_CORBAtoCPP(const Engines::ResourceList& resList);
+SALOMERESOURCESMANAGER_EXPORT Engines::ResourceList_var resourceList_CPPtoCORBA(const ResourceList& resList);
 
-SALOMERESOURCESMANAGER_EXPORT ParserResourcesType resourceDefinition_CORBAtoCPP(const Engines::ResourceDefinition & resDef);
-SALOMERESOURCESMANAGER_EXPORT Engines::ResourceDefinition_var resourceDefinition_CPPtoCORBA(const ParserResourcesType & resource);
+SALOMERESOURCESMANAGER_EXPORT ParserResourcesTypeJob resourceDefinitionJob_CORBAtoCPP(const Engines::ResourceDefinitionJob& resDef);
+SALOMERESOURCESMANAGER_EXPORT ParserResourcesTypeContainer resourceDefinitionContainer_CORBAtoCPP(const Engines::ResourceDefinitionContainer& resDef);
+SALOMERESOURCESMANAGER_EXPORT Engines::ResourceDefinitionJob_var resourceDefinitionJob_CPPtoCORBA(const ParserResourcesTypeJob& resource);
+SALOMERESOURCESMANAGER_EXPORT Engines::ResourceDefinitionContainer_var resourceDefinitionContainer_CPPtoCORBA(const ParserResourcesTypeContainer& resource);
 #endif

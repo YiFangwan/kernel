@@ -25,24 +25,28 @@
 
 struct ResourceDefinition_cpp
 {
-public:
   std::string name;
   std::string hostname;
-  std::string type;
   std::string protocol;
   std::string username;
   std::string applipath;
+  std::string batch;
+};
+
+struct ResourceDefinitionJob_cpp : ResourceDefinition_cpp
+{
+  std::string mpiImpl;
+  std::string iprotocol;
+  std::string working_directory;
+};
+
+struct ResourceDefinitionContainer_cpp : ResourceDefinition_cpp
+{
   std::string OS;
   int  mem_mb;
   int  cpu_clock;
   int  nb_node;
   int  nb_proc_per_node;
-  std::string batch;
-  std::string mpiImpl;
-  std::string iprotocol;
-  bool can_launch_batch_jobs;
-  bool can_run_containers;
-  std::string working_directory;
 };
 %}
 
@@ -64,20 +68,29 @@ namespace std {
 %naturalvar JobParameters_cpp::resourceList;
 struct resourceParams
 {
-  resourceParams();
+  //resourceParams();
 
   std::string name;
   std::string hostname;
-  bool can_launch_batch_jobs;
-  bool can_run_containers;
+
+  std::vector<std::string> resourceList;
+};
+
+struct resourceParamsJob : resourceParams
+{
+};
+
+struct resourceParamsContainer : resourceParams
+{
   std::string OS;
+
   long nb_proc;
   long nb_node;
   long nb_proc_per_node;
   long cpu_clock;
   long mem_mb;
+
   std::vector<std::string> componentList;
-  std::vector<std::string> resourceList;
 };
 
 // see JobParameters from SALOME_Launcher.idl
@@ -99,7 +112,7 @@ public:
   std::string local_directory;
   std::string result_directory;
   std::string maximum_duration;
-  resourceParams resource_required;
+  resourceParamsContainer resource_required;
   std::string queue;
   std::string partition;
   bool exclusive;
@@ -115,24 +128,28 @@ public:
 // no other c++ equivalent. Convertion from ParserResourcesType
 struct ResourceDefinition_cpp
 {
-public:
   std::string name;
   std::string hostname;
-  std::string type;
   std::string protocol;
   std::string username;
   std::string applipath;
+  std::string batch;
+};
+
+struct ResourceDefinitionJob_cpp : ResourceDefinition_cpp
+{
+  std::string mpiImpl;
+  std::string iprotocol;
+  std::string working_directory;
+};
+
+struct ResourceDefinitionContainer_cpp : ResourceDefinition_cpp
+{
   std::string OS;
   int  mem_mb;
   int  cpu_clock;
   int  nb_node;
   int  nb_proc_per_node;
-  std::string batch;
-  std::string mpiImpl;
-  std::string iprotocol;
-  bool can_launch_batch_jobs;
-  bool can_run_containers;
-  std::string working_directory;
 };
 
 %exception
@@ -158,31 +175,51 @@ class ResourcesManager_cpp
 {
 public:
   ResourcesManager_cpp(const char *xmlFilePath);
-  std::vector<std::string> GetFittingResources(const resourceParams& params);
+  std::vector<std::string> GetFittingResourcesJob(const resourceParamsJob& params);
+  std::vector<std::string> GetFittingResourcesContainer(const resourceParamsContainer& params);
+
 %extend
 {
-  ResourceDefinition_cpp GetResourceDefinition(const std::string& name)
+  ResourceDefinitionJob_cpp GetResourceDefinitionJob(const std::string& name)
   {
-    ResourceDefinition_cpp swig_result;
-    ParserResourcesType cpp_result = $self->GetResourcesDescr(name);
+    ResourceDefinitionJob_cpp swig_result;
+    ParserResourcesTypeJob cpp_result = $self->GetResourceDefinitionJob(name);
 
-    swig_result.name = cpp_result.Name;
-    swig_result.hostname = cpp_result.HostName;
-    swig_result.type = cpp_result.getResourceTypeStr();
+    // Common params
+    swig_result.name = cpp_result.name;
+    swig_result.hostname = cpp_result.hostname;
     swig_result.protocol = cpp_result.getAccessProtocolTypeStr();
-    swig_result.username = cpp_result.UserName;
-    swig_result.applipath = cpp_result.AppliPath;
-    swig_result.OS = cpp_result.OS;
-    swig_result.mem_mb = cpp_result.DataForSort._memInMB;
-    swig_result.cpu_clock = cpp_result.DataForSort._CPUFreqMHz;
-    swig_result.nb_node = cpp_result.DataForSort._nbOfNodes;
-    swig_result.nb_proc_per_node = cpp_result.DataForSort._nbOfProcPerNode;
+    swig_result.username = cpp_result.username;
+    swig_result.applipath = cpp_result.applipath;
     swig_result.batch = cpp_result.getBatchTypeStr();
+
+    // Job specific params
     swig_result.mpiImpl = cpp_result.getMpiImplTypeStr();
     swig_result.iprotocol = cpp_result.getClusterInternalProtocolStr();
-    swig_result.can_launch_batch_jobs = cpp_result.can_launch_batch_jobs;
-    swig_result.can_run_containers = cpp_result.can_run_containers;
     swig_result.working_directory = cpp_result.working_directory;
+
+    return swig_result;
+  }
+
+  ResourceDefinitionContainer_cpp GetResourceDefinitionContainer(const std::string& name)
+  {
+    ResourceDefinitionContainer_cpp swig_result;
+    ParserResourcesTypeContainer cpp_result = $self->GetResourceDefinitionContainer(name);
+
+    // Common params
+    swig_result.name = cpp_result.name;
+    swig_result.hostname = cpp_result.hostname;
+    swig_result.protocol = cpp_result.getAccessProtocolTypeStr();
+    swig_result.username = cpp_result.username;
+    swig_result.applipath = cpp_result.applipath;
+    swig_result.batch = cpp_result.getBatchTypeStr();
+
+    // Container specific params
+    swig_result.OS = cpp_result.OS;
+    swig_result.mem_mb = cpp_result.dataForSort.mem_mb;
+    swig_result.cpu_clock = cpp_result.dataForSort.cpu_clock;
+    swig_result.nb_node = cpp_result.dataForSort.nb_node;
+    swig_result.nb_proc_per_node = cpp_result.dataForSort.nb_proc_per_node;
 
     return swig_result;
   }
