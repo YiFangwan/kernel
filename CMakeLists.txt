@@ -89,6 +89,7 @@ FIND_PACKAGE(SalomeSWIG REQUIRED)
 FIND_PACKAGE(SalomeLibXml2 REQUIRED)
 FIND_PACKAGE(SalomeHDF5 REQUIRED COMPONENTS C)
 FIND_PACKAGE(SalomeBoost REQUIRED)
+FIND_PACKAGE(SalomeBootstrap REQUIRED)
 
 # Optional prerequisites
 # ======================
@@ -195,7 +196,8 @@ IF(NOT SALOME_LIGHT_ONLY)
 ENDIF()
 ADD_SUBDIRECTORY(src)
 ADD_SUBDIRECTORY(resources)
-ADD_SUBDIRECTORY(bin)
+# Using __RUN_SALOME__ in salome_bootstrap to launch salome
+#ADD_SUBDIRECTORY(bin)
 ADD_SUBDIRECTORY(salome_adm)
 IF(SALOME_BUILD_DOC)
   ADD_SUBDIRECTORY(doc)
