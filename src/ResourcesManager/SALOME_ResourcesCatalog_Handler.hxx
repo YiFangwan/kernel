@@ -53,6 +53,8 @@ public :
   void readXmlDoc(xmlDocPtr theDoc);
   void writeXmlDoc(xmlDocPtr theDoc) const;
 
+  static std::string readAttr(xmlNodePtr node, const xmlChar* attr);
+
 protected:
   void readNodeResourcesJob(xmlNodePtr node);
   void readNodeResourcesContainer(xmlNodePtr node);
@@ -65,8 +67,6 @@ protected:
 
   // void readNodeCluster(xmlNodePtr node);
   // bool readNodeClusterMember(xmlNodePtr node, ParserResourcesTypeContainer& resource);
-
-  static std::string readAttr(xmlNodePtr node, const xmlChar* attr);
 
   void writeNodeResourcesJob(xmlNodePtr node) const;
   void writeNodeResourcesContainer(xmlNodePtr node) const;
