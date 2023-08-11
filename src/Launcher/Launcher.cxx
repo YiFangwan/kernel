@@ -493,17 +493,9 @@ Launcher_cpp::getJobParameters(int job_id)
   job_parameters.wckey            = job->getWCKey();
   job_parameters.extra_params     = job->getExtraParams();
 
-  resourceParamsContainer resource_params = job->getResourceRequiredParams();
-  job_parameters.resource_required.name             = resource_params.name;
-  job_parameters.resource_required.hostname         = resource_params.hostname;
-  job_parameters.resource_required.OS               = resource_params.OS;
-  job_parameters.resource_required.nb_proc          = resource_params.nb_proc;
-  job_parameters.resource_required.nb_node          = resource_params.nb_node;
-  job_parameters.resource_required.nb_proc_per_node = resource_params.nb_proc_per_node;
-  job_parameters.resource_required.cpu_clock        = resource_params.cpu_clock;
-  job_parameters.resource_required.mem_mb           = resource_params.mem_mb;
+  job_parameters.resource_required = job->getResourceRequiredParams();
 
-  job_parameters.specific_parameters                = job->getSpecificParameters();
+  job_parameters.specific_parameters = job->getSpecificParameters();
 
   return job_parameters;
 }
@@ -548,15 +540,15 @@ Launcher_cpp::createJobWithFile(const std::string xmlExecuteFile,
   for(size_t i=0; i < job_params.OutputFile.size();i++)
     new_job->add_out_file(job_params.OutputFile[i]);
 
-  resourceParamsContainer p;
+  resourceParamsJob p;
   p.hostname = clusterName;
   p.name = "";
-  p.OS = "";
-  p.nb_proc = job_params.NbOfProcesses;
-  p.nb_node = 0;
-  p.nb_proc_per_node = 0;
-  p.cpu_clock = 0;
-  p.mem_mb = 0;
+  // p.OS = "";
+  // p.nb_proc = job_params.NbOfProcesses;
+  // p.nb_node = 0;
+  // p.nb_proc_per_node = 0;
+  // p.cpu_clock = 0;
+  // p.mem_mb = 0;
   new_job->setResourceRequiredParams(p);
 
   createJob(new_job.get());
@@ -862,12 +854,12 @@ Launcher_cpp::getBatchManager(Launcher::Job * job)
 
   // Select a resource for the job
   std::vector<std::string> ResourceList;
-  resourceParamsContainer params = job->getResourceRequiredParams();
+  resourceParamsJob params = job->getResourceRequiredParams();
   // Consider only resources that can launch batch jobs
 
   try
   {
-    ResourceList = _ResManager->GetFittingResourcesContainer(params);
+    ResourceList = _ResManager->GetFittingResourcesJob(params);
   }
   catch(const ResourcesException &ex)
   {

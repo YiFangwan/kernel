@@ -24,10 +24,9 @@ jp.job_type = "command"
 jp.job_file = "/home/I35256/salome/scripts/job_sh/script.sh"
 jp.work_directory = "/tmp/wd"
 jp.result_directory = "/tmp/rd"
-rp = pylauncher.resourceParamsContainer()
+rp = pylauncher.resourceParamsJob()
 rp.name="localhost"
 rp.hostname="localhost"
-rp.nb_proc = 1
 jp.resource_required = rp
 launcher = pylauncher.Launcher_cpp()
 # no catalog. localhost is defined anyway

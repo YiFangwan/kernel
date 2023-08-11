@@ -52,7 +52,7 @@ def createJobParameters():
   return jp
 
 def createResourceParameters():
-  return pylauncher.resourceParamsContainer()
+  return pylauncher.resourceParamsJob()
 
 # Test of SalomeLauncher.
 # This test should be run in the salome environment, using "salome shell".
@@ -77,7 +77,7 @@ class TestCompo(unittest.TestCase):
     # Get the list of possible ressources
     ressource_param = createResourceParameters()
     rm = createResourcesManager()
-    cls.ressources = rm.GetFittingResourcesContainer(ressource_param)
+    cls.ressources = rm.GetFittingResourcesJob(ressource_param)
 
   def verifyFile(self, path, content):
     try:
@@ -91,7 +91,6 @@ class TestCompo(unittest.TestCase):
   def create_JobParameters(self):
     job_params = createJobParameters()
     job_params.wckey="P11U5:CARBONES" #needed by edf clusters
-    job_params.resource_required.nb_proc = 1
     return job_params
 
   ##############################

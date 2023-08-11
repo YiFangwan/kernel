@@ -628,7 +628,7 @@ SALOME_Launcher::JobParameters_CORBA2CPP(
   result.result_directory = job_parameters.result_directory.in();
   result.maximum_duration = job_parameters.maximum_duration.in();
 
-  result.resource_required = resourceParametersContainer_CORBAtoCPP(job_parameters.resource_required);
+  result.resource_required = resourceParametersJob_CORBAtoCPP(job_parameters.resource_required);
 
   result.queue = job_parameters.queue.in();
   result.partition = job_parameters.partition.in();
@@ -677,7 +677,7 @@ SALOME_Launcher::JobParameters_CPP2CORBA(const JobParameters_cpp& job_parameters
   result->result_directory = CORBA::string_dup(job_parameters.result_directory.c_str());
   result->maximum_duration = CORBA::string_dup(job_parameters.maximum_duration.c_str());
 
-  result->resource_required = resourceParametersContainer_CPPtoCORBA(job_parameters.resource_required);
+  result->resource_required = resourceParametersJob_CPPtoCORBA(job_parameters.resource_required);
 
   result->queue = CORBA::string_dup(job_parameters.queue.c_str());
   result->partition = CORBA::string_dup(job_parameters.partition.c_str());

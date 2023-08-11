@@ -112,7 +112,7 @@ public:
   std::string local_directory;
   std::string result_directory;
   std::string maximum_duration;
-  resourceParamsContainer resource_required;
+  resourceParamsJob resource_required;
   std::string queue;
   std::string partition;
   bool exclusive;

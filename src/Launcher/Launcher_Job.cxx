@@ -315,7 +315,7 @@ Launcher::Job::setLauncherArgs(const std::string & launcher_args)
 }
 
 void
-Launcher::Job::setResourceRequiredParams(const resourceParamsContainer& resource_required_params)
+Launcher::Job::setResourceRequiredParams(const resourceParamsJob& resource_required_params)
 {
   checkResourceRequiredParams(resource_required_params);
   _resource_required_params = resource_required_params;
@@ -422,7 +422,7 @@ Launcher::Job::getLauncherArgs() const
         return _launcher_args;
 }
 
-resourceParamsContainer
+resourceParamsJob
 Launcher::Job::getResourceRequiredParams() const
 {
   return _resource_required_params;
@@ -527,7 +527,7 @@ Launcher::Job::checkMaximumDuration(const std::string & maximum_duration)
 }
 
 void
-Launcher::Job::checkResourceRequiredParams(const resourceParamsContainer& resource_required_params)
+Launcher::Job::checkResourceRequiredParams(const resourceParamsJob& resource_required_params)
 {
   // TODO: check if we need this check for a job:
   // nb_proc has be to > 0

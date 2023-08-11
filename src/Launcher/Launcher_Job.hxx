@@ -71,7 +71,7 @@ namespace Launcher
       void add_in_file(const std::string & file);
       void add_out_file(const std::string & file);
       void setMaximumDuration(const std::string & maximum_duration);
-      void setResourceRequiredParams(const resourceParamsContainer & resource_required_params);
+      void setResourceRequiredParams(const resourceParamsJob& resource_required_params);
       void setQueue(const std::string & queue);
       void setPartition(const std::string & partition);
       void setEnvFile(const std::string & env_file);
@@ -94,7 +94,7 @@ namespace Launcher
       const std::list<std::string> & get_in_files() const;
       const std::list<std::string> & get_out_files() const;
       std::string getMaximumDuration() const;
-      resourceParamsContainer getResourceRequiredParams() const;
+      resourceParamsJob getResourceRequiredParams() const;
       std::string getQueue() const;
       std::string getPartition() const;
       std::string getEnvFile() const;
@@ -119,7 +119,7 @@ namespace Launcher
 
       // Checks
       void checkMaximumDuration(const std::string & maximum_duration);
-      void checkResourceRequiredParams(const resourceParamsContainer & resource_required_params);
+      void checkResourceRequiredParams(const resourceParamsJob& resource_required_params);
 
       // Helps
       long convertMaximumDuration(const std::string & maximum_duration);
@@ -157,7 +157,7 @@ namespace Launcher
       std::map<std::string, std::string> _specific_parameters;
       std::string _maximum_duration;
       long _maximum_duration_in_second;
-      resourceParamsContainer _resource_required_params;
+      resourceParamsJob _resource_required_params;
       std::string _queue;
       std::string _partition;
       bool _exclusive;

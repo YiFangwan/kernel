@@ -175,7 +175,7 @@ XML_Persistence::addJobToXmlDocument(xmlNodePtr root_node, const Job & job)
   }
 
   // Resource part
-  resourceParamsContainer resource_params = job.getResourceRequiredParams();
+  const resourceParamsJob resource_params = job.getResourceRequiredParams();
   xmlNodePtr res_node = addNode(node, "resource_params", "");
   addNode(res_node, "name", resource_params.name);
   if (!resource_params.hostname.empty())
@@ -394,7 +394,7 @@ XML_Persistence::parseUserNode(Job * new_job, xmlNodePtr user_node)
 void
 XML_Persistence::parseResourceNode(Job * new_job, xmlNodePtr res_node)
 {
-  resourceParamsContainer p;
+  resourceParamsJob p;
   xmlNodePtr current_node = xmlFirstElementChild(res_node);
   while (current_node != NULL)
   {
@@ -403,20 +403,20 @@ XML_Persistence::parseResourceNode(Job * new_job, xmlNodePtr res_node)
       p.name = getNodeContent(current_node);
     else if (node_name == "hostname")
       p.hostname = getNodeContent(current_node);
-    else if (node_name == "OS")
-      p.OS = getNodeContent(current_node);
-    else if (node_name == "nb_proc")
-      p.nb_proc = getNumericalNodeContent<long>(current_node);
-    else if (node_name == "nb_node")
-      p.nb_node = getNumericalNodeContent<long>(current_node);
-    else if (node_name == "nb_proc_per_node")
-      p.nb_proc_per_node = getNumericalNodeContent<long>(current_node);
-    else if (node_name == "cpu_clock")
-      p.cpu_clock = getNumericalNodeContent<long>(current_node);
-    else if (node_name == "mem_mb")
-      p.mem_mb = getNumericalNodeContent<long>(current_node);
-    else if (node_name == "mem_per_cpu")
-      new_job->setMemPerCpu(getNumericalNodeContent<long>(current_node));
+    // else if (node_name == "OS")
+    //   p.OS = getNodeContent(current_node);
+    // else if (node_name == "nb_proc")
+    //   p.nb_proc = getNumericalNodeContent<long>(current_node);
+    // else if (node_name == "nb_node")
+    //   p.nb_node = getNumericalNodeContent<long>(current_node);
+    // else if (node_name == "nb_proc_per_node")
+    //   p.nb_proc_per_node = getNumericalNodeContent<long>(current_node);
+    // else if (node_name == "cpu_clock")
+    //   p.cpu_clock = getNumericalNodeContent<long>(current_node);
+    // else if (node_name == "mem_mb")
+    //   p.mem_mb = getNumericalNodeContent<long>(current_node);
+    // else if (node_name == "mem_per_cpu")
+    //   new_job->setMemPerCpu(getNumericalNodeContent<long>(current_node));
     else
       throw LauncherException(string("invalid node \"") + node_name + "\"");
     current_node = xmlNextElementSibling(current_node);

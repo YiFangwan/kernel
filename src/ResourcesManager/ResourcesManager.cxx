@@ -139,6 +139,17 @@ namespace
     // }
   }
 
+  template<typename T> ResourceList GetAllResources(const T& resources)
+  {
+    ResourceList result;
+    for (const auto& res : resources)
+    {
+      result.push_back(res.first);
+    }
+
+    return result;
+  }
+
   template<typename T> ResourceList GetResourcesByHostname(const std::string& hostnameIn, const T& resourceList)
   {
     if (hostnameIn.empty())
@@ -336,6 +347,12 @@ ResourceList ResourcesManager_cpp::GetFittingResourcesJob(const resourceParamsJo
     }
 
     throw ResourcesException("Resource name was not found in resource list! Requested name: " + params.name);
+  }
+
+  if (params.hostname.empty())
+  {
+    // Use all available resources
+    return GetAllResources(_resourcesListJob);
   }
 
   // Step 3

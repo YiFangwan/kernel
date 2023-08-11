@@ -82,8 +82,7 @@ class TestCompo(unittest.TestCase):
   def create_JobParameters(self):
     job_params = salome.JobParameters()
     job_params.wckey="P11N0:SALOME" #needed by edf clusters
-    job_params.resource_required = salome.ResourceParametersContainer()
-    job_params.resource_required.nb_proc = 1
+    job_params.resource_required = salome.ResourceParametersJob()
     return job_params
 
   ##############################

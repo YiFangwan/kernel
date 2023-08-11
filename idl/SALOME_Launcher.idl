@@ -137,7 +137,7 @@ struct JobParameters
       - mem_mb -> Memory expressed in megabytes.
       - nb_proc -> Number of Processors.
   */
-  ResourceParametersContainer resource_required;
+  ResourceParametersJob resource_required;
 
   //!  Name of the batch queue chosen - optional
   string queue;
@@ -150,7 +150,7 @@ struct JobParameters
   //! Specifies if the job must run in exclusive mode (without sharing nodes with other jobs)
   boolean exclusive;
 
-  //! Specifies the memory limit per cpu (exclusive with resource_required.mem_mb)
+  //! Specifies the memory limit per cpu
   unsigned long mem_per_cpu;
 
   //! Workload Characterization Key - mandatory on some clusters
