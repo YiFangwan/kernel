@@ -65,10 +65,10 @@ class TestCompo(unittest.TestCase):
 #    salome_runtime.addCatalog(session_catalog)
 
     # Get the list of possible ressources
-    ressource_param = salome.ResourceParametersContainer()
+    ressource_param = salome.ResourceParametersJob()
 
     rm = salome.lcc.getResourcesManager()
-    cls.ressources = rm.GetFittingResourcesContainer(ressource_param)
+    cls.ressources = rm.GetFittingResourcesJob(ressource_param)
 
   def verifyFile(self, path, content):
     try:
